@@ -1,0 +1,173 @@
+# Architect's reading for the rulings on RF-128 and RF-135, with main at e57c9f074 merged: candidate rows and mutations in list-item.spec (ruling.mjs.txt). The LAYOUT rows fail in each run and read nothing: the slot has its content's height.
+## the branch as it is, the rows added | chromium | Tests  8 failed | 137 passed (145)
+   CANDIDATE handle in mx-list-item > should leave a data-handle in the overline slot its own
+   CANDIDATE handle in mx-list-item > should leave a data-handle in the support slot its own
+   CANDIDATE handle in mx-list-item > should leave a data-handle in the  slot its own
+   CANDIDATE handle in mx-list-button-item > should leave a data-handle in the overline slot its own
+   CANDIDATE handle in mx-list-button-item > should leave a data-handle in the support slot its own
+   CANDIDATE handle in mx-list-button-item > should leave a data-handle in the  slot its own
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## the branch as it is, the rows added | firefox | Tests  8 failed | 137 passed (145)
+   CANDIDATE handle in mx-list-item > should leave a data-handle in the overline slot its own
+   CANDIDATE handle in mx-list-item > should leave a data-handle in the support slot its own
+   CANDIDATE handle in mx-list-item > should leave a data-handle in the  slot its own
+   CANDIDATE handle in mx-list-button-item > should leave a data-handle in the overline slot its own
+   CANDIDATE handle in mx-list-button-item > should leave a data-handle in the support slot its own
+   CANDIDATE handle in mx-list-button-item > should leave a data-handle in the  slot its own
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## the branch as it is, the rows added | webkit | Tests  8 failed | 137 passed (145)
+   CANDIDATE handle in mx-list-item > should leave a data-handle in the overline slot its own
+   CANDIDATE handle in mx-list-item > should leave a data-handle in the support slot its own
+   CANDIDATE handle in mx-list-item > should leave a data-handle in the  slot its own
+   CANDIDATE handle in mx-list-button-item > should leave a data-handle in the overline slot its own
+   CANDIDATE handle in mx-list-button-item > should leave a data-handle in the support slot its own
+   CANDIDATE handle in mx-list-button-item > should leave a data-handle in the  slot its own
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed | chromium | Tests  2 failed | 143 passed (145)
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed | firefox | Tests  2 failed | 143 passed (145)
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed | webkit | Tests  2 failed | 143 passed (145)
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, always | chromium | Tests  10 failed | 135 passed (145)
+   CANDIDATE handle in mx-list-item > in the lead slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-item > in the trail slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-item > in the lead slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-item > in the trail slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, always | firefox | Tests  10 failed | 135 passed (145)
+   CANDIDATE handle in mx-list-item > in the lead slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-item > in the trail slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-item > in the lead slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-item > in the trail slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, always | webkit | Tests  11 failed | 134 passed (145)
+   mx-list-button-item focus indicator contract > should render the indicator thickness
+   CANDIDATE handle in mx-list-item > in the lead slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-item > in the trail slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-item > in the lead slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-item > in the trail slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, :focus | chromium | Tests  6 failed | 139 passed (145)
+   CANDIDATE handle in mx-list-item > in the lead slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-item > in the trail slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, :focus | firefox | Tests  6 failed | 139 passed (145)
+   CANDIDATE handle in mx-list-item > in the lead slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-item > in the trail slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, :focus | webkit | Tests  6 failed | 139 passed (145)
+   CANDIDATE handle in mx-list-item > in the lead slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-item > in the trail slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should draw no indicator after a mouse click
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, any child | chromium | Tests  6 failed | 139 passed (145)
+   CANDIDATE handle in mx-list-item > in the lead slot > should leave a focusable child without data-handle its own
+   CANDIDATE handle in mx-list-item > in the trail slot > should leave a focusable child without data-handle its own
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should leave a focusable child without data-handle its own
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should leave a focusable child without data-handle its own
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, any child | firefox | Tests  7 failed | 138 passed (145)
+   handle focus indicator in mx-list-button-item > in the trail slot > of mx-icon > should render the indicator offset
+   CANDIDATE handle in mx-list-item > in the lead slot > should leave a focusable child without data-handle its own
+   CANDIDATE handle in mx-list-item > in the trail slot > should leave a focusable child without data-handle its own
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should leave a focusable child without data-handle its own
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should leave a focusable child without data-handle its own
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, any child | webkit | Tests  6 failed | 139 passed (145)
+   CANDIDATE handle in mx-list-item > in the lead slot > should leave a focusable child without data-handle its own
+   CANDIDATE handle in mx-list-item > in the trail slot > should leave a focusable child without data-handle its own
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should leave a focusable child without data-handle its own
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should leave a focusable child without data-handle its own
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, dashed | chromium | Tests  6 failed | 139 passed (145)
+   CANDIDATE handle in mx-list-item > in the lead slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-item > in the trail slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, dashed | firefox | Tests  6 failed | 139 passed (145)
+   CANDIDATE handle in mx-list-item > in the lead slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-item > in the trail slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, dashed | webkit | Tests  6 failed | 139 passed (145)
+   CANDIDATE handle in mx-list-item > in the lead slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-item > in the trail slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-button-item > in the lead slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-button-item > in the trail slot > should be solid while focused, and none without focus
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, no align-content in .trail | chromium | Tests  2 failed | 143 passed (145)
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, no align-content in .trail | firefox | Tests  2 failed | 143 passed (145)
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+## narrowed, no align-content in .trail | webkit | Tests  2 failed | 143 passed (145)
+   CANDIDATE handle in mx-list-item > LAYOUT trail centre
+   CANDIDATE handle in mx-list-button-item > LAYOUT trail centre
+
+# The second reading (ruling-2.mjs.txt): the trail slot's box, a consumer's element, and the existing rows three times
+## read | chromium | Tests  4 failed | 125 passed (129)
+   READ mx-list-item > trail
+   READ mx-list-button-item > trail
+   Error: READ slot 72,16 child 73,13 item 88
+   READ mx-list-item > grip
+   READ mx-list-button-item > grip
+   Error: READ grip rgb(75, 102, 42) solid 3px || rgb(1, 2, 3) double 5px
+## read | firefox | Tests  4 failed | 125 passed (129)
+   READ mx-list-item > trail
+   READ mx-list-button-item > trail
+   Error: READ slot 72,16 child 73,14 item 88
+   READ mx-list-item > grip
+   READ mx-list-button-item > grip
+   Error: READ grip rgb(75, 102, 42) solid 3px || rgb(1, 2, 3) double 5px
+## read | webkit | Tests  4 failed | 125 passed (129)
+   READ mx-list-item > trail
+   READ mx-list-button-item > trail
+   Error: READ slot 72,16 child 74,13 item 88
+   READ mx-list-item > grip
+   READ mx-list-button-item > grip
+   Error: READ grip 3px solid rgb(75, 102, 42) || 5px double rgb(1, 2, 3)
+## narrowed, existing rows, run 1 | firefox | Tests  125 passed (125)
+## narrowed, existing rows, run 1 | webkit | Tests  125 passed (125)
+## narrowed, existing rows, run 2 | firefox | Tests  125 passed (125)
+## narrowed, existing rows, run 2 | webkit | Tests  125 passed (125)
+## narrowed, existing rows, run 3 | firefox | Tests  125 passed (125)
+## narrowed, existing rows, run 3 | webkit | Tests  125 passed (125)

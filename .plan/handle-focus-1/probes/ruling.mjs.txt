@@ -1,0 +1,72 @@
+// Run from the repository root, with a clean tree: it edits two files and restores them.
+import { spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+const MX=process.cwd()+'/packages/material-x/';
+const T=MX+'tests/list/list-item.spec.browser.test.ts', CSS=MX+'src/list/styles/item/main.styles.css';
+const orig=new Map([T,CSS].map(f=>[f,readFileSync(f,'utf8')]));
+const once=(s,a,b)=>{if(s.split(a).length!==2)throw new Error(a);return s.replace(a,()=>b);};
+const rows=s=>once(s,"type ControlCase = Readonly<{",`describe.each(SORTABLE_ITEMS)('CANDIDATE handle in %s', (tag) => {
+  const styleOf = (element: Element): string => getComputedStyle(element).outlineStyle;
+
+  describe.each(CONTROL_SLOTS)('in the %s slot', (slot) => {
+    it('should be solid while focused, and none without focus', async () => {
+      const handle = createHandle('mx-icon');
+      const frame = await createListWithControl('mx-sortable-list', tag, handle, slot);
+      const before = styleOf(handle);
+      await focusControl(frame, handle);
+      expect([before, styleOf(handle)]).toEqual(['none', 'solid']);
+    });
+
+    it('should draw no indicator after a mouse click', async () => {
+      const handle = createHandle('mx-icon');
+      await createListWithControl('mx-sortable-list', tag, handle, slot);
+      await userEvent.click(handle);
+      expect(document.activeElement).toBe(handle);
+      expect(styleOf(handle)).toBe('none');
+    });
+
+    it('should leave a focusable child without data-handle its own', async () => {
+      const child = document.createElement('span');
+      child.tabIndex = 0;
+      child.textContent = 'x';
+      const frame = await createListWithControl('mx-list', tag, child, slot);
+      await focusControl(frame, child);
+      expect(styleOf(child)).not.toBe('solid');
+    });
+  });
+
+  it.each(['overline', 'support', ''])('should leave a data-handle in the %s slot its own', async (slot) => {
+    const child = createHandle('span');
+    child.tabIndex = 0;
+    const frame = await createListWithControl('mx-sortable-list', tag, child, slot as ControlSlot);
+    await focusControl(frame, child);
+    expect(styleOf(child)).not.toBe('solid');
+  });
+
+  it('LAYOUT trail centre', async () => {
+    const child = document.createElement('span');
+    child.textContent = 'x';
+    const frame = await createListWithControl('mx-list', tag, child, 'trail');
+    const item = frame.querySelector(tag)!;
+    for (const s of ['overline', 'support']) { const e = document.createElement('span'); e.slot = s; e.textContent = s; item.append(e); }
+    await nextFrame();
+    const c = child.getBoundingClientRect(); const t = item.shadowRoot!.querySelector('.trail')!.getBoundingClientRect();
+    expect([Math.round(c.top + c.height / 2 - t.top - t.height / 2), Math.round(t.height - c.height) > 4]).toEqual([0, true]);
+  });
+});
+
+type ControlCase = Readonly<{`);
+const NARROW=s=>once(s,"::slotted([data-handle]:focus-visible) {",":is(.lead, .trail)::slotted([data-handle]:focus-visible) {");
+const m=(a,b)=>s=>once(NARROW(s),a,b);
+const N=":is(.lead, .trail)::slotted([data-handle]:focus-visible) {";
+const muts=[['the branch as it is, the rows added',s=>s],['narrowed',NARROW],
+['narrowed, always',m(N,":is(.lead, .trail)::slotted([data-handle]) {")],
+['narrowed, :focus',m(N,":is(.lead, .trail)::slotted([data-handle]:focus) {")],
+['narrowed, any child',m(N,":is(.lead, .trail)::slotted(:focus-visible) {")],
+['narrowed, dashed',m("solid var(--_focus-indicator-color)","dashed var(--_focus-indicator-color)")],
+['narrowed, no align-content in .trail',s=>once(NARROW(s),"  align-content: center;\n  margin-inline-start: var(--_between-space);","  margin-inline-start: var(--_between-space);")]];
+try{for(const[name,f]of muts){writeFileSync(T,rows(orig.get(T)));writeFileSync(CSS,f(orig.get(CSS)));
+ for(const e of ['chromium','firefox','webkit']){const r=spawnSync('aube',['exec','vitest','run','-c','vitest.config.ts','tests/list/list-item.spec'],{cwd:MX,encoding:'utf8',env:{...process.env,NO_COLOR:'1',MX_TEST_ENGINES:e}});const out=r.stdout+r.stderr;
+  console.log(`## ${name} | ${e} | ${/^ +Tests +.*$/m.exec(out)?.[0].trim()??out.slice(-500)}`);
+  for(const l of new Set(out.split('\n').filter(l=>/FAIL /.test(l))))console.log('   '+l.replace(/^.*?test\.ts(?::\d+)? > /u,'').trim());}}}
+finally{for(const[f,s]of orig)writeFileSync(f,s);}

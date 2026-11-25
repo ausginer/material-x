@@ -1,0 +1,30 @@
+diff --git a/packages/material-x/src/list/styles/item/main.styles.css b/packages/material-x/src/list/styles/item/main.styles.css
+index 16ecce75a..cb7b57bd9 100644
+--- a/packages/material-x/src/list/styles/item/main.styles.css
++++ b/packages/material-x/src/list/styles/item/main.styles.css
+@@ -60,6 +60,12 @@ slot:has-slotted {
+   --_leading-space: 0;
+ }
+ 
++/* The consumer's element, so a page's own rule on it wins. */
++::slotted([data-handle]:focus-visible) {
++  outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
++  outline-offset: var(--_handle-focus-indicator-outline-offset);
++}
++
+ .content {
+   flex: 1 1 auto;
+   display: flex;
+diff --git a/packages/material-x/src/list/styles/item/tokens.ts b/packages/material-x/src/list/styles/item/tokens.ts
+index cfcb1dc00..27cc1ed40 100644
+--- a/packages/material-x/src/list/styles/item/tokens.ts
++++ b/packages/material-x/src/list/styles/item/tokens.ts
+@@ -20,6 +20,8 @@ const SPECIAL_TOKENS = {
+   'ripple.color': CSSVariable.ref('state-layer.color'),
+   'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
+   'shadow.color': 'md.comp.list.reorder.list-item.shadow-color',
++  'handle.focus.indicator.outline.offset':
++    'md.sys.state.focus-indicator.outer-offset',
+ };
+ 
+ const SPECIAL_DISABLED_TOKENS = {

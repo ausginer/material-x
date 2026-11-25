@@ -1,0 +1,18 @@
+# chromium 158.0.8127.18
+a consumer's element, :host(:focus-visible) { outline: 4px dotted red } | with the rule: solid 3px rgb(75, 102, 42) 2px, 371 px, 243 in the indicator's color | without the rule: dotted 4px rgb(255, 0, 0) 1px, 201 px, 0 in the indicator's color
+a consumer's element, outline: none on :host, and its own on an inner box | with the rule: solid 3px rgb(75, 102, 42) 2px, 464 px, 243 in the indicator's color | without the rule: none 3px rgb(25, 29, 19) 0px, 116 px, 0 in the indicator's color
+a b of the label slot, tabindex | with the rule: solid 3px rgb(75, 102, 42) 2px, 183 px, 183 in the indicator's color | without the rule: auto 1px rgb(16, 16, 16) 0px, 288 px, 6 in the indicator's color
+the same, display: block | with the rule: solid 3px rgb(75, 102, 42) 2px, 824 px, 804 in the indicator's color | without the rule: auto 1px rgb(16, 16, 16) 0px, 1148 px, 2 in the indicator's color
+mx-icon in support, tabindex | with the rule: solid 3px rgb(75, 102, 42) 2px, 105 px, 105 in the indicator's color | without the rule: auto 1px rgb(16, 16, 16) 0px, 120 px, 4 in the indicator's color
+# firefox 159.0
+a consumer's element, :host(:focus-visible) { outline: 4px dotted red } | with the rule: solid 3px rgb(75, 102, 42) 2px, 376 px, 243 in the indicator's color | without the rule: dotted 4px rgb(255, 0, 0) 1px, 192 px, 0 in the indicator's color
+a consumer's element, outline: none on :host, and its own on an inner box | with the rule: solid 3px rgb(75, 102, 42) 2px, 467 px, 228 in the indicator's color | without the rule: none 3px rgb(25, 29, 19) 0px, 114 px, 0 in the indicator's color
+a b of the label slot, tabindex | with the rule: solid 3px rgb(75, 102, 42) 2px, 72 px, 72 in the indicator's color | without the rule: auto 1px rgb(25, 29, 19) 0px, 164 px, 0 in the indicator's color
+the same, display: block | with the rule: solid 3px rgb(75, 102, 42) 2px, 824 px, 804 in the indicator's color | without the rule: auto 1px rgb(25, 29, 19) 0px, 824 px, 0 in the indicator's color
+mx-icon in support, tabindex | with the rule: solid 3px rgb(75, 102, 42) 2px, 108 px, 108 in the indicator's color | without the rule: auto 1px rgb(66, 73, 55) 0px, 107 px, 0 in the indicator's color
+# webkit 27.2
+a consumer's element, :host(:focus-visible) { outline: 4px dotted red } | with the rule: solid 3px rgb(75, 102, 42) 2px, 370 px, 241 in the indicator's color | without the rule: dotted 4px rgb(255, 0, 0) 1px, 273 px, 1 in the indicator's color
+a consumer's element, outline: none on :host, and its own on an inner box | with the rule: solid 3px rgb(75, 102, 42) 2px, 457 px, 241 in the indicator's color | without the rule: none 3px rgb(25, 29, 19) 0px, 110 px, 0 in the indicator's color
+a b of the label slot, tabindex | with the rule: solid 3px rgb(75, 102, 42) 2px, 72 px, 72 in the indicator's color | without the rule: auto 3px rgb(25, 29, 19) 0px, 178 px, 0 in the indicator's color
+the same, display: block | with the rule: solid 3px rgb(75, 102, 42) 2px, 822 px, 804 in the indicator's color | without the rule: auto 3px rgb(25, 29, 19) 0px, 566 px, 0 in the indicator's color
+mx-icon in support, tabindex | with the rule: solid 3px rgb(75, 102, 42) 2px, 108 px, 108 in the indicator's color | without the rule: auto 3px rgb(66, 73, 55) 0px, 87 px, 0 in the indicator's color

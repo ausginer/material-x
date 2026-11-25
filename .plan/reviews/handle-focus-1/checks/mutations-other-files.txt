@@ -1,0 +1,10 @@
+The three mutations of the rule that the spec file passes, with tests/list and tests/core/focus-layer.spec.browser.test.ts, Chromium.
+s/::slotted(\[data-handle\]:focus-visible)/::slotted([data-handle])/
+ Test Files  6 passed (6)
+      Tests  379 passed (379)
+s/::slotted(\[data-handle\]:focus-visible)/::slotted([data-handle]:focus)/
+ Test Files  6 passed (6)
+      Tests  379 passed (379)
+s/::slotted(\[data-handle\]:focus-visible)/::slotted(:focus-visible)/
+ Test Files  6 passed (6)
+      Tests  379 passed (379)
