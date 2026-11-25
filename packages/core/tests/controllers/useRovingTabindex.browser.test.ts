@@ -288,6 +288,107 @@ describe('useRovingTabindex', () => {
       expectTabStop([first, second], second);
     });
 
+    it('should give the tab stop to an item put first when focus chose none', async () => {
+      const host = createHost();
+      const item = createItem({ value: 'item' });
+      const added = createItem({ value: 'added' });
+
+      await mountHost(host, item);
+      host.prepend(added);
+      await nextFrame();
+
+      expectTabStop([added, item], added);
+    });
+
+    it('should keep the tab stop that focus chose when an item is put first', async () => {
+      const host = createHost();
+      const first = createItem({ value: 'first' });
+      const second = createItem({ value: 'second' });
+      const added = createItem({ value: 'added' });
+
+      await mountHost(host, first, second);
+      second.focus();
+      second.blur();
+      host.prepend(added);
+      await nextFrame();
+
+      expectTabStop([added, first, second], second);
+    });
+
+    it('should move the tab stop to the first item when the host value stops matching and focus chose none', async () => {
+      const host = createHost();
+      const first = createItem({ value: 'first' });
+      const second = createItem({ value: 'second' });
+
+      host.value = 'second';
+      await mountHost(host, first, second);
+      host.value = 'missing';
+
+      expectTabStop([first, second], first);
+    });
+
+    it('should move the tab stop to the item that focus chose when the host value stops matching', async () => {
+      const host = createHost();
+      const first = createItem({ value: 'first' });
+      const second = createItem({ value: 'second' });
+      const third = createItem({ value: 'third' });
+
+      await mountHost(host, first, second, third);
+      second.focus();
+      second.blur();
+      host.value = 'third';
+      host.value = 'missing';
+
+      expectTabStop([first, second, third], second);
+    });
+
+    it('should forget the item that focus chose when it leaves the slot', async () => {
+      const host = createHost();
+      const first = createItem({ value: 'first' });
+      const second = createItem({ value: 'second' });
+
+      await mountHost(host, first, second);
+      second.focus();
+      second.remove();
+      await nextFrame();
+      host.append(second);
+      await nextFrame();
+
+      expectTabStop([first, second], first);
+    });
+
+    describe('with an item focused in the task that adds it', () => {
+      async function mountFocused() {
+        const host = createHost();
+        const first = createItem({ value: 'first' });
+        const second = createItem({ value: 'second' });
+
+        await mountHost(host, first);
+        host.append(second);
+        second.focus();
+        await nextFrame();
+
+        return { host, first, second };
+      }
+
+      it('should give the tab stop to it', async () => {
+        const { first, second } = await mountFocused();
+
+        expectTabStop([first, second], second);
+      });
+
+      it('should keep the tab stop on it after it is blurred', async () => {
+        const { host, first, second } = await mountFocused();
+        const added = createItem({ value: 'added' });
+
+        second.blur();
+        host.prepend(added);
+        await nextFrame();
+
+        expectTabStop([added, first, second], second);
+      });
+    });
+
     it('should observe a custom slot selector when provided', async () => {
       const host = createHost({
         slotName: 'items',
@@ -555,7 +656,7 @@ describe('useRovingTabindex', () => {
         expectTabStop([late, item], item);
       });
 
-      it('should keep the tab stop that focus moved away from the host value', async () => {
+      it('should give the tab stop back to the item of the host value when focus moved it away', async () => {
         const { host, late, item, define } = await mountMixed();
         const matching = createItem({ value: 'matching' });
 
@@ -565,10 +666,10 @@ describe('useRovingTabindex', () => {
         item.focus();
         await define();
 
-        expectTabStop([late, item, matching], item);
+        expectTabStop([late, item, matching], matching);
       });
 
-      it('should keep the tab stop of an item that was there before the late one', async () => {
+      it('should give the tab stop to the late item when an item was there before it', async () => {
         const tag = nameCE();
         const host = createHost();
         const [late] = cloneItems(tag, 'late');
@@ -580,8 +681,57 @@ describe('useRovingTabindex', () => {
         defineCE(tag, class extends LateItem {});
         await nextFrame();
 
-        expectTabStop([late!, item], item);
+        expectTabStop([late!, item], late);
       });
+    });
+
+    it('should give the tab stop to the first of the late items defined in reverse order', async () => {
+      const [firstTag, lastTag] = [nameCE(), nameCE()];
+      const host = createHost();
+      const [first] = cloneItems(firstTag, 'first');
+      const [last] = cloneItems(lastTag, 'last');
+
+      await mountHost(host, first!, last!);
+      defineCE(lastTag, class extends LateItem {});
+      await nextFrame();
+      defineCE(firstTag, class extends LateItem {});
+      await nextFrame();
+
+      expectTabStop([first!, last!], first);
+    });
+
+    it('should keep the tab stop of an item put first when a late item behind it is defined', async () => {
+      const tag = nameCE();
+      const host = createHost();
+      const item = createItem({ value: 'item' });
+      const [late] = cloneItems(tag, 'late');
+      const added = createItem({ value: 'added' });
+
+      await mountHost(host, item, late!);
+      host.prepend(added);
+      await nextFrame();
+      defineCE(tag, class extends LateItem {});
+      await nextFrame();
+
+      expectTabStop([added, item, late!], added);
+    });
+
+    it('should manage an item added in the task of the definition', async () => {
+      const tag = nameCE();
+      const host = createHost();
+      const [late] = cloneItems(tag, 'late');
+      const added = createItem({ value: 'added' });
+
+      await mountHost(host, late!);
+      // The slot change finds the late item defined, so only the wait of the
+      // first one reads after it.
+      host.append(added);
+      defineCE(tag, class extends LateItem {});
+      await nextFrame();
+      late!.focus();
+      await userEvent.setup().keyboard('{ArrowRight}');
+
+      expect(document.activeElement).toBe(added);
     });
 
     it('should not manage an item that left the slot before its definition', async () => {

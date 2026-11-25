@@ -54,6 +54,8 @@ type Direction = typeof DIRECTION_LEFT | typeof DIRECTION_RIGHT;
 class RovingItems {
   readonly #host: Host;
   #items: readonly Item[] = [];
+  // The item that focus moved the tab stop to last, while it is managed.
+  #chosen: Item | undefined;
 
   constructor(host: Host) {
     this.#host = host;
@@ -63,6 +65,13 @@ class RovingItems {
   // oxlint-disable-next-line accessor-pairs
   set value(value: readonly Item[]) {
     this.#items = value;
+
+    const { focused } = this;
+    // An item that is focused in the task that adds it has no `focusin` as a
+    // managed item.
+    this.#chosen =
+      this.enabled.find((item) => item === focused) ??
+      value.find((item) => item === this.#chosen);
   }
 
   contains(item: Item): boolean {
@@ -115,11 +124,21 @@ class RovingItems {
   }
 
   /**
+   * Moves the tab stop to the item that focus entered.
+   *
+   * @param item - Enabled managed item that becomes the chosen one.
+   */
+  choose(item: Item): void {
+    this.#chosen = item;
+    this.setTabStop(item);
+  }
+
+  /**
    * Selects the next tab stop candidate for the current host state.
    *
    * Candidates are chosen in this order:
    * 1. enabled item matching `host.value`
-   * 2. current active enabled item
+   * 2. enabled item that focus moved the tab stop to last
    * 3. first enabled item
    *
    * @returns The preferred tabbable item, if any enabled item exists.
@@ -130,9 +149,7 @@ class RovingItems {
 
     return (
       enabled.find((item) => item.value === this.#host.value) ??
-      (this.active && !this.active.disabled && this.contains(this.active)
-        ? this.active
-        : undefined) ??
+      enabled.find((item) => item === this.#chosen) ??
       enabled[0]
     );
   }
@@ -214,9 +231,13 @@ function hasKeyModifier(event: KeyboardEvent): boolean {
  * `Valuable` on top of `ControlledElement`. Elements that do not match that
  * contract are ignored.
  *
- * The controller keeps exactly one enabled item tabbable, updates that tab
- * stop from `host.value`, and handles `Home`, `End`, and arrow-key navigation
- * with wrap-around semantics.
+ * The controller keeps exactly one enabled item tabbable, and handles `Home`,
+ * `End`, and arrow-key navigation with wrap-around semantics.
+ *
+ * The tab stop is the enabled item that matches `host.value`; or else the
+ * enabled item that focus moved it to last, while that item is in the slot; or
+ * else the first enabled item. It is chosen again when the slot's content or
+ * `host.value` changes, and when a slotted element is defined later.
  *
  * @remarks Focus entering a managed item, or a composed descendant inside that
  * item, updates the current tab stop immediately. Modified key combos
@@ -229,42 +250,14 @@ function hasKeyModifier(event: KeyboardEvent): boolean {
  */
 export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
   const items = new RovingItems(host);
-  // The nodes of the slot change whose read chose the tab stop only because it
-  // was the first enabled item.
-  let chosenBy: readonly Node[] | undefined;
-  // Whether focus moved the tab stop after the last read.
-  let isMoved = false;
 
-  const select = (nodes = chosenBy) => {
-    const { active } = items;
-    const target = items.getTabStopCandidate();
-
-    items.setTabStop(target);
-    isMoved = false;
-
-    if (target?.value === host.value) {
-      chosenBy = undefined;
-    } else if (target !== active) {
-      chosenBy = nodes;
-    }
+  const select = () => {
+    items.setTabStop(items.getTabStopCandidate());
   };
 
-  // Adds the items upgraded after the slot change of `nodes`, with the tab stop
-  // that it would have if they had been items then.
-  const join = (nodes: readonly Node[], current: readonly Node[]) => {
-    const { tabbable } = items;
-
-    if (chosenBy === nodes) {
-      items.setTabStop();
-    }
-
-    items.value = current.filter(isItem);
-
-    if (isMoved) {
-      items.setTabStop(tabbable);
-    } else {
-      select(nodes);
-    }
+  const read = (nodes: readonly Node[]) => {
+    items.value = nodes.filter(isItem);
+    select();
   };
 
   const createEdgeHandler =
@@ -294,9 +287,7 @@ export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
     };
 
   useSlot(host, slotSelector, (slot, nodes) => {
-    items.value = nodes.filter(isItem);
-    // When slot content changes, recompute the active tab stop.
-    select(nodes);
+    read(nodes);
 
     for (const node of nodes) {
       // A customized built-in element is never an item, and its local name is
@@ -313,10 +304,7 @@ export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
             // A node cloned from a template isn't upgraded by its definition
             // until it is connected.
             customElements.upgrade(node);
-
-            if (isItem(node)) {
-              join(nodes, current);
-            }
+            read(current);
           }
         });
       }
@@ -362,9 +350,7 @@ export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
         );
 
       if (target) {
-        items.setTabStop(target);
-        chosenBy = undefined;
-        isMoved = true;
+        items.choose(target);
       }
     },
   });
