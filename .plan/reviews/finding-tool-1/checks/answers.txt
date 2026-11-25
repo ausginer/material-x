@@ -1,0 +1,50 @@
+== #228 as it is
+  exit 1, out 0 bytes, err: #228 has no tier label, not exactly one of tier:A, tier:B, tier:C/
+== #228 with a tier label
+  exit 1, out 0 bytes, err: #228's body doesn't end with "Revision <N>" and "— ARCHITECT"/
+== #228 with a label and the ending of r0: check 8, from GitHub's own times
+  exit 1, out 0 bytes, err: #228's body is r0 and was edited at 2026-11-24T09:45:41Z/
+== #228, the same, with no edit: in order
+  exit 0, out 760 bytes, err: 
+  #228 r0 tier:B CLOSED https://github.com/ausginer/material-x/issues/228
+  Comments left out: 2
+== #234 (it has comments), the same
+  exit 0, out 635 bytes, err: 
+  #234 r0 tier:B OPEN https://github.com/ausginer/material-x/issues/234
+  Comments left out: 1
+== r1, edited, the editor is null, as GitHub answers for a deleted account
+  exit 0, out 217 bytes, err: 
+  #300 r1 tier:B OPEN u
+  Comments left out: 0
+== the same, the editor is another account
+  exit 1, out 0 bytes, err: #300 was last edited by other, not Lodin/
+== Amendment 2 whose heading ends with a space, body at r1
+  exit 0, out 217 bytes, err: 
+  #300 r1 tier:B OPEN u
+  Comments left out: 1
+== Amendment 2 after an empty first line, body at r1
+  exit 0, out 217 bytes, err: 
+  #300 r1 tier:B OPEN u
+  Comments left out: 1
+== Revision 01, Amendment 01 and r01
+  exit 0, out 219 bytes, err: 
+  #300 r1 tier:B OPEN u
+  Comments left out: 0
+== r0 with a surplus Amendment 1
+  exit 1, out 0 bytes, err: #300's body is r0 and its amendments are 1, not 1 to 0 in order/
+== r1 in order, from an issue with 101 comments
+  exit 1, out 0 bytes, err: #300 has 101 comments, more than 100/
+== an answer that isn't JSON, and gh's own with CLICOLOR_FORCE=1
+  exit 1, out 0 bytes, err: <anonymous_script>:1/<html>/^/
+  -- CLICOLOR_FORCE=1
+SyntaxError: Unexpected token '', "[1;37m{["... is not valid JSON
+  -- GH_FORCE_TTY=1
+SyntaxError: Unexpected token '', "[1;37m{["... is not valid JSON
+== an answer without its issue
+  exit 1, out 0 bytes, err: file:///workspaces/worktrees/f/.scripts/finding.ts:130/const { author, editor, lastEditedAt, comments } = issue;/        ^/
+== gh absent, and a bad token
+spawn gh ENOENT
+gh: Bad credentials (HTTP 401)
+gh: Could not resolve to an Issue with the number of 225.
+gh: Could not resolve to an Issue with the number of 999999.
+gh: Could not resolve to an Issue with the number of 99999999999.
