@@ -1,6 +1,6 @@
 # Every row move is animated — plan
 
-**Status: planned on 2026-11-25 by the architect, on `drag/displacement-1` from `main` at `e57c9f074`. Unimplemented.** The finding is [#265](https://github.com/ausginer/material-x/issues/265), whose body is its contract. The decision is [`DRD-72`](../00-index.md). This document has the design, the readings and the work list. #266 follows it, by `repo:RD-60`.
+**Status: planned on 2026-11-25 by the architect, on `drag/displacement-1` from `main` at `e57c9f074`. Unimplemented. The owner accepted the cost the same day (Q1 (a)), so it is ready.** The finding is [#265](https://github.com/ausginer/material-x/issues/265), whose body is its contract. The decision is [`DRD-72`](../00-index.md). This document has the design, the readings and the work list. #266 follows it, by `repo:RD-60`.
 
 ## Readings
 
@@ -61,7 +61,7 @@ Read at `e57c9f074` with real input, frame by frame, in Playwright's Chromium, F
 
 ## Work list
 
-On `drag/displacement-1`. The contract is #265 at its pinned revision and `DRD-72`. Nothing here replaces them.
+On `drag/displacement-1`, with `main` merged first. The contract is #265 at its pinned revision (`r2`) and `DRD-72`. Nothing here replaces them.
 
 1. **Source.** `sortable/operation.ts`, `axis.ts`, `layout-animation.ts`, `y.ts`, `xy.ts` and `behavior.ts`, as the properties need. The candidate is a direction, and its forms aren't prescribed. `DisplacementSink` and `InsertionGeometry` are private (`DRD-39`), so their members are free.
 2. **`layoutAnimation`'s options** become `timing` alone, by `DRD-72`. Every caller in the package follows: the tests, the story (which passes none) and `bench/lab.ts`.
@@ -79,7 +79,7 @@ On `drag/displacement-1`. The contract is #265 at its pinned revision and `DRD-7
 4. **The existing rows** pass unchanged, except where they pass `duration`. `DRF-54`'s row isn't touched, and no wait is added. If it fails once more in CI, the failure is DRF-54's.
 5. **The contract:** `DRI-14`'s sentence, `DRI-17`'s reading rule, a new `DRI-22` for displacement, the public surface's options, and a row of the change record. The **README** sentence _"`layoutAnimation`'s row animations do not change with that preference"_ and the JSDoc of `layout-animation.ts` follow.
 6. **`.agents/docs/accessibility.md`'s two lines** (a bullet that rows ignore the preference, and the list of what is fulfilled) aren't in this branch, because project documentation has its own pull request. The coordinator takes the docs unit.
-7. **Sizes:** the ceilings of the rows that grow move to the final readings (`DRO-20`), once the owner has approved the cost.
+7. **Sizes:** the ceilings of the rows that grow move to the final readings (`DRO-20`). The owner accepted the candidate's cost. A row that grows by over 100 B of Brotli more than the candidate's reading is returned before the ceiling moves.
 8. **Checks:** the drag suites one engine at a time, typecheck, format, lint, the declarations' check, `size`, the docs build and smoke. The size table is in the report.
 9. **Stop** and return if a property needs a kernel change, if a row of a composition without a sink changes, if the array has to be read after the drop, or if an existing row's reading changes.
 
