@@ -12,10 +12,10 @@ index 928f0527a..03be21212 100644
  ### Writes and temporary work
  
 diff --git a/.agents/docs/findings.md b/.agents/docs/findings.md
-index 673469b2a..f6d95f27e 100644
+index 673469b2a..51e0301a9 100644
 --- a/.agents/docs/findings.md
 +++ b/.agents/docs/findings.md
-@@ -9,20 +9,21 @@ A finding with the label is one issue, from its observation to its closure.
+@@ -9,20 +9,22 @@ A finding with the label is one issue, from its observation to its closure.
  ## Address
  
  - **The address is `#N`,** and `ausginer/material-x#N` outside the repository.
@@ -23,6 +23,7 @@ index 673469b2a..f6d95f27e 100644
 +- **The title is plain words,** without an address. It names no package, because the label does.
  - **A code comment may carry `(#N)` as its one bare pointer.** Published JSDoc never carries it.
  - **A commit message may name `#N`,** with no closing keyword.
++- **A test title names the finding as `#N`,** in place of an entry's address.
  
  ## Reading
  
@@ -40,7 +41,7 @@ index 673469b2a..f6d95f27e 100644
  
  **Only text by `Lodin`, the owner's account, with the architect's stamp is the contract.** A stamp isn't a proof, because every agent writes as that account.
  
-@@ -37,11 +38,13 @@ The body alone is the contract. An amendment explains a change and isn't a sourc
+@@ -37,11 +39,13 @@ The body alone is the contract. An amendment explains a change and isn't a sourc
  
  ## Required property
  
@@ -56,7 +57,7 @@ index 673469b2a..f6d95f27e 100644
  
  ## Not read
  
-@@ -55,9 +58,26 @@ Revision 0
+@@ -55,9 +59,26 @@ Revision 0
  - **`Revision N`** is the number of the last amendment, and 0 at registration.
  - **The description** is bounded as an issue's description is in [`work-queue.md`](work-queue.md#issues).
  - **The first four headings are always present.** _Not read_ and _Questions_ are present only when they have something.
@@ -84,7 +85,7 @@ index 673469b2a..f6d95f27e 100644
  ## The amendment
  
  Each change of the body is one comment:
-@@ -67,7 +87,7 @@ Each change of the body is one comment:
+@@ -67,7 +88,7 @@ Each change of the body is one comment:
  
  <what changed, why, and whose answer or review asked for it>
  
@@ -93,7 +94,7 @@ index 673469b2a..f6d95f27e 100644
  
  — ARCHITECT
  ```
-@@ -91,12 +111,15 @@ The coordinator sets the package or `repo` label and removes `unregistered`, as
+@@ -91,12 +112,15 @@ The coordinator sets the package or `repo` label and removes `unregistered`, as
  
  ## Amending
  
@@ -113,16 +114,17 @@ index 673469b2a..f6d95f27e 100644
  
  A change of tier is an amendment, and the body then has a new revision with no other change.
  
-@@ -117,7 +140,7 @@ A repair that stops is started again from the beginning. A finding that the tool
+@@ -117,25 +141,25 @@ A repair that stops is started again from the beginning. A finding that the tool
  
  - **The architect alone** writes the body, the amendments, the `tier:` label, the lock and the acceptance.
  - **The coordinator** writes the rest, as `work-queue.md` says, and never the body. The architect amends a description that no longer holds.
 -- **The owner** answers in chat. The architect records the answer as an amendment, in English. When the coordinator then moves the item, its comment names the amendment.
+-- **An implementer or a reviewer** writes only its pull request or its report.
 +- **The owner** answers in chat. The architect records the answer where the question is: in the body, with an amendment in English, or in the decision. When the coordinator then moves the item, its comment names the amendment or the commit.
- - **An implementer or a reviewer** writes only its pull request or its report.
++- **An implementer or a reviewer** writes only its pull request or its report. An implementer's note is in the decision's entry, when the finding has one, and otherwise in the unit's `.plan/` directory. A departure from the contract, or a case that it doesn't name, goes in the note and in the closing message, and the architect rules on it and amends the finding or the decision before the review.
  
  ## Evidence
-@@ -125,17 +148,17 @@ A repair that stops is started again from the beginning. A finding that the tool
+ 
  - **A few lines are in the body.** A probe, and a reading that a probe or a run produced, is committed in the repository, because others run it.
  - **When the repair follows at once,** the evidence is on the unit's branch, in `.plan/<unit>/` or the package's `.plan/`, and merges with the repair.
  - **When the finding waits,** the evidence goes by a pull request of its own.

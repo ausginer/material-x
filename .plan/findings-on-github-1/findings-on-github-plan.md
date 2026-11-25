@@ -493,7 +493,7 @@ On `repo/finding-tool-1`, two files. Nothing else in them changes.
 
 **Proposed on 2026-11-25 by the architect, on `repo/findings-rules-1` from `ca6918376`, for the owner's decision at stage 4. Nothing here is in force.** Requested by the coordinator, from Mx Architect Explainer's six points on #265 and the coordinator's notes of the trial so far. The owner approved sending them, relayed: _"ух ты ж, сколько багов в воркфлоу нашли 😅 Да, давай отправим, пусть запрягает кого-нибудь из архитекторов на починку ))"_ ("wow, how many bugs in the workflow we found. Yes, let's send it, and have it put one of the architects on the repair"). His direction is that decisions stay in the repository's documents, because they are needed all the time while code is written, and that a question and its answer have one place. He preferred it to moving decisions into issues: _"нет, я тоже про это думал, и ты мои опасения подтвердил. А вот второй вариант выглядит интересно."_ ("no, I thought about that too, and you confirmed my fears. But the second option looks interesting."). It approves no wording and no timing.
 
-**#265 stays at `r2` and is finished under today's rules.** No document, tool or text that its implementer or its reviewer reads changes before it closes.
+**#265 is finished under today's rules.** It was at `r2` when this was proposed, and is at `r3` since the rulings on its implementation. No document, tool or text that its implementer or its reviewer reads changes before it closes.
 
 #### What the trial showed
 
@@ -508,7 +508,7 @@ Read at `5e1b88dd8` (`drag/displacement-1`), #265 `r2`, `DRD-72` and its plan.
 
 #### The rules
 
-The exact text is [`stage-3-documents.patch.txt`](checks/stage-3-documents.patch.txt), against `ca6918376`, for `findings.md` and one sentence of `agent-workflow.md`. It applies there with `git apply`. `findings.md` grows from 7.3 to 9.9 kB.
+The exact text is [`stage-3-documents.patch.txt`](checks/stage-3-documents.patch.txt), against `ca6918376`, for `findings.md` and one sentence of `agent-workflow.md`. It applies there with `git apply`. `findings.md` grows from 7.3 to 10.3 kB.
 
 1. **One place for each text, when a finding has a decision.** A property that a decision states is in the decision, and _Required property_ names its address and its numbers and restates nothing. Witnesses, and properties that no decision states, are in the body. A question about the decision is in the decision with its options and its answer, and _Questions_ has the reference alone. The plan has the design, the readings and the work list. So the finding is amended only when the body's text becomes false.
 2. **A prompt pins both:** `#N rM, decisions at <sha>`. The commit fixes the plan and the evidence too. A role stops when the branch has a later text of a property or an answer, as it does for a later revision. A decision or a plan names `#N` with no revision. `documentation.md` §6 already makes a substantive change a new decision, so the body's reference changes then, the body has a new revision, and the tool refuses the old one. The commit covers what is left: an open decision that is edited in place, and an unmerged one.
@@ -518,7 +518,9 @@ The exact text is [`stage-3-documents.patch.txt`](checks/stage-3-documents.patch
 6. **A plan in the repository isn't a defect** (`RD-56`, property 7).
 7. **The writer's order:** the decision is pushed first, and then the body, the amendment and the tool. The changed `Revision` line isn't quoted as replaced. The owner's comment or relayed answer is recorded where the question is.
 
-**A finding without a decision** keeps everything in the issue, its questions and answers with an amendment each, and its prompt pins `#N rM` alone. Only rules 3, 5 and 7 touch it. A question that was asked in the issue stays there when its answer makes a decision, and the decision names it. A finding that a decision joins later moves those properties out of the body, in an amendment that quotes them.
+8. **A test title names the finding as `#N`,** the implementer's note is in the decision's entry or in the unit's `.plan/` directory, and a departure goes in the note and the closing message, and then to the architect, who rules on it before the review. From the implementer's report.
+
+**A finding without a decision** keeps everything in the issue, its questions and answers with an amendment each, and its prompt pins `#N rM` alone. Only rules 3, 5, 7 and 8 touch it. A question that was asked in the issue stays there when its answer makes a decision, and the decision names it. A finding that a decision joins later moves those properties out of the body, in an amendment that quotes them.
 
 **#265 under these rules:** _Required property_ would say `drag:DRD-72` properties 1 to 10, on `drag/displacement-1`, with the witnesses of 1, 2, 7 and 9, and two properties of its own: a move that is undone at once leaves the rows still, and the animation survives the consumer's commit and the release. _Questions_ would say `drag:DRD-72 Q1`, the answer would be there alone, and the issue would be at `r1` with no Amendment 2.
 
@@ -563,10 +565,10 @@ Each is added here, with the architect's ruling, before stage 4 is put to the ow
 
 | Report | What it is to tell | State |
 | --- | --- | --- |
-| The implementer, slot f | What it couldn't find or had to ask. Which text it followed, the body's or `DRD-72`'s, and whether they differed. Whether the plan's row list or the body's witnesses governed its tests | Awaited |
+| The implementer, slot f | What it couldn't find or had to ask. Which text it followed, the body's or `DRD-72`'s, and whether they differed. Whether the plan's row list or the body's witnesses governed its tests | **Received on 2026-11-25** (#275, at `60caca966`, relayed by the coordinator), which doesn't answer the two questions about texts. The tool refused nothing. The body had all but the work list, the limits and the stops, which are in the plan that the prompt named. `findings.md` didn't say where an implementer's note goes with no register entry (it used `DRD-72`), how a test title names the finding (it used `#265`), or whom a departure goes to. **Ruled:** rule 8. One `gh pr create` failed with 502 and without effect, which is GitHub's |
 | The fresh reviewer | The same, and which commit it read `DRD-72` at. Whether the references and the branch's evidence resolved | Awaited |
 | The architect's acceptance | Whether one commit was enough to fix the finding, the decision and the plan | Awaited |
-| The coordinator's count | The amendments and each refusal of the tool. So far: 2 amendments, 1 with no change of a property, and no refusal after the last step | Open |
+| The coordinator's count | The amendments and each refusal of the tool. So far: 3 amendments, 1 with no change of a property, and no refusal after the last step | Open |
 
 #### Questions
 
