@@ -1,0 +1,45 @@
+# Architect's reading for RF-129's rulings, on material-x/reorder-tokens-1 with main at 855990331 merged: the candidate rows (ruling.mjs.txt), drag rebuilt for each
+## as it is | chromium | Tests  170 passed (170)
+## as it is | firefox | Tests  168 passed | 2 skipped (170)
+## as it is | webkit | Tests  168 passed | 2 skipped (170)
+## lift keeps no color and no background color | chromium | Tests  3 failed | 167 passed (170)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding and overflow with no page rule
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding and overflow with a page rule for popovers
+   CANDIDATE > should keep the static host colors in a key move with a page rule for popovers
+## lift keeps no color and no background color | firefox | Tests  3 failed | 165 passed | 2 skipped (170)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding and overflow with no page rule
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding and overflow with a page rule for popovers
+   CANDIDATE > should keep the static host colors in a key move with a page rule for popovers
+## lift keeps no color and no background color | webkit | Tests  3 failed | 165 passed | 2 skipped (170)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding and overflow with no page rule
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding and overflow with a page rule for popovers
+   CANDIDATE > should keep the static host colors in a key move with a page rule for popovers
+## the static item's rule on every item's host | chromium | Tests  2 failed | 168 passed (170)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding and overflow with no page rule
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding and overflow with a page rule for popovers
+## the static item's rule on every item's host | firefox | Tests  2 failed | 166 passed | 2 skipped (170)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding and overflow with no page rule
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding and overflow with a page rule for popovers
+## the static item's rule on every item's host | webkit | Tests  2 failed | 166 passed | 2 skipped (170)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding and overflow with no page rule
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding and overflow with a page rule for popovers
+
+# tests/list on the branch with main at e57c9f074 merged, and with origin/material-x/handle-focus-1 at b9428b5df applied, property list rebuilt
+## branch with main chromium
+      Tests  308 passed (308)
+ Test Files  6 passed (6)
+## branch with main firefox
+      Tests  296 passed | 2 skipped (298)
+ Test Files  6 passed (6)
+## branch with main webkit
+      Tests  306 passed | 2 skipped (308)
+ Test Files  6 passed (6)
+## with handle-focus-1 chromium
+      Tests  360 passed (360)
+ Test Files  6 passed (6)
+## with handle-focus-1 firefox
+      Tests  348 passed | 2 skipped (350)
+ Test Files  6 passed (6)
+## with handle-focus-1 webkit
+      Tests  358 passed | 2 skipped (360)
+ Test Files  6 passed (6)
