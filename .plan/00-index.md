@@ -6049,6 +6049,14 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `c
 
 **A recheck isn't owed:** no source changes, and the rows have the two named mutations. The coordinator checks the witnesses, and the architect closes. Nothing is the owner's to answer.
 
+**Dated 2026-11-25 by the implementer: the list is done, on `core/slot-listener-1` with `main` at `0dca6e5a0` merged (#248 included), and the entry isn't closed.** Requested by the coordinator. No source line changes.
+
+- **Rows:** the two rows of the list item's large leading image expect the height and an image that starts at the item's own edge, and the describe and the titles say so. The file still has 29 rows.
+- **Witnesses** ([reading](slot-listener-1/checks/witnesses-large-image.txt), [script](slot-listener-1/probes/mutate-large-image.mjs)), the same in Chromium, Firefox and WebKit: with the listener through `useEvents` both rows fail, at 56px high with the image at -24px. With `lead-large` never set both fail, at 76px with the image at 16px. Unmutated, both pass at 76px and 0. In the reading, Chromium's two failures have one message between them, because Vitest grouped them.
+- **#256's description** has the note's corrections.
+- **Checks on the merged tree,** core and material-x rebuilt. Core's `useSlot` and `useRovingTabindex` rows: 50 passed in each engine. material-x's `slotted-content`, slider, top app bar, list, button group, text field and `aria-own-value` rows: Chromium 1146 passed and 2 expected failures; Firefox and WebKit 1080 passed, 2 expected failures and 66 skipped. Both packages without the visual project, in Chromium: core 330 passed; material-x 1720 passed and 2 expected failures. Typecheck, `typecheck-declarations`, lint, the root format check, material-x's publint, `docs-build` and `docs-smoke` pass.
+- **Not run:** the visual project, Safari, screen readers, the sizes, and the whole suites in Firefox and WebKit, which the list doesn't ask for.
+
 #### RF-132 — A selected `mx-list-button-item` gives its button `aria-selected`, which the button role doesn't support
 
 Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-131` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `eddf39e7b` ([readings](accessibility-findings-1/checks/axe-and-forced-colors.txt), [probe](accessibility-findings-1/probes/a11y.mjs.txt)).

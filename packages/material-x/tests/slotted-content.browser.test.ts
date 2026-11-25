@@ -181,32 +181,39 @@ describe('mx-connected-button-group buttons', () => {
   );
 });
 
-describe('mx-list-item large image', () => {
-  async function createHeight(run: Way['run']): Promise<number> {
+describe('mx-list-item large leading image', () => {
+  async function measure(
+    run: Way['run'],
+  ): Promise<Readonly<{ height: number; leadingSpace: number }>> {
     const item = document.createElement('mx-list-item');
+    const image = document.createElement('img');
     item.textContent = 'Label';
     await run(item, () => {
-      const image = document.createElement('img');
       image.slot = 'lead';
       image.dataset['large'] = '';
       image.alt = '';
       item.append(image);
     });
 
-    return item.getBoundingClientRect().height;
+    const { height, left } = item.getBoundingClientRect();
+
+    return {
+      height,
+      leadingSpace: image.getBoundingClientRect().left - left,
+    };
   }
 
   it.each(WAYS)(
-    'should give the item its height when the image $when',
+    'should give the item its height and no leading space when the image $when',
     async ({ run }) => {
-      const expected = await createHeight(async (item, change) => {
+      const { height } = await measure(async (item, change) => {
         document.body.append(item);
         await nextFrame();
         change(item);
         await nextFrame();
       });
 
-      expect(await createHeight(run)).toBe(expected);
+      expect(await measure(run)).toEqual({ height, leadingSpace: 0 });
     },
   );
 });
