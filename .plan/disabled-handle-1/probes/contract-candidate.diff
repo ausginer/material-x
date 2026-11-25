@@ -1,0 +1,148 @@
+diff --git a/packages/material-x/src/list/sortable-item.ts b/packages/material-x/src/list/sortable-item.ts
+index 4a7c9fbbb..f280bbcbc 100644
+--- a/packages/material-x/src/list/sortable-item.ts
++++ b/packages/material-x/src/list/sortable-item.ts
+@@ -4,7 +4,13 @@ const DESCRIPTION = 'Use the arrow keys to move';
+ 
+ /** The attributes the item claims, which its observer watches. */
+ const CLAIMED: MutationObserverInit = {
+-  attributeFilter: ['tabindex', 'role', 'aria-label', 'aria-description'],
++  attributeFilter: [
++    'tabindex',
++    'role',
++    'aria-label',
++    'aria-description',
++    'aria-disabled',
++  ],
+ };
+ 
+ /**
+@@ -18,6 +24,11 @@ export function handleOf(item: HTMLElement): HTMLElement | null {
+   );
+ }
+ 
++/** Whether the item is disabled. A static item has no such state. */
++export function isDisabled(item: HTMLElement): boolean {
++  return item.matches(':state(disabled)');
++}
++
+ /**
+  * Writes the attribute when the element doesn't have it, and records it in
+  * `owned`. `touch-action` is the inline style property.
+@@ -39,8 +50,20 @@ function claim(
+   }
+ }
+ 
+-function release(element: HTMLElement | null, owned: string[]): void {
+-  for (const name of owned) {
++function release(
++  element: HTMLElement | null,
++  owned: string[],
++  names: readonly string[] = [...owned],
++): void {
++  for (const name of names) {
++    const index = owned.indexOf(name);
++
++    if (index < 0) {
++      continue;
++    }
++
++    owned.splice(index, 1);
++
+     if (name !== 'touch-action') {
+       element!.removeAttribute(name);
+     } else if (element!.style.touchAction === 'none') {
+@@ -49,8 +72,6 @@ function release(element: HTMLElement | null, owned: string[]): void {
+       element!.style.removeProperty(name);
+     }
+   }
+-
+-  owned.length = 0;
+ }
+ 
+ /**
+@@ -97,6 +118,8 @@ export function sortItem(
+     }
+   };
+   const observer = new MutationObserver(disown);
++  // The item's own `disabled`, which makes a disabled item.
++  const state = new MutationObserver(() => update());
+ 
+   // Runs the item's own writes and removals: the pending records, which are
+   // another writer's, are applied first, and those of the item's own writes
+@@ -108,6 +131,7 @@ export function sortItem(
+   };
+ 
+   observer.observe(control, CLAIMED);
++  state.observe(host, { attributeFilter: ['disabled'] });
+ 
+   const update = (): void => {
+     write(() => {
+@@ -124,16 +148,34 @@ export function sortItem(
+         }
+       }
+ 
++      const disabled = isDisabled(host);
++
+       if (handle) {
+-        claim(handle, handleOwned, 'tabindex', '0');
++        const tab = disabled ? '-1' : '0';
++
++        if (handleOwned.includes('tabindex')) {
++          handle.setAttribute('tabindex', tab);
++        } else {
++          claim(handle, handleOwned, 'tabindex', tab);
++        }
++
+         claim(handle, handleOwned, 'role', 'button');
+ 
+         if (!handle.hasAttribute('aria-labelledby')) {
+           claim(handle, handleOwned, 'aria-label', 'Reorder');
+         }
+ 
+-        claim(handle, handleOwned, 'aria-description', DESCRIPTION);
+-        claim(handle, handleOwned, 'touch-action', 'none');
++        if (disabled) {
++          release(handle, handleOwned, ['aria-description', 'touch-action']);
++          claim(handle, handleOwned, 'aria-disabled', 'true');
++        } else {
++          release(handle, handleOwned, ['aria-disabled']);
++          claim(handle, handleOwned, 'aria-description', DESCRIPTION);
++          claim(handle, handleOwned, 'touch-action', 'none');
++        }
++
++        release(control, controlOwned);
++      } else if (disabled) {
+         release(control, controlOwned);
+       } else {
+         if (control === host) {
+@@ -155,6 +197,7 @@ export function sortItem(
+         release(control, controlOwned);
+       });
+       observer.disconnect();
++      state.disconnect();
+       handle = null;
+     },
+   };
+diff --git a/packages/material-x/src/list/sortable-list.ts b/packages/material-x/src/list/sortable-list.ts
+index 1032d8602..8819113c1 100644
+--- a/packages/material-x/src/list/sortable-list.ts
++++ b/packages/material-x/src/list/sortable-list.ts
+@@ -24,7 +24,7 @@ import type { EmptyObject } from 'type-fest';
+ import { useAriaNotifyPolyfill } from '../core/polyfills/aria-notify/aria-notify.ts';
+ import { identity, parseMs } from '../core/utils/fns.ts';
+ import { type ListCoreCSSProperties, useListCore } from './ListCore.ts';
+-import { handleOf, sortItem } from './sortable-item.ts';
++import { handleOf, isDisabled, sortItem } from './sortable-item.ts';
+ import { SORTABLE_LIST_CTX } from './sortable-list-context.ts';
+ import sortableStyles from './styles/sortable/main.css.ts' with { type: 'css' };
+ 
+@@ -178,7 +178,7 @@ export default class SortableList extends SortableListConstructor {
+     const config: SortableConfig = {
+       items: () => items,
+       axis: y(),
+-      handle: (item) => handleOf(item) ?? item,
++      handle: (item) => (isDisabled(item) ? null : (handleOf(item) ?? item)),
+       landing: {
+         ...landing(),
+         timing: useCSSProps(this, CSS_PROPS),

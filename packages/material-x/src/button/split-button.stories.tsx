@@ -27,6 +27,7 @@ function ControlledSplitButton(
 
   return (
     <mx-split-button
+      secondarylabel="More actions"
       open={open}
       onsecondaryaction={() => setOpen(!open)}
       {...props}
@@ -40,6 +41,7 @@ type PlaygroundArgs = Readonly<{
   shape: ButtonShape | 'round';
   icon: string;
   label: string;
+  secondarylabel: string;
   open: boolean;
   disabled: boolean;
 }>;
@@ -51,6 +53,7 @@ export const Playground: StoryObj<PlaygroundArgs> = {
     shape: 'round',
     icon: '',
     label: 'Submit',
+    secondarylabel: 'More actions',
     open: false,
     disabled: false,
   },
@@ -73,6 +76,9 @@ export const Playground: StoryObj<PlaygroundArgs> = {
     label: {
       control: 'text',
     },
+    secondarylabel: {
+      control: 'text',
+    },
     open: {
       control: 'boolean',
     },
@@ -80,12 +86,13 @@ export const Playground: StoryObj<PlaygroundArgs> = {
       control: 'boolean',
     },
   },
-  render({ color, size, shape, icon, label, open, disabled }) {
+  render({ color, size, shape, icon, label, secondarylabel, open, disabled }) {
     return (
       <mx-split-button
         color={color === 'filled' ? undefined : color}
         size={size === 'small' ? undefined : size}
         shape={shape === 'round' ? undefined : shape}
+        secondarylabel={secondarylabel}
         open={open}
         disabled={disabled}
       >
@@ -98,11 +105,19 @@ export const Playground: StoryObj<PlaygroundArgs> = {
 
 export const States = (): JSX.Element => (
   <>
-    <mx-split-button>Default</mx-split-button>
-    <mx-split-button data-force="hovered">Hovered</mx-split-button>
-    <mx-split-button data-force="focused">Focused</mx-split-button>
-    <mx-split-button data-force="pressed">Pressed</mx-split-button>
-    <mx-split-button disabled>Disabled</mx-split-button>
+    <mx-split-button secondarylabel="More actions">Default</mx-split-button>
+    <mx-split-button secondarylabel="More actions" data-force="hovered">
+      Hovered
+    </mx-split-button>
+    <mx-split-button secondarylabel="More actions" data-force="focused">
+      Focused
+    </mx-split-button>
+    <mx-split-button secondarylabel="More actions" data-force="pressed">
+      Pressed
+    </mx-split-button>
+    <mx-split-button secondarylabel="More actions" disabled>
+      Disabled
+    </mx-split-button>
   </>
 );
 

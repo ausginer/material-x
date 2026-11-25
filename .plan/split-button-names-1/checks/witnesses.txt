@@ -1,0 +1,209 @@
+## no mutation | chromium | 0 failed, 56 passed
+## no mutation | firefox | 0 failed, 52 passed
+## no mutation | webkit | 0 failed, 52 passed
+## main | chromium | 32 failed, 24 passed
+   mx-split-button secondarylabel should name the trailing button
+   mx-split-button secondarylabel should name the trailing button after it is set as a property
+   mx-split-button secondarylabel should rename the trailing button when it changes
+   mx-split-button secondarylabel should leave the trailing button without a name when it is removed
+   mx-split-button open should be collapsed on the trailing button from the first render
+   mx-split-button open should be expanded on the trailing button from the first render
+   mx-split-button open should be on the trailing button after each change
+   mx-split-button accessibility tree should expose the label as the trailing button name
+   mx-split-button accessibility tree should expose the trailing button as expanded with open
+   mx-split-button accessibility tree should expose no name of the trailing button without a label
+   mx-split-button accessibility tree should expose no text of the icon
+   mx-split-button disabled as an initial attribute should disable both native buttons
+   mx-split-button disabled as an initial attribute should leave no tab stop
+   mx-split-button disabled as an initial attribute should fire no event for a click on the trailing button
+   mx-split-button disabled as an initial attribute should fire no event for a key on the leading button
+   mx-split-button disabled as an initial attribute should fire no event for a key on the trailing button
+   mx-split-button disabled as an initial attribute should draw the leading button as disabled
+   mx-split-button disabled as an initial attribute should draw the trailing button as disabled
+   mx-split-button disabled as an attribute set later should disable both native buttons
+   mx-split-button disabled as an attribute set later should leave no tab stop
+   mx-split-button disabled as an attribute set later should fire no event for a click on the trailing button
+   mx-split-button disabled as an attribute set later should fire no event for a key on the leading button
+   mx-split-button disabled as an attribute set later should fire no event for a key on the trailing button
+   mx-split-button disabled as an attribute set later should draw the leading button as disabled
+   mx-split-button disabled as an attribute set later should draw the trailing button as disabled
+   mx-split-button disabled as a property should disable both native buttons
+   mx-split-button disabled as a property should leave no tab stop
+   mx-split-button disabled as a property should fire no event for a click on the trailing button
+   mx-split-button disabled as a property should fire no event for a key on the leading button
+   mx-split-button disabled as a property should fire no event for a key on the trailing button
+   mx-split-button disabled as a property should draw the leading button as disabled
+   mx-split-button disabled as a property should draw the trailing button as disabled
+## main | firefox | 25 failed, 27 passed
+   mx-split-button secondarylabel should name the trailing button
+   mx-split-button secondarylabel should name the trailing button after it is set as a property
+   mx-split-button secondarylabel should rename the trailing button when it changes
+   mx-split-button secondarylabel should leave the trailing button without a name when it is removed
+   mx-split-button open should be collapsed on the trailing button from the first render
+   mx-split-button open should be expanded on the trailing button from the first render
+   mx-split-button open should be on the trailing button after each change
+   mx-split-button disabled as an initial attribute should disable both native buttons
+   mx-split-button disabled as an initial attribute should leave no tab stop
+   mx-split-button disabled as an initial attribute should fire no event for a click on the trailing button
+   mx-split-button disabled as an initial attribute should fire no event for a key on the trailing button
+   mx-split-button disabled as an initial attribute should draw the leading button as disabled
+   mx-split-button disabled as an initial attribute should draw the trailing button as disabled
+   mx-split-button disabled as an attribute set later should disable both native buttons
+   mx-split-button disabled as an attribute set later should leave no tab stop
+   mx-split-button disabled as an attribute set later should fire no event for a click on the trailing button
+   mx-split-button disabled as an attribute set later should fire no event for a key on the trailing button
+   mx-split-button disabled as an attribute set later should draw the leading button as disabled
+   mx-split-button disabled as an attribute set later should draw the trailing button as disabled
+   mx-split-button disabled as a property should disable both native buttons
+   mx-split-button disabled as a property should leave no tab stop
+   mx-split-button disabled as a property should fire no event for a click on the trailing button
+   mx-split-button disabled as a property should fire no event for a key on the trailing button
+   mx-split-button disabled as a property should draw the leading button as disabled
+   mx-split-button disabled as a property should draw the trailing button as disabled
+## main | webkit | 25 failed, 27 passed
+   mx-split-button secondarylabel should name the trailing button
+   mx-split-button secondarylabel should name the trailing button after it is set as a property
+   mx-split-button secondarylabel should rename the trailing button when it changes
+   mx-split-button secondarylabel should leave the trailing button without a name when it is removed
+   mx-split-button open should be collapsed on the trailing button from the first render
+   mx-split-button open should be expanded on the trailing button from the first render
+   mx-split-button open should be on the trailing button after each change
+   mx-split-button disabled as an initial attribute should disable both native buttons
+   mx-split-button disabled as an initial attribute should leave no tab stop
+   mx-split-button disabled as an initial attribute should fire no event for a click on the trailing button
+   mx-split-button disabled as an initial attribute should fire no event for a key on the trailing button
+   mx-split-button disabled as an initial attribute should draw the leading button as disabled
+   mx-split-button disabled as an initial attribute should draw the trailing button as disabled
+   mx-split-button disabled as an attribute set later should disable both native buttons
+   mx-split-button disabled as an attribute set later should leave no tab stop
+   mx-split-button disabled as an attribute set later should fire no event for a click on the trailing button
+   mx-split-button disabled as an attribute set later should fire no event for a key on the trailing button
+   mx-split-button disabled as an attribute set later should draw the leading button as disabled
+   mx-split-button disabled as an attribute set later should draw the trailing button as disabled
+   mx-split-button disabled as a property should disable both native buttons
+   mx-split-button disabled as a property should leave no tab stop
+   mx-split-button disabled as a property should fire no event for a click on the trailing button
+   mx-split-button disabled as a property should fire no event for a key on the trailing button
+   mx-split-button disabled as a property should draw the leading button as disabled
+   mx-split-button disabled as a property should draw the trailing button as disabled
+## secondarylabel not transferred | chromium | 6 failed, 50 passed
+   mx-split-button secondarylabel should name the trailing button
+   mx-split-button secondarylabel should name the trailing button after it is set as a property
+   mx-split-button secondarylabel should rename the trailing button when it changes
+   mx-split-button secondarylabel should leave the trailing button without a name when it is removed
+   mx-split-button accessibility tree should expose the label as the trailing button name
+   mx-split-button accessibility tree should expose the trailing button as expanded with open
+## secondarylabel not transferred | firefox | 4 failed, 48 passed
+   mx-split-button secondarylabel should name the trailing button
+   mx-split-button secondarylabel should name the trailing button after it is set as a property
+   mx-split-button secondarylabel should rename the trailing button when it changes
+   mx-split-button secondarylabel should leave the trailing button without a name when it is removed
+## secondarylabel not transferred | webkit | 4 failed, 48 passed
+   mx-split-button secondarylabel should name the trailing button
+   mx-split-button secondarylabel should name the trailing button after it is set as a property
+   mx-split-button secondarylabel should rename the trailing button when it changes
+   mx-split-button secondarylabel should leave the trailing button without a name when it is removed
+## secondarylabel on the host too | chromium | 1 failed, 55 passed
+   mx-split-button secondarylabel should name neither the leading button nor the host
+## secondarylabel on the host too | firefox | 1 failed, 51 passed
+   mx-split-button secondarylabel should name neither the leading button nor the host
+## secondarylabel on the host too | webkit | 1 failed, 51 passed
+   mx-split-button secondarylabel should name neither the leading button nor the host
+## secondarylabel on the leading button too | chromium | 3 failed, 53 passed
+   mx-split-button secondarylabel should name neither the leading button nor the host
+   mx-split-button accessibility tree should expose the label as the trailing button name
+   mx-split-button accessibility tree should expose the trailing button as expanded with open
+## secondarylabel on the leading button too | firefox | 1 failed, 51 passed
+   mx-split-button secondarylabel should name neither the leading button nor the host
+## secondarylabel on the leading button too | webkit | 1 failed, 51 passed
+   mx-split-button secondarylabel should name neither the leading button nor the host
+## the host's aria-* on the trailing button | chromium | 1 failed, 55 passed
+   mx-split-button secondarylabel should leave a host aria-label on neither button
+## the host's aria-* on the trailing button | firefox | 1 failed, 51 passed
+   mx-split-button secondarylabel should leave a host aria-label on neither button
+## the host's aria-* on the trailing button | webkit | 1 failed, 51 passed
+   mx-split-button secondarylabel should leave a host aria-label on neither button
+## open not written to aria-expanded | chromium | 3 failed, 53 passed
+   mx-split-button open should be expanded on the trailing button from the first render
+   mx-split-button open should be on the trailing button after each change
+   mx-split-button accessibility tree should expose the trailing button as expanded with open
+## open not written to aria-expanded | firefox | 2 failed, 50 passed
+   mx-split-button open should be expanded on the trailing button from the first render
+   mx-split-button open should be on the trailing button after each change
+## open not written to aria-expanded | webkit | 2 failed, 50 passed
+   mx-split-button open should be expanded on the trailing button from the first render
+   mx-split-button open should be on the trailing button after each change
+# The mutations "open on the leading button too", "open on the host too", and "color", "size" and "shape not transferred" are in witnesses-ruling.txt.
+## no aria-expanded in the template | chromium | 3 failed, 53 passed
+   mx-split-button open should be collapsed on the trailing button from the first render
+   mx-split-button accessibility tree should expose the label as the trailing button name
+   mx-split-button accessibility tree should expose no name of the trailing button without a label
+## no aria-expanded in the template | firefox | 1 failed, 51 passed
+   mx-split-button open should be collapsed on the trailing button from the first render
+## no aria-expanded in the template | webkit | 1 failed, 51 passed
+   mx-split-button open should be collapsed on the trailing button from the first render
+## no aria-hidden on the template's icon | chromium | 2 failed, 54 passed
+   mx-split-button accessibility tree should expose no name of the trailing button without a label
+   mx-split-button accessibility tree should expose no text of the icon
+## no aria-hidden on the template's icon | firefox | 0 failed, 52 passed
+## no aria-hidden on the template's icon | webkit | 0 failed, 52 passed
+## disabled not transferred | chromium | 21 failed, 35 passed
+   mx-split-button disabled as an initial attribute should disable both native buttons
+   mx-split-button disabled as an initial attribute should leave no tab stop
+   mx-split-button disabled as an initial attribute should fire no event for a click on the trailing button
+   mx-split-button disabled as an initial attribute should fire no event for a key on the leading button
+   mx-split-button disabled as an initial attribute should fire no event for a key on the trailing button
+   mx-split-button disabled as an initial attribute should draw the leading button as disabled
+   mx-split-button disabled as an initial attribute should draw the trailing button as disabled
+   mx-split-button disabled as an attribute set later should disable both native buttons
+   mx-split-button disabled as an attribute set later should leave no tab stop
+   mx-split-button disabled as an attribute set later should fire no event for a click on the trailing button
+   mx-split-button disabled as an attribute set later should fire no event for a key on the leading button
+   mx-split-button disabled as an attribute set later should fire no event for a key on the trailing button
+   mx-split-button disabled as an attribute set later should draw the leading button as disabled
+   mx-split-button disabled as an attribute set later should draw the trailing button as disabled
+   mx-split-button disabled as a property should disable both native buttons
+   mx-split-button disabled as a property should leave no tab stop
+   mx-split-button disabled as a property should fire no event for a click on the trailing button
+   mx-split-button disabled as a property should fire no event for a key on the leading button
+   mx-split-button disabled as a property should fire no event for a key on the trailing button
+   mx-split-button disabled as a property should draw the leading button as disabled
+   mx-split-button disabled as a property should draw the trailing button as disabled
+## disabled not transferred | firefox | 18 failed, 34 passed
+   mx-split-button disabled as an initial attribute should disable both native buttons
+   mx-split-button disabled as an initial attribute should leave no tab stop
+   mx-split-button disabled as an initial attribute should fire no event for a click on the trailing button
+   mx-split-button disabled as an initial attribute should fire no event for a key on the trailing button
+   mx-split-button disabled as an initial attribute should draw the leading button as disabled
+   mx-split-button disabled as an initial attribute should draw the trailing button as disabled
+   mx-split-button disabled as an attribute set later should disable both native buttons
+   mx-split-button disabled as an attribute set later should leave no tab stop
+   mx-split-button disabled as an attribute set later should fire no event for a click on the trailing button
+   mx-split-button disabled as an attribute set later should fire no event for a key on the trailing button
+   mx-split-button disabled as an attribute set later should draw the leading button as disabled
+   mx-split-button disabled as an attribute set later should draw the trailing button as disabled
+   mx-split-button disabled as a property should disable both native buttons
+   mx-split-button disabled as a property should leave no tab stop
+   mx-split-button disabled as a property should fire no event for a click on the trailing button
+   mx-split-button disabled as a property should fire no event for a key on the trailing button
+   mx-split-button disabled as a property should draw the leading button as disabled
+   mx-split-button disabled as a property should draw the trailing button as disabled
+## disabled not transferred | webkit | 18 failed, 34 passed
+   mx-split-button disabled as an initial attribute should disable both native buttons
+   mx-split-button disabled as an initial attribute should leave no tab stop
+   mx-split-button disabled as an initial attribute should fire no event for a click on the trailing button
+   mx-split-button disabled as an initial attribute should fire no event for a key on the trailing button
+   mx-split-button disabled as an initial attribute should draw the leading button as disabled
+   mx-split-button disabled as an initial attribute should draw the trailing button as disabled
+   mx-split-button disabled as an attribute set later should disable both native buttons
+   mx-split-button disabled as an attribute set later should leave no tab stop
+   mx-split-button disabled as an attribute set later should fire no event for a click on the trailing button
+   mx-split-button disabled as an attribute set later should fire no event for a key on the trailing button
+   mx-split-button disabled as an attribute set later should draw the leading button as disabled
+   mx-split-button disabled as an attribute set later should draw the trailing button as disabled
+   mx-split-button disabled as a property should disable both native buttons
+   mx-split-button disabled as a property should leave no tab stop
+   mx-split-button disabled as a property should fire no event for a click on the trailing button
+   mx-split-button disabled as a property should fire no event for a key on the trailing button
+   mx-split-button disabled as a property should draw the leading button as disabled
+   mx-split-button disabled as a property should draw the trailing button as disabled

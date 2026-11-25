@@ -1,0 +1,168 @@
+
+# chromium 158.0.8127.18
+head | mx-split-button | disabled | text | none
+head | mx-split-button | disabled | span | none
+head | mx-split-button | disabled | icon, at the icon | none
+head | mx-split-button | enabled | text | click at mx-split-button
+head | mx-split-button | enabled | span | click at span
+head | mx-split-button | enabled | icon, at the icon | click at mx-split-button
+head | mx-split-button | fieldset | text | none
+head | mx-split-button | fieldset | span | none
+head | mx-split-button | fieldset | icon, at the icon | none
+head | mx-button | disabled | text | none
+head | mx-button | disabled | span | none
+head | mx-button | disabled | icon, at the icon | none
+head | mx-button | enabled | text | click at mx-button
+head | mx-button | enabled | span | click at span
+head | mx-button | enabled | icon, at the icon | click at mx-button
+head | mx-button | fieldset | text | none
+head | mx-button | fieldset | span | none
+head | mx-button | fieldset | icon, at the icon | none
+head | button | disabled | text | none
+head | button | disabled | span | none
+head | button | disabled | icon, at the icon | none
+head | button | enabled | text | click at button
+head | button | enabled | span | click at span
+head | button | enabled | icon, at the icon | click at mx-icon
+head | button | fieldset | text | none
+head | button | fieldset | span | none
+head | button | fieldset | icon, at the icon | none
+main | mx-split-button | disabled | text | none
+main | mx-split-button | disabled | span | none
+main | mx-split-button | disabled | icon, at the icon | none
+main | mx-split-button | enabled | text | click at mx-split-button
+main | mx-split-button | enabled | span | click at span
+main | mx-split-button | enabled | icon, at the icon | click at mx-split-button
+main | mx-split-button | fieldset | text | none
+main | mx-split-button | fieldset | span | none
+main | mx-split-button | fieldset | icon, at the icon | none
+main | mx-button | disabled | text | none
+main | mx-button | disabled | span | none
+main | mx-button | disabled | icon, at the icon | none
+main | mx-button | enabled | text | click at mx-button
+main | mx-button | enabled | span | click at span
+main | mx-button | enabled | icon, at the icon | click at mx-button
+main | mx-button | fieldset | text | none
+main | mx-button | fieldset | span | none
+main | mx-button | fieldset | icon, at the icon | none
+main | button | disabled | text | none
+main | button | disabled | span | none
+main | button | disabled | icon, at the icon | none
+main | button | enabled | text | click at button
+main | button | enabled | span | click at span
+main | button | enabled | icon, at the icon | click at mx-icon
+main | button | fieldset | text | none
+main | button | fieldset | span | none
+main | button | fieldset | icon, at the icon | none
+
+# firefox 159.0
+head | mx-split-button | disabled | text | none
+head | mx-split-button | disabled | span | none
+head | mx-split-button | disabled | icon, at the icon | none
+head | mx-split-button | enabled | text | click at mx-split-button
+head | mx-split-button | enabled | span | click at span
+head | mx-split-button | enabled | icon, at the icon | click at mx-split-button
+head | mx-split-button | fieldset | text | none
+head | mx-split-button | fieldset | span | none
+head | mx-split-button | fieldset | icon, at the icon | none
+head | mx-button | disabled | text | none
+head | mx-button | disabled | span | none
+head | mx-button | disabled | icon, at the icon | none
+head | mx-button | enabled | text | click at mx-button
+head | mx-button | enabled | span | click at span
+head | mx-button | enabled | icon, at the icon | click at mx-button
+head | mx-button | fieldset | text | none
+head | mx-button | fieldset | span | none
+head | mx-button | fieldset | icon, at the icon | none
+head | button | disabled | text | none
+head | button | disabled | span | none
+head | button | disabled | icon, at the icon | none
+head | button | enabled | text | click at button
+head | button | enabled | span | click at span
+head | button | enabled | icon, at the icon | click at mx-icon
+head | button | fieldset | text | none
+head | button | fieldset | span | none
+head | button | fieldset | icon, at the icon | none
+main | mx-split-button | disabled | text | none
+main | mx-split-button | disabled | span | none
+main | mx-split-button | disabled | icon, at the icon | none
+main | mx-split-button | enabled | text | click at mx-split-button
+main | mx-split-button | enabled | span | click at span
+main | mx-split-button | enabled | icon, at the icon | click at mx-split-button
+main | mx-split-button | fieldset | text | none
+main | mx-split-button | fieldset | span | none
+main | mx-split-button | fieldset | icon, at the icon | none
+main | mx-button | disabled | text | none
+main | mx-button | disabled | span | none
+main | mx-button | disabled | icon, at the icon | none
+main | mx-button | enabled | text | click at mx-button
+main | mx-button | enabled | span | click at span
+main | mx-button | enabled | icon, at the icon | click at mx-button
+main | mx-button | fieldset | text | none
+main | mx-button | fieldset | span | none
+main | mx-button | fieldset | icon, at the icon | none
+main | button | disabled | text | none
+main | button | disabled | span | none
+main | button | disabled | icon, at the icon | none
+main | button | enabled | text | click at button
+main | button | enabled | span | click at span
+main | button | enabled | icon, at the icon | click at mx-icon
+main | button | fieldset | text | none
+main | button | fieldset | span | none
+main | button | fieldset | icon, at the icon | none
+
+# webkit 27.2
+head | mx-split-button | disabled | text | none
+head | mx-split-button | disabled | span | none
+head | mx-split-button | disabled | icon, at the icon | none
+head | mx-split-button | enabled | text | click at mx-split-button
+head | mx-split-button | enabled | span | click at span
+head | mx-split-button | enabled | icon, at the icon | click at mx-split-button
+head | mx-split-button | fieldset | text | none
+head | mx-split-button | fieldset | span | none
+head | mx-split-button | fieldset | icon, at the icon | none
+head | mx-button | disabled | text | none
+head | mx-button | disabled | span | none
+head | mx-button | disabled | icon, at the icon | none
+head | mx-button | enabled | text | click at mx-button
+head | mx-button | enabled | span | click at span
+head | mx-button | enabled | icon, at the icon | click at mx-button
+head | mx-button | fieldset | text | none
+head | mx-button | fieldset | span | none
+head | mx-button | fieldset | icon, at the icon | none
+head | button | disabled | text | none
+head | button | disabled | span | none
+head | button | disabled | icon, at the icon | none
+head | button | enabled | text | click at button
+head | button | enabled | span | click at span
+head | button | enabled | icon, at the icon | click at mx-icon
+head | button | fieldset | text | none
+head | button | fieldset | span | none
+head | button | fieldset | icon, at the icon | none
+main | mx-split-button | disabled | text | none
+main | mx-split-button | disabled | span | none
+main | mx-split-button | disabled | icon, at the icon | none
+main | mx-split-button | enabled | text | click at mx-split-button
+main | mx-split-button | enabled | span | click at span
+main | mx-split-button | enabled | icon, at the icon | click at mx-split-button
+main | mx-split-button | fieldset | text | none
+main | mx-split-button | fieldset | span | none
+main | mx-split-button | fieldset | icon, at the icon | none
+main | mx-button | disabled | text | none
+main | mx-button | disabled | span | none
+main | mx-button | disabled | icon, at the icon | none
+main | mx-button | enabled | text | click at mx-button
+main | mx-button | enabled | span | click at span
+main | mx-button | enabled | icon, at the icon | click at mx-button
+main | mx-button | fieldset | text | none
+main | mx-button | fieldset | span | none
+main | mx-button | fieldset | icon, at the icon | none
+main | button | disabled | text | none
+main | button | disabled | span | none
+main | button | disabled | icon, at the icon | none
+main | button | enabled | text | click at button
+main | button | enabled | span | click at span
+main | button | enabled | icon, at the icon | click at mx-icon
+main | button | fieldset | text | none
+main | button | fieldset | span | none
+main | button | fieldset | icon, at the icon | none

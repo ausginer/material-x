@@ -2443,6 +2443,42 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 - **Corrected in the note above,** from `reviewer-9` and `reviewer-7`: it said that the list differs _"by at most 24 of 255 per channel, mostly at the corners"_, and that _"Positioned content"_ covers the outline. Most of the pixels that differ are away from the corners, by at most 1 for a list item.
 - **Witness:** `checks/padding-owner.txt`, in the card's record.
 
+**Dated 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on two proposals of Mx Architect Explainer, sent with the owner's approval (_"Агам"_, "Yep"). That approval covers the sending and isn't a ruling.
+
+- **The owner's reason for one slot,** from his reading of the guidelines, in his words, relayed: _"Ага, я щас посмотрел guidelines и понял, что карточки сами по себе могут быть офигеть какими сложными, и слотами их не собрать"_ ("Yeah, I've just looked at the guidelines and understood that cards can be insanely complex in themselves, and that you can't assemble them from slots"). **It is the stronger reason and goes first in _Why_:** the card is a surface, and the layout inside it is the consumer's. It holds for a `media` slot as well. So the plan's _"A `media` slot can come later and break nothing"_ is no direction. It stays true as a statement about compatibility, as this entry's _"a slot can be added later"_ does.
+- **Corrected: _"its tokens specify only that"_ was too wide.** Each of the three sets also has `icon.*` tokens (the store, read). Clause 6 and the plan have them as not taken, because there is no icon slot. The sets have no token for a headline, a subhead, media, actions or padding.
+- **Recorded: the [landing plan](landing-1/landing-plan.md)'s Card row says _"slots"_,** and this entry departs from it. No earlier answer of the owner's on the card's slots was found in the record. His words above are the first.
+- **A page's own layout on the card, read:** `display: grid` and `display: flex` on `mx-card` lay out the slotted children directly, inside the 16px padding, the same in the three engines ([reading](names-and-card-1/checks/contracts.txt), [probe](names-and-card-1/probes/contracts.mjs)). The plan has _"Not read"_ for it. **A row is owed,** because the reason for one slot rests on it: a card with a page's two-column grid puts two children side by side, each with the column's width. **Witness:** it fails with the slot as a block. It goes with the unit of the next bullet, or with `RF-122`'s, which edits the slot, if the owner declines that one.
+- **The card's shape can be inherited by its content. Answered by the owner on 2026-11-25, in force by the note below.** The slot has `border-radius: inherit`. It generates no box and draws nothing, so nothing changes until a child writes `border-start-start-radius: inherit`, or another corner, or the shorthand. Read on `mx-card` in the three engines: the child has the card's corner for the token, for `--md-card-container-shape` with one value and with four, and for a page's own `border-radius` on the card, and 0 without the line. A child that doesn't inherit, a nested card and a button are unchanged. **The promise** is for direct children, and for an element that lies at the card's edge. An inset medium needs a smaller radius, which is its own.
+  - **What it repairs:** the story _Full-bleed media_ repeats `12px` by hand, so it is wrong with another `--md-card-container-shape` or theme. `RD-53`'s cost, _"rounds a full-bleed image itself"_, becomes one declaration without a number.
+  - **The plan's earlier removal of `border-radius` from the slot** was for the outline's box and gives no reason against this.
+  - **Not adopted:** `overflow: clip` by the page keeps the shadow (read) and cuts the focus indicators and popups of the content. `border-radius: var(--md-card-container-shape, 12px)` by the page repeats the token's value.
+  - **Costs:** one declaration, and a public promise that the slot keeps passing the card's radius. `RF-122`'s removal of the slot's two resets leaves this line.
+  - **Work,** when the owner orders it: the line with its comment; the JSDoc and `card.mdx`; the story takes `inherit` in place of `12px`; rows in the three engines that a direct child inherits the token's corner and a consumer's `--md-card-container-shape`, whose witness is the line removed; the grid row above. No new attribute, slot or property. **Size:** _small_.
+  - **Q1, for the owner — does the package promise it?** (a) **Yes. Recommended.** (b) No: the story uses `overflow: clip` or keeps its number, and the cost stands. It is new public surface, so nothing starts before his answer.
+
+**Dated 2026-11-25 by the architect: Q1 of the note above is answered by the owner, (a), the same day.** In chat, relayed by the coordinator: _"Q1 (a)"_. The package promises that a direct child of `mx-card` can inherit its corner radius. **Ready** for an implementer. Until this note the bullet said _"Proposed, accepted by the architect, and not in force"_.
+
+- **The promise, added to clause 3:** the slot passes the card's `border-radius` on, and draws nothing. A direct child that declares `inherit` for a corner, or for the shorthand, has the card's corner, whether it comes from the token, from `--md-card-container-shape` or from a page's `border-radius` on the card. A child that declares nothing is unchanged. An element deeper than a direct child, and an inset one, aren't promised anything.
+- **The cost _"and rounds a full-bleed image itself"_** now reads as one `inherit` declaration on the image.
+
+**The implementer's list:**
+
+1. **`card/styles/default/main.styles.css`:** `border-radius: inherit` in the `slot` rule. The comment says that the slot passes the card's radius to the content that inherits it. `RF-122`'s two resets and their comment stay as they are.
+2. **`card.ts` JSDoc:** the sentence after _"It doesn't clip its content"_'s paragraph: _"Full-bleed content rounds its own corners: a direct child of the card takes the card's corner with `border-radius: inherit`, or with one corner's property, such as `border-start-start-radius: inherit`."_ `@cssprop --md-card-padding` stands.
+3. **`card.mdx`, _Full-bleed media_:** _"Round the corners of full-bleed media yourself."_ becomes _"Round the corners of full-bleed media by inheriting the card's: on a direct child of the card, `border-start-start-radius: inherit` takes the card's corner. The card promises this for its direct children only, and an inset element needs a smaller radius of its own."_
+4. **`card.stories.tsx`, `FullBleedMedia`:** the image's two corners are `'inherit'` in place of `'12px'`.
+5. **Rows,** in `card.spec.browser.test.ts`, in the three engines:
+   - a direct child with `border-start-start-radius: inherit` and `border-start-end-radius: inherit` has the card's corner, resolved from the token; from `--md-card-container-shape: 20px`; from one with four values; and from a page's `border-radius` on the card. **Witness:** the four fail without the line;
+   - a direct child without a declaration has 0, and a nested `mx-card` with its own shape has its own. **No witness is owed:** they hold on `main`, and guard that the line reaches only a child that asks;
+   - a card with a page's `display: grid` of two equal columns lays two children side by side in its padding, each with a column's width; the same with `display: flex` and `flex: 1`. **Witness:** both fail with `display: block` on the slot.
+6. **Checks:** the `.ts` and `.css` checks of `handoff.md`; the card's rows in the three engines, and material-x without the visual project in one; publint, `docs-build`, `docs-smoke`; sizes by the gate. **No visual baseline changes.** Stop and return if one does, or if a row differs in an engine.
+7. **No feature proof is owed,** because the architect has read each row's reading in the three engines ([reading](names-and-card-1/checks/contracts.txt)) and the line adds no behavior of its own. The coordinator compares the diff with this list and the two witnesses with their record.
+
+- **Branch:** its own, after this branch is on `main`, because the record is here. It is one small unit with one pull request.
+- **`RF-122` (#217), either order.** It removes the two resets from the same rule and keeps this line, and neither changes what the other reads. The second to land merges the first, and its slot rule holds the line alone. Their rows don't overlap. The grid row is in this unit and isn't in `RF-122`'s.
+- **`RF-139`'s limit on wide controls** was told to the owner. He raised no objection, and that isn't an answer.
+
 #### RD-54 — `mx-top-app-bar` pins itself, takes its scrolled state from one observer, and changes color without a shadow
 
 **Decided 2026-11-23 by the architect, on `material-x/top-app-bar-1`,** on the coordinator's task for #172, as unit H of `RD-47`'s landing plan. `RD-53` is the highest `RD-` on any branch on `origin` (`material-x/card-1`), so this is the next free number. The [plan](top-app-bar-1/top-app-bar-plan.md) holds the readings, the tokens, the tests and the work.
@@ -2630,6 +2666,51 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 **For the plan:** the rules that apply to an element rather than a page (`region` and `page-has-heading-one` don't), the states of property 2, the engines, where the check and its list live, and the run time that it adds. The readings give no difference between engines, so Chromium alone is the starting proposal.
 
 **Order:** it waits for nothing. It is most useful before `RF-132` and `RF-94`, whose repairs then change its list. **Size:** _large_, because a plan comes first. The plan is short.
+
+#### RD-58 — A page names the split button's trailing button with `secondarylabel`, and `open` is its expanded state
+
+**Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer of 2026-11-24 to `RF-136`'s Q1, (a). In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). `RD-57` is the highest `RD-` on any branch on `origin`, so this is the next free number. The [contract](#rf-136--the-split-buttons-trailing-button-is-named-by-its-icons-ligature-cant-be-given-a-name-and-doesnt-expose-open) is in `RF-136`.
+
+1. **`secondarylabel`,** an attribute with a property of the same name, is the trailing button's accessible name. It takes the page's text as it is, has no default, and is documented as required. Without it the button has no name.
+2. **`open` is exposed as the trailing button's expanded state,** `false` or `true` from the first render. No `aria-haspopup` and no `aria-controls` are set, because what opens is the page's.
+3. **A host `aria-label` names neither button.**
+
+**Why.** The host has two buttons and one name, so the name of one of them needs a place of its own, beside `secondaryaction`. A default would be an English string in every bundle, and a page in another language that forgets the attribute would not see that it did. An unnamed button is reported by axe-core's `button-name` (`RD-57`).
+
+**Costs.** One more attribute. Every page that has a split button sets it, and one that doesn't has an unnamed button, where today it is named by a ligature. The inner `mx-icon-button` has the name and the state on its own node too, which is `RF-94`'s.
+
+#### RD-59 — `mx-icon` hides its content from assistive technology
+
+**Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer of 2026-11-24 to `RF-137`'s Q2, (a). In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). The contract is in `RF-137`.
+
+1. **The content of an `mx-icon` is in no accessible name and no accessible text,** whatever it is: a ligature, text or an SVG. The package hides it inside the icon's shadow tree, and the page's attributes on the host aren't touched.
+2. **A page gives an icon a meaning with `role="img"` and `aria-label` on it,** and the name is then part of its control's.
+3. **An icon-only control takes its name from its own `aria-label`,** or from such an icon. Without one it has no name.
+
+**Why.** A ligature is the font's input and nobody sees it, so a screen reader's _edit Save_ says something that isn't on the page. A page that has to hide each icon will miss one, and no page, story or snippet of the package does so today.
+
+**Costs.** An icon-only control that relies on its ligature loses its name. An SVG or a text with a meaning inside an `mx-icon` is hidden too. Each icon has one more element, whose speed wasn't measured.
+
+#### RD-61 — In `mx-sortable-list`, the user can't reorder a disabled item
+
+**Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer to `RF-142`'s Q1, (c), in the wider form that Mx Architect Explainer proposed and he approved as a whole, relayed by the coordinator. His words: _"почему ручка вообще фокусится, если item disabled? Я бы предположил, что если item disabled, то всё у него внутри тоже disabled. Я верно понимаю a11y?"_ ("why does the handle take focus at all if the item is disabled? I'd expect that if an item is disabled, everything inside it is disabled too. Do I understand a11y right?"), and then, to the readings and the proposal: _"Да, отправляй"_ ("Yes, send it"). The contract is in `RF-142`. `RD-60` is on `drag/displacement-1`, so this is the next free number. **Unimplemented.**
+
+1. **A `mx-list-button-item` or `mx-list-link-item` with `disabled` isn't picked up by the user,** by pointer or by keyboard, with a handle or without, wherever in the item focus is. An arrow key then keeps its native meaning. It stays in the collection: the other items move past it and displace it. A page's own change of the DOM isn't affected.
+2. **Its handle is a disabled button:** it keeps its role and name, and has `aria-disabled="true"`. It is no tab stop, and it doesn't have the description _Use the arrow keys to move_ or `touch-action: none`. Enabled, it has again what it had. As for the rest of the handle, a value that the page wrote is the page's and stays.
+3. **The handle takes `tabindex="-1"`, and doesn't lose its tab index.** A handle that has focus when its item is disabled then keeps it, and works again when the item is enabled. With the attribute removed, focus goes to `body` in the three engines and isn't restored. **Cost:** a press or `focus()` can still focus a disabled handle, which does nothing there.
+4. **An item without a handle** doesn't have the description on its control.
+5. **`disabled` counts at the press, or at the key.** An operation that the list has admitted goes on if its item is disabled afterwards, before the lift, during the drag or while a commit is pending. A page that disables an item in its `reorder` handler while it saves would otherwise lose the move that it accepted. A page that doesn't want it refuses the move there.
+6. **A handle that is a control of the page, such as a native button or an `mx-icon-button`,** has properties 2 and 3 as any handle. It isn't natively disabled, so its own click still fires.
+7. **The page's other controls in a disabled item aren't disabled by the package.** They keep focus, operation and the item's dimming, which also dims their focus indicator. It is a documented limit: the page disables them.
+8. **`mx-list-item` has no `disabled`,** and the attribute on it changes nothing.
+
+**Why.** A disabled item's own button can't be used, its handle can, and an item without a handle can be dragged and not moved by key. The two inputs disagree, and the user of the keyboard meets a control that works and that can't be seen to have focus. ARIA 1.2's _aria-disabled_ extends to the focusable descendants of the element that has it (as the proposal quotes it; not read by the architect).
+
+**Not adopted.** `inert` on a disabled item: by knowledge it also hides its content from assistive technology. Ending the operation when its item is disabled: property 5. A disabled item that keeps its place: no one asked for it, and drag has no such items. A separate attribute for a page that wants only the item's action off: the owner saw this argument against (c), and it is added if somebody asks.
+
+**Supersedes** the sentence of `RF-129`'s property 1 _"A disabled item keeps its disabled look: a handle lifts a disabled button item, in the three engines"_, and its row of a disabled button item lifted by its handle. What is left: an item disabled during its drag takes its disabled look, so `:not(:state(disabled))` in `styles/sortable/tokens.ts` stays. `RF-129`'s text in the list's JSDoc, _"an item that isn't disabled takes Material's reorder colors"_, stays true.
+
+**Costs.** A page that disables an item and lets the user reorder it loses the reorder. A disabled item can be neither moved nor announced as movable. The size wasn't measured. The item's observer sees `disabled` in a list that sorts alone, so `mx-list` and the items pay nothing with the candidate read.
 
 ## Findings
 
@@ -5870,7 +5951,7 @@ Tier A, **closed on 2026-11-24** (the last note), pre-existing. Before closure: 
 
 #### RF-128 — A handle shows the browser's focus indicator, and not Material's
 
-Tier C, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's third observation of that day, relayed by the coordinator: _"ещё один: при фокусе на ручке outline синий. Я так понимаю, нативный, и не знаю, нам надо это трогать, или нет"_ ("One more: when the handle has focus, its outline is blue. As I understand it, it's native, and I don't know whether we should touch it"). Read at `114270083` in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt) and [the candidate's](sortable-observations-1/checks/handle-indicator.txt), [probe](sortable-observations-1/probes/handle-indicator.mjs)).
+Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Until the architect's note of 2026-11-24 it was Tier C. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's third observation of that day, relayed by the coordinator: _"ещё один: при фокусе на ручке outline синий. Я так понимаю, нативный, и не знаю, нам надо это трогать, или нет"_ ("One more: when the handle has focus, its outline is blue. As I understand it, it's native, and I don't know whether we should touch it"). Read at `114270083` in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt) and [the candidate's](sortable-observations-1/checks/handle-indicator.txt), [probe](sortable-observations-1/probes/handle-indicator.mjs)).
 
 - **Whose element:** the consumer's, in the item's `lead` or `trail` slot. In a sortable list the package makes it a button: `sortItem` writes its `tabindex`, `role="button"`, name, description and `touch-action`.
 - **What draws it:** the browser. Nothing in the package or the story has a rule for it, and the computed outline is `auto`, 1px in Chromium and Firefox and 3px in WebKit, in the engine's color. That is the same for `mx-icon`, a `span` and a native `button`. A `mx-icon-button` as a handle already draws Material's, on its inner button.
@@ -5888,6 +5969,106 @@ Tier C, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Not read:** an `mx-icon-button` handle's accessible nodes, where the host also has `role="button"`.
 - **Plan needed:** no. **Ready** for an implementer. The rule is adopted in the items' sheets, and takes the values of the shared `focusTokens`, 2px outside. `RF-125` gives the item's own variables the list's −3px, and both are on the item's `:host`, so the handle's offset needs a variable of its own. The two can land in either order.
 - **Size:** _small_.
+
+**Dated 2026-11-24 by the implementer, on `material-x/handle-focus-1`: not implemented, and returned to the architect.** Requested by the coordinator. The code disagrees with the entry in the `trail` slot. Read on the built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, with the entry's rule as a source change that is restored ([patch](handle-focus-1/checks/handle-focus-scratch.patch.txt)) and as adopted sheets ([reading](handle-focus-1/checks/handle-paint.txt), [probe](handle-focus-1/probes/handle-paint.mjs)), for the four kinds of handle, two kinds of item, two slots, and LTR and RTL. A handle's own pixels below are those in the indicator's color. The whole item also changes by 200 to 202 pixels when focus enters it, whatever the handle is, and their cause wasn't read.
+
+- **The `.trail` slot has `overflow: hidden`, and it fits the handle, so it clips what lies outside the handle.** With the rule, a trailing `mx-icon`, `span` or `button` has the right computed outline and shows 0 pixels of it, in each engine, item and direction. In the `lead` slot it is whole: 324 pixels for a 20px `mx-icon`, which is the ring's area.
+- **So the rule alone makes a trailing handle worse.** It replaces the browser's outline, of which some is visible today. Beyond the item's own change, LTR, `main` shows about 88 pixels for `mx-icon`, 164 for `span` and 228 for `button` in Chromium, and about 12, 54 and 240 in WebKit. In Firefox it shows 0 for `mx-icon`, 21 for `span` and 118 for `button`. The entry's _"focus is visible today"_ is false for a trailing `mx-icon` in Firefox. With the rule none of these shows anything.
+- **A trailing `mx-icon-button` is clipped today too:** 92 to 93 of its 317 to 324 pixels show in Chromium and WebKit, and 0 in Firefox.
+- **The entry's candidate reading** was of computed styles, which clipping doesn't change. It holds as far as it goes.
+- **Candidates, read for the paint alone:**
+  - `.trail { overflow: visible }`: whole in both slots, in the three engines, and for `mx-icon-button`. It costs the clipping of trailing text that is wider than the slot, which wasn't read. The slot is `flex: 0 0 min-content`.
+  - `overflow: clip` with `overflow-clip-margin: 5px`: whole in Chromium and Firefox, nothing in WebKit.
+  - An offset of −3px in `.trail`: whole and inside the handle, in the three engines, so an indicator over the handle's content. `mx-icon-button` stays clipped.
+  - A padding of 5px with a margin of −5px, under `:has-slotted`: whole on button items in Firefox alone. In Chromium and WebKit the sheet changed nothing there. The cause wasn't read, and this isn't evidence against the form.
+- **What the rule needs otherwise holds:** the list's own thickness and color equal `focusTokens`' (3px, `md.sys.color.secondary`), so only the offset needs a variable, `--_handle-focus-indicator-outline-offset`.
+- **Not read:** Safari, sizes, rows, and the list's long trailing text.
+
+**Dated 2026-11-24 by the architect, on the implementer's return, relayed by the coordinator. The owner's (a) stands. The trail slot's clip goes, as `RF-135`, in the same unit. Ready again for an implementer,** on `material-x/handle-focus-1` with `main` at `751b1fb81` merged. Read on the built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2.
+
+- **The return is right, and so is its reading.** The entry's candidate read computed styles only. (a) needs the indicator to be seen, and in `trail` it isn't while the slot clips.
+- **What the clip protects: nothing that was found** ([reading](handle-focus-1/checks/trail-clip.txt), [probe](handle-focus-1/probes/trail-clip.mjs), 19 contents, two kinds of item, two directions, three engines). Between `hidden` and `visible` no box moves, and no size differs. **Long trailing text isn't clipped today:** the slot is `flex: 0 0 min-content` and the text is `nowrap`, so in a 300px item the slot is 538 to 581px wide and the text runs out of the item in either case, with no ellipsis. Short and wrapped text, icons, buttons, a checkbox, and 56px and 150px boxes are drawn the same, but for at most 5 pixels of a glyph's edge in wrapped text. What the clip does cut:
+  - what a page lets overflow a child that it bounded itself, such as `display: block; max-inline-size: 80px` (480 to 750 pixels). With its own `overflow: hidden; text-overflow: ellipsis`, which is the form that gives an ellipsis, it reads the same in both;
+  - a shadow (an elevated `mx-button`, 105 to 130 pixels, and any page's own), a negative margin, and focus indicators (`RF-135`).
+- **Where it came from:** `3632ccd77` wrote the clip and the ellipsis for the **slotted texts** of `.label`, `.overline`, `.support` and `.trail`, and `663e921c7` moved it to the slots. `md.comp.list` has color, font, size, weight, tracking and line height for the trailing text, and nothing of overflow. Material's pages weren't read.
+- **Tier.** It was C, for _"focus is visible today, so nothing is inaccessible"_. That sentence is false for a trailing `mx-icon` in Firefox, and by the vocabulary of [review-findings.md](../.agents/docs/review-findings.md#tier) a page sees another rendering, so it is A. The invisible focus itself is **a finding of its own, `RF-135`,** because it isn't the handle's: a `mx-icon-button` in a plain list has it too.
+- **Not taken, for `trail`:** `overflow: clip` with a margin (WebKit paints nothing); an offset of −3px (the indicator lies on the handle's content, and it leaves `mx-icon-button` clipped, so `RF-135` needs another repair anyway); padding with a negative margin (it reads whole in one engine and one kind of item, and keeps a clip that protects nothing); `overflow: visible` only while a handle has focus (the slot would change its overflow with focus, for no gain); and (b), (c) or (d) for trailing handles only, which makes the same handle look different by slot.
+- **Nothing is the owner's to answer.** (a) is his answer, and what the repair removes has no use that was found. **Told to him, as a cost:** a page that lets its own bounded trailing child overflow sees it spill.
+
+**The implementer's list,** for this entry and `RF-135`, one pull request with `Closes #229` and the issue of `RF-135`:
+
+1. **`list/styles/item/main.styles.css`:** `.trail` leaves the rule of `overflow: hidden` and `text-overflow: ellipsis`, and keeps `align-content: center`. The other three slots keep all three declarations.
+2. **The rule of (a),** as the [scratch patch](handle-focus-1/checks/handle-focus-scratch.patch.txt) has it: `::slotted([data-handle]:focus-visible)` with the list's own `--_focus-indicator-thickness` and `--_focus-indicator-color`, and `--_handle-focus-indicator-outline-offset`, a special token of `md.sys.state.focus-indicator.outer-offset`.
+3. **Rows,** `spec`, in each engine, in `list-item.spec.browser.test.ts`, with the keyboard's focus:
+   - **`RF-128`:** a focused handle (`mx-icon`, `span`, native `button`), in `lead` and in `trail`, in static and button items of a sortable list, has the three computed values of `focusTokens`' thickness, color and 2px offset. **Witness:** with the rule out, they fail. A page's rule on the handle wins, in both slots.
+   - **`RF-135`:** along each of its left, right and bottom edges, a focused `mx-icon-button` in `trail` paints at least nine tenths of the pixels that it paints in `lead` (`coveredIndicator` with no siblings gives `painted`, and `lead` is also the control that the row reads an indicator at all). In a static, a button and a link item of a plain `mx-list`, and for an `mx-icon` handle in a sortable list. **Witness:** with the clip in `.trail`, the trail rows fail, and no computed-style row does.
+4. **The implementer's [probe](handle-focus-1/probes/handle-paint.mjs)** on the built head gives, in `trail`, what it gives for _rule, .trail overflow: visible_, and [`trail-clip.mjs`](handle-focus-1/probes/trail-clip.mjs) reads no box that moves.
+5. Sizes by the gate, the whole browser project of material-x in the three engines without the visual one, typecheck, lint, the root format check, publint, `docs-build` and `docs-smoke`.
+6. **Stop** and return if a visual baseline or another element's row changes, or if a control paints less in `trail` than in `lead` in an engine.
+
+**A feature proof is owed,** and it reads the two entries together. **Not read:** Safari, forced colors, RTL of `trail-focus`, the lifted item. **Size:** _small_.
+
+**Dated 2026-11-25 by the implementer: the list is done for this entry and `RF-135`, for #229 and #253, with `main` at `0dca6e5a0` merged, and neither is closed.** Requested by the coordinator.
+
+- **Source:** items 1 and 2 as written. `.trail`'s `align-content` is in its own rule.
+- **Rows:** 52 in each engine in `list-item.spec.browser.test.ts`: 36 of the three values, 4 of a page's rule, and 12 of `RF-135`'s edges. The values' oracle is `focusTokens`, registered as the contract `focus.default`. The file passes, 125 rows in each engine ([rows and witnesses](handle-focus-1/checks/rows.txt)).
+- **Witness, the rule out:** the 36 rows of values fail in Chromium and Firefox. **In WebKit 24 of them fail: the 12 of thickness pass, because WebKit's own outline is 3px wide.** One edge row of the `mx-icon` handle fails as well in Firefox and WebKit, where the handle has the browser's outline.
+- **Witness, the clip back in `.trail`:** the 12 edge rows fail in each engine, and no other row does.
+- **Item 4:** `handle-paint.mjs` on the built head, with no sheet, has the same pixels in the indicator's color as _rule, .trail overflow: visible_ in every row ([reading](handle-focus-1/checks/handle-paint-head.txt)). The other changed pixels differ by 2 at most, and on interactive items only. `trail-clip.mjs` reads no box that moves ([reading](handle-focus-1/checks/trail-clip-head.txt)).
+- **Size, Brotli,** with and without the two source files, in the same worktree: `list/list-item` 2813 to 2839, `list/list-button-item` 4915 to 4932, `list/list-link-item` 5083 to 5092, `list/sortable-list` 8940 to 8942, `list/list` 686 to 685, `complete` 25660 to 25639. Other rows of material-x move by −17 to +7, and their sources are the same. The cause wasn't read. No limit is exceeded ([all](handle-focus-1/checks/sizes.txt)).
+- **Checks:** material-x's `browser`, `spec` and `node` projects in the three engines, 40 files each, with no failure. Root typecheck, lint, format check, publint, `docs-build` and `docs-smoke` (129 pages) pass. The visual project wasn't run, and CI runs it.
+
+**Dated 2026-11-25 by the architect,** on the [feature proof](reviews/handle-focus-1/feature-proof-claude.md) of `b9428b5df`, for this entry and `RF-135`, requested by the coordinator. `main` at `e57c9f074` is merged without a conflict. **Both required properties hold. One selector narrows, two texts gain a sentence, and the implementer owes nine rows.** The readings below are the architect's own unless said ([reading](handle-focus-1/checks/ruling.txt), probes [one](handle-focus-1/probes/ruling.mjs.txt) and [two](handle-focus-1/probes/ruling-2.mjs.txt)), in Chromium, Firefox and WebKit.
+
+- **`reviewer-1`: confirmed, and it is a limit. An element's own `:host` rule isn't a page's rule.** The requirement's _"a page's own rule on it still wins"_ is about rules of the page's tree, and (a), which the owner chose, says that the package draws it _"whatever the consumer used"_. The cascade compares a `:host` rule with the list item's `::slotted` by tree, the outer one wins, and no selector tells an element that draws an indicator from one that doesn't. A page's rule restores it: `x-grip:focus-visible { outline: … }` reads as the page wrote it in the three engines. **The limit is documented where a page looks for it,** in the _Handles_ text of `mx-sortable-list`, and the comment of the rule says it. **Not adopted:** leaving out every custom element but the package's own, marked from `sortItem`. It can't know whether one has an indicator, and one without would keep the browser's, so the list would look different by element. **Told to the owner, as a cost of (a):** a consumer's element as a handle shows the package's outline instead of its own, or beside it, unless the page has a rule. Nothing waits for an answer.
+- **`reviewer-2`: confirmed, and repaired.** The property is about a handle that the list made a button, and `handleOf` takes a child of `lead` or `trail`. The rule reaches the label, `overline` and `support` too, where the slots clip it, so it shows less than the browser's would. With the rule in `lead` and `trail` alone, a `data-handle` in the other slots keeps its own, in the three engines, and the 125 rows pass.
+- **`reviewer-3`: four of the five get rows, and one doesn't.** An unfocused handle, a clicked one, a child without `data-handle`, and _solid_. **`align-content: center` of `.trail` gets none.** In a three-line item the slot is as high as its line, 16 px for a text of 13 or 14, so there is nothing to align: a row that expected a taller slot failed unmutated too. The boxes with and without the declaration weren't compared. It stays, as it was. The limits of the edge rows are accepted: the proof read the ring whole at 1,545 places.
+- **`reviewer-4`: confirmed, and nothing is owed.** No visual baseline renders a list, so the stop rule of item 6 couldn't fire, and _"CI runs it"_ in the implementer's note says nothing of this unit. A baseline isn't owed: the proof's readings take its place.
+- **The departures and the WebKit witness stand** as the proof reads them. `focus.default` in the registry is right.
+- **Not this unit's:** the disabled item's opacity, which dims the indicator of an enabled handle to about 1.8:1. It is on `main`, and neither property is about it. It isn't registered. **Seen in the architect's runs:** two rows failed once, one each in Firefox and WebKit, under mutations that can't reach them: _"should render the indicator offset"_ of `mx-icon` in `trail`, and the button item's own thickness. Three runs of each engine on the narrowed sheet passed all 125 rows. The cause wasn't read.
+
+**The implementer's list,** on `material-x/handle-focus-1`, with `main` merged (and #261, if it lands first, by the note in `RF-129`).
+
+1. **`list/styles/item/main.styles.css`:** the rule of (a) reaches the `lead` and `trail` slots alone, and the form is free. Its comment says that a page's rule on the element wins, and that the element's own `:host` rule doesn't.
+2. **`sortable-list.ts`, the _Handles_ item of the JSDoc** ends with:
+
+   > A focused handle shows Material's focus indicator. A page's own rule on it, such as `.grip:focus-visible`, replaces it. A handle that is a custom element with an indicator of its own needs such a rule, because the list's rule outranks the element's `:host` rule.
+
+3. **Rows,** `spec`, in `list-item.spec.browser.test.ts`, in `mx-list-item`, in each engine: in `lead` and in `trail`, an `mx-icon` handle has no outline before focus and a solid one with keyboard focus (2); after a mouse click on it, which focuses it, it has none (2); in a plain list, a focusable child without `data-handle` has no solid outline with keyboard focus (2). A focusable `data-handle` in the label, `overline` and `support` slots has no solid outline with keyboard focus (3).
+4. **Witnesses,** in the three engines, saved under `handle-focus-1/checks/`: without `:focus-visible`, the rows of the unfocused and of the clicked handle fail; with `:focus`, the click's; with `::slotted(:focus-visible)` in both slots, the child's; with `dashed`, the first; with the rule in every slot, the last three. No other row of the file fails.
+5. **The proof's [`other-places.mjs`](reviews/handle-focus-1/probes/other-places.mjs) and [`ring.mjs`](reviews/handle-focus-1/probes/ring.mjs) on the built head,** in the three engines: the ring is whole in `lead` and `trail` as before, and a `data-handle` of the label or `support` has the browser's outline. The consumer's two elements read as the proof has them.
+6. **#267's description:** the limit, the narrowed rule, the rows and the witnesses, and that forced colors and the lifted item were read by the proof.
+7. **Checks on the merged tree,** core and drag rebuilt and `build:prepare` run: `list-item.spec` and `tests/list` in the three engines, material-x without the visual project in one, typecheck, the declarations' typecheck, lint, the root format check, publint, `docs-build` and `docs-smoke`. Sizes by the gate.
+8. **Stop** and return if a reading of item 5 differs from the proof's in `lead` or `trail`, if a witness fails another row, if either of the two rows above fails again, or if the built sheet drops the selector's form.
+
+**A recheck isn't owed:** the rule's declarations don't change, its reach narrows to what the proof read, and item 5 repeats the proof's own probes. The coordinator checks the witnesses and item 5, and the architect closes both entries. Nothing is the owner's to answer.
+
+**Dated 2026-11-25 by the architect: the stop of item 8 is answered, and the implementer goes on.** In one Firefox run of the last witness, two rows of _"mx-list focus indicator stacking"_ failed beside the three expected ones ([reading](handle-focus-1/checks/remediation-witnesses.txt)), and five more runs of it in Firefox failed exactly the three ([repeat](handle-focus-1/checks/remediation-witnesses-repeat.txt)). Read by the architect in the saved files and in the rows: their fixtures are an `mx-list` of items with no `data-handle`, so no form of the rule matches there, and each row compares two screenshots, with a load average of 20 to 51 at the time. **The mutation isn't the cause. The cause wasn't read,** and the saved reading has no message, so how the two rows failed is unknown. The unmutated Firefox runs are one pass of 134 and four without a result, and prove little.
+
+- **#261 is merged** (`56bba2895`) and changes the items' sheets, so the saved witnesses are of a tree that doesn't land. `main` is merged first, core and drag are rebuilt, and `build:prepare` is run.
+- **Item 4, again on the merged tree:** the five witnesses and an unmutated run, **one engine at a time and with nothing else running,** replace the saved ones. The two files that exist stay beside them under names that say that they are older. A failed row is saved with its message.
+- **Item 8 is narrowed by one case.** A row outside a witness' list that fails is run three more times in that engine, with the same mutation and without it. If it fails in none, its message goes into the note and the implementer goes on. If it fails in any, the implementer stops. The rest of item 8 stands, with the two rows that it names.
+- **Not registered:** a failure under load without a reading isn't an entry. The same rows failing on an idle machine would be.
+- The disabled item's opacity, which the note above doesn't register, is #271, registered as `RF-142` on `material-x/split-button-names-1`.
+
+**Dated 2026-11-25 by the implementer: the remediation's list is done, with `main` at `2c83c7bc0` merged (#261 and #272), and neither entry is closed.** Requested by the coordinator. The merge has no conflict. Core and drag were rebuilt and `build:prepare` run before every reading below, which are of the sources at `cec5091db`.
+
+- **Items 1 to 3:** the rule is `:is(.lead, .trail)::slotted([data-handle]:focus-visible)`, and the built sheet keeps that form. The comment, the _Handles_ text and the nine rows are as written. The file has 134 rows.
+- **Item 4,** one engine at a time, with other sessions running on the machine, which the owner accepts by the coordinator's message ([witnesses](handle-focus-1/checks/remediation-witnesses.txt), with each failed row's message; [probe](handle-focus-1/probes/mutate.mjs) and [its reporter](handle-focus-1/probes/messages-reporter.mjs)). Chromium, Firefox and WebKit agree: 134 pass unmutated, and each witness fails its own rows and no other. Without `:focus-visible` 4 fail, with `:focus` 2, with any child 2, with `dashed` 2, with every slot 3. Item 8's narrowed case didn't arise, and the two rows it names passed in each run.
+- **The run is the second on this tree.** In the first, the probe had a temporary folder with a long path, and Chromium gave no result for any mutation; the same file then passed without it, and gave no result with it. Firefox and WebKit had the same counts and rows as above. It isn't saved, because it has no messages: Vitest's JSON reporter writes the stack, and in those two engines the stack has none. The older readings are beside it, as [older](handle-focus-1/checks/remediation-witnesses-older.txt) and [older repeat](handle-focus-1/checks/remediation-witnesses-repeat-older.txt). The older one is of the tree without #261.
+- **Item 5:** [`ring.mjs`](handle-focus-1/checks/ring-head.txt) differs from the proof's reading by one added line, which is the three `mx-radio` readings that the proof lost. All 1,548 are 100%. [`other-places.mjs`](handle-focus-1/checks/other-places-head.txt): a `data-handle` of the label or `support` reads the same with the rule as without it, the browser's outline, and the consumer's two elements read as in the proof, in the three engines.
+- **Size, Brotli** ([all](handle-focus-1/checks/sizes-remediation.txt)), with and without the unit's three source files in the same worktree: `list/list-item` 2726 to 2772, `list/list-button-item` 4895 to 4898, `list/list-link-item` 5094 to 5121, `list/sortable-list` 9093 to 9092, `list/list` 591 to 592, `complete` 25699 to 25743. Other rows of material-x move by −10 to +26 with the same sources, and the cause wasn't read. The rows of other packages don't move. The gate passes; material-x's rows have no limit.
+- **Checks:** `tests/list`, which has `list-item.spec`, passes in Chromium (370), Firefox (358, 2 skipped) and WebKit (368, 2 skipped). material-x without the visual project passes in Chromium, 42 files. Root typecheck, the declarations' typecheck, lint, the root format check, publint, `docs-build` and `docs-smoke` (129 pages) pass.
+- **Item 6:** #267's description is updated.
+
+**Closed 2026-11-25 by the architect,** with `RF-135`, on the [feature proof](reviews/handle-focus-1/feature-proof-claude.md) of `b9428b5df`, the rulings above and the implementer's list, read at `66618d70d`, requested by the coordinator. It has `main` at `2c83c7bc0`, and nothing is newer. #267 merges both entries, with `Closes #229` and `Closes #253`.
+
+- **Read by the architect:** since the ruling the branch's own change to the sources is the narrowed selector with its comment and the _Handles_ sentences, as ordered, and to the tests the nine rows. The saved witnesses have 134 passed unmutated and 4, 2, 2, 2 and 3 failed in each engine, with each run's message. The ring reading has 1,548 values, each 100%, and differs from the proof's by the line that the proof lost. `tests/list` is the implementer's, and the coordinator compared it.
+- **Accepted departures:** the witnesses are the second run on the tree, with other sessions on the machine, which the owner accepts. The reading is complete and the engines agree, so the load isn't a doubt about it. `messages-reporter.mjs` is what saves the messages.
+- **The second to merge,** by `RF-129`'s note: both contracts and notes are kept, `build:prepare` and `tests/list` were run again, and no sheet conflicts.
+- **Limits that stand:** an element's own `:host` rule loses to the rule, which the _Handles_ text says, and a page's bounded trailing child spills, which #267's description says. Not read: Safari.
+- **Condition:** CI passes on the last commit of #267. The last commit after `66618d70d` is records alone.
+- **After it:** `RF-139` and `RF-142` (#271) wait for nothing here. Nothing is the owner's.
 
 #### RF-129 — The sortable list takes the baseline `dragged` tokens, and Material's `reorder` set is the one for its lists
 
@@ -5989,6 +6170,8 @@ Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: 
 - **What remains elsewhere:** a link item by its handle in Firefox, in `RF-76`; `RF-128` and `RF-135` (#229), whose second to merge does what the note above says; and the neighbors that jump in a key move, which are drag's (#265).
 - **Not read,** as before: Safari, touch and a pen, assistive technology, a real high-contrast theme, and a page's background image over the reorder container.
 - **Nothing is the owner's to answer.**
+
+**Dated 2026-11-25 by the architect: `RD-61` supersedes one sentence.** Property 1's _"A disabled item keeps its disabled look: a handle lifts a disabled button item, in the three engines"_, and its row, hold until `RF-142`'s unit lands. After it nothing lifts a disabled item, and an item disabled during its drag takes its disabled look.
 
 #### RF-130 — A control loses the component's own `aria-*` when the host's same attribute is removed
 
@@ -6211,9 +6394,34 @@ Tier A, **open**, pre-existing. Until the last note, of 2026-11-24, it was Tier 
 - **`RF-126` isn't affected:** its indicator is whole in RTL by the proof's pixels, and follows the button's shape.
 - **Plan needed:** no. **Ready** for an implementer. **Size:** _medium_, unchanged: the repair is a few lines, and the rows are the rest.
 
+#### RF-135 — A list item's trail slot clips the focus indicator of what is in it, and in Firefox all of it
+
+Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `material-x/handle-focus-1`, from the implementer's return of `RF-128`, on the coordinator's question whether it is a finding of its own. `RF-134` is the highest `RF-` on any branch on `origin` and in the local slots, so this is the next free number. Read at `751b1fb81` merged, on the built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](handle-focus-1/checks/trail-focus.txt), [probe](handle-focus-1/probes/trail-focus.mjs)).
+
+- **What happens:** `.trail` has `overflow: hidden` and fits its content, so the indicator, which lies 2px outside the control, is cut. In a plain `mx-list` with a static item, the indicator's own pixels, whole in `lead` and cut in `trail`:
+
+  | Control in the slot | Chromium, lead / trail | Firefox | WebKit |
+  | --- | --- | --- | --- |
+  | `mx-icon-button` | 324 / **92** | 321 / **0** | 317 / **92** |
+  | `mx-icon-button`, xsmall | 271 / **54** | 296 / **0** | 275 / **54** |
+  | `mx-button` | 330 / **92** | 327 / **0** | 319 / **92** |
+  | `mx-checkbox` | 324 / **92** | 321 / **0** | 317 / **92** |
+
+  A page's own button, link or `tabindex` element loses the browser's outline in the same way: in Firefox a `tabindex` on `mx-icon` shows none of it in `trail`. What focus changes there besides is the item's own focused shape (`:focus-within`), about 200 pixels at its corners, and, on a package button, its state layer.
+
+- **Why it matters:** the controls in `trail` are the ordinary ones, and the story has an `mx-icon-button` there. A keyboard user in Firefox doesn't see which control has focus.
+- **Required property:** nothing of a list item covers or cuts a pixel of the focus indicator of a control in its `lead` or `trail` slot. Content that a page puts in `trail` keeps its layout.
+- **Direction:** the clip goes, as `RF-128`'s last note reads and orders, with its rows. The two are one unit, because a rule for `RF-128` alone makes a trailing handle worse.
+- **Costs:** what that note says of a page's bounded child.
+- **Plan needed:** no. **Ready.** The owner's approval of the start is for the coordinator to ask. **Size:** _small_.
+
+**Dated 2026-11-25 by the architect:** the property holds by the [feature proof](reviews/handle-focus-1/feature-proof-claude.md), and nothing is owed here. `RF-128`'s note of this day has the rulings for both. `reviewer-3`'s mutation of `align-content` gets no row, and `reviewer-4` is answered there.
+
+**Closed 2026-11-25 by the architect,** with `RF-128`, whose last note has the reading and the condition.
+
 #### RF-136 — The split button's trailing button is named by its icon's ligature, can't be given a name, and doesn't expose `open`
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#243](https://github.com/ausginer/material-x/issues/243), relayed by the coordinator. It was seen when `RD-57` was registered. `RF-135` is on `material-x/handle-focus-1`, so this is the next free number. Read at `4e2972514`, on the built elements, in each engine's own accessibility tree, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, which agree ([Chromium](records-batch-1/checks/names-chromium.txt), [Firefox](records-batch-1/checks/names-firefox.txt), [WebKit](records-batch-1/checks/names-webkit.txt), [probe](records-batch-1/probes/names.ts)).
+Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open, ready. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#243](https://github.com/ausginer/material-x/issues/243), relayed by the coordinator. It was seen when `RD-57` was registered. `RF-135` is on `material-x/handle-focus-1`, so this is the next free number. Read at `4e2972514`, on the built elements, in each engine's own accessibility tree, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, which agree ([Chromium](records-batch-1/checks/names-chromium.txt), [Firefox](records-batch-1/checks/names-firefox.txt), [WebKit](records-batch-1/checks/names-webkit.txt), [probe](records-batch-1/probes/names.ts)).
 
 - **What happens (the name):** the trailing button is a `button` named `keyboard_arrow_down`, the text of the `mx-icon` in the template. `RD-57` read it in Chromium only. `aria-label` on the host leaves the two buttons as they are, and names the host itself, `generic` in Chromium and Firefox and `group` in WebKit. There is no slot, attribute or property for the trailing button's name, and a part can't carry one.
 - **What happens (the state):** the trailing button has no expanded state, with `open` and without. `open` sets only the custom state `open`, which the styles read. A host `aria-expanded` or `aria-haspopup` doesn't reach the button. The split button's page says that _"`open` and `secondaryaction` communicate expanded/collapsed secondary action state"_, and to assistive technology `open` communicates nothing. The controls of the probe, a native `<button aria-expanded aria-haspopup>`, read as expanded in Chromium and Firefox, and as a pop-up button in WebKit. Its expanded state didn't come back through WebKit's protocol, so WebKit's row has the attribute's absence on the button and not a reading of the state.
@@ -6234,9 +6442,65 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Rows,** each engine's own accessibility tree, as `RF-94` says: the name with and without the label, the expanded state in both states, and a change of `open`. **Witness:** they fail before the repair.
 - **Plan needed:** no, once Q1 is answered. A new attribute is public surface, so the answer is minted as a decision. **Size:** _medium_.
 
+**Dated 2026-11-25 by the architect: Q1 is answered by the owner, (a), on 2026-11-24, and it is `RD-58`.** In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). **Ready** for an implementer, on `material-x/split-button-names-1`, in one unit with `RF-138`. Read on the built elements in the three engines ([reading](names-and-card-1/checks/contracts.txt), [probe](names-and-card-1/probes/contracts.mjs)): `aria-label` and `aria-expanded` set on the inner `mx-icon-button` are on its native button.
+
+1. **`split-button.ts`:** `SplitButtonLike` has `secondarylabel: Str`. Its value is the `aria-label` of the inner `mx-icon-button`, and `null` removes it. Each change of `open` sets that element's `aria-expanded` to `"true"` or `"false"`. `useARIA` takes both to the native button. The split button writes nothing inside the icon button's shadow tree.
+2. **`split-button.tpl.html`:** the icon button has `aria-expanded="false"`, and its `mx-icon` has `aria-hidden="true"`. With that the trailing button has no ligature name without `secondarylabel`, and the unit doesn't depend on `RF-137`, whose unit removes the attribute.
+3. **Documentation.** JSDoc: `@attr secondarylabel`, _Accessible name of the trailing button. Required._ `open`: _Marks the trailing toggle as opened, and is its expanded state._ `split-button.mdx`, _Accessibility_: the name, that it is required and in the page's language; that `open` is the trailing button's expanded state; that a host `aria-label` names neither button. `usageSnippet`, the quick start, the stories and every other `mx-split-button` in the repository's pages set it. The page says that a split button whose `secondaryaction` opens nothing is a toggle that is never expanded.
+4. **Rows, in each engine,** in `split-button.browser.test.ts`: the native trailing button has the label as its `aria-label`, follows its change and loses it; has `aria-expanded="false"` without `open`, `"true"` with it, from the first render and after each change; the leading button and the host have neither; a host `aria-label` is on neither button. In Chromium through `readAccessibilityTree`: the trailing node's role, name and `expanded`, with the label and without, and no icon text. **Witness:** each fails on `main`.
+   - **The entry's _Rows_ line is narrowed:** `readAccessibilityTree` reads Chromium only, and widening it isn't this unit's. The trees of Firefox and WebKit are read by [`names.ts`](records-batch-1/probes/names.ts) on the built change, with the result saved beside the unit's.
+5. **Public types:** `SplitButtonLikeProps` and the React types gain the property, and `traits-baseline.json` changes by it only.
+6. **Checks:** the `.ts` checks of `handoff.md`, both browser projects of the package in the three engines without the visual one, publint, `docs-build`, `docs-smoke`, sizes by the gate. **No visual baseline changes.** Stop and return if one does.
+7. **The description** has `Closes #243` and `Closes #260`. A feature proof is owed, and it reads `RF-136` and `RF-138` together.
+
+**Dated 2026-11-25 by the implementer: implemented with `RF-138` on `material-x/split-button-names-1`, from `main` at `855990331`, for #243 and #260, and not closed.** Requested by the coordinator.
+
+- **Source:** as the note's list. `secondarylabel` is transferred to the inner icon button's `aria-label`, and each change of `open` sets its `aria-expanded`. The template has `aria-expanded="false"`, and `aria-hidden="true"` on its icon. The constructor now finds the icon button once, for the event and the two attributes. No source change outside `split-button.ts` and its template.
+- **Rows,** `split-button.browser.test.ts`: 56 in Chromium, and 52 in Firefox and WebKit. Four of them read Chromium's tree. `traits-baseline.json` changes by `secondarylabel` only.
+- **Witnesses** ([reading](split-button-names-1/checks/witnesses.txt), [script](split-button-names-1/probes/mutate.mjs)), by engine: `main`'s source fails 32 rows in Chromium, 25 in Firefox and 25 in WebKit. **Not every row fails on `main`,** as the contract asks. The three rows of an absence (neither the leading button nor the host, a host `aria-label` on neither button) pass there, and each is failed by a mutation of its own in the three engines. So do the rows of the enabled state (16), the existing two, a click on the disabled leading button (3), which the host's own disabled state holds, and in Firefox and WebKit a key on it (3), as the entry of `RF-138` reads. With `disabled` not transferred, 21, 18 and 18 fail. The icon's `aria-hidden` is held by Chromium's rows only.
+- **Trees on the built change** ([Chromium](split-button-names-1/checks/names-chromium.txt), [Firefox](split-button-names-1/checks/names-firefox.txt), [WebKit](split-button-names-1/checks/names-webkit.txt), [probe](split-button-names-1/probes/names.ts)): `names.ts` with four rows added for the label. The three agree: named by the label, no name without it, expanded with `open` and collapsed without, and a host `aria-label` on neither. Firefox's states are in its list in document order. WebKit's reading has the expanded state here, which the registered reading of the native control didn't have.
+- **Checks:** material-x without the visual project: Chromium 1745 passed and 2 expected failures; Firefox 1663 passed, 3 expected failures and 81 skipped; WebKit 1664 passed, 2 expected failures and 81 skipped. Typecheck, `typecheck-declarations`, the root format check, publint, `docs-build` and `docs-smoke` (129 of 129) pass. The size budgets pass.
+- **Lint fails, with three errors in the rows' file,** all surviving the autofix, and left as `handoff.md` says: `no-await-in-loop` twice (one change of `open` and one press of Tab per step), and `strict-void-return` once (a listener that returns `push`'s value).
+- **Size, Brotli, local, against `main`'s two sources on the same tree:** `button/split-button` 7567 to 7650 (+83), `complete` 25660 to 25686 (+26). No other row of 23 moves.
+- **Not run:** the visual project, Safari, screen readers.
+
+**Dated 2026-11-25 by the architect,** on the [feature proof](reviews/split-button-names-1/feature-proof-claude.md) of `66e7cf867`, for this entry, `RF-138` and `RD-58`, requested by the coordinator. `main` at `56bba2895` is merged. **Every required property holds, and no source changes. The implementer owes three rows and a corrected witness.** CI, which hadn't run when the proof was written, passed on `c7db9e65a`, the first merge of `main`.
+
+- **`reviewer-1`: confirmed, and repaired by three rows.** `RF-138` requires that the group's other attributes keep working, and no row fails when one isn't transferred. Run by the architect in the three engines ([reading](split-button-names-1/checks/ruling-rows.txt), [probe](split-button-names-1/probes/ruling-rows.mjs.txt)): a row per attribute that compares the leading button with a standalone `mx-button` that has it passes, and fails with that attribute alone left out. Rows of a later change and of a removal were run too. **They aren't asked for:** one expression transfers the four attributes, and `disabled`'s rows hold its changes and its removals. The two parts take the attributes from one group, so the leading button is enough.
+- **`reviewer-2`: confirmed, and the record is repaired.** The recorded mutation throws before it writes, so it witnesses nothing of the row _"should be on neither the leading button nor the host"_, and the sentence _"each is failed by a mutation of its own"_ was true of two rows of the three. The proof's own two mutations fail the row in the three engines, so it stands unchanged. The script and its saved reading take them.
+- **`reviewer-3`: confirmed, and answered here.** _"Lint fails, with three errors in the rows' file"_ in the note above was true at `31b2a2c6a`, and `66e7cf867` repaired it. Nothing is owed.
+- **The departures stand** as the proof accepts them: rows that pass on `main`, `aria-hidden` by Chromium's tree alone, and the React types through `SplitButtonLikeProps`.
+
+**The implementer's list,** on `material-x/split-button-names-1`.
+
+1. **Rows,** in `split-button.browser.test.ts`, in each engine, one for each of `color`, `size` and `shape`: a split button with a value other than the default has, on its leading native button, the background, height and start corner of a standalone `mx-button` with the same attribute and text, both settled. Members settle by their host, because `settleAnimations` reads the host's shadow root.
+2. **[`mutate.mjs`](split-button-names-1/probes/mutate.mjs):** _open on the leading button and the host too_ becomes two mutations, the leading button and the host, that write without an error. Three more leave out one attribute each.
+3. **Witnesses,** for those five mutations and the unmutated file, in the three engines, **one engine at a time and with nothing else running,** saved in `split-button-names-1/checks/`. The first two each fail _"should be on neither the leading button nor the host"_; on the leading button, Chromium's tree row for `open` fails as well, as the proof has it. The other three each fail the row of their attribute. No other row of the file fails. The three sections of the old mutation leave [`witnesses.txt`](split-button-names-1/checks/witnesses.txt), and a line there says where the new ones are.
+4. **A dated note here:** the rows, the new counts, the witnesses, and that the sentence about the three absence rows holds with them. **#268's description:** the counts and the rows.
+5. **Checks,** core and drag rebuilt after the merge and `build:prepare` run: the file in the three engines, `tests/button` and `tests/button-group` in one, typecheck, lint, the root format check. CI on the head.
+6. **Stop** and return if a witness fails another row in a second run too, or if a row needs a change of the source.
+
+**A recheck isn't owed:** no source changes, and the proof read the property itself at 200 split buttons. The coordinator checks the witnesses, and the architect closes both entries. Nothing is the owner's to answer.
+
+**Dated 2026-11-25 by the implementer, on the architect's list above, and not closed.** `main` at `2c83c7bc0` is merged. Requested by the coordinator. No source changes.
+
+- **Rows:** three in `split-button.browser.test.ts`, one for each of `color` (`tonal`), `size` (`large`) and `shape` (`square`): the leading native button has the background, height and start corner of a standalone `mx-button` with the same attribute and text. The file has 59 rows in Chromium, and 55 in Firefox and WebKit. They replace the 56 and 52 of the first note.
+- **[`mutate.mjs`](split-button-names-1/probes/mutate.mjs):** the mutation that threw is two mutations, the leading button and the host, and three more leave out one attribute each. It takes an optional list of mutations, and removes the previous report before each run, so a run that writes none can't be read as the one before it.
+- **Witnesses** ([reading](split-button-names-1/checks/witnesses-ruling.txt)), each mutation and the unmutated file once in each engine: unmutated, every row passes. Each of the two mutations of `open` fails _"should be on neither the leading button nor the host"_, and on the leading button Chromium's tree row for `open` fails too. Each of the other three fails its attribute's row. No other row fails, and no second run was needed. So the sentence _"each is failed by a mutation of its own in the three engines"_ holds now for the three absence rows. The old mutation's sections left [`witnesses.txt`](split-button-names-1/checks/witnesses.txt).
+- **Departure:** the list asks for nothing else running. The runs were one engine at a time in this session, and other sessions ran tests in the container meanwhile, on the coordinator's instruction, relayed as the owner's acceptance of parallel sessions. A failure would have been repeated three times. None was unexpected.
+- **Checks,** core and drag rebuilt and `build:prepare` run after the merge: the file in the three engines, `tests/button` and `tests/button-group` in Chromium (340 passed), material-x's typecheck, lint on the rows' file and the root format check pass. CI on the head is the pull request's.
+
+**Closed 2026-11-25 by the architect,** with `RF-138`, on the [feature proof](reviews/split-button-names-1/feature-proof-claude.md) of `66e7cf867`, the ruling above and the implementer's list, read at `387b62e1d`, requested by the coordinator. `main` at `2c83c7bc0` was already merged, and #267 wasn't on it. CI passes on `387b62e1d`, and what follows it is records alone. #268 merges both entries, with `Closes #243` and `Closes #260`.
+
+- **Read by the architect:** since the ruling no source file changes, and the rows' file gains the three rows, as ordered. The saved witnesses pass 59, 55 and 55 unmutated. `open` on the leading button too fails 2, 1 and 1, on the host too 1 in each, and `color`, `size` and `shape` not transferred 1 in each. The coordinator compared the rows that fail.
+- **Accepted departures:** other sessions ran tests beside the witnesses, with the owner's acceptance as relayed. The readings are complete and agree with the proof's, so the load isn't a doubt about them. `mutate.mjs` takes a list and deletes its last report first, which keeps a run that writes none from being read as the run before.
+- **The lint note** of the first implementer's note, three errors, was true at `31b2a2c6a`, and `66e7cf867` repaired it. The ruling says so, and nothing is owed.
+- **Limits that stand:** without `secondarylabel` the trailing button has no name, as `RD-58` says. Not read: Safari, screen readers, the visual project beyond CI's.
+- **The records that merge with it:** `RF-137` is ready after this merge, `RF-139` after #267, and `RF-142`'s status now says what its last note says. `RD-58`, `RD-59`, `RD-61` and `RD-53`'s notes are in force, and need no status. Nothing is the owner's.
+
 #### RF-137 — An `mx-icon`'s ligature text is part of the name of the control that it is in
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from the reading that `RF-136` asked for. `RF-136` is the entry before this one. Read as `RF-136`, with the same probe.
+Tier A, **open**, **ready** after `RF-136` (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from the reading that `RF-136` asked for. `RF-136` is the entry before this one. Read as `RF-136`, with the same probe.
 
 - **What happens:** with `<mx-icon>edit</mx-icon>` and the label _Save_, in Chromium, Firefox and WebKit:
 
@@ -6267,9 +6531,19 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Not read:** screen readers, Safari, and what `RD-57`'s check gives after the repair: its `button-name` and `link-name` would then report an icon-only control with no label.
 - **Plan needed:** no, once Q2 is answered. With (a) the answer is a decision, because it is what `mx-icon` promises. **Size:** _small_ for (a) and (b).
 
+**Dated 2026-11-25 by the architect: Q2 is answered by the owner, (a), on 2026-11-24, and it is `RD-59`.** In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). **Ready** for an implementer, on a branch of its own, after `RF-136` and `RF-138` are on `main`, because it takes their rows' fixture and removes an attribute of their template. Read on the built elements in the three engines ([reading](names-and-card-1/checks/contracts.txt), [probe](names-and-card-1/probes/contracts.mjs)): with the slot in a `<span aria-hidden="true">` the boxes of an icon with a ligature, with an SVG of its own size, with one of `100%`, in a button and in a FAB are those without it.
+
+1. **`icon.tpl.html`:** the slot is inside `<span aria-hidden="true">`. The span has no style of its own, and `useARIA` isn't added. `aria-hidden` goes on the span and not on the slot, which WebKit ignores, nor through the internals, which takes the name of a named icon away.
+2. **The split button's template** loses the `aria-hidden` that `RF-136`'s unit put on its icon.
+3. **Documentation.** `icon.ts`' JSDoc and `icon.mdx`' _Accessibility_: the content is hidden; a page doesn't set `aria-hidden` itself; an icon with a meaning takes `role="img"` and `aria-label`. `icon-button.mdx`, `switch-icon-button.mdx` and `fab.mdx` say that an icon-only control needs `aria-label`, always and not where the icon is ambiguous.
+4. **Every icon-only control in the stories, pages and snippets of the repository has an `aria-label`,** and the list of those that gained one is in the report. A sortable handle is named by `sortItem` and isn't one.
+5. **Rows.** In Chromium through `readAccessibilityTree`: the table's rows, where the name is the label alone; an icon-only control with a host `aria-label`; one without, which has no name; `role="img"` with a label on the icon of a button, whose name then has it; an icon alone and one in a static list item, with no text. In the three engines: the slot is inside the hidden span, and the host has no `aria-hidden`. **Witness:** each tree row fails on `main`, apart from the one with a host `aria-label`. The trees of Firefox and WebKit are read by [`names.ts`](records-batch-1/probes/names.ts) on the built change, for the same contents.
+6. **Pixels:** no visual baseline changes. **Sizes** by the gate. **Stop** and return if a baseline changes, or if a row of another element that queries by name needs more than a label on its fixture.
+7. **The description** has `Closes #259`. A feature proof is owed. **Costs** are `RD-59`'s.
+
 #### RF-138 — A disabled split button isn't disabled
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from `RF-136`'s reading, whose rows for a disabled split button differed between the engines. `RF-137` is the entry before this one. Run at `4e2972514`, on the built elements, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](records-batch-1/checks/split-disabled.txt), [probe](records-batch-1/probes/split-disabled.mjs)).
+Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from `RF-136`'s reading, whose rows for a disabled split button differed between the engines. `RF-137` is the entry before this one. Run at `4e2972514`, on the built elements, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](records-batch-1/checks/split-disabled.txt), [probe](records-batch-1/probes/split-disabled.mjs)).
 
 - **What happens,** with `disabled` in the markup or set later, or in a disabled fieldset, the same in the three engines except where said:
   - neither inner button is `disabled`, and neither has the disabled state or look. The background is the enabled one;
@@ -6284,11 +6558,19 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **A candidate that holds, read:** with the host and the inner group both `disabled`, the property holds in the three engines: no focus, no event, the disabled background. `ButtonCore` already takes the group's `disabled`.
 - **The fieldset is `RF-119`'s,** which hadn't read this element. This entry doesn't wait for it.
 - **Rows,** in each engine: for the attribute, the property and their removal, `disabled` on both inner buttons, no focus by Tab, no event from a click and from the keyboard on each button, and the disabled colors. **Witness:** without the transfer they fail. The `open` and `secondaryaction` rows that exist pass unchanged.
-- **Plan needed:** no. **Ready** for an implementer. **Size:** _small_.
+- **Plan needed:** no. **Ready** for an implementer, in `RF-136`'s unit (below). **Size:** _small_.
+
+**Dated 2026-11-25 by the architect: approved for implementation by the owner on 2026-11-24.** In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). It goes with `RF-136` on `material-x/split-button-names-1`, because both edit the constructor of `split-button.ts` and its rows' file. The constructor transfers `disabled` to the inner group, with the three attributes that it takes already, and the rest of the entry is the contract. **The JSDoc and the page stand.**
+
+**Dated 2026-11-25 by the implementer: implemented with `RF-136`, whose last note has the rows, the witnesses and the checks, and not closed.** The constructor transfers `disabled` with the three attributes that it took already. The rows' colors are compared with a standalone `mx-button` and `mx-icon-button` in the same state.
+
+**Dated 2026-11-25 by the architect:** the feature proof finds the property whole, and no row for its last sentence. The ruling and the list are in `RF-136`'s last note.
+
+**Closed 2026-11-25 by the architect,** with `RF-136`, whose last note has the reading.
 
 #### RF-139 — A list item's long texts run out of it, and two trailing children stack
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#254](https://github.com/ausginer/material-x/issues/254), relayed by the coordinator. It was seen in `RF-128`'s reading of the trail slot's clip, on `material-x/handle-focus-1`. `RF-138` is the entry before this one. Read at `4e2972514`, on the built elements, in a 300 px list, on static and button items, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](records-batch-1/checks/trail-long.txt), [probe](records-batch-1/probes/trail-long.mjs)).
+Tier A, **open**, **ready** after `material-x/handle-focus-1` (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#254](https://github.com/ausginer/material-x/issues/254), relayed by the coordinator. It was seen in `RF-128`'s reading of the trail slot's clip, on `material-x/handle-focus-1`. `RF-138` is the entry before this one. Read at `4e2972514`, on the built elements, in a 300 px list, on static and button items, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](records-batch-1/checks/trail-long.txt), [probe](records-batch-1/probes/trail-long.mjs)).
 
 - **What happens,** in each engine. The widths differ by the fallback font:
   - **Long trailing text** stays on one line and runs out of the item: 35 px past its end in Chromium, 57 px in Firefox and WebKit, with a text that is 268 to 289 px wide. Nothing shortens it. The slot's `text-overflow: ellipsis` never applies, because the slot is as wide as its content.
@@ -6324,6 +6606,14 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Rows,** `spec`, in each engine: the properties for the contents of the probe, on the static, button and link items, in both directions. **Witness:** they fail before the repair. A visual baseline that changes is expected only where a trailing text or a control is wider than half of its item.
 - **Plan needed:** no, once Q3 is answered. **Size:** _medium_.
 
+**Dated 2026-11-25 by the architect: Q3 is answered by the owner, (a), on 2026-11-24.** In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). A trailing text that is too long wraps and takes up to half of the item. It adds no attribute, slot or property, so no decision is minted. **Ready** for an implementer, on a branch of its own, after `material-x/handle-focus-1` (`RF-128`, `RF-135`) is on `main`. If `RF-129` (#261) lands first, it merges `main` after that too.
+
+- **The candidate is `bound`, and the properties are the contract.** It isn't prescribed. Its declarations, with the slot's clip already gone: `.content` takes the remaining width from zero with no minimum, `.trail` takes its content's width up to half of the item's content box and never less than its min-content, and slotted text wraps and breaks a long word.
+- **Property 4 is narrowed** to a control of at most half of the item. **A wider one is bounded too,** because a rule in the item can't tell a control's label from a text. Read in the three engines, in a 300px item ([reading](names-and-card-1/checks/contracts.txt), [probe](names-and-card-1/probes/contracts.mjs)): a button 250 to 264px wide runs 17 to 46px past the item's end today. With `bound` it is 150px wide, in the item, and its label wraps to three lines, 55 to 59px high in a box of 40px. A button of two words and a checkbox have their own boxes. The documentation tells a page to keep a trailing control shorter than half of the item. The entry's _Rows_ line expected a change there.
+- **RTL is read for these contents,** and reads as LTR. The link item, the sortable list, 200 % text, and a long word in `overline`, `support` and `lead` are still the unit's to read, under property 1.
+- **Rows** are the entry's, and: the wide button, on its width and the item's end; a long word in each text slot; both directions. **Documentation:** `list.mdx`, in _Anatomy_ or _Content guidelines_, says that a trailing text wraps in at most half of the item.
+- **Baselines:** stop and return if one changes where neither a trailing text nor a control is wider than half of its item. **The description** has `Closes #254`. A feature proof is owed.
+
 #### RF-140 — The list's documentation names slots that the templates don't have
 
 Tier B, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#255](https://github.com/ausginer/material-x/issues/255), relayed by the coordinator. `RF-139` is the entry before this one. Read at `4e2972514`, in the sources.
@@ -6336,6 +6626,8 @@ Tier B, **closed on 2026-11-25** (the last note), pre-existing. Before closure: 
 - **Order:** it waits for nothing. The unit of `RF-128` and `RF-135` doesn't change these files, by its list.
 - **Plan needed:** no. **Ready** for an implementer. **Size:** _small_. A published JSDoc changes, so the package's declarations change and no code does.
 - **Fixed 2026-11-25 by the implementer** on `material-x/list-slots-doc-1`, for #255. The three items' JSDoc and `list.mdx` name `lead`, `overline`, `support`, `trail` and the default slot, and the built manifest has these five for each item. The quick start also imports the icon and the button item, because `list/list.js` defines neither. Read in Chromium with a temporary probe: its icon has no box in `start`, and a 20 by 20 px box in `lead`.
+
+**Dated 2026-11-25 by the architect: approved for implementation by the owner on 2026-11-24.** In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). **Ready,** on a branch of its own, and it waits for nothing. `RF-139` edits `list.mdx` later, elsewhere on the page. The description has `Closes #255`. No feature proof is owed: the coordinator compares the names with `list-item`'s template, and `docs-build` and `docs-smoke` pass.
 
 **Closed 2026-11-25 by the architect,** at `429c50354` on `material-x/list-slots-doc-1`, requested by the coordinator. Read: the diff, and the template that the three items share. The three items' JSDoc and `list.mdx` name its five slots and no other. No feature proof is owed, because no code changes.
 
@@ -6365,6 +6657,77 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 - **Order:** after #256 (`RF-131`), because the group's rows read its slot while out. It doesn't wait for `RF-94` or `RF-130`.
 - **Plan needed:** no. **Ready** for an implementer, on a branch of its own. Nothing is the owner's to answer.
 - **Size:** _small_. One hook in core and its rows.
+
+#### RF-142 — A disabled list item dims the focus indicator of the controls in it, which still work
+
+Tier A, **open**, **ready** after #267 and #268 (the last note), pre-existing. Registered on 2026-11-25 by the architect, on `material-x/split-button-names-1`, from [#271](https://github.com/ausginer/material-x/issues/271), requested by the coordinator. It was seen by `RF-128`'s feature proof, on `material-x/handle-focus-1`. `RF-141` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `c7db9e65a`, with `main` at `e57c9f074`, on the built elements, by Tab and from screenshots, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](disabled-handle-1/checks/ring.txt), [probe](disabled-handle-1/probes/ring.mjs)).
+
+- **The cause.** `:host(:state(disabled)) slot` in `interactive-box.styles.css` has the disabled opacity, 0.38. An opacity of the slot dims all that is painted in it, the outline of a control included.
+- **What happens,** in `mx-list-button-item` and `mx-list-link-item` with `disabled`, in `lead`, in the three engines. The contrasts are of the indicator's darkest changed pixel with what was there before:
+
+  | Control | Enabled item | Disabled item |
+  | --- | --- | --- |
+  | A handle, the browser's outline (today) | 14.6 to 18:1 in Chromium, 5:1 in Firefox, 2.7:1 in WebKit | 2.5:1, 1.8:1 and 1.4:1 |
+  | A handle, `RF-128`'s outline | 5.6:1 | 1.8:1 |
+  | `mx-icon-button`, its own indicator | 5.6:1 | 1.8:1 |
+  | A native `<button>`, the browser's outline | 12:1, 5:1 and 2.6:1 | 2.3:1, 1.8:1 and 1.4:1 |
+
+- **The controls work.** In the disabled item Tab reaches each of them, an arrow key on it proposes a move, and a click reaches it.
+- **`trail`** has the same opacity. Its readings on `main` are of a clipped indicator (`RF-135`), so they aren't in the table.
+- **Not affected:** a static `mx-list-item`, which can't be disabled, and an item's own indicator, which isn't in a slot.
+- **Why it is a problem:** a keyboard user can't see where focus is, on a control that works. The exception for inactive components in the WCAG's contrast rule doesn't apply: the control is active.
+- **Required property, until the last note,** for (a) or (b) below: the focus indicator of a control in a disabled item has the contrast that it has in an enabled one, in `lead` and `trail`, in the three engines, and the item's own content keeps its disabled look.
+- **A candidate that holds for the handle, read in `lead`** ([reading](disabled-handle-1/checks/candidate.txt), [probe](disabled-handle-1/probes/candidate.mjs)): in `lead` and `trail` the opacity is on the slotted elements, `::slotted(:not(:focus-within))`, instead of on the slot. The focused handle's indicator is undimmed, 324 px of it in each engine, and the unfocused item has the same pixels with an icon and with a native button. **Its limits:** the focused control loses its dimming with its indicator, also after a click on it; an `mx-icon-button` is `display: contents`, so it takes no opacity and is drawn as enabled at all times; and, by reading, a page's own opacity on its element replaces the disabled one, and the trailing text's opacity isn't composed with it. The sizes weren't read.
+- **Q1, for the owner — what does a disabled item do to the controls in it?**
+  - **(a) The focused control, with its indicator, is drawn without the dimming. Recommended.** No behavior changes, and the item's disabled look changes only while a control in it has focus. With the candidate, an `mx-icon-button` is undimmed at all times, which is what it is: enabled. **Cost:** the limits above, and a few bytes in two bundles.
+  - (b) A control in a disabled item is never dimmed, only the item's own text and icons. It is what the control is. The package can't tell a control from an icon or a text in a slot, apart from a handle and its own elements, so a page's native button would need a mark.
+  - (c) A disabled item isn't reorderable: its handle isn't a button, takes no focus and lifts nothing. It changes the behavior that `RF-129`'s ruling reads, a page that only wants the item's action off loses its reorder, and other controls in the item stay dimmed.
+  - (d) Nothing changes.
+- **Order:** after #267 (`RF-128` with `RF-135`), whose `trail` and outline it reads, and after Q1.
+- **Rows,** `browser`, in each engine, once Q1 is answered: for (a), the painted indicator of a handle and of an `mx-icon-button` in `lead` and in `trail` of a disabled button item has the computed color, with `coveredIndicator`, whose reading is nothing today. **Witness:** with the slot's opacity back, they fail. The unfocused disabled item has the opacity on its icon, its text and its label.
+- **Not read:** `trail` without its clip, a slotted image or text, `selected` with `disabled`, forced colors, Safari, screen readers.
+- **Plan needed:** no, once Q1 is answered. **Size:** _small_.
+
+**Dated 2026-11-25 by the architect: Q1 is answered by the owner, (c), in a wider form, and it is `RD-61`.** Requested by the coordinator. The required property above is replaced by `RD-61`'s properties 1 to 8: the handle of a disabled item works no longer, so its indicator isn't asked to be visible. **What stays of the dimming is a limit, documented:** the page's own controls in a disabled item, and a disabled handle that has focus. **Plan needed:** no. **Size:** _small_. **Ready** for an implementer, on a branch of its own.
+
+**Read by the architect,** in Chromium, Firefox and WebKit, which agree in every row, with the sources of `main` at `56bba2895` ([reading](disabled-handle-1/checks/contract-before.txt), [probe](disabled-handle-1/probes/contract.browser.test.ts.txt)):
+
+- **The inconsistency is confirmed.** A disabled button item with a handle (a `span`, a native button, an `mx-icon-button`) is moved by pointer and by key. Without a handle it is moved by pointer, and Tab skips it.
+- **`mx-list-link-item` is the same,** and one thing more: without a handle, `focus()` focuses its disabled link (`RF-101`), and an arrow key then moves it.
+- **`mx-list-item` with the attribute** is as without it.
+- **A candidate that holds** ([diff](disabled-handle-1/probes/contract-candidate.diff), [reading](disabled-handle-1/checks/contract-candidate.txt)): the list's `handle(item)` returns `null` for a disabled item, which drag declines, so drag doesn't change. `sortItem` reads the state at each update, and an observer of the host's `disabled` runs the update, so no item's code changes. With it nothing is moved, Tab skips the handle of each of the three kinds, an enabled item still passes the disabled one, and enabling restores every attribute.
+- **Disabled with focus on the handle:** focus stays, an arrow key does nothing, and after enabling it moves the item. With the tab index removed instead, focus of a `span` goes to `body` and isn't restored ([reading](disabled-handle-1/checks/contract-tabindex-removed.txt)).
+- **Disabled in the `reorder` handler and enabled 300 ms later,** by key: the move is committed, focus stays on the handle, and the next arrow key moves the item. **Disabled during a pointer drag, or between the press and the lift:** the drop proposes its move, and no state is left. The last reads the same on `main`.
+- **Every row of `tests/list` passes with it in Chromium** but the one that `RD-61` supersedes. `list-item-opacity-tokens.node.test.ts` didn't load, because the property list wasn't rebuilt after the merge.
+- **Not read:** touch, the attributes as `mx-icon-button` passes them to its native button, a screen reader's reading of the disabled handle, sizes.
+
+**The implementer's list,** on a branch from `main` once #267 and #268 are on it. #267 changes the _Handles_ text of `sortable-list.ts`, and #268 carries this record. It doesn't wait for #265 or #266, which don't touch the admission: #266 adds a line to the same configuration object, and whichever lands second merges it.
+
+1. **Source,** in `sortable-list.ts` and `sortable-item.ts`. The candidate is a direction and its form is free. One rule says whether an item is disabled, for the admission and for the semantics. `@ydinjs/drag` doesn't change, and no code is added to `mx-list` or to the items' modules. `styles/sortable/tokens.ts` doesn't change.
+2. **JSDoc.** `sortable-list.ts`, a new item after _Handles_:
+
+   > **Disabled items.** The user can't reorder an item with `disabled`, by pointer or by keyboard, and other items move past it. Its handle isn't a tab stop and has `aria-disabled`. Disabling an item doesn't end a move that has begun. Other controls in the item stay enabled, dimmed with the item, and are the page's to disable.
+
+   `list-button-item.ts` and `list-link-item.ts`, the `disabled` attribute gains _In `mx-sortable-list`, the user can't reorder the item. Controls in the item's slots aren't disabled._ `list.mdx`, _Sortable lists_, one bullet with the same facts.
+
+3. **Rows,** `browser`, in `sortable-list.browser.test.ts`, in each engine, for a button and a link item where the kind matters:
+   - a pointer drag proposes nothing: by a handle, and without one;
+   - an arrow key proposes nothing: from a focused handle, and from a focused control of the page in an item without a handle;
+   - an enabled item is moved past a disabled one, by key;
+   - Tab skips the handle: a `span`, a native button, an `mx-icon-button`;
+   - the handle's attributes while disabled from the start, after it is disabled, and after it is enabled. Values that the page set (`tabindex`, `aria-disabled`, `aria-description`, `touch-action`) stand through both. The control of a button item without a handle has no description while disabled and has it after;
+   - disabled while its handle has focus: focus stays, the key does nothing, and after enabling it moves the item;
+   - disabled in the `reorder` handler of a key move and of a drop: the move is accepted, and no drag state or placeholder is left;
+   - an `mx-list-item` with the attribute moves.
+
+   `spec`, in `sortable-list.spec.browser.test.ts`: the row of a disabled button item lifted by its handle becomes _an item disabled during its drag takes its disabled look_, against the look of the item disabled at rest. The architect ran it: it passes in the three engines, and fails in them without `:not(:state(disabled))`.
+
+4. **Witnesses,** in the three engines, one engine at a time, each saved: with the admission's rule out, the rows of the pointer and the key fail; with the semantics' rule out, Tab's and the attributes'; without the observer, the rows of a later change; with the tab index removed instead of `-1`, the focus row of a `span`; with the operation ended when its item is disabled, the handler's rows; with the attribute read on any item, `mx-list-item`'s; with `:not(:state(disabled))` out, the spec row.
+5. **Checks,** core and drag rebuilt and `build:prepare` run: `tests/list` in the three engines, material-x without the visual project in one, typecheck, the declarations' typecheck, lint, the root format check, publint, `docs-build` and `docs-smoke`. Sizes by the gate: only `list/sortable-list` and `complete` grow. **No visual baseline changes.**
+6. **The description** has `Closes #271`, the behavior that changes for a page that disables an item, and the limit.
+7. **Stop** and return if drag has to change, if a row of the keyboard or of the handles fails apart from the superseded one, or if a baseline changes.
+
+**A feature proof is owed,** because public behavior changes. **`.agents/docs/accessibility.md`,** whose list section states the rule after the unit, is project documentation, so it has its own pull request, which the coordinator takes: a disabled item can't be reordered, its handle is `aria-disabled` and no tab stop, and the page's own controls in it are the page's to disable. Nothing is the owner's to answer.
 
 ## Questions
 
