@@ -26,6 +26,7 @@ import { identity, parseMs } from '../core/utils/fns.ts';
 import { type ListCoreCSSProperties, useListCore } from './ListCore.ts';
 import { handleOf, sortItem } from './sortable-item.ts';
 import { SORTABLE_LIST_CTX } from './sortable-list-context.ts';
+import sortableStyles from './styles/sortable/main.css.ts' with { type: 'css' };
 
 /**
  * How long an accepted move waits for the list's slot to show it before the
@@ -37,7 +38,8 @@ const DRAG_STATE = 'drag';
 
 /**
  * The list's state from a command's start until the next operation's. Nothing
- * clears it, because it matters only to the placeholder, which an operation has.
+ * clears it, because it matters only to the placeholder and the lifted item,
+ * which an operation has.
  */
 const COMMAND_STATE = 'command';
 
@@ -113,9 +115,12 @@ const SortableListConstructor: Composed<
  *   item without one, is described as _Use the arrow keys to move_.
  * - **Lift.** During a drag, the item element carries `popover="manual"` and
  *   matches `[popover]` and `:popover-open`. The lift keeps the item's size,
- *   position, padding, border, overflow, color and background color. A page's
- *   popover rule that sets other properties, such as `box-shadow`, applies to
- *   the item while it is lifted.
+ *   position, padding, border, overflow, color and background color. In a
+ *   pointer drag, an item that isn't disabled takes Material's reorder colors,
+ *   and they replace a page's `color` and `background-color` on an
+ *   `mx-list-item`. `--md-list-item-container-color` still overrides the
+ *   container color. A page's popover rule that sets other properties, such as
+ *   `box-shadow`, applies to the item while it is lifted.
  * - **Nested controls.** A control inside an item without a handle that uses
  *   the arrow keys itself, such as a text field or a slider, needs a
  *   `data-drag-ignore` attribute. Otherwise its arrow keys move the item.
@@ -136,7 +141,7 @@ const SortableListConstructor: Composed<
 export default class SortableList extends SortableListConstructor {
   constructor() {
     super();
-    useListCore(this);
+    useListCore(this, [sortableStyles]);
 
     const notify = useAriaNotifyPolyfill(this);
     const slot = this.shadowRoot!.querySelector<HTMLSlotElement>('slot')!;

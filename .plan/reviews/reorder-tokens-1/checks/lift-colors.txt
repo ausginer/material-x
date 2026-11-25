@@ -1,0 +1,34 @@
+## subject's rows, the lift keeps no color and no background color | chromium |       Tests  297 passed (297)
+## subject's rows, the lift keeps no color and no background color | firefox |       Tests  285 passed | 2 skipped (287)
+## subject's rows, the lift keeps no color and no background color | webkit |       Tests  295 passed | 2 skipped (297)
+## the base's list-roles, the same lift | chromium |       Tests  5 failed | 36 passed (41)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with the consumer's rule on the item
+## the base's list-roles, the same lift | firefox |       Tests  5 failed | 34 passed | 2 skipped (41)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with the consumer's rule on the item
+## the base's list-roles, the same lift | webkit |       Tests  5 failed | 34 passed | 2 skipped (41)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with the consumer's rule on the item
+## drag's browser and shipped projects, the same lift | chromium |       Tests  461 passed (461)
+## control: the base's list-roles, drag's lift as it is | chromium |       Tests  3 failed | 38 passed (41)
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with the consumer's rule on the item
+## control: the base's list-roles, drag's lift as it is | firefox |       Tests  3 failed | 36 passed | 2 skipped (41)
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with the consumer's rule on the item
+## control: the base's list-roles, drag's lift as it is | webkit |       Tests  3 failed | 36 passed | 2 skipped (41)
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with a page rule for popovers
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with no page rule
+   mx-list item roles > mx-list-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background with the consumer's rule on the item
