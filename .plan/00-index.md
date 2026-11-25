@@ -2667,6 +2667,8 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 **Order:** it waits for nothing. It is most useful before `RF-132` and `RF-94`, whose repairs then change its list. **Size:** _large_, because a plan comes first. The plan is short.
 
+**Dated 2026-11-25 by the architect, on `repo/axe-checks-1`: planned, and ready for an implementer.** The [plan](axe-checks-1/axe-checks-plan.md) settles what this entry left to it. Read again at `8bed561de`: the same two violations, with `RF-132`'s also on an item that was selected and no longer is, and a third, `nested-interactive` (`RF-144`). The list starts with those three owners. Chromium alone, at about 6.5 s locally. The dependency is in material-x's `devDependencies`. The roles that a host has through `ElementInternals` aren't seen by axe's rules, which is a limit beside those above. Nothing is the owner's to answer.
+
 #### RD-58 — A page names the split button's trailing button with `secondarylabel`, and `open` is its expanded state
 
 **Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer of 2026-11-24 to `RF-136`'s Q1, (a). In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). `RD-57` is the highest `RD-` on any branch on `origin`, so this is the next free number. The [contract](#rf-136--the-split-buttons-trailing-button-is-named-by-its-icons-ligature-cant-be-given-a-name-and-doesnt-expose-open) is in `RF-136`.
@@ -6840,6 +6842,19 @@ Tier A, **open**, **ready** after #267 and #268 (the last note), pre-existing. R
 7. **Stop** and return if drag has to change, if a row of the keyboard or of the handles fails apart from the superseded one, or if a baseline changes.
 
 **A feature proof is owed,** because public behavior changes. **`.agents/docs/accessibility.md`,** whose list section states the rule after the unit, is project documentation, so it has its own pull request, which the coordinator takes: a disabled item can't be reordered, its handle is `aria-disabled` and no tab stop, and the page's own controls in it are the page's to disable. Nothing is the owner's to answer.
+
+#### RF-144 — A control in a slot of `mx-list-button-item` or `mx-list-link-item` is inside the item's button or link
+
+Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `repo/axe-checks-1`, from the readings of `RD-57`'s plan. `RF-143` is the highest `RF-` on any branch on `origin` (`core/hidden-1`), so this is the next free number. Read at `8bed561de` in Chromium, Firefox and WebKit ([readings](axe-checks-1/checks/nested.txt), [probe](axe-checks-1/probes/nested.browser.test.ts.txt)).
+
+- **What happens:** the item's slots are inside its `<button>` or `<a>`. A focusable control in a slot, a sortable handle, an `mx-icon-button` or a native button, is then inside the item's control. axe-core 4.14.1 reports `nested-interactive` on the button item, in the three engines, and nothing on the link item. In Chromium's tree the nested control is exposed inside the item's button or link, and the item's name takes the control's: `Move A A`, `A More`.
+- **Why it is a problem:** `list.mdx` says that a `trail` slot takes a control, _the same in the three items_, and that a `data-handle` child is an item's handle. So a page that follows it meets this. HTML doesn't allow interactive content in a `<button>` or an `<a>`, and a button's descendants are presentational to some assistive technology.
+- **Not a problem:** an `mx-list-item`, whose controls are beside its content, and an `mx-list-item` with a handle.
+- **Required property:** a control in a slot of an interactive item has its own place in the accessibility tree, outside the item's button or link, and doesn't change the item's name; or the documentation says which slots and which elements are supported. Which of the two is the plan's to say.
+- **Not established:** the trees of Firefox and WebKit, and what a screen reader announces.
+- **Interaction:** `RD-57`'s list names the button item's lines, and a repair removes them. `RF-142` doesn't touch it.
+- **Plan needed:** yes, by the architect. It changes the items' structure.
+- **Size:** _large_.
 
 ## Questions
 

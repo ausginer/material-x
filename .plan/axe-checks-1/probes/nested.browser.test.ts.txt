@@ -1,0 +1,26 @@
+import axe from 'axe-core';
+import { afterAll, it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+import '../src/list/list.ts';
+import '../src/list/list-button-item.ts';
+import '../src/list/list-link-item.ts';
+import '../src/list/sortable-list.ts';
+import '../src/button/icon-button.ts';
+import '../src/icon/icon.ts';
+import '../src/list/list-item.ts';
+import { nextFrame } from './browser.ts';
+const out: string[] = [];
+afterAll(() => { throw new Error(`\n${out.join('\n')}`); });
+const show = (n: any): string => `${n.role}"${n.name}"${n.children.length ? `(${n.children.map(show).join(' ')})` : ''}`;
+for (const [tag, href] of [['mx-list-button-item', ''], ['mx-list-link-item', 'href="#x"'], ['mx-list-item', '']] as const)
+  for (const [name, child] of [['handle', '<span data-handle slot=lead aria-label="Move A">=</span>'], ['mx-icon-button', '<mx-icon-button slot=trail aria-label=More>m</mx-icon-button>'], ['native button', '<button slot=trail>More</button>']] as const)
+    it(`${tag} ${name}`, async () => {
+      const root = document.createElement('div');
+      root.id = 'probe';
+      root.innerHTML = `<${name === 'handle' ? 'mx-sortable-list' : 'mx-list'}><${tag} ${href}>${child}A</${tag}></${name === 'handle' ? 'mx-sortable-list' : 'mx-list'}>`;
+      document.body.append(root);
+      await nextFrame(); await nextFrame();
+      const r = await axe.run(root);
+      const tree = server.browser === 'chromium' ? show(await (commands as any).readAccessibilityTree('#probe')) : 'not read';
+      out.push(`${server.browser} ${tag} + ${name}: axe ${r.violations.map((v) => v.id).join(',') || '-'}; tree ${tree}`);
+    });

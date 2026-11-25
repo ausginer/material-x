@@ -1,0 +1,4 @@
+# glyph-and-internals.browser.test.ts.txt, Chromium, axe-core 4.14.1, at 8bed561de. ElementInternals are given to axe through globalThis._elementInternals, which it reads and doesn't document.
+split button with secondarylabel, the vendored icon subset (no keyboard_arrow_down): label-content-name-mismatch on [mx-split-button, mx-icon-button, button]; the trailing icon renders its ligature name as text
+the same, with a FontFace that has the glyph added: no violation (label-content-name-mismatch gone)
+axe's computed role with internals given: mx-list: list, mx-list-item and mx-list-button-item: listitem, mx-button-group: group, mx-icon-button and mx-split-button: null. axe reports nothing on an empty list, a list with a div or an item outside a list, with the roles given or not (elements.txt).
