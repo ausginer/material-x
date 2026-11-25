@@ -1,5 +1,4 @@
 import type { ControlledElement } from '../element.ts';
-import { useEvents } from './useEvents.ts';
 
 /**
  * Callback invoked when the observed slot dispatches `slotchange`.
@@ -24,7 +23,9 @@ export type SlotControllerUpdateCallback = (
  * current `assignedNodes()` snapshot for that slot.
  *
  * @remarks This controller does not emit an initial update manually. The
- * callback runs only when the platform dispatches `slotchange`.
+ * callback runs only when the platform dispatches `slotchange`. The platform
+ * also dispatches it while the host is out of the document, before its first
+ * connection and after a disconnection, so the callback can run then.
  *
  * @param host - The host element that owns the observed slot.
  * @param slotOrSelector - The slot to observe, either by selector or direct
@@ -41,13 +42,7 @@ export function useSlot(
       ? host.shadowRoot!.querySelector<HTMLSlotElement>(slotOrSelector)!
       : slotOrSelector;
 
-  useEvents(
-    host,
-    {
-      slotchange() {
-        callback(slot, slot.assignedNodes());
-      },
-    },
-    slot,
-  );
+  slot.addEventListener('slotchange', () => {
+    callback(slot, slot.assignedNodes());
+  });
 }

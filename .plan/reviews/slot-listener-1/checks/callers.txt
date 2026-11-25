@@ -1,0 +1,522 @@
+# chromium
+tf label add | out: same
+tf label add | late: same
+tf label add | lateUndone: same
+tf label add, remove | out: same
+tf label add, remove | late: same
+tf label add, remove | lateUndone: same
+tf label replaced | out: same
+tf label replaced | late: same
+tf label replaced | lateUndone: same
+tf label to support | out: same
+tf label to support | late: same
+tf label to support | lateUndone: same
+tf aria-labelledby set, label add, then lost | out: same
+tf aria-labelledby set, label add, then lost | late: same
+tf aria-labelledby set, label add, then lost | lateUndone: same
+tf label and aria-labelledby: lost + label removed, one task | out: same
+tf label and aria-labelledby: lost + label removed, one task | late: same
+tf label and aria-labelledby: lost + label removed, one task | lateUndone: same
+tf label removed + aria-labelledby lost, one task | out: same
+tf label removed + aria-labelledby lost, one task | late: same
+tf label removed + aria-labelledby lost, one task | lateUndone: same
+tf label add + aria-labelledby set, one task | out: same
+tf label add + aria-labelledby set, one task | late: same
+tf label add + aria-labelledby set, one task | lateUndone: same
+tf aria-labelledby set then lost in one task, with label | out: same
+tf aria-labelledby set then lost in one task, with label | late: same
+tf aria-labelledby set then lost in one task, with label | lateUndone: same
+tf support, counter, one removed | out: same
+tf support, counter, one removed | late: same
+tf support, counter, one removed | lateUndone: same
+tf every slot | out: same
+tf every slot | late: same
+tf every slot | lateUndone: same
+tf every slot removed | out: same
+tf every slot removed | late: same
+tf every slot removed | lateUndone: same
+multi label add | out: same
+multi label add | late: same
+multi label add | lateUndone: same
+multi every slot | out: same
+multi every slot | late: same
+multi every slot | lateUndone: same
+cg add | out: same
+cg add | late: same
+cg add | lateUndone: same
+cg remove first | out: same
+cg remove first | late: same
+cg remove first | lateUndone: same
+cg remove all, add | out: same
+cg remove all, add | late: same
+cg remove all, add | lateUndone: same
+cg value changes, then add of it | out: same
+cg value changes, then add of it | late: same
+cg value changes, then add of it | lateUndone: same
+cg add, then value | out: same
+cg add, then value | late: same
+cg add, then value | lateUndone: same
+cg first disabled, then added | out: same
+cg first disabled, then added | late: same
+cg first disabled, then added | lateUndone: same
+cg reordered | out: same
+cg reordered | late: same
+cg reordered | lateUndone: same
+cg children cloned from a template | out: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first=]{}</>0x0 
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg children cloned from a template | late: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first=]{}</>0x0 
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg children cloned from a template | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first=]{}</>0x0 
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg child cloned from a template, added | out: DIFFERS
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg child cloned from a template, added | late: DIFFERS
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg child cloned from a template, added | lateUndone: DIFFERS
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg first replaced by a template clone | out: DIFFERS
+   right  mx-switch-button[data-first= data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first= data-last=]{}</>0x0 
+cg first replaced by a template clone | late: DIFFERS
+   right  mx-switch-button[data-first= data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first= data-last=]{}</>0x0 
+cg first replaced by a template clone | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first= data-last=]{}</>0x0 
+bg add | out: same
+bg add | late: same
+bg add | lateUndone: same
+li lead, trail | out: same
+li lead, trail | late: same
+li lead, trail | lateUndone: same
+li large image | out: same
+li large image | late: same
+li large image | lateUndone: same
+li large image removed | out: same
+li large image removed | late: same
+li large image removed | lateUndone: same
+button item large image | out: same
+button item large image | late: same
+button item large image | lateUndone: same
+link item large image | out: same
+link item large image | late: same
+link item large image | lateUndone: same
+li every slot | out: same
+li every slot | late: same
+li every slot | lateUndone: same
+slider label add | out: same
+slider label add | late: same
+slider label add | lateUndone: same
+slider label removed | out: same
+slider label removed | late: same
+slider label removed | lateUndone: same
+slider label, aria-label | out: same
+slider label, aria-label | late: same
+slider label, aria-label | lateUndone: same
+sl item add | out: same
+sl item add | late: same
+sl item add | lateUndone: same
+sl item removed | out: same
+sl item removed | late: same
+sl item removed | lateUndone: same
+sl handle added to an item | out: same
+sl handle added to an item | late: same
+sl handle added to an item | lateUndone: same
+sl handle removed | out: same
+sl handle removed | late: same
+sl handle removed | lateUndone: same
+sl items cloned from a template | out: same
+sl items cloned from a template | late: same
+sl items cloned from a template | lateUndone: same
+bar lead, trail add | out: same
+bar lead, trail add | late: same
+bar lead, trail add | lateUndone: same
+bar lead removed | out: same
+bar lead removed | late: same
+bar lead removed | lateUndone: same
+bar headline add | out: same
+bar headline add | late: same
+bar headline add | lateUndone: same
+bg press connected: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press out: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press late: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>body
+cg template clone keys late: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>body
+cg focus on 2, add connected: before -1,0,-1 after -1,0,-1,-1 active then mx-switch-button now mx-switch-button
+   tab -> 2
+   right -> 3
+cg focus on 2, add out: before -1,0,-1 after -1,0,-1,-1 active then body now body
+   tab -> 2
+   right -> 3
+focus elsewhere: active input blurred 0 events []
+moved to an out group: a [2:0:first,last] b [8:0:first 9:-1: 1:-1:last]
+   and back: a [2:0:first 1:-1:last] b [8:0:first 9:-1:last]
+sl connected: log 4:3>2 now 1,2,4,3 popovers 0 drag 0
+sl out: log 4:2>1 now 2,4,3 popovers 0 drag 0
+sl late: log 4:3>2 now 1,2,4,3 popovers 0 drag 0
+sl pending commit, out, commit while out: log 1:0>1,4:3>2 now 2,1,4,3 popovers 0 drag 0
+sl pending commit, removed and changed in one task: log 1:0>1,4:3>2 now 2,1,4,3 popovers 0 drag 0
+sl removed in the handler, changed out: log 1:0>1,4:3>2 now 1,2,4,3 popovers 0 drag 0
+sl pending, removed, put back, then committed: log 1:0>1,4:3>2 now 2,1,4,3 popovers 0 drag 0
+errors: none
+# firefox
+tf label add | out: same
+tf label add | late: same
+tf label add | lateUndone: same
+tf label add, remove | out: same
+tf label add, remove | late: same
+tf label add, remove | lateUndone: same
+tf label replaced | out: same
+tf label replaced | late: same
+tf label replaced | lateUndone: same
+tf label to support | out: same
+tf label to support | late: same
+tf label to support | lateUndone: same
+tf aria-labelledby set, label add, then lost | out: same
+tf aria-labelledby set, label add, then lost | late: same
+tf aria-labelledby set, label add, then lost | lateUndone: same
+tf label and aria-labelledby: lost + label removed, one task | out: same
+tf label and aria-labelledby: lost + label removed, one task | late: same
+tf label and aria-labelledby: lost + label removed, one task | lateUndone: same
+tf label removed + aria-labelledby lost, one task | out: same
+tf label removed + aria-labelledby lost, one task | late: same
+tf label removed + aria-labelledby lost, one task | lateUndone: same
+tf label add + aria-labelledby set, one task | out: same
+tf label add + aria-labelledby set, one task | late: same
+tf label add + aria-labelledby set, one task | lateUndone: same
+tf aria-labelledby set then lost in one task, with label | out: same
+tf aria-labelledby set then lost in one task, with label | late: same
+tf aria-labelledby set then lost in one task, with label | lateUndone: same
+tf support, counter, one removed | out: same
+tf support, counter, one removed | late: same
+tf support, counter, one removed | lateUndone: same
+tf every slot | out: same
+tf every slot | late: same
+tf every slot | lateUndone: same
+tf every slot removed | out: same
+tf every slot removed | late: same
+tf every slot removed | lateUndone: same
+multi label add | out: same
+multi label add | late: same
+multi label add | lateUndone: same
+multi every slot | out: same
+multi every slot | late: same
+multi every slot | lateUndone: same
+cg add | out: same
+cg add | late: same
+cg add | lateUndone: same
+cg remove first | out: same
+cg remove first | late: same
+cg remove first | lateUndone: same
+cg remove all, add | out: same
+cg remove all, add | late: same
+cg remove all, add | lateUndone: same
+cg value changes, then add of it | out: same
+cg value changes, then add of it | late: same
+cg value changes, then add of it | lateUndone: same
+cg add, then value | out: same
+cg add, then value | late: same
+cg add, then value | lateUndone: same
+cg first disabled, then added | out: same
+cg first disabled, then added | late: same
+cg first disabled, then added | lateUndone: same
+cg reordered | out: same
+cg reordered | late: same
+cg reordered | lateUndone: same
+cg children cloned from a template | out: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first=]{}</>0x0 
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg children cloned from a template | late: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first=]{}</>0x0 
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg children cloned from a template | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first=]{}</>0x0 
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg child cloned from a template, added | out: DIFFERS
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg child cloned from a template, added | late: DIFFERS
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg child cloned from a template, added | lateUndone: DIFFERS
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg first replaced by a template clone | out: DIFFERS
+   right  mx-switch-button[data-first= data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first= data-last=]{}</>0x0 
+cg first replaced by a template clone | late: DIFFERS
+   right  mx-switch-button[data-first= data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first= data-last=]{}</>0x0 
+cg first replaced by a template clone | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first= data-last=]{}</>0x0 
+bg add | out: same
+bg add | late: same
+bg add | lateUndone: same
+li lead, trail | out: same
+li lead, trail | late: same
+li lead, trail | lateUndone: same
+li large image | out: same
+li large image | late: same
+li large image | lateUndone: same
+li large image removed | out: same
+li large image removed | late: same
+li large image removed | lateUndone: same
+button item large image | out: same
+button item large image | late: same
+button item large image | lateUndone: same
+link item large image | out: same
+link item large image | late: same
+link item large image | lateUndone: same
+li every slot | out: same
+li every slot | late: same
+li every slot | lateUndone: same
+slider label add | out: same
+slider label add | late: same
+slider label add | lateUndone: same
+slider label removed | out: same
+slider label removed | late: same
+slider label removed | lateUndone: same
+slider label, aria-label | out: same
+slider label, aria-label | late: same
+slider label, aria-label | lateUndone: same
+sl item add | out: same
+sl item add | late: same
+sl item add | lateUndone: same
+sl item removed | out: same
+sl item removed | late: same
+sl item removed | lateUndone: same
+sl handle added to an item | out: same
+sl handle added to an item | late: same
+sl handle added to an item | lateUndone: same
+sl handle removed | out: same
+sl handle removed | late: same
+sl handle removed | lateUndone: same
+sl items cloned from a template | out: same
+sl items cloned from a template | late: same
+sl items cloned from a template | lateUndone: same
+bar lead, trail add | out: same
+bar lead, trail add | late: same
+bar lead, trail add | lateUndone: same
+bar lead removed | out: same
+bar lead removed | late: same
+bar lead removed | lateUndone: same
+bar headline add | out: same
+bar headline add | late: same
+bar headline add | lateUndone: same
+bg press connected: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press out: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press late: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>3
+cg template clone keys late: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>body
+cg focus on 2, add connected: before -1,0,-1 after -1,0,-1,-1 active then mx-switch-button now mx-switch-button
+   tab -> 2
+   right -> 3
+cg focus on 2, add out: before -1,0,-1 after -1,0,-1,-1 active then body now body
+   tab -> 2
+   right -> 3
+focus elsewhere: active input blurred 0 events []
+moved to an out group: a [2:0:first,last] b [8:0:first 9:-1: 1:-1:last]
+   and back: a [2:0:first 1:-1:last] b [8:0:first 9:-1:last]
+sl connected: log 4:3>2 now 1,2,4,3 popovers 0 drag 0
+sl out: log 4:2>1 now 2,4,3 popovers 0 drag 0
+sl late: log 4:3>2 now 1,2,4,3 popovers 0 drag 0
+sl pending commit, out, commit while out: log 1:0>1,4:3>2 now 2,1,4,3 popovers 0 drag 0
+sl pending commit, removed and changed in one task: log 1:0>1,4:3>2 now 2,1,4,3 popovers 0 drag 0
+sl removed in the handler, changed out: log 1:0>1,4:3>2 now 1,2,4,3 popovers 0 drag 0
+sl pending, removed, put back, then committed: log 1:0>1,4:3>2 now 2,1,4,3 popovers 0 drag 0
+errors: none
+# webkit
+tf label add | out: same
+tf label add | late: same
+tf label add | lateUndone: same
+tf label add, remove | out: same
+tf label add, remove | late: same
+tf label add, remove | lateUndone: same
+tf label replaced | out: same
+tf label replaced | late: same
+tf label replaced | lateUndone: same
+tf label to support | out: same
+tf label to support | late: same
+tf label to support | lateUndone: same
+tf aria-labelledby set, label add, then lost | out: same
+tf aria-labelledby set, label add, then lost | late: same
+tf aria-labelledby set, label add, then lost | lateUndone: same
+tf label and aria-labelledby: lost + label removed, one task | out: same
+tf label and aria-labelledby: lost + label removed, one task | late: same
+tf label and aria-labelledby: lost + label removed, one task | lateUndone: same
+tf label removed + aria-labelledby lost, one task | out: same
+tf label removed + aria-labelledby lost, one task | late: same
+tf label removed + aria-labelledby lost, one task | lateUndone: same
+tf label add + aria-labelledby set, one task | out: same
+tf label add + aria-labelledby set, one task | late: same
+tf label add + aria-labelledby set, one task | lateUndone: same
+tf aria-labelledby set then lost in one task, with label | out: same
+tf aria-labelledby set then lost in one task, with label | late: same
+tf aria-labelledby set then lost in one task, with label | lateUndone: same
+tf support, counter, one removed | out: same
+tf support, counter, one removed | late: same
+tf support, counter, one removed | lateUndone: same
+tf every slot | out: same
+tf every slot | late: same
+tf every slot | lateUndone: same
+tf every slot removed | out: same
+tf every slot removed | late: same
+tf every slot removed | lateUndone: same
+multi label add | out: same
+multi label add | late: same
+multi label add | lateUndone: same
+multi every slot | out: same
+multi every slot | late: same
+multi every slot | lateUndone: same
+cg add | out: same
+cg add | late: same
+cg add | lateUndone: same
+cg remove first | out: same
+cg remove first | late: same
+cg remove first | lateUndone: same
+cg remove all, add | out: same
+cg remove all, add | late: same
+cg remove all, add | lateUndone: same
+cg value changes, then add of it | out: same
+cg value changes, then add of it | late: same
+cg value changes, then add of it | lateUndone: same
+cg add, then value | out: same
+cg add, then value | late: same
+cg add, then value | lateUndone: same
+cg first disabled, then added | out: same
+cg first disabled, then added | late: same
+cg first disabled, then added | lateUndone: same
+cg reordered | out: same
+cg reordered | late: same
+cg reordered | lateUndone: same
+cg children cloned from a template | out: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first=]{}</>0x0 
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg children cloned from a template | late: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first=]{}</>0x0 
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg children cloned from a template | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first=]{}</>0x0 
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg child cloned from a template, added | out: DIFFERS
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg child cloned from a template, added | late: DIFFERS
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg child cloned from a template, added | lateUndone: DIFFERS
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last=]{}</>0x0 
+cg first replaced by a template clone | out: DIFFERS
+   right  mx-switch-button[data-first= data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first= data-last=]{}</>0x0 
+cg first replaced by a template clone | late: DIFFERS
+   right  mx-switch-button[data-first= data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first= data-last=]{}</>0x0 
+cg first replaced by a template clone | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first= data-last=]{}</>0x0 
+bg add | out: same
+bg add | late: same
+bg add | lateUndone: same
+li lead, trail | out: same
+li lead, trail | late: same
+li lead, trail | lateUndone: same
+li large image | out: same
+li large image | late: same
+li large image | lateUndone: same
+li large image removed | out: same
+li large image removed | late: same
+li large image removed | lateUndone: same
+button item large image | out: same
+button item large image | late: same
+button item large image | lateUndone: same
+link item large image | out: same
+link item large image | late: same
+link item large image | lateUndone: same
+li every slot | out: same
+li every slot | late: same
+li every slot | lateUndone: same
+slider label add | out: same
+slider label add | late: same
+slider label add | lateUndone: same
+slider label removed | out: same
+slider label removed | late: same
+slider label removed | lateUndone: same
+slider label, aria-label | out: same
+slider label, aria-label | late: same
+slider label, aria-label | lateUndone: same
+sl item add | out: same
+sl item add | late: same
+sl item add | lateUndone: same
+sl item removed | out: same
+sl item removed | late: same
+sl item removed | lateUndone: same
+sl handle added to an item | out: same
+sl handle added to an item | late: same
+sl handle added to an item | lateUndone: same
+sl handle removed | out: same
+sl handle removed | late: same
+sl handle removed | lateUndone: same
+sl items cloned from a template | out: same
+sl items cloned from a template | late: same
+sl items cloned from a template | lateUndone: same
+bar lead, trail add | out: same
+bar lead, trail add | late: same
+bar lead, trail add | lateUndone: same
+bar lead removed | out: same
+bar lead removed | late: same
+bar lead removed | lateUndone: same
+bar headline add | out: same
+bar headline add | late: same
+bar headline add | lateUndone: same
+bg press connected: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press out: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press late: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>body
+cg template clone keys late: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>body
+cg focus on 2, add connected: before -1,0,-1 after -1,0,-1,-1 active then mx-switch-button now mx-switch-button
+   tab -> 2
+   right -> 3
+cg focus on 2, add out: before -1,0,-1 after -1,0,-1,-1 active then body now body
+   tab -> 2
+   right -> 3
+focus elsewhere: active input blurred 0 events []
+moved to an out group: a [2:0:first,last] b [8:0:first 9:-1: 1:-1:last]
+   and back: a [2:0:first 1:-1:last] b [8:0:first 9:-1:last]
+sl connected: log 4:3>2 now 1,2,4,3 popovers 0 drag 0
+sl out: log 4:2>1 now 2,4,3 popovers 0 drag 0
+sl late: log 4:3>2 now 1,2,4,3 popovers 0 drag 0
+sl pending commit, out, commit while out: log 1:0>1,4:3>2 now 2,1,4,3 popovers 0 drag 0
+sl pending commit, removed and changed in one task: log 1:0>1,4:3>2 now 2,1,4,3 popovers 0 drag 0
+sl removed in the handler, changed out: log 1:0>1,4:3>2 now 1,2,4,3 popovers 0 drag 0
+sl pending, removed, put back, then committed: log 1:0>1,4:3>2 now 2,1,4,3 popovers 0 drag 0
+errors: none

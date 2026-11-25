@@ -1,0 +1,1303 @@
+# The same probe with useSlot.ts as at 751b1fb81, core rebuilt
+# chromium
+tf label add | out: DIFFERS
+   right mx-text-field[]{has-label}</>1232x56 
+   got   mx-text-field[]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #input[aria-labelledby=label class=input txt]{}<label/>1200x24 
+   got   #input[class=input txt]{}</>1200x24 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+tf label add | late: DIFFERS
+   right mx-text-field[]{has-label}</>1232x56 
+   got   mx-text-field[]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #input[aria-labelledby=label class=input txt]{}<label/>1200x24 
+   got   #input[class=input txt]{}</>1200x24 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+tf label add | lateUndone: DIFFERS
+   right mx-text-field[]{has-label}</>1232x56 
+   got   mx-text-field[]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #input[aria-labelledby=label class=input txt]{}<label/>1200x24 
+   got   #input[class=input txt]{}</>1200x24 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+tf label add, remove | out: DIFFERS
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[]{}</>0x0 0px
+tf label add, remove | late: DIFFERS
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[]{}</>0x0 0px
+tf label add, remove | lateUndone: DIFFERS
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[]{}</>0x0 0px
+tf label replaced | out: same
+tf label replaced | late: DIFFERS
+   right mx-text-field[]{has-label}</>1232x56 
+   got   mx-text-field[]{}</>1232x56 
+   right  b[]{}</>15x19 
+   got    b[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 14.5px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #input[aria-labelledby=label class=input txt]{}<label/>1200x24 
+   got   #input[class=input txt]{}</>1200x24 
+   right #label[class=label]{}</>15x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>15x24 0px
+   got   # slot[]{}</>0x0 0px
+tf label replaced | lateUndone: same
+tf label to support | out: DIFFERS
+   right mx-text-field[]{has-support}</>1232x76 
+   got   mx-text-field[]{has-label}</>1232x56 
+   right  span[]{}</>7x14 
+   got    span[]{}</>0x0 
+   right #input[aria-describedby=support class=input txt]{}</support>1200x24 
+   got   #input[aria-labelledby=label class=input txt]{}<label/>1200x24 
+   right #label[class=label]{}</>0x0 
+   got   #label[class=label]{}</>0x16 
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[class=has-slotted]{}</>0x0 0px
+   right #div[class=support]{}</>619x16 
+   got   #div[class=support]{}</>616x0 
+   right # slot[class=has-slotted]{}</>603x16 0px
+   got   # slot[]{}</>0x0 0px
+   right #div[class=counter]{}</>613x16 
+   got   #div[class=counter]{}</>616x0 
+tf label to support | late: DIFFERS
+   right mx-text-field[]{has-support}</>1232x76 
+   got   mx-text-field[]{}</>1232x56 
+   right  span[]{}</>7x14 
+   got    span[]{}</>0x0 
+   right #input[aria-describedby=support class=input txt]{}</support>1200x24 
+   got   #input[class=input txt]{}</>1200x24 
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[]{}</>0x0 0px
+   right #div[class=support]{}</>619x16 
+   got   #div[class=support]{}</>616x0 
+   right # slot[class=has-slotted]{}</>603x16 0px
+   got   # slot[]{}</>0x0 0px
+   right #div[class=counter]{}</>613x16 
+   got   #div[class=counter]{}</>616x0 
+tf label to support | lateUndone: DIFFERS
+   right mx-text-field[]{has-support}</>1232x76 
+   got   mx-text-field[]{has-label}</>1232x56 
+   right  span[]{}</>7x14 
+   got    span[]{}</>0x0 
+   right #input[aria-describedby=support class=input txt]{}</support>1200x24 
+   got   #input[aria-labelledby=label class=input txt]{}<label/>1200x24 
+   right #label[class=label]{}</>0x0 
+   got   #label[class=label]{}</>0x16 
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[class=has-slotted]{}</>0x0 0px
+   right #div[class=support]{}</>619x16 
+   got   #div[class=support]{}</>616x0 
+   right # slot[class=has-slotted]{}</>603x16 0px
+   got   # slot[]{}</>0x0 0px
+   right #div[class=counter]{}</>613x16 
+   got   #div[class=counter]{}</>616x0 
+tf aria-labelledby set, label add, then lost | out: DIFFERS
+   right mx-text-field[]{has-label}</>1232x56 
+   got   mx-text-field[]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+tf aria-labelledby set, label add, then lost | late: DIFFERS
+   right mx-text-field[]{has-label}</>1232x56 
+   got   mx-text-field[]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+tf aria-labelledby set, label add, then lost | lateUndone: DIFFERS
+   right mx-text-field[]{has-label}</>1232x56 
+   got   mx-text-field[]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+tf label and aria-labelledby: lost + label removed, one task | out: DIFFERS
+   right mx-text-field[]{}</>1232x56 
+   got   mx-text-field[]{has-label}</>1232x56 
+   right #label[class=label]{}</>0x0 
+   got   #label[class=label]{}</>0x16 
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[class=has-slotted]{}</>0x0 0px
+tf label and aria-labelledby: lost + label removed, one task | late: DIFFERS
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[]{}</>0x0 0px
+tf label and aria-labelledby: lost + label removed, one task | lateUndone: DIFFERS
+   right mx-text-field[]{}</>1232x56 
+   got   mx-text-field[]{has-label}</>1232x56 
+   right #label[class=label]{}</>0x0 
+   got   #label[class=label]{}</>0x16 
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[class=has-slotted]{}</>0x0 0px
+tf label removed + aria-labelledby lost, one task | out: DIFFERS
+   right mx-text-field[]{}</>1232x56 
+   got   mx-text-field[]{has-label}</>1232x56 
+   right #label[class=label]{}</>0x0 
+   got   #label[class=label]{}</>0x16 
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[class=has-slotted]{}</>0x0 0px
+tf label removed + aria-labelledby lost, one task | late: DIFFERS
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[]{}</>0x0 0px
+tf label removed + aria-labelledby lost, one task | lateUndone: DIFFERS
+   right mx-text-field[]{}</>1232x56 
+   got   mx-text-field[]{has-label}</>1232x56 
+   right #label[class=label]{}</>0x0 
+   got   #label[class=label]{}</>0x16 
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[class=has-slotted]{}</>0x0 0px
+tf label add + aria-labelledby set, one task | out: DIFFERS
+   right mx-text-field[aria-labelledby=x]{has-label}</>1232x56 
+   got   mx-text-field[aria-labelledby=x]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+tf label add + aria-labelledby set, one task | late: DIFFERS
+   right mx-text-field[aria-labelledby=x]{has-label}</>1232x56 
+   got   mx-text-field[aria-labelledby=x]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+tf label add + aria-labelledby set, one task | lateUndone: DIFFERS
+   right mx-text-field[aria-labelledby=x]{has-label}</>1232x56 
+   got   mx-text-field[aria-labelledby=x]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+tf aria-labelledby set then lost in one task, with label | out: DIFFERS
+   right mx-text-field[]{has-label}</>1232x56 
+   got   mx-text-field[]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+tf aria-labelledby set then lost in one task, with label | late: DIFFERS
+   right mx-text-field[]{has-label}</>1232x56 
+   got   mx-text-field[]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+tf aria-labelledby set then lost in one task, with label | lateUndone: DIFFERS
+   right mx-text-field[]{has-label}</>1232x56 
+   got   mx-text-field[]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+tf support, counter, one removed | out: DIFFERS
+   right mx-text-field[]{has-counter}</>1232x76 
+   got   mx-text-field[]{has-support}</>1232x60 
+   right  b[]{}</>8x16 
+   got    b[]{}</>0x0 
+   right #input[aria-describedby=counter class=input txt]{}</counter>1200x24 
+   got   #input[aria-describedby=support class=input txt]{}</support>1200x24 
+   right #div[class=support]{}</>604x16 
+   got   #div[class=support]{}</>616x0 
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[class=has-slotted]{}</>600x0 0px
+   right #div[class=counter]{}</>628x16 
+   got   #div[class=counter]{}</>616x0 
+   right # slot[class=has-slotted]{}</>628x16 0px 16px
+   got   # slot[]{}</>0x0 0px
+tf support, counter, one removed | late: DIFFERS
+   right mx-text-field[]{has-counter}</>1232x76 
+   got   mx-text-field[]{}</>1232x56 
+   right  b[]{}</>8x16 
+   got    b[]{}</>0x0 
+   right #input[aria-describedby=counter class=input txt]{}</counter>1200x24 
+   got   #input[class=input txt]{}</>1200x24 
+   right #div[class=support]{}</>604x16 
+   got   #div[class=support]{}</>616x0 
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[]{}</>0x0 0px
+   right #div[class=counter]{}</>628x16 
+   got   #div[class=counter]{}</>616x0 
+   right # slot[class=has-slotted]{}</>628x16 0px 16px
+   got   # slot[]{}</>0x0 0px
+tf support, counter, one removed | lateUndone: DIFFERS
+   right mx-text-field[]{has-counter}</>1232x76 
+   got   mx-text-field[]{has-support}</>1232x60 
+   right  b[]{}</>8x16 
+   got    b[]{}</>0x0 
+   right #input[aria-describedby=counter class=input txt]{}</counter>1200x24 
+   got   #input[aria-describedby=support class=input txt]{}</support>1200x24 
+   right #div[class=support]{}</>604x16 
+   got   #div[class=support]{}</>616x0 
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[class=has-slotted]{}</>600x0 0px
+   right #div[class=counter]{}</>628x16 
+   got   #div[class=counter]{}</>616x0 
+   right # slot[class=has-slotted]{}</>628x16 0px 16px
+   got   # slot[]{}</>0x0 0px
+tf every slot | out: DIFFERS
+   right mx-text-field[]{has-lead,has-trail,has-label,has-support,has-counter,has-prefix,has-suffix}</>1232x76 
+   got   mx-text-field[]{}</>1232x56 
+   right  u[]{}</>45x28 
+   got    u[]{}</>0x0 
+   right  u[]{}</>40x28 
+   got    u[]{}</>0x0 
+   right  u[]{}</>43x0 
+   got    u[]{}</>0x0 
+   right  u[]{}</>43x0 
+   got    u[]{}</>0x0 
+   right  u[]{}</>36x19 
+   got    u[]{}</>0x0 
+   right  u[]{}</>44x14 
+   got    u[]{}</>0x0 
+   right  u[]{}</>44x16 
+   got    u[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 36.453125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #input[aria-describedby=support counter aria-labelledby=label class=input txt]{}<label/support+counter>1000x24 
+   got   #input[class=input txt]{}</>1200x24 
+   right #slot[class=lead has-slotted]{}</>45x24 0px
+   got   #slot[class=lead]{}</>0x0 0px
+   right #slot[class=prefix has-slotted]{}</>43x0 0px
+   got   #slot[class=prefix]{}</>0x0 0px
+   right #label[class=label]{}</>36x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>36x24 0px
+   got   # slot[]{}</>0x0 0px
+   right #slot[class=suffix has-slotted]{}</>43x0 0px
+   got   #slot[class=suffix]{}</>0x0 0px
+   right #slot[class=trail has-slotted]{}</>40x24 0px
+   got   #slot[class=trail]{}</>0x0 0px
+   right #div[class=support]{}</>619x16 
+   got   #div[class=support]{}</>616x0 
+   right # slot[class=has-slotted]{}</>603x16 0px
+   got   # slot[]{}</>0x0 0px
+   right #div[class=counter]{}</>614x16 
+   got   #div[class=counter]{}</>616x0 
+   right # slot[class=has-slotted]{}</>614x16 0px 16px
+   got   # slot[]{}</>0x0 0px
+tf every slot | late: DIFFERS
+   right mx-text-field[]{has-lead,has-trail,has-label,has-support,has-counter,has-prefix,has-suffix}</>1232x76 
+   got   mx-text-field[]{}</>1232x56 
+   right  u[]{}</>45x28 
+   got    u[]{}</>0x0 
+   right  u[]{}</>40x28 
+   got    u[]{}</>0x0 
+   right  u[]{}</>43x0 
+   got    u[]{}</>0x0 
+   right  u[]{}</>43x0 
+   got    u[]{}</>0x0 
+   right  u[]{}</>36x19 
+   got    u[]{}</>0x0 
+   right  u[]{}</>44x14 
+   got    u[]{}</>0x0 
+   right  u[]{}</>44x16 
+   got    u[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 36.453125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #input[aria-describedby=support counter aria-labelledby=label class=input txt]{}<label/support+counter>1000x24 
+   got   #input[class=input txt]{}</>1200x24 
+   right #slot[class=lead has-slotted]{}</>45x24 0px
+   got   #slot[class=lead]{}</>0x0 0px
+   right #slot[class=prefix has-slotted]{}</>43x0 0px
+   got   #slot[class=prefix]{}</>0x0 0px
+   right #label[class=label]{}</>36x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>36x24 0px
+   got   # slot[]{}</>0x0 0px
+   right #slot[class=suffix has-slotted]{}</>43x0 0px
+   got   #slot[class=suffix]{}</>0x0 0px
+   right #slot[class=trail has-slotted]{}</>40x24 0px
+   got   #slot[class=trail]{}</>0x0 0px
+   right #div[class=support]{}</>619x16 
+   got   #div[class=support]{}</>616x0 
+   right # slot[class=has-slotted]{}</>603x16 0px
+   got   # slot[]{}</>0x0 0px
+   right #div[class=counter]{}</>614x16 
+   got   #div[class=counter]{}</>616x0 
+   right # slot[class=has-slotted]{}</>614x16 0px 16px
+   got   # slot[]{}</>0x0 0px
+tf every slot | lateUndone: DIFFERS
+   right mx-text-field[]{has-lead,has-trail,has-label,has-support,has-counter,has-prefix,has-suffix}</>1232x76 
+   got   mx-text-field[]{}</>1232x56 
+   right  u[]{}</>45x28 
+   got    u[]{}</>0x0 
+   right  u[]{}</>40x28 
+   got    u[]{}</>0x0 
+   right  u[]{}</>43x0 
+   got    u[]{}</>0x0 
+   right  u[]{}</>43x0 
+   got    u[]{}</>0x0 
+   right  u[]{}</>36x19 
+   got    u[]{}</>0x0 
+   right  u[]{}</>44x14 
+   got    u[]{}</>0x0 
+   right  u[]{}</>44x16 
+   got    u[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 36.453125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #input[aria-describedby=support counter aria-labelledby=label class=input txt]{}<label/support+counter>1000x24 
+   got   #input[class=input txt]{}</>1200x24 
+   right #slot[class=lead has-slotted]{}</>45x24 0px
+   got   #slot[class=lead]{}</>0x0 0px
+   right #slot[class=prefix has-slotted]{}</>43x0 0px
+   got   #slot[class=prefix]{}</>0x0 0px
+   right #label[class=label]{}</>36x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>36x24 0px
+   got   # slot[]{}</>0x0 0px
+   right #slot[class=suffix has-slotted]{}</>43x0 0px
+   got   #slot[class=suffix]{}</>0x0 0px
+   right #slot[class=trail has-slotted]{}</>40x24 0px
+   got   #slot[class=trail]{}</>0x0 0px
+   right #div[class=support]{}</>619x16 
+   got   #div[class=support]{}</>616x0 
+   right # slot[class=has-slotted]{}</>603x16 0px
+   got   # slot[]{}</>0x0 0px
+   right #div[class=counter]{}</>614x16 
+   got   #div[class=counter]{}</>616x0 
+   right # slot[class=has-slotted]{}</>614x16 0px 16px
+   got   # slot[]{}</>0x0 0px
+tf every slot removed | out: DIFFERS
+   right mx-text-field[]{}</>1232x56 
+   got   mx-text-field[]{has-lead,has-trail,has-label,has-support,has-prefix,has-suffix}</>1232x60 
+   right #input[class=input txt]{}</>1200x24 
+   got   #input[aria-describedby=support aria-labelledby=label class=input txt]{}<label/support>1172x24 
+   right #slot[class=lead]{}</>0x0 0px
+   got   #slot[class=lead has-slotted]{}</>0x24 0px
+   right #slot[class=prefix]{}</>0x0 0px
+   got   #slot[class=prefix has-slotted]{}</>0x0 0px
+   right #label[class=label]{}</>0x0 
+   got   #label[class=label]{}</>0x16 
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[class=has-slotted]{}</>0x0 0px
+   right #slot[class=suffix]{}</>0x0 0px
+   got   #slot[class=suffix has-slotted]{}</>0x0 0px
+   right #slot[class=trail]{}</>0x0 0px
+   got   #slot[class=trail has-slotted]{}</>0x24 0px
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[class=has-slotted]{}</>600x0 0px
+tf every slot removed | late: DIFFERS
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[]{}</>0x0 0px
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[]{}</>0x0 0px
+tf every slot removed | lateUndone: DIFFERS
+   right mx-text-field[]{}</>1232x56 
+   got   mx-text-field[]{has-lead,has-trail,has-label,has-support,has-prefix,has-suffix}</>1232x60 
+   right #input[class=input txt]{}</>1200x24 
+   got   #input[aria-describedby=support aria-labelledby=label class=input txt]{}<label/support>1172x24 
+   right #slot[class=lead]{}</>0x0 0px
+   got   #slot[class=lead has-slotted]{}</>0x24 0px
+   right #slot[class=prefix]{}</>0x0 0px
+   got   #slot[class=prefix has-slotted]{}</>0x0 0px
+   right #label[class=label]{}</>0x0 
+   got   #label[class=label]{}</>0x16 
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[class=has-slotted]{}</>0x0 0px
+   right #slot[class=suffix]{}</>0x0 0px
+   got   #slot[class=suffix has-slotted]{}</>0x0 0px
+   right #slot[class=trail]{}</>0x0 0px
+   got   #slot[class=trail has-slotted]{}</>0x24 0px
+   right # slot[class=]{}</>0x0 0px
+   got   # slot[class=has-slotted]{}</>600x0 0px
+multi label add | out: DIFFERS
+   right mx-multiline-text-field[]{has-label}</>1232x56 
+   got   mx-multiline-text-field[]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #textarea[aria-labelledby=label class=input txt]{}<label/>1200x24 
+   got   #textarea[class=input txt]{}</>1200x24 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+multi label add | late: DIFFERS
+   right mx-multiline-text-field[]{has-label}</>1232x56 
+   got   mx-multiline-text-field[]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #textarea[aria-labelledby=label class=input txt]{}<label/>1200x24 
+   got   #textarea[class=input txt]{}</>1200x24 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+multi label add | lateUndone: DIFFERS
+   right mx-multiline-text-field[]{has-label}</>1232x56 
+   got   mx-multiline-text-field[]{}</>1232x56 
+   right  span[]{}</>9x19 
+   got    span[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 9.125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #textarea[aria-labelledby=label class=input txt]{}<label/>1200x24 
+   got   #textarea[class=input txt]{}</>1200x24 
+   right #label[class=label]{}</>9x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>9x24 0px
+   got   # slot[]{}</>0x0 0px
+multi every slot | out: DIFFERS
+   right mx-multiline-text-field[]{has-label,has-support,has-counter}</>1232x76 
+   got   mx-multiline-text-field[]{}</>1232x56 
+   right  u[]{}</>36x19 
+   got    u[]{}</>0x0 
+   right  u[]{}</>44x14 
+   got    u[]{}</>0x0 
+   right  u[]{}</>44x16 
+   got    u[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 36.453125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #textarea[aria-describedby=support counter aria-labelledby=label class=input txt]{}<label/support+counter>1200x24 
+   got   #textarea[class=input txt]{}</>1200x24 
+   right #label[class=label]{}</>36x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>36x24 0px
+   got   # slot[]{}</>0x0 0px
+   right #div[class=support]{}</>608x16 
+   got   #div[class=support]{}</>616x0 
+   right # slot[class=has-slotted]{}</>592x16 0px
+   got   # slot[]{}</>0x0 0px
+   right #div[class=counter]{}</>624x16 
+   got   #div[class=counter]{}</>616x0 
+   right # slot[class=has-slotted]{}</>624x16 0px 16px
+   got   # slot[]{}</>0x0 0px
+multi every slot | late: DIFFERS
+   right mx-multiline-text-field[]{has-label,has-support,has-counter}</>1232x76 
+   got   mx-multiline-text-field[]{}</>1232x56 
+   right  u[]{}</>36x19 
+   got    u[]{}</>0x0 
+   right  u[]{}</>44x14 
+   got    u[]{}</>0x0 
+   right  u[]{}</>44x16 
+   got    u[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 36.453125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #textarea[aria-describedby=support counter aria-labelledby=label class=input txt]{}<label/support+counter>1200x24 
+   got   #textarea[class=input txt]{}</>1200x24 
+   right #label[class=label]{}</>36x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>36x24 0px
+   got   # slot[]{}</>0x0 0px
+   right #div[class=support]{}</>608x16 
+   got   #div[class=support]{}</>616x0 
+   right # slot[class=has-slotted]{}</>592x16 0px
+   got   # slot[]{}</>0x0 0px
+   right #div[class=counter]{}</>624x16 
+   got   #div[class=counter]{}</>616x0 
+   right # slot[class=has-slotted]{}</>624x16 0px 16px
+   got   # slot[]{}</>0x0 0px
+multi every slot | lateUndone: DIFFERS
+   right mx-multiline-text-field[]{has-label,has-support,has-counter}</>1232x76 
+   got   mx-multiline-text-field[]{}</>1232x56 
+   right  u[]{}</>36x19 
+   got    u[]{}</>0x0 
+   right  u[]{}</>44x14 
+   got    u[]{}</>0x0 
+   right  u[]{}</>44x16 
+   got    u[]{}</>0x0 
+   right #div[class=notched-outline style=--_notched-outline-notch-width: 36.453125px;]{}</>1232x56 
+   got   #div[class=notched-outline style=--_notched-outline-notch-width: 0px;]{}</>1232x56 
+   right #textarea[aria-describedby=support counter aria-labelledby=label class=input txt]{}<label/support+counter>1200x24 
+   got   #textarea[class=input txt]{}</>1200x24 
+   right #label[class=label]{}</>36x56 
+   got   #label[class=label]{}</>0x0 
+   right # slot[class=has-slotted]{}</>36x24 0px
+   got   # slot[]{}</>0x0 0px
+   right #div[class=support]{}</>608x16 
+   got   #div[class=support]{}</>616x0 
+   right # slot[class=has-slotted]{}</>592x16 0px
+   got   # slot[]{}</>0x0 0px
+   right #div[class=counter]{}</>624x16 
+   got   #div[class=counter]{}</>616x0 
+   right # slot[class=has-slotted]{}</>624x16 0px 16px
+   got   # slot[]{}</>0x0 0px
+cg add | out: DIFFERS
+   right  mx-switch-button[tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg add | late: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  mx-switch-button[tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg add | lateUndone: DIFFERS
+   right  mx-switch-button[tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg remove first | out: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[tabindex=-1]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg remove first | late: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg remove first | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[tabindex=-1]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg remove all, add | out: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg remove all, add | late: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg remove all, add | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg value changes, then add of it | out: DIFFERS
+   right  mx-switch-button[data-first= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   right  mx-switch-button[tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   right  mx-switch-button[data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+cg value changes, then add of it | late: DIFFERS
+   right  mx-switch-button[data-first= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   right  mx-switch-button[tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  mx-switch-button[data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+cg value changes, then add of it | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   right  mx-switch-button[tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   right  mx-switch-button[data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+cg add, then value | out: DIFFERS
+   right  mx-switch-button[data-first= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   right  mx-switch-button[tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   right  mx-switch-button[data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+cg add, then value | late: DIFFERS
+   right  mx-switch-button[data-first= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   right  mx-switch-button[tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  mx-switch-button[data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+cg add, then value | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   right  mx-switch-button[tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   right  mx-switch-button[data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+cg first disabled, then added | out: DIFFERS
+   right  mx-switch-button[data-first= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   right  mx-switch-button[tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg first disabled, then added | late: DIFFERS
+   right  mx-switch-button[data-first= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   right  mx-switch-button[tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg first disabled, then added | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   right  mx-switch-button[tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg reordered | out: DIFFERS
+   right  mx-switch-button[data-first= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[tabindex=-1]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   right  mx-switch-button[tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   right  mx-switch-button[data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+cg reordered | late: DIFFERS
+   right  mx-switch-button[data-first= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   right  mx-switch-button[tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  mx-switch-button[data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg reordered | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[tabindex=-1]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   right  mx-switch-button[tabindex=-1]{}</>0x0 
+   got    mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   right  mx-switch-button[data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+cg children cloned from a template | out: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg children cloned from a template | late: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg children cloned from a template | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg child cloned from a template, added | out: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first= data-last= tabindex=0]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg child cloned from a template, added | late: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg child cloned from a template, added | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= tabindex=0]{}</>0x0 
+   got    mx-switch-button[data-first= data-last= tabindex=0]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 20px 8px 8px 20px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   right  mx-switch-button[data-last= tabindex=-1]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg first replaced by a template clone | out: DIFFERS
+   right  mx-switch-button[data-first= data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg first replaced by a template clone | late: DIFFERS
+   right  mx-switch-button[data-first= data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+cg first replaced by a template clone | lateUndone: DIFFERS
+   right  mx-switch-button[data-first= data-last= tabindex=0]{}</>0x0 
+   got    mx-switch-button[]{}</>0x0 
+   right  #button[aria-checked=false class=host role=switch]{}</>40x40 8px 20px 20px 8px
+   got    #button[aria-checked=false class=host role=switch]{}</>40x40 8px
+bg add | out: same
+bg add | late: same
+bg add | lateUndone: same
+li lead, trail | out: DIFFERS
+   right mx-list-item[]{has-trail,has-default}</>1232x56 
+   got   mx-list-item[]{has-default}</>1232x56 
+   right  b[]{}</>4x13 
+   got    b[]{}</>0x0 
+   right #div[class=content]{}</>1184x24 
+   got   #div[class=content]{}</>1200x24 
+   right # slot[class=label has-slotted]{}</>1184x24 0px
+   got   # slot[class=label has-slotted]{}</>1200x24 0px
+   right #slot[class=trail has-slotted]{}</>4x16 0px
+   got   #slot[class=trail]{}</>0x0 0px
+li lead, trail | late: DIFFERS
+   right mx-list-item[]{has-trail,has-default}</>1232x56 
+   got   mx-list-item[]{}</>1232x56 
+   right  b[]{}</>4x13 
+   got    b[]{}</>0x0 
+   right #div[class=content]{}</>1184x24 
+   got   #div[class=content]{}</>1200x0 
+   right # slot[class=label has-slotted]{}</>1184x24 0px
+   got   # slot[class=label]{}</>0x0 0px
+   right #slot[class=trail has-slotted]{}</>4x16 0px
+   got   #slot[class=trail]{}</>0x0 0px
+li lead, trail | lateUndone: DIFFERS
+   right mx-list-item[]{has-trail,has-default}</>1232x56 
+   got   mx-list-item[]{has-default}</>1232x56 
+   right  b[]{}</>4x13 
+   got    b[]{}</>0x0 
+   right #div[class=content]{}</>1184x24 
+   got   #div[class=content]{}</>1200x24 
+   right # slot[class=label has-slotted]{}</>1184x24 0px
+   got   # slot[class=label has-slotted]{}</>1200x24 0px
+   right #slot[class=trail has-slotted]{}</>4x16 0px
+   got   #slot[class=trail]{}</>0x0 0px
+li large image | out: DIFFERS
+   right mx-list-item[]{has-lead,has-default,lead-large}</>1232x76 
+   got   mx-list-item[]{has-default}</>1232x56 
+   right  img[data-large=]{}</>56x56 
+   got    img[data-large=]{}</>0x0 
+   right #slot[class=lead has-slotted]{}</>56x56 0px
+   got   #slot[class=lead]{}</>0x0 0px
+   right #div[class=content]{}</>1148x24 
+   got   #div[class=content]{}</>1200x24 
+   right # slot[class=label has-slotted]{}</>1148x24 0px
+   got   # slot[class=label has-slotted]{}</>1200x24 0px
+li large image | late: DIFFERS
+   right mx-list-item[]{has-lead,has-default,lead-large}</>1232x76 
+   got   mx-list-item[]{}</>1232x56 
+   right  img[data-large=]{}</>56x56 
+   got    img[data-large=]{}</>0x0 
+   right #slot[class=lead has-slotted]{}</>56x56 0px
+   got   #slot[class=lead]{}</>0x0 0px
+   right #div[class=content]{}</>1148x24 
+   got   #div[class=content]{}</>1200x0 
+   right # slot[class=label has-slotted]{}</>1148x24 0px
+   got   # slot[class=label]{}</>0x0 0px
+li large image | lateUndone: DIFFERS
+   right mx-list-item[]{has-lead,has-default,lead-large}</>1232x76 
+   got   mx-list-item[]{has-default}</>1232x56 
+   right  img[data-large=]{}</>56x56 
+   got    img[data-large=]{}</>0x0 
+   right #slot[class=lead has-slotted]{}</>56x56 0px
+   got   #slot[class=lead]{}</>0x0 0px
+   right #div[class=content]{}</>1148x24 
+   got   #div[class=content]{}</>1200x24 
+   right # slot[class=label has-slotted]{}</>1148x24 0px
+   got   # slot[class=label has-slotted]{}</>1200x24 0px
+li large image removed | out: DIFFERS
+   right mx-list-item[]{has-default}</>1232x56 
+   got   mx-list-item[]{has-lead,has-default,lead-large}</>1232x56 
+   right #slot[class=lead]{}</>0x0 0px
+   got   #slot[class=lead has-slotted]{}</>0x0 0px
+   right #div[class=content]{}</>1200x24 
+   got   #div[class=content]{}</>1204x24 
+   right # slot[class=label has-slotted]{}</>1200x24 0px
+   got   # slot[class=label has-slotted]{}</>1204x24 0px
+li large image removed | late: DIFFERS
+   right mx-list-item[]{has-default}</>1232x56 
+   got   mx-list-item[]{}</>1232x56 
+   right #div[class=content]{}</>1200x24 
+   got   #div[class=content]{}</>1200x0 
+   right # slot[class=label has-slotted]{}</>1200x24 0px
+   got   # slot[class=label]{}</>0x0 0px
+li large image removed | lateUndone: DIFFERS
+   right mx-list-item[]{has-default}</>1232x56 
+   got   mx-list-item[]{has-lead,has-default,lead-large}</>1232x56 
+   right #slot[class=lead]{}</>0x0 0px
+   got   #slot[class=lead has-slotted]{}</>0x0 0px
+   right #div[class=content]{}</>1200x24 
+   got   #div[class=content]{}</>1204x24 
+   right # slot[class=label has-slotted]{}</>1200x24 0px
+   got   # slot[class=label has-slotted]{}</>1204x24 0px
+button item large image | out: DIFFERS
+   right mx-list-button-item[]{has-lead,has-default,lead-large}</>1232x76 
+   got   mx-list-button-item[]{has-default}</>1232x56 
+   right  img[data-large=]{}</>56x56 
+   got    img[data-large=]{}</>0x0 
+   right #button[class=host]{}</>1232x76 4px
+   got   #button[class=host]{}</>1232x56 4px
+   right # slot[class=lead has-slotted]{}</>56x56 0px
+   got   # slot[class=lead]{}</>0x0 0px
+   right # div[class=content]{}</>1148x24 
+   got   # div[class=content]{}</>1200x24 
+   right #  slot[class=label has-slotted]{}</>1148x24 0px
+   got   #  slot[class=label has-slotted]{}</>1200x24 0px
+   right # div[class=ripple]{}</>1232x76 
+   got   # div[class=ripple]{}</>1232x56 
+button item large image | late: DIFFERS
+   right mx-list-button-item[]{has-lead,has-default,lead-large}</>1232x76 
+   got   mx-list-button-item[]{}</>1232x56 
+   right  img[data-large=]{}</>56x56 
+   got    img[data-large=]{}</>0x0 
+   right #button[class=host]{}</>1232x76 4px
+   got   #button[class=host]{}</>1232x56 4px
+   right # slot[class=lead has-slotted]{}</>56x56 0px
+   got   # slot[class=lead]{}</>0x0 0px
+   right # div[class=content]{}</>1148x24 
+   got   # div[class=content]{}</>1200x0 
+   right #  slot[class=label has-slotted]{}</>1148x24 0px
+   got   #  slot[class=label]{}</>0x0 0px
+   right # div[class=ripple]{}</>1232x76 
+   got   # div[class=ripple]{}</>1232x56 
+button item large image | lateUndone: DIFFERS
+   right mx-list-button-item[]{has-lead,has-default,lead-large}</>1232x76 
+   got   mx-list-button-item[]{has-default}</>1232x56 
+   right  img[data-large=]{}</>56x56 
+   got    img[data-large=]{}</>0x0 
+   right #button[class=host]{}</>1232x76 4px
+   got   #button[class=host]{}</>1232x56 4px
+   right # slot[class=lead has-slotted]{}</>56x56 0px
+   got   # slot[class=lead]{}</>0x0 0px
+   right # div[class=content]{}</>1148x24 
+   got   # div[class=content]{}</>1200x24 
+   right #  slot[class=label has-slotted]{}</>1148x24 0px
+   got   #  slot[class=label has-slotted]{}</>1200x24 0px
+   right # div[class=ripple]{}</>1232x76 
+   got   # div[class=ripple]{}</>1232x56 
+link item large image | out: DIFFERS
+   right mx-list-link-item[]{has-lead,has-default,lead-large}</>1232x76 
+   got   mx-list-link-item[]{has-default}</>1232x56 
+   right  img[data-large=]{}</>56x56 
+   got    img[data-large=]{}</>0x0 
+   right #a[class=host]{}</>1232x76 
+   got   #a[class=host]{}</>1232x56 
+   right # slot[class=lead has-slotted]{}</>56x56 0px
+   got   # slot[class=lead]{}</>0x0 0px
+   right # div[class=content]{}</>1148x24 
+   got   # div[class=content]{}</>1200x24 
+   right #  slot[class=label has-slotted]{}</>1148x24 0px
+   got   #  slot[class=label has-slotted]{}</>1200x24 0px
+   right # div[class=ripple]{}</>1232x76 
+   got   # div[class=ripple]{}</>1232x56 
+link item large image | late: DIFFERS
+   right mx-list-link-item[]{has-lead,has-default,lead-large}</>1232x76 
+   got   mx-list-link-item[]{}</>1232x56 
+   right  img[data-large=]{}</>56x56 
+   got    img[data-large=]{}</>0x0 
+   right #a[class=host]{}</>1232x76 
+   got   #a[class=host]{}</>1232x56 
+   right # slot[class=lead has-slotted]{}</>56x56 0px
+   got   # slot[class=lead]{}</>0x0 0px
+   right # div[class=content]{}</>1148x24 
+   got   # div[class=content]{}</>1200x0 
+   right #  slot[class=label has-slotted]{}</>1148x24 0px
+   got   #  slot[class=label]{}</>0x0 0px
+   right # div[class=ripple]{}</>1232x76 
+   got   # div[class=ripple]{}</>1232x56 
+link item large image | lateUndone: DIFFERS
+   right mx-list-link-item[]{has-lead,has-default,lead-large}</>1232x76 
+   got   mx-list-link-item[]{has-default}</>1232x56 
+   right  img[data-large=]{}</>56x56 
+   got    img[data-large=]{}</>0x0 
+   right #a[class=host]{}</>1232x76 
+   got   #a[class=host]{}</>1232x56 
+   right # slot[class=lead has-slotted]{}</>56x56 0px
+   got   # slot[class=lead]{}</>0x0 0px
+   right # div[class=content]{}</>1148x24 
+   got   # div[class=content]{}</>1200x24 
+   right #  slot[class=label has-slotted]{}</>1148x24 0px
+   got   #  slot[class=label has-slotted]{}</>1200x24 0px
+   right # div[class=ripple]{}</>1232x76 
+   got   # div[class=ripple]{}</>1232x56 
+li every slot | out: DIFFERS
+   right mx-list-item[]{has-lead,has-trail,has-overline}</>1232x72 
+   got   mx-list-item[]{}</>1232x56 
+   right  u[]{}</>43x13 
+   got    u[]{}</>0x0 
+   right  u[]{}</>30x19 
+   got    u[]{}</>0x0 
+   right  u[]{}</>21x13 
+   got    u[]{}</>0x0 
+   right #slot[class=lead has-slotted]{}</>30x0 0px
+   got   #slot[class=lead]{}</>0x0 0px
+   right #div[class=content]{}</>1124x16 
+   got   #div[class=content]{}</>1200x0 
+   right # slot[class=overline has-slotted]{}</>1124x16 0px
+   got   # slot[class=overline]{}</>0x0 0px
+   right #slot[class=trail has-slotted]{}</>21x16 0px
+   got   #slot[class=trail]{}</>0x0 0px
+li every slot | late: DIFFERS
+   right mx-list-item[]{has-lead,has-trail,has-overline}</>1232x72 
+   got   mx-list-item[]{}</>1232x56 
+   right  u[]{}</>43x13 
+   got    u[]{}</>0x0 
+   right  u[]{}</>30x19 
+   got    u[]{}</>0x0 
+   right  u[]{}</>21x13 
+   got    u[]{}</>0x0 
+   right #slot[class=lead has-slotted]{}</>30x0 0px
+   got   #slot[class=lead]{}</>0x0 0px
+   right #div[class=content]{}</>1124x16 
+   got   #div[class=content]{}</>1200x0 
+   right # slot[class=overline has-slotted]{}</>1124x16 0px
+   got   # slot[class=overline]{}</>0x0 0px
+   right #slot[class=trail has-slotted]{}</>21x16 0px
+   got   #slot[class=trail]{}</>0x0 0px
+li every slot | lateUndone: DIFFERS
+   right mx-list-item[]{has-lead,has-trail,has-overline}</>1232x72 
+   got   mx-list-item[]{}</>1232x56 
+   right  u[]{}</>43x13 
+   got    u[]{}</>0x0 
+   right  u[]{}</>30x19 
+   got    u[]{}</>0x0 
+   right  u[]{}</>21x13 
+   got    u[]{}</>0x0 
+   right #slot[class=lead has-slotted]{}</>30x0 0px
+   got   #slot[class=lead]{}</>0x0 0px
+   right #div[class=content]{}</>1124x16 
+   got   #div[class=content]{}</>1200x0 
+   right # slot[class=overline has-slotted]{}</>1124x16 0px
+   got   # slot[class=overline]{}</>0x0 0px
+   right #slot[class=trail has-slotted]{}</>21x16 0px
+   got   #slot[class=trail]{}</>0x0 0px
+slider label add | out: same
+slider label add | late: same
+slider label add | lateUndone: same
+slider label removed | out: same
+slider label removed | late: same
+slider label removed | lateUndone: same
+slider label, aria-label | out: same
+slider label, aria-label | late: same
+slider label, aria-label | lateUndone: same
+sl item add | out: DIFFERS
+   right  mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{has-default}</>1232x56 
+   got    mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{}</>1232x56 
+   right  #div[class=content]{}</>1200x24 
+   got    #div[class=content]{}</>1200x0 
+   right  # slot[class=label has-slotted]{}</>1200x24 0px
+   got    # slot[class=label]{}</>0x0 0px
+   right  mx-list-button-item[]{has-default}</>1232x56 
+   got    mx-list-button-item[]{}</>1232x56 
+   right  # div[class=content]{}</>1200x24 
+   got    # div[class=content]{}</>1200x0 
+   right  #  slot[class=label has-slotted]{}</>1200x24 0px
+   got    #  slot[class=label]{}</>0x0 0px
+sl item add | late: DIFFERS
+   right  mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{has-default}</>1232x56 
+   got    mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{}</>1232x56 
+   right  #div[class=content]{}</>1200x24 
+   got    #div[class=content]{}</>1200x0 
+   right  # slot[class=label has-slotted]{}</>1200x24 0px
+   got    # slot[class=label]{}</>0x0 0px
+   right  mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{has-default}</>1232x56 
+   got    mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{}</>1232x56 
+   right  #div[class=content]{}</>1200x24 
+   got    #div[class=content]{}</>1200x0 
+   right  # slot[class=label has-slotted]{}</>1200x24 0px
+   got    # slot[class=label]{}</>0x0 0px
+   right  mx-list-button-item[]{has-default}</>1232x56 
+   got    mx-list-button-item[]{}</>1232x56 
+   right  # div[class=content]{}</>1200x24 
+   got    # div[class=content]{}</>1200x0 
+   right  #  slot[class=label has-slotted]{}</>1200x24 0px
+   got    #  slot[class=label]{}</>0x0 0px
+sl item add | lateUndone: DIFFERS
+   right  mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{has-default}</>1232x56 
+   got    mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{}</>1232x56 
+   right  #div[class=content]{}</>1200x24 
+   got    #div[class=content]{}</>1200x0 
+   right  # slot[class=label has-slotted]{}</>1200x24 0px
+   got    # slot[class=label]{}</>0x0 0px
+   right  mx-list-button-item[]{has-default}</>1232x56 
+   got    mx-list-button-item[]{}</>1232x56 
+   right  # div[class=content]{}</>1200x24 
+   got    # div[class=content]{}</>1200x0 
+   right  #  slot[class=label has-slotted]{}</>1200x24 0px
+   got    #  slot[class=label]{}</>0x0 0px
+sl item removed | out: same
+sl item removed | late: DIFFERS
+   right  mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{has-default}</>1232x56 
+   got    mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{}</>1232x56 
+   right  #div[class=content]{}</>1200x24 
+   got    #div[class=content]{}</>1200x0 
+   right  # slot[class=label has-slotted]{}</>1200x24 0px
+   got    # slot[class=label]{}</>0x0 0px
+sl item removed | lateUndone: same
+sl handle added to an item | out: DIFFERS
+   right  mx-list-item[]{has-lead,has-default}</>1232x56 
+   got    mx-list-item[]{has-default}</>1232x56 
+   right   i[aria-description=Use the arrow keys to move aria-label=Reorder data-handle= role=button style=touch-action: none; tabindex=0]{}</>9x19 
+   got     i[aria-description=Use the arrow keys to move aria-label=Reorder data-handle= role=button style=touch-action: none; tabindex=0]{}</>0x0 
+   right  #slot[class=lead has-slotted]{}</>9x0 0px
+   got    #slot[class=lead]{}</>0x0 0px
+   right  #div[class=content]{}</>1179x24 
+   got    #div[class=content]{}</>1200x24 
+   right  # slot[class=label has-slotted]{}</>1179x24 0px
+   got    # slot[class=label has-slotted]{}</>1200x24 0px
+sl handle added to an item | late: DIFFERS
+   right  mx-list-item[]{has-lead,has-default}</>1232x56 
+   got    mx-list-item[]{}</>1232x56 
+   right   i[aria-description=Use the arrow keys to move aria-label=Reorder data-handle= role=button style=touch-action: none; tabindex=0]{}</>9x19 
+   got     i[aria-description=Use the arrow keys to move aria-label=Reorder data-handle= role=button style=touch-action: none; tabindex=0]{}</>0x0 
+   right  #slot[class=lead has-slotted]{}</>9x0 0px
+   got    #slot[class=lead]{}</>0x0 0px
+   right  #div[class=content]{}</>1179x24 
+   got    #div[class=content]{}</>1200x0 
+   right  # slot[class=label has-slotted]{}</>1179x24 0px
+   got    # slot[class=label]{}</>0x0 0px
+sl handle added to an item | lateUndone: DIFFERS
+   right  mx-list-item[]{has-lead,has-default}</>1232x56 
+   got    mx-list-item[]{has-default}</>1232x56 
+   right   i[aria-description=Use the arrow keys to move aria-label=Reorder data-handle= role=button style=touch-action: none; tabindex=0]{}</>9x19 
+   got     i[aria-description=Use the arrow keys to move aria-label=Reorder data-handle= role=button style=touch-action: none; tabindex=0]{}</>0x0 
+   right  #slot[class=lead has-slotted]{}</>9x0 0px
+   got    #slot[class=lead]{}</>0x0 0px
+   right  #div[class=content]{}</>1179x24 
+   got    #div[class=content]{}</>1200x24 
+   right  # slot[class=label has-slotted]{}</>1179x24 0px
+   got    # slot[class=label has-slotted]{}</>1200x24 0px
+sl handle removed | out: DIFFERS
+   right  mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{has-default}</>1232x56 
+   got    mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{has-trail,has-default}</>1232x56 
+   right  #div[class=content]{}</>1200x24 
+   got    #div[class=content]{}</>1188x24 
+   right  # slot[class=label has-slotted]{}</>1200x24 0px
+   got    # slot[class=label has-slotted]{}</>1188x24 0px
+   right  #slot[class=trail]{}</>0x0 0px
+   got    #slot[class=trail has-slotted]{}</>0x0 0px
+sl handle removed | late: DIFFERS
+   right  mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{has-default}</>1232x56 
+   got    mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{}</>1232x56 
+   right  #div[class=content]{}</>1200x24 
+   got    #div[class=content]{}</>1200x0 
+   right  # slot[class=label has-slotted]{}</>1200x24 0px
+   got    # slot[class=label]{}</>0x0 0px
+sl handle removed | lateUndone: DIFFERS
+   right  mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{has-default}</>1232x56 
+   got    mx-list-item[aria-description=Use the arrow keys to move tabindex=0]{has-trail,has-default}</>1232x56 
+   right  #div[class=content]{}</>1200x24 
+   got    #div[class=content]{}</>1188x24 
+   right  # slot[class=label has-slotted]{}</>1200x24 0px
+   got    # slot[class=label has-slotted]{}</>1188x24 0px
+   right  #slot[class=trail]{}</>0x0 0px
+   got    #slot[class=trail has-slotted]{}</>0x0 0px
+sl items cloned from a template | out: same
+sl items cloned from a template | late: same
+sl items cloned from a template | lateUndone: same
+bar lead, trail add | out: DIFFERS
+   right mx-top-app-bar[]{has-lead,has-trail,has-default}</>1232x64 
+   got   mx-top-app-bar[]{has-default}</>1232x64 
+   right  h1[]{}</>1202x28 
+   got    h1[]{}</>1200x28 
+   right  i[]{}</>6x28 
+   got    i[]{}</>0x0 
+   right  b[]{}</>8x28 
+   got    b[]{}</>0x0 
+   right #slot[class=lead has-slotted]{}</>6x28 0px
+   got   #slot[class=lead]{}</>0x0 0px
+   right #slot[class=headline has-slotted]{}</>1202x28 0px
+   got   #slot[class=headline has-slotted]{}</>1200x28 0px
+   right #slot[class=trail has-slotted]{}</>8x28 0px
+   got   #slot[class=trail]{}</>0x0 0px
+bar lead, trail add | late: DIFFERS
+   right mx-top-app-bar[]{has-lead,has-trail,has-default}</>1232x64 
+   got   mx-top-app-bar[]{}</>1232x64 
+   right  h1[]{}</>1202x28 
+   got    h1[]{}</>1200x28 
+   right  i[]{}</>6x28 
+   got    i[]{}</>0x0 
+   right  b[]{}</>8x28 
+   got    b[]{}</>0x0 
+   right #slot[class=lead has-slotted]{}</>6x28 0px
+   got   #slot[class=lead]{}</>0x0 0px
+   right #slot[class=headline has-slotted]{}</>1202x28 0px
+   got   #slot[class=headline]{}</>1200x28 0px
+   right #slot[class=trail has-slotted]{}</>8x28 0px
+   got   #slot[class=trail]{}</>0x0 0px
+bar lead, trail add | lateUndone: DIFFERS
+   right mx-top-app-bar[]{has-lead,has-trail,has-default}</>1232x64 
+   got   mx-top-app-bar[]{has-default}</>1232x64 
+   right  h1[]{}</>1202x28 
+   got    h1[]{}</>1200x28 
+   right  i[]{}</>6x28 
+   got    i[]{}</>0x0 
+   right  b[]{}</>8x28 
+   got    b[]{}</>0x0 
+   right #slot[class=lead has-slotted]{}</>6x28 0px
+   got   #slot[class=lead]{}</>0x0 0px
+   right #slot[class=headline has-slotted]{}</>1202x28 0px
+   got   #slot[class=headline has-slotted]{}</>1200x28 0px
+   right #slot[class=trail has-slotted]{}</>8x28 0px
+   got   #slot[class=trail]{}</>0x0 0px
+bar lead removed | out: DIFFERS
+   right mx-top-app-bar[]{has-default}</>1232x64 
+   got   mx-top-app-bar[]{has-lead,has-default}</>1232x64 
+   right  h1[]{}</>1200x28 
+   got    h1[]{}</>1208x28 
+   right #slot[class=lead]{}</>0x0 0px
+   got   #slot[class=lead has-slotted]{}</>0x0 0px
+   right #slot[class=headline has-slotted]{}</>1200x28 0px
+   got   #slot[class=headline has-slotted]{}</>1208x28 0px
+bar lead removed | late: DIFFERS
+   right mx-top-app-bar[]{has-default}</>1232x64 
+   got   mx-top-app-bar[]{}</>1232x64 
+   right #slot[class=headline has-slotted]{}</>1200x28 0px
+   got   #slot[class=headline]{}</>1200x28 0px
+bar lead removed | lateUndone: DIFFERS
+   right mx-top-app-bar[]{has-default}</>1232x64 
+   got   mx-top-app-bar[]{has-lead,has-default}</>1232x64 
+   right  h1[]{}</>1200x28 
+   got    h1[]{}</>1208x28 
+   right #slot[class=lead]{}</>0x0 0px
+   got   #slot[class=lead has-slotted]{}</>0x0 0px
+   right #slot[class=headline has-slotted]{}</>1200x28 0px
+   got   #slot[class=headline has-slotted]{}</>1208x28 0px
+bar headline add | out: DIFFERS
+   right mx-top-app-bar[]{has-default}</>1232x64 
+   got   mx-top-app-bar[]{}</>1232x64 
+   right #slot[class=headline has-slotted]{}</>1200x28 0px
+   got   #slot[class=headline]{}</>1200x28 0px
+bar headline add | late: DIFFERS
+   right mx-top-app-bar[]{has-default}</>1232x64 
+   got   mx-top-app-bar[]{}</>1232x64 
+   right #slot[class=headline has-slotted]{}</>1200x28 0px
+   got   #slot[class=headline]{}</>1200x28 0px
+bar headline add | lateUndone: DIFFERS
+   right mx-top-app-bar[]{has-default}</>1232x64 
+   got   mx-top-app-bar[]{}</>1232x64 
+   right #slot[class=headline has-slotted]{}</>1200x28 0px
+   got   #slot[class=headline]{}</>1200x28 0px
+bg press connected: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press out: 1:null,3:null,4:null
+bg press late: 1:null,3:null,4:null
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>body
+cg template clone keys late: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>body
+cg focus on 2, add connected: before -1,0,-1 after -1,0,-1,-1 active then mx-switch-button now mx-switch-button
+   tab -> 2
+   right -> 3
+cg focus on 2, add out: before -1,0,-1 after -1,0,-1, active then body now body
+   tab -> 2
+   right -> 3
+focus elsewhere: active input blurred 0 events []
+moved to an out group: a [2:0:first,last] b [8:null: 9:null: 1:0:first]
+   and back: a [2:0:first 1:-1:last] b [8:null: 9:null:]
+sl connected: log 4:3>2 now 1,2,4,3 popovers 0 drag 0
+sl out: log 4:2>1 now 2,4,3 popovers 0 drag 0
+sl late: log 4:3>2 now 1,2,4,3 popovers 0 drag 0
+sl pending commit, out, commit while out: log 1:0>1,4:3>2 now 2,1,4,3 popovers 0 drag 0
+sl pending commit, removed and changed in one task: log 1:0>1,4:3>2 now 2,1,4,3 popovers 0 drag 0
+sl removed in the handler, changed out: log 1:0>1,4:3>2 now 1,2,4,3 popovers 0 drag 0
+sl pending, removed, put back, then committed: log 1:0>1,4:3>2 now 2,1,4,3 popovers 0 drag 0
+errors: none
