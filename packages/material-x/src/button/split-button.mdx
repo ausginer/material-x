@@ -20,7 +20,8 @@ export const summary = declaration?.summary?.trim();
 
 export const importSnippet =
   "import '@ydinjs/material-x/button/split-button.js';";
-export const usageSnippet = '<mx-split-button>Actions</mx-split-button>';
+export const usageSnippet =
+  '<mx-split-button secondarylabel="More actions">Save</mx-split-button>';
 
 <Meta of={Stories} />
 
@@ -88,7 +89,8 @@ Use the live example below to inspect interaction states:
 - **Structure:** Exposes distinct leading/trailing controls through internal parts.
 - **Keyboard:** Supports focus and activation using native button keyboard behavior.
 - **Keyboard focus:** While one of its two buttons has keyboard focus, that button is raised above the other, and the two are in a stacking context. An overlay that a page puts in or near the split button belongs in the top layer, such as a popover.
-- **State:** `open` and `secondaryaction` communicate expanded/collapsed secondary action state.
+- **Name:** `secondarylabel` is the trailing button's accessible name. It is required, and it is in the page's language. Without it the trailing button has no name. The leading button is named by its content. An `aria-label` on `mx-split-button` names neither button.
+- **State:** `open` is the trailing button's expanded state. A split button whose `secondaryaction` opens nothing is a toggle that is never expanded.
 - **Disabled:** `disabled` disables both split action segments.
 
 ## Content guidelines

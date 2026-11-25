@@ -1,0 +1,60 @@
+# read at 66e7cf867, 2026-11-25
+
+## the recorded mutation 'open on the leading button and the host too', its rows run in Chromium: the first lines of the errors
+AssertionError: expected 'false' to be 'true' // Object.is equality
+AssertionError: expected [ 'false', 'false', 'false' ] to deeply equal [ 'true', 'false', 'true' ]
+AssertionError: expected [ { name: 'Save', …(1) }, …(1) ] to deeply equal [ { name: 'Save', …(1) }, …(1) ]
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+TypeError: Cannot read properties of undefined (reading 'querySelector')
+ ❯ Object.open src/button/split-button.ts:128:59
+TypeError: Cannot read properties of undefined (reading 'querySelector')
+ ❯ Object.open src/button/split-button.ts:128:59
+ ❯ set open src/button/split-button.ts:120:3
+TypeError: Cannot read properties of undefined (reading 'querySelector')
+ ❯ Object.open src/button/split-button.ts:128:59
+ ❯ set open src/button/split-button.ts:120:3
+TypeError: Cannot read properties of undefined (reading 'querySelector')
+ ❯ Object.open src/button/split-button.ts:128:59
+
+## names.ts on this review's own build of 66e7cf867: compared with the saved reading
+chromium: identical bytes
+firefox: identical bytes
+webkit: identical bytes
+
+## material-x without the visual project, own clone and build
+chromium
+ Test Files  40 passed (40)
+      Tests  1745 passed | 2 expected fail (1747)
+firefox
+ Test Files  40 passed (40)
+      Tests  1663 passed | 3 expected fail | 81 skipped (1747)
+webkit
+ Test Files  40 passed (40)
+      Tests  1664 passed | 2 expected fail | 81 skipped (1747)
+
+## the same source merged with origin/main at e57c9f074 (tests/button, tests/button-group, traits-baseline)
+chromium
+ Test Files  12 passed (12)
+      Tests  338 passed (338)
+firefox
+ Test Files  12 passed (12)
+      Tests  333 passed | 1 expected fail | 4 skipped (338)
+webkit
+ Test Files  12 passed (12)
+      Tests  334 passed | 4 skipped (338)
+
+## pull request and CI
+66e7cf867ff87f11313ad56042e092e075655dc9 CONFLICTING DIRTY
+workflow runs of the branch: 0
+check runs of the head: 0
+merge with origin/main at e57c9f074:
+.plan/00-index.md
+
+Auto-merging .plan/00-index.md
+CONFLICT (content): Merge conflict in .plan/00-index.md
+
+## visual rows that render or import mx-split-button
+none
+
+## React types (a probe .tsx in src, tsc): secondarylabel a string or null, or absent: no error. secondarylabel={1} and secondaryLabel="x":
+  TS2322 on each

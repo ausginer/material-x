@@ -1,0 +1,35 @@
+# The ruling on the feature proof: five mutations and the unmutated file, at 1e18c332e with the three rows added (mutate.mjs). One engine at a time, while other sessions ran tests in the same container.
+## no mutation | chromium | 0 failed, 59 passed
+## open on the leading button too | chromium | 2 failed, 57 passed
+   mx-split-button open should be on neither the leading button nor the host
+   mx-split-button accessibility tree should expose the trailing button as expanded with open
+## open on the host too | chromium | 1 failed, 58 passed
+   mx-split-button open should be on neither the leading button nor the host
+## color not transferred | chromium | 1 failed, 58 passed
+   mx-split-button group's attributes should give the leading button a button's look with the same color
+## size not transferred | chromium | 1 failed, 58 passed
+   mx-split-button group's attributes should give the leading button a button's look with the same size
+## shape not transferred | chromium | 1 failed, 58 passed
+   mx-split-button group's attributes should give the leading button a button's look with the same shape
+## no mutation | firefox | 0 failed, 55 passed
+## open on the leading button too | firefox | 1 failed, 54 passed
+   mx-split-button open should be on neither the leading button nor the host
+## open on the host too | firefox | 1 failed, 54 passed
+   mx-split-button open should be on neither the leading button nor the host
+## color not transferred | firefox | 1 failed, 54 passed
+   mx-split-button group's attributes should give the leading button a button's look with the same color
+## size not transferred | firefox | 1 failed, 54 passed
+   mx-split-button group's attributes should give the leading button a button's look with the same size
+## shape not transferred | firefox | 1 failed, 54 passed
+   mx-split-button group's attributes should give the leading button a button's look with the same shape
+## no mutation | webkit | 0 failed, 55 passed
+## open on the leading button too | webkit | 1 failed, 54 passed
+   mx-split-button open should be on neither the leading button nor the host
+## open on the host too | webkit | 1 failed, 54 passed
+   mx-split-button open should be on neither the leading button nor the host
+## color not transferred | webkit | 1 failed, 54 passed
+   mx-split-button group's attributes should give the leading button a button's look with the same color
+## size not transferred | webkit | 1 failed, 54 passed
+   mx-split-button group's attributes should give the leading button a button's look with the same size
+## shape not transferred | webkit | 1 failed, 54 passed
+   mx-split-button group's attributes should give the leading button a button's look with the same shape

@@ -1,0 +1,141 @@
+# webkit 27.2
+
+## built, 36 icons
+  split, trailing                                {"role":"button","name":"","expanded":false}
+  split, open, trailing                          {"role":"button","name":"","expanded":true}
+  split, label, trailing                         {"role":"button","name":"More","expanded":false}
+  split, label, leading                          {"role":"button","name":"Save"}
+  split, label, open, trailing                   {"role":"button","name":"More","expanded":true}
+  split, label, host aria-label, trailing        {"role":"button","name":"More","expanded":false}
+  split, host aria-label, trailing               {"role":"button","name":"","expanded":false}
+  split, host aria-label, leading                {"role":"button","name":"Save"}
+  split, host aria-label, host                   {"role":"group","name":"A"}
+  split, host aria-expanded, trailing            {"role":"button","name":"","expanded":false}
+  split, host aria-haspopup, trailing            {"role":"button","name":"","expanded":false}
+  split, icon, leading                           {"role":"button","name":"edit Save"}
+  split, disabled, trailing                      {"role":"button","name":"","disabled":true,"expanded":false}
+  split, disabled, leading                       {"role":"button","name":"Save","disabled":true}
+  button, disabled (control)                     {"role":"button","name":"Save","disabled":true}
+  native button, expanded, disabled (control)    {"role":"button","name":"Save","disabled":true,"isPopUpButton":true}
+  button, icon and label                         {"role":"button","name":"edit Save"}
+  button, icon aria-hidden and label             {"role":"button","name":"Save"}
+  button, icon role=img aria-label, and label    {"role":"button","name":"Draft Save"}
+  button, aria-label, icon and label             {"role":"button","name":"A"}
+  link-button, icon and label                    {"role":"link","name":"edit Save"}
+  switch-button, icon and label                  {"role":"switch","name":"edit Save"}
+  icon-button, no name                           {"role":"button","name":"edit"}
+  icon-button, aria-label                        {"role":"button","name":"A"}
+  switch-icon-button, no name                    {"role":"switch","name":"edit"}
+  fab, icon slot only                            {"role":"button","name":"edit"}
+  fab, extended, icon and label                  {"role":"button","name":"edit Save"}
+  list button item, lead, label, trail           {"role":"button","name":"edit Save edit"}
+  list link item, lead, label, trail             {"role":"link","name":"edit Save edit"}
+  list item, lead, label, trail: host            {"role":"listitem","name":"edit Save edit"}
+  text-field, label, lead and trail              {"role":"textbox","name":"Save"}
+  mx-icon alone                                  {"role":"generic","name":""}
+  mx-icon alone, role=img aria-label             {"role":"image","name":"Draft"}
+
+## hidden, 36 icons
+  split, trailing                                {"role":"button","name":"","expanded":false}
+  split, open, trailing                          {"role":"button","name":"","expanded":true}
+  split, label, trailing                         {"role":"button","name":"More","expanded":false}
+  split, label, leading                          {"role":"button","name":"Save"}
+  split, label, open, trailing                   {"role":"button","name":"More","expanded":true}
+  split, label, host aria-label, trailing        {"role":"button","name":"More","expanded":false}
+  split, host aria-label, trailing               {"role":"button","name":"","expanded":false}
+  split, host aria-label, leading                {"role":"button","name":"Save"}
+  split, host aria-label, host                   {"role":"group","name":"A"}
+  split, host aria-expanded, trailing            {"role":"button","name":"","expanded":false}
+  split, host aria-haspopup, trailing            {"role":"button","name":"","expanded":false}
+  split, icon, leading                           {"role":"button","name":"edit Save"}
+  split, disabled, trailing                      {"role":"button","name":"","disabled":true,"expanded":false}
+  split, disabled, leading                       {"role":"button","name":"Save","disabled":true}
+  button, disabled (control)                     {"role":"button","name":"Save","disabled":true}
+  native button, expanded, disabled (control)    {"role":"button","name":"Save","disabled":true,"isPopUpButton":true}
+  button, icon and label                         {"role":"button","name":"edit Save"}
+  button, icon aria-hidden and label             {"role":"button","name":"Save"}
+  button, icon role=img aria-label, and label    {"role":"button","name":"Draft Save"}
+  button, aria-label, icon and label             {"role":"button","name":"A"}
+  link-button, icon and label                    {"role":"link","name":"edit Save"}
+  switch-button, icon and label                  {"role":"switch","name":"edit Save"}
+  icon-button, no name                           {"role":"button","name":"edit"}
+  icon-button, aria-label                        {"role":"button","name":"A"}
+  switch-icon-button, no name                    {"role":"switch","name":"edit"}
+  fab, icon slot only                            {"role":"button","name":"edit"}
+  fab, extended, icon and label                  {"role":"button","name":"edit Save"}
+  list button item, lead, label, trail           {"role":"button","name":"edit Save edit"}
+  list link item, lead, label, trail             {"role":"link","name":"edit Save edit"}
+  list item, lead, label, trail: host            {"role":"listitem","name":"edit Save edit"}
+  text-field, label, lead and trail              {"role":"textbox","name":"Save"}
+  mx-icon alone                                  {"role":"generic","name":""}
+  mx-icon alone, role=img aria-label             {"role":"image","name":"Draft"}
+
+## wrap, 36 icons
+  split, trailing                                {"role":"button","name":"","expanded":false}
+  split, open, trailing                          {"role":"button","name":"","expanded":true}
+  split, label, trailing                         {"role":"button","name":"More","expanded":false}
+  split, label, leading                          {"role":"button","name":"Save"}
+  split, label, open, trailing                   {"role":"button","name":"More","expanded":true}
+  split, label, host aria-label, trailing        {"role":"button","name":"More","expanded":false}
+  split, host aria-label, trailing               {"role":"button","name":"","expanded":false}
+  split, host aria-label, leading                {"role":"button","name":"Save"}
+  split, host aria-label, host                   {"role":"group","name":"A"}
+  split, host aria-expanded, trailing            {"role":"button","name":"","expanded":false}
+  split, host aria-haspopup, trailing            {"role":"button","name":"","expanded":false}
+  split, icon, leading                           {"role":"button","name":"Save"}
+  split, disabled, trailing                      {"role":"button","name":"","disabled":true,"expanded":false}
+  split, disabled, leading                       {"role":"button","name":"Save","disabled":true}
+  button, disabled (control)                     {"role":"button","name":"Save","disabled":true}
+  native button, expanded, disabled (control)    {"role":"button","name":"Save","disabled":true,"isPopUpButton":true}
+  button, icon and label                         {"role":"button","name":"Save"}
+  button, icon aria-hidden and label             {"role":"button","name":"Save"}
+  button, icon role=img aria-label, and label    {"role":"button","name":"Draft Save"}
+  button, aria-label, icon and label             {"role":"button","name":"A"}
+  link-button, icon and label                    {"role":"link","name":"Save"}
+  switch-button, icon and label                  {"role":"switch","name":"Save"}
+  icon-button, no name                           {"role":"button","name":""}
+  icon-button, aria-label                        {"role":"button","name":"A"}
+  switch-icon-button, no name                    {"role":"switch","name":""}
+  fab, icon slot only                            {"role":"button","name":""}
+  fab, extended, icon and label                  {"role":"button","name":"Save"}
+  list button item, lead, label, trail           {"role":"button","name":"Save"}
+  list link item, lead, label, trail             {"role":"link","name":"Save"}
+  list item, lead, label, trail: host            {"role":"listitem","name":"Save"}
+  text-field, label, lead and trail              {"role":"textbox","name":"Save"}
+  mx-icon alone                                  {"role":"generic","name":""}
+  mx-icon alone, role=img aria-label             {"role":"image","name":"Draft"}
+
+## host, 36 icons
+  split, trailing                                {"role":"button","name":"","expanded":false}
+  split, open, trailing                          {"role":"button","name":"","expanded":true}
+  split, label, trailing                         {"role":"button","name":"More","expanded":false}
+  split, label, leading                          {"role":"button","name":"Save"}
+  split, label, open, trailing                   {"role":"button","name":"More","expanded":true}
+  split, label, host aria-label, trailing        {"role":"button","name":"More","expanded":false}
+  split, host aria-label, trailing               {"role":"button","name":"","expanded":false}
+  split, host aria-label, leading                {"role":"button","name":"Save"}
+  split, host aria-label, host                   {"role":"group","name":"A"}
+  split, host aria-expanded, trailing            {"role":"button","name":"","expanded":false}
+  split, host aria-haspopup, trailing            {"role":"button","name":"","expanded":false}
+  split, icon, leading                           {"role":"button","name":"Save"}
+  split, disabled, trailing                      {"role":"button","name":"","disabled":true,"expanded":false}
+  split, disabled, leading                       {"role":"button","name":"Save","disabled":true}
+  button, disabled (control)                     {"role":"button","name":"Save","disabled":true}
+  native button, expanded, disabled (control)    {"role":"button","name":"Save","disabled":true,"isPopUpButton":true}
+  button, icon and label                         {"role":"button","name":"Save"}
+  button, icon aria-hidden and label             {"role":"button","name":"Save"}
+  button, icon role=img aria-label, and label    {"role":"button","name":"Save"}
+  button, aria-label, icon and label             {"role":"button","name":"A"}
+  link-button, icon and label                    {"role":"link","name":"Save"}
+  switch-button, icon and label                  {"role":"switch","name":"Save"}
+  icon-button, no name                           {"role":"button","name":""}
+  icon-button, aria-label                        {"role":"button","name":"A"}
+  switch-icon-button, no name                    {"role":"switch","name":""}
+  fab, icon slot only                            {"role":"button","name":""}
+  fab, extended, icon and label                  {"role":"button","name":"Save"}
+  list button item, lead, label, trail           {"role":"button","name":"Save"}
+  list link item, lead, label, trail             {"role":"link","name":"Save"}
+  list item, lead, label, trail: host            {"role":"listitem","name":"Save"}
+  text-field, label, lead and trail              {"role":"textbox","name":"Save"}
+  mx-icon alone                                  {"ignored":true}
+  mx-icon alone, role=img aria-label             {"ignored":true}
