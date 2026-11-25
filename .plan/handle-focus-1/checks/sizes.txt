@@ -1,0 +1,37 @@
+Brotli, the branch merged with main at 0dca6e5a0: without the source change, with it, difference
+box-quad index: 1182 1182 0
+core element: 277 277 0
+core emitter: 198 198 0
+material-x button/button: 4910 4902 -8
+material-x button/icon-button: 5164 5163 -1
+material-x button/link-button: 4874 4868 -6
+material-x button/switch-button: 5523 5506 -17
+material-x button/switch-icon-button: 5905 5898 -7
+material-x button/split-button: 7567 7565 -2
+material-x button-group/button-group: 3053 3052 -1
+material-x button-group/connected-button-group: 3898 3898 0
+material-x card/card: 1318 1315 -3
+material-x checkbox/checkbox: 4256 4256 0
+material-x fab/fab: 4174 4169 -5
+material-x icon/icon: 631 631 0
+material-x list/list: 686 685 -1
+material-x list/list-item: 2813 2839 26
+material-x list/list-button-item: 4915 4932 17
+material-x list/list-link-item: 5083 5092 9
+material-x list/sortable-list: 8940 8942 2
+material-x radio/radio: 3811 3804 -7
+material-x slider/slider: 4019 4019 0
+material-x text-field/multiline-text-field: 4528 4535 7
+material-x text-field/text-field: 8574 8557 -17
+material-x top-app-bar/top-app-bar: 1449 1449 0
+material-x complete: 25660 25639 -21
+drag draggable alone: 2189 2189 0
+drag draggable + lift: 3932 3932 0
+drag example: resize handle: 3265 3265 0
+drag example: drop zone: 4570 4570 0
+drag example: canvas group: 3261 3261 0
+drag freeDrag: 4984 4984 0
+drag freeDrag + bounds + landing: 5465 5465 0
+drag sortable + y: 6538 6538 0
+drag sortable + xy: 6506 6506 0
+drag complete: 7156 7156 0

@@ -20,6 +20,8 @@ const SPECIAL_TOKENS = {
   'ripple.color': CSSVariable.ref('state-layer.color'),
   'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
   'shadow.color': 'md.comp.list.reorder.list-item.shadow-color',
+  'handle.focus.indicator.outline.offset':
+    'md.sys.state.focus-indicator.outer-offset',
 };
 
 const SPECIAL_DISABLED_TOKENS = {

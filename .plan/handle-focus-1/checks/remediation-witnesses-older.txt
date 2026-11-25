@@ -1,0 +1,59 @@
+## no mutation | chromium | 134 passed, 0 failed
+## no mutation | firefox | 134 passed, 0 failed
+## no mutation | webkit | 134 passed, 0 failed
+## without :focus-visible | chromium | 130 passed, 4 failed
+   handle focus indicator conditions in the lead slot should draw a solid outline with keyboard focus alone
+   handle focus indicator conditions in the lead slot should draw no outline after a mouse click
+   handle focus indicator conditions in the trail slot should draw a solid outline with keyboard focus alone
+   handle focus indicator conditions in the trail slot should draw no outline after a mouse click
+## without :focus-visible | firefox | 130 passed, 4 failed
+   handle focus indicator conditions in the lead slot should draw a solid outline with keyboard focus alone
+   handle focus indicator conditions in the lead slot should draw no outline after a mouse click
+   handle focus indicator conditions in the trail slot should draw a solid outline with keyboard focus alone
+   handle focus indicator conditions in the trail slot should draw no outline after a mouse click
+## without :focus-visible | webkit | 130 passed, 4 failed
+   handle focus indicator conditions in the lead slot should draw a solid outline with keyboard focus alone
+   handle focus indicator conditions in the lead slot should draw no outline after a mouse click
+   handle focus indicator conditions in the trail slot should draw a solid outline with keyboard focus alone
+   handle focus indicator conditions in the trail slot should draw no outline after a mouse click
+## with :focus | chromium | 132 passed, 2 failed
+   handle focus indicator conditions in the lead slot should draw no outline after a mouse click
+   handle focus indicator conditions in the trail slot should draw no outline after a mouse click
+## with :focus | firefox | 132 passed, 2 failed
+   handle focus indicator conditions in the lead slot should draw no outline after a mouse click
+   handle focus indicator conditions in the trail slot should draw no outline after a mouse click
+## with :focus | webkit | 132 passed, 2 failed
+   handle focus indicator conditions in the lead slot should draw no outline after a mouse click
+   handle focus indicator conditions in the trail slot should draw no outline after a mouse click
+## any child in both slots | chromium | 132 passed, 2 failed
+   handle focus indicator conditions in the lead slot should leave a focusable child without data-handle alone
+   handle focus indicator conditions in the trail slot should leave a focusable child without data-handle alone
+## any child in both slots | firefox | 132 passed, 2 failed
+   handle focus indicator conditions in the lead slot should leave a focusable child without data-handle alone
+   handle focus indicator conditions in the trail slot should leave a focusable child without data-handle alone
+## any child in both slots | webkit | 132 passed, 2 failed
+   handle focus indicator conditions in the lead slot should leave a focusable child without data-handle alone
+   handle focus indicator conditions in the trail slot should leave a focusable child without data-handle alone
+## dashed | chromium | 132 passed, 2 failed
+   handle focus indicator conditions in the lead slot should draw a solid outline with keyboard focus alone
+   handle focus indicator conditions in the trail slot should draw a solid outline with keyboard focus alone
+## dashed | firefox | 132 passed, 2 failed
+   handle focus indicator conditions in the lead slot should draw a solid outline with keyboard focus alone
+   handle focus indicator conditions in the trail slot should draw a solid outline with keyboard focus alone
+## dashed | webkit | 132 passed, 2 failed
+   handle focus indicator conditions in the lead slot should draw a solid outline with keyboard focus alone
+   handle focus indicator conditions in the trail slot should draw a solid outline with keyboard focus alone
+## in every slot | chromium | 131 passed, 3 failed
+   handle focus indicator conditions should leave a focusable data-handle in the label slot alone
+   handle focus indicator conditions should leave a focusable data-handle in the overline slot alone
+   handle focus indicator conditions should leave a focusable data-handle in the support slot alone
+## in every slot | firefox | 129 passed, 5 failed
+   handle focus indicator conditions should leave a focusable data-handle in the label slot alone
+   handle focus indicator conditions should leave a focusable data-handle in the overline slot alone
+   handle focus indicator conditions should leave a focusable data-handle in the support slot alone
+   mx-list focus indicator stacking of mx-list-button-item should not be covered by the next item, mx-list-button-item
+   mx-list focus indicator stacking of mx-list-link-item should not be covered by the next item, mx-list-item
+## in every slot | webkit | 131 passed, 3 failed
+   handle focus indicator conditions should leave a focusable data-handle in the label slot alone
+   handle focus indicator conditions should leave a focusable data-handle in the overline slot alone
+   handle focus indicator conditions should leave a focusable data-handle in the support slot alone
