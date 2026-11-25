@@ -1,0 +1,124 @@
+# chromium; firefox and webkit read the same, line for line. The ruling’s probe, VITE_REF=settledBase VITE_N=1000
+A: one batch; value, focus, blur: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 13 | 0 | 3
+  head: 13 | 0 | 3
+  main: 811 | 808 | 0
+  settled: 13 | 0 | 3
+  settledBase: 808 | 808 | 0
+B: A, and ready or late items added: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 10 | 0 | 2
+  head: 10 | 0 | 2
+  main: 665 | 605 | 0
+  settled: 10 | 0 | 2
+  settledBase: 617 | 605 | 0
+C: B, and items removed: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 9 | 0 | 2
+  head: 9 | 0 | 2
+  main: 509 | 448 | 0
+  settled: 9 | 0 | 2
+  settledBase: 454 | 448 | 0
+D: C, and items moved or put back: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 1 | 0 | 0
+  head: 1 | 0 | 0
+  main: 513 | 419 | 0
+  settled: 1 | 0 | 0
+  settledBase: 423 | 419 | 0
+E: A, and items disabled: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 70 | 31 | 1
+  head: 70 | 31 | 1
+  main: 808 | 806 | 0
+  settled: 70 | 31 | 1
+  settledBase: 806 | 806 | 0
+F: D, E, and host in and out: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 30 | 15 | 0
+  head: 30 | 15 | 0
+  main: 567 | 501 | 0
+  settled: 30 | 15 | 0
+  settledBase: 509 | 501 | 0
+G: B, several steps in a task: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 29 | 0 | 2
+  head: 29 | 0 | 2
+  main: 616 | 547 | 0
+  settled: 29 | 0 | 2
+  settledBase: 563 | 547 | 0
+H: one batch, nothing else: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 0 | 0 | 0
+  head: 0 | 0 | 0
+  main: 810 | 810 | 0
+  settled: 0 | 0 | 0
+  settledBase: 810 | 810 | 0
+I: one batch, items added, no value: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 0 | 0 | 0
+  head: 0 | 0 | 0
+  main: 775 | 323 | 0
+  settled: 0 | 0 | 0
+  settledBase: 323 | 323 | 0
+J: one batch with late elements that are no items, or never defined: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 0 | 0 | 0
+  head: 0 | 0 | 0
+  main: 669 | 669 | 0
+  settled: 0 | 0 | 0
+  settledBase: 669 | 669 | 0
+K: one batch of one way; the focus moves, and a value: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 19 | 0 | 2
+  head: 19 | 0 | 2
+  main: 809 | 808 | 0
+  settled: 19 | 0 | 2
+  settledBase: 808 | 808 | 0
+
+# Chromium, the same probe with items that can take focus before they are managed (a shadow root that delegates focus), the last line of a stratum counts the head's differences
+A: one batch; value, focus, blur: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 13 | 0 | 3
+  head: 13 | 0 | 3
+  settled: 13 | 0 | 3
+  all ready, the settled choice against main's: 36; of the head's differences the stop is the value's item in 13
+B: A, and ready or late items added: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 10 | 0 | 2
+  head: 10 | 0 | 2
+  settled: 10 | 0 | 2
+  all ready, the settled choice against main's: 102; of the head's differences the stop is the value's item in 10
+C: B, and items removed: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 9 | 0 | 2
+  head: 9 | 0 | 2
+  settled: 9 | 0 | 2
+  all ready, the settled choice against main's: 76; of the head's differences the stop is the value's item in 9
+D: C, and items moved or put back: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 1 | 0 | 0
+  head: 1 | 0 | 0
+  settled: 1 | 0 | 0
+  all ready, the settled choice against main's: 125; of the head's differences the stop is the value's item in 1
+E: A, and items disabled: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 70 | 31 | 1
+  head: 70 | 31 | 1
+  settled: 70 | 31 | 1
+  all ready, the settled choice against main's: 32; of the head's differences the stop is the value's item in 8
+F: D, E, and host in and out: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 30 | 15 | 0
+  head: 30 | 15 | 0
+  settled: 30 | 15 | 0
+  all ready, the settled choice against main's: 88; of the head's differences the stop is the value's item in 9
+G: B, several steps in a task: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 22 | 0 | 2
+  head: 19 | 0 | 2
+  settled: 19 | 0 | 2
+  all ready, the settled choice against main's: 98; of the head's differences the stop is the value's item in 19
+H: one batch, nothing else: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 0 | 0 | 0
+  head: 0 | 0 | 0
+  settled: 0 | 0 | 0
+  all ready, the settled choice against main's: 0; of the head's differences the stop is the value's item in 0
+I: one batch, items added, no value: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 0 | 0 | 0
+  head: 0 | 0 | 0
+  settled: 0 | 0 | 0
+  all ready, the settled choice against main's: 557; of the head's differences the stop is the value's item in 0
+J: one batch with late elements that are no items, or never defined: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 0 | 0 | 0
+  head: 0 | 0 | 0
+  settled: 0 | 0 | 0
+  all ready, the settled choice against main's: 0; of the head's differences the stop is the value's item in 0
+K: one batch of one way; the focus moves, and a value: of 1000, another tab stop | unmanaged or another count | moved from one ready item to another
+  current: 19 | 0 | 2
+  head: 19 | 0 | 2
+  settled: 19 | 0 | 2
+  all ready, the settled choice against main's: 16; of the head's differences the stop is the value's item in 19

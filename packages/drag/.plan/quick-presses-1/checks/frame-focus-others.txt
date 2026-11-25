@@ -1,0 +1,31 @@
+# As frame-focus-webkit.txt, in the other engines, and in WebKit at rest.
+= firefox, y-geometry in the same run, one file at a time, cpus 10-11
+engine firefox, load before: 9.72 8.20 7.27 5/4971 130906
+FRAME nothing between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME one frame between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME two frames between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a mouse up between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a Shift press between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME userEvent.keyboard, which evaluates in the frame first: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+      Tests  14 passed (14)
+load after: 7.38 7.74 7.21 3/4830 131815
+= webkit alone, at rest, no pinning
+engine webkit, load before: 7.38 7.74 7.21 3/4830 131821
+FRAME nothing between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME one frame between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME two frames between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a mouse up between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a Shift press between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME userEvent.keyboard, which evaluates in the frame first: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+      Tests  1 passed (1)
+load after: 5.10 7.10 7.02 1/4847 132507
+= chromium, y-geometry beside, cpus 10-11
+engine chromium, load before: 4.69 6.95 6.97 3/4860 132648
+FRAME nothing between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME one frame between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME two frames between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a mouse up between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a Shift press between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME userEvent.keyboard, which evaluates in the frame first: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+      Tests  14 passed (14)
+load after: 4.24 6.31 6.75 4/4875 135595

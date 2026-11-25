@@ -1,0 +1,18 @@
+diff --git a/packages/drag/tests/support/commands.node.ts b/packages/drag/tests/support/commands.node.ts
+index 2b6fd4689..7283e4741 100644
+--- a/packages/drag/tests/support/commands.node.ts
++++ b/packages/drag/tests/support/commands.node.ts
+@@ -180,6 +180,13 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
+   keyPress: defineBrowserCommand<[string]>(
+     async (context, key): Promise<void> => {
+       if (providerOf(context) === 'playwright') {
++        const { frame } = context as unknown as Readonly<{
++          frame(): Promise<
++            Readonly<{ evaluate(run: () => void): Promise<void> }>
++          >;
++        }>;
++
++        await (await frame()).evaluate(() => {});
+         await pageOf(context).keyboard.press(key);
+         return;
+       }

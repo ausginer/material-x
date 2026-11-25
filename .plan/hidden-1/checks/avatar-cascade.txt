@@ -1,0 +1,126 @@
+
+# chromium 158.0.8127.18
+
+## before
+  span avatar: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden, page display: block 40x40 radius 28px background rgb(79, 130, 0)
+  img avatar: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  img avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  div avatar video: grid 100x56 radius 8px background rgb(79, 130, 0)
+  div avatar video, large: grid 114x64 radius 8px background rgb(79, 130, 0)
+
+## ruled
+  span avatar: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden: none 0x0 radius 0px background rgba(0, 0, 0, 0)
+  span avatar hidden, page display: block 12x0 radius 0px background rgba(0, 0, 0, 0)
+  img avatar: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar image: grid 40x56 radius 28px background rgb(79, 130, 0)
+  img avatar image: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar video: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar video, large: grid 114x64 radius 44px background rgb(79, 130, 0)
+
+## where
+  span avatar: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden: none 0x0 radius 0px background rgba(0, 0, 0, 0)
+  span avatar hidden, page display: block 12x0 radius 0px background rgba(0, 0, 0, 0)
+  img avatar: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  img avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  div avatar video: grid 100x56 radius 8px background rgb(79, 130, 0)
+  div avatar video, large: grid 114x64 radius 8px background rgb(79, 130, 0)
+
+## split
+  span avatar: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden: none 0x0 radius 28px background rgb(79, 130, 0)
+  span avatar hidden, page display: block 40x40 radius 28px background rgb(79, 130, 0)
+  img avatar: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  img avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  div avatar video: grid 100x56 radius 8px background rgb(79, 130, 0)
+  div avatar video, large: grid 114x64 radius 8px background rgb(79, 130, 0)
+
+# firefox 159.0
+
+## before
+  span avatar: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden, page display: block 40x40 radius 28px background rgb(79, 130, 0)
+  img avatar: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  img avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  div avatar video: grid 100x56 radius 8px background rgb(79, 130, 0)
+  div avatar video, large: grid 114x64 radius 8px background rgb(79, 130, 0)
+
+## ruled
+  span avatar: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden: none 0x0 radius 0px background rgba(0, 0, 0, 0)
+  span avatar hidden, page display: block 9x0 radius 0px background rgba(0, 0, 0, 0)
+  img avatar: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar image: grid 40x56 radius 28px background rgb(79, 130, 0)
+  img avatar image: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar video: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar video, large: grid 114x64 radius 44px background rgb(79, 130, 0)
+
+## where
+  span avatar: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden: none 0x0 radius 0px background rgba(0, 0, 0, 0)
+  span avatar hidden, page display: block 9x0 radius 0px background rgba(0, 0, 0, 0)
+  img avatar: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  img avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  div avatar video: grid 100x56 radius 8px background rgb(79, 130, 0)
+  div avatar video, large: grid 114x64 radius 8px background rgb(79, 130, 0)
+
+## split
+  span avatar: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden: none 0x0 radius 28px background rgb(79, 130, 0)
+  span avatar hidden, page display: block 40x40 radius 28px background rgb(79, 130, 0)
+  img avatar: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  img avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  div avatar video: grid 100x56 radius 8px background rgb(79, 130, 0)
+  div avatar video, large: grid 114x64 radius 8px background rgb(79, 130, 0)
+
+# webkit 27.2
+
+## before
+  span avatar: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden, page display: block 40x40 radius 28px background rgb(79, 130, 0)
+  img avatar: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  img avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  div avatar video: grid 100x56 radius 8px background rgb(79, 130, 0)
+  div avatar video, large: grid 114x64 radius 8px background rgb(79, 130, 0)
+
+## ruled
+  span avatar: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden: none 0x0 radius 0px background rgba(0, 0, 0, 0)
+  span avatar hidden, page display: block 9x0 radius 0px background rgba(0, 0, 0, 0)
+  img avatar: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar image: grid 40x56 radius 28px background rgb(79, 130, 0)
+  img avatar image: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar video: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar video, large: grid 114x64 radius 44px background rgb(79, 130, 0)
+
+## where
+  span avatar: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden: none 0x0 radius 0px background rgba(0, 0, 0, 0)
+  span avatar hidden, page display: block 9x0 radius 0px background rgba(0, 0, 0, 0)
+  img avatar: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  img avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  div avatar video: grid 100x56 radius 8px background rgb(79, 130, 0)
+  div avatar video, large: grid 114x64 radius 8px background rgb(79, 130, 0)
+
+## split
+  span avatar: grid 40x40 radius 28px background rgb(79, 130, 0)
+  span avatar hidden: none 0x0 radius 28px background rgb(79, 130, 0)
+  span avatar hidden, page display: block 40x40 radius 28px background rgb(79, 130, 0)
+  img avatar: grid 40x56 radius 28px background rgb(79, 130, 0)
+  div avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  img avatar image: grid 56x56 radius 8px background rgb(79, 130, 0)
+  div avatar video: grid 100x56 radius 8px background rgb(79, 130, 0)
+  div avatar video, large: grid 114x64 radius 8px background rgb(79, 130, 0)

@@ -1,0 +1,149 @@
+// @ts-nocheck
+// The tab stop of a group with items that are upgraded late, against the same steps with items that are upgraded from the start.
+// From packages/core, with variants.mjs run: copy to tests/controllers/zz-fuzz.browser.test.ts
+import { it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+import { ControlledElement } from '../../src/element.ts';
+import type { Checkable } from '../../src/traits/checkable.ts';
+import { compose, type Composed } from '../../src/traits/composition.ts';
+import type { Disableable } from '../../src/traits/disableable.ts';
+import type { Valuable } from '../../src/traits/valuable.ts';
+import { defineCE, nameCE } from '../browser.ts';
+
+const hooks = import.meta.glob('../../src/controllers/zz-roving-*.ts', { eager: true });
+const HOOKS = Object.fromEntries(Object.entries(hooks).map(([p, m]) => [/zz-roving-(\w+)/.exec(p)[1], m.useRovingTabindex]));
+const ItemComposition: Composed<typeof ControlledElement, [typeof Checkable, typeof Valuable, typeof Disableable]> = compose(ControlledElement);
+class ItemBase extends ItemComposition {}
+const HostComposition: Composed<typeof ControlledElement, [typeof Valuable]> = compose(ControlledElement);
+class HostBase extends HostComposition {}
+const task = () => new Promise((r) => { const c = new MessageChannel(); c.port1.onmessage = () => r(); c.port2.postMessage(0); });
+const hostTag = {};
+for (const [n, hook] of Object.entries(HOOKS)) {
+  hostTag[n] = nameCE();
+  defineCE(hostTag[n], class extends HostBase { constructor() { super(); this.attachShadow({ mode: 'open' }).append(document.createElement('slot')); hook(this); } });
+}
+const ready = nameCE();
+defineCE(ready, class extends ItemBase {});
+const plain = nameCE();
+defineCE(plain, class extends HTMLElement {});
+const random = (seed) => () => { seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 2 ** 32; };
+// The kinds of step for each stratum. `steps` follow a first batch of children.
+const STRATA = {
+  'A: one batch; value, focus, blur': ['value', 'focus', 'blur'],
+  'B: A, and ready or late items added': ['value', 'focus', 'blur', 'add'],
+  'C: B, and items removed': ['value', 'focus', 'blur', 'add', 'remove'],
+  'D: C, and items moved or put back': ['value', 'focus', 'blur', 'add', 'remove', 'move', 'back'],
+  'E: A, and items disabled': ['value', 'focus', 'blur', 'disable'],
+  'F: D, E, and host in and out': ['value', 'focus', 'blur', 'add', 'remove', 'move', 'back', 'disable', 'inout'],
+  'G: B, several steps in a task': ['value', 'focus', 'blur', 'add', '+'],
+  'H: one batch, nothing else': [],
+  'I: one batch, items added, no value': ['add'],
+  'J: one batch with late elements that are no items, or never defined': ['other'],
+  'K: one batch of one way; the focus moves, and a value': ['value', 'focus', 'focus'],
+};
+function make(kinds, r) {
+  const pick = (a) => a[Math.floor(r() * a.length)];
+  const VALUES = ['a', 'b', 'c', 'd', 'e', 'f'];
+  let n = 0;
+  const item = () => ({ id: n, kind: pick(kinds.includes('other') ? ['ready', 'A', 'B', 'N', 'X'] : ['ready', 'ready', 'clone', 'A', 'A', 'B']), value: VALUES[n++ % 6], disabled: kinds.includes('disable') && r() < 0.15 });
+  const steps = [{ do: 'batch', items: Array.from({ length: 1 + Math.floor(r() * 4) }, item), value: kinds.includes('value') && r() < 0.5 ? pick(VALUES) : null, late: r() < 0.3 }];
+  const list = kinds.filter((k) => k !== '+' && k !== 'other');
+  const count = list.length ? 1 + Math.floor(r() * 5) : 0;
+  const own = [];
+  for (let i = 0; i < count; i += 1) {
+    const k = pick(list);
+    const s = { do: k, at: r(), sync: kinds.includes('+') && r() < 0.5 };
+    if (k === 'add') { s.item = item(); s.where = r(); }
+    if (k === 'value') s.value = pick([...VALUES, 'none', null]);
+    if (k === 'move' || k === 'back') s.where = r();
+    own.push(s);
+  }
+  for (const k of ['A', 'B', ...(kinds.includes('other') ? ['N'] : [])]) own.splice(Math.floor(r() * (own.length + 1)), 0, { do: 'define', k, sync: kinds.includes('+') && r() < 0.5 });
+  return [...steps, ...own];
+}
+async function run(hook, steps, isLate) {
+  document.body.replaceChildren();
+  const tags = isLate ? { ready, clone: ready, A: nameCE(), B: nameCE() } : { ready, clone: ready, A: ready, B: ready };
+  // N is defined as an element that is no item, and X never.
+  tags.N = isLate ? nameCE() : plain; tags.X = nameCE();
+  const defined = new Set(['ready']);
+  const h = document.createElement(hostTag[hook]);
+  const items = new Map();
+  let removed = [];
+  const create = ({ id, kind, value, disabled }) => {
+    let e;
+    if (isLate && kind !== 'ready') {
+      const t = document.createElement('template');
+      t.innerHTML = `<${tags[kind]}></${tags[kind]}>`;
+      e = t.content.cloneNode(true).firstChild;
+    } else e = document.createElement(tags[kind]);
+    e.setAttribute('value', value);
+    if (disabled) e.setAttribute('disabled', '');
+    e.kind = kind; e.id = `i${id}`;
+    items.set(e.id, e);
+    return e;
+  };
+  const place = (e, where) => { const rest = [...h.children].filter((c) => c !== e); h.insertBefore(e, rest[Math.floor(where * (rest.length + 1))] ?? null); };
+  for (const s of steps) {
+    const c = [...h.children];
+    const at = c[Math.floor((s.at ?? 0) * c.length)];
+    if (s.do === 'batch') {
+      if (s.value) h.setAttribute('value', s.value);
+      if (!s.late) document.body.append(h);
+      h.append(...s.items.map(create));
+      if (s.late) { await task(); await task(); document.body.append(h); }
+    } else if (s.do === 'define') {
+      if (isLate) defineCE(tags[s.k], class extends (s.k === 'N' ? HTMLElement : ItemBase) {});
+      defined.add(s.k);
+    } else if (s.do === 'value') s.value === null ? h.removeAttribute('value') : h.setAttribute('value', s.value);
+    // Focus reaches an item that is one in both runs, and that the task's slot change has read.
+    else if (s.do === 'focus') { if (at && (defined.has(at.kind) || at.kind === 'clone')) at.focus(); }
+    else if (s.do === 'blur') document.activeElement?.blur?.();
+    else if (s.do === 'add') place(create(s.item), s.where);
+    else if (s.do === 'remove') { if (at) { at.remove(); removed.push(at); } }
+    else if (s.do === 'move') { if (at) place(at, s.where); }
+    else if (s.do === 'back') { const e = removed.shift(); if (e) place(e, s.where); }
+    else if (s.do === 'disable') at?.toggleAttribute('disabled');
+    else if (s.do === 'inout') h.isConnected ? h.remove() : document.body.append(h);
+    if (!s.sync) { await task(); await task(); }
+  }
+  if (!h.isConnected) document.body.append(h);
+  await task(); await task();
+  return [...h.children].map((e) => `${e.id}${e.hasAttribute('disabled') ? '!' : ''}:${e.getAttribute('tabindex')}`).join(' ');
+}
+it('fuzz', async () => {
+  const out = [`# ${server.browser}`];
+  const N = Number(import.meta.env.VITE_N ?? 400);
+  for (const [name, kinds] of Object.entries(STRATA)) {
+    const bad = {}; const none = {}; const first = {}; const swapped = {}; const shown = {};
+    for (const h of Object.keys(HOOKS)) { bad[h] = 0; none[h] = 0; swapped[h] = 0; }
+    let late = 0;
+    for (let seed = 1; seed <= N; seed += 1) {
+      const steps = make(kinds, random(seed * 7919));
+      const want = await run('main', steps, false);
+      const stopOf = (x) => /(i\d+)!?:0/.exec(x)?.[1];
+      const kindOf = (id) => [...steps[0].items, ...steps.flatMap((x) => x.item ?? [])].find((x) => `i${x.id}` === id)?.kind;
+      const before = stopOf(await run('main', steps, true));
+      for (const h of Object.keys(HOOKS)) {
+        const got = await run(h, steps, true);
+        const stop = stopOf(got);
+        // From one item that was never late to another, where the reference keeps the first.
+        if (stop !== before && kindOf(stop) === 'ready' && kindOf(before) === 'ready' && stopOf(want) === before) {
+          swapped[h] += 1;
+          const t = JSON.stringify(steps);
+          if (!shown[h] || t.length < shown[h][0].length) shown[h] = [t, got, want];
+        }
+        if (got.replace(/:0/g, ':-1') !== want.replace(/:0/g, ':-1') || (got.match(/:0/g) ?? []).length !== (want.match(/:0/g) ?? []).length) none[h] += 1;
+        if (got !== want) {
+          bad[h] += 1;
+          const t = JSON.stringify(steps);
+          if (!first[h] || t.length < first[h][0].length) first[h] = [t, got, want];
+        }
+      }
+    }
+    out.push(`${name}: of ${N}, another tab stop | unmanaged or another count | moved from one ready item to another`, ...Object.keys(HOOKS).map((h) => `  ${h}: ${bad[h]} | ${none[h]} | ${swapped[h]}`));
+    for (const h of ['subject', 'priority']) if (first[h]) out.push(`    shortest of ${h}: ${first[h][0]}\n      got ${first[h][1]}\n      want ${first[h][2]}`);
+    if (shown.subject) out.push(`    shortest move of subject: ${shown.subject[0]}\n      got ${shown.subject[1]}\n      want ${shown.subject[2]}`);
+    await commands.writeFile(`./zz-fuzz-${server.browser}.txt`, `${out.join('\n')}\n`);
+  }
+}, 3600000);

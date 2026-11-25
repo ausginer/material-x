@@ -1,0 +1,78 @@
+# chromium
+before | late first, default: late:null b:0 c:-1
+before | late first, value b: late:null b:0 c:-1
+before | late first, value late: late:null b:0
+before | late first and disabled: late:null b:0
+before | value c, focus moved to b, then left: late:null b:0 c:-1
+before | b, late; a ready one is put first later: new:-1 b:0 late:null
+before | late alone; a ready one is put first later: new:0 late:null
+before | late first; a ready one is put first later: new:-1 late:null b:0
+before | never defined first: x-never:null b:0 late:null
+before | focus on b, late first: late:null b:0 c:-1
+after | late first, default: late:0 b:-1 c:-1
+after | late first, value b: late:-1 b:0 c:-1
+after | late first, value late: late:0 b:-1
+after | late first and disabled: late:-1 b:0
+after | value c, focus moved to b, then left: late:-1 b:0 c:-1
+after | b, late; a ready one is put first later: new:0 b:-1 late:-1
+after | late alone; a ready one is put first later: new:0 late:-1
+after | late first; a ready one is put first later: new:0 late:-1 b:-1
+after | never defined first: x-never:null b:0 late:-1
+after | focus on b, late first: late:-1 b:0 c:-1
+active b, events []
+ArrowLeft: active late, late:0 b:-1 c:-1, events [focusout b,focusin late,input late,change late]
+clones while out: x:0 y:-1, defined true,true
+connected and focused on y in one task: x:-1 y:0, active y
+clones appended, connected and focused on n in one task: m:-1 n:0, active n
+# firefox
+before | late first, default: late:null b:0 c:-1
+before | late first, value b: late:null b:0 c:-1
+before | late first, value late: late:null b:0
+before | late first and disabled: late:null b:0
+before | value c, focus moved to b, then left: late:null b:0 c:-1
+before | b, late; a ready one is put first later: new:-1 b:0 late:null
+before | late alone; a ready one is put first later: new:0 late:null
+before | late first; a ready one is put first later: new:-1 late:null b:0
+before | never defined first: x-never:null b:0 late:null
+before | focus on b, late first: late:null b:0 c:-1
+after | late first, default: late:0 b:-1 c:-1
+after | late first, value b: late:-1 b:0 c:-1
+after | late first, value late: late:0 b:-1
+after | late first and disabled: late:-1 b:0
+after | value c, focus moved to b, then left: late:-1 b:0 c:-1
+after | b, late; a ready one is put first later: new:0 b:-1 late:-1
+after | late alone; a ready one is put first later: new:0 late:-1
+after | late first; a ready one is put first later: new:0 late:-1 b:-1
+after | never defined first: x-never:null b:0 late:-1
+after | focus on b, late first: late:-1 b:0 c:-1
+active b, events []
+ArrowLeft: active late, late:0 b:-1 c:-1, events [focusout b,focusin late,input late,change late]
+clones while out: x:0 y:-1, defined true,true
+connected and focused on y in one task: x:-1 y:0, active y
+clones appended, connected and focused on n in one task: m:-1 n:0, active n
+# webkit
+before | late first, default: late:null b:0 c:-1
+before | late first, value b: late:null b:0 c:-1
+before | late first, value late: late:null b:0
+before | late first and disabled: late:null b:0
+before | value c, focus moved to b, then left: late:null b:0 c:-1
+before | b, late; a ready one is put first later: new:-1 b:0 late:null
+before | late alone; a ready one is put first later: new:0 late:null
+before | late first; a ready one is put first later: new:-1 late:null b:0
+before | never defined first: x-never:null b:0 late:null
+before | focus on b, late first: late:null b:0 c:-1
+after | late first, default: late:0 b:-1 c:-1
+after | late first, value b: late:-1 b:0 c:-1
+after | late first, value late: late:0 b:-1
+after | late first and disabled: late:-1 b:0
+after | value c, focus moved to b, then left: late:-1 b:0 c:-1
+after | b, late; a ready one is put first later: new:0 b:-1 late:-1
+after | late alone; a ready one is put first later: new:0 late:-1
+after | late first; a ready one is put first later: new:0 late:-1 b:-1
+after | never defined first: x-never:null b:0 late:-1
+after | focus on b, late first: late:-1 b:0 c:-1
+active b, events []
+ArrowLeft: active late, late:0 b:-1 c:-1, events [focusout b,focusin late,input late,change late]
+clones while out: x:0 y:-1, defined true,true
+connected and focused on y in one task: x:-1 y:0, active y
+clones appended, connected and focused on n in one task: m:-1 n:0, active n

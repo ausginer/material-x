@@ -1,0 +1,30 @@
+size-base.txt                  min +0 max +0 mean +0.0 complete +0
+size-empty-sheet.txt           min -19 max +59 mean +16.3 complete +12
+size-head.txt                  min +12 max +54 mean +32.5 complete +36
+size-no-i.txt                  min +8 max +55 mean +34.8 complete +47
+size-no-until-found.txt        min -2 max +52 mean +18.9 complete -2
+size-rule-not-adopted.txt      min +5 max +46 mean +26.4 complete +5
+size-shorter-selector.txt      min +8 max +54 mean +34.1 complete +53
+  button/button                          4910 to 4939 (+29)
+  button/icon-button                     5164 to 5198 (+34)
+  button/link-button                     4874 to 4909 (+35)
+  button/switch-button                   5523 to 5542 (+19)
+  button/switch-icon-button              5905 to 5936 (+31)
+  button/split-button                    7587 to 7601 (+14)
+  button-group/button-group              3058 to 3097 (+39)
+  button-group/connected-button-group    3914 to 3955 (+41)
+  card/card                              1318 to 1349 (+31)
+  checkbox/checkbox                      4256 to 4290 (+34)
+  fab/fab                                4174 to 4203 (+29)
+  icon/icon                              631 to 667 (+36)
+  list/list                              686 to 718 (+32)
+  list/list-item                         2729 to 2777 (+48)
+  list/list-button-item                  4886 to 4940 (+54)
+  list/list-link-item                    5090 to 5138 (+48)
+  list/sortable-list                     8944 to 8969 (+25)
+  radio/radio                            3811 to 3841 (+30)
+  slider/slider                          4015 to 4037 (+22)
+  text-field/multiline-text-field        4547 to 4559 (+12)
+  text-field/text-field                  8566 to 8597 (+31)
+  top-app-bar/top-app-bar                1354 to 1391 (+37)
+  complete                               25641 to 25677 (+36)

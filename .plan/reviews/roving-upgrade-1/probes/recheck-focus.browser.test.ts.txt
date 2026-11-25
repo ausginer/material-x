@@ -1,0 +1,105 @@
+// @ts-nocheck
+// Connected groups with ready switch buttons and switch icon buttons that are defined by a later import, while a button has focus.
+// The review's probe, and then the cases of the choice (the recheck of 35eb0c0ef).
+// From packages/material-x: copy to tests/button-group/zz-focus.browser.test.ts
+import { it } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+import '../../src/button-group/connected-button-group.ts';
+import '../../src/button/switch-button.ts';
+
+const task = () => new Promise((r) => setTimeout(r, 50));
+const R = (v, a = '') => `<mx-switch-button value=${v} ${a}>${v}</mx-switch-button>`;
+const L = (v, a = '') => `<mx-switch-icon-button value=${v} ${a}>${v}</mx-switch-icon-button>`;
+it('focus', async () => {
+  const out = [`# ${server.browser}`];
+  const g = {};
+  const make = (name, html, value) => {
+    const e = document.createElement('mx-connected-button-group');
+    if (value) e.setAttribute('value', value);
+    e.innerHTML = html;
+    document.body.append(e);
+    g[name] = e;
+    return e;
+  };
+  const show = (e) => `${[...e.children].map((c) => `${c.getAttribute('value') ?? c.localName}:${c.getAttribute('tabindex')}`).join(' ')}`;
+  make('late first, default', L('late') + R('b') + R('c'));
+  make('late first, value b', L('late') + R('b') + R('c'), 'b');
+  make('late first, value late', L('late') + R('b'), 'late');
+  make('late first and disabled', L('late', 'disabled') + R('b'));
+  make('value c, focus moved to b, then left', L('late') + R('b') + R('c'), 'c');
+  make('b, late; a ready one is put first later', R('b') + L('late'));
+  make('late alone; a ready one is put first later', L('late'));
+  make('late first; a ready one is put first later', L('late') + R('b'));
+  make('never defined first', '<x-never></x-never>' + R('b') + L('late'));
+  make('late with a tabindex of its own, focused before its definition', R('b') + L('late', 'tabindex=0'));
+  make('value c, focus moved to b, then left; two late', L('l1') + R('b') + R('c') + L('l2'), 'c').children[1].focus();
+  make('no value, focus moved to c, then left; late first', L('late') + R('b') + R('c')).children[2].focus();
+  make('focus on b, late first', L('late') + R('b') + R('c'));
+  await task();
+  g['value c, focus moved to b, then left; two late'].children[1].focus();
+  g['no value, focus moved to c, then left; late first'].children[2].focus();
+  g['value c, focus moved to b, then left'].children[1].focus();
+  await task();
+  for (const n of ['b, late; a ready one is put first later', 'late alone; a ready one is put first later', 'late first; a ready one is put first later']) {
+    const t = document.createElement('div'); t.innerHTML = R('new'); g[n].prepend(t.firstChild);
+  }
+  const late0 = g['late with a tabindex of its own, focused before its definition'].children[1]; late0.focus(); out.push(`focused before its definition: ${document.activeElement.localName}`);
+  const f = g['focus on b, late first'];
+  f.children[1].focus();
+  await task();
+  const log = [];
+  for (const n of ['focusin', 'focusout', 'input', 'change']) document.addEventListener(n, (e) => log.push(`${n} ${e.target.getAttribute?.('value')}`));
+  for (const [n, e] of Object.entries(g)) out.push(`before | ${n}: ${show(e)}`);
+  await import('../../src/button/switch-icon-button.ts');
+  await task();
+  for (const [n, e] of Object.entries(g)) out.push(`after | ${n}: ${show(e)}`);
+  out.push(`active ${document.activeElement.getAttribute('value')}, events [${log}]`);
+  await userEvent.keyboard('{ArrowLeft}');
+  out.push(`ArrowLeft: active ${document.activeElement.getAttribute('value')}, ${show(f)}, events [${log}]`);
+  // A button that is late and arrives in a group that is out and holds the focus when it comes back.
+  const t = document.createElement('template'); t.innerHTML = R('x') + L('y');
+  const o = document.createElement('mx-connected-button-group'); o.append(t.content.cloneNode(true)); await task();
+  out.push(`clones while out: ${show(o)}, defined ${[...o.children].map((c) => c.matches(':defined'))}`);
+  document.body.append(o); o.children[1].focus(); await task();
+  out.push(`connected and focused on y in one task: ${show(o)}, active ${document.activeElement.getAttribute('value')}`);
+  // The focus in the task of a late button's definition, before the hook's wait: the clone is connected and focused at once.
+  const p = document.createElement('mx-connected-button-group'); document.body.append(p); await task(); p.remove(); await task();
+  const q = document.createElement('template'); q.innerHTML = R('m') + R('n');
+  p.append(q.content.cloneNode(true)); document.body.append(p); p.children[1].focus(); await task();
+  out.push(`clones appended, connected and focused on n in one task: ${show(p)}, active ${document.activeElement.getAttribute('value')}`);
+  // The choice.
+  const add = (e, v, where = 'prepend') => { const d = document.createElement('div'); d.innerHTML = R(v); const b = d.firstChild; e[where](b); return b; };
+  const c1 = make('', R('a') + R('b')); await task();
+  const n1 = add(c1, 'n', 'append'); n1.focus(); await task();
+  out.push(`added and focused in one task: ${show(c1)}`);
+  n1.blur(); add(c1, 'first'); await task();
+  out.push(`then blurred, and one put first: ${show(c1)}`);
+  n1.remove(); await task(); c1.append(n1); await task();
+  out.push(`then removed and put back: ${show(c1)}`);
+  const c2 = make('', R('a') + R('b'), 'b'); await task();
+  const n2 = add(c2, 'n', 'append'); n2.focus(); await task();
+  out.push(`value b, one added and focused in one task: ${show(c2)}, active ${document.activeElement.getAttribute('value')}`);
+  log.length = 0; await userEvent.keyboard('{ArrowLeft}');
+  out.push(`ArrowLeft: active ${document.activeElement.getAttribute('value')}, ${show(c2)}, events [${log}]`);
+  document.activeElement.blur(); c2.setAttribute('value', 'none'); await task();
+  out.push(`blurred, and the value matches none: ${show(c2)}`);
+  const c3 = make('', R('a') + R('b') + R('c'), 'c'); await task();
+  c3.setAttribute('value', 'none'); out.push(`value c, then none, no focus: ${show(c3)}`);
+  c3.children[1].focus(); c3.children[1].blur(); c3.setAttribute('value', 'c'); out.push(`focus on b and left, value c: ${show(c3)}`);
+  c3.setAttribute('value', 'none'); out.push(`then none: ${show(c3)}`);
+  add(c3, 'first'); await task(); out.push(`then one put first: ${show(c3)}`);
+  c3.remove(); await task(); document.body.append(c3); await task(); out.push(`then the group out and in: ${show(c3)}`);
+  c3.children[2].setAttribute('disabled', ''); c3.setAttribute('value', 'x'); out.push(`then b disabled, and a value set: ${show(c3)}`);
+  const before = document.createElement('button'); before.textContent = 'before'; const after = document.createElement('button'); after.textContent = 'after';
+  const c4 = make('', R('a') + R('b') + R('c')); c4.before(before); c4.after(after); await task();
+  const late = document.createElement('template'); late.innerHTML = '<mx-late-button value=l>l</mx-late-button>'; c4.prepend(late.content.cloneNode(true)); await task();
+  customElements.define('mx-late-button', class extends customElements.get('mx-switch-button') {}); await task();
+  out.push(`a late subclass first: ${show(c4)}`);
+  before.focus(); await userEvent.tab(); out.push(`Tab enters at ${document.activeElement.getAttribute('value')}`);
+  await userEvent.keyboard('{ArrowRight}'); out.push(`ArrowRight: ${document.activeElement.getAttribute('value')}, ${show(c4)}`);
+  await userEvent.tab(); out.push(`Tab: ${document.activeElement.textContent}`);
+  add(c4, 'n'); await task(); out.push(`one put first while focus is out: ${show(c4)}`);
+  await userEvent.tab({ shift: true }); out.push(`Shift+Tab: ${document.activeElement.getAttribute('value')}`);
+  await userEvent.click(c4.children[3]); await task(); out.push(`click on b: ${show(c4)}, active ${document.activeElement.getAttribute('value')}`);
+  await commands.writeFile(`./zz-focus-${server.browser}.txt`, `${out.join('\n')}\n`);
+});

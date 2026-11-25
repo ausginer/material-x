@@ -2479,6 +2479,15 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 - **`RF-122` (#217), either order.** It removes the two resets from the same rule and keeps this line, and neither changes what the other reads. The second to land merges the first, and its slot rule holds the line alone. Their rows don't overlap. The grid row is in this unit and isn't in `RF-122`'s.
 - **`RF-139`'s limit on wide controls** was told to the owner. He raised no objection, and that isn't an answer.
 
+**Dated 2026-11-25 by the implementer: the list is implemented on `material-x/card-radius-1`, from `main` at `2485fb2df`, for #263, and not closed.** Requested by the coordinator.
+
+- **Source and documentation:** items 1 to 4 as written. `RF-122`'s resets and their comment are unchanged.
+- **Rows,** eight in `card.spec.browser.test.ts`: the file has 49 in each engine. Four for the inherited corner, two guards, and a page's grid and flex.
+- **Witnesses** ([reading](card-radius-1/checks/witnesses.txt), [script](card-radius-1/probes/mutate.mjs)), the same in Chromium, Firefox and WebKit: with the line removed, the four rows of the corner fail and no other. With `display: block` on the slot, the grid row and the flex row fail, and with them two older rows, the stretched card and the scroll's end. Unmutated, none.
+- **Checks:** the card's rows, Chromium 61 passed, Firefox and WebKit 58 and 3 skipped. Material-x without the visual project in Chromium: 2042 passed and 2 expected failures. Typecheck, lint on the changed files, the root format check, publint, `docs-build` and `docs-smoke` (129 of 129) pass. The size gate passes.
+- **Size, Brotli, local, against `2485fb2df`:** `card/card` 1350 to 1354 (+4), `complete` 25869 to 25924 (+55). No other row of 23 moves.
+- **Not run:** the visual project, so _no visual baseline changes_ is CI's to read; Safari; screen readers.
+
 #### RD-54 — `mx-top-app-bar` pins itself, takes its scrolled state from one observer, and changes color without a shadow
 
 **Decided 2026-11-23 by the architect, on `material-x/top-app-bar-1`,** on the coordinator's task for #172, as unit H of `RD-47`'s landing plan. `RD-53` is the highest `RD-` on any branch on `origin` (`material-x/card-1`), so this is the next free number. The [plan](top-app-bar-1/top-app-bar-plan.md) holds the readings, the tokens, the tests and the work.
@@ -5486,6 +5495,120 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `m
 
 **Dated 2026-11-24 by the architect: what it waits for,** on the coordinator's relay. The unit is taken after the last of the first set's three components has merged: `mx-card` is on `main` (#213), and `mx-slider` (#220) and `mx-top-app-bar` (#211) aren't. One unit then covers every element at once, and the rows read `files.json`, so no component's branch owes a row of its own. This replaces _"A new element's row is added with it"_ for these three. By reading their sheets, each declares a `display` on its host, so each has the cause. The elements are 21 with the slider, and 22 with the top app bar. The entry's shared sheet with `RF-107` is unchanged: the second to land uses the first one's. **Plan needed:** no. **Ready** for an implementer when the three are on `main`. Nothing is the owner's to answer.
 
+**Dated 2026-11-25 by the implementer: implemented on `core/hidden-1`, from `main` at `e57c9f074`, for #215, and not closed.** Requested by the coordinator.
+
+- **Source:** a new sheet, `core/styles/host/host.styles.css`, has one rule, `:host([hidden]:not([hidden='until-found' i])) { display: none; }`. `useCore` adopts it after the component's own sheets. Each of the 22 elements reaches `useCore`, so none has a change of its own. `RF-107` can add to the same sheet, and nothing is built for it. The rule isn't important, so a page's own `display` wins.
+- **The components' conditional host displays:** by reading, no component has one today. The rule's specificity is above that of a host rule with one state, and a row holds the rule against two states with a sheet that the test adopts.
+- **Rows,** `tests/core/hidden.browser.test.ts`, 135 in each engine, read from `files.json`: for each of the 22 elements, a box without `hidden`, none with it in the host and in its shadow tree, the former display after its removal, the former display for `until-found` and `UNTIL-FOUND`, and a page's own display. Three more: an extended and disabled FAB, a list item that is an open popover, and the host rule with two states.
+- **Witnesses** ([reading](hidden-1/checks/witnesses.txt), [script](hidden-1/probes/mutate.mjs)), the same in Chromium, Firefox and WebKit: not adopted, as on `main`, 47 rows fail. Without the `until-found` exception 45, with that value in lower case alone 22, with no specificity of the attributes 1, with `!important` 22. Unmutated, none. The rows of the box without `hidden`, of `until-found` and of a page's display pass on `main`. **Not discriminated:** the sheet's place. With it before the component's, no row fails, because no component has a host `display` of its specificity.
+- **`until-found` on a `display: contents` host:** its display is unchanged. Whether the browser hides its content wasn't read.
+- **Checks:** material-x without the visual project: Chromium 1855 passed and 2 expected failures; Firefox 1777 passed, 3 expected failures and 77 skipped; WebKit 1778 passed, 2 expected failures and 77 skipped. Typecheck, `typecheck-declarations`, lint, the root format check, publint, `docs-build` and `docs-smoke` (129 of 129) pass.
+- **Size, Brotli, local, against `e57c9f074`:** `complete` 25641 to 25677 (+36). Every row grows, by 12 (`text-field/multiline-text-field`) to 54 (`list/list-button-item`). The rows have no limit yet.
+- **Not run:** the visual project, Safari, screen readers.
+
+**Dated 2026-11-25 by the architect: the [feature proof](reviews/hidden-1/feature-proof-claude.md) of `dce82dffa` is ruled,** requested by the coordinator. The rule and its place stand. Read on the built head in the three engines ([reading](hidden-1/checks/ruling.txt), [probe](hidden-1/probes/ruling.mjs), [variants](hidden-1/probes/ruling-variants.mjs)).
+
+- **`reviewer-1`: confirmed, and it isn't this unit's. It is `RF-143`.** This unit doesn't wait for it: a page's `display: none` and a member that is disabled later have the same result without the rule, and the rule is what this entry requires.
+- **`reviewer-2`: confirmed, and it is this unit's.** The property is this entry's, and the list item's `display` for an avatar is the one declaration that breaks it. The native element with `data-avatar` comes with the same selector.
+- **`reviewer-3`: confirmed, and it is this unit's.**
+- **`until-found` on a `display: contents` host: no finding.** The property leaves the value out, and the unit doesn't change it. The value works by skipping the content of the element's box, and these hosts have none.
+- **A hidden item in a sortable list keeps its place in the order, so a key step can move past it unseen: no finding.** The page's order has the item, and a page's `display: none` does the same.
+
+**The list:**
+
+1. In a list item's `lead` slot, an element with `data-avatar` and `hidden` isn't rendered, whether it is native or an `mx-*`. Without `hidden` and with `until-found` in both letter cases it keeps `grid`. A page's own `display` on it wins. The direction: the selector of the avatar's `display` leaves out what the host rule hides, `::slotted([data-avatar]:not([hidden]:not([hidden='until-found' i])))`. Read as a candidate on the whole avatar rule: each of these holds in the three engines. Rows: an `mx-icon` and a `span`, hidden and not, and `until-found`. **Witness:** the hidden ones fail before it, and the `until-found` ones fail with `:not([hidden])` alone.
+2. A row for a value that is neither empty nor `until-found`, on one element, because one sheet is shared. **Witness:** it fails with `:host([hidden='']:not([hidden=x]))`.
+
+**Checks:** the branch has `main` at `2c83c7bc0`. The hidden and list rows in the three engines, the two witnesses, typecheck, lint, the root format check, the size table again, and #270's CI with its visual project. One heavy run at a time. #267 changes other rules of the same list sheet. Whichever merges second reads its rows again.
+
+**Recheck:** none. **Closure:** on the merge of #270, when the coordinator has confirmed that the repair's diff has no source outside the list item's sheet and no test outside the rows, that both witnesses are recorded, and that CI passes on its last commit. Anything else comes back to the architect. Nothing is the owner's.
+
+**Dated 2026-11-25 by the implementer: the list above is implemented, and not closed.** Requested by the coordinator. `main` is merged at `49bd95038` (#267) and at `ca6918376` (#268).
+
+- **Source:** the selector of the list, in the list item's sheet alone, with a comment.
+- **Rows,** nine in `hidden.browser.test.ts`, 144 in each engine: `hidden="true"` on one element, and for an `mx-icon` and a `span` with `data-avatar` in `lead`, not hidden, hidden, `until-found` and `UNTIL-FOUND`.
+- **Witnesses,** every mutation again and four new ones ([reading](hidden-1/checks/witnesses.txt), [script](hidden-1/probes/mutate.mjs)), the same in Chromium, Firefox and WebKit: unmutated, none fails. The avatar's selector as before fails the two hidden rows, `:not([hidden])` alone the four `until-found` ones, and lower case alone the two of `UNTIL-FOUND`. `:host([hidden='']:not([hidden=x]))` fails the row of the other value. With the host sheet not adopted, 49 rows fail now in place of 47. The other counts stand.
+- **The script as committed threw,** because `display: none` is in the sheet's comment too. Its mutation now matches the declaration.
+- **By reading, not asked by the list:** the new selector's specificity is above that of `::slotted([data-image])` and `::slotted([data-video])`. An element with `data-avatar` and one of these now takes the avatar's `inline-size` and `border-radius`, where the later rule won. No story or row has both. The direction stands as the architect ruled it.
+- **Page's `display` on an avatar:** the list asks for no row, and the architect read it.
+- **Checks,** core and drag rebuilt: `tests/core/hidden` and `tests/list`, read again after each merge: Chromium 514 passed, Firefox 502 passed and 2 skipped, WebKit 512 passed and 2 skipped. Firefox has 10 rows fewer in `sortable-list.spec`, by its own condition. Typecheck, lint on the rows' file and the root format check pass. CI on the head is #270's.
+- **Size, Brotli, local, the branch with `main` at `49bd95038` against it:** `complete` 25743 to 25756 (+13). Every row grows, by 12 (`text-field/multiline-text-field`) to 56 (`button/switch-icon-button`):
+
+  | Row                                   | `main` | Branch | Change |
+  | ------------------------------------- | ------ | ------ | ------ |
+  | `button/button`                       | 4909   | 4936   | +27    |
+  | `button/icon-button`                  | 5182   | 5208   | +26    |
+  | `button/link-button`                  | 4872   | 4911   | +39    |
+  | `button/switch-button`                | 5507   | 5537   | +30    |
+  | `button/switch-icon-button`           | 5906   | 5962   | +56    |
+  | `button/split-button`                 | 7585   | 7624   | +39    |
+  | `button-group/button-group`           | 3060   | 3097   | +37    |
+  | `button-group/connected-button-group` | 3916   | 3954   | +38    |
+  | `card/card`                           | 1317   | 1350   | +33    |
+  | `checkbox/checkbox`                   | 4260   | 4290   | +30    |
+  | `fab/fab`                             | 4176   | 4206   | +30    |
+  | `icon/icon`                           | 631    | 667    | +36    |
+  | `list/list`                           | 592    | 625    | +33    |
+  | `list/list-item`                      | 2772   | 2801   | +29    |
+  | `list/list-button-item`               | 4898   | 4933   | +35    |
+  | `list/list-link-item`                 | 5121   | 5137   | +16    |
+  | `list/sortable-list`                  | 9092   | 9117   | +25    |
+  | `radio/radio`                         | 3811   | 3841   | +30    |
+  | `slider/slider`                       | 4015   | 4037   | +22    |
+  | `text-field/multiline-text-field`     | 4547   | 4559   | +12    |
+  | `text-field/text-field`               | 8585   | 8618   | +33    |
+  | `top-app-bar/top-app-bar`             | 1354   | 1391   | +37    |
+  | `complete`                            | 25743  | 25756  | +13    |
+
+**Dated 2026-11-25 by the architect: the implementer's observation isn't accepted, and the list gets one item,** requested by the coordinator. Read at `dad7198e3` on the built list item in the three engines, with the same result ([reading](hidden-1/checks/avatar-cascade.txt), [probe](hidden-1/probes/avatar-cascade.mjs)).
+
+- **Confirmed.** An element with `data-avatar` and `data-image` was 56 by 56 with the image's corners, and is 40 by 56 with the avatar's. One with `data-video` changes in the same way. With an overline and a supporting text it keeps the size and loses the corners. No page is told of these pairs, so this alone would be accepted.
+- **More than the observation says:** a hidden avatar that a page's own `display` shows is no longer drawn as one. A `span` is 40 by 40 with the avatar's colors on `main`, and an empty box of no height here. The property lets the page's `display` win, as over a native element's `hidden`, and a native element that is shown so keeps its look. The ruling read the `display` alone, so this is the ruling's fault and not the implementer's.
+- **The cause of both:** the selector is on the whole avatar rule, and only its `display` has anything to do with `hidden`.
+- **Not `:where`.** It gives the pairs back what they had, and leaves the shown avatar without its look.
+
+**The list's third item.** Only the avatar's `display` has the selector of item 1, in a rule of its own. The rest of the rule has `::slotted([data-avatar])` again, and the comment goes with the `display`. Read as a candidate: each case is as on `main`, except that a hidden avatar isn't rendered. Row: a `span` avatar with `hidden` and a page's `display: block` has the avatar's size, 40 by 40. **Witness:** it fails with the selector on the whole rule, as at `dad7198e3`. No row for the pairs: the one row holds the selector's place.
+
+**Checks:** the hidden and list rows in the three engines, every mutation of the script again with the new one, typecheck, lint, the root format check, the size table again, and #270's CI. #270's description says the new counts.
+
+**Not registered:** an `img` with `data-avatar` is 40 by 56, on `main` also, because the `img` rule sets its height. No story, row or page has one.
+
+**Recheck:** none. **Closure,** which takes the place of the one above: on the merge of #270, when the coordinator has confirmed that the repair's diff has no source outside the list item's sheet and no test outside the rows, that the witnesses of the three items are recorded, and that CI passes on its last commit. Anything else comes back to the architect. Nothing is the owner's.
+
+**Dated 2026-11-25 by the implementer: the third item is implemented, and not closed.** Requested by the coordinator. `main` is at `ca6918376`, merged before.
+
+- **Source:** in the list item's sheet, the avatar's `display` has the selector and the comment, in a rule of its own. The rest has `::slotted([data-avatar])` again.
+- **Row:** a `span` avatar with `hidden` and a page's `display: block` is 40 by 40. The file has 145 rows in each engine. The function that makes an avatar moved to the top of the file, because this row isn't one of the group's. The earlier note's observation about `data-image` and `data-video` no longer holds.
+- **Witnesses,** every mutation again and the new one ([reading](hidden-1/checks/witnesses.txt), [script](hidden-1/probes/mutate.mjs)), the same in Chromium, Firefox and WebKit: the selector on the avatar's whole rule fails this row, and no other. The other counts stand: not adopted 49, without the exception 45, lower case alone 22, no specificity 1, `!important` 22, the empty value alone 1, every avatar 2, no avatar with `hidden` 4, the avatar's lower case alone 2. Unmutated, none.
+- **Checks,** core and drag rebuilt: `tests/core/hidden` and `tests/list`: Chromium 515 passed, Firefox 503 passed and 2 skipped, WebKit 513 passed and 2 skipped. Typecheck, lint on the rows' file and the root format check pass. CI on the head is #270's.
+- **Size, Brotli, local, the branch against `main` at `ca6918376`:** `complete` 25813 to 25825 (+12). Each row changes by -1 (`button/split-button`) to +70 (`list/list-button-item`):
+
+  | Row                                   | `main` | Branch | Change |
+  | ------------------------------------- | ------ | ------ | ------ |
+  | `button/button`                       | 4909   | 4936   | +27    |
+  | `button/icon-button`                  | 5182   | 5208   | +26    |
+  | `button/link-button`                  | 4872   | 4911   | +39    |
+  | `button/switch-button`                | 5507   | 5537   | +30    |
+  | `button/switch-icon-button`           | 5906   | 5962   | +56    |
+  | `button/split-button`                 | 7668   | 7667   | -1     |
+  | `button-group/button-group`           | 3060   | 3097   | +37    |
+  | `button-group/connected-button-group` | 3916   | 3954   | +38    |
+  | `card/card`                           | 1317   | 1350   | +33    |
+  | `checkbox/checkbox`                   | 4260   | 4290   | +30    |
+  | `fab/fab`                             | 4176   | 4206   | +30    |
+  | `icon/icon`                           | 631    | 667    | +36    |
+  | `list/list`                           | 592    | 625    | +33    |
+  | `list/list-item`                      | 2772   | 2803   | +31    |
+  | `list/list-button-item`               | 4898   | 4968   | +70    |
+  | `list/list-link-item`                 | 5121   | 5146   | +25    |
+  | `list/sortable-list`                  | 9092   | 9117   | +25    |
+  | `radio/radio`                         | 3811   | 3841   | +30    |
+  | `slider/slider`                       | 4015   | 4037   | +22    |
+  | `text-field/multiline-text-field`     | 4547   | 4559   | +12    |
+  | `text-field/text-field`               | 8585   | 8618   | +33    |
+  | `top-app-bar/top-app-bar`             | 1354   | 1391   | +37    |
+  | `complete`                            | 25813  | 25825  | +12    |
+
 #### RF-122 — Slotted content inherits a container's private custom properties, and a few components read them
 
 Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/private-props-1`, relayed by the coordinator. Found by the implementer of #171 (`mx-card`, #213). `RF-121` is the highest `RF-` on any branch on `origin` (`material-x/slider-1`), so this is the next free number. The [diagnosis](private-props-1/private-props.md) holds the readings, the options and their sizes.
@@ -6671,7 +6794,7 @@ Tier B, **closed on 2026-11-25** (the last note), pre-existing. Before closure: 
 
 #### RF-141 — A button that is upgraded after the connected group's last slot change isn't in its roving order
 
-Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `core/slot-listener-1`, from `reviewer-1` of `RF-131`'s [feature proof](reviews/slot-listener-1/feature-proof-claude.md), requested by the coordinator. `RF-140` is the highest `RF-` on any branch on `origin`, so this is the next free number. No entry covers it: `RF-69` is about a consumer that is there before its provider, and `RF-131` about a slot change that is lost. Read at `96442bad3` with `main` at `a110683b3`, in Playwright's Chromium, Firefox and WebKit, with the same result ([reading](slot-listener-1/checks/ruling.txt), [probe](reviews/slot-listener-1/probes/callers.browser.test.ts.txt)). The former `useSlot` reads the same.
+Tier A, **closed on 2026-11-25** (the architect's last note, whose list the note after it completes), pre-existing. Before closure: open. Registered on 2026-11-25 by the architect, on `core/slot-listener-1`, from `reviewer-1` of `RF-131`'s [feature proof](reviews/slot-listener-1/feature-proof-claude.md), requested by the coordinator. `RF-140` is the highest `RF-` on any branch on `origin`, so this is the next free number. No entry covers it: `RF-69` is about a consumer that is there before its provider, and `RF-131` about a slot change that is lost. Read at `96442bad3` with `main` at `a110683b3`, in Playwright's Chromium, Firefox and WebKit, with the same result ([reading](slot-listener-1/checks/ruling.txt), [probe](reviews/slot-listener-1/probes/callers.browser.test.ts.txt)). The former `useSlot` reads the same.
 
 - **The cause.** `useRovingTabindex` keeps the slot's nodes that are items, at each `slotchange`. A node that isn't upgraded yet isn't an item, and its upgrade is no slot change. So it stays out until the next one.
 - **What happens,** in `mx-connected-button-group`, the hook's only user:
@@ -6691,6 +6814,118 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 - **Order:** after #256 (`RF-131`), because the group's rows read its slot while out. It doesn't wait for `RF-94` or `RF-130`.
 - **Plan needed:** no. **Ready** for an implementer, on a branch of its own. Nothing is the owner's to answer.
 - **Size:** _small_. One hook in core and its rows.
+
+**Dated 2026-11-25 by the implementer: implemented on `core/roving-upgrade-1`, for #262, from `main` at `e57c9f074`, and not closed.** Requested by the coordinator. The direction holds in the three engines.
+
+- **It is more than the candidate, because property 1 asks for it.** The candidate's second read keeps the tab stop that the first read chose only because it was the first enabled item. So a late button before a ready one doesn't get it, as it would if it had been an item at the slot change. And its second read takes the tab stop back to the group's value after focus moved it away. With the candidate's read in place of the hook's, five of the core rows fail in each engine, and none of material-x's. The hook keeps the slot change that chose the tab stop by default, and whether focus moved it since.
+- **A node that left the slot isn't upgraded,** and an undefined customized built-in element (`<button is="…">`) isn't waited for: `whenDefined` rejects its local name. Without that check the rejection is unhandled in Chromium and Firefox.
+- **Rows:** 21 in core's `useRovingTabindex`, two in `button-group.browser.test.ts`, and `button-group-late-switch.browser.test.ts`. **Witnesses** in each engine ([reading](roving-upgrade-1/checks/witnesses.txt), [probe](roving-upgrade-1/probes/mutate.mjs)):
+
+  | Change | Core rows that fail, of 52 | material-x, of 30 |
+  | --- | --- | --- |
+  | The hook of `main` | 13 | 3 |
+  | Without the upgrade | 8, the clones' | 2, the clones' |
+  | Without the wait | 5, the late definitions' | 1 |
+  | The candidate's read | 5 | 0 |
+  | The default choice kept | 4 | 0 |
+  | Any change's default choice dropped | 1 | 0 |
+  | The moved tab stop dropped | 1 | 0 |
+  | Focus keeps the default choice | 1 | 0 |
+  | A node that left is upgraded | 1 | 0 |
+  | Customized built-in elements waited for | 1, and 0 in WebKit | 0 |
+
+  The eight core rows that the hook of `main` passes say what must not change: the node that left isn't managed and isn't upgraded, the five that keep a tab stop chosen by focus, by the value, or for an earlier item, and the customized built-in element's.
+
+- **The callers probe:** 0 of the 126 readings differ in Chromium and Firefox, and in four of five runs in WebKit ([reading](roving-upgrade-1/checks/callers.txt)). `main` reads 9 in WebKit. The first WebKit run read 76: from one case on, each compared reading is the same `mx-text-field`, also in cases of other elements, which don't use the hook. It is the probe's reading, and its cause wasn't found. The arrow keys walk in each engine.
+- **Size, Brotli:** `button-group/connected-button-group` 3914 to 4065 (+151), `button/split-button` 7587 to 7736 (+149), `complete` 25641 to 25793 (+152). No other row moves, and none has a limit that is exceeded ([sizes](roving-upgrade-1/checks/sizes.txt)).
+- **Checks:** every Vitest project of core (28 files) and material-x (42 files) in the three engines, without the visual one and with no failure. Root typecheck, lint, format check, `docs-build` and `docs-smoke` (129 pages) pass, and material-x's publint. Core has no publint recipe, and publint on its tarball exits 0 with two suggestions about the manifest, which this unit does not change.
+
+**Dated 2026-11-25 by the architect: the [feature proof](reviews/roving-upgrade-1/feature-proof-claude.md) of `df687de7d` is ruled, and property 1's last sentence is replaced,** requested by the coordinator. Read in Playwright's Chromium, Firefox and WebKit, which agree line for line ([fuzz](roving-upgrade-1/checks/ruling-fuzz.txt), [its probe](roving-upgrade-1/probes/ruling-fuzz.browser.test.ts.txt), [hooks](roving-upgrade-1/probes/ruling-variants.mjs)), and for sizes and memory in Chromium ([reading](roving-upgrade-1/checks/ruling-sizes.txt)).
+
+**The cause of the growth is the choice, and the property asked to reproduce it.** The hook keeps a tab stop that it chose only because an item was first, and so the result depends on the order in which items came. _"What it would be if the button had been an item at the slot change"_ makes a late definition rewrite that history, which takes a record of it. No user chose that tab stop, so nothing is owed to it.
+
+**The contract now, in place of property 1's last sentence:**
+
+- **The choice.** The tab stop is the enabled item that matches the group's value; or else the enabled item that focus moved it to last, while that item is in the slot; or else the first enabled item. Nothing else of the past counts. `focusin` still moves it at once.
+- **A definition is read as a slot change is.** With the choice above, the same items then give the same tab stop, however late each was upgraded.
+- **What changes for a group with no late button.** With no match and no focus, an item put first takes the tab stop, where the former one kept it. When the value stops matching, the tab stop goes to the item of the last focus or to the first one, where it stayed on the former match. Native radios with none checked are entered at the first one. The hook's JSDoc states the choice.
+- **Accepted limit.** When focus has moved off the value's item and the value hasn't followed, a definition gives the tab stop back to the value's item, as each slot change does on `main`. Each difference that the fuzz shows in A to D and K is this one. So `reviewer-1`'s required property holds except where the value names the item. In G, 10 of the 29 differences are steps within one task and weren't classified.
+
+| Contract | Bytes over `main` | Wrong tab stop, of 1000: H, I | Removed items kept |
+| --- | --: | --: | --- |
+| The branch's hook | +150 | 0, 365 | Yes |
+| The same, right in I too (`priority`, `intended`) | +155, +198 | 0, 0 by the review's reference | Yes |
+| The candidate's plain second read, with the subject's two checks | +67 | 298, 715 | No |
+| **The choice above, with that read** | **+76** | **0, 0** | **No** |
+
+Bytes are of `connected-button-group` as the review reads them. The H and I numbers are against the items upgraded from the start with this choice, so I isn't comparable with the review's 239. The plain read is 9 B less. Its limit, that a late first button isn't the default, isn't taken, because the limit is the history again, and `RF-143` would carry it.
+
+- **`reviewer-1`: confirmed, this unit's,** and answered by the choice.
+- **`reviewer-2`: confirmed, this unit's.** A removed item can be collected while its group stays, also beside an element that is never defined. The accepted cost stays as it was.
+- **`reviewer-3`: confirmed, this unit's.** Its five mutations are of the state that goes. The list has the rows for what replaces it.
+- **The rest of the unit stands:** a node that left isn't upgraded, and a customized built-in element isn't waited for. The WebKit `callers` readings are the probe's, by the review, and nothing is owed.
+- **It isn't the owner's.** What a page can see changes only where neither the value nor focus decides, and core has no release. In E and F, whose items are disabled, the rest of the differences are `RF-143`'s, by the review.
+
+**The list:**
+
+1. The choice and the read replace `chosenBy`, `isMoved`, `select` and `join`. The hook named `current` in the probe is a direction, and isn't prescribed. The hook's JSDoc states the choice.
+2. Two rows change to the contract: _"should keep the tab stop that focus moved away from the host value"_ becomes the accepted limit, and _"should keep the tab stop of an item that was there before the late one"_ gives it to the late one. With the direction, the other 50 core rows pass in each engine.
+3. Rows added in core: two late names defined in reverse order; a ready item put first, with no focus, and with focus earlier on another and blurred; a late item behind it then defined; a value that stops matching, with no focus and with focus earlier; an item added after a late one is slotted is still managed after the definition; a chosen item that is removed and put back isn't the chosen one; an item focused in the task that adds it.
+4. **Witnesses,** each failing a row in each engine: `main`'s choice kept with the new read; focus not recorded; a removed item still the chosen one; the read of the slot change's own nodes in place of the current ones; no upgrade; no wait; a node that left upgraded; customized built-in elements waited for, which WebKit may not show.
+
+**Checks:** on this branch with `main` at `2c83c7bc0`: core's and material-x's rows of the hook and the groups in the three engines, the review's memory probe and the size table, typecheck, lint, the root format check, and #269's CI. One heavy run at a time.
+
+**Recheck:** a targeted one by the same reviewer, because the hook's behavior changes: the fuzz with this reference, memory, the new mutations, and focus in the real group. Nothing else of the proof is read again.
+
+**`RF-143`, on `core/hidden-1`, is amended by this choice,** and that entry gets a pointer here when both are on `main`. Its property 2's sentence _"A tab stop that can still take focus stays, unless the group's value names another, so a first member that is shown again doesn't take it back"_ is replaced: the choice above is made again over the members that can take focus, so a first member that is shown or enabled again has the tab stop, unless the value or focus chose another, and a focused choice that is shown again has it back. Its row _shown again_ then says what must not change, with the page's `display` and no eligible item. Its relation to this entry is otherwise unchanged. By the candidate, its reads are +68 B over this hook, and the two together, +144 B, are less than the branch's hook alone.
+
+**#262's description** still holds, and #273's too.
+
+**Dated 2026-11-25 by the implementer: the remediation's list is done on `core/roving-upgrade-1`, for #262, and the entry is not closed.** Requested by the coordinator. The readings below are of the hook at `ca18f68aa`, whose branch has `main` at `2c83c7bc0`. Then `main` at `49bd95038` (#267) is merged without a conflict, and no file of core or of the groups changes.
+
+- **Item 1:** as written. `chosenBy`, `isMoved`, `select` with nodes, and `join` are gone.
+- **The one choice that the direction left open:** an item that is focused in the task that adds it has no `focusin` as a managed item. `current` takes it while it stays focused. The hook records it at the read, if it is enabled, so it stays the one that focus moved the tab stop to after a blur. `settled` does the same without the check that it is enabled. A row of its own has it, and in the fuzz the three hooks have the same numbers.
+- **Item 2:** the two rows are renamed and changed. **Item 3:** ten rows, so core's file has 62. The row of an item added after a late one was blind at first: a later slot change waits too, and its read has the right nodes. It now adds the item in the task of the definition, where only the first wait reads.
+- **Item 4,** one engine at a time, with other sessions running on the machine. The same counts in each engine, but for the last row ([witnesses](roving-upgrade-1/checks/remediation-witnesses.txt), [probe](roving-upgrade-1/probes/mutate.mjs)). The [former witnesses](roving-upgrade-1/checks/witnesses.txt) are of `df687de7d`, with the probe as it was there.
+
+  | Change | Core rows that fail, of 62 | material-x, of 30 |
+  | --- | --- | --- |
+  | The hook of `main` | 20 | 3 |
+  | `main`'s choice with the new read | 10 | 0 |
+  | Focus not recorded | 5 | 0 |
+  | The item that is focused at a read not recorded | 2 | 0 |
+  | A removed item still the chosen one | 1 | 0 |
+  | The slot change's own nodes read | 1 | 0 |
+  | No upgrade | 8 | 2 |
+  | No wait | 8 | 1 |
+  | A node that left is upgraded | 1 | 0 |
+  | Customized built-in elements waited for | 1, and 0 in WebKit | 0 |
+
+- **Fuzz,** with the ruling's reference, 1000 sequences in each stratum ([reading](roving-upgrade-1/checks/remediation-fuzz.txt)): the hook reads as `current` in all eleven strata, H, I and J 0, A 13, B 10, C 9, D 1, E 70, F 30, G 29, K 19. In A to D and K, the tab stop is the value's item in each difference. Firefox and WebKit read the same, line for line.
+- **Memory,** Chromium ([reading](roving-upgrade-1/checks/remediation-gc.txt)): removed items 0 of 9, 0 of 9 and 0 of 100 alive. A removed group with an element that is never defined stays, which is the accepted cost.
+- **Size, Brotli,** against `main`'s hook ([sizes](roving-upgrade-1/checks/remediation-sizes.txt)): `button-group/connected-button-group` 3912 to 4005 (+93), `button/split-button` 7562 to 7649 (+87), `complete` 25699 to 25821 (+122). No other row moves, and no limit is exceeded. As the review reads it, minified by rolldown, `connected-button-group` is 3908 to 3987 (+79), where the ruling has +76 for `current`.
+- **Checks:** before the merge of `49bd95038`, core's projects (361 rows) in the three engines. On the merged tree: the hook's rows (62) and `tests/button-group` (130) in the three engines, the size gate, root typecheck, the declarations' typecheck, lint, format check, `docs-build` and `docs-smoke` (129 pages). Nothing fails.
+- **`main` moved again,** to `ca6918376` (#268, the split button), and is merged: the index conflicts, where both sides append, and both are kept. The hook's rows (62) and `tests/button-group` with the split button's rows pass again in the three engines, and so do the size gate, root typecheck, lint and format check. The declarations' typecheck and the docs weren't run again.
+
+**Dated 2026-11-25 by the architect: the [recheck](reviews/roving-upgrade-1/feature-proof-claude.md#recheck-of-2026-11-25-at-35eb0c0ef) of `35eb0c0ef` is ruled, and the entry closes with the list below,** requested by the coordinator.
+
+- **`reviewer-1` to `reviewer-3`: answered.** The repairs are read by the recheck, and the contract holds.
+- **Departure (1) is accepted.** A focused item that is enabled is recorded at the read. The choice says _the item that focus moved it to last_, and doesn't ask that the item is still focused. The ruling's `current` was a direction and not the contract.
+- **`reviewer-4`: confirmed, this unit's, Tier C. Three rows are owed.** The choice is this unit's contract, and its word _last_ has no row on either path: the `focusin` and the read. The third mutation is owed too, because the read's check that the item is enabled is this unit's and no row needs it. It is the second row with `disabled` added.
+
+**The list,** rows in core's file and no source. Each was run in a copy of the file in Chromium: the head passes all three, and each mutation fails the row that is named for it and no other ([reading](roving-upgrade-1/checks/ruling-rows.txt), [probe](roving-upgrade-1/probes/ruling-rows.mjs)). Names are the implementer's.
+
+1. Focus moves from the second item to the third, and the third is blurred. An item is then put first: the third has the tab stop. **Witness:** only the first focus is recorded (`this.#chosen ??= item`).
+2. Focus chose the second item. A third is added and focused in one task: the third has the tab stop. **Witness:** the read prefers the former choice to the focused item.
+3. The same, with the added item disabled: the second keeps the tab stop. **Witness:** the read records the focused item without the check that it is enabled.
+
+**Checks:** core's file (65 rows) and the three witnesses in each engine, format, lint and typecheck of core, the root format check and #269's CI. The hook doesn't change, so sizes, memory, the fuzz and material-x's rows aren't run again unless the merge of `main` changes the hook or the groups.
+
+**No further look** by the architect or the reviewer is owed when the list is as written. The implementer adds the witnesses' counts here, changes the entry's state to closed on that date with a pointer to this note, and the row counts in #269's description (`Closes #262` is there). The coordinator compares the diff with the list: three rows, no change in `packages/*/src`. A row that fails on the head, or a witness that passes, comes back to the architect.
+
+**Observations of the recheck:** nothing is owed. The row that keeps the name _"fall back to the active item"_ asserts the contract. An item that can't take focus is `RF-143`'s.
+
+**Dated 2026-11-25 by the implementer: the three rows are in, and the entry is closed** by the architect's note above. No source changes. Core's file has 65 rows, which pass in Chromium, Firefox and WebKit, and material-x's 30 of the groups pass. Each witness fails its own row and no other, of 65, in each engine ([reading](roving-upgrade-1/checks/rows-witnesses.txt), [probe](roving-upgrade-1/probes/mutate.mjs)): only the first focus recorded 1, the former choice preferred at a read 1, a focused item recorded without the check that it is enabled 1. Core's format, lint and typecheck and the root format check pass. `main` hasn't moved since the last merge.
 
 #### RF-142 — A disabled list item dims the focus indicator of the controls in it, which still work
 
@@ -6762,6 +6997,33 @@ Tier A, **open**, **ready** after #267 and #268 (the last note), pre-existing. R
 7. **Stop** and return if drag has to change, if a row of the keyboard or of the handles fails apart from the superseded one, or if a baseline changes.
 
 **A feature proof is owed,** because public behavior changes. **`.agents/docs/accessibility.md`,** whose list section states the rule after the unit, is project documentation, so it has its own pull request, which the coordinator takes: a disabled item can't be reordered, its handle is `aria-disabled` and no tab stop, and the page's own controls in it are the page's to disable. Nothing is the owner's to answer.
+
+#### RF-143 — A member that can't take focus keeps a connected group's tab stop
+
+Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `core/hidden-1`, from `reviewer-1` of `RF-121`'s [feature proof](reviews/hidden-1/feature-proof-claude.md), requested by the coordinator. `RF-142` is the highest `RF-` on any branch on `origin`, so this is the next free number. No entry covers it: `RF-141` is about a member that isn't in the order. Read on the head of `RF-121`, built, in Playwright's Chromium, Firefox and WebKit, with the same result ([reading](hidden-1/checks/ruling.txt), [probe](hidden-1/probes/ruling.mjs)).
+
+- **What happens,** in `mx-connected-button-group`, the only user of `useRovingTabindex`:
+  - **The tab stop's member is hidden or disabled after the slot change:** Tab passes the whole group. `hidden` in the markup does the same. `disabled` there doesn't.
+  - **Any member is hidden:** an arrow key that meets it goes no further. The tab stop moves to it and focus doesn't, so after that Tab passes the group too. A disabled member is skipped.
+  - **The end member is hidden:** the first or last visible member has inner corners in place of the outer ones.
+  - A page's `display: none` is as `hidden`, on the base also. `hidden` reaches this with `RF-121`, because before it a hidden member was shown.
+- **The causes.** The hook excludes disabled items alone, and it chooses the tab stop at a slot change, a change of the group's value, a key and a `focusin`. No change of an item's own state is one of them. The group marks its ends by the slot's elements.
+- **Why it is a problem:** a keyboard user can't reach visible, enabled controls. Disabling or hiding an option is ordinary use.
+- **Required properties:**
+  1. A member with `display: none` or `disabled` is never the tab stop and no key stops at it, whenever the hook chooses. `hidden` alone doesn't decide: a page's own `display` can show the member, and it is then one like the others.
+  2. After a change of a member's `hidden` or `disabled`, the tab stop is chosen again, without a slot change. A tab stop that can still take focus stays, unless the group's value names another, so a first member that is shown again doesn't take it back.
+  3. The same for a group that was built or changed while out, after its connect.
+  4. The outer corners are on the first and the last member that isn't `display: none`, after the same changes.
+  5. With no member that can take focus, there is no tab stop, as now.
+- **Not required:** a change of a page's style alone, such as a media query, is heard at the next read. The arrow keys are right at once, by property 1. The tab stop isn't. The group's page says to hide a member with `hidden`.
+- **It isn't the owner's.** An element that isn't rendered can't take focus in any engine, so skipping it is the one behavior that leaves the others reachable. Native radios do it: Tab reaches the first that is shown, in the three engines.
+- **Direction, settled:** eligibility reads the computed `display` with `disabled`, and one `MutationObserver` for the hook hears both attributes. Read as a [candidate](hidden-1/probes/ruling-variants.mjs) on the head, for properties 1 and 2: each of its readings is right, except that Tab passes the group after a class hides its tab stop, which isn't required. The candidate doesn't read properties 3 and 4. While out, the computed `display` is empty, so property 3 needs a read at the connect. The group's ends can hear the same change or be CSS alone, the implementer's choice.
+- **Not adopted.** `item.hidden` alone: wrong where a page shows the member, and it leaves the arrow keys stopped at a page's `display: none`. A `ResizeObserver`, for style changes too: the member's host is `display: contents` and has no size, and core doesn't know the member's shadow tree.
+- **Relation to `RF-141` (#269).** Neither causes the other, and #269 waits for nothing here. Both change how the hook chooses, so this one is built on #269 merged, and `RF-141`'s rows pass unchanged. An upgraded item that is hidden isn't given the tab stop, and neither is a moved tab stop that can no longer take focus.
+- **Rows,** three engines. In core: the tab stop's item hidden, disabled, and shown again; a hidden item in the arrow keys, Home and End; an item that a page's `display` shows; an item hidden in the markup; a group built while out; no eligible item. In material-x: Tab into a group whose first member is hidden, and disabled, and the corners with a hidden first and last member. **Witness:** each fails before the repair, except the page's `display` and no eligible item, which say what must not change. With `item.hidden` in place of the computed `display`, the page's `display` fails.
+- **Not read:** Safari, screen readers, sizes, the group's own `disabled`, a member hidden or disabled while it has focus, and the standard group's `:first-child` and `:last-child` with a hidden member.
+- **Plan needed:** no. **Ready** for an implementer, after #269 and #270, on a branch of its own. Nothing is the owner's to answer.
+- **Size:** _medium_. One hook in core, the connected group, its page and their rows.
 
 ## Questions
 
