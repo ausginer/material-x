@@ -5291,6 +5291,30 @@ Tier B, **open**: the instrument is unsound until the cause is known, and the ti
 
 **No question for the owner.** Not read: Safari, and the WebDriver branch. WebKit's two processes weren't traced. **The entry stays open** until the repair is in, and the acceptance is the architect's.
 
+**Dated 2026-11-25 by the architect: the diagnosis and (A) are accepted, with one claim corrected and two properties added.** Requested by the coordinator. Read: the note, the probes and their readings, `commands.node.ts` at `923ab358a` and Vitest's Playwright provider.
+
+- **It holds.** The trace has the first `keydown` in the parent and none in drag's frame, and the control loses keys with nothing of drag. So the loss comes before drag sees anything. The message order is an inference, as the note says, and (A) rests on the readings: 0 of 750 and 0 of 150, against 22 and 3 of 90.
+- **Corrected:** _"`keyPress` is the only command in the repository that calls Playwright's keyboard itself … so material-x and core aren't exposed."_ `userEvent.keyboard` evaluates in the frame first, through `focusIframe`, and `userEvent.tab` doesn't. It is Vitest's own command, core and material-x call it 18 times by `grep`, and a file whose first input is it after a script's `focus()` has the same exposure. No such failure is known, so nothing is registered and this unit doesn't change it.
+- **The round trip doesn't blunt the row.** It puts some milliseconds between the two presses, and the row's purpose is that focus is back by the second. Read ([reading](quick-presses-1/checks/row-sensitivity.txt)): `restoreFocus` removed, or called by a microtask, a frame, a zero timeout or 30 ms later, 20 runs in Chromium and WebKit, without (A) and with it. Each verdict is the same with (A) as without: removed and 30 ms fail in both engines, one frame fails in WebKit alone, a microtask and a zero timeout pass.
+- **A nested frame** is the control's own case. A cross-origin one isn't, and no row has one.
+
+**Properties added to the four:**
+
+5. A rejected or missing frame fails the command. Nothing is caught, and no press goes out without the round trip.
+6. The row still fails with `restoreFocus` removed, and with it 30 ms late, in Chromium and WebKit.
+
+**The implementer's list,** on `drag/quick-presses-1`:
+
+1. The candidate's change in `tests/support/commands.node.ts`, with a comment that says why: in WebKit the UI process can still hold the runner's frame as focused, and the reply of the page comes after its message. The type of the context is the file's own style. No test and no source file changes.
+2. The witness as the note has it: `frame-focus.sh webkit y-geometry` and `pairs.sh 30 consumer/webkit y-geometry` on two CPUs, three runs each, before and after. Before must lose keys in the control. If `pairs.sh` loses none before, its result isn't a witness, and the control is enough. After, none is lost.
+3. Property 6, read once with and without the repair.
+4. The drag suites in the three engines, one at a time, typecheck, lint, the root format check. Property 4 by reading `hot-path.browser.test.ts`: at `923ab358a` each press follows the end of its window.
+5. The pull request says `Closes #194`.
+
+**No feature proof is owed:** no shipped file changes, and the discriminating reading is the control. **Closure** is the architect's, on that list and a CI that passes on the last commit. One CI isn't a witness for a 1 % race, so the record has the control's counts.
+
+**`DRD-72` (#265) doesn't wait for this,** as the note says, and this doesn't wait for it. It neither changes the command nor the row. Until (A) is in, a file of its rows that begins with a key can fail in WebKit, and such a failure is this entry's. #194's description no longer holds: the cause is known, and it is the test's.
+
 #### DRF-55 — A landing is reported as a fault when the dropped item left its list during the verdict
 
 Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `material-x/live-region-1`, from `reviewer-2` of the [feature proof](../../../.plan/reviews/live-region-1/feature-proof-claude.md) of #197, relayed by the coordinator. `DRF-54` is on `repo/register-observations-7` (#195) and is the highest `DRF-` on any branch on `origin`, so this is the next free number. Read at `85051cf6c`, and the reading is in the proof's [`shifts.txt`](../../../.plan/reviews/live-region-1/checks/shifts.txt).
