@@ -98,7 +98,11 @@ const SortableListConstructor: Composed<
  *   slot, such as an icon, drags only by its handle, by pointer and by
  *   keyboard. In this list the handle becomes a focusable _Reorder_ button
  *   with `touch-action: none`, keeping the values the consumer set. An item
- *   without a handle drags by its whole surface.
+ *   without a handle drags by its whole surface. A focused handle shows
+ *   Material's focus indicator. A page's own rule on it, such as
+ *   `.grip:focus-visible`, replaces it. A handle that is a custom element with
+ *   an indicator of its own needs such a rule, because the list's rule outranks
+ *   the element's `:host` rule.
  * - **Static items.** An `mx-list-item` without a handle is a tab stop while it
  *   is in this list, and stops being one when it gets a handle or leaves the
  *   list. A `tabindex` the consumer set on it stands. The other items keep

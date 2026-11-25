@@ -1,0 +1,342 @@
+# chromium 158.0.8127.18
+handle in lead | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in lead | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in trail | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in trail | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+two handles, the second in trail | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+two handles, the second in trail | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+nested in a span in trail, tabindex | mx-list-item | Tab: active true, focus-visible true, auto 1px rgb(16, 16, 16) offset 0px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+nested in a span in trail, tabindex | mx-list-button-item | Tab: active true, focus-visible true, auto 1px rgb(16, 16, 16) offset 0px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+data-handle in the label slot, tabindex | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+data-handle in the label slot, tabindex | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+data-handle in support, tabindex | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+data-handle in support, tabindex | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+checkbox with data-handle | mx-list-item | Tab: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px; inner input none 3px rgb(66, 73, 55) offset 0px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px; inner input none 3px rgb(66, 73, 55) offset 0px
+checkbox with data-handle | mx-list-button-item | Tab: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px; inner input none 3px rgb(66, 73, 55) offset 0px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px; inner input none 3px rgb(66, 73, 55) offset 0px
+link with data-handle | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+link with data-handle | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+consumer element, :host(:focus-visible) { outline: none } | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+consumer element, :host(:focus-visible) { outline: none } | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: [data-handle] { outline: none } | mx-list-item | Tab: active true, focus-visible true, none 3px rgb(66, 73, 55) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: [data-handle] { outline: none } | mx-list-button-item | Tab: active true, focus-visible true, none 3px rgb(25, 29, 19) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+page: :focus-visible { outline: 1px solid red } | mx-list-item | Tab: active true, focus-visible true, solid 1px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: :focus-visible { outline: 1px solid red } | mx-list-button-item | Tab: active true, focus-visible true, solid 1px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+page: * { outline: 0 } | mx-list-item | Tab: active true, focus-visible true, none 0px rgb(66, 73, 55) offset 2px | click: active true, focus-visible false, none 0px rgb(66, 73, 55) offset 0px
+page: * { outline: 0 } | mx-list-button-item | Tab: active true, focus-visible true, none 0px rgb(25, 29, 19) offset 2px | click: active true, focus-visible false, none 0px rgb(25, 29, 19) offset 0px
+page: @layer rule | mx-list-item | Tab: active true, focus-visible true, solid 1px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: @layer rule | mx-list-button-item | Tab: active true, focus-visible true, solid 1px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+page: :focus-visible { outline-color: red } | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: :focus-visible { outline-color: red } | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+inline outline: none | mx-list-item | Tab: active true, focus-visible true, none 3px rgb(66, 73, 55) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+inline outline: none | mx-list-button-item | Tab: active true, focus-visible true, none 3px rgb(25, 29, 19) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+handle in plain mx-list, tabindex | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in plain mx-list, tabindex | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+handle in plain mx-list, no tabindex | mx-list-item | Tab: no focus | click: active false, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in plain mx-list, no tabindex | mx-list-button-item | Tab: no focus | click: active false, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+in a nested plain list | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+in a nested plain list | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+## clip
+300px mx-list-item img 100%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item input 100%: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-item input: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item select: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item progress: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item textarea: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item video: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item mx-slider: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item mx-text-field: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item float: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-item grid: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item margins: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item line-height 0.5: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-item height 10px text: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-item width 50%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item max-width 60%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item direct overflow text with ellipsis: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item display contents: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item absolute badge: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item img 100%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item input 100%: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-button-item input: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item select: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item progress: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item textarea: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item video: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item mx-slider: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item mx-text-field: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item float: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-button-item grid: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item margins: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item line-height 0.5: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-button-item height 10px text: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-button-item width 50%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item max-width 60%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item direct overflow text with ellipsis: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item display contents: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item absolute badge: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item img 100%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item input 100%: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-item input: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item select: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item progress: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item textarea: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item video: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item mx-slider: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item mx-text-field: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item float: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-item grid: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item margins: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item line-height 0.5: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-item height 10px text: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-item width 50%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item max-width 60%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item direct overflow text with ellipsis: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item display contents: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item absolute badge: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item img 100%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item input 100%: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-button-item input: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item select: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item progress: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item textarea: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item video: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item mx-slider: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item mx-text-field: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item float: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-button-item grid: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item margins: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item line-height 0.5: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-button-item height 10px text: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-button-item width 50%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item max-width 60%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item direct overflow text with ellipsis: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item display contents: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item absolute badge: same boxes; slot overflows false; page scroll 800 -> 800
+# firefox 159.0
+handle in lead | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in lead | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in trail | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in trail | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+two handles, the second in trail | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+two handles, the second in trail | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+nested in a span in trail, tabindex | mx-list-item | Tab: active true, focus-visible true, auto 1px rgb(66, 73, 55) offset 0px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+nested in a span in trail, tabindex | mx-list-button-item | Tab: active true, focus-visible true, auto 1px rgb(66, 73, 55) offset 0px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+data-handle in the label slot, tabindex | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+data-handle in the label slot, tabindex | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+data-handle in support, tabindex | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+data-handle in support, tabindex | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+checkbox with data-handle | mx-list-item | Tab: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px; inner input none 3px rgb(66, 73, 55) offset 0px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px; inner input none 3px rgb(66, 73, 55) offset 0px
+checkbox with data-handle | mx-list-button-item | Tab: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px; inner input none 3px rgb(66, 73, 55) offset 0px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px; inner input none 3px rgb(66, 73, 55) offset 0px
+link with data-handle | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+link with data-handle | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+consumer element, :host(:focus-visible) { outline: none } | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+consumer element, :host(:focus-visible) { outline: none } | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: [data-handle] { outline: none } | mx-list-item | Tab: active true, focus-visible true, none 3px rgb(66, 73, 55) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: [data-handle] { outline: none } | mx-list-button-item | Tab: active true, focus-visible true, none 3px rgb(25, 29, 19) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+page: :focus-visible { outline: 1px solid red } | mx-list-item | Tab: active true, focus-visible true, solid 1px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: :focus-visible { outline: 1px solid red } | mx-list-button-item | Tab: active true, focus-visible true, solid 1px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+page: * { outline: 0 } | mx-list-item | Tab: active true, focus-visible true, none 0px rgb(66, 73, 55) offset 2px | click: active true, focus-visible false, none 0px rgb(66, 73, 55) offset 0px
+page: * { outline: 0 } | mx-list-button-item | Tab: active true, focus-visible true, none 0px rgb(25, 29, 19) offset 2px | click: active true, focus-visible false, none 0px rgb(25, 29, 19) offset 0px
+page: @layer rule | mx-list-item | Tab: active true, focus-visible true, solid 1px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: @layer rule | mx-list-button-item | Tab: active true, focus-visible true, solid 1px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+page: :focus-visible { outline-color: red } | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: :focus-visible { outline-color: red } | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+inline outline: none | mx-list-item | Tab: active true, focus-visible true, none 3px rgb(66, 73, 55) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+inline outline: none | mx-list-button-item | Tab: active true, focus-visible true, none 3px rgb(25, 29, 19) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+handle in plain mx-list, tabindex | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in plain mx-list, tabindex | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+handle in plain mx-list, no tabindex | mx-list-item | Tab: no focus | click: active false, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in plain mx-list, no tabindex | mx-list-button-item | Tab: no focus | click: active false, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+in a nested plain list | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+in a nested plain list | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+## clip
+300px mx-list-item img 100%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item input 100%: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-item input: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item select: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item progress: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item textarea: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item video: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item mx-slider: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item mx-text-field: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item float: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-item grid: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item margins: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item line-height 0.5: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-item height 10px text: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-item width 50%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item max-width 60%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item direct overflow text with ellipsis: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item display contents: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item absolute badge: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-button-item img 100%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item input 100%: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-button-item input: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item select: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item progress: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item textarea: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item video: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item mx-slider: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item mx-text-field: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item float: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-button-item grid: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item margins: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item line-height 0.5: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-button-item height 10px text: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-button-item width 50%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item max-width 60%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item direct overflow text with ellipsis: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item display contents: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item absolute badge: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-item img 100%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item input 100%: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-item input: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item select: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item progress: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item textarea: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item video: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item mx-slider: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item mx-text-field: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item float: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-item grid: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item margins: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item line-height 0.5: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-item height 10px text: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-item width 50%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item max-width 60%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item direct overflow text with ellipsis: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item display contents: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item absolute badge: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-button-item img 100%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item input 100%: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-button-item input: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item select: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item progress: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item textarea: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item video: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item mx-slider: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item mx-text-field: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item float: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-button-item grid: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item margins: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item line-height 0.5: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-button-item height 10px text: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-button-item width 50%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item max-width 60%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item direct overflow text with ellipsis: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item display contents: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item absolute badge: same boxes; slot overflows true; page scroll 800 -> 800
+# webkit 27.2
+handle in lead | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in lead | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in trail | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in trail | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+two handles, the second in trail | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+two handles, the second in trail | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+nested in a span in trail, tabindex | mx-list-item | Tab: active true, focus-visible true, auto 3px rgb(66, 73, 55) offset 0px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+nested in a span in trail, tabindex | mx-list-button-item | Tab: active true, focus-visible true, auto 3px rgb(66, 73, 55) offset 0px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+data-handle in the label slot, tabindex | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+data-handle in the label slot, tabindex | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+data-handle in support, tabindex | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+data-handle in support, tabindex | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+checkbox with data-handle | mx-list-item | Tab: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px; inner input none 3px rgb(66, 73, 55) offset 0px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px; inner input none 3px rgb(66, 73, 55) offset 0px
+checkbox with data-handle | mx-list-button-item | Tab: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px; inner input none 3px rgb(66, 73, 55) offset 0px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px; inner input none 3px rgb(66, 73, 55) offset 0px
+link with data-handle | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+link with data-handle | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+consumer element, :host(:focus-visible) { outline: none } | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+consumer element, :host(:focus-visible) { outline: none } | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: [data-handle] { outline: none } | mx-list-item | Tab: active true, focus-visible true, none 3px rgb(66, 73, 55) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: [data-handle] { outline: none } | mx-list-button-item | Tab: active true, focus-visible true, none 3px rgb(25, 29, 19) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+page: :focus-visible { outline: 1px solid red } | mx-list-item | Tab: active true, focus-visible true, solid 1px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: :focus-visible { outline: 1px solid red } | mx-list-button-item | Tab: active true, focus-visible true, solid 1px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+page: * { outline: 0 } | mx-list-item | Tab: active true, focus-visible true, none 0px rgb(66, 73, 55) offset 2px | click: active true, focus-visible false, none 0px rgb(66, 73, 55) offset 0px
+page: * { outline: 0 } | mx-list-button-item | Tab: active true, focus-visible true, none 0px rgb(25, 29, 19) offset 2px | click: active true, focus-visible false, none 0px rgb(25, 29, 19) offset 0px
+page: @layer rule | mx-list-item | Tab: active true, focus-visible true, solid 1px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: @layer rule | mx-list-button-item | Tab: active true, focus-visible true, solid 1px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+page: :focus-visible { outline-color: red } | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+page: :focus-visible { outline-color: red } | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(255, 0, 0) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+inline outline: none | mx-list-item | Tab: active true, focus-visible true, none 3px rgb(66, 73, 55) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+inline outline: none | mx-list-button-item | Tab: active true, focus-visible true, none 3px rgb(25, 29, 19) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+handle in plain mx-list, tabindex | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in plain mx-list, tabindex | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+handle in plain mx-list, no tabindex | mx-list-item | Tab: no focus | click: active false, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+handle in plain mx-list, no tabindex | mx-list-button-item | Tab: no focus | click: active false, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+in a nested plain list | mx-list-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(66, 73, 55) offset 0px
+in a nested plain list | mx-list-button-item | Tab: active true, focus-visible true, solid 3px rgb(75, 102, 42) offset 2px | click: active true, focus-visible false, none 3px rgb(25, 29, 19) offset 0px
+## clip
+300px mx-list-item img 100%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item input 100%: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-item input: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item select: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item progress: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item textarea: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item video: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item mx-slider: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item mx-text-field: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item float: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-item grid: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item margins: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item line-height 0.5: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-item height 10px text: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-item width 50%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item max-width 60%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item direct overflow text with ellipsis: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item display contents: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-item absolute badge: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item img 100%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item input 100%: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-button-item input: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item select: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item progress: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item textarea: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item video: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item mx-slider: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item mx-text-field: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item float: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-button-item grid: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item margins: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item line-height 0.5: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-button-item height 10px text: same boxes; slot overflows true; page scroll 800 -> 800
+300px mx-list-button-item width 50%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item max-width 60%: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item direct overflow text with ellipsis: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item display contents: same boxes; slot overflows false; page scroll 800 -> 800
+300px mx-list-button-item absolute badge: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item img 100%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item input 100%: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-item input: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item select: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item progress: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item textarea: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item video: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item mx-slider: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item mx-text-field: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item float: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-item grid: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item margins: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item line-height 0.5: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-item height 10px text: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-item width 50%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item max-width 60%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item direct overflow text with ellipsis: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item display contents: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-item absolute badge: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item img 100%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item input 100%: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-button-item input: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item select: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item progress: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item textarea: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item video: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item mx-slider: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item mx-text-field: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item float: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-button-item grid: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item margins: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item line-height 0.5: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-button-item height 10px text: same boxes; slot overflows true; page scroll 800 -> 800
+120px mx-list-button-item width 50%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item max-width 60%: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item direct overflow text with ellipsis: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item display contents: same boxes; slot overflows false; page scroll 800 -> 800
+120px mx-list-button-item absolute badge: same boxes; slot overflows false; page scroll 800 -> 800
