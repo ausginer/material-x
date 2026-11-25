@@ -1,6 +1,6 @@
 # Findings on GitHub — plan
 
-**Status: accepted by the owner on 2026-11-24, as `repo:RD-56`, with [his answers](#owners-answers). He approved the start of stages 1 and 2 the same day,** relayed by the coordinator, with three clarifications that the plan has: the GraphQL check, a separate `findings.md`, and the longer trial. **Stage 3 isn't approved.** It waits for stages 1 and 2 on `main` and for his word. Stage 1 is on `main` as `8663d722b` (#244), with the rulings on [the review](#stage-1-the-reviews-rulings) and on [its recheck](#stage-1-the-rechecks-rulings). Stage 2 is written on `repo/finding-tool-1` (#250) and reviewed, and [the rulings on that review](#stage-2-the-reviews-rulings) have its remediation. The architect proposed the plan on 2026-11-24 on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this file at `87c55405f`. `RD-56` states what holds [before and after the cut-over](../00-index.md).
+**Status: accepted by the owner on 2026-11-24, as `repo:RD-56`, with [his answers](#owners-answers). He approved the start of stages 1 and 2 the same day,** relayed by the coordinator, with three clarifications that the plan has: the GraphQL check, a separate `findings.md`, and the longer trial. **Stage 3 isn't approved.** It waits for stages 1 and 2 on `main` and for his word. Stage 1 is on `main` as `8663d722b` (#244), with the rulings on [the review](#stage-1-the-reviews-rulings) and on [its recheck](#stage-1-the-rechecks-rulings). Stage 2 is closed on 2026-11-25 on `repo/finding-tool-1` (#250), by [its closure](#stage-2-closed), and merges with it. The architect proposed the plan on 2026-11-24 on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this file at `87c55405f`. `RD-56` states what holds [before and after the cut-over](../00-index.md).
 
 ## The direction
 
@@ -477,6 +477,17 @@ On `repo/finding-tool-1`, two files. Nothing else in them changes.
 **No recheck is owed,** if the diff is these changes and the two probes read as above. The coordinator compares the diff with the list. Another change, or another survivor, comes back to the architect.
 
 **Unread:** a live author with a deleted editor, as the review says, and everything that needs a write. The trial reads the latter.
+
+### Stage 2: closed
+
+**Closed 2026-11-25 by the architect,** on the [feature proof](../reviews/finding-tool-1/feature-proof-claude.md) at `77f5df0e5` and the remediation at `94a5280ba`, requested by the coordinator. `origin/main` at `0dca6e5a0` is merged. #250 merges the stage.
+
+- **No recheck is owed.** From the rulings to `94a5280ba` the diff is the two files of the list, and each change is in it.
+- **The probes,** run by the implementer and read here: with the [mutations](checks/remediation-mutations.txt) the unchanged tool passes 38 rows, the 9 forms that the rulings reject survive, and no other does. The old condition of check 2 fails the new row alone. In the [agreement](checks/remediation-agreement.txt) every disagreement and refusal is 0. The two transcripts are committed as evidence. The two copied probes aren't, as the rulings say. They are the review's [`mutate.ts`](../reviews/finding-tool-1/probes/mutate.ts) and [`agreement.ts`](../reviews/finding-tool-1/probes/agreement.ts) with the repository's root one level nearer, and with `mutate.ts`' check 2 patterns following the new condition.
+- **Read by the architect on the merged tree:** the `repo` Vitest project passes (167 rows), `228` refuses for its labels and `225` with `gh`'s message, and format, oxlint and ESLint pass for the two files.
+- **The root type check passes** (`tsc -p tsconfig.json`, exit 0) with core and drag rebuilt. The implementer's three errors in `sortable-list.ts` were the slot's stale drag build: its declarations, of 2026-11-24 13:32, had the lift callback that `DRD-71` (#235) changed, and the sources didn't. It isn't a defect, and nothing is registered.
+- **What holds after the merge:** the second row of [`RD-56`'s table](../00-index.md) is in force. Nothing changes for a new finding until stage 3, which waits for the owner's word. No `tier:` label exists.
+- **Unread:** as in the rulings.
 
 ## Questions for the owner
 
