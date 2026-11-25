@@ -6841,6 +6841,32 @@ Tier A, **open**, **ready** after #267 and #268 (the last note), pre-existing. R
 
 **A feature proof is owed,** because public behavior changes. **`.agents/docs/accessibility.md`,** whose list section states the rule after the unit, is project documentation, so it has its own pull request, which the coordinator takes: a disabled item can't be reordered, its handle is `aria-disabled` and no tab stop, and the page's own controls in it are the page's to disable. Nothing is the owner's to answer.
 
+**Dated 2026-11-25 by the implementer: implemented on `material-x/disabled-item-1` at `754e2089f`, for #271, from `main` at `ca6918376`, and not closed.** Requested by the coordinator. `main` at `8bed561de` (#269, #274) is merged without a conflict. No stop was met: drag, `mx-list`, the items' code and `styles/sortable/tokens.ts` don't change.
+
+- **Source:** the candidate's rule and observer. Its `release` by name isn't used: `claim` takes `null` for a value that the item doesn't have now, and what the item owns is a set and not an array. `isDisabled` is the one rule, for the admission and the semantics.
+- **Texts:** as written, in the three JSDocs and in `list.mdx`.
+- **Rows:** 32 in `sortable-list.browser.test.ts`, and the superseded row of `sortable-list.spec` is replaced. Beyond the list: a pointer drag whose item is disabled goes on, and the semantics of an `mx-list-item` with the attribute. A row of the page's values also covers `aria-disabled`.
+- **Witnesses,** one engine at a time, each with the same rows in Chromium, Firefox and WebKit ([reading](disabled-item-1/checks/witnesses.txt), [probe](disabled-item-1/probes/mutate.mjs)). Unmutated 193, 183 and 193 pass:
+
+  | Change | Rows that fail |
+  | --- | --- |
+  | The admission's rule out | 10: the eight of pointer and key, and the two of the focused handle |
+  | The semantics' rule out | 12: Tab's, the attributes' and the description's |
+  | No observer | 4: the attributes and the description after it is disabled |
+  | The tab index removed instead of `-1` | 11, among them the focus row of a `span` |
+  | The operation ended when its item is disabled | 3: the handler's two, and the drag's |
+  | The attribute read on any item | 2 |
+  | `:not(:state(disabled))` out | 1, the spec row |
+  | A page's value replaced | 4 |
+  | A page's value removed on enabling | 1 |
+
+  With the tab index removed, the Tab row of a `span` passes, because a `span` without one is no tab stop.
+
+- **Firefox's link items:** `RF-76` and the spec file say that a pointer drag doesn't lift one there. With the admission's rule out, the two pointer rows of a link item fail in Firefox as elsewhere, so they aren't blind there. Why wasn't read.
+- **Size, Brotli** ([sizes](disabled-item-1/checks/sizes.txt)): `list/sortable-list` 9092 to 9182 (+90), `complete` 25813 to 25880 (+67). No other row moves.
+- **Checks:** at `754e2089f`'s sources, material-x without the visual project in Chromium (42 files), the declarations' typecheck, publint, `docs-build` and `docs-smoke`. On the merged tree, `tests/list` in Chromium (402), Firefox (390, 2 skipped) and WebKit (400, 2 skipped), typecheck, lint, the size gate and the root format check. No baseline changes.
+- **Not here:** `accessibility.md`, by the list.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
