@@ -173,6 +173,7 @@ describe('mx-split-button open', () => {
 
     for (const open of [true, false, true]) {
       splitButton.open = open;
+      // oxlint-disable-next-line no-await-in-loop -- one change per step
       await nextFrame();
       readings.push(
         getTrailingButton(splitButton).getAttribute('aria-expanded'),
@@ -312,7 +313,9 @@ describe('mx-split-button disabled', () => {
     const events: string[] = [];
 
     for (const type of ['click', 'secondaryaction']) {
-      splitButton.addEventListener(type, () => events.push(type));
+      splitButton.addEventListener(type, () => {
+        events.push(type);
+      });
     }
 
     return events;
@@ -349,6 +352,7 @@ describe('mx-split-button disabled', () => {
     const stops: Array<string | null> = [];
 
     for (let i = 0; i < count; i += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- one key press per step
       await userEvent.keyboard(TAB);
       stops.push(focusedPart(splitButton));
     }
