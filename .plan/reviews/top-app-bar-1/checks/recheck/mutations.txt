@@ -1,0 +1,50 @@
+Mutations beside the implementer's, at 8f5ad01db, in Chromium, Firefox and WebKit together, with the first six rows that fail.
+## clean: passed 227 failed 0
+## the check around the show only: passed 227 failed 0
+## the check around the observe only: passed 179 failed 48
+   3x scrolled state should be off at the document's start
+   3x scrolled state should be on after 1px
+   3x scrolled state should be on after a jump to the end
+   3x scrolled state should be off again at the start
+   3x scrolled state should match the start when the bar reconnects there
+   3x scrolled state should match the start when a bar removed as it connected is inserted there
+## the check inverted to a throw swallowed: passed 224 failed 3
+   3x scrolled state should report no error when another element removes the bar as it connects
+## the observer is not disconnected: passed 224 failed 3
+   3x scrolled state should keep its value while the bar is disconnected
+## entries[0]: passed 227 failed 0
+## popover auto: passed 227 failed 0
+## box without visibility hidden: passed 227 failed 0
+## box with the user agent margin: passed 188 failed 39
+   3x scrolled state should be on after 1px
+   3x scrolled state should match the start when a bar removed as it connected is inserted there
+   3x scrolled state should follow the scroll position with html { margin-top: 46px; }
+   3x scrolled state should follow the scroll position with html { position: relative; top: 20px; }
+   3x scrolled state should follow the scroll position with body { position: absolute; inset: 0 0 auto; }
+   3x scrolled state should follow the scroll position with html { height: 0; }
+## box with the user agent border: passed 209 failed 18
+   3x scrolled state should be on after 1px
+   3x scrolled state should follow the scroll position with html { margin-top: 46px; }
+   3x scrolled state should follow the scroll position with html { position: relative; top: 20px; }
+   3x scrolled state should follow the scroll position with body { position: absolute; inset: 0 0 auto; }
+   3x scrolled state should follow the scroll position with html { height: 0; }
+   3x scrolled state should follow the scroll position with html { height: 100%; }
+## box with the user agent padding: passed 209 failed 18
+   3x scrolled state should be on after 1px
+   3x scrolled state should follow the scroll position with html { margin-top: 46px; }
+   3x scrolled state should follow the scroll position with html { position: relative; top: 20px; }
+   3x scrolled state should follow the scroll position with body { position: absolute; inset: 0 0 auto; }
+   3x scrolled state should follow the scroll position with html { height: 0; }
+   3x scrolled state should follow the scroll position with html { height: 100%; }
+## box fixed: passed 170 failed 57
+   3x scrolled state should be on after 1px
+   3x scrolled state should be on after a jump to the end
+   3x scrolled state should be on when the bar connects to a scrolled page
+   3x scrolled state should match a scrolled position when the bar reconnects there
+   3x scrolled state should match the start when a bar removed as it connected is inserted there
+   3x scrolled state should match a scrolled position when a bar removed as it connected is inserted there
+## box with the user agent size: passed 227 failed 0
+## a bottom margin of -100%: passed 227 failed 0
+## a bottom margin of 10px: passed 227 failed 0
+## show deferred by a microtask: passed 227 failed 0
+DONE

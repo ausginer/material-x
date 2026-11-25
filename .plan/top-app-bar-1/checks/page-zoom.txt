@@ -1,0 +1,66 @@
+Read at 634dae5ef's source (9bf471bd8), as built in the slot.
+# webkit 27.2, headless
+## The state under a page zoom, set before the page and after it
+page | page zoom 1, set before, dpr 1.00 | right | pinned
+page | page zoom 1, set after, dpr 1.00 | on at 300 when the zoom is set | right | pinned
+page | page zoom 0.5, set before, dpr 0.50 | right | pinned
+page | page zoom 0.5, set after, dpr 0.50 | on at 300 when the zoom is set | right | pinned
+page | page zoom 0.75, set before, dpr 0.75 | right | pinned
+page | page zoom 0.75, set after, dpr 0.75 | on at 300 when the zoom is set | right | pinned
+page | page zoom 0.9, set before, dpr 0.90 | right | pinned
+page | page zoom 0.9, set after, dpr 0.90 | on at 300 when the zoom is set | right | pinned
+page | page zoom 1.1, set before, dpr 1.10 | right | pinned | scrollY 0 at -0.91
+page | page zoom 1.1, set after, dpr 1.10 | on at 300 when the zoom is set | right | pinned | scrollY 0 at -0.91
+page | page zoom 1.15, set before, dpr 1.15 | right | pinned | scrollY 0 at -0.87
+page | page zoom 1.15, set after, dpr 1.15 | on at 300 when the zoom is set | right | pinned | scrollY 0 at -0.87
+page | page zoom 1.25, set before, dpr 1.25 | right | pinned | scrollY 0 at -0.80
+page | page zoom 1.25, set after, dpr 1.25 | on at 300 when the zoom is set | right | pinned | scrollY 0 at -0.80
+page | page zoom 1.5, set before, dpr 1.50 | right | pinned | scrollY 0 at -0.67
+page | page zoom 1.5, set after, dpr 1.50 | on at 300 when the zoom is set | right | pinned | scrollY 0 at -0.67
+page | page zoom 1.75, set before, dpr 1.75 | WRONG off@-0.57 | pinned | scrollY 0 at -0.57
+page | page zoom 1.75, set after, dpr 1.75 | on at 300 when the zoom is set | WRONG off@-0.57 | pinned | scrollY 0 at -0.57
+page | page zoom 2, set before, dpr 2.00 | right | pinned
+page | page zoom 2, set after, dpr 2.00 | on at 300 when the zoom is set | right | pinned
+page | page zoom 2.5, set before, dpr 2.50 | right | pinned | scrollY 0 at -0.80
+page | page zoom 2.5, set after, dpr 2.50 | on at 300 when the zoom is set | right | pinned | scrollY 0 at -0.80
+page | page zoom 3, set before, dpr 3.00 | right | pinned
+page | page zoom 3, set after, dpr 3.00 | on at 300 when the zoom is set | right | pinned
+frame | page zoom 1, set before, dpr 1.00 | right | pinned
+frame | page zoom 1, set after, dpr 1.00 | on at 300 when the zoom is set | right | pinned
+frame | page zoom 0.5, set before, dpr 0.50 | right | pinned
+frame | page zoom 0.5, set after, dpr 0.50 | on at 300 when the zoom is set | right | pinned
+frame | page zoom 0.75, set before, dpr 0.75 | right | pinned
+frame | page zoom 0.75, set after, dpr 0.75 | on at 300 when the zoom is set | right | pinned
+frame | page zoom 0.9, set before, dpr 0.90 | right | pinned
+frame | page zoom 0.9, set after, dpr 0.90 | on at 300 when the zoom is set | right | pinned
+frame | page zoom 1.1, set before, dpr 1.10 | right | pinned | scrollY 0 at -0.91
+frame | page zoom 1.1, set after, dpr 1.10 | on at 300 when the zoom is set | right | pinned | scrollY 0 at -0.91
+frame | page zoom 1.15, set before, dpr 1.15 | right | pinned | scrollY 0 at -0.87
+frame | page zoom 1.15, set after, dpr 1.15 | on at 300 when the zoom is set | right | pinned | scrollY 0 at -0.87
+frame | page zoom 1.25, set before, dpr 1.25 | right | pinned | scrollY 0 at -0.80
+frame | page zoom 1.25, set after, dpr 1.25 | on at 300 when the zoom is set | right | pinned | scrollY 0 at -0.80
+frame | page zoom 1.5, set before, dpr 1.50 | right | pinned | scrollY 0 at -0.67
+frame | page zoom 1.5, set after, dpr 1.50 | on at 300 when the zoom is set | right | pinned | scrollY 0 at -0.67
+frame | page zoom 1.75, set before, dpr 1.75 | WRONG off@-0.57 | pinned | scrollY 0 at -0.57
+frame | page zoom 1.75, set after, dpr 1.75 | on at 300 when the zoom is set | WRONG off@-0.57 | pinned | scrollY 0 at -0.57
+frame | page zoom 2, set before, dpr 2.00 | right | pinned
+frame | page zoom 2, set after, dpr 2.00 | on at 300 when the zoom is set | right | pinned
+frame | page zoom 2.5, set before, dpr 2.50 | right | pinned | scrollY 0 at -0.80
+frame | page zoom 2.5, set after, dpr 2.50 | on at 300 when the zoom is set | right | pinned | scrollY 0 at -0.80
+frame | page zoom 3, set before, dpr 3.00 | right | pinned
+frame | page zoom 3, set after, dpr 3.00 | on at 300 when the zoom is set | right | pinned
+## A frame with a CSS zoom: what pins, and what is drawn
+the bar | frame zoom 1 | @0 sticky 0 off drawn, @20 sticky 0 on drawn, @150 sticky 0 on drawn, @300 sticky 0 on drawn, @600 sticky 0 on drawn, @1500 sticky 0 on drawn
+the bar | frame zoom 0.5 | @0 sticky 0 off drawn, @20 sticky 0 on drawn, @150 sticky 0 on drawn, @300 sticky 0 on drawn, @600 sticky 0 on drawn, @1500 sticky 0 on drawn
+the bar | frame zoom 1.1 | @0 sticky 0 off drawn, @20 sticky -20 off drawn, @150 sticky -30 on drawn, @300 sticky -30 on drawn, @600 sticky -30 on drawn, @1500 sticky -30 on drawn
+the bar | frame zoom 1.5 | @0 sticky 0 off drawn, @20 sticky -20 off drawn, @150 sticky -150 off NOT DRAWN, @300 sticky -150 on NOT DRAWN, @600 sticky -150 on NOT DRAWN, @1500 sticky -150 on NOT DRAWN
+the bar | frame zoom 2 | @0 sticky 0 off drawn, @20 sticky -20 off drawn, @150 sticky -150 off NOT DRAWN, @300 sticky -300 off NOT DRAWN, @600 sticky -300 on NOT DRAWN, @1500 sticky -300 on NOT DRAWN
+the bar | frame zoom 3 | @0 sticky 0 off drawn, @20 sticky -20 off drawn, @150 sticky -150 off NOT DRAWN, @300 sticky -300 off NOT DRAWN, @600 sticky -600 off NOT DRAWN, @1500 sticky -600 on NOT DRAWN
+a page with no bar | frame zoom 1 | @0 sticky 0 fixed 0 drawn, @20 sticky 0 fixed 0 drawn, @150 sticky 0 fixed 0 drawn, @300 sticky 0 fixed 0 drawn, @600 sticky 0 fixed 0 drawn, @1500 sticky 0 fixed 0 drawn
+a page with no bar | frame zoom 0.5 | @0 sticky 0 fixed 0 drawn, @20 sticky 0 fixed 0 drawn, @150 sticky 0 fixed 0 drawn, @300 sticky 0 fixed 0 drawn, @600 sticky 0 fixed 0 drawn, @1500 sticky 0 fixed 0 drawn
+a page with no bar | frame zoom 1.1 | @0 sticky 0 fixed 0 drawn, @20 sticky -20 fixed -20 drawn, @150 sticky -30 fixed -30 drawn, @300 sticky -30 fixed -30 drawn, @600 sticky -30 fixed -30 drawn, @1500 sticky -30 fixed -30 drawn
+a page with no bar | frame zoom 1.5 | @0 sticky 0 fixed 0 drawn, @20 sticky -20 fixed -20 drawn, @150 sticky -150 fixed -150 NOT DRAWN, @300 sticky -150 fixed -150 NOT DRAWN, @600 sticky -150 fixed -150 NOT DRAWN, @1500 sticky -150 fixed -150 NOT DRAWN
+a page with no bar | frame zoom 2 | @0 sticky 0 fixed 0 drawn, @20 sticky -20 fixed -20 drawn, @150 sticky -150 fixed -150 NOT DRAWN, @300 sticky -300 fixed -300 NOT DRAWN, @600 sticky -300 fixed -300 NOT DRAWN, @1500 sticky -300 fixed -300 NOT DRAWN
+a page with no bar | frame zoom 3 | @0 sticky 0 fixed 0 drawn, @20 sticky -20 fixed -20 drawn, @150 sticky -150 fixed -150 NOT DRAWN, @300 sticky -300 fixed -300 NOT DRAWN, @600 sticky -600 fixed -600 NOT DRAWN, @1500 sticky -600 fixed -600 NOT DRAWN
+# webkit 27.2, headed
+The headed (GTK) reading equals the headless (WPE) one in every line after the first.

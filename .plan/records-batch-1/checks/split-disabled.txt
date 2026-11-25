@@ -1,0 +1,75 @@
+
+# chromium 158.0.8127.18
+enabled
+  leading: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives click
+  trailing: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives secondaryaction
+  Tab twice: mx-split-button>leading>impl, mx-split-button>trailing>impl; Enter on each gives click+secondaryaction
+disabled attribute
+  leading: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives none
+  trailing: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives secondaryaction
+  Tab twice: mx-split-button>leading>impl, mx-split-button>trailing>impl; Enter on each gives click+secondaryaction
+disabled set later
+  leading: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives none
+  trailing: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives secondaryaction
+  Tab twice: mx-split-button>leading>impl, mx-split-button>trailing>impl; Enter on each gives click+secondaryaction
+in a disabled fieldset
+  leading: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives none
+  trailing: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives secondaryaction
+  Tab twice: mx-split-button>leading>impl, mx-split-button>trailing>impl; Enter on each gives click+secondaryaction
+disabled, and the inner group disabled by script
+  leading: button.disabled true, :state(disabled) true, background color(srgb 0.0980392 0.113725 0.0745098 / 0.1), a click gives none
+  trailing: button.disabled true, :state(disabled) true, background color(srgb 0.0980392 0.113725 0.0745098 / 0.1), a click gives none
+  Tab twice: body, button; Enter on each gives none
+mx-button, disabled
+  mx-button: button.disabled true, :state(disabled) true, background color(srgb 0.0980392 0.113725 0.0745098 / 0.1), a click gives none
+  Tab twice: body, button; Enter on each gives none
+
+# firefox 159.0
+enabled
+  leading: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives click
+  trailing: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives secondaryaction
+  Tab twice: mx-split-button>leading>impl, mx-split-button>trailing>impl; Enter on each gives click+secondaryaction
+disabled attribute
+  leading: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives none
+  trailing: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives secondaryaction
+  Tab twice: mx-split-button>leading>impl, mx-split-button>trailing>impl; Enter on each gives secondaryaction
+disabled set later
+  leading: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives none
+  trailing: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives secondaryaction
+  Tab twice: mx-split-button>leading>impl, mx-split-button>trailing>impl; Enter on each gives secondaryaction
+in a disabled fieldset
+  leading: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives none
+  trailing: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives secondaryaction
+  Tab twice: mx-split-button>leading>impl, mx-split-button>trailing>impl; Enter on each gives secondaryaction
+disabled, and the inner group disabled by script
+  leading: button.disabled true, :state(disabled) true, background color(srgb 0.0980392 0.113726 0.0745098 / 0.1), a click gives none
+  trailing: button.disabled true, :state(disabled) true, background color(srgb 0.0980392 0.113726 0.0745098 / 0.1), a click gives none
+  Tab twice: body, button; Enter on each gives none
+mx-button, disabled
+  mx-button: button.disabled true, :state(disabled) true, background color(srgb 0.0980392 0.113726 0.0745098 / 0.1), a click gives none
+  Tab twice: body, button; Enter on each gives none
+
+# webkit 27.2
+enabled
+  leading: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives click
+  trailing: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives secondaryaction
+  Tab twice: mx-split-button>leading>impl, mx-split-button>trailing>impl; Enter on each gives click+secondaryaction
+disabled attribute
+  leading: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives none
+  trailing: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives secondaryaction
+  Tab twice: mx-split-button>leading>impl, mx-split-button>trailing>impl; Enter on each gives secondaryaction
+disabled set later
+  leading: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives none
+  trailing: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives secondaryaction
+  Tab twice: mx-split-button>leading>impl, mx-split-button>trailing>impl; Enter on each gives secondaryaction
+in a disabled fieldset
+  leading: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives none
+  trailing: button.disabled false, :state(disabled) false, background rgb(62, 103, 0), a click gives secondaryaction
+  Tab twice: mx-split-button>leading>impl, mx-split-button>trailing>impl; Enter on each gives secondaryaction
+disabled, and the inner group disabled by script
+  leading: button.disabled true, :state(disabled) true, background color(srgb 0.098039 0.113725 0.07451 / 0.1), a click gives none
+  trailing: button.disabled true, :state(disabled) true, background color(srgb 0.098039 0.113725 0.07451 / 0.1), a click gives none
+  Tab twice: body, button; Enter on each gives none
+mx-button, disabled
+  mx-button: button.disabled true, :state(disabled) true, background color(srgb 0.098039 0.113725 0.07451 / 0.1), a click gives none
+  Tab twice: body, button; Enter on each gives none

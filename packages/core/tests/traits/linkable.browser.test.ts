@@ -1,9 +1,10 @@
 import { describe, expect, it, vi, type Mock } from 'vitest';
+import { useARIA } from '../../src/controllers/useARIA.ts';
 import {
   useDisableableLinkable,
   useLinkable,
 } from '../../src/traits/linkable.ts';
-import { host } from '../browser.ts';
+import { host, nextFrame } from '../browser.ts';
 
 const LINKABLE_ATTRS = ['href', 'target'] as const;
 const DISABLEABLE_LINKABLE_ATTRS = [
@@ -107,7 +108,7 @@ describe('useDisableableLinkable', () => {
     expect(native).not.toHaveAttribute('href');
   });
 
-  it('should restore host-provided tabindex and aria-disabled when re-enabled', () => {
+  it('should restore host-provided tabindex when re-enabled', () => {
     const native = document.createElement('a');
     const el = host(
       (h) => {
@@ -118,17 +119,63 @@ describe('useDisableableLinkable', () => {
       { observed: DISABLEABLE_LINKABLE_ATTRS },
     );
 
-    el.setAttribute('aria-disabled', 'false');
     el.setAttribute('tabindex', '3');
     el.setAttribute('disabled', '');
 
-    expect(native.ariaDisabled).toBe('true');
     expect(native.tabIndex).toBe(-1);
 
     el.removeAttribute('disabled');
 
-    expect(native.ariaDisabled).toBe('false');
     expect(native).toHaveAttribute('tabindex', '3');
+  });
+
+  it('should leave a host-provided aria-disabled on a mirrored anchor when re-enabled, and none after the host loses it', async () => {
+    const native = document.createElement('a');
+    const el = host(
+      (h) => {
+        useLinkable(h, native);
+        useARIA(h, native);
+        useDisableableLinkable(h, native);
+        h.append(native);
+      },
+      { observed: DISABLEABLE_LINKABLE_ATTRS },
+    );
+
+    document.body.append(el);
+    el.setAttribute('aria-disabled', 'false');
+    el.setAttribute('disabled', '');
+    await nextFrame();
+    el.removeAttribute('disabled');
+    await nextFrame();
+
+    expect(native.ariaDisabled).toBe('false');
+
+    el.removeAttribute('aria-disabled');
+    await nextFrame();
+
+    expect(native).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('should give a disabled mirrored anchor its own aria-disabled after the host gets and loses one', async () => {
+    const native = document.createElement('a');
+    const el = host(
+      (h) => {
+        useLinkable(h, native);
+        useARIA(h, native);
+        useDisableableLinkable(h, native);
+        h.append(native);
+      },
+      { observed: DISABLEABLE_LINKABLE_ATTRS },
+    );
+
+    document.body.append(el);
+    el.setAttribute('disabled', '');
+    el.setAttribute('aria-disabled', 'false');
+    await nextFrame();
+    el.removeAttribute('aria-disabled');
+    await nextFrame();
+
+    expect(native).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('should prevent disabled click activation', () => {

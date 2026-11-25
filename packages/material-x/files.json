@@ -20,7 +20,8 @@
     "radio/radio",
     "slider/slider",
     "text-field/multiline-text-field",
-    "text-field/text-field"
+    "text-field/text-field",
+    "top-app-bar/top-app-bar"
   ],
   "typeOnly": ["react"],
   "clean": {

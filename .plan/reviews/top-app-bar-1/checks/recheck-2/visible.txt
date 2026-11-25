@@ -1,0 +1,28 @@
+Read at 634dae5ef, the packages rebuilt.
+# chromium 158.0.8127.18
+light | hidden, as built | pixel 204,0,0 | hit button/button | the button's clicks 1
+light | hidden, 0px | pixel 204,0,0 | hit button/button | the button's clicks 1
+light | visible, 0px | pixel 204,0,0 | hit button/button | the button's clicks 1
+light | visible, 1px | pixel 255,255,255 | hit mx-top-app-bar/scroll-start | the button's clicks 0
+dark | hidden, as built | pixel 204,0,0 | hit button/button | the button's clicks 1
+dark | hidden, 0px | pixel 204,0,0 | hit button/button | the button's clicks 1
+dark | visible, 0px | pixel 204,0,0 | hit button/button | the button's clicks 1
+dark | visible, 1px | pixel 18,18,18 | hit mx-top-app-bar/scroll-start | the button's clicks 0
+# firefox 159.0
+light | hidden, as built | pixel 204,0,0 | hit button/undefined | the button's clicks 1
+light | hidden, 0px | pixel 204,0,0 | hit button/undefined | the button's clicks 1
+light | visible, 0px | pixel 204,0,0 | hit button/undefined | the button's clicks 1
+light | visible, 1px | pixel 255,255,255 | hit mx-top-app-bar/scroll-start | the button's clicks 0
+dark | hidden, as built | pixel 204,0,0 | hit button/undefined | the button's clicks 1
+dark | hidden, 0px | pixel 204,0,0 | hit button/undefined | the button's clicks 1
+dark | visible, 0px | pixel 204,0,0 | hit button/undefined | the button's clicks 1
+dark | visible, 1px | pixel 28,27,34 | hit mx-top-app-bar/scroll-start | the button's clicks 0
+# webkit 27.2
+light | hidden, as built | pixel 173,0,0 | hit button/button | the button's clicks 1
+light | hidden, 0px | pixel 173,0,0 | hit button/button | the button's clicks 1
+light | visible, 0px | pixel 173,0,0 | hit button/button | the button's clicks 1
+light | visible, 1px | pixel 217,217,217 | hit mx-top-app-bar/scroll-start | the button's clicks 0
+dark | hidden, as built | pixel 211,38,38 | hit button/button | the button's clicks 1
+dark | hidden, 0px | pixel 211,38,38 | hit button/button | the button's clicks 1
+dark | visible, 0px | pixel 211,38,38 | hit button/button | the button's clicks 1
+dark | visible, 1px | pixel 63,63,63 | hit mx-top-app-bar/scroll-start | the button's clicks 0

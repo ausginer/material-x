@@ -1,0 +1,180 @@
+## chromium 158.0.8127.18
+# box
+top level: 0:off 1:on 0:off 300:on 2000:on 0:off
+fractional positions: 0:off 0:off 0:off 1:on 1:on 1:on 1:on 0:off
+calls of each state in the walk: 7
+reduced motion: 0:off 1:on 0:off 300:on 2000:on 0:off
+frame: 0:off 1:on 0:off 300:on 2000:on 0:off
+frame, its page scrolled: 0:off 1:on 0:off 300:on 2000:on 0:off
+page that does not scroll: 0:off 0:off
+  then grows: 0:off 1:on 0:off 300:on 2000:on 0:off
+  then shrinks while scrolled: 0:false
+disconnect at 300: 300:on
+  reconnect at 0: 0:off
+  reconnect at 300: 364:true
+in its own scroll container, scrolled: false
+slotted content's own animation: false 0:off 1:on 0:off 300:on 2000:on 0:off
+visible to a page: document.getAnimations() 0, with subtree from the bar 0, the shadow root's 0
+screenshot at 0, animations disabled: the bar is 0,0,255; then false
+screenshot at 0, animations allow: the bar is 0,0,255; then false
+screenshot at 300, animations disabled: the bar is 255,0,0; then true
+screenshot at 300, animations allow: the bar is 255,0,0; then true
+page with a focused field and an open auto popover, when a bar connects: {
+  focused: 'i',
+  popoverOpen: true,
+  events: 'none',
+  boxOpen: true,
+  size: '1280x5149',
+  hit: 'x-bar2',
+  modalFocus: 'button',
+  hideShowAt0: 'false false',
+  connectedHidden: true,
+  thenShownAt0: false
+}
+reload: 1500:true
+# animation
+top level: 0:off 1:on 0:off 300:on 2000:on 0:off
+fractional positions: 0:off 0:off 0:off 1:on 1:on 1:on 1:on 0:off
+calls of each state in the walk: 7
+reduced motion: 0:off 1:on 0:off 300:on 2000:on 0:off
+frame: 0:off 1:on 0:off 300:on 2000:on 0:off
+frame, its page scrolled: 0:off 1:on 0:off 300:on 2000:on 0:off
+page that does not scroll: 0:off 0:off
+  then grows: 0:off 1:on 0:off 300:on 2000:on 0:off
+  then shrinks while scrolled: 0:true
+disconnect at 300: 300:on
+  reconnect at 0: 0:off
+  reconnect at 300: 364:true
+in its own scroll container, scrolled: false
+slotted content's own animation: false 0:off 1:on 0:off 300:on 2000:on 0:off
+visible to a page: document.getAnimations() 0, with subtree from the bar 0, the shadow root's 1
+screenshot at 0, animations disabled: the bar is 0,0,255; then false
+screenshot at 0, animations allow: the bar is 0,0,255; then false
+screenshot at 300, animations disabled: the bar is 255,0,0; then true
+screenshot at 300, animations allow: the bar is 255,0,0; then true
+reload: 1500:true
+1000 steps, none: style recalcs 0, layouts 0, script 5.5ms, style 0.0ms, task 335ms
+1000 steps, observer: style recalcs 0, layouts 0, script 5.0ms, style 0.0ms, task 311ms
+1000 steps, box: style recalcs 0, layouts 0, script 4.7ms, style 0.0ms, task 293ms
+1000 steps, animation: style recalcs 999, layouts 0, script 5.0ms, style 10.6ms, task 330ms
+1000 steps, listener: style recalcs 0, layouts 0, script 20.8ms, style 0.0ms, task 311ms
+1000 steps, none: style recalcs 0, layouts 0, script 5.1ms, style 0.0ms, task 292ms
+1000 steps, observer: style recalcs 0, layouts 0, script 5.2ms, style 0.0ms, task 304ms
+1000 steps, box: style recalcs 0, layouts 0, script 4.9ms, style 0.0ms, task 301ms
+1000 steps, animation: style recalcs 999, layouts 0, script 5.0ms, style 10.6ms, task 321ms
+1000 steps, listener: style recalcs 0, layouts 0, script 18.5ms, style 0.0ms, task 295ms
+1000 steps, none: style recalcs 0, layouts 0, script 5.5ms, style 0.0ms, task 307ms
+1000 steps, observer: style recalcs 0, layouts 0, script 5.0ms, style 0.0ms, task 301ms
+1000 steps, box: style recalcs 0, layouts 0, script 5.1ms, style 0.0ms, task 311ms
+1000 steps, animation: style recalcs 999, layouts 0, script 4.8ms, style 10.4ms, task 308ms
+1000 steps, listener: style recalcs 0, layouts 0, script 18.5ms, style 0.0ms, task 317ms
+## firefox 159.0
+# box
+top level: 0:off 1:on 0:off 300:on 2000:on 0:off
+fractional positions: 0:off 0.25:on 0.4:on 0.5:on 0.6:on 0.75:on 1:on 0:off
+calls of each state in the walk: 7
+reduced motion: 0:off 1:on 0:off 300:on 2000:on 0:off
+frame: 0:off 1:on 0:off 300:on 2000:on 0:off
+frame, its page scrolled: 0:off 1:on 0:off 300:on 2000:on 0:off
+page that does not scroll: 0:off 0:off
+  then grows: 0:off 1:on 0:off 300:on 2000:on 0:off
+  then shrinks while scrolled: 0:false
+disconnect at 300: 300:on
+  reconnect at 0: 0:off
+  reconnect at 300: 364:true
+in its own scroll container, scrolled: false
+slotted content's own animation: false 0:off 1:on 0:off 300:on 2000:on 0:off
+visible to a page: document.getAnimations() 0, with subtree from the bar 0, the shadow root's 0
+screenshot at 0, animations disabled: the bar is 0,0,255; then false
+screenshot at 0, animations allow: the bar is 0,0,255; then false
+screenshot at 300, animations disabled: the bar is 255,0,0; then true
+screenshot at 300, animations allow: the bar is 255,0,0; then true
+page with a focused field and an open auto popover, when a bar connects: {
+  focused: 'i',
+  popoverOpen: true,
+  events: 'none',
+  boxOpen: true,
+  size: '1280x5151',
+  hit: 'x-bar2',
+  modalFocus: 'button',
+  hideShowAt0: 'false false',
+  connectedHidden: true,
+  thenShownAt0: false
+}
+reload: 1500:true
+# animation
+top level: 0:off 1:on 0:off 300:on 2000:on 0:off
+fractional positions: 0:off 0.25:off 0.4:off 0.5:off 0.6:on 0.75:on 1:on 0:off
+calls of each state in the walk: 7
+reduced motion: 0:off 1:on 0:off 300:on 2000:on 0:off
+frame: 0:off 1:on 0:off 300:on 2000:on 0:off
+frame, its page scrolled: 0:off 1:on 0:off 300:on 2000:on 0:off
+page that does not scroll: 0:off 0:off
+  then grows: 0:off 1:on 0:off 300:on 2000:on 0:off
+  then shrinks while scrolled: 0:false
+disconnect at 300: 300:on
+  reconnect at 0: 0:off
+  reconnect at 300: 364:true
+in its own scroll container, scrolled: false
+slotted content's own animation: false 0:off 1:on 0:off 300:on 2000:on 0:off
+visible to a page: document.getAnimations() 0, with subtree from the bar 0, the shadow root's 1
+screenshot at 0, animations disabled: the bar is 255,0,0; then true
+screenshot at 0, animations allow: the bar is 255,0,0; then true
+screenshot at 300, animations disabled: the bar is 255,0,0; then true
+screenshot at 300, animations allow: the bar is 255,0,0; then true
+reload: 1500:true
+## webkit 27.2
+# box
+top level: 0:off 1:on 0:off 300:on 2000:on 0:off
+fractional positions: 0:off 0:off 0:off 0:off 0:off 0:off 1:on 0:off
+calls of each state in the walk: 7
+reduced motion: 0:off 1:on 0:off 300:on 2000:on 0:off
+frame: 0:off 1:on 0:off 300:on 2000:on 0:off
+frame, its page scrolled: 0:off 1:on 0:off 300:on 2000:on 0:off
+page that does not scroll: 0:off 0:off
+  then grows: 0:off 1:on 0:off 300:on 2000:on 0:off
+  then shrinks while scrolled: 0:false
+disconnect at 300: 300:on
+  reconnect at 0: 0:off
+  reconnect at 300: 364:true
+in its own scroll container, scrolled: false
+slotted content's own animation: false 0:off 1:on 0:off 300:on 2000:on 0:off
+visible to a page: document.getAnimations() 0, with subtree from the bar 0, the shadow root's 0
+screenshot at 0, animations disabled: the bar is 0,0,255; then false
+screenshot at 0, animations allow: the bar is 0,0,255; then false
+screenshot at 300, animations disabled: the bar is 255,0,0; then true
+screenshot at 300, animations allow: the bar is 255,0,0; then true
+page with a focused field and an open auto popover, when a bar connects: {
+  focused: 'i',
+  popoverOpen: true,
+  events: 'none',
+  boxOpen: true,
+  size: '1280x5155',
+  hit: 'x-bar2',
+  modalFocus: 'button',
+  hideShowAt0: 'false false',
+  connectedHidden: true,
+  thenShownAt0: false
+}
+reload: 0:false
+# animation
+top level: 0:off 1:on 0:off 300:on 2000:on 0:off
+fractional positions: 0:off 0:off 0:off 0:off 0:off 0:off 1:on 0:off
+calls of each state in the walk: 7
+reduced motion: 0:off 1:on 0:off 300:on 2000:on 0:off
+frame: 0:off 1:on 0:off 300:on 2000:on 0:off
+frame, its page scrolled: 0:off 1:on 0:off 300:on 2000:on 0:off
+page that does not scroll: 0:off 0:off
+  then grows: 0:off 1:on 0:off 300:on 2000:on 0:off
+  then shrinks while scrolled: 0:true
+disconnect at 300: 300:on
+  reconnect at 0: 0:off
+  reconnect at 300: 364:true
+in its own scroll container, scrolled: false
+slotted content's own animation: false 0:off 1:on 0:off 300:on 2000:on 0:off
+visible to a page: document.getAnimations() 0, with subtree from the bar 0, the shadow root's 1
+screenshot at 0, animations disabled: the bar is 0,0,255; then false
+screenshot at 0, animations allow: the bar is 0,0,255; then false
+screenshot at 300, animations disabled: the bar is 255,0,0; then true
+screenshot at 300, animations allow: the bar is 255,0,0; then true
+reload: 0:false

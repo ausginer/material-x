@@ -108,7 +108,7 @@ field.addEventListener('change', () => {
 
 ## Accessibility
 
-- **Semantics:** Uses an internal native `<button>` with the `switch` role. Its `aria-checked` follows `checked`.
+- **Semantics:** Uses an internal native `<button>` with the `switch` role. Its `aria-checked` follows `checked`, unless the host has an `aria-checked`, which comes first.
 - **Controlled:** Activation fires `click`, then `input`, then `change`, and changes no state. Set `checked` in a `change` handler to toggle the switch.
 - **Keyboard:** `Tab` reaches the switch, and `Space` or `Enter` activates it.
 - **Name:** Label text in the default slot provides the accessible name.

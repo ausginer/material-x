@@ -2443,6 +2443,51 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 - **Corrected in the note above,** from `reviewer-9` and `reviewer-7`: it said that the list differs _"by at most 24 of 255 per channel, mostly at the corners"_, and that _"Positioned content"_ covers the outline. Most of the pixels that differ are away from the corners, by at most 1 for a list item.
 - **Witness:** `checks/padding-owner.txt`, in the card's record.
 
+#### RD-54 — `mx-top-app-bar` pins itself, takes its scrolled state from one observer, and changes color without a shadow
+
+**Decided 2026-11-23 by the architect, on `material-x/top-app-bar-1`,** on the coordinator's task for #172, as unit H of `RD-47`'s landing plan. `RD-53` is the highest `RD-` on any branch on `origin` (`material-x/card-1`), so this is the next free number. The [plan](top-app-bar-1/top-app-bar-plan.md) holds the readings, the tokens, the tests and the work.
+
+1. **Surface:** the default slot is the headline, with `lead` and `trail` beside it. There is one public custom state, `:state(scrolled)`, and two CSS properties, the container's color at rest and on scroll. There is no attribute, event or part. Its host is its box.
+2. **The host places itself,** with `position: sticky` at the block start and `z-index: 1`, so a page writes no code. A page rule on the element overrides it.
+3. **The state comes from one `IntersectionObserver`** on the document's root element, with `root: document`. It changes only when the scroll position crosses the start, with no scroll listener and no layout read. It matches the scroll position in Chromium, Firefox and WebKit in every case [read](top-app-bar-1/checks/scroll-state.txt). `scroll-state()` is in Chromium only, and a scroll-driven animation gives neither a state to style against nor a change with a duration of its own.
+4. **The state is the platform's, as `:hover` is.** It is derived from the scroll position, so the controlled principle doesn't apply to it.
+5. **Scrolled is a color change only, and it amends the landing plan's property 3.** M3's spec shows and describes a color change, and upstream's message on the replaced set's shadow color is _"Bug: should not have been created. Remove any shadows on navigation bars."_ `container.elevation` and `on-scroll.container.elevation` of `md.comp.app-bar` are excluded by this ruling (`RD-34`). The color transitions over M3's default effects duration.
+6. **No landmark.** The page sets `role="banner"` on the bar. A `<header>` around it would unpin it, unless the header is `display: contents`.
+
+**Why.** The owner requires a sticky header, and property 2 asks for it with no page code. Only an observer gives a state that a consumer can style against, in every engine, with no work per frame. The shadow is a parity question, as the shadow color was in `RF-77`, and upstream answers it.
+
+**Costs.** A `<header>` wrapper needs a style of its own, and a pinned bar needs the page's `scroll-padding-block-start`. Without a shadow, content in `surface-container` shows no edge under the bar. The bar follows the document's scroll only. `mx-icon-button` keeps its own icon color in `lead`, where M3's token differs.
+
+**Answered 2026-11-23 by the owner,** in chat, relayed by the coordinator. He confirmed properties 5 and 6, and authorized the implementation:
+
+- **The shadow:** _"(а), и поехали"_ ("(a), and let's go"). He was asked whether the scrolled bar draws a shadow: (a) color only, which the architect recommended, or (b) color and the level-2 shadow that the landing plan named. So property 5 stands.
+- **The landmark:** he asked about it, and after the explanation said _"Да, тогда role="banner" выглядит правильнее всего"_ ("Yes, then role="banner" looks the most correct"). So property 6 stands: the page sets the role on the bar.
+
+**Amended 2026-11-23 by the architect, property 3's reading,** on Mx Implementer B's stop at the plan's boundary, relayed by the coordinator. The observer's side margins are as large as its top margin. With the plan's 0px sides the state was wrong in the three engines on a page scrolled sideways by a viewport or more, which the first reading hadn't scrolled, so _"in every case read"_ didn't cover it. With large sides it matches there too ([reading](top-app-bar-1/checks/scroll-sideways.txt)). The mechanism doesn't change, and the plan gains a row.
+
+**Amended 2026-11-23 by the architect, property 3's target,** on `reviewer-1` and `reviewer-2` of the [feature proof](reviews/top-app-bar-1/feature-proof-claude.md) of #211, relayed by the coordinator. The observer's target is now a box without size that the component keeps in the top layer, at the document's scroll start. It isn't the root element. The rest of property 3 stands: one observer, `root: document`, a change only at a crossing, no scroll listener and no layout read.
+
+- **Why:** the root element's place and size are the page's. The state was wrong, in the three engines, with a root that has no height or starts below the page's top, after a first correction for sideways scrolling. No page style moves a top-layer box, so the geometry isn't the page's any more. It is right on all 22 pages [read](top-app-bar-1/checks/mechanisms.txt), where the root element is wrong on 8.
+- **Not taken:** limits in the documentation; a `scroll` listener, which the landing plan's property 4 excludes; and a scroll-driven animation's events. Property 3's sentence on the animation, that it gives no state, isn't the reason any more: its events give one, and it is in `RD-20`'s floor. It is wrong in each engine in some case, and recalculates a style on each scroll frame.
+- **Costs:** one element in the shadow root, so property 1's shadow root holds it beside the three slots. A bar shown again at the start draws the scrolled color for one frame, by reasoning.
+- The plan holds the [dispositions](top-app-bar-1/top-app-bar-plan.md#disposition-of-the-feature-proof-at-6dbdcbbd1) of all seven findings. `reviewer-3` is `RF-122`'s case, and owes nothing here.
+
+**Amended 2026-11-24 by the architect, property 3's area,** on `reviewer-8` of the [recheck](reviews/top-app-bar-1/feature-proof-recheck-claude.md) of #211, relayed by the coordinator. The observer's area is everything above the viewport, and the box in the top layer is 1px. So the state is on while the box's top is above the viewport, and a bar that isn't rendered is at rest. The rest of property 3 stands.
+
+- **Why:** the area was the viewport, where a box that isn't rendered is reported as a box that is scrolled away. A bar first rendered at the start then drew a fade of about 110 to 135ms from the scrolled color, in the three engines. The note above accepted it as one frame, by reasoning, for a bar shown again.
+- **Costs:** a bar that the page shows or inserts on a scrolled page draws its resting color first, and then the transition, which a bar that connects there did already. A bar that is removed on a scrolled page and inserted again at the start draws the scrolled color first, as before. A page longer than 10000000px is wrong when it jumps across that length in one frame. The first is documented.
+- The [disposition](top-app-bar-1/top-app-bar-plan.md#disposition-of-the-recheck-at-8f5ad01db) has the candidates, the readings in the three engines, the ruling on `reviewer-9` (two rows for the box's popover kind, and one for a bar that moves as it connects) and the work. Nothing is the owner's to answer.
+- **Witness:** `checks/first-rendering.txt` and `checks/box-rows.txt`, in the bar's record.
+
+**Amended 2026-11-24 by the architect, the costs of property 3's area,** on the [second recheck](reviews/top-app-bar-1/feature-proof-recheck-2-claude.md) of #211, relayed by the coordinator. The mechanism doesn't change.
+
+- **Both of the first two costs are documented,** where the note above says the first only. The component page's sentence was false for a bar that is removed and inserted again (`reviewer-11`).
+- **A cost is added, and accepted as WebKit's** (`reviewer-12`). In a frame with a CSS zoom above 1 the state turns on late, by about the frame's height times (zoom − 1). The engine pins nothing there until then: a page's own sticky and fixed boxes scroll away by the same length, and the bar with them. A state that is right would color a bar that is mostly out of view.
+- **A page zoom is right** in WebKit at 12 factors, on a page and in a frame, apart from a scroll of less than 1px at 1.75. Safari isn't read.
+- **A row for the box's `visibility: hidden` is owed** (`reviewer-10`). The ruling that it wasn't was read with a box of 0px.
+- The [disposition](top-app-bar-1/top-app-bar-plan.md#disposition-of-the-second-recheck-at-634dae5ef) has the rulings, the words and the work. Nothing is the owner's to answer.
+- **Witness:** `checks/page-zoom.txt` and `checks/box-visibility.txt`, in the bar's record.
+
 #### RD-55 — `mx-slider` is a native range whose value is the user's, and it mirrors host `aria-*` as the text fields do
 
 **Decided 2026-11-23, on `material-x/slider-1`,** for #173, as unit C of `RD-47`'s landing plan. Mx Architect B wrote the [plan](slider-1/slider-plan.md) and proposed this entry, on the coordinator's task. The architect read the plan and minted the entry at `eaff88884`. `RD-54` is the highest `RD-` on any branch on `origin` (`material-x/top-app-bar-1`), so this is the next free number. The plan's `SL-D1` to `SL-D9` hold each decision with its readings, what wasn't adopted and what wasn't measured.
@@ -2510,9 +2555,19 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
   - `RF-94`'s second named node, `RF-120`'s restoring of the value, and `RF-121`.
 - **Not read:** Safari, a physical touch, and assistive technology.
 
+**Dated 2026-11-24 by the architect: the check on phones is done, and it found no defect,** on the owner's words, relayed by the coordinator. The slider is on `main` since #220 (`ab4e536bd`). No clause changes.
+
+- **His words,** in chat that day:
+  - to Mx Architect Explainer, relayed by it: _"Телефон проверил, кстати! Там всё превосходно работает. На FF \_вроде бы\_ есть какой-то нано-лаг, но возможно, мне показалось. Надо померить. Anyway, телефон закрыт."_ ("I checked the phone, by the way! Everything works superbly there. In Firefox there _seems_ to be some nano-lag, but maybe I imagined it. It should be measured. Anyway, the phone is closed.");
+  - to the coordinator: _"Слайдер, chrome/FF на телефоне - работает превосходно"_ ("The slider, Chrome/Firefox on a phone: works superbly").
+- **What this closes:** the check that the notes above put after the merge. Nothing of it waits.
+- **What it establishes:** a person used the slider by touch in Chrome and in Firefox on a phone, and saw nothing wrong but the possible lag.
+- **What it doesn't:** the device, its system and the versions of the browsers aren't known, nor which of the steps in #220's description were tried. #220 asked for an iPhone and an Android phone. A pen, a second finger and a screen reader aren't known to have been tried. So the notes' _Not read_ stays for Safari, a pen and assistive technology.
+- **The lag in Firefox is an impression, unmeasured, and isn't a finding.** He said that it should be measured, and nobody has. No measurement is ordered by this note. `SL-D8` and the notes above have the cost of a move on a desktop, where Firefox's is the second of three, 135 µs. No phone was read.
+
 #### RD-56 — A finding lives in one GitHub issue, whose body is its contract, and the registers hold decisions
 
-**Accepted 2026-11-24 by the owner, with a trial before the cut-over. Stages 1 and 2 are approved to start, and stage 3, the trial, isn't. Stage 1 is written on `repo/findings-on-github-1` (#244), and isn't merged.** Proposed the same day by the architect on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this entry at `87c55405f`. The owner's answers, relayed by the coordinator: _"По переезду: Q1-Q3 (a), Q4-Q5 (b) Q6: (a)"_ ("On the move: Q1-Q3 (a), Q4-Q5 (b), Q6 (a)"). He answered a summary that proposed a small tool and the first three stages only, which the architect takes as his direction. The [plan](findings-on-github-1/findings-on-github-plan.md) has his words, the counts, the alternatives, what is lost, the stages and the implementer's work list. `RD-55` (`material-x/slider-1`) is the next lower number on any branch on `origin`.
+**Accepted 2026-11-24 by the owner, with a trial before the cut-over. Stages 1 and 2 are approved to start, and stage 3, the trial, isn't. Stage 1 is on `main` (#244, `8663d722b`).** Proposed the same day by the architect on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this entry at `87c55405f`. The owner's answers, relayed by the coordinator: _"По переезду: Q1-Q3 (a), Q4-Q5 (b) Q6: (a)"_ ("On the move: Q1-Q3 (a), Q4-Q5 (b), Q6 (a)"). He answered a summary that proposed a small tool and the first three stages only, which the architect takes as his direction. The [plan](findings-on-github-1/findings-on-github-plan.md) has his words, the counts, the alternatives, what is lost, the stages and the implementer's work list. `RD-55` (`material-x/slider-1`) is the next lower number on any branch on `origin`.
 
 **What is in force, and when:**
 
@@ -2548,6 +2603,8 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 **Dated 2026-11-24 by the architect, on stage 1's review:** no property changes. The [rulings](findings-on-github-1/findings-on-github-plan.md#stage-1-the-reviews-rulings) have the remediation. The owner approved the start of stages 1 and 2 only, so the table's first row says so. It said _"the authority for stages 1 to 3"_. `findings.md` applies wherever another document says otherwise of a finding's issue, which replaces the plan's list of limited statements. A faulty amendment is deleted and posted again by the architect, which property 2's _nobody edits it afterward_ doesn't cover. Property 4 stands as written: the coordinator sets the package labels.
 
 **Costs,** each in the plan: the review of a contract change isn't in the diff, the history is GitHub's, a deletion there has no other copy, two edits of one body at once aren't reported, and a role without a network has no finding. It saves 19 of the 31 conflicts and 2 of the 19 pull requests.
+
+**Dated 2026-11-24 by the architect: stage 1 is on `main`,** as #244 (`8663d722b`). The status above said _"Stage 1 is written on `repo/findings-on-github-1` (#244), and isn't merged."_ Stage 2 is #250, open. So the first row of the table is still the one in force: there is no `tier:` label and no trial, and a new finding goes to its register. The plan's status line is stage 2's branch's to change, because that branch edits it.
 
 #### RD-57 — axe-core checks material-x's elements in the browser tests, supplementary, with each known violation listed by rule and target
 
@@ -5272,6 +5329,8 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `m
 - **Not read:** `mx-split-button`, controls in groups, and the drawing.
 - **Size:** _medium_.
 
+**Dated 2026-11-24 by the architect, on `repo/records-batch-1`:** `mx-split-button` is read. In a disabled fieldset neither of its buttons is disabled, and its own `disabled` doesn't disable them either, which is `RF-138`'s ([reading](records-batch-1/checks/split-disabled.txt)). `RF-138` takes the attribute, and this entry takes the fieldset for this element too. `RF-138` doesn't wait for it.
+
 #### RF-120 — A form control doesn't restore its value after a navigation
 
 Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `material-x/slider-1`, from `SL-F2` of the [slider plan](slider-1/slider-plan.md), which had it by reading, relayed by the coordinator. `RF-119` is the entry before this one, so this is the next free number. Same [reading](observations-9/checks/form-and-hidden.txt) and [probe](observations-9/probes/form-and-hidden.mjs).
@@ -5909,7 +5968,7 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `d
 
 #### RF-130 — A control loses the component's own `aria-*` when the host's same attribute is removed
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `core/use-aria-1`, from `RF-124`'s ruling. `RF-129` is the highest `RF-` on any branch on `origin` (`drag/command-signal-1`), so this is the next free number. Read at `114270083` and at `20997b0e2` in Chromium, Firefox and WebKit, with the same result ([readings](aria-removed-1/checks/ruling.txt)).
+Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `core/use-aria-1`, from `RF-124`'s ruling. `RF-129` is the highest `RF-` on any branch on `origin` (`drag/command-signal-1`), so this is the next free number. Read at `114270083` and at `20997b0e2` in Chromium, Firefox and WebKit, with the same result ([readings](aria-removed-1/checks/ruling.txt)).
 
 - **What happens:** a component writes its own value of an `aria-*` on its control, from its own source, and the host has the same name. When the page removes the host's attribute, `useARIA` removes the control's. The component's source hasn't changed, so it doesn't write its value again. The state stays, and the control doesn't say it. The same happens when the source and the host's attribute change in one task, because the mirror runs after. Read for `aria-disabled` (a link with `disabled`), `aria-current` (`mx-list-link-item` with `selected`), `aria-selected` (`mx-list-button-item`), `aria-checked` (`mx-switch-button`), and `aria-invalid` and `aria-required` (the text field).
 - **The reverse,** by reading: while the host has the name, the last of the two to change is on the control, and a connect gives the host's. So a disabled link whose host says `aria-disabled="false"` says it too.
@@ -5925,6 +5984,50 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `c
 - **Before the first connect.** A name that the host gets and loses in one task, before it is first connected, removes the component's own value whatever the order, also one written after the loss, because the connect writes the pending loss. Read for `mx-link-button`'s `aria-disabled` with `disabled`, `mx-text-field`'s `aria-required` with `required`, and `mx-switch-button`'s `aria-checked`. `main` at `114270083` keeps them, so here the defect is wider since `RF-124`. Its ruling accepts it.
 - **A template's value is the component's too.** `mx-switch-button`'s `aria-checked="false"` is in its template. A switch that isn't connected yet loses it when the host gets and loses the name across tasks, and nothing writes it until `checked` changes.
 - **The order that loses in one task while out:** the loss, then the component's write, then the connect, in one task. The pending record is written by the connect, after the component's value. In a later task the value is kept.
+
+**Dated 2026-11-24 by the architect, on `core/aria-own-value-1`: planned, and ready for an implementer.** The [plan](aria-own-value-1/aria-own-value-plan.md) has the mechanism, the readings, the costs, the rows with their witnesses and the work list, and is accepted.
+
+- **What the control shows while the host gives the name: the host's value, in every order.** Answered by the owner on 2026-11-24, in chat, relayed by the coordinator: _"Q1 (a)"_. The cost that he accepted: a page that says something false about its own element is believed, such as `aria-disabled="false"` on a link with `disabled`. So the second item above, _The reverse_, is part of the repair.
+- **The component's value reaches the mirror by a call,** `setOwnARIA(target, name, value)`, a new export of core's `useARIA.js`. `useARIA` writes the host's value, or else the component's. The host's attributes aren't touched, so the option rejected in `RF-94` isn't taken, and `RF-94` stays open. This answers _Not established_, and the _Order_ line's doubt.
+- **Read** with the candidate in the three engines: 0 wrong of 709 reads for each of nine pairs, in random orders, where `main` has 79 (138 for `aria-checked`) with no name on the host. `complete` is +51 B Brotli, and the elements +27 to +70.
+- **Order:** independent of `RF-131`. **Size:** _small_ to _medium_, mostly rows.
+- **Not repaired:** the sortable list's own `aria-description`, which the list writes itself.
+- **Seen, and not registered:** core's `useCheckable` has a branch for a target that isn't an input. It writes `aria-checked` on a change of the host's `aria-checked` attribute, and not of `checked`. No caller passes such a target.
+
+**Dated 2026-11-24 by the implementer: implemented on `core/aria-own-value-1`, for #232, with `main` at `f9729a393` merged.** Requested by the coordinator. The entry closes when its pull request merges. The code agrees with the plan.
+
+- **Source:** the plan's four files in core, three and the two templates in material-x, with the JSDoc and the README row. `setOwnARIA` is in the form of the plan's candidate _push, host wins, no snapshot_.
+- **Rows:** in core, 19 in `useARIA.browser.test.ts`, and `linkable.browser.test.ts`' row is two. In material-x, 40 in `tests/aria-own-value.browser.test.ts`: the nine pairs in four cases, and four of the switches' `aria-checked`. Two of those four, that it is `"false"` before the first connect, guard the template's value and don't fail on `main`.
+- **Witnesses** ([reading](aria-own-value-1/checks/mutations.txt), [probe](aria-own-value-1/probes/mutations.mjs)), in the three engines, which read the same. `main`'s sources fail 37 of the 40: the first three cases of each pair, the fourth of each but `mx-link-button` with `"true"`, and both switches' after the loss. In core they fail as a file, because `setOwnARIA` isn't exported. Without the own value 14 rows in core fail; with `setOwnARIA` writing straight, 4; with it keeping nothing, 17, with each order of one task among them; with the own value before the transformer, 3; with no write until the mirror runs, 2. With each caller as on `main`, its pairs fail in material-x. `linkable` as on `main` fails no row in core, and 11 in material-x.
+- **The plan's probe on the built change** reads 0 wrong in both columns, in 709 reads for each pair and engine ([reading](aria-own-value-1/checks/built.txt)).
+- **Size, Brotli, against the merge base, by the gate's reading:** `complete` 23098 to 23093 (-5), the elements +30 to +89: `text-field/text-field` 8479 to 8568 (+89), `multiline-text-field` +70, `icon-button` and `list-link-item` +61, `list-button-item` +54, `link-button` +45, `button`, `split-button` and `switch-icon-button` +39, `fab` +38, `checkbox` +34, `radio` +31, `switch-button` +30. No other row moves, core's, drag's and box-quad's included. **The plan has +51 and +27 to +70, read on `eddf39e7b`.** The plan's candidate on `f9729a393` gives the same bytes as the built change in every row, so the difference is the base's, and not the source's. What in the base moves them wasn't read.
+- **Checks:** the whole browser projects and the others that `just test` runs, without the visual one, one engine at a time. core: 323 passed in each. material-x: Chromium 1157 passed and 2 expected failures; Firefox 1143 passed, 3 expected failures and 13 skipped; WebKit 1144 passed, 2 expected failures and 13 skipped. Root format check, lint of the changed files, typecheck, the declarations' typecheck, material-x's publint, `docs-build` and `docs-smoke` (117 of 117) pass.
+- **Not run:** the visual project, Safari, screen readers, the time of a connect. `accessibility.md` isn't changed here, as the plan says.
+
+**Dated 2026-11-24 by the architect,** on the [feature proof](reviews/aria-own-value-1/feature-proof-claude.md) of `c035576e2`, relayed by the coordinator. **The property holds in the three engines, the mechanism stands, and the plan's [rulings](aria-own-value-1/aria-own-value-plan.md#feature-proofs-rulings) have one list for the implementer.** `main` at `8663d722b` is merged, with the slider.
+
+- **Corrected in the note above:** it says that _"the difference is the base's"_. It isn't: `eddf39e7b` and `f9729a393` have the same sources (`reviewer-1`). The rows move with the order of the private names, and the plan's probe read a list that an earlier build left. Read again with the same names in both trees ([reading](aria-own-value-1/checks/size-noise.txt)): `complete` +181 minified bytes and an average of +55 to +58 B Brotli, with a standard deviation of 35 to 38, and the elements +31 to +63 on average. The gate's -5 and +30 to +89, and the plan's +51 and +27 to +70, are single readings. The gate's own pair agrees on the names, so nothing of the instrument is registered.
+- **`reviewer-2` and `reviewer-4`, accepted. `reviewer-3`, accepted for five places,** and not for `Validatable`'s and `error`'s sentences, which stand under their precondition to set `error` and `required` rather than the host's names.
+- **A recheck isn't owed.** **Documentation:** the lines of `accessibility.md`, for #247, are in the plan, and its _"nothing else changes"_ is withdrawn.
+- **Nothing is the owner's to answer.** He was told +51 and at most +70 for the costs, and the averages are within them. One element's single reading, the text field's +89, isn't.
+
+**Dated 2026-11-24 by the implementer: the rulings' list is done, with `main` at `4e2972514` merged.** Requested by the coordinator. No source line changes but comments.
+
+- **Words:** the JSDoc of `useARIA.ts`, `linkable.ts`, `selectable.ts`, `validatable.ts` and `SwitchCore.ts`, and the sentence of the two switches' pages, as the list has them.
+- **Rows:** four more for `setOwnARIA` (two targets, two names, an empty host's value, an empty own one), one more in `linkable.browser.test.ts`, where the split row goes on after the re-enable, and a fifth case for each of the nine pairs. In all 23 for `setOwnARIA`, two in `linkable` and 49 in material-x. All pass in Chromium, Firefox and WebKit.
+- **Witnesses** ([reading](aria-own-value-1/checks/mutations-rows-2.txt)), the same counts in the three engines: each of the proof's 15 mutations fails a row now. Of the five that failed none, the four of `useARIA` fail one core row each, and _list-link-item: false in place of none_ fails one material-x row. _No own value goes on re-enable_ and _restores the host value itself_ fail one core row each, and `linkable.ts` as on `main` fails the new linkable row. The proof's script prints counts and no names.
+- **Checks on the merged tree,** core and material-x rebuilt: core's `useARIA` and trait rows, 143 passed in each engine; material-x's unit, slider and `validatable` rows, 541 passed in Chromium, 471 passed and 70 skipped in Firefox and in WebKit. Without the visual project, in Chromium: core 328 passed; material-x 1691 passed and 2 expected failures. Typecheck, the declarations' typecheck, lint, the root format check, material-x's publint, `docs-build` and `docs-smoke` (129 of 129) pass.
+- **Not run:** the whole suites in Firefox and WebKit on this merge, the visual project locally, Safari, screen readers. The fifth case wasn't read on `main`'s sources.
+
+**Closed 2026-11-25 by the architect,** on the [feature proof](reviews/aria-own-value-1/feature-proof-claude.md) of `c035576e2` and the remediation, read at `b7dcdde75`, requested by the coordinator. `origin/main` at `a110683b3` is merged after it without a conflict, and it has only records. #248 merges the entry, with `Closes #232`.
+
+- **No recheck is owed.** From `dc7fcf7c1` to `b7dcdde75`, the changes of `packages/*/src` are comments and the sentence of the two switches' pages, so what the proof read of the behavior stands. Every sentence is the [rulings'](aria-own-value-1/aria-own-value-plan.md#feature-proofs-rulings). The rows are the list's, and nothing else is in the tests.
+- **The witnesses, read in the [record](aria-own-value-1/checks/mutations-rows-2.txt) and not run again:** each of the proof's 15 mutations, and `linkable.ts` as on `main`, fails a row in each engine. The counts are the same in the three. The four that had failed none in `useARIA` fail one core row each, and the link item's one row of material-x.
+- **`reviewer-1` to `reviewer-4` are closed.** The required property and Q1 (a) hold in the three engines by the proof, and the host's attributes aren't touched.
+- **CI passes on `b7dcdde75`,** with the three engines, `docs` and `measurements`. The tree under `packages/` is the same after the merge. The gate's run on the closing commit is the coordinator's.
+- **What remains elsewhere:** five lines of `accessibility.md`, which are [#247's](aria-own-value-1/aria-own-value-plan.md#for-the-documentation-unit-247) and don't hold the entry; the sortable list's own `aria-description`, which is as it was; and `RF-94`, which stays open.
+- **Not read,** as before: Safari, screen readers. The visual project wasn't run locally. The fifth case of the pairs wasn't read on `main`'s sources, and isn't owed: it guards `off`, and its witness is the link item's mutation.
+- **Nothing is the owner's to answer.**
 
 #### RF-131 — An element whose slotted content changes while it is out of the document doesn't see the change, nor one that is built first and appended later
 
@@ -6056,6 +6159,131 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `m
 - **Direction:** the clip goes, as `RF-128`'s last note reads and orders, with its rows. The two are one unit, because a rule for `RF-128` alone makes a trailing handle worse.
 - **Costs:** what that note says of a page's bounded child.
 - **Plan needed:** no. **Ready.** The owner's approval of the start is for the coordinator to ask. **Size:** _small_.
+
+#### RF-136 — The split button's trailing button is named by its icon's ligature, can't be given a name, and doesn't expose `open`
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#243](https://github.com/ausginer/material-x/issues/243), relayed by the coordinator. It was seen when `RD-57` was registered. `RF-135` is on `material-x/handle-focus-1`, so this is the next free number. Read at `4e2972514`, on the built elements, in each engine's own accessibility tree, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, which agree ([Chromium](records-batch-1/checks/names-chromium.txt), [Firefox](records-batch-1/checks/names-firefox.txt), [WebKit](records-batch-1/checks/names-webkit.txt), [probe](records-batch-1/probes/names.ts)).
+
+- **What happens (the name):** the trailing button is a `button` named `keyboard_arrow_down`, the text of the `mx-icon` in the template. `RD-57` read it in Chromium only. `aria-label` on the host leaves the two buttons as they are, and names the host itself, `generic` in Chromium and Firefox and `group` in WebKit. There is no slot, attribute or property for the trailing button's name, and a part can't carry one.
+- **What happens (the state):** the trailing button has no expanded state, with `open` and without. `open` sets only the custom state `open`, which the styles read. A host `aria-expanded` or `aria-haspopup` doesn't reach the button. The split button's page says that _"`open` and `secondaryaction` communicate expanded/collapsed secondary action state"_, and to assistive technology `open` communicates nothing. The controls of the probe, a native `<button aria-expanded aria-haspopup>`, read as expanded in Chromium and Firefox, and as a pop-up button in WebKit. Its expanded state didn't come back through WebKit's protocol, so WebKit's row has the attribute's absence on the button and not a reading of the state.
+- **Why it is a problem:** a screen reader would announce an icon's name in place of the action, in English on any page, and doesn't say whether the menu is open. The page's author can't repair either.
+- **Not affected:** the leading button. It is named by its content.
+- **Required properties:**
+  1. The trailing button's accessible name is the page's to give, in the page's language, and no icon's text is part of it.
+  2. The trailing button exposes `open` as its expanded state, from the first render and at each change: `false` without `open`, `true` with it.
+  3. A host `aria-label` doesn't name the trailing button, because the host has two.
+- **Property 2 adds no public surface,** so it is ruled here. `aria-haspopup` and `aria-controls` aren't set: what opens is the page's. A split button whose `secondaryaction` opens nothing has `aria-expanded="false"` as well. The documentation calls the trailing button a toggle.
+- **Precedent, read:** Material Components for Android at `6061a6991` sets the trailing button's state description to _Expanded_ or _Collapsed_, and leaves its name to the app, as `android:contentDescription` in its example. Material's pages weren't read.
+- **Q1, for the owner — how does a page name the trailing button?**
+  - **(a) An attribute and property for it, `secondarylabel`, with no default. Recommended.** It goes to the trailing button as its name, beside `secondaryaction`. The documentation says that it is required. Without it the button has no name, which axe-core's `button-name` reports (`RD-57`), and the ligature hides from that rule today. The name of the attribute is the architect's proposal.
+  - (b) (a), with an English default such as _More options_. The button is never unnamed. A page in another language that forgets it has an English name, and the string is in every bundle. `mx-sortable-list` has English defaults for its handle, which the page overrides on its own element.
+  - (c) A slot for the trailing button's content, whose named icon names it. It also lets a page change the icon. The named icon (`role="img"` with `aria-label`) does name a button today (read). It is more surface than the name needs, and the icon's turn on `open` would apply to a page's content.
+  - (d) Nothing in the API. The trailing button takes a name from the leading one's label, so that two buttons have one name and differ by the expanded state.
+- **Order:** property 2 waits for nothing, and property 1 for Q1. One unit does both. Its name's second node is `RF-94`'s: an `aria-label` on the inner `mx-icon-button` names that element too. If `RF-137` lands first without this, the trailing button has no name, so **this one goes before `RF-137` or with it.**
+- **Rows,** each engine's own accessibility tree, as `RF-94` says: the name with and without the label, the expanded state in both states, and a change of `open`. **Witness:** they fail before the repair.
+- **Plan needed:** no, once Q1 is answered. A new attribute is public surface, so the answer is minted as a decision. **Size:** _medium_.
+
+#### RF-137 — An `mx-icon`'s ligature text is part of the name of the control that it is in
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from the reading that `RF-136` asked for. `RF-136` is the entry before this one. Read as `RF-136`, with the same probe.
+
+- **What happens:** with `<mx-icon>edit</mx-icon>` and the label _Save_, in Chromium, Firefox and WebKit:
+
+  | Element | Accessible name |
+  | --- | --- |
+  | `mx-button`, `mx-link-button`, `mx-switch-button`, extended `mx-fab`, and the split button's leading button, with the icon in `icon` | `edit Save` |
+  | `mx-list-button-item` and `mx-list-link-item`, with icons in `lead` and `trail` | `edit Save edit` |
+  | `mx-icon-button`, `mx-switch-icon-button` and `mx-fab` with the icon alone | `edit` |
+  | Any of them with a host `aria-label` | The label |
+  | A text field with a label and icons in `lead` and `trail` | `Save` |
+
+  A static list item and an `mx-icon` alone expose the text as text (Firefox's tree; WebKit's name of the list item has it too). The checkbox's and the radio's own icons are hidden in their templates.
+
+- **What the documentation says:** `icon.mdx` tells the page to set `aria-hidden="true"` on a decorative icon. That works: the name is `Save`. No page, story or usage snippet of material-x does so, on any `mx-icon`.
+- **Why it is a problem:** a screen reader says _edit Save_, and _chevron_right_ at the end of a list item. The voice user who says the visible label still matches, because the label is in the name. The ligature isn't seen by anybody, so it isn't content.
+- **Required property:** in each engine at `RD-20`'s floor, the text of an `mx-icon` is in no accessible name and no accessible text, and a page can still give an icon a name of its own, which is then part of its control's name.
+- **Candidates, read in the three engines:**
+  - **The slot inside a `<span aria-hidden="true">` in the icon's shadow tree:** every name above is without the icon's text, and `role="img" aria-label="Draft"` on the icon still gives `Draft Save`.
+  - `aria-hidden="true"` on the slot itself: the same in Chromium and Firefox. WebKit ignores it, so its names don't change.
+  - The internals' `ariaHidden` on the host: the names are without the text, and `role="img"` with a label no longer gives the icon a name, in any engine.
+  - material-web at `268681913` writes the attribute `aria-hidden="true"` on the icon's host, and a page that writes `false` gets it removed. It edits the page's attribute. Read in its source, and not run.
+- **Q2, for the owner — is an `mx-icon`'s text hidden by the package?**
+  - **(a) Yes, by the first candidate. Recommended.** A page can't get it wrong, and an icon with a meaning takes `role="img"` and `aria-label`. **Cost:** an icon-only control without `aria-label` has no name, where today it has the ligature. The pages of the two icon buttons already ask for `aria-label`, and the FAB's asks for it when the icon is ambiguous. An SVG or text with a meaning inside an `mx-icon` is hidden too. One element for each icon, whose size, layout and speed weren't measured.
+  - (b) No: it stays the page's, and material-x's pages, stories and snippets gain `aria-hidden="true"`. No code changes. Each page has to know it, and the split button's template hides its own icon.
+  - (c) The package hides it only in the `icon`, `lead` and `trail` slots of its elements. An icon-only button keeps its ligature name. It is more code than (a), and an icon outside those slots is as today.
+- **Order:** after `RF-136` or with it. It doesn't wait for `RF-94`.
+- **Rows,** each engine's own tree: the rows of the table, the named icon, and an icon alone. **Witness:** they fail before the repair. Pixels: no visual baseline changes.
+- **Not read:** screen readers, Safari, and what `RD-57`'s check gives after the repair: its `button-name` and `link-name` would then report an icon-only control with no label.
+- **Plan needed:** no, once Q2 is answered. With (a) the answer is a decision, because it is what `mx-icon` promises. **Size:** _small_ for (a) and (b).
+
+#### RF-138 — A disabled split button isn't disabled
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from `RF-136`'s reading, whose rows for a disabled split button differed between the engines. `RF-137` is the entry before this one. Run at `4e2972514`, on the built elements, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](records-batch-1/checks/split-disabled.txt), [probe](records-batch-1/probes/split-disabled.mjs)).
+
+- **What happens,** with `disabled` in the markup or set later, or in a disabled fieldset, the same in the three engines except where said:
+  - neither inner button is `disabled`, and neither has the disabled state or look. The background is the enabled one;
+  - **a click on the trailing button fires `secondaryaction`;**
+  - a click on the leading button gives no `click` on the host, only because the host is a disabled form-associated element;
+  - Tab reaches both buttons. Enter on the trailing one fires `secondaryaction`. Enter on the leading one fires `click` in Chromium, and nothing in the other two.
+  - Chromium's tree exposes both buttons as disabled, from the host. Firefox's and WebKit's don't.
+- **What is documented:** `@attr disabled` is _"Disables both actions"_, and the page says that _"`disabled` disables both split action segments"_.
+- **The cause:** the constructor transfers `BUTTON_ATTRS` to the inner group, and those are `color`, `size` and `shape`. `disabled` is in `DISABLEABLE_ATTRS`, which it doesn't take. When this began wasn't read.
+- **Why it is a problem:** a page that disables the split button while it works still gets the secondary action, and its user sees an enabled control.
+- **Required property:** with `disabled` on the split button, both inner buttons are natively disabled, take no focus and no activation, fire nothing, and draw the disabled appearance. Without it they return. The group's other attributes keep working.
+- **A candidate that holds, read:** with the host and the inner group both `disabled`, the property holds in the three engines: no focus, no event, the disabled background. `ButtonCore` already takes the group's `disabled`.
+- **The fieldset is `RF-119`'s,** which hadn't read this element. This entry doesn't wait for it.
+- **Rows,** in each engine: for the attribute, the property and their removal, `disabled` on both inner buttons, no focus by Tab, no event from a click and from the keyboard on each button, and the disabled colors. **Witness:** without the transfer they fail. The `open` and `secondaryaction` rows that exist pass unchanged.
+- **Plan needed:** no. **Ready** for an implementer. **Size:** _small_.
+
+#### RF-139 — A list item's long texts run out of it, and two trailing children stack
+
+Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#254](https://github.com/ausginer/material-x/issues/254), relayed by the coordinator. It was seen in `RF-128`'s reading of the trail slot's clip, on `material-x/handle-focus-1`. `RF-138` is the entry before this one. Read at `4e2972514`, on the built elements, in a 300 px list, on static and button items, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](records-batch-1/checks/trail-long.txt), [probe](records-batch-1/probes/trail-long.mjs)).
+
+- **What happens,** in each engine. The widths differ by the fallback font:
+  - **Long trailing text** stays on one line and runs out of the item: 35 px past its end in Chromium, 57 px in Firefox and WebKit, with a text that is 268 to 289 px wide. Nothing shortens it. The slot's `text-overflow: ellipsis` never applies, because the slot is as wide as its content.
+  - **It squeezes the label.** A label of several words beside it gets 49 to 54 px, one word to a line, and the item is 308 to 380 px high, where a short trailing text leaves it at 92 px.
+  - **One long word as the label** runs out too, and pushes the trailing text 212 to 266 px past the item's end. `.content` has no smaller minimum than its longest word. The page, 400 px wide, gets a horizontal scroll.
+  - **Two trailing children stack:** two icons are 20 × 40 px, two icon buttons 40 × 80 px in an item of 100 px, and a text and an icon are one above the other. Two texts stay on a line.
+- **The cause:** `.trail` is `flex: 0 0 min-content`, so it doesn't shrink, and it is as narrow as its content allows. Slotted text is `white-space: nowrap`. `.content` keeps the automatic minimum.
+- **With `RF-135`'s repair,** which removes the slot's clip, every box is the same, read here as `noclip`.
+- **Why it is a problem:** a date, an amount or a name that is longer than expected covers what is beside the list or gives the page a scroll, and two trailing actions make a tall item.
+- **Required properties:**
+  1. No text of a list item, in any slot, runs past the item's end, and none adds a scroll to the page.
+  2. A long text in one slot doesn't take the other's whole width: the label and the trailing text stay readable.
+  3. Trailing children are side by side while the item has room.
+  4. Short texts, icons, and controls keep their boxes, and a control in `trail` isn't narrowed, cut or clipped (`RF-135`).
+- **Candidates, read:**
+
+  | Rule | Long trailing text | Long label, short text | One long word as the label | Two icon buttons |
+  | --- | --- | --- | --- | --- |
+  | The slot may shrink, text on one line (`shrink`) | Past the end | The trailing text is 13 px wide in Chromium, of 28 | Past the end | Side by side |
+  | The slot may shrink and the text wraps (`wrap`) | Two lines | The trailing text is 13 px wide in Chromium, broken in three lines | Past the end | Side by side |
+  | The slot may shrink and the slotted element clips with an ellipsis (`ellipsis`) | One line, ellipsis | Cut to 13 px in Chromium | Past the end | Stacked: the element becomes a block |
+  | **`bound`:** `.content` starts from zero with no minimum, `.trail` is its content's width up to half of the item, the text wraps and a long word breaks | 2 or 3 lines in the item | Unchanged | In the item, with the label's own ellipsis | Side by side |
+
+  Only `bound` has nothing past the end in any of the 13 contents, both kinds of item and the three engines, and it keeps the boxes of short texts, icons, a checkbox and a button. Its cost: a trailing text of more than half of the item wraps, also beside a short label, where it fits on one line today.
+
+- **Q3, for the owner — what does a trailing text do when it is too long?**
+  - **(a) It wraps, and takes up to half of the item. Recommended:** the whole text is seen, and nothing is clipped, so it doesn't conflict with `RF-135`. It is `bound`.
+  - (b) It stays on one line and ends with an ellipsis. The text is then cut on the page's element, whose own clip cuts a focus indicator inside it, and a control can't be told from a text there. It needs a rule for which children it applies to.
+  - (c) It stays as it is, documented: a page bounds its own trailing text. Properties 1 and 2 then hold for the label only.
+- **The other properties don't wait for Q3's answer in substance,** but they are the same three declarations, so one unit does all of it.
+- **Not established:** what Material says. `md.comp.list` has no token for it. material-web's item (`268681913`) doesn't shrink its trailing slot either, and clips the host. Material's pages weren't read. Also not read: RTL, 200 % text, the link item, the sortable list, a supporting text and an overline that are long.
+- **Order:** after `material-x/handle-focus-1` merges, because `RF-135` edits the same rules. It doesn't wait for `RF-64`, whose subject is the support slot's line count.
+- **Rows,** `spec`, in each engine: the properties for the contents of the probe, on the static, button and link items, in both directions. **Witness:** they fail before the repair. A visual baseline that changes is expected only where a trailing text or a control is wider than half of its item.
+- **Plan needed:** no, once Q3 is answered. **Size:** _medium_.
+
+#### RF-140 — The list's documentation names slots that the templates don't have
+
+Tier B, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#255](https://github.com/ausginer/material-x/issues/255), relayed by the coordinator. `RF-139` is the entry before this one. Read at `4e2972514`, in the sources.
+
+- **What is wrong:** the items' shared template has the slots `lead`, `overline`, the default one, `support` and `trail`. The published JSDoc of `mx-list-item`, `mx-list-button-item` and `mx-list-link-item` has `@slot start`, `end`, `supporting-text` and `trailing-supporting-text`, and only `overline` and the default slot are right. `list.mdx` names the four in _Anatomy_, and its quick start has `<mx-icon slot="start">`. So does what is made from the JSDoc: the manifest, and the page's API tables. Both came with the list, in `3632ccd77`, where the template already had `lead`, `trail` and `support`.
+- **Why it matters:** a page that copies the quick start, or reads the types in its editor, puts content in a slot that doesn't exist, and it isn't drawn. The text of `trail` has no slot of its own.
+- **Not affected:** the stories and the tests use the real names. The `@slot` names of the button family, the FAB, the text fields, the card, the slider and the top app bar match their templates.
+- **Required property:** every slot that the package's documentation names exists in the element, and every slot of the element is named. For the list: `lead` for a leading icon, avatar or image, `trail` for a trailing icon, control or text, `overline`, `support` and the default slot, in the three items' JSDoc and in `list.mdx`, and the quick start draws its icon.
+- **Rows:** none. A check that compares each `@slot` with the template is a possible instrument, and this entry doesn't require one.
+- **Order:** it waits for nothing. The unit of `RF-128` and `RF-135` doesn't change these files, by its list.
+- **Plan needed:** no. **Ready** for an implementer. **Size:** _small_. A published JSDoc changes, so the package's declarations change and no code does.
 
 ## Questions
 

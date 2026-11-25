@@ -1,0 +1,34 @@
+probes/own-value.browser.test.ts on eddf39e7b and each candidate, by probes/candidates.mjs. webkit.
+
+## main
+READ webkit | mx-text-field aria-invalid="false" | reads 709 | wrong {"absent":51,"given":17,"absentSync":28,"givenSync":0} | task out out connect -host +own +host connect -host +host -host connect => null
+READ webkit | mx-multiline-text-field aria-required="false" | reads 709 | wrong {"absent":51,"given":17,"absentSync":28,"givenSync":0} | task out out connect -host +own +host connect -host +host -host connect => null
+READ webkit | mx-switch-button aria-checked="mixed" | reads 709 | wrong {"absent":89,"given":17,"absentSync":49,"givenSync":0} | +own -host +host -own -own task task +own -own out +host -host => null
+READ webkit | mx-switch-button aria-invalid="grammar" | reads 709 | wrong {"absent":51,"given":17,"absentSync":28,"givenSync":0} | task out out connect -host +own +host connect -host +host -host connect => null
+READ webkit | mx-link-button aria-disabled="false" | reads 709 | wrong {"absent":51,"given":12,"absentSync":28,"givenSync":0} | task out out connect -host +own +host connect -host +host -host connect => null
+READ webkit | mx-link-button aria-disabled="true" | reads 709 | wrong {"absent":51,"given":0,"absentSync":28,"givenSync":0} | task out out connect -host +own +host connect -host +host -host connect => null
+READ webkit | mx-list-link-item aria-disabled="false" | reads 709 | wrong {"absent":51,"given":12,"absentSync":28,"givenSync":0} | task out out connect -host +own +host connect -host +host -host connect => null
+READ webkit | mx-list-link-item aria-current="step" | reads 709 | wrong {"absent":51,"given":17,"absentSync":28,"givenSync":0} | task out out connect -host +own +host connect -host +host -host connect => null
+READ webkit | mx-list-button-item aria-selected="true" | reads 709 | wrong {"absent":51,"given":5,"absentSync":28,"givenSync":0} | task out out connect -host +own +host connect -host +host -host connect => null
+
+## push, host wins, no snapshot
+READ webkit | mx-text-field aria-invalid="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-multiline-text-field aria-required="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-switch-button aria-checked="mixed" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-switch-button aria-invalid="grammar" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-link-button aria-disabled="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-link-button aria-disabled="true" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-list-link-item aria-disabled="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-list-link-item aria-current="step" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-list-button-item aria-selected="true" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+
+## pull, last wins
+READ webkit | mx-text-field aria-invalid="false" | reads 709 | wrong {"absent":0,"given":17,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-multiline-text-field aria-required="false" | reads 709 | wrong {"absent":0,"given":17,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-switch-button aria-checked="mixed" | reads 709 | wrong {"absent":0,"given":17,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-switch-button aria-invalid="grammar" | reads 709 | wrong {"absent":0,"given":17,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-link-button aria-disabled="false" | reads 709 | wrong {"absent":0,"given":12,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-link-button aria-disabled="true" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-list-link-item aria-disabled="false" | reads 709 | wrong {"absent":0,"given":12,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-list-link-item aria-current="step" | reads 709 | wrong {"absent":0,"given":17,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-list-button-item aria-selected="true" | reads 709 | wrong {"absent":0,"given":5,"absentSync":0,"givenSync":0} | 

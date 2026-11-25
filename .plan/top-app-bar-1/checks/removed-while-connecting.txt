@@ -1,0 +1,3 @@
+removed-while-connecting ["Uncaught InvalidStateError: Failed to execute 'showPopover' on 'HTMLElement': Invalid on disconnected popover elements."]
+removed-while-connecting ["InvalidStateError: HTMLElement.showPopover: Element is not connected"]
+removed-while-connecting ["InvalidStateError: Element is not connected"]
