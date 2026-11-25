@@ -32,8 +32,16 @@ interface Page {
   context(): { newCDPSession(page: unknown): Promise<CdpSession> };
 }
 
+/** The frame of the page that runs the test. */
+interface TestFrame {
+  evaluate(run: () => void): Promise<void>;
+}
+
 const pageOf = (context: unknown): Page =>
   (context as Readonly<{ page: Page }>).page;
+
+const frameOf = async (context: unknown): Promise<TestFrame> =>
+  await (context as Readonly<{ frame(): Promise<TestFrame> }>).frame();
 
 /** The part of a WebdriverIO browser that the commands use. */
 interface ActionChain {
@@ -180,6 +188,11 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
   keyPress: defineBrowserCommand<[string]>(
     async (context, key): Promise<void> => {
       if (providerOf(context) === 'playwright') {
+        // In WebKit the UI process chooses the frame of a key, and right after a
+        // `focus()` in the test it can still hold the runner's frame as the
+        // focused one. The page's reply to this call comes after its message
+        // about the focus, so the key then goes to the frame with focus.
+        await (await frameOf(context)).evaluate(() => {});
         await pageOf(context).keyboard.press(key);
         return;
       }

@@ -1,0 +1,68 @@
+# One failing run of pairs.sh, whole. Columns: the event, performance.now() in ms, then:
+#   keydown/keyup in the test's frame: key, isTrusted, repeat, target, activeElement, hasFocus, order
+#   parent-keydown: a keydown in the runner's page that holds the test's frame: key, target
+#   the states: activeElement, hasFocus, the parent's hasFocus, the parent's activeElement, order
+
+== e
+ FAIL |consumer/webkit (webkit)| tests/zz-quick-1795614722-2-b.browser.test.ts:109 > quick presses > firstAssertionError: { "label": "first", "out": [ [ "before-focus", 123, "BODY", false, false, "BODY", "r0,r1,r2,r3" ],
+[ "focus", 123, "window", "BODY" ],
+[ "focus", 123, "r0", "r0" ],
+[ "focused", 123, "r0", true, true, "IFRAME", "r0,r1,r2,r3" ],
+[ "parent-keydown", 124, "ArrowDown", "BODY" ],
+[ "keyup", 125, "ArrowDown", true, false, "r0", "r0", true, "r0,r1,r2,r3" ],
+[ "press-1-returned", 128, "r0", true, true, "IFRAME", "r0,r1,r2,r3" ],
+[ "keydown", 129, "ArrowDown", true, false, "r0", "r0", true, "r0,r1,r2,r3" ],
+[ "microtask", 129, false, "r0", "r0,r1,r2,r3" ],
+[ "focus", 131, "r0", "r0" ],
+[ "keyup", 132, "ArrowDown", true, false, "r0", "r0", true, "r1,r0,r2,r3" ],
+[ "press-2-returned", 132, "r0", true, true, "IFRAME", "r1,r0,r2,r3" ],
+[ "frames", 149, "r0", true, true, "IFRAME", "r1,r0,r2,r3" ],
+[ "1s-later", 1150, "r0", true, true, "IFRAME", "r1,r0,r2,r3" ] ], "log": [ "start", "end:accepted" ], "faults": [], "foreignErrors": []}
+
+== pairs-base-1
+ FAIL |consumer/webkit (webkit)| tests/zz-quick-1795615516-2-b.browser.test.ts:109 > quick presses > firstAssertionError: { "label": "first", "out": [ [ "before-focus", 226, "BODY", false, false, "BODY", "r0,r1,r2,r3" ],
+[ "focus", 226, "window", "BODY" ],
+[ "focus", 226, "r0", "r0" ],
+[ "focused", 226, "r0", true, true, "IFRAME", "r0,r1,r2,r3" ],
+[ "parent-keydown", 228, "ArrowDown", "BODY" ],
+[ "keyup", 229, "ArrowDown", true, false, "r0", "r0", true, "r0,r1,r2,r3" ],
+[ "press-1-returned", 230, "r0", true, true, "IFRAME", "r0,r1,r2,r3" ],
+[ "keydown", 233, "ArrowDown", true, false, "r0", "r0", true, "r0,r1,r2,r3" ],
+[ "microtask", 233, false, "r0", "r0,r1,r2,r3" ],
+[ "focus", 236, "r0", "r0" ],
+[ "keyup", 239, "ArrowDown", true, false, "r0", "r0", true, "r1,r0,r2,r3" ],
+[ "press-2-returned", 241, "r0", true, true, "IFRAME", "r1,r0,r2,r3" ],
+[ "frames", 264, "r0", true, true, "IFRAME", "r1,r0,r2,r3" ],
+[ "1s-later", 1264, "r0", true, true, "IFRAME", "r1,r0,r2,r3" ] ], "log": [ "start", "end:accepted" ], "faults": [], "foreignErrors": []}
+
+== pairs-base-2
+ FAIL |consumer/webkit (webkit)| tests/zz-quick-1795615603-19-b.browser.test.ts:109 > quick presses > firstAssertionError: { "label": "first", "out": [ [ "before-focus", 204, "BODY", false, false, "BODY", "r0,r1,r2,r3" ],
+[ "focus", 205, "window", "BODY" ],
+[ "focus", 206, "r0", "r0" ],
+[ "focused", 206, "r0", true, true, "IFRAME", "r0,r1,r2,r3" ],
+[ "parent-keydown", 208, "ArrowDown", "BODY" ],
+[ "keyup", 209, "ArrowDown", true, false, "r0", "r0", true, "r0,r1,r2,r3" ],
+[ "press-1-returned", 210, "r0", true, true, "IFRAME", "r0,r1,r2,r3" ],
+[ "keydown", 214, "ArrowDown", true, false, "r0", "r0", true, "r0,r1,r2,r3" ],
+[ "microtask", 215, false, "r0", "r0,r1,r2,r3" ],
+[ "focus", 217, "r0", "r0" ],
+[ "keyup", 220, "ArrowDown", true, false, "r0", "r0", true, "r1,r0,r2,r3" ],
+[ "press-2-returned", 222, "r0", true, true, "IFRAME", "r1,r0,r2,r3" ],
+[ "frames", 249, "r0", true, true, "IFRAME", "r1,r0,r2,r3" ],
+[ "1s-later", 1250, "r0", true, true, "IFRAME", "r1,r0,r2,r3" ] ], "log": [ "start", "end:accepted" ], "faults": [], "foreignErrors": []}
+
+== pairs-base-3
+ FAIL |consumer/webkit (webkit)| tests/zz-quick-1795615701-7-b.browser.test.ts:109 > quick presses > firstAssertionError: { "label": "first", "out": [ [ "before-focus", 291, "BODY", false, false, "BODY", "r0,r1,r2,r3" ],
+[ "focus", 292, "window", "BODY" ],
+[ "focus", 292, "r0", "r0" ],
+[ "focused", 292, "r0", true, true, "IFRAME", "r0,r1,r2,r3" ],
+[ "parent-keydown", 305, "ArrowDown", "BODY" ],
+[ "keyup", 309, "ArrowDown", true, false, "r0", "r0", true, "r0,r1,r2,r3" ],
+[ "press-1-returned", 312, "r0", true, true, "IFRAME", "r0,r1,r2,r3" ],
+[ "keydown", 319, "ArrowDown", true, false, "r0", "r0", true, "r0,r1,r2,r3" ],
+[ "microtask", 319, false, "r0", "r0,r1,r2,r3" ],
+[ "focus", 321, "r0", "r0" ],
+[ "keyup", 325, "ArrowDown", true, false, "r0", "r0", true, "r1,r0,r2,r3" ],
+[ "press-2-returned", 330, "r0", true, true, "IFRAME", "r1,r0,r2,r3" ],
+[ "frames", 362, "r0", true, true, "IFRAME", "r1,r0,r2,r3" ],
+[ "1s-later", 1362, "r0", true, true, "IFRAME", "r1,r0,r2,r3" ] ], "log": [ "start", "end:accepted" ], "faults": [], "foreignErrors": []}

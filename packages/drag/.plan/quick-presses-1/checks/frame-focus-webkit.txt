@@ -1,0 +1,31 @@
+# frame-focus.sh, at 2c83c7bc0, Playwright 1.65.0, WebKit 2388. 'child' got the key as it should; 'parent' is the loss.
+= webkit, y-geometry on the second page, cpus 10-11, run 1
+engine webkit, load before: 8.56 6.18 6.50 6/4983 127752
+FRAME nothing between: {"focusedFirst":250,"child":242,"parent":8,"none":0}
+FRAME one frame between: {"focusedFirst":250,"child":249,"parent":1,"none":0}
+FRAME two frames between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a mouse up between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a Shift press between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME userEvent.keyboard, which evaluates in the frame first: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+      Tests  14 passed (14)
+load after: 11.33 7.52 6.95 16/4917 128219
+= webkit, y-geometry on the second page, cpus 10-11, run 2
+engine webkit, load before: 11.33 7.52 6.95 3/4917 128225
+FRAME nothing between: {"focusedFirst":250,"child":241,"parent":9,"none":0}
+FRAME one frame between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME two frames between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a mouse up between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a Shift press between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME userEvent.keyboard, which evaluates in the frame first: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+      Tests  14 passed (14)
+load after: 11.74 8.21 7.22 7/4971 129023
+= webkit, y-geometry on the second page, cpus 10-11, run 3
+engine webkit, load before: 11.74 8.21 7.22 6/4971 129029
+FRAME nothing between: {"focusedFirst":250,"child":245,"parent":5,"none":0}
+FRAME one frame between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME two frames between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a mouse up between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a Shift press between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME userEvent.keyboard, which evaluates in the frame first: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+      Tests  14 passed (14)
+load after: 9.72 8.20 7.27 5/4972 130865

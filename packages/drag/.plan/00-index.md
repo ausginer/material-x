@@ -5223,7 +5223,7 @@ Tier C, **closed at `3bbd506f6`**, read by the architect on 2026-11-21 at `82bfa
 
 #### DRF-54 — In WebKit in CI, two arrow presses in a row moved an item one slot, once, with no change to drag
 
-Tier B, **open**: the instrument is unsound until the cause is known, and the tier becomes A if the package loses the press. Registered on 2026-11-23 by the architect, on `repo/register-observations-7`, from [#194](https://github.com/ausginer/material-x/issues/194), relayed by the coordinator. `DRF-53` is the highest `DRF-` on any branch on `origin`, so this is the next free number. **No row is disabled.**
+Tier B, **closed at `767d489f6`**, read by the architect on 2026-11-25. Registered on 2026-11-23 by the architect, on `repo/register-observations-7`, from [#194](https://github.com/ausginer/material-x/issues/194), relayed by the coordinator. `DRF-53` is the highest `DRF-` on any branch on `origin`, so this is the next free number. **No row is disabled.**
 
 - **What was observed** ([reading](../../../.plan/observations-7/checks/webkit-two-arrows.txt)): in `verify` run 45142741219 on #192, whose changes are records only, the `webkit` job's attempt 1 failed `consumer/drag/webkit` › `tests/focus.browser.test.ts` › `DRI-12` › _"should let two arrow presses in a row reorder twice"_, at `:29`. It expected `r1,r2,r0,r3`, and the list was `r1,r0,r2,r3`. Attempt 2 of the job passed.
 - **What it says:** one press moved the item one slot, and the other did nothing. The list doesn't show which press was lost, or where focus was, because the row's focus assertion is after the failed one. The result is the same when the first press is lost and when the second is.
@@ -5240,6 +5240,104 @@ Tier B, **open**: the instrument is unsound until the cause is known, and the ti
 - **Required property:** the row's result depends only on the code. Either the cause is known and repaired, in the test or in the package, or the record states what a run can't control.
 - **It doesn't block** any pull request. A rerun settles the gate.
 - **Size:** _not known yet_: the reading is small, and the repair depends on its result.
+
+**Dated 2026-11-25 by the architect of slot b: diagnosed, on `drag/quick-presses-1` from `2c83c7bc0`. The cause is the instrument's, and drag loses no press.** Requested by the coordinator. No code and no test changes here. The labels `A` to `C` are local, for the architect who takes the entry.
+
+- **The first press is lost, and it goes to the runner's page.** A test runs in a frame of Vitest's page. The trace of 4 failures of 4 ([traces](quick-presses-1/checks/traces.txt)) is the same: `r0` has focus, `document.hasFocus()` is true in the test's frame, and the parent's `activeElement` is the frame. Then the first `keydown` reaches the parent's `body`, 1 to 13 ms after `focus()`, and drag's frame never gets it. The second `keydown` reaches `r0` and moves it once. Focus is on `r0` at the end. Nothing is reported, and nothing later arrives within a second.
+- **Why:** in WebKit the UI process chooses the frame of a key by its own `m_focusedFrame`, and the web process updates it with the asynchronous message `FocusedFrameChanged` (`WebPageProxy::sendKeyEvent` and `focusedFrameChanged`, `WebChromeClient::focusedFrameChanged`, read in WebKit's `main` on 2026-11-25, not at build 2388's revision). A press that Playwright sends right after `focus()` can be handled before that message. The order follows from the readings, and the two processes weren't traced.
+- **The control has nothing of drag** ([probe](quick-presses-1/probes/frame-focus.browser.test.ts.txt), [WebKit](quick-presses-1/checks/frame-focus-webkit.txt), [the others](quick-presses-1/checks/frame-focus-others.txt)): a script focuses a button in a frame without focus, and `keyPress` is called at once. In each round, `activeElement` and `hasFocus()` were right before the press. The variants are interleaved, beside `y-geometry` on the second page, on two CPUs, in three runs:
+
+  | Between `focus()` and the press | Keys to the wrong frame, of 750 |
+  | --- | --- |
+  | Nothing | **22** |
+  | One frame | 1 |
+  | Two frames | 0 |
+  | A mouse release, a `Shift` press, or Vitest's own `userEvent.keyboard` in place of `keyPress` | 0 each |
+
+  At rest, with no second page, 0 of 250 for each. Chromium and Firefox: 0 of 250 for each, with `y-geometry` in the run.
+
+- **It needs a busy second page, not a slow machine** ([runs](quick-presses-1/checks/row-runs.txt)). The row, traced, in `consumer/webkit`:
+  - 242 files of the probe, whose first input is the row, beside each other: 0 failures. 60 of them were beside six busy processes on their two CPUs, where the two presses took 60 to 179 ms. 2,420 repetitions in the same frames, and 2,420 with the second press sent before the first returned: 0 failures.
+  - in CI's order, after a copy of the verdict suite and beside `y-geometry`: **4 failures of 130**, 1 of 40 on four CPUs and 3 of 90 on two. The machine has 12, and its load was 2 to 8 (one minute) because other sessions ran.
+  - _Why a busy page_ is by reading: the two pages share WebKit's UI process.
+- **Why this row:** it is the one whose press is the first input of its frame and asserts a count of two. In the `consumer` logs `verdict` comes before it in 436 of 436, and `y-geometry` is still running in 427 of 436. `keyboard.browser.test.ts`'s first row has the same exposure, and hasn't failed. After the first focus the frame keeps it, so no later row is exposed. `keyPress` is the only command in the repository that calls Playwright's keyboard itself. Vitest's `userEvent.keyboard` first evaluates in the frame, so material-x and core aren't exposed.
+- **It came back three times, not once** ([history](quick-presses-1/checks/ci-history.txt)): run 45142741219, run 45267554979 on #219, and run 45361184938 on `material-x/slider-1` on 2026-11-24, which ended as cancelled, so no failed gate shows it. All in `consumer/drag/webkit`, with the same values, and no change of drag. It is 3 in about 437 jobs since 2026-11-16. Cancelled jobs weren't read. Three of three in `consumer` isn't evidence that `browser` differs: the control lost keys in `browser`.
+- **What is excluded.**
+  - _A press refused by drag:_ the oracle fails a row that ends with a refused trusted event, and no log has that. In the traces the lost `keydown` isn't in drag's document at all.
+  - _Two commands:_ a command is admission, activation, drop, verdict, `settle`, release and `end` in one pass. With `onReorder` and `accept` synchronous, the session is out of its slot before the next task, so a second `keydown` finds none. No unawaited second press was lost. With an asynchronous verdict, a press during it is refused by contract (one session at a time), which isn't this.
+  - _Focus restoration and the placeholder's release:_ each runs in that pass, and the trace has `focus` on `r0` before that press's `keyup`.
+  - _`DRD-71` (`repo:RF-127`):_ the three CI failures precede it, the four here follow it, and it changes an argument of `onStart`. `DRF-48` is closed and changes no source.
+- **No user can meet it through drag.** It takes a script that moves focus into another frame within milliseconds of a key. A key then goes to the frame that had focus, before drag's document sees anything. The tier stays B.
+
+**Options.**
+
+- **(A) `keyPress` makes one round trip to the test's frame before the key. Recommended.** Playwright's branch evaluates an empty function in `context.frame()`, as Vitest's own keyboard command does. The reply is sent by the web process after `FocusedFrameChanged`, on the same connection, so the UI process has the frame when the key comes. It is one place, it covers each file and a nested frame, and it isn't a wait. Cost: one evaluation for each press. In `hot-path.browser.test.ts` every press is after the measured window.
+  - _Read as a candidate_ ([diff](quick-presses-1/probes/key-press-ack.diff), applied and taken back): the control's first line falls from 22 of 750 to 0 of 750 ([reading](quick-presses-1/checks/frame-focus-candidate.txt)), and the row from 3 of 90 to 0 of 150, beside `y-geometry` on two CPUs. If the rate were still 3 of 90, 0 of 150 has a probability of about 0.6 %.
+  - _The suites with it,_ browser, consumer and shipped projects: Chromium 878 passed, Firefox and WebKit 858 passed and 20 skipped ([reading](quick-presses-1/checks/suites-candidate.txt)).
+- **(B) The harness focuses its frame and makes a round trip once for a file:** `window.focus()` and an awaited `pointerUp` in a `beforeAll`. It leaves the commands alone, but a row that focuses a nested frame stays exposed, and it rests on a mouse release having a reply, which is read in the control only.
+- **(C) The row alone,** with a press of `Shift` or a release before the two. `keyboard.browser.test.ts`'s first row stays exposed, and the next file that begins with a key is too.
+- **Not proposed:** two frames before the press (0 of 750, but one frame lost 1, so it is a wait), a longer wait after it (the key never arrives), a retry, and one page for WebKit (slower by `repo:RD-12`, for a race that a round trip closes).
+
+**Required properties, for (A):**
+
+1. A key that `keyPress` sends under Playwright is dispatched in the frame that the test has focused before the call, in the three engines, whatever another page does.
+2. The wait is for the page's reply. No time, no frame count and no retry.
+3. The row doesn't change, and neither does its wait. Safari's branch doesn't change.
+4. No measured window of `hot-path.browser.test.ts` contains the round trip.
+
+**Rows and witness:** no new row, because a race has no deterministic row. The witness is the control and `pairs.sh`, by `frame-focus.sh webkit y-geometry` and `pairs.sh 30 consumer/webkit y-geometry` on two CPUs (`taskset`), each in three runs. Before the repair the control loses keys in _nothing between_ and the pairs fail. After it neither does. The suites run one engine at a time. **Size:** _small_, about ten lines in `tests/support/commands.node.ts`.
+
+**`DRD-72` (#265, read at `5e1b88dd8`) neither helps, hides nor worsens it.** It moves reports and reads into `drop()` and `settle`, which run only after the `keydown` has reached drag's document. A file of its rows that begins with a key is exposed, as any other, so (A) is worth having before its implementation. It doesn't depend on it. Its plan says that the row isn't touched, and (A) doesn't touch it.
+
+**No question for the owner.** Not read: Safari, and the WebDriver branch. WebKit's two processes weren't traced. **The entry stays open** until the repair is in, and the acceptance is the architect's.
+
+**Dated 2026-11-25 by the architect: the diagnosis and (A) are accepted, with one claim corrected and two properties added.** Requested by the coordinator. Read: the note, the probes and their readings, `commands.node.ts` at `923ab358a` and Vitest's Playwright provider.
+
+- **It holds.** The trace has the first `keydown` in the parent and none in drag's frame, and the control loses keys with nothing of drag. So the loss comes before drag sees anything. The message order is an inference, as the note says, and (A) rests on the readings: 0 of 750 and 0 of 150, against 22 and 3 of 90.
+- **Corrected:** _"`keyPress` is the only command in the repository that calls Playwright's keyboard itself … so material-x and core aren't exposed."_ `userEvent.keyboard` evaluates in the frame first, through `focusIframe`, and `userEvent.tab` doesn't. It is Vitest's own command, core and material-x call it 18 times by `grep`, and a file whose first input is it after a script's `focus()` has the same exposure. No such failure is known, so nothing is registered and this unit doesn't change it.
+- **The round trip doesn't blunt the row.** It puts some milliseconds between the two presses, and the row's purpose is that focus is back by the second. Read ([reading](quick-presses-1/checks/row-sensitivity.txt)): `restoreFocus` removed, or called by a microtask, a frame, a zero timeout or 30 ms later, 20 runs in Chromium and WebKit, without (A) and with it. Each verdict is the same with (A) as without: removed and 30 ms fail in both engines, one frame fails in WebKit alone, a microtask and a zero timeout pass.
+- **A nested frame** is the control's own case. A cross-origin one isn't, and no row has one.
+
+**Properties added to the four:**
+
+5. A rejected or missing frame fails the command. Nothing is caught, and no press goes out without the round trip.
+6. The row still fails with `restoreFocus` removed, and with it 30 ms late, in Chromium and WebKit.
+
+**The implementer's list,** on `drag/quick-presses-1`:
+
+1. The candidate's change in `tests/support/commands.node.ts`, with a comment that says why: in WebKit the UI process can still hold the runner's frame as focused, and the reply of the page comes after its message. The type of the context is the file's own style. No test and no source file changes.
+2. The witness as the note has it: `frame-focus.sh webkit y-geometry` and `pairs.sh 30 consumer/webkit y-geometry` on two CPUs, three runs each, before and after. Before must lose keys in the control. If `pairs.sh` loses none before, its result isn't a witness, and the control is enough. After, none is lost.
+3. Property 6, read once with and without the repair.
+4. The drag suites in the three engines, one at a time, typecheck, lint, the root format check. Property 4 by reading `hot-path.browser.test.ts`: at `923ab358a` each press follows the end of its window.
+5. The pull request says `Closes #194`.
+
+**No feature proof is owed:** no shipped file changes, and the discriminating reading is the control. **Closure** is the architect's, on that list and a CI that passes on the last commit. One CI isn't a witness for a 1 % race, so the record has the control's counts.
+
+**`DRD-72` (#265) doesn't wait for this,** as the note says, and this doesn't wait for it. It neither changes the command nor the row. Until (A) is in, a file of its rows that begins with a key can fail in WebKit, and such a failure is this entry's. #194's description no longer holds: the cause is known, and it is the test's.
+
+**Dated 2026-11-25 by the implementer: (A) is in, on `drag/quick-presses-1`, with `main` merged at `ca6918376`, and not closed.** Requested by the coordinator. One [reading](quick-presses-1/checks/repair.txt) has all of the below.
+
+- **The change,** in `tests/support/commands.node.ts` alone: `keyPress` evaluates an empty function in the test's frame before the key, under Playwright, with a comment that says why. Nothing is caught. The context's type is a helper beside `pageOf`. No test and no source file changes.
+- **The control,** WebKit, `y-geometry` beside, on CPUs 10 and 11, three runs of 250 keys: before **24 of 750** keys (7, 9 and 8) go to the wrong frame, after **0 of 750**. The other variants lose none, before and after.
+- **The pairs,** 30 a run, three runs: before 1 of 90 (0, 0 and 1), after 0 of 90. The failure's trace has the first `keydown` in the parent. At that rate 0 of 90 says little, so the control is the witness.
+- **Property 6,** 20 runs each, without the repair and with it, in Chromium and WebKit: unmutated passes, `restoreFocus` removed and 30 ms late fail, with the same assertion.
+- **Property 4,** by reading `hot-path.browser.test.ts`: each of its presses follows the end of its window.
+- **Suites,** browser, consumer and shipped: Chromium 878 passed, Firefox and WebKit 858 passed and 20 skipped. Typecheck, lint on the file and the root format check pass.
+- **Not run:** Safari, whose branch doesn't change.
+
+**Dated 2026-11-25 by the architect: closed at `767d489f6`.** Requested by the coordinator. Read: the diff of the commit, its [reading](quick-presses-1/checks/repair.txt), `hot-path.browser.test.ts` and the job log of `verify` run 45648244003. No reading was repeated.
+
+- **Required property:** the cause is known and it is repaired in the test, so the row's result depends on the code. The witness is the control, 24 of 750 keys to the wrong frame before and 0 of 750 after. The pairs, 1 of 90 before and 0 of 90 after, say little at that rate.
+- **Properties 1 to 6 hold.**
+  - _1:_ the control in WebKit. In Chromium and Firefox the control lost no key without the repair, it wasn't run with it, and their suites pass.
+  - _2 and 5, by reading:_ `keyPress` awaits the evaluation in the test's frame and catches nothing, so a missing or rejected frame fails the command before the key.
+  - _3:_ outside the record, the branch's only changed file is `tests/support/commands.node.ts`, and its hunks are the type, the helper and the Playwright branch of `keyPress`.
+  - _4, by reading:_ each of the five presses follows the end of its row's window.
+  - _6:_ with `restoreFocus` removed, and 30 ms late, the row fails in Chromium and WebKit, without the repair and with it.
+- **CI:** `verify` run 45648244003 passes at `767d489f6`, in the three engines. Its `measurements` job reports a failure. Its 12 rows pass, and its Comment step ended with _"unexpected end of JSON input"_ from `gh api`, so the size comment wasn't posted. That is neither the row's nor this change's, and nothing is registered for one occurrence. The run is one pass of a race of about 1 %, so it isn't the witness. The commit of this note changes the record alone.
+- **Accepted departures:** other sessions ran in the container, before and after. The loads of the control and the pairs are in the reading, and the control needs a busy second page, not an idle machine. The 30 ms mutation takes `restoreFocus`'s arguments at once, which is the mutation that property 6 asks for. The pairs' reporter printed a probe's line only for a failure, and the totals are the file's own counts.
+- **Remaining limits:** Safari wasn't run. A cross-origin nested frame has no row. `userEvent.tab` has the same exposure, with no known failure, as the acceptance says.
+- Until this dating the entry said **open**, because the instrument was unsound until the cause was known. The package loses no press, so the tier stays B.
 
 #### DRF-55 — A landing is reported as a fault when the dropped item left its list during the verdict
 
