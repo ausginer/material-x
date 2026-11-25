@@ -5870,7 +5870,7 @@ Tier A, **closed on 2026-11-24** (the last note), pre-existing. Before closure: 
 
 #### RF-128 — A handle shows the browser's focus indicator, and not Material's
 
-Tier A, **open**, pre-existing. Until the last note it was Tier C. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's third observation of that day, relayed by the coordinator: _"ещё один: при фокусе на ручке outline синий. Я так понимаю, нативный, и не знаю, нам надо это трогать, или нет"_ ("One more: when the handle has focus, its outline is blue. As I understand it, it's native, and I don't know whether we should touch it"). Read at `114270083` in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt) and [the candidate's](sortable-observations-1/checks/handle-indicator.txt), [probe](sortable-observations-1/probes/handle-indicator.mjs)).
+Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Until the architect's note of 2026-11-24 it was Tier C. Registered on 2026-11-24 by the architect, on `repo/sortable-observations-1`, on the owner's third observation of that day, relayed by the coordinator: _"ещё один: при фокусе на ручке outline синий. Я так понимаю, нативный, и не знаю, нам надо это трогать, или нет"_ ("One more: when the handle has focus, its outline is blue. As I understand it, it's native, and I don't know whether we should touch it"). Read at `114270083` in Chromium, Firefox and WebKit ([readings](sortable-observations-1/checks/focus-indicator.txt) and [the candidate's](sortable-observations-1/checks/handle-indicator.txt), [probe](sortable-observations-1/probes/handle-indicator.mjs)).
 
 - **Whose element:** the consumer's, in the item's `lead` or `trail` slot. In a sortable list the package makes it a button: `sortItem` writes its `tabindex`, `role="button"`, name, description and `touch-action`.
 - **What draws it:** the browser. Nothing in the package or the story has a rule for it, and the computed outline is `auto`, 1px in Chromium and Firefox and 3px in WebKit, in the engine's color. That is the same for `mx-icon`, a `span` and a native `button`. A `mx-icon-button` as a handle already draws Material's, on its inner button.
@@ -5979,6 +5979,15 @@ Tier A, **open**, pre-existing. Until the last note it was Tier C. Registered on
 - **Size, Brotli** ([all](handle-focus-1/checks/sizes-remediation.txt)), with and without the unit's three source files in the same worktree: `list/list-item` 2726 to 2772, `list/list-button-item` 4895 to 4898, `list/list-link-item` 5094 to 5121, `list/sortable-list` 9093 to 9092, `list/list` 591 to 592, `complete` 25699 to 25743. Other rows of material-x move by −10 to +26 with the same sources, and the cause wasn't read. The rows of other packages don't move. The gate passes; material-x's rows have no limit.
 - **Checks:** `tests/list`, which has `list-item.spec`, passes in Chromium (370), Firefox (358, 2 skipped) and WebKit (368, 2 skipped). material-x without the visual project passes in Chromium, 42 files. Root typecheck, the declarations' typecheck, lint, the root format check, publint, `docs-build` and `docs-smoke` (129 pages) pass.
 - **Item 6:** #267's description is updated.
+
+**Closed 2026-11-25 by the architect,** with `RF-135`, on the [feature proof](reviews/handle-focus-1/feature-proof-claude.md) of `b9428b5df`, the rulings above and the implementer's list, read at `66618d70d`, requested by the coordinator. It has `main` at `2c83c7bc0`, and nothing is newer. #267 merges both entries, with `Closes #229` and `Closes #253`.
+
+- **Read by the architect:** since the ruling the branch's own change to the sources is the narrowed selector with its comment and the _Handles_ sentences, as ordered, and to the tests the nine rows. The saved witnesses have 134 passed unmutated and 4, 2, 2, 2 and 3 failed in each engine, with each run's message. The ring reading has 1,548 values, each 100%, and differs from the proof's by the line that the proof lost. `tests/list` is the implementer's, and the coordinator compared it.
+- **Accepted departures:** the witnesses are the second run on the tree, with other sessions on the machine, which the owner accepts. The reading is complete and the engines agree, so the load isn't a doubt about it. `messages-reporter.mjs` is what saves the messages.
+- **The second to merge,** by `RF-129`'s note: both contracts and notes are kept, `build:prepare` and `tests/list` were run again, and no sheet conflicts.
+- **Limits that stand:** an element's own `:host` rule loses to the rule, which the _Handles_ text says, and a page's bounded trailing child spills, which #267's description says. Not read: Safari.
+- **Condition:** CI passes on the last commit of #267. The last commit after `66618d70d` is records alone.
+- **After it:** `RF-139` and `RF-142` (#271) wait for nothing here. Nothing is the owner's.
 
 #### RF-129 — The sortable list takes the baseline `dragged` tokens, and Material's `reorder` set is the one for its lists
 
@@ -6304,7 +6313,7 @@ Tier A, **open**, pre-existing. Until the last note, of 2026-11-24, it was Tier 
 
 #### RF-135 — A list item's trail slot clips the focus indicator of what is in it, and in Firefox all of it
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `material-x/handle-focus-1`, from the implementer's return of `RF-128`, on the coordinator's question whether it is a finding of its own. `RF-134` is the highest `RF-` on any branch on `origin` and in the local slots, so this is the next free number. Read at `751b1fb81` merged, on the built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](handle-focus-1/checks/trail-focus.txt), [probe](handle-focus-1/probes/trail-focus.mjs)).
+Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `material-x/handle-focus-1`, from the implementer's return of `RF-128`, on the coordinator's question whether it is a finding of its own. `RF-134` is the highest `RF-` on any branch on `origin` and in the local slots, so this is the next free number. Read at `751b1fb81` merged, on the built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](handle-focus-1/checks/trail-focus.txt), [probe](handle-focus-1/probes/trail-focus.mjs)).
 
 - **What happens:** `.trail` has `overflow: hidden` and fits its content, so the indicator, which lies 2px outside the control, is cut. In a plain `mx-list` with a static item, the indicator's own pixels, whole in `lead` and cut in `trail`:
 
@@ -6324,6 +6333,8 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `m
 - **Plan needed:** no. **Ready.** The owner's approval of the start is for the coordinator to ask. **Size:** _small_.
 
 **Dated 2026-11-25 by the architect:** the property holds by the [feature proof](reviews/handle-focus-1/feature-proof-claude.md), and nothing is owed here. `RF-128`'s note of this day has the rulings for both. `reviewer-3`'s mutation of `align-content` gets no row, and `reviewer-4` is answered there.
+
+**Closed 2026-11-25 by the architect,** with `RF-128`, whose last note has the reading and the condition.
 
 #### RF-136 — The split button's trailing button is named by its icon's ligature, can't be given a name, and doesn't expose `open`
 
