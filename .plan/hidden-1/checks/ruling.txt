@@ -1,0 +1,87 @@
+
+# chromium 158.0.8127.18
+
+## head
+  a hidden, then shown: Tab after; ArrowRight from c c, c, c; shown again, Tab a
+  a display: none by class: Tab after; ArrowRight from c c, c, c
+  a disabled: Tab after; ArrowRight from c b, c, b
+  b hidden: Tab a; ArrowRight from c a, a, a
+  a hidden, a page display shows it: Tab a; ArrowRight from c a, b, c
+
+## roving
+  a hidden, then shown: Tab b; ArrowRight from c b, c, b; shown again, Tab b
+  a display: none by class: Tab after; ArrowRight from c b, c, b
+  a disabled: Tab b; ArrowRight from c b, c, b
+  b hidden: Tab a; ArrowRight from c a, c, a
+  a hidden, a page display shows it: Tab a; ArrowRight from c a, b, c
+
+## native
+  a hidden, then shown: Tab b; ArrowRight from c b, c, b; shown again, Tab b
+  a display: none by class: Tab b; ArrowRight from c b, c, b
+  a disabled: Tab b; ArrowRight from c b, c, b
+  b hidden: Tab a; ArrowRight from c a, c, a
+  a hidden, a page display shows it: Tab b; ArrowRight from c b, c, b
+
+## avatar, head
+  mx-icon "" grid, mx-icon "true" grid, mx-icon "until-found" grid, span "" grid, span "UNTIL-FOUND" grid, mx-icon without grid, span without grid, a page's display inline-block
+
+## avatar, avatar
+  mx-icon "" none, mx-icon "true" none, mx-icon "until-found" grid, span "" none, span "UNTIL-FOUND" grid, mx-icon without grid, span without grid, a page's display inline-block
+
+# firefox 159.0
+
+## head
+  a hidden, then shown: Tab after; ArrowRight from c c, c, c; shown again, Tab a
+  a display: none by class: Tab after; ArrowRight from c c, c, c
+  a disabled: Tab after; ArrowRight from c b, c, b
+  b hidden: Tab a; ArrowRight from c a, a, a
+  a hidden, a page display shows it: Tab a; ArrowRight from c a, b, c
+
+## roving
+  a hidden, then shown: Tab b; ArrowRight from c b, c, b; shown again, Tab b
+  a display: none by class: Tab after; ArrowRight from c b, c, b
+  a disabled: Tab b; ArrowRight from c b, c, b
+  b hidden: Tab a; ArrowRight from c a, c, a
+  a hidden, a page display shows it: Tab a; ArrowRight from c a, b, c
+
+## native
+  a hidden, then shown: Tab b; ArrowRight from c b, c, b; shown again, Tab b
+  a display: none by class: Tab b; ArrowRight from c b, c, b
+  a disabled: Tab b; ArrowRight from c b, c, b
+  b hidden: Tab a; ArrowRight from c a, c, a
+  a hidden, a page display shows it: Tab b; ArrowRight from c b, c, b
+
+## avatar, head
+  mx-icon "" grid, mx-icon "true" grid, mx-icon "until-found" grid, span "" grid, span "UNTIL-FOUND" grid, mx-icon without grid, span without grid, a page's display inline-block
+
+## avatar, avatar
+  mx-icon "" none, mx-icon "true" none, mx-icon "until-found" grid, span "" none, span "UNTIL-FOUND" grid, mx-icon without grid, span without grid, a page's display inline-block
+
+# webkit 27.2
+
+## head
+  a hidden, then shown: Tab after; ArrowRight from c c, c, c; shown again, Tab a
+  a display: none by class: Tab after; ArrowRight from c c, c, c
+  a disabled: Tab after; ArrowRight from c b, c, b
+  b hidden: Tab a; ArrowRight from c a, a, a
+  a hidden, a page display shows it: Tab a; ArrowRight from c a, b, c
+
+## roving
+  a hidden, then shown: Tab b; ArrowRight from c b, c, b; shown again, Tab b
+  a display: none by class: Tab after; ArrowRight from c b, c, b
+  a disabled: Tab b; ArrowRight from c b, c, b
+  b hidden: Tab a; ArrowRight from c a, c, a
+  a hidden, a page display shows it: Tab a; ArrowRight from c a, b, c
+
+## native
+  a hidden, then shown: Tab b; ArrowRight from c c, c, c; shown again, Tab a
+  a display: none by class: Tab b; ArrowRight from c c, c, c
+  a disabled: Tab b; ArrowRight from c c, c, c
+  b hidden: Tab a; ArrowRight from c c, c, c
+  a hidden, a page display shows it: Tab b; ArrowRight from c c, c, c
+
+## avatar, head
+  mx-icon "" grid, mx-icon "true" grid, mx-icon "until-found" grid, span "" grid, span "UNTIL-FOUND" grid, mx-icon without grid, span without grid, a page's display inline-block
+
+## avatar, avatar
+  mx-icon "" none, mx-icon "true" none, mx-icon "until-found" grid, span "" none, span "UNTIL-FOUND" grid, mx-icon without grid, span without grid, a page's display inline-block
