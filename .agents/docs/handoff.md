@@ -34,7 +34,7 @@ aube exec oxlint <changed-files>
 aube exec -- eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts <changed-files>
 ```
 
-Source and tooling changes owe their applicable typechecks and tests. Use the component and visual-contract skills when the changed tests require them. Record a check failure and its scope; do not turn incomplete verification into acceptance.
+Source and tooling changes owe their applicable typechecks and tests. An implementer runs them, witnesses included, in Chromium, and doesn't wait for CI's other engines; a feature proof runs the three ([rule](test-architecture.md#engines-in-development-and-in-review)). Use the component and visual-contract skills when the changed tests require them. Record a check failure and its scope; do not turn incomplete verification into acceptance.
 
 ### Markdown
 
