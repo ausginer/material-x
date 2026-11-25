@@ -1,0 +1,24 @@
+--- a/packages/core/src/controllers/useRovingTabindex.ts
++++ b/packages/core/src/controllers/useRovingTabindex.ts
+-  useSlot(host, slotSelector, (_, nodes) => {
+-    items.value = nodes.filter(isItem);
+-    // When slot content changes, recompute the active tab stop.
+-    items.setTabStop(items.getTabStopCandidate());
+-  });
++  useSlot(host, slotSelector, (slot, nodes) => {
++    const update = () => {
++      items.value = slot.assignedNodes().filter(isItem);
++      items.setTabStop(items.getTabStopCandidate());
++    };
++
++    update();
++
++    for (const node of nodes) {
++      if (node instanceof HTMLElement && !node.matches(':defined')) {
++        void customElements.whenDefined(node.localName).then(() => {
++          customElements.upgrade(node);
++          update();
++        });
++      }
++    }
++  });
