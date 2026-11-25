@@ -6357,6 +6357,14 @@ Tier A, **open**, **ready** (the last note), pre-existing. Registered on 2026-11
 
 **A recheck isn't owed:** no source changes, and the proof read the property itself at 200 split buttons. The coordinator checks the witnesses, and the architect closes both entries. Nothing is the owner's to answer.
 
+**Dated 2026-11-25 by the implementer, on the architect's list above, and not closed.** `main` at `2c83c7bc0` is merged. Requested by the coordinator. No source changes.
+
+- **Rows:** three in `split-button.browser.test.ts`, one for each of `color` (`tonal`), `size` (`large`) and `shape` (`square`): the leading native button has the background, height and start corner of a standalone `mx-button` with the same attribute and text. The file has 59 rows in Chromium, and 55 in Firefox and WebKit. They replace the 56 and 52 of the first note.
+- **[`mutate.mjs`](split-button-names-1/probes/mutate.mjs):** the mutation that threw is two mutations, the leading button and the host, and three more leave out one attribute each. It takes an optional list of mutations, and removes the previous report before each run, so a run that writes none can't be read as the one before it.
+- **Witnesses** ([reading](split-button-names-1/checks/witnesses-ruling.txt)), each mutation and the unmutated file once in each engine: unmutated, every row passes. Each of the two mutations of `open` fails _"should be on neither the leading button nor the host"_, and on the leading button Chromium's tree row for `open` fails too. Each of the other three fails its attribute's row. No other row fails, and no second run was needed. So the sentence _"each is failed by a mutation of its own in the three engines"_ holds now for the three absence rows. The old mutation's sections left [`witnesses.txt`](split-button-names-1/checks/witnesses.txt).
+- **Departure:** the list asks for nothing else running. The runs were one engine at a time in this session, and other sessions ran tests in the container meanwhile, on the coordinator's instruction, relayed as the owner's acceptance of parallel sessions. A failure would have been repeated three times. None was unexpected.
+- **Checks,** core and drag rebuilt and `build:prepare` run after the merge: the file in the three engines, `tests/button` and `tests/button-group` in Chromium (340 passed), material-x's typecheck, lint on the rows' file and the root format check pass. CI on the head is the pull request's.
+
 #### RF-137 — An `mx-icon`'s ligature text is part of the name of the control that it is in
 
 Tier A, **open**, **ready** after `RF-136` (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from the reading that `RF-136` asked for. `RF-136` is the entry before this one. Read as `RF-136`, with the same probe.

@@ -133,16 +133,7 @@
 ## open not written to aria-expanded | webkit | 2 failed, 50 passed
    mx-split-button open should be expanded on the trailing button from the first render
    mx-split-button open should be on the trailing button after each change
-## open on the leading button and the host too | chromium | 3 failed, 53 passed
-   mx-split-button open should be expanded on the trailing button from the first render
-   mx-split-button open should be on the trailing button after each change
-   mx-split-button accessibility tree should expose the trailing button as expanded with open
-## open on the leading button and the host too | firefox | 2 failed, 50 passed
-   mx-split-button open should be expanded on the trailing button from the first render
-   mx-split-button open should be on the trailing button after each change
-## open on the leading button and the host too | webkit | 2 failed, 50 passed
-   mx-split-button open should be expanded on the trailing button from the first render
-   mx-split-button open should be on the trailing button after each change
+# The mutations "open on the leading button too", "open on the host too", and "color", "size" and "shape not transferred" are in witnesses-ruling.txt.
 ## no aria-expanded in the template | chromium | 3 failed, 53 passed
    mx-split-button open should be collapsed on the trailing button from the first render
    mx-split-button accessibility tree should expose the label as the trailing button name

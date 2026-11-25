@@ -251,6 +251,40 @@ describe.runIf(server.browser === 'chromium')(
   },
 );
 
+describe("mx-split-button group's attributes", () => {
+  async function lookOf(member: HTMLElement) {
+    await settleAnimations(member);
+    const { backgroundColor, borderStartStartRadius, height } =
+      getComputedStyle(member.shadowRoot!.querySelector('.host')!);
+
+    return {
+      background: srgb(backgroundColor),
+      corner: borderStartStartRadius,
+      height,
+    };
+  }
+
+  it.each([
+    ['color', 'tonal'],
+    ['size', 'large'],
+    ['shape', 'square'],
+  ])(
+    "should give the leading button a button's look with the same %s",
+    async (name, value) => {
+      const splitButton = createSplitButton({ [name]: value });
+      const button = document.createElement('mx-button');
+      button.textContent = splitButton.textContent;
+      button.setAttribute(name, value);
+      document.body.append(button);
+      await nextFrame();
+
+      expect(await lookOf(getMember(splitButton, 'leading'))).toEqual(
+        await lookOf(button),
+      );
+    },
+  );
+});
+
 describe('mx-split-button disabled', () => {
   type SplitButton = ReturnType<typeof createSplitButton>;
 

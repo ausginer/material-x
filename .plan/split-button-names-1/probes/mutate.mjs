@@ -1,11 +1,13 @@
 // Run from the repository root, with the packages built:
-//   node .plan/split-button-names-1/probes/mutate.mjs <engine,...>
+//   node .plan/split-button-names-1/probes/mutate.mjs <engine,...> [<mutation,...>]
 // RF-136 and RF-138: applies each mutation to the split button's sources, runs
-// its rows, and restores the sources. `main` is the merge base's source.
+// its rows, and restores the sources. `main` is the merge base's source. With no
+// list of mutations, all of them run.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 const SOURCE = 'packages/material-x/src/button/split-button.ts';
 const TEMPLATE = 'packages/material-x/src/button/split-button.tpl.html';
+const REPORT = 'packages/material-x/.vitest/json/output.json';
 const MAIN = '855990331';
 const originals = Object.fromEntries(
   [SOURCE, TEMPLATE].map((file) => [file, readFileSync(file, 'utf8')]),
@@ -22,6 +24,8 @@ const HOST_ARIA = replaced(
   '    const innards = internals(this);',
   `    useARIA(this, trailing);\n    const innards = internals(this);`,
 )[SOURCE];
+const ARIA = "        trailing.setAttribute('aria-expanded', String(open));\n";
+const ATTRIBUTES = '{ ...BUTTON_ATTRS, ...DISABLEABLE_ATTRS }';
 const mutations = [
   ['no mutation', {}],
   ['main', { [SOURCE]: main(SOURCE), [TEMPLATE]: main(TEMPLATE) }],
@@ -55,20 +59,21 @@ const mutations = [
       [SOURCE]: `import { useARIA } from '@ydinjs/core/controllers/useARIA.js';\n${HOST_ARIA}`,
     },
   ],
+  ['open not written to aria-expanded', replaced(SOURCE, ARIA, '')],
   [
-    'open not written to aria-expanded',
+    'open on the leading button too',
     replaced(
       SOURCE,
-      "        trailing.setAttribute('aria-expanded', String(open));\n",
-      '',
+      ARIA,
+      `${ARIA}        trailing.parentElement!.querySelector('mx-button')!.setAttribute('aria-expanded', String(open));\n`,
     ),
   ],
   [
-    'open on the leading button and the host too',
+    'open on the host too',
     replaced(
       SOURCE,
-      "        trailing.setAttribute('aria-expanded', String(open));\n",
-      "        for (const e of [trailing, this, this.shadowRoot!.querySelector('mx-button')!]) e.setAttribute('aria-expanded', String(open));\n",
+      ARIA,
+      `${ARIA}        (trailing.getRootNode() as ShadowRoot).host.setAttribute('aria-expanded', String(open));\n`,
     ),
   ],
   [
@@ -79,24 +84,32 @@ const mutations = [
     "no aria-hidden on the template's icon",
     replaced(TEMPLATE, ' aria-hidden="true"', ''),
   ],
-  [
-    'disabled not transferred',
+  ['disabled not transferred', replaced(SOURCE, ATTRIBUTES, 'BUTTON_ATTRS')],
+  ...['color', 'size', 'shape'].map((name) => [
+    `${name} not transferred`,
     replaced(
       SOURCE,
-      '{ ...BUTTON_ATTRS, ...DISABLEABLE_ATTRS }',
-      'BUTTON_ATTRS',
+      `Object.keys(${ATTRIBUTES}).map`,
+      `Object.keys(${ATTRIBUTES}).filter((name) => name !== '${name}').map`,
     ),
-  ],
+  ]),
 ];
+const names = process.argv[3]?.split(',');
+const selected = names
+  ? mutations.filter(([name]) => names.includes(name))
+  : mutations;
+if (names && selected.length !== names.length)
+  throw new Error('unknown mutation');
 const restore = () => {
   for (const [file, text] of Object.entries(originals))
     writeFileSync(file, text);
 };
 try {
-  for (const [name, files] of mutations) {
+  for (const [name, files] of selected) {
     restore();
     for (const [file, text] of Object.entries(files)) writeFileSync(file, text);
     for (const engine of process.argv[2].split(',')) {
+      rmSync(REPORT, { force: true });
       spawnSync(
         'aube',
         [
@@ -115,18 +128,16 @@ try {
           maxBuffer: 1e8,
         },
       );
-      const report = JSON.parse(
-        readFileSync('packages/material-x/.vitest/json/output.json', 'utf8'),
-      );
+      const report = JSON.parse(readFileSync(REPORT, 'utf8'));
       console.log(
         `## ${name} | ${engine} | ${report.numFailedTests} failed, ${report.numPassedTests} passed`,
       );
-      const names = report.testResults.flatMap(({ assertionResults }) =>
+      const rows = report.testResults.flatMap(({ assertionResults }) =>
         assertionResults
           .filter(({ status }) => status === 'failed')
           .map(({ fullName }) => fullName),
       );
-      for (const row of names) console.log(`   ${row}`);
+      for (const row of rows) console.log(`   ${row}`);
     }
   }
 } finally {
