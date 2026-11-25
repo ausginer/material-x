@@ -5517,6 +5517,21 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `m
   | `top-app-bar/top-app-bar`             | 1354   | 1391   | +37    |
   | `complete`                            | 25743  | 25756  | +13    |
 
+**Dated 2026-11-25 by the architect: the implementer's observation isn't accepted, and the list gets one item,** requested by the coordinator. Read at `dad7198e3` on the built list item in the three engines, with the same result ([reading](hidden-1/checks/avatar-cascade.txt), [probe](hidden-1/probes/avatar-cascade.mjs)).
+
+- **Confirmed.** An element with `data-avatar` and `data-image` was 56 by 56 with the image's corners, and is 40 by 56 with the avatar's. One with `data-video` changes in the same way. With an overline and a supporting text it keeps the size and loses the corners. No page is told of these pairs, so this alone would be accepted.
+- **More than the observation says:** a hidden avatar that a page's own `display` shows is no longer drawn as one. A `span` is 40 by 40 with the avatar's colors on `main`, and an empty box of no height here. The property lets the page's `display` win, as over a native element's `hidden`, and a native element that is shown so keeps its look. The ruling read the `display` alone, so this is the ruling's fault and not the implementer's.
+- **The cause of both:** the selector is on the whole avatar rule, and only its `display` has anything to do with `hidden`.
+- **Not `:where`.** It gives the pairs back what they had, and leaves the shown avatar without its look.
+
+**The list's third item.** Only the avatar's `display` has the selector of item 1, in a rule of its own. The rest of the rule has `::slotted([data-avatar])` again, and the comment goes with the `display`. Read as a candidate: each case is as on `main`, except that a hidden avatar isn't rendered. Row: a `span` avatar with `hidden` and a page's `display: block` has the avatar's size, 40 by 40. **Witness:** it fails with the selector on the whole rule, as at `dad7198e3`. No row for the pairs: the one row holds the selector's place.
+
+**Checks:** the hidden and list rows in the three engines, every mutation of the script again with the new one, typecheck, lint, the root format check, the size table again, and #270's CI. #270's description says the new counts.
+
+**Not registered:** an `img` with `data-avatar` is 40 by 56, on `main` also, because the `img` rule sets its height. No story, row or page has one.
+
+**Recheck:** none. **Closure,** which takes the place of the one above: on the merge of #270, when the coordinator has confirmed that the repair's diff has no source outside the list item's sheet and no test outside the rows, that the witnesses of the three items are recorded, and that CI passes on its last commit. Anything else comes back to the architect. Nothing is the owner's.
+
 #### RF-122 — Slotted content inherits a container's private custom properties, and a few components read them
 
 Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/private-props-1`, relayed by the coordinator. Found by the implementer of #171 (`mx-card`, #213). `RF-121` is the highest `RF-` on any branch on `origin` (`material-x/slider-1`), so this is the next free number. The [diagnosis](private-props-1/private-props.md) holds the readings, the options and their sizes.
