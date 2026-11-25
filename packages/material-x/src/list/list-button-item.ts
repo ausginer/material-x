@@ -3,7 +3,6 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
-import { useSelectable } from '@ydinjs/core/traits/selectable.js';
 import type { EmptyObject } from 'type-fest';
 import template from './list-button-item.tpl.html' with { type: 'html' };
 import {
@@ -27,7 +26,9 @@ const ListButtonItemConstructor: Composed<
  *
  * @summary Interactive list items trigger actions with native button behavior.
  *
- * @attr {boolean} selected - Applies selected visual state.
+ * @attr {boolean} selected - Applies selected visual state, and sets the
+ *   button's own `aria-current="true"`. An `aria-current` of the host comes
+ *   first.
  * @attr {boolean} disabled - Disables interaction.
  *
  * @slot - Primary label text.
@@ -43,8 +44,7 @@ const ListButtonItemConstructor: Composed<
 export default class ListButtonItem extends ListButtonItemConstructor {
   constructor() {
     super();
-    const target = useInteractiveListItemCore(this, template);
-    useSelectable(this, target);
+    useInteractiveListItemCore(this, template, 'true');
   }
 }
 

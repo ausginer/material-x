@@ -6504,6 +6504,17 @@ Tier A, **open**, **ready** (the last note), pre-existing. Registered on 2026-11
 - **Not read:** a screen reader, Safari, core's suite with the hook removed.
 - **A feature proof is owed,** because what a page's users hear changes. **Plan needed:** no. **Size:** _small_. Nothing is the owner's.
 
+**Dated 2026-11-25 by the implementer, on `material-x/list-selected-1`: implemented by the list above, with `main` at `ee0afea12` merged.** The owner approved the removal of core's `useSelectable` on 2026-11-25, relayed by the coordinator.
+
+- **Source:** `LS-1` to `LS-3`, in the candidate's form. The JSDoc lines have the exact words.
+- **Rows:** eight in `tests/list/list-item-selected.browser.test.ts`, the button item's pair of `aria-own-value.browser.test.ts`, and core's `selectable.browser.test.ts` without the hook's two rows.
+- **Engines:** the owner ruled on 2026-11-25, relayed by the coordinator, that an implementer runs Chromium and the reviewer the three engines. It replaces _three engines_ in the list above for this note. The suites of item 5 had run in the three before: core's `selectable` 2 of 2 in each. `tests/list`, `aria-own-value` and `traits-baseline`: 428 in Chromium, 416 and 2 skipped in Firefox, 426 and 2 skipped in WebKit, and no failure. The witnesses are Chromium's alone, so no difference between engines in them was read. None is expected, because the rows read attributes of the DOM.
+- **Witnesses** ([reading](list-selected-1/checks/witnesses.txt), [program](list-selected-1/probes/mutate.mjs)), of 57 rows, failed: `main`'s sources 7; `"false"` in place of none 4; nothing written 12; `"page"` on the button 6; `"true"` on the link 6; past `setOwnARIA` 8; `aria-pressed` in its place 12; `aria-selected` beside it 6; none without a mutation. The architect's reading has 14 for `aria-pressed`. Here that mutation removes the attribute from an item that isn't selected, so the two deselected rows pass.
+- **Checks,** Chromium: core 362 passed; material-x without the visual project 2050 passed and 2 expected failures. The root format check, typecheck, lint, declarations' typecheck, size gate, publint (`material-x`; core has no recipe), `docs-build` and `docs-smoke` (129 of 129) pass.
+- **Sizes,** Brotli, one reading each, `main`'s sources then the head's: `list/list-button-item` 4968 to 4928, `list/list-link-item` 5146 to 5172, `complete` 25924 to 25908. The other 33 rows are the same.
+- **Not run:** Firefox's and WebKit's witnesses, the visual project, Safari, a screen reader, and the engines' trees on the final source. The trees above are the candidate's.
+- **Next:** the feature proof, in the three engines.
+
 #### RF-133 — material-x doesn't adapt to forced colors: a checked, selected or filled element loses what tells it apart
 
 Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-132` is the entry before this one, so this is the next free number. Read at `eddf39e7b`, at rest, with Playwright's `forcedColors: 'active'` ([readings](accessibility-findings-1/checks/axe-and-forced-colors.txt), [Chromium](accessibility-findings-1/checks/forced-chromium.png), [Firefox](accessibility-findings-1/checks/forced-firefox.png), [probe](accessibility-findings-1/probes/a11y.mjs.txt)).

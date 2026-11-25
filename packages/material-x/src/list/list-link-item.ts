@@ -1,6 +1,3 @@
-import { Bool } from '@ydinjs/core/attribute.js';
-import { setOwnARIA } from '@ydinjs/core/controllers/useARIA.js';
-import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import {
   ControlledElement,
   type ControlledElementConstructor,
@@ -37,7 +34,8 @@ const ListLinkItemConstructor: Composed<
  *
  * @summary Interactive list items navigate with native anchor behavior.
  *
- * @attr {boolean} selected - Applies selected visual state.
+ * @attr {boolean} selected - Applies selected visual state, and sets the link's
+ *   own `aria-current="page"`. An `aria-current` of the host comes first.
  * @attr {boolean} disabled - Disables navigation and focus.
  * @attr {string} href - Link destination URL.
  * @attr {string} target - Navigation target (for example `_blank`).
@@ -58,15 +56,10 @@ export default class ListLinkItem extends ListLinkItemConstructor {
     const target = useInteractiveListItemCore(
       this,
       template,
+      'page',
     ) as HTMLAnchorElement;
     useLinkable(this, target);
     useDisableableLinkable(this, target);
-
-    useAttributes(this, {
-      selected: via(Bool, (_, value) => {
-        setOwnARIA(target, 'aria-current', value ? 'page' : null);
-      }),
-    });
   }
 }
 
