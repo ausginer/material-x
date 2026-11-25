@@ -5315,6 +5315,16 @@ Tier B, **open**: the instrument is unsound until the cause is known, and the ti
 
 **`DRD-72` (#265) doesn't wait for this,** as the note says, and this doesn't wait for it. It neither changes the command nor the row. Until (A) is in, a file of its rows that begins with a key can fail in WebKit, and such a failure is this entry's. #194's description no longer holds: the cause is known, and it is the test's.
 
+**Dated 2026-11-25 by the implementer: (A) is in, on `drag/quick-presses-1`, with `main` merged at `ca6918376`, and not closed.** Requested by the coordinator. One [reading](quick-presses-1/checks/repair.txt) has all of the below.
+
+- **The change,** in `tests/support/commands.node.ts` alone: `keyPress` evaluates an empty function in the test's frame before the key, under Playwright, with a comment that says why. Nothing is caught. The context's type is a helper beside `pageOf`. No test and no source file changes.
+- **The control,** WebKit, `y-geometry` beside, on CPUs 10 and 11, three runs of 250 keys: before **24 of 750** keys (7, 9 and 8) go to the wrong frame, after **0 of 750**. The other variants lose none, before and after.
+- **The pairs,** 30 a run, three runs: before 1 of 90 (0, 0 and 1), after 0 of 90. The failure's trace has the first `keydown` in the parent. At that rate 0 of 90 says little, so the control is the witness.
+- **Property 6,** 20 runs each, without the repair and with it, in Chromium and WebKit: unmutated passes, `restoreFocus` removed and 30 ms late fail, with the same assertion.
+- **Property 4,** by reading `hot-path.browser.test.ts`: each of its presses follows the end of its window.
+- **Suites,** browser, consumer and shipped: Chromium 878 passed, Firefox and WebKit 858 passed and 20 skipped. Typecheck, lint on the file and the root format check pass.
+- **Not run:** Safari, whose branch doesn't change.
+
 #### DRF-55 — A landing is reported as a fault when the dropped item left its list during the verdict
 
 Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `material-x/live-region-1`, from `reviewer-2` of the [feature proof](../../../.plan/reviews/live-region-1/feature-proof-claude.md) of #197, relayed by the coordinator. `DRF-54` is on `repo/register-observations-7` (#195) and is the highest `DRF-` on any branch on `origin`, so this is the next free number. Read at `85051cf6c`, and the reading is in the proof's [`shifts.txt`](../../../.plan/reviews/live-region-1/checks/shifts.txt).
