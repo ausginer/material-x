@@ -2691,6 +2691,27 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 **Costs.** An icon-only control that relies on its ligature loses its name. An SVG or a text with a meaning inside an `mx-icon` is hidden too. Each icon has one more element, whose speed wasn't measured.
 
+#### RD-61 — In `mx-sortable-list`, the user can't reorder a disabled item
+
+**Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer to `RF-142`'s Q1, (c), in the wider form that Mx Architect Explainer proposed and he approved as a whole, relayed by the coordinator. His words: _"почему ручка вообще фокусится, если item disabled? Я бы предположил, что если item disabled, то всё у него внутри тоже disabled. Я верно понимаю a11y?"_ ("why does the handle take focus at all if the item is disabled? I'd expect that if an item is disabled, everything inside it is disabled too. Do I understand a11y right?"), and then, to the readings and the proposal: _"Да, отправляй"_ ("Yes, send it"). The contract is in `RF-142`. `RD-60` is on `drag/displacement-1`, so this is the next free number. **Unimplemented.**
+
+1. **A `mx-list-button-item` or `mx-list-link-item` with `disabled` isn't picked up by the user,** by pointer or by keyboard, with a handle or without, wherever in the item focus is. An arrow key then keeps its native meaning. It stays in the collection: the other items move past it and displace it. A page's own change of the DOM isn't affected.
+2. **Its handle is a disabled button:** it keeps its role and name, and has `aria-disabled="true"`. It is no tab stop, and it doesn't have the description _Use the arrow keys to move_ or `touch-action: none`. Enabled, it has again what it had. As for the rest of the handle, a value that the page wrote is the page's and stays.
+3. **The handle takes `tabindex="-1"`, and doesn't lose its tab index.** A handle that has focus when its item is disabled then keeps it, and works again when the item is enabled. With the attribute removed, focus goes to `body` in the three engines and isn't restored. **Cost:** a press or `focus()` can still focus a disabled handle, which does nothing there.
+4. **An item without a handle** doesn't have the description on its control.
+5. **`disabled` counts at the press, or at the key.** An operation that the list has admitted goes on if its item is disabled afterwards, before the lift, during the drag or while a commit is pending. A page that disables an item in its `reorder` handler while it saves would otherwise lose the move that it accepted. A page that doesn't want it refuses the move there.
+6. **A handle that is a control of the page, such as a native button or an `mx-icon-button`,** has properties 2 and 3 as any handle. It isn't natively disabled, so its own click still fires.
+7. **The page's other controls in a disabled item aren't disabled by the package.** They keep focus, operation and the item's dimming, which also dims their focus indicator. It is a documented limit: the page disables them.
+8. **`mx-list-item` has no `disabled`,** and the attribute on it changes nothing.
+
+**Why.** A disabled item's own button can't be used, its handle can, and an item without a handle can be dragged and not moved by key. The two inputs disagree, and the user of the keyboard meets a control that works and that can't be seen to have focus. ARIA 1.2's _aria-disabled_ extends to the focusable descendants of the element that has it (as the proposal quotes it; not read by the architect).
+
+**Not adopted.** `inert` on a disabled item: by knowledge it also hides its content from assistive technology. Ending the operation when its item is disabled: property 5. A disabled item that keeps its place: no one asked for it, and drag has no such items. A separate attribute for a page that wants only the item's action off: the owner saw this argument against (c), and it is added if somebody asks.
+
+**Supersedes** the sentence of `RF-129`'s property 1 _"A disabled item keeps its disabled look: a handle lifts a disabled button item, in the three engines"_, and its row of a disabled button item lifted by its handle. What is left: an item disabled during its drag takes its disabled look, so `:not(:state(disabled))` in `styles/sortable/tokens.ts` stays. `RF-129`'s text in the list's JSDoc, _"an item that isn't disabled takes Material's reorder colors"_, stays true.
+
+**Costs.** A page that disables an item and lets the user reorder it loses the reorder. A disabled item can be neither moved nor announced as movable. The size wasn't measured. The item's observer sees `disabled` in a list that sorts alone, so `mx-list` and the items pay nothing with the candidate read.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -6050,6 +6071,8 @@ Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: 
 - **Not read,** as before: Safari, touch and a pen, assistive technology, a real high-contrast theme, and a page's background image over the reorder container.
 - **Nothing is the owner's to answer.**
 
+**Dated 2026-11-25 by the architect: `RD-61` supersedes one sentence.** Property 1's _"A disabled item keeps its disabled look: a handle lifts a disabled button item, in the three engines"_, and its row, hold until `RF-142`'s unit lands. After it nothing lifts a disabled item, and an item disabled during its drag takes its disabled look.
+
 #### RF-130 — A control loses the component's own `aria-*` when the host's same attribute is removed
 
 Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `core/use-aria-1`, from `RF-124`'s ruling. `RF-129` is the highest `RF-` on any branch on `origin` (`drag/command-signal-1`), so this is the next free number. Read at `114270083` and at `20997b0e2` in Chromium, Firefox and WebKit, with the same result ([readings](aria-removed-1/checks/ruling.txt)).
@@ -6503,7 +6526,7 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `m
 - **`trail`** has the same opacity. Its readings on `main` are of a clipped indicator (`RF-135`), so they aren't in the table.
 - **Not affected:** a static `mx-list-item`, which can't be disabled, and an item's own indicator, which isn't in a slot.
 - **Why it is a problem:** a keyboard user can't see where focus is, on a control that works. The exception for inactive components in the WCAG's contrast rule doesn't apply: the control is active.
-- **Required property,** for (a) or (b) below: the focus indicator of a control in a disabled item has the contrast that it has in an enabled one, in `lead` and `trail`, in the three engines, and the item's own content keeps its disabled look.
+- **Required property, until the last note,** for (a) or (b) below: the focus indicator of a control in a disabled item has the contrast that it has in an enabled one, in `lead` and `trail`, in the three engines, and the item's own content keeps its disabled look.
 - **A candidate that holds for the handle, read in `lead`** ([reading](disabled-handle-1/checks/candidate.txt), [probe](disabled-handle-1/probes/candidate.mjs)): in `lead` and `trail` the opacity is on the slotted elements, `::slotted(:not(:focus-within))`, instead of on the slot. The focused handle's indicator is undimmed, 324 px of it in each engine, and the unfocused item has the same pixels with an icon and with a native button. **Its limits:** the focused control loses its dimming with its indicator, also after a click on it; an `mx-icon-button` is `display: contents`, so it takes no opacity and is drawn as enabled at all times; and, by reading, a page's own opacity on its element replaces the disabled one, and the trailing text's opacity isn't composed with it. The sizes weren't read.
 - **Q1, for the owner — what does a disabled item do to the controls in it?**
   - **(a) The focused control, with its indicator, is drawn without the dimming. Recommended.** No behavior changes, and the item's disabled look changes only while a control in it has focus. With the candidate, an `mx-icon-button` is undimmed at all times, which is what it is: enabled. **Cost:** the limits above, and a few bytes in two bundles.
@@ -6514,6 +6537,47 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `m
 - **Rows,** `browser`, in each engine, once Q1 is answered: for (a), the painted indicator of a handle and of an `mx-icon-button` in `lead` and in `trail` of a disabled button item has the computed color, with `coveredIndicator`, whose reading is nothing today. **Witness:** with the slot's opacity back, they fail. The unfocused disabled item has the opacity on its icon, its text and its label.
 - **Not read:** `trail` without its clip, a slotted image or text, `selected` with `disabled`, forced colors, Safari, screen readers.
 - **Plan needed:** no, once Q1 is answered. **Size:** _small_.
+
+**Dated 2026-11-25 by the architect: Q1 is answered by the owner, (c), in a wider form, and it is `RD-61`.** Requested by the coordinator. The required property above is replaced by `RD-61`'s properties 1 to 8: the handle of a disabled item works no longer, so its indicator isn't asked to be visible. **What stays of the dimming is a limit, documented:** the page's own controls in a disabled item, and a disabled handle that has focus. **Plan needed:** no. **Size:** _small_. **Ready** for an implementer, on a branch of its own.
+
+**Read by the architect,** in Chromium, Firefox and WebKit, which agree in every row, with the sources of `main` at `56bba2895` ([reading](disabled-handle-1/checks/contract-before.txt), [probe](disabled-handle-1/probes/contract.browser.test.ts.txt)):
+
+- **The inconsistency is confirmed.** A disabled button item with a handle (a `span`, a native button, an `mx-icon-button`) is moved by pointer and by key. Without a handle it is moved by pointer, and Tab skips it.
+- **`mx-list-link-item` is the same,** and one thing more: without a handle, `focus()` focuses its disabled link (`RF-101`), and an arrow key then moves it.
+- **`mx-list-item` with the attribute** is as without it.
+- **A candidate that holds** ([diff](disabled-handle-1/probes/contract-candidate.diff), [reading](disabled-handle-1/checks/contract-candidate.txt)): the list's `handle(item)` returns `null` for a disabled item, which drag declines, so drag doesn't change. `sortItem` reads the state at each update, and an observer of the host's `disabled` runs the update, so no item's code changes. With it nothing is moved, Tab skips the handle of each of the three kinds, an enabled item still passes the disabled one, and enabling restores every attribute.
+- **Disabled with focus on the handle:** focus stays, an arrow key does nothing, and after enabling it moves the item. With the tab index removed instead, focus of a `span` goes to `body` and isn't restored ([reading](disabled-handle-1/checks/contract-tabindex-removed.txt)).
+- **Disabled in the `reorder` handler and enabled 300 ms later,** by key: the move is committed, focus stays on the handle, and the next arrow key moves the item. **Disabled during a pointer drag, or between the press and the lift:** the drop proposes its move, and no state is left. The last reads the same on `main`.
+- **Every row of `tests/list` passes with it in Chromium** but the one that `RD-61` supersedes. `list-item-opacity-tokens.node.test.ts` didn't load, because the property list wasn't rebuilt after the merge.
+- **Not read:** touch, the attributes as `mx-icon-button` passes them to its native button, a screen reader's reading of the disabled handle, sizes.
+
+**The implementer's list,** on a branch from `main` once #267 and #268 are on it. #267 changes the _Handles_ text of `sortable-list.ts`, and #268 carries this record. It doesn't wait for #265 or #266, which don't touch the admission: #266 adds a line to the same configuration object, and whichever lands second merges it.
+
+1. **Source,** in `sortable-list.ts` and `sortable-item.ts`. The candidate is a direction and its form is free. One rule says whether an item is disabled, for the admission and for the semantics. `@ydinjs/drag` doesn't change, and no code is added to `mx-list` or to the items' modules. `styles/sortable/tokens.ts` doesn't change.
+2. **JSDoc.** `sortable-list.ts`, a new item after _Handles_:
+
+   > **Disabled items.** The user can't reorder an item with `disabled`, by pointer or by keyboard, and other items move past it. Its handle isn't a tab stop and has `aria-disabled`. Disabling an item doesn't end a move that has begun. Other controls in the item stay enabled, dimmed with the item, and are the page's to disable.
+
+   `list-button-item.ts` and `list-link-item.ts`, the `disabled` attribute gains _In `mx-sortable-list`, the user can't reorder the item. Controls in the item's slots aren't disabled._ `list.mdx`, _Sortable lists_, one bullet with the same facts.
+
+3. **Rows,** `browser`, in `sortable-list.browser.test.ts`, in each engine, for a button and a link item where the kind matters:
+   - a pointer drag proposes nothing: by a handle, and without one;
+   - an arrow key proposes nothing: from a focused handle, and from a focused control of the page in an item without a handle;
+   - an enabled item is moved past a disabled one, by key;
+   - Tab skips the handle: a `span`, a native button, an `mx-icon-button`;
+   - the handle's attributes while disabled from the start, after it is disabled, and after it is enabled. Values that the page set (`tabindex`, `aria-disabled`, `aria-description`, `touch-action`) stand through both. The control of a button item without a handle has no description while disabled and has it after;
+   - disabled while its handle has focus: focus stays, the key does nothing, and after enabling it moves the item;
+   - disabled in the `reorder` handler of a key move and of a drop: the move is accepted, and no drag state or placeholder is left;
+   - an `mx-list-item` with the attribute moves.
+
+   `spec`, in `sortable-list.spec.browser.test.ts`: the row of a disabled button item lifted by its handle becomes _an item disabled during its drag takes its disabled look_, against the look of the item disabled at rest. The architect ran it: it passes in the three engines, and fails in them without `:not(:state(disabled))`.
+
+4. **Witnesses,** in the three engines, one engine at a time, each saved: with the admission's rule out, the rows of the pointer and the key fail; with the semantics' rule out, Tab's and the attributes'; without the observer, the rows of a later change; with the tab index removed instead of `-1`, the focus row of a `span`; with the operation ended when its item is disabled, the handler's rows; with the attribute read on any item, `mx-list-item`'s; with `:not(:state(disabled))` out, the spec row.
+5. **Checks,** core and drag rebuilt and `build:prepare` run: `tests/list` in the three engines, material-x without the visual project in one, typecheck, the declarations' typecheck, lint, the root format check, publint, `docs-build` and `docs-smoke`. Sizes by the gate: only `list/sortable-list` and `complete` grow. **No visual baseline changes.**
+6. **The description** has `Closes #271`, the behavior that changes for a page that disables an item, and the limit.
+7. **Stop** and return if drag has to change, if a row of the keyboard or of the handles fails apart from the superseded one, or if a baseline changes.
+
+**A feature proof is owed,** because public behavior changes. **`.agents/docs/accessibility.md`,** whose list section states the rule after the unit, is project documentation, so it has its own pull request, which the coordinator takes: a disabled item can't be reordered, its handle is `aria-disabled` and no tab stop, and the page's own controls in it are the page's to disable. Nothing is the owner's to answer.
 
 ## Questions
 
