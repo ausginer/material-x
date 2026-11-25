@@ -6502,13 +6502,13 @@ Tier B, **closed on 2026-11-25** (the last note), pre-existing. Before closure: 
 - **Plan needed:** no. **Ready** for an implementer. **Size:** _small_. A published JSDoc changes, so the package's declarations change and no code does.
 - **Fixed 2026-11-25 by the implementer** on `material-x/list-slots-doc-1`, for #255. The three items' JSDoc and `list.mdx` name `lead`, `overline`, `support`, `trail` and the default slot, and the built manifest has these five for each item. The quick start also imports the icon and the button item, because `list/list.js` defines neither. Read in Chromium with a temporary probe: its icon has no box in `start`, and a 20 by 20 px box in `lead`.
 
+**Dated 2026-11-25 by the architect: approved for implementation by the owner on 2026-11-24.** In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). **Ready,** on a branch of its own, and it waits for nothing. `RF-139` edits `list.mdx` later, elsewhere on the page. The description has `Closes #255`. No feature proof is owed: the coordinator compares the names with `list-item`'s template, and `docs-build` and `docs-smoke` pass.
+
 **Closed 2026-11-25 by the architect,** at `429c50354` on `material-x/list-slots-doc-1`, requested by the coordinator. Read: the diff, and the template that the three items share. The three items' JSDoc and `list.mdx` name its five slots and no other. No feature proof is owed, because no code changes.
 
 - **The quick start's two more imports stand.** The property says that the quick start draws its icon, and `list/list.js` defines neither the icon nor the item. Other pages import their own component alone, and this entry decides nothing for them.
 - **`lead` also takes a video,** which its line doesn't name. The line is the entry's, the slot is named, and nothing is owed.
 - **Not read by the architect:** the built page. The implementer's probe read it in Chromium. CI was still running on this head.
-
-**Dated 2026-11-25 by the architect: approved for implementation by the owner on 2026-11-24.** In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). **Ready,** on a branch of its own, and it waits for nothing. `RF-139` edits `list.mdx` later, elsewhere on the page. The description has `Closes #255`. No feature proof is owed: the coordinator compares the names with `list-item`'s template, and `docs-build` and `docs-smoke` pass.
 
 #### RF-141 — A button that is upgraded after the connected group's last slot change isn't in its roving order
 
