@@ -2693,7 +2693,7 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 #### RD-61 — In `mx-sortable-list`, the user can't reorder a disabled item
 
-**Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer to `RF-142`'s Q1, (c), in the wider form that Mx Architect Explainer proposed and he approved as a whole, relayed by the coordinator. His words: _"почему ручка вообще фокусится, если item disabled? Я бы предположил, что если item disabled, то всё у него внутри тоже disabled. Я верно понимаю a11y?"_ ("why does the handle take focus at all if the item is disabled? I'd expect that if an item is disabled, everything inside it is disabled too. Do I understand a11y right?"), and then, to the readings and the proposal: _"Да, отправляй"_ ("Yes, send it"). The contract is in `RF-142`. `RD-60` is on `drag/displacement-1`, so this is the next free number. **Unimplemented.**
+**Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer to `RF-142`'s Q1, (c), in the wider form that Mx Architect Explainer proposed and he approved as a whole, relayed by the coordinator. His words: _"почему ручка вообще фокусится, если item disabled? Я бы предположил, что если item disabled, то всё у него внутри тоже disabled. Я верно понимаю a11y?"_ ("why does the handle take focus at all if the item is disabled? I'd expect that if an item is disabled, everything inside it is disabled too. Do I understand a11y right?"), and then, to the readings and the proposal: _"Да, отправляй"_ ("Yes, send it"). The contract is in `RF-142`. `RD-60` is on `drag/displacement-1`, so this is the next free number. **Implemented at `754e2089f` (#278), with properties 1, 2 and 8 amended the same day (the last note).**
 
 1. **A `mx-list-button-item` or `mx-list-link-item` with `disabled` isn't picked up by the user,** by pointer or by keyboard, with a handle or without, wherever in the item focus is. An arrow key then keeps its native meaning. It stays in the collection: the other items move past it and displace it. A page's own change of the DOM isn't affected.
 2. **Its handle is a disabled button:** it keeps its role and name, and has `aria-disabled="true"`. It is no tab stop, and it doesn't have the description _Use the arrow keys to move_ or `touch-action: none`. Enabled, it has again what it had. As for the rest of the handle, a value that the page wrote is the page's and stays.
@@ -2711,6 +2711,12 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 **Supersedes** the sentence of `RF-129`'s property 1 _"A disabled item keeps its disabled look: a handle lifts a disabled button item, in the three engines"_, and its row of a disabled button item lifted by its handle. What is left: an item disabled during its drag takes its disabled look, so `:not(:state(disabled))` in `styles/sortable/tokens.ts` stays. `RF-129`'s text in the list's JSDoc, _"an item that isn't disabled takes Material's reorder colors"_, stays true.
 
 **Costs.** A page that disables an item and lets the user reorder it loses the reorder. A disabled item can be neither moved nor announced as movable. The size wasn't measured. The item's observer sees `disabled` in a list that sorts alone, so `mx-list` and the items pay nothing with the candidate read.
+
+**Amended 2026-11-25 by the architect, on the feature proof of #278** ([report](reviews/disabled-item-1/feature-proof-claude.md)), before the merge:
+
+- **Property 1, in nested sortable lists.** What the list refuses is refused by that list. An outer sortable list may then take the press or the key, as drag's _Nested roots_ has it for anything that an inner root declines, so _"an arrow key then keeps its native meaning"_ doesn't hold there. `mx-sortable-list` in an item of another one is not a supported arrangement of its own: no record asks for it, and it has drag's rule and no promise of the package. An `mx-list` in an item is unchanged.
+- **Property 2, _"it has again what it had"_, covers the values that are on the handle.** An attribute that the page _removed_ isn't a value that the page wrote. The list writes an absent one again when the slot or `disabled` changes, as it does on `main` after a slot change. A page that wants no tab stop writes `tabindex="-1"`, which stands.
+- **Property 8 holds as written,** so the item's `disabled` isn't observed on an `mx-list-item`: setting it runs no update.
 
 ## Findings
 
@@ -6866,6 +6872,41 @@ Tier A, **open**, **ready** after #267 and #268 (the last note), pre-existing. R
 - **Size, Brotli** ([sizes](disabled-item-1/checks/sizes.txt)): `list/sortable-list` 9092 to 9182 (+90), `complete` 25813 to 25880 (+67). No other row moves.
 - **Checks:** at `754e2089f`'s sources, material-x without the visual project in Chromium (42 files), the declarations' typecheck, publint, `docs-build` and `docs-smoke`. On the merged tree, `tests/list` in Chromium (402), Firefox (390, 2 skipped) and WebKit (400, 2 skipped), typecheck, lint, the size gate and the root format check. No baseline changes.
 - **Not here:** `accessibility.md`, by the list.
+
+**Dated 2026-11-25 by the architect: the feature proof of #278 is ruled on** ([report](reviews/disabled-item-1/feature-proof-claude.md), at `9173a25a1`). Requested by the coordinator. Not repeated: the proof's readings. Read: the source at `380920c2a`, `main`'s `sortable-item.ts`, and drag's contract. `RD-61` has the amendments. Nothing is the owner's.
+
+- **`reviewer-1`: accepted, and the four rows are owed.** The list of rows in the note above is a minimum and not complete, because the properties are the contract. The rows: a press whose item is disabled before the lift is lifted and proposes its move; a page's `aria-disabled` written on a disabled handle stands on enabling; an item that left the list writes nothing on its handle when `disabled` changes; a page's `touch-action` written after the claim stands through disabling and enabling. **Witnesses:** his four mutations, each of which now fails a row.
+- **`reviewer-2`: accepted in part.** On an `mx-list-item`, property 8 is exact and the repair is one condition: the `disabled` observer isn't set on a static item, which has no such state. A row: with its `tabindex` removed by the page, `disabled` set on it writes none. **Witness:** with the observer on any item it fails. On the handle of an interactive item the contract doesn't cover a removal, and `RD-61`'s amended property 2 says so. The comment in `sortable-item.ts`, which says that a value is the item's until anyone removes it, stays true. A removal also comes back after a slot change on `main`, so it isn't this unit's.
+- **The three departures: accepted,** as the proof reads them. `claim` takes `null` and the owned names are a set. The two rows beyond the list stay. The link item's rows in Firefox aren't blind, and the cause is read.
+- **Nested sortable lists:** no finding. `RD-61`'s amended property 1 says what holds.
+- **Touch by an inline handle:** registered as `RF-145`, and wider than the observation. It is pre-existing, and not this unit's.
+- **The row of the semantics after enabling, which needs the one before it:** no act. Together they discriminate.
+- **Owed by the implementer:** the condition, the five rows with their witnesses in the three engines, the size rows if they move, and the note. **A targeted recheck by the same reviewer is owed,** of the delta from `380920c2a`: the condition, the rows and the four mutations with the new one. CI runs on it.
+
+#### RF-145 — In Chromium, touch doesn't reorder an item by most handles, `mx-icon` among them
+
+Tier A, **open**, **ready**, pre-existing. Registered on 2026-11-25 by the architect, on `material-x/disabled-item-1`, from an observation of #278's feature proof, requested by the coordinator. `RF-144` is the highest `RF-` on any branch on `origin` (`repo/axe-checks-1`), so this is the next free number. Read in Chromium 158 by CDP touch, on the built elements of `754e2089f`, an enabled item, static and button, in `lead` and `trail` ([reading](inline-handle-1/checks/touch.txt), [probe](inline-handle-1/probes/touch.mjs)), and without the package ([reading](inline-handle-1/checks/slot-text.txt), [probe](inline-handle-1/probes/slot-text.mjs)). `main` wasn't run; its `touch-action` line is the same.
+
+- **What happens:** the item is lifted, and then the finger pans: the browser sends `pointercancel`, which ends the drag. The handle has `touch-action: none` in its inline style in each case.
+
+  | Handle                                          | Touch    |
+  | ----------------------------------------------- | -------- |
+  | `mx-icon`, the handle of the list's own stories | Canceled |
+  | A `span` with text or with an `mx-icon`         | Canceled |
+  | `mx-icon-button`                                | Canceled |
+  | A native button with an `mx-icon`               | Canceled |
+  | A native button with text                       | Works    |
+
+- **Two causes.** `touch-action` doesn't apply to an inline element, nor to a `display: contents` one, which `mx-icon-button`'s host is. And in Chromium, a text slotted into a `display: contents` slot doesn't have the touch action of the host around it: with no package code, a host with `touch-action: none` and a `<slot>` pans from its text, and with a `span` or `div` around the slot too. With `slot { display: block }`, or with an element as the slotted content, it doesn't. The text of `mx-icon` is slotted so.
+- **Why it is a problem:** the JSDoc promises `touch-action: none` for any `[data-handle]` child, and the documented handle is an icon. In Chromium, a touch user can't reorder by it.
+- **Required properties:**
+  1. A touch that starts on a handle of an enabled item, the handle an inline element, an `mx-icon`, an `mx-icon-button` or a native button with any of them in it, lifts the item and isn't canceled by a pan.
+  2. Nothing changes for a mouse, the keyboard, a disabled item (`RD-61` property 2) or a page's own `touch-action`, which stands.
+- **Candidate, read in Chromium:** `display: inline-block` on a slotted `[data-handle]`, and `display: block` on `mx-icon`'s slot. Either alone leaves some of the table canceled, and both together pass all of it. Each changes boxes: the span handle in `lead` was 9x17 and is 9x0 in the reading, and a page's `display` on the handle must still win. Where the rules go is the implementer's.
+- **Interaction:** `RF-137` (`material-x/icon-name-1`) puts `mx-icon`'s slot in a `<span aria-hidden="true">`, which fails in the reading without the package as the plain slot does. So the repair must hold on both, and the second to land reads the other.
+- **Rows,** `browser`, in Chromium, by CDP touch: property 1 for each handle. **Witness:** each fails at `754e2089f`. Screenshots of the handles' boxes don't change, or the owner sees them.
+- **Not read:** a real device, Firefox, WebKit and Safari, and whether the package's other touch surfaces meet the same.
+- **Size:** _medium_.
 
 ## Questions
 
