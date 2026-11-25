@@ -1,13 +1,16 @@
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { commands, server, userEvent } from 'vitest/browser';
+import '../../src/button/icon-button.ts';
 import '../../src/list/list-button-item.ts';
 import '../../src/list/list-item.ts';
+import '../../src/list/list-link-item.ts';
 import '../../src/list/list.ts';
 import { ReorderEvent } from '../../src/list/sortable-list.ts';
 import { nextFrame } from '../browser.ts';
+import { TAB } from '../focus-indicator.ts';
 
 type ListTag = 'mx-list' | 'mx-sortable-list';
-type ItemTag = 'mx-list-item' | 'mx-list-button-item';
+type ItemTag = 'mx-list-item' | 'mx-list-button-item' | 'mx-list-link-item';
 
 type ListOptions = Readonly<{
   tag?: ListTag;
@@ -29,6 +32,10 @@ function createHandle(): HTMLElement {
 
 function createItem(tag: ItemTag, label: string, handle: boolean): HTMLElement {
   const item = document.createElement(tag);
+
+  if (tag === 'mx-list-link-item') {
+    item.setAttribute('href', '#target');
+  }
 
   if (handle) {
     item.append(createHandle());
@@ -1307,6 +1314,325 @@ describe('mx-sortable-list handle semantics', () => {
       visualOf(inner).getAttributeNames(),
       written(handleOf(handled)),
     ]).toEqual([[], []]);
+  });
+});
+
+describe('mx-sortable-list disabled items', () => {
+  const ITEMS = ['mx-list-button-item', 'mx-list-link-item'] as const;
+
+  async function setDisabled(item: HTMLElement, value: boolean): Promise<void> {
+    item.toggleAttribute('disabled', value);
+    await nextFrame();
+  }
+
+  /** The handle's semantics, with their values. */
+  function semantics(handle: HTMLElement): Record<string, string | null> {
+    return {
+      ...Object.fromEntries(
+        [
+          'tabindex',
+          'role',
+          'aria-label',
+          'aria-description',
+          'aria-disabled',
+        ].map((name) => [name, handle.getAttribute(name)]),
+      ),
+      'touch-action': handle.style.touchAction,
+    };
+  }
+
+  const ENABLED = {
+    tabindex: '0',
+    role: 'button',
+    'aria-label': 'Reorder',
+    'aria-description': DESCRIPTION,
+    'aria-disabled': null,
+    'touch-action': 'none',
+  };
+  const DISABLED = {
+    tabindex: '-1',
+    role: 'button',
+    'aria-label': 'Reorder',
+    'aria-description': null,
+    'aria-disabled': 'true',
+    'touch-action': '',
+  };
+
+  describe.each(ITEMS)('%s', (tag) => {
+    it('should propose nothing in a pointer drag by its handle', async () => {
+      const [list, [a, b]] = await createList(['A', 'B', 'C'], {
+        item: tag,
+        handles: true,
+      });
+      const events = recordReorders(list);
+      await setDisabled(a!, true);
+
+      await dragOnto(handleOf(a!), visualOf(b!));
+
+      expect([events, isDragged(a!)]).toEqual([[], false]);
+    });
+
+    it('should propose nothing in a pointer drag without a handle', async () => {
+      const [list, [a, b]] = await createList(['A', 'B', 'C'], { item: tag });
+      const events = recordReorders(list);
+      await setDisabled(a!, true);
+
+      await dragOnto(visualOf(a!), visualOf(b!));
+
+      expect([events, isDragged(a!)]).toEqual([[], false]);
+    });
+
+    it('should propose nothing for an arrow key on its focused handle', async () => {
+      const [list, [a]] = await createList(['A', 'B', 'C'], {
+        item: tag,
+        handles: true,
+      });
+      const events = recordReorders(list);
+      await setDisabled(a!, true);
+
+      handleOf(a!).focus();
+      await userEvent.keyboard('{ArrowDown}');
+
+      expect([document.activeElement, events]).toEqual([handleOf(a!), []]);
+    });
+
+    it("should propose nothing for an arrow key on a page's control in an item without a handle", async () => {
+      const [list, [a]] = await createList(['A', 'B', 'C'], { item: tag });
+      const events = recordReorders(list);
+      const control = document.createElement('button');
+      control.slot = 'trail';
+      a!.append(control);
+      await setDisabled(a!, true);
+
+      control.focus();
+      await userEvent.keyboard('{ArrowDown}');
+
+      expect([document.activeElement, events]).toEqual([control, []]);
+    });
+
+    it('should let an enabled item move past it', async () => {
+      const [list, [a, b]] = await createList(['A', 'B', 'C'], {
+        item: tag,
+        handles: true,
+      });
+      commitOnReorder(list);
+      await setDisabled(a!, true);
+
+      handleOf(b!).focus();
+      await userEvent.keyboard('{ArrowUp}');
+      await whenSettled(list, b!);
+
+      expect(order(list)).toEqual(['B', 'A', 'C']);
+    });
+
+    it.each(['span', 'button', 'mx-icon-button'])(
+      'should have a %s handle that Tab skips',
+      async (name) => {
+        const before = document.createElement('button');
+        document.body.append(before);
+        const [, [a, b]] = await createList(['A', 'B'], { item: tag });
+
+        for (const item of [a!, b!]) {
+          const handle = document.createElement(name);
+          handle.dataset['handle'] = '';
+          handle.slot = 'lead';
+          handle.textContent = '≡';
+          item.append(handle);
+        }
+
+        await setDisabled(a!, true);
+        before.focus();
+        await userEvent.keyboard(TAB);
+        const first = document.activeElement;
+        await userEvent.keyboard(TAB);
+
+        // The enabled item's own control, and then its handle.
+        expect([first, document.activeElement]).toEqual([b, handleOf(b!)]);
+      },
+    );
+
+    it('should write the semantics of a disabled handle from the start', async () => {
+      const list = document.createElement('mx-sortable-list');
+      const item = createItem(tag, 'A', true);
+      item.toggleAttribute('disabled', true);
+      list.append(item);
+      document.body.append(list);
+      await nextFrame();
+
+      expect(semantics(handleOf(item))).toEqual(DISABLED);
+    });
+
+    it('should write the semantics of a disabled handle after it is disabled', async () => {
+      const [, [a]] = await createList(['A'], { item: tag, handles: true });
+      const enabled = semantics(handleOf(a!));
+
+      await setDisabled(a!, true);
+
+      expect([enabled, semantics(handleOf(a!))]).toEqual([ENABLED, DISABLED]);
+    });
+
+    it('should write the semantics of a handle again after it is enabled', async () => {
+      const [, [a]] = await createList(['A'], { item: tag, handles: true });
+
+      await setDisabled(a!, true);
+      await setDisabled(a!, false);
+
+      expect(semantics(handleOf(a!))).toEqual(ENABLED);
+    });
+
+    it('should describe the control of an item without a handle only while it is enabled', async () => {
+      const [, [a]] = await createList(['A'], { item: tag });
+      const read = () => visualOf(a!).getAttribute('aria-description');
+      const enabled = read();
+
+      await setDisabled(a!, true);
+      const disabled = read();
+      await setDisabled(a!, false);
+
+      expect([enabled, disabled, read()]).toEqual([
+        DESCRIPTION,
+        null,
+        DESCRIPTION,
+      ]);
+    });
+  });
+
+  it('should keep the values that the page set on a handle', async () => {
+    const [, [a]] = await createList(['A'], { item: 'mx-list-button-item' });
+    const handle = createHandle();
+    const own = {
+      tabindex: '3',
+      'aria-disabled': 'false',
+      'aria-description': 'Own',
+    };
+
+    for (const [name, value] of Object.entries(own)) {
+      handle.setAttribute(name, value);
+    }
+
+    handle.style.touchAction = 'pan-x';
+    a!.append(handle);
+    await nextFrame();
+    await setDisabled(a!, true);
+    const disabled = semantics(handle);
+    await setDisabled(a!, false);
+    const expected = { ...own, 'touch-action': 'pan-x' };
+
+    expect(disabled).toMatchObject(expected);
+    expect(semantics(handle)).toMatchObject(expected);
+  });
+
+  it.each(['span', 'button'])(
+    'should keep focus on a %s handle that has it, and move with it again once enabled',
+    async (name) => {
+      const [list, [a]] = await createList(['A', 'B', 'C'], {
+        item: 'mx-list-button-item',
+      });
+      const events = recordReorders(list);
+      const handle = document.createElement(name);
+      handle.dataset['handle'] = '';
+      handle.slot = 'lead';
+      handle.textContent = '≡';
+      a!.append(handle);
+      await nextFrame();
+      commitOnReorder(list);
+
+      handle.focus();
+      await setDisabled(a!, true);
+      // Focus that an element lost for its tab index is fixed up later.
+      await nextFrame();
+      const during = document.activeElement;
+      await userEvent.keyboard('{ArrowDown}');
+      const inactive = events.length;
+      await setDisabled(a!, false);
+      const after = document.activeElement;
+      await userEvent.keyboard('{ArrowDown}');
+      await whenSettled(list, a!);
+
+      expect([during, inactive, after, events.length]).toEqual([
+        handle,
+        0,
+        handle,
+        1,
+      ]);
+    },
+  );
+
+  describe('disabled in its reorder handler', () => {
+    async function createDisabling() {
+      const result = await createList(['A', 'B', 'C'], {
+        item: 'mx-list-button-item',
+        handles: true,
+      });
+      const [list] = result;
+      list.addEventListener('reorder', (event) => {
+        const { item, next } = event as ReorderEvent;
+        item.toggleAttribute('disabled', true);
+        // Later than the attribute's observer.
+        setTimeout(() => {
+          list.insertBefore(item, next);
+        }, 50);
+      });
+      return result;
+    }
+
+    it('should be moved by an arrow key', async () => {
+      const [list, [a]] = await createDisabling();
+
+      handleOf(a!).focus();
+      await userEvent.keyboard('{ArrowDown}');
+      await expect.poll(() => order(list)).toEqual(['B', 'A', 'C']);
+      await whenSettled(list, a!);
+
+      expect(announcementOf(list)).toBe('Item 2 of 3.');
+    });
+
+    it('should be moved by a drop', async () => {
+      const [list, [a, b]] = await createDisabling();
+
+      await dragOnto(handleOf(a!), visualOf(b!));
+      await expect.poll(() => order(list)).toEqual(['B', 'A', 'C']);
+      await whenSettled(list, a!);
+
+      expect(announcementOf(list)).toBe('Item 2 of 3.');
+    });
+  });
+
+  it('should go on with a pointer drag whose item is disabled', async () => {
+    const [list, [a, b]] = await createList(['A', 'B', 'C'], {
+      item: 'mx-list-button-item',
+      handles: true,
+    });
+    const events = recordReorders(list);
+    const [x] = await lift(handleOf(a!));
+
+    await setDisabled(a!, true);
+    const dragged = isDragged(a!);
+    await commands.pointerMove(x, centerOf(visualOf(b!))[1] + 10, 8);
+    await commands.pointerRelease();
+    await whenSettled(list, a!);
+
+    expect([dragged, events.length]).toEqual([true, 1]);
+  });
+
+  it('should move an mx-list-item with the attribute', async () => {
+    const [list, [a]] = await createList(['A', 'B', 'C'], { handles: true });
+    commitOnReorder(list);
+    await setDisabled(a!, true);
+
+    handleOf(a!).focus();
+    await userEvent.keyboard('{ArrowDown}');
+    await whenSettled(list, a!);
+
+    expect(order(list)).toEqual(['B', 'A', 'C']);
+  });
+
+  it('should write the semantics of an enabled handle on an mx-list-item with the attribute', async () => {
+    const [, [a]] = await createList(['A'], { handles: true });
+
+    await setDisabled(a!, true);
+
+    expect(semantics(handleOf(a!))).toEqual(ENABLED);
   });
 });
 

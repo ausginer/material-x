@@ -4,7 +4,13 @@ const DESCRIPTION = 'Use the arrow keys to move';
 
 /** The attributes the item claims, which its observer watches. */
 const CLAIMED: MutationObserverInit = {
-  attributeFilter: ['tabindex', 'role', 'aria-label', 'aria-description'],
+  attributeFilter: [
+    'tabindex',
+    'role',
+    'aria-label',
+    'aria-description',
+    'aria-disabled',
+  ],
 };
 
 /**
@@ -19,38 +25,63 @@ export function handleOf(item: HTMLElement): HTMLElement | null {
 }
 
 /**
- * Writes the attribute when the element doesn't have it, and records it in
- * `owned`. `touch-action` is the inline style property.
+ * Whether the item is disabled. Drag's `handle(item)` and the item's semantics
+ * use this one rule. A static item has no such state, whatever its attributes.
  */
-function claim(
-  element: HTMLElement,
-  owned: string[],
+export function isDisabled(item: HTMLElement): boolean {
+  return item.matches(':state(disabled)');
+}
+
+function unclaim(
+  element: HTMLElement | null,
+  owned: Set<string>,
   name: string,
-  value: string,
 ): void {
-  if (name === 'touch-action') {
-    if (!element.style.touchAction) {
-      element.style.touchAction = value;
-      owned.push(name);
-    }
-  } else if (!element.hasAttribute(name)) {
-    element.setAttribute(name, value);
-    owned.push(name);
+  if (!owned.delete(name)) {
+    return;
+  }
+
+  if (name !== 'touch-action') {
+    element!.removeAttribute(name);
+  } else if (element!.style.touchAction === 'none') {
+    // No observer sees an inline style, so only a different value tells a
+    // consumer's `touch-action` from the item's.
+    element!.style.removeProperty(name);
   }
 }
 
-function release(element: HTMLElement | null, owned: string[]): void {
-  for (const name of owned) {
-    if (name !== 'touch-action') {
-      element!.removeAttribute(name);
-    } else if (element!.style.touchAction === 'none') {
-      // No observer sees an inline style, so only a different value tells a
-      // consumer's `touch-action` from the item's.
-      element!.style.removeProperty(name);
+/**
+ * Writes the attribute when the element doesn't have it, or has the item's own
+ * value, and records it in `owned`. With `null`, removes the item's own value.
+ * `touch-action` is the inline style property.
+ */
+function claim(
+  element: HTMLElement,
+  owned: Set<string>,
+  name: string,
+  value: string | null,
+): void {
+  if (value === null) {
+    unclaim(element, owned, name);
+  } else if (name === 'touch-action') {
+    if (!element.style.touchAction) {
+      element.style.touchAction = value;
+      owned.add(name);
     }
+  } else if (
+    owned.has(name)
+      ? element.getAttribute(name) !== value
+      : !element.hasAttribute(name)
+  ) {
+    element.setAttribute(name, value);
+    owned.add(name);
   }
+}
 
-  owned.length = 0;
+function release(element: HTMLElement | null, owned: Set<string>): void {
+  for (const name of owned) {
+    unclaim(element, owned, name);
+  }
 }
 
 /**
@@ -58,6 +89,10 @@ function release(element: HTMLElement | null, owned: string[]): void {
  * its handle's, or else its control's description, and a static item's tab
  * stop. A static item's control is its host, whose box takes focus and is its
  * `listitem`. An interactive item writes nothing on its host.
+ *
+ * A disabled item isn't reorderable: its handle is an `aria-disabled` button
+ * that is no tab stop, and neither it nor a control is described. The handle
+ * keeps a tab index, so that one that has focus doesn't lose it.
  *
  * The handle and a static item's host are the consumer's elements, and an
  * interactive item's control receives the host's `aria-*`. So a value is the
@@ -75,24 +110,18 @@ export function sortItem(
     return undefined;
   }
 
-  const handleOwned: string[] = [];
-  const controlOwned: string[] = [];
+  const handleOwned = new Set<string>();
+  const controlOwned = new Set<string>();
   let handle: HTMLElement | null = null;
 
   // Each record that reaches this function is another writer's, so its
   // attribute stops being the item's.
   const disown = (records: readonly MutationRecord[]): void => {
     for (const { target, attributeName } of records) {
-      const owned =
-        target === control
-          ? controlOwned
-          : target === handle
-            ? handleOwned
-            : [];
-      const index = owned.indexOf(attributeName!);
-
-      if (index >= 0) {
-        owned.splice(index, 1);
+      if (target === control) {
+        controlOwned.delete(attributeName!);
+      } else if (target === handle) {
+        handleOwned.delete(attributeName!);
       }
     }
   };
@@ -112,6 +141,8 @@ export function sortItem(
   const update = (): void => {
     write(() => {
       const next = handleOf(host);
+      const disabled = isDisabled(host);
+      const description = disabled ? null : DESCRIPTION;
 
       if (next !== handle) {
         release(handle, handleOwned);
@@ -125,26 +156,30 @@ export function sortItem(
       }
 
       if (handle) {
-        claim(handle, handleOwned, 'tabindex', '0');
+        claim(handle, handleOwned, 'tabindex', disabled ? '-1' : '0');
         claim(handle, handleOwned, 'role', 'button');
 
         if (!handle.hasAttribute('aria-labelledby')) {
           claim(handle, handleOwned, 'aria-label', 'Reorder');
         }
 
-        claim(handle, handleOwned, 'aria-description', DESCRIPTION);
-        claim(handle, handleOwned, 'touch-action', 'none');
+        claim(handle, handleOwned, 'aria-description', description);
+        claim(handle, handleOwned, 'aria-disabled', disabled ? 'true' : null);
+        claim(handle, handleOwned, 'touch-action', disabled ? null : 'none');
         release(control, controlOwned);
       } else {
         if (control === host) {
           claim(control, controlOwned, 'tabindex', '0');
         }
 
-        claim(control, controlOwned, 'aria-description', DESCRIPTION);
+        claim(control, controlOwned, 'aria-description', description);
       }
     });
   };
 
+  const state = new MutationObserver(update);
+
+  state.observe(host, { attributeFilter: ['disabled'] });
   update();
 
   return {
@@ -155,6 +190,7 @@ export function sortItem(
         release(control, controlOwned);
       });
       observer.disconnect();
+      state.disconnect();
       handle = null;
     },
   };
