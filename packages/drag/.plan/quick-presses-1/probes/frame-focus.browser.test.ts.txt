@@ -1,0 +1,68 @@
+/**
+ * DRF-54's control, with nothing of drag: a script focuses a button in a frame
+ * that doesn't have focus, and a key is sent at once. Which frame gets `keydown`?
+ * The variants are the ways to wait between the two, interleaved so that each has
+ * the same load.
+ * The parent here is the test frame itself, so both frames are observable.
+ */
+import { expect, it } from 'vitest';
+import { commands, userEvent } from 'vitest/browser';
+import './support/browser-commands.ts';
+
+const ROUNDS = 250;
+
+const settle = (): Promise<void> => new Promise((r) => { setTimeout(r, 20); });
+const frame = (): Promise<void> => new Promise((r) => { requestAnimationFrame(() => { r(); }); });
+
+const key = (): Promise<unknown> => commands.keyPress('ArrowDown');
+const nothing = (): Promise<unknown> => Promise.resolve();
+
+const VARIANTS: ReadonlyArray<readonly [string, () => Promise<unknown>, () => Promise<unknown>]> = [
+  ['nothing between', nothing, key],
+  ['one frame between', frame, key],
+  ['two frames between', () => frame().then(frame), key],
+  ['a mouse up between', () => commands.pointerUp(), key],
+  ['a Shift press between', () => commands.keyPress('Shift'), key],
+  ['userEvent.keyboard, which evaluates in the frame first', nothing, () => userEvent.keyboard('{ArrowDown}')],
+];
+
+it('says where the key lands', { timeout: 280_000 }, async () => {
+  const child = document.createElement('iframe');
+  const here = document.createElement('button');
+  document.body.append(here, child);
+  const inner = child.contentDocument!;
+  const there = inner.createElement('button');
+  inner.body.append(there);
+  let where = 'none';
+  const note = (name: string) => (event: KeyboardEvent): void => {
+    if (event.key === 'ArrowDown') {
+      where = name;
+    }
+  };
+  addEventListener('keydown', note('parent'), { capture: true });
+  child.contentWindow!.addEventListener('keydown', note('child'), { capture: true });
+  const results = VARIANTS.map(() => ({ focusedFirst: 0, child: 0, parent: 0, none: 0 }) as Record<string, number>);
+
+  for (let i = 0; i < ROUNDS; i += 1) {
+    for (let v = 0; v < VARIANTS.length; v += 1) {
+      const [, between, press] = VARIANTS[v]!;
+      const result = results[v]!;
+      here.focus();
+      await settle();
+      where = 'none';
+      there.focus();
+      if (inner.activeElement === there && inner.hasFocus() && document.activeElement === child) {
+        result['focusedFirst']! += 1;
+      }
+      await between();
+      await press();
+      result[where]! += 1;
+    }
+  }
+
+  VARIANTS.forEach(([label], v) => {
+    // eslint-disable-next-line no-console
+    console.log(`FRAME ${label}: ${JSON.stringify(results[v])}`);
+  });
+  expect(true).toBe(true);
+});
