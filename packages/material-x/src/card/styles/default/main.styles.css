@@ -19,4 +19,7 @@
 slot {
   --_level: 0;
   --_container-color: initial;
+
+  /* Passes the card's radius to the content that inherits it. */
+  border-radius: inherit;
 }
