@@ -6296,7 +6296,7 @@ Tier A, **open**, pre-existing. Until the last note, of 2026-11-24, it was Tier 
 
 #### RF-136 — The split button's trailing button is named by its icon's ligature, can't be given a name, and doesn't expose `open`
 
-Tier A, **open**, **ready** (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#243](https://github.com/ausginer/material-x/issues/243), relayed by the coordinator. It was seen when `RD-57` was registered. `RF-135` is on `material-x/handle-focus-1`, so this is the next free number. Read at `4e2972514`, on the built elements, in each engine's own accessibility tree, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, which agree ([Chromium](records-batch-1/checks/names-chromium.txt), [Firefox](records-batch-1/checks/names-firefox.txt), [WebKit](records-batch-1/checks/names-webkit.txt), [probe](records-batch-1/probes/names.ts)).
+Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open, ready. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#243](https://github.com/ausginer/material-x/issues/243), relayed by the coordinator. It was seen when `RD-57` was registered. `RF-135` is on `material-x/handle-focus-1`, so this is the next free number. Read at `4e2972514`, on the built elements, in each engine's own accessibility tree, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2, which agree ([Chromium](records-batch-1/checks/names-chromium.txt), [Firefox](records-batch-1/checks/names-firefox.txt), [WebKit](records-batch-1/checks/names-webkit.txt), [probe](records-batch-1/probes/names.ts)).
 
 - **What happens (the name):** the trailing button is a `button` named `keyboard_arrow_down`, the text of the `mx-icon` in the template. `RD-57` read it in Chromium only. `aria-label` on the host leaves the two buttons as they are, and names the host itself, `generic` in Chromium and Firefox and `group` in WebKit. There is no slot, attribute or property for the trailing button's name, and a part can't carry one.
 - **What happens (the state):** the trailing button has no expanded state, with `open` and without. `open` sets only the custom state `open`, which the styles read. A host `aria-expanded` or `aria-haspopup` doesn't reach the button. The split button's page says that _"`open` and `secondaryaction` communicate expanded/collapsed secondary action state"_, and to assistive technology `open` communicates nothing. The controls of the probe, a native `<button aria-expanded aria-haspopup>`, read as expanded in Chromium and Firefox, and as a pop-up button in WebKit. Its expanded state didn't come back through WebKit's protocol, so WebKit's row has the attribute's absence on the button and not a reading of the state.
@@ -6365,6 +6365,14 @@ Tier A, **open**, **ready** (the last note), pre-existing. Registered on 2026-11
 - **Departure:** the list asks for nothing else running. The runs were one engine at a time in this session, and other sessions ran tests in the container meanwhile, on the coordinator's instruction, relayed as the owner's acceptance of parallel sessions. A failure would have been repeated three times. None was unexpected.
 - **Checks,** core and drag rebuilt and `build:prepare` run after the merge: the file in the three engines, `tests/button` and `tests/button-group` in Chromium (340 passed), material-x's typecheck, lint on the rows' file and the root format check pass. CI on the head is the pull request's.
 
+**Closed 2026-11-25 by the architect,** with `RF-138`, on the [feature proof](reviews/split-button-names-1/feature-proof-claude.md) of `66e7cf867`, the ruling above and the implementer's list, read at `387b62e1d`, requested by the coordinator. `main` at `2c83c7bc0` was already merged, and #267 wasn't on it. CI passes on `387b62e1d`, and what follows it is records alone. #268 merges both entries, with `Closes #243` and `Closes #260`.
+
+- **Read by the architect:** since the ruling no source file changes, and the rows' file gains the three rows, as ordered. The saved witnesses pass 59, 55 and 55 unmutated. `open` on the leading button too fails 2, 1 and 1, on the host too 1 in each, and `color`, `size` and `shape` not transferred 1 in each. The coordinator compared the rows that fail.
+- **Accepted departures:** other sessions ran tests beside the witnesses, with the owner's acceptance as relayed. The readings are complete and agree with the proof's, so the load isn't a doubt about them. `mutate.mjs` takes a list and deletes its last report first, which keeps a run that writes none from being read as the run before.
+- **The lint note** of the first implementer's note, three errors, was true at `31b2a2c6a`, and `66e7cf867` repaired it. The ruling says so, and nothing is owed.
+- **Limits that stand:** without `secondarylabel` the trailing button has no name, as `RD-58` says. Not read: Safari, screen readers, the visual project beyond CI's.
+- **The records that merge with it:** `RF-137` is ready after this merge, `RF-139` after #267, and `RF-142`'s status now says what its last note says. `RD-58`, `RD-59`, `RD-61` and `RD-53`'s notes are in force, and need no status. Nothing is the owner's.
+
 #### RF-137 — An `mx-icon`'s ligature text is part of the name of the control that it is in
 
 Tier A, **open**, **ready** after `RF-136` (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from the reading that `RF-136` asked for. `RF-136` is the entry before this one. Read as `RF-136`, with the same probe.
@@ -6410,7 +6418,7 @@ Tier A, **open**, **ready** after `RF-136` (the last note), pre-existing. Regist
 
 #### RF-138 — A disabled split button isn't disabled
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from `RF-136`'s reading, whose rows for a disabled split button differed between the engines. `RF-137` is the entry before this one. Run at `4e2972514`, on the built elements, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](records-batch-1/checks/split-disabled.txt), [probe](records-batch-1/probes/split-disabled.mjs)).
+Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from `RF-136`'s reading, whose rows for a disabled split button differed between the engines. `RF-137` is the entry before this one. Run at `4e2972514`, on the built elements, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](records-batch-1/checks/split-disabled.txt), [probe](records-batch-1/probes/split-disabled.mjs)).
 
 - **What happens,** with `disabled` in the markup or set later, or in a disabled fieldset, the same in the three engines except where said:
   - neither inner button is `disabled`, and neither has the disabled state or look. The background is the enabled one;
@@ -6432,6 +6440,8 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 **Dated 2026-11-25 by the implementer: implemented with `RF-136`, whose last note has the rows, the witnesses and the checks, and not closed.** The constructor transfers `disabled` with the three attributes that it took already. The rows' colors are compared with a standalone `mx-button` and `mx-icon-button` in the same state.
 
 **Dated 2026-11-25 by the architect:** the feature proof finds the property whole, and no row for its last sentence. The ruling and the list are in `RF-136`'s last note.
+
+**Closed 2026-11-25 by the architect,** with `RF-136`, whose last note has the reading.
 
 #### RF-139 — A list item's long texts run out of it, and two trailing children stack
 
@@ -6525,7 +6535,7 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 
 #### RF-142 — A disabled list item dims the focus indicator of the controls in it, which still work
 
-Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `material-x/split-button-names-1`, from [#271](https://github.com/ausginer/material-x/issues/271), requested by the coordinator. It was seen by `RF-128`'s feature proof, on `material-x/handle-focus-1`. `RF-141` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `c7db9e65a`, with `main` at `e57c9f074`, on the built elements, by Tab and from screenshots, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](disabled-handle-1/checks/ring.txt), [probe](disabled-handle-1/probes/ring.mjs)).
+Tier A, **open**, **ready** after #267 and #268 (the last note), pre-existing. Registered on 2026-11-25 by the architect, on `material-x/split-button-names-1`, from [#271](https://github.com/ausginer/material-x/issues/271), requested by the coordinator. It was seen by `RF-128`'s feature proof, on `material-x/handle-focus-1`. `RF-141` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `c7db9e65a`, with `main` at `e57c9f074`, on the built elements, by Tab and from screenshots, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](disabled-handle-1/checks/ring.txt), [probe](disabled-handle-1/probes/ring.mjs)).
 
 - **The cause.** `:host(:state(disabled)) slot` in `interactive-box.styles.css` has the disabled opacity, 0.38. An opacity of the slot dims all that is painted in it, the outline of a control included.
 - **What happens,** in `mx-list-button-item` and `mx-list-link-item` with `disabled`, in `lead`, in the three engines. The contrasts are of the indicator's darkest changed pixel with what was there before:
