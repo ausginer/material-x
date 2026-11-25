@@ -1,0 +1,952 @@
+# proof-cases.browser.test.ts at cc2f71f3a. For each run: the lines of each set (ok and JUMP), then the JUMP lines, cut. 'old' runs have packages/drag/src of 5d09c0cf4, which is main's. The probe's own errors: 'lifted in flight by pointer' of 8.00 in c1, c2 and the WebKit child sets expected the activating sample to move the visual. 'the array empty' is an observation, not a property.
+## c1
+      2 JUMP chromium xy none item
+      2 JUMP chromium xy none item landing
+      2 JUMP chromium y none item
+      2 JUMP chromium y none item landing
+     45 ok   chromium xy none item
+     45 ok   chromium xy none item landing
+     45 ok   chromium y none item
+     45 ok   chromium y none item landing
+JUMP chromium y none item :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0
+JUMP chromium y none item :: lifted in flight by pointer | visual moved 8.00
+JUMP chromium xy none item :: absent r2, the array empty | jump 155.24 r3@1 | moved 155.2
+JUMP chromium xy none item :: lifted in flight by pointer | visual moved 8.00
+## c2
+      2 JUMP chromium xy none child
+      2 JUMP chromium xy none child landing
+     17 JUMP chromium xy none shell
+     17 JUMP chromium xy none shell landing
+     28 JUMP chromium xy none shellbox
+     28 JUMP chromium xy none shellbox landing
+      2 JUMP chromium y none child
+      2 JUMP chromium y none child landing
+     16 JUMP chromium y none shell
+     16 JUMP chromium y none shell landing
+     16 JUMP chromium y none shellbox
+     16 JUMP chromium y none shellbox landing
+     45 ok   chromium xy none child
+     45 ok   chromium xy none child landing
+     30 ok   chromium xy none shell
+     30 ok   chromium xy none shell landing
+     19 ok   chromium xy none shellbox
+     19 ok   chromium xy none shellbox landing
+     45 ok   chromium y none child
+     45 ok   chromium y none child landing
+     31 ok   chromium y none shell
+     31 ok   chromium y none shell landing
+     31 ok   chromium y none shellbox
+     31 ok   chromium y none shellbox landing
+JUMP chromium y none child :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0
+JUMP chromium y none child :: lifted in flight by pointer | visual moved 8.00
+JUMP chromium y none shell :: key down, insertBefore(next) | jump 12.00 r2@1 | moved 72.0
+JUMP chromium y none shell :: key down, previous.after | jump 12.00 r2@1 | moved 72.0
+JUMP chromium y none shell :: key down, neighbors moved | jump 12.00 r2@1 | moved 72.0
+JUMP chromium y none shell :: key down, commit at 50 ms | jump 12.00 r2@4 | moved 72.0
+JUMP chromium y none shell :: key down, committed to the end | jump 12.00 r2@1 | moved 72.0
+JUMP chromium y none shell :: key up | jump 12.00 r2@1 | moved 62.0
+JUMP chromium y none shell :: key up to the first | jump 12.00 r0@1 | moved 72.0
+JUMP chromium y none shell :: key down to the last | jump 12.00 r5@1 | moved 52.0
+JUMP chromium y none shell :: two keys down, second mid | jump 12.00 r3@1 | moved 72.0
+JUMP chromium y none shell :: key down then up, mid | jump 12.00 r2@1 | moved 42.0
+JUMP chromium y none shell :: flick down | jump 12.00 r1@2 | moved 52.0
+JUMP chromium y none shell :: flick up | jump 12.00 r1@2 | moved 52.0
+JUMP chromium y none shell :: drop committed | jump 12.00 r1@1 | moved 12.0
+JUMP chromium y none shell :: drop, accept later, commit then | jump 12.00 r1@4 | moved 12.0
+JUMP chromium y none shell :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0
+JUMP chromium y none shell :: lifted in flight by pointer | visual moved 8.00
+JUMP chromium y none shellbox :: key down, insertBefore(next) | jump 12.00 r2@1 | moved 72.0
+JUMP chromium y none shellbox :: key down, previous.after | jump 12.00 r2@1 | moved 72.0
+JUMP chromium y none shellbox :: key down, neighbors moved | jump 12.00 r2@1 | moved 72.0
+JUMP chromium y none shellbox :: key down, commit at 50 ms | jump 12.00 r2@4 | moved 72.0
+JUMP chromium y none shellbox :: key down, committed to the end | jump 12.00 r2@1 | moved 72.0
+JUMP chromium y none shellbox :: key up | jump 12.00 r2@1 | moved 62.0
+JUMP chromium y none shellbox :: key up to the first | jump 12.00 r0@1 | moved 72.0
+JUMP chromium y none shellbox :: key down to the last | jump 12.00 r5@1 | moved 52.0
+JUMP chromium y none shellbox :: two keys down, second mid | jump 12.00 r3@1 | moved 72.0
+JUMP chromium y none shellbox :: key down then up, mid | jump 12.00 r2@1 | moved 42.0
+JUMP chromium y none shellbox :: flick down | jump 12.00 r1@2 | moved 52.0
+JUMP chromium y none shellbox :: flick up | jump 12.00 r1@2 | moved 52.0
+JUMP chromium y none shellbox :: drop committed | jump 12.00 r1@1 | moved 12.0
+JUMP chromium y none shellbox :: drop, accept later, commit then | jump 12.00 r1@4 | moved 12.0
+JUMP chromium y none shellbox :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0
+JUMP chromium y none shellbox :: lifted in flight by pointer | visual moved 8.00
+JUMP chromium xy none child :: absent r2, the array empty | jump 155.24 r3@1 | moved 155.2
+JUMP chromium xy none child :: lifted in flight by pointer | visual moved 8.00
+JUMP chromium xy none shell :: key down, insertBefore(next) | jump 12.00 r2@1 | moved 88.8
+JUMP chromium xy none shell :: key down, previous.after | jump 12.00 r2@1 | moved 88.8
+JUMP chromium xy none shell :: key down, neighbors moved | jump 12.00 r2@1 | moved 88.8
+JUMP chromium xy none shell :: key down, commit at 50 ms | jump 12.00 r3@4 | moved 88.8
+JUMP chromium xy none shell :: key down, committed to the end | jump 12.00 r2@1 | moved 92.0
+JUMP chromium xy none shell :: key up | jump 12.00 r2@1 | moved 72.0
+JUMP chromium xy none shell :: key up to the first | jump 12.00 r0@1 | moved 102.0
+JUMP chromium xy none shell :: key down to the last | jump 151.22 r5@1 | moved 80.9
+JUMP chromium xy none shell :: two keys down, second mid | jump 12.00 r3@1 | moved 98.0
+JUMP chromium xy none shell :: key down then up, mid | jump 24.00 r3@1 | moved 39.7
+JUMP chromium xy none shell :: flick down | jump 12.00 r1@2 | moved 114.5
+JUMP chromium xy none shell :: flick up | jump 12.00 r5@2 | moved 102.0
+JUMP chromium xy none shell :: drop committed | jump 12.00 r1@1 | moved 12.0
+JUMP chromium xy none shell :: Escape up, mid | jump 12.00 r5@1 | moved 51.0
+JUMP chromium xy none shell :: drop, accept later, commit then | jump 12.00 r1@4 | moved 12.0
+JUMP chromium xy none shell :: absent r2, the array empty | jump 88.81 r4@1 | moved 88.8
+JUMP chromium xy none shell :: lifted in flight by pointer | visual moved 8.00
+JUMP chromium xy none shellbox :: key down, insertBefore(next) | jump 12.00 r2@1 | moved 88.8
+JUMP chromium xy none shellbox :: key down, previous.after | jump 12.00 r2@1 | moved 88.8
+JUMP chromium xy none shellbox :: key down, neighbors moved | jump 12.00 r2@1 | moved 88.8
+JUMP chromium xy none shellbox :: key down, commit at 50 ms | jump 12.00 r2@4 | moved 88.8
+JUMP chromium xy none shellbox :: key down, committed to the end | jump 12.00 r2@1 | moved 92.0
+JUMP chromium xy none shellbox :: key down to the last | jump 162.54 r5@1 | moved 80.9
+JUMP chromium xy none shellbox :: key down then up, mid | jump 12.00 r3@1 | moved 39.7
+JUMP chromium xy none shellbox :: flick down | jump 12.00 r1@2 | moved 114.5
+JUMP chromium xy none shellbox :: flick up | jump 12.00 r5@2 | moved 102.0
+JUMP chromium xy none shellbox :: flick down, rejected later | jump 12.00 r1@2 | moved 12.0
+JUMP chromium xy none shellbox :: flick down, rejected at once | jump 12.00 r1@2 | moved 12.0
+JUMP chromium xy none shellbox :: drop committed | jump 12.00 r1@1 | moved 12.0
+JUMP chromium xy none shellbox :: Escape, rest | jump 12.00 r1@1 | moved 125.3
+JUMP chromium xy none shellbox :: Escape, mid | jump 12.00 r1@1 | moved 62.7
+JUMP chromium xy none shellbox :: requestCancel, rest | jump 12.00 r1@1 | moved 125.3
+JUMP chromium xy none shellbox :: invalidate and requestCancel | jump 12.00 r1@1 | moved 125.3
+JUMP chromium xy none shellbox :: drop, reject at once | jump 12.00 r1@1 | moved 125.3
+JUMP chromium xy none shellbox :: drop, reject later | jump 12.00 r1@4 | moved 62.7
+JUMP chromium xy none shellbox :: drop, accept later no commit | jump 12.00 r1@4 | moved 125.3
+JUMP chromium xy none shellbox :: drop, accept later, commit then | jump 12.00 r1@4 | moved 12.0
+JUMP chromium xy none shellbox :: drop, onReorder throws | jump 12.00 r1@1 | moved 125.3
+JUMP chromium xy none shellbox :: pointercancel | jump 12.00 r1@1 | moved 125.3
+JUMP chromium xy none shellbox :: absent r0 | jump 12.00 r1@1 | moved 125.3
+JUMP chromium xy none shellbox :: absent r2 | jump 12.00 r3@1 | moved 88.8
+JUMP chromium xy none shellbox :: absent r0, mid | jump 12.00 r1@1 | moved 62.7
+JUMP chromium xy none shellbox :: absent r2, mid | jump 12.00 r3@1 | moved 44.4
+JUMP chromium xy none shellbox :: absent r2, the array empty | jump 88.81 r4@1 | moved 88.8
+JUMP chromium xy none shellbox :: lifted in flight by pointer | visual moved 8.00
+## c3
+      1 JUMP chromium xy rot child
+      1 JUMP chromium xy rot child landing
+      1 JUMP chromium xy rot item
+      1 JUMP chromium xy rot item landing
+      1 JUMP chromium y none item list{display:flex;flex-direction:column;gap:8px}
+      1 JUMP chromium y none item list{display:flex;flex-direction:column;gap:8px} landing
+     38 JUMP chromium y none item row{margin-bottom:8px;}
+     38 JUMP chromium y none item row{margin-bottom:8px;} landing
+      1 JUMP chromium y scale item
+      1 JUMP chromium y scale item landing
+      1 JUMP chromium y zoom child
+      1 JUMP chromium y zoom child landing
+     46 ok   chromium xy rot child
+     46 ok   chromium xy rot child landing
+     46 ok   chromium xy rot item
+     46 ok   chromium xy rot item landing
+     46 ok   chromium y none item list{display:flex;flex-direction:column;gap:8px}
+     46 ok   chromium y none item list{display:flex;flex-direction:column;gap:8px} landing
+      9 ok   chromium y none item row{margin-bottom:8px;}
+      9 ok   chromium y none item row{margin-bottom:8px;} landing
+     46 ok   chromium y scale item
+     46 ok   chromium y scale item landing
+     46 ok   chromium y zoom child
+     46 ok   chromium y zoom child landing
+JUMP chromium y scale item :: absent r2, the array empty | jump 37.50 r3@1 | moved 37.5
+JUMP chromium y zoom child :: absent r2, the array empty | jump 45.00 r3@1 | moved 45.0
+JUMP chromium xy rot item :: absent r2, the array empty | jump 124.19 r3@1 | moved 124.2
+JUMP chromium xy rot child :: absent r2, the array empty | jump 124.19 r3@1 | moved 124.2
+JUMP chromium y none item list{display:flex;flex-direction:column;gap:8px} :: absent r2, the array empty | jump 38.00 r3@1 | moved 38.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key down, insertBefore(next) | jump 8.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key down, previous.after | jump 8.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key down, neighbors moved | jump 8.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key down, commit at 50 ms | jump 8.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key down, committed to the end | jump 8.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key up | jump 8.00 r2@1 | moved 58.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key up to the first | jump 8.00 r0@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key down to the last | jump 8.00 r5@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key reject later, rest | jump 8.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key reject later, mid | jump 8.00 r2@1 | moved 38.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key up reject later, mid | jump 8.00 r4@1 | moved 25.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key accept later no commit, rest | jump 8.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key verdict throws later, mid | jump 8.00 r2@1 | moved 38.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key requestCancel pending, mid | jump 8.00 r2@1 | moved 38.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key Escape pending, rest | jump 8.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: two keys down, second mid | jump 8.00 r3@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key down then up, mid | jump 8.00 r2@2 | moved 38.0
+JUMP chromium y none item row{margin-bottom:8px;} :: flick down | jump 8.00 r4@2 | moved 40.0
+JUMP chromium y none item row{margin-bottom:8px;} :: flick up | jump 8.00 r1@2 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: flick down, rejected later | jump 8.00 r4@2 | moved 8.0
+JUMP chromium y none item row{margin-bottom:8px;} :: flick down, rejected at once | jump 8.00 r1@2 | moved 8.0
+JUMP chromium y none item row{margin-bottom:8px;} :: drop committed | jump 8.00 r4@1 | moved 8.0
+JUMP chromium y none item row{margin-bottom:8px;} :: Escape, rest | jump 8.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: Escape, mid | jump 8.00 r1@1 | moved 28.0
+JUMP chromium y none item row{margin-bottom:8px;} :: Escape up, mid | jump 8.00 r5@1 | moved 20.0
+JUMP chromium y none item row{margin-bottom:8px;} :: requestCancel, rest | jump 8.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: invalidate and requestCancel | jump 8.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: drop, reject at once | jump 8.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: drop, reject later | jump 8.00 r1@4 | moved 28.0
+JUMP chromium y none item row{margin-bottom:8px;} :: drop, accept later no commit | jump 8.00 r1@4 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: drop, accept later, commit then | jump 8.00 r4@4 | moved 8.0
+JUMP chromium y none item row{margin-bottom:8px;} :: drop, onReorder throws | jump 8.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: pointercancel | jump 8.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: absent r0 | jump 8.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: absent r2 | jump 8.00 r3@1 | moved 38.0
+JUMP chromium y none item row{margin-bottom:8px;} :: absent r0, mid | jump 8.00 r1@1 | moved 28.0
+JUMP chromium y none item row{margin-bottom:8px;} :: absent r2, mid | jump 8.00 r3@1 | moved 15.0
+JUMP chromium y none item row{margin-bottom:8px;} :: absent r2, the array empty | jump 38.00 r3@1 | moved 38.0
+## m
+      1 JUMP chromium xy none item list{gap:8px;}
+      1 JUMP chromium xy none item list{gap:8px;} landing
+     29 JUMP chromium xy none item row{margin:4px;}
+     29 JUMP chromium xy none item row{margin:4px;} landing
+     31 JUMP chromium xy none shell list{gap:8px;}
+     31 JUMP chromium xy none shell list{gap:8px;} landing
+      1 JUMP chromium y none item row{margin-bottom:8px;/*ph*/}
+      1 JUMP chromium y none item row{margin-bottom:8px;/*ph*/} landing
+     46 ok   chromium xy none item list{gap:8px;}
+     46 ok   chromium xy none item list{gap:8px;} landing
+     18 ok   chromium xy none item row{margin:4px;}
+     18 ok   chromium xy none item row{margin:4px;} landing
+     16 ok   chromium xy none shell list{gap:8px;}
+     16 ok   chromium xy none shell list{gap:8px;} landing
+     46 ok   chromium y none item row{margin-bottom:8px;/*ph*/}
+     46 ok   chromium y none item row{margin-bottom:8px;/*ph*/} landing
+JUMP chromium xy none item row{margin:4px;} :: key down, insertBefore(next) | jump 8.00 r3@2 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: key down, previous.after | jump 8.00 r3@1 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: key down, neighbors moved | jump 8.00 r3@2 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: key down, commit at 50 ms | jump 8.00 r3@4 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: key up | jump 8.00 r2@1 | moved 68.0
+JUMP chromium xy none item row{margin:4px;} :: key up to the first | jump 8.00 r0@1 | moved 98.0
+JUMP chromium xy none item row{margin:4px;} :: key down to the last | jump 8.00 r5@1 | moved 75.3
+JUMP chromium xy none item row{margin:4px;} :: two keys down, second mid | jump 8.00 r3@1 | moved 109.1
+JUMP chromium xy none item row{margin:4px;} :: key down then up, mid | jump 8.00 r3@1 | moved 41.6
+JUMP chromium xy none item row{margin:4px;} :: flick down | jump 136.70 r4@2 | moved 109.1
+JUMP chromium xy none item row{margin:4px;} :: flick down, rejected later | jump 8.00 r1@2 | moved 8.0
+JUMP chromium xy none item row{margin:4px;} :: flick down, rejected at once | jump 8.00 r1@2 | moved 8.0
+JUMP chromium xy none item row{margin:4px;} :: drop committed | jump 136.70 r4@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: Escape, rest | jump 8.00 r1@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: Escape, mid | jump 8.00 r1@1 | moved 68.4
+JUMP chromium xy none item row{margin:4px;} :: Escape up, mid | jump 8.00 r5@1 | moved 49.0
+JUMP chromium xy none item row{margin:4px;} :: requestCancel, rest | jump 8.00 r1@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: invalidate and requestCancel | jump 8.00 r1@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: drop, reject at once | jump 8.00 r1@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: drop, reject later | jump 8.00 r1@4 | moved 68.4
+JUMP chromium xy none item row{margin:4px;} :: drop, accept later no commit | jump 8.00 r1@4 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: drop, accept later, commit then | jump 136.70 r4@4 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: drop, onReorder throws | jump 8.00 r1@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: pointercancel | jump 8.00 r1@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: absent r0 | jump 8.00 r1@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: absent r2 | jump 8.00 r3@1 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: absent r0, mid | jump 8.00 r1@1 | moved 68.4
+JUMP chromium xy none item row{margin:4px;} :: absent r2, mid | jump 8.00 r3@1 | moved 41.6
+JUMP chromium xy none item row{margin:4px;} :: absent r2, the array empty | jump 83.23 r4@1 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: absent r2, the array empty | jump 83.23 r4@1 | moved 83.2
+JUMP chromium xy none shell list{gap:8px;} :: key down, insertBefore(next) | jump 20.00 r2@1 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: key down, previous.after | jump 20.00 r2@1 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: key down, neighbors moved | jump 20.00 r2@1 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: key down, commit at 50 ms | jump 20.00 r2@4 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: key down, committed to the end | jump 20.00 r2@1 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: key up | jump 12.00 r2@1 | moved 80.0
+JUMP chromium xy none shell list{gap:8px;} :: key up to the first | jump 12.00 r0@1 | moved 110.0
+JUMP chromium xy none shell list{gap:8px;} :: key down to the last | jump 12.00 r5@1 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: two keys down, second mid | jump 12.00 r3@1 | moved 106.0
+JUMP chromium xy none shell list{gap:8px;} :: key down then up, mid | jump 32.00 r3@1 | moved 42.4
+JUMP chromium xy none shell list{gap:8px;} :: flick down | jump 20.00 r1@2 | moved 125.3
+JUMP chromium xy none shell list{gap:8px;} :: flick up | jump 20.00 r5@2 | moved 110.0
+JUMP chromium xy none shell list{gap:8px;} :: flick down, rejected later | jump 8.00 r1@2 | moved 8.0
+JUMP chromium xy none shell list{gap:8px;} :: flick down, rejected at once | jump 8.00 r1@2 | moved 8.0
+JUMP chromium xy none shell list{gap:8px;} :: drop committed | jump 20.00 r1@1 | moved 20.0
+JUMP chromium xy none shell list{gap:8px;} :: Escape, rest | jump 8.00 r1@1 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: Escape, mid | jump 8.00 r1@1 | moved 71.6
+JUMP chromium xy none shell list{gap:8px;} :: Escape up, mid | jump 12.00 r5@1 | moved 55.0
+JUMP chromium xy none shell list{gap:8px;} :: requestCancel, rest | jump 8.00 r1@1 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: invalidate and requestCancel | jump 8.00 r1@1 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: drop, reject at once | jump 8.00 r1@1 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: drop, reject later | jump 8.00 r1@4 | moved 71.6
+JUMP chromium xy none shell list{gap:8px;} :: drop, accept later no commit | jump 8.00 r1@4 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: drop, accept later, commit then | jump 20.00 r1@4 | moved 20.0
+JUMP chromium xy none shell list{gap:8px;} :: drop, onReorder throws | jump 8.00 r1@1 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: pointercancel | jump 8.00 r1@1 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: absent r0 | jump 8.00 r1@1 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: absent r2 | jump 8.00 r3@1 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: absent r0, mid | jump 8.00 r1@1 | moved 71.6
+JUMP chromium xy none shell list{gap:8px;} :: absent r2, mid | jump 8.00 r3@1 | moved 50.0
+JUMP chromium xy none shell list{gap:8px;} :: absent r2, the array empty | jump 100.00 r4@1 | moved 100.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: absent r2, the array empty | jump 38.00 r3@1 | moved 38.0
+## e-firefox
+      1 JUMP firefox xy none item
+      1 JUMP firefox xy none item landing
+      1 JUMP firefox xy rot child
+      1 JUMP firefox xy rot child landing
+      1 JUMP firefox xy rot item
+      1 JUMP firefox xy rot item landing
+      1 JUMP firefox y none item
+      1 JUMP firefox y none item landing
+     38 JUMP firefox y none item row{margin-bottom:8px;}
+     38 JUMP firefox y none item row{margin-bottom:8px;} landing
+     15 JUMP firefox y none shell
+     15 JUMP firefox y none shell landing
+      1 JUMP firefox y scale child
+      1 JUMP firefox y scale child landing
+      1 JUMP firefox y zoom child
+      1 JUMP firefox y zoom child landing
+     46 ok   firefox xy none item
+     46 ok   firefox xy none item landing
+     46 ok   firefox xy rot child
+     46 ok   firefox xy rot child landing
+     46 ok   firefox xy rot item
+     46 ok   firefox xy rot item landing
+     46 ok   firefox y none item
+     46 ok   firefox y none item landing
+      9 ok   firefox y none item row{margin-bottom:8px;}
+      9 ok   firefox y none item row{margin-bottom:8px;} landing
+     32 ok   firefox y none shell
+     32 ok   firefox y none shell landing
+     46 ok   firefox y scale child
+     46 ok   firefox y scale child landing
+     46 ok   firefox y zoom child
+     46 ok   firefox y zoom child landing
+JUMP firefox y none item :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0
+JUMP firefox xy none item :: absent r2, the array empty | jump 155.24 r3@1 | moved 155.2
+JUMP firefox y scale child :: absent r2, the array empty | jump 37.50 r3@1 | moved 37.5
+JUMP firefox y zoom child :: absent r2, the array empty | jump 45.00 r3@1 | moved 45.0
+JUMP firefox xy rot child :: absent r2, the array empty | jump 124.20 r3@1 | moved 124.2
+JUMP firefox xy rot item :: absent r2, the array empty | jump 124.20 r3@1 | moved 124.2
+JUMP firefox y none shell :: key down, insertBefore(next) | jump 12.00 r2@1 | moved 72.0
+JUMP firefox y none shell :: key down, previous.after | jump 12.00 r2@1 | moved 72.0
+JUMP firefox y none shell :: key down, neighbors moved | jump 12.00 r2@1 | moved 72.0
+JUMP firefox y none shell :: key down, commit at 50 ms | jump 12.00 r2@4 | moved 72.0
+JUMP firefox y none shell :: key down, committed to the end | jump 12.00 r2@1 | moved 72.0
+JUMP firefox y none shell :: key up | jump 12.00 r2@1 | moved 62.0
+JUMP firefox y none shell :: key up to the first | jump 12.00 r0@1 | moved 72.0
+JUMP firefox y none shell :: key down to the last | jump 12.00 r5@1 | moved 52.0
+JUMP firefox y none shell :: two keys down, second mid | jump 12.00 r3@1 | moved 72.0
+JUMP firefox y none shell :: key down then up, mid | jump 12.00 r2@2 | moved 42.0
+JUMP firefox y none shell :: flick down | jump 12.00 r1@2 | moved 52.0
+JUMP firefox y none shell :: flick up | jump 12.00 r1@2 | moved 52.0
+JUMP firefox y none shell :: drop committed | jump 12.00 r1@1 | moved 12.0
+JUMP firefox y none shell :: drop, accept later, commit then | jump 12.00 r1@3 | moved 12.0
+JUMP firefox y none shell :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key down, insertBefore(next) | jump 8.00 r2@1 | moved 68.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key down, previous.after | jump 8.00 r2@1 | moved 68.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key down, neighbors moved | jump 8.00 r2@1 | moved 68.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key down, commit at 50 ms | jump 8.00 r2@1 | moved 68.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key down, committed to the end | jump 8.00 r2@1 | moved 68.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key up | jump 8.00 r2@1 | moved 58.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key up to the first | jump 8.00 r0@1 | moved 68.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key down to the last | jump 8.00 r5@1 | moved 48.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key reject later, rest | jump 8.00 r2@1 | moved 68.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key reject later, mid | jump 8.00 r2@1 | moved 38.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key up reject later, mid | jump 8.00 r4@1 | moved 25.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key accept later no commit, rest | jump 8.00 r2@1 | moved 68.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key verdict throws later, mid | jump 8.00 r2@1 | moved 38.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key requestCancel pending, mid | jump 8.00 r2@1 | moved 38.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key Escape pending, rest | jump 8.00 r2@1 | moved 68.0
+JUMP firefox y none item row{margin-bottom:8px;} :: two keys down, second mid | jump 8.00 r3@1 | moved 68.0
+JUMP firefox y none item row{margin-bottom:8px;} :: key down then up, mid | jump 8.00 r2@1 | moved 38.0
+JUMP firefox y none item row{margin-bottom:8px;} :: flick down | jump 8.00 r4@2 | moved 40.0
+JUMP firefox y none item row{margin-bottom:8px;} :: flick up | jump 8.00 r1@2 | moved 48.0
+JUMP firefox y none item row{margin-bottom:8px;} :: flick down, rejected later | jump 8.00 r1@2 | moved 8.0
+JUMP firefox y none item row{margin-bottom:8px;} :: flick down, rejected at once | jump 8.00 r1@2 | moved 8.0
+JUMP firefox y none item row{margin-bottom:8px;} :: drop committed | jump 8.00 r4@1 | moved 8.0
+JUMP firefox y none item row{margin-bottom:8px;} :: Escape, rest | jump 8.00 r1@1 | moved 48.0
+JUMP firefox y none item row{margin-bottom:8px;} :: Escape, mid | jump 8.00 r1@1 | moved 28.0
+JUMP firefox y none item row{margin-bottom:8px;} :: Escape up, mid | jump 8.00 r5@1 | moved 20.0
+JUMP firefox y none item row{margin-bottom:8px;} :: requestCancel, rest | jump 8.00 r1@1 | moved 48.0
+JUMP firefox y none item row{margin-bottom:8px;} :: invalidate and requestCancel | jump 8.00 r1@1 | moved 48.0
+JUMP firefox y none item row{margin-bottom:8px;} :: drop, reject at once | jump 8.00 r1@1 | moved 48.0
+JUMP firefox y none item row{margin-bottom:8px;} :: drop, reject later | jump 8.00 r1@3 | moved 28.0
+JUMP firefox y none item row{margin-bottom:8px;} :: drop, accept later no commit | jump 8.00 r1@3 | moved 48.0
+JUMP firefox y none item row{margin-bottom:8px;} :: drop, accept later, commit then | jump 8.00 r4@3 | moved 8.0
+JUMP firefox y none item row{margin-bottom:8px;} :: drop, onReorder throws | jump 8.00 r1@1 | moved 48.0
+JUMP firefox y none item row{margin-bottom:8px;} :: pointercancel | jump 8.00 r1@1 | moved 48.0
+JUMP firefox y none item row{margin-bottom:8px;} :: absent r0 | jump 8.00 r1@1 | moved 48.0
+JUMP firefox y none item row{margin-bottom:8px;} :: absent r2 | jump 8.00 r3@1 | moved 38.0
+JUMP firefox y none item row{margin-bottom:8px;} :: absent r0, mid | jump 8.00 r1@1 | moved 28.0
+JUMP firefox y none item row{margin-bottom:8px;} :: absent r2, mid | jump 8.00 r3@1 | moved 15.0
+JUMP firefox y none item row{margin-bottom:8px;} :: absent r2, the array empty | jump 38.00 r3@1 | moved 38.0
+## e-webkit
+      1 JUMP webkit xy none item
+      1 JUMP webkit xy none item landing
+     37 JUMP webkit xy rot child
+     37 JUMP webkit xy rot child landing
+      1 JUMP webkit xy rot item
+      1 JUMP webkit xy rot item landing
+      1 JUMP webkit y none item
+      1 JUMP webkit y none item landing
+     38 JUMP webkit y none item row{margin-bottom:8px;}
+     38 JUMP webkit y none item row{margin-bottom:8px;} landing
+     15 JUMP webkit y none shell
+     15 JUMP webkit y none shell landing
+      1 JUMP webkit y scale child
+      1 JUMP webkit y scale child landing
+      1 JUMP webkit y zoom child
+      1 JUMP webkit y zoom child landing
+     46 ok   webkit xy none item
+     46 ok   webkit xy none item landing
+     10 ok   webkit xy rot child
+     10 ok   webkit xy rot child landing
+     46 ok   webkit xy rot item
+     46 ok   webkit xy rot item landing
+     46 ok   webkit y none item
+     46 ok   webkit y none item landing
+      9 ok   webkit y none item row{margin-bottom:8px;}
+      9 ok   webkit y none item row{margin-bottom:8px;} landing
+     32 ok   webkit y none shell
+     32 ok   webkit y none shell landing
+     46 ok   webkit y scale child
+     46 ok   webkit y scale child landing
+     46 ok   webkit y zoom child
+     46 ok   webkit y zoom child landing
+JUMP webkit y none item :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0
+JUMP webkit xy none item :: absent r2, the array empty | jump 155.24 r3@1 | moved 155.2
+JUMP webkit y scale child :: absent r2, the array empty | jump 37.50 r3@1 | moved 37.5
+JUMP webkit y zoom child :: absent r2, the array empty | jump 45.00 r3@1 | moved 45.0
+JUMP webkit xy rot child :: key down, insertBefore(next) | jump 124.19 r2@1 | moved 72.0
+JUMP webkit xy rot child :: key down, previous.after | jump 124.19 r2@1 | moved 72.0
+JUMP webkit xy rot child :: key down, neighbors moved | jump 124.19 r2@1 | moved 72.0
+JUMP webkit xy rot child :: key down, commit at 50 ms | jump 128.00 r3@1 | moved 72.0
+JUMP webkit xy rot child :: key down, committed to the end | jump 124.19 r2@1 | moved 108.8
+JUMP webkit xy rot child :: key up | jump 8.00 r5@1 | moved 124.2
+JUMP webkit xy rot child :: key down to the last | jump 178.89 r5@1 | moved 64.0
+JUMP webkit xy rot child :: key reject later, rest | jump 128.00 r3@1 | moved 72.0
+JUMP webkit xy rot child :: key reject later, mid | jump 128.00 r3@1 | moved 100.0
+JUMP webkit xy rot child :: key up reject later, mid | jump 116.48 r5@1 | moved 116.5
+JUMP webkit xy rot child :: key accept later no commit, rest | jump 128.00 r3@1 | moved 72.0
+JUMP webkit xy rot child :: key verdict throws later, mid | jump 128.00 r3@1 | moved 100.0
+JUMP webkit xy rot child :: key requestCancel pending, mid | jump 128.00 r3@1 | moved 100.0
+JUMP webkit xy rot child :: key Escape pending, rest | jump 128.00 r3@1 | moved 72.0
+JUMP webkit xy rot child :: two keys down, second mid | jump 178.89 r3@1 | moved 82.5
+JUMP webkit xy rot child :: flick down | jump 116.48 r5@1 | moved 116.5
+JUMP webkit xy rot child :: flick up | jump 64.00 r5@1 | moved 128.0
+JUMP webkit xy rot child :: flick down, rejected later | jump 124.19 r2@4 | moved 124.2
+JUMP webkit xy rot child :: flick down, rejected at once | jump 124.19 r2@1 | moved 124.2
+JUMP webkit xy rot child :: drop committed | jump 116.48 r5@1 | moved 116.5
+JUMP webkit xy rot child :: Escape, rest | jump 124.19 r2@1 | moved 116.5
+JUMP webkit xy rot child :: Escape, mid | jump 124.19 r2@1 | moved 116.5
+JUMP webkit xy rot child :: Escape up, mid | jump 116.48 r5@1 | moved 86.2
+JUMP webkit xy rot child :: requestCancel, rest | jump 124.19 r2@1 | moved 116.5
+JUMP webkit xy rot child :: invalidate and requestCancel | jump 124.19 r2@1 | moved 116.5
+JUMP webkit xy rot child :: drop, reject at once | jump 124.19 r2@1 | moved 116.5
+JUMP webkit xy rot child :: drop, reject later | jump 124.19 r2@3 | moved 116.5
+JUMP webkit xy rot child :: drop, accept later no commit | jump 124.19 r2@3 | moved 116.5
+JUMP webkit xy rot child :: drop, accept later, commit then | jump 116.48 r5@3 | moved 116.5
+JUMP webkit xy rot child :: drop, onReorder throws | jump 124.19 r2@1 | moved 116.5
+JUMP webkit xy rot child :: pointercancel | jump 124.19 r2@1 | moved 116.5
+JUMP webkit xy rot child :: absent r0 | jump 124.19 r2@1 | moved 116.5
+JUMP webkit xy rot child :: absent r2 | jump 116.48 r5@1 | moved 116.5
+JUMP webkit xy rot child :: absent r0, mid | jump 124.19 r2@1 | moved 116.5
+JUMP webkit xy rot child :: absent r2, mid | jump 116.48 r5@1 | moved 116.5
+JUMP webkit xy rot child :: absent r2, the array empty | jump 116.48 r5@1 | moved 116.5
+JUMP webkit xy rot child :: lifted in flight by pointer | visual moved 8.00
+JUMP webkit xy rot item :: absent r2, the array empty | jump 124.19 r3@1 | moved 124.2
+JUMP webkit y none shell :: key down, insertBefore(next) | jump 12.00 r2@1 | moved 72.0
+JUMP webkit y none shell :: key down, previous.after | jump 12.00 r2@1 | moved 72.0
+JUMP webkit y none shell :: key down, neighbors moved | jump 12.00 r2@1 | moved 72.0
+JUMP webkit y none shell :: key down, commit at 50 ms | jump 12.00 r2@4 | moved 72.0
+JUMP webkit y none shell :: key down, committed to the end | jump 12.00 r2@1 | moved 72.0
+JUMP webkit y none shell :: key up | jump 12.00 r2@1 | moved 62.0
+JUMP webkit y none shell :: key up to the first | jump 12.00 r0@1 | moved 72.0
+JUMP webkit y none shell :: key down to the last | jump 12.00 r5@1 | moved 52.0
+JUMP webkit y none shell :: two keys down, second mid | jump 12.00 r3@2 | moved 72.0
+JUMP webkit y none shell :: key down then up, mid | jump 12.00 r2@1 | moved 42.0
+JUMP webkit y none shell :: flick down | jump 12.00 r1@1 | moved 52.0
+JUMP webkit y none shell :: flick up | jump 12.00 r1@1 | moved 52.0
+JUMP webkit y none shell :: drop committed | jump 12.00 r1@1 | moved 12.0
+JUMP webkit y none shell :: drop, accept later, commit then | jump 12.00 r1@3 | moved 12.0
+JUMP webkit y none shell :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key down, insertBefore(next) | jump 8.00 r2@1 | moved 68.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key down, previous.after | jump 8.00 r2@1 | moved 68.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key down, neighbors moved | jump 8.00 r2@1 | moved 68.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key down, commit at 50 ms | jump 8.00 r2@1 | moved 68.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key down, committed to the end | jump 8.00 r2@1 | moved 68.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key up | jump 8.00 r2@1 | moved 58.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key up to the first | jump 8.00 r0@1 | moved 68.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key down to the last | jump 8.00 r5@1 | moved 48.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key reject later, rest | jump 8.00 r2@1 | moved 68.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key reject later, mid | jump 8.00 r2@1 | moved 38.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key up reject later, mid | jump 8.00 r4@1 | moved 25.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key accept later no commit, rest | jump 8.00 r2@1 | moved 68.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key verdict throws later, mid | jump 8.00 r2@1 | moved 38.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key requestCancel pending, mid | jump 8.00 r2@1 | moved 38.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key Escape pending, rest | jump 8.00 r2@1 | moved 68.0
+JUMP webkit y none item row{margin-bottom:8px;} :: two keys down, second mid | jump 8.00 r3@2 | moved 68.0
+JUMP webkit y none item row{margin-bottom:8px;} :: key down then up, mid | jump 8.00 r2@1 | moved 38.0
+JUMP webkit y none item row{margin-bottom:8px;} :: flick down | jump 8.00 r4@1 | moved 40.0
+JUMP webkit y none item row{margin-bottom:8px;} :: flick up | jump 8.00 r1@1 | moved 48.0
+JUMP webkit y none item row{margin-bottom:8px;} :: flick down, rejected later | jump 8.00 r2@4 | moved 8.0
+JUMP webkit y none item row{margin-bottom:8px;} :: flick down, rejected at once | jump 8.00 r1@1 | moved 8.0
+JUMP webkit y none item row{margin-bottom:8px;} :: drop committed | jump 8.00 r4@1 | moved 8.0
+JUMP webkit y none item row{margin-bottom:8px;} :: Escape, rest | jump 8.00 r1@1 | moved 48.0
+JUMP webkit y none item row{margin-bottom:8px;} :: Escape, mid | jump 8.00 r1@1 | moved 28.0
+JUMP webkit y none item row{margin-bottom:8px;} :: Escape up, mid | jump 8.00 r5@1 | moved 20.0
+JUMP webkit y none item row{margin-bottom:8px;} :: requestCancel, rest | jump 8.00 r2@1 | moved 48.0
+JUMP webkit y none item row{margin-bottom:8px;} :: invalidate and requestCancel | jump 8.00 r2@1 | moved 48.0
+JUMP webkit y none item row{margin-bottom:8px;} :: drop, reject at once | jump 8.00 r1@1 | moved 48.0
+JUMP webkit y none item row{margin-bottom:8px;} :: drop, reject later | jump 8.00 r3@3 | moved 28.0
+JUMP webkit y none item row{margin-bottom:8px;} :: drop, accept later no commit | jump 8.00 r2@3 | moved 48.0
+JUMP webkit y none item row{margin-bottom:8px;} :: drop, accept later, commit then | jump 8.00 r4@3 | moved 8.0
+JUMP webkit y none item row{margin-bottom:8px;} :: drop, onReorder throws | jump 8.00 r2@1 | moved 48.0
+JUMP webkit y none item row{margin-bottom:8px;} :: pointercancel | jump 8.00 r2@1 | moved 48.0
+JUMP webkit y none item row{margin-bottom:8px;} :: absent r0 | jump 8.00 r2@1 | moved 48.0
+JUMP webkit y none item row{margin-bottom:8px;} :: absent r2 | jump 8.00 r3@1 | moved 38.0
+JUMP webkit y none item row{margin-bottom:8px;} :: absent r0, mid | jump 8.00 r1@1 | moved 28.0
+JUMP webkit y none item row{margin-bottom:8px;} :: absent r2, mid | jump 8.00 r3@1 | moved 15.0
+JUMP webkit y none item row{margin-bottom:8px;} :: absent r2, the array empty | jump 38.00 r3@1 | moved 38.0
+## w
+     37 JUMP webkit xy none child
+     37 JUMP webkit xy none child landing
+     37 JUMP webkit xy rot child
+     37 JUMP webkit xy rot child landing
+     37 JUMP webkit xy rot child list{width:240px;}
+     37 JUMP webkit xy rot child list{width:240px;} landing
+     37 JUMP webkit xy scale child list{width:240px;}
+     37 JUMP webkit xy scale child list{width:240px;} landing
+     10 ok   webkit xy none child
+     10 ok   webkit xy none child landing
+     10 ok   webkit xy rot child
+     10 ok   webkit xy rot child landing
+     10 ok   webkit xy rot child list{width:240px;}
+     10 ok   webkit xy rot child list{width:240px;} landing
+     10 ok   webkit xy scale child list{width:240px;}
+     10 ok   webkit xy scale child list{width:240px;} landing
+## wf
+      4 JUMP webkit xy rot child list{display:block;} row{float:left;}
+      4 JUMP webkit xy rot child list{display:block;} row{float:left;} landing
+     43 ok   webkit xy rot child list{display:block;} row{float:left;}
+     43 ok   webkit xy rot child list{display:block;} row{float:left;} landing
+JUMP webkit xy rot child list{display:block;} row{float:left;} :: key up to the first | jump 124.19 r2@1 | moved 72.0
+JUMP webkit xy rot child list{display:block;} row{float:left;} :: key accept at once, no commit | jump 124.19 r2@1 | moved 0.0
+JUMP webkit xy rot child list{display:block;} row{float:left;} :: key accept later no commit, rest | jump 124.19 r2@1 | moved 72.0
+JUMP webkit xy rot child list{display:block;} row{float:left;} :: absent r2, the array empty | jump 124.19 r3@1 | moved 124.2
+## old
+     41 JUMP chromium xy none shellbox
+     41 JUMP chromium xy none shellbox landing
+     37 JUMP chromium y none item
+     37 JUMP chromium y none item landing
+     41 JUMP chromium y none item row{margin-bottom:8px;}
+     41 JUMP chromium y none item row{margin-bottom:8px;} landing
+     39 JUMP chromium y none shell
+     39 JUMP chromium y none shell landing
+      6 ok   chromium xy none shellbox
+      6 ok   chromium xy none shellbox landing
+     10 ok   chromium y none item
+     10 ok   chromium y none item landing
+      6 ok   chromium y none item row{margin-bottom:8px;}
+      6 ok   chromium y none item row{margin-bottom:8px;} landing
+      8 ok   chromium y none shell
+      8 ok   chromium y none shell landing
+## m-old
+     37 JUMP chromium xy none item list{gap:8px;}
+     37 JUMP chromium xy none item list{gap:8px;} landing
+     41 JUMP chromium xy none item row{margin:4px;}
+     41 JUMP chromium xy none item row{margin:4px;} landing
+     41 JUMP chromium xy none shell list{gap:8px;}
+     41 JUMP chromium xy none shell list{gap:8px;} landing
+     37 JUMP chromium y none item row{margin-bottom:8px;/*ph*/}
+     37 JUMP chromium y none item row{margin-bottom:8px;/*ph*/} landing
+     10 ok   chromium xy none item list{gap:8px;}
+     10 ok   chromium xy none item list{gap:8px;} landing
+      6 ok   chromium xy none item row{margin:4px;}
+      6 ok   chromium xy none item row{margin:4px;} landing
+      6 ok   chromium xy none shell list{gap:8px;}
+      6 ok   chromium xy none shell list{gap:8px;} landing
+     10 ok   chromium y none item row{margin-bottom:8px;/*ph*/}
+     10 ok   chromium y none item row{margin-bottom:8px;/*ph*/} landing
+## w-old
+     41 JUMP webkit xy none child
+     41 JUMP webkit xy none child landing
+     41 JUMP webkit xy rot child
+     41 JUMP webkit xy rot child landing
+     41 JUMP webkit xy rot child list{width:240px;}
+     41 JUMP webkit xy rot child list{width:240px;} landing
+     41 JUMP webkit xy scale child list{width:240px;}
+     41 JUMP webkit xy scale child list{width:240px;} landing
+      6 ok   webkit xy none child
+      6 ok   webkit xy none child landing
+      6 ok   webkit xy rot child
+      6 ok   webkit xy rot child landing
+      6 ok   webkit xy rot child list{width:240px;}
+      6 ok   webkit xy rot child list{width:240px;} landing
+      6 ok   webkit xy scale child list{width:240px;}
+      6 ok   webkit xy scale child list{width:240px;} landing
+## old and m-old, the JUMP lines without a landing
+JUMP chromium y none item :: key down, insertBefore(next) | jump 60.00 r2@2 | moved 60.0
+JUMP chromium y none item :: key down, previous.after | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none item :: key down, neighbors moved | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none item :: key down, commit at 50 ms | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none item :: key down, committed to the end | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none item :: key up | jump 50.00 r2@1 | moved 50.0
+JUMP chromium y none item :: key up to the first | jump 60.00 r0@1 | moved 60.0
+JUMP chromium y none item :: key down to the last | jump 40.00 r5@1 | moved 40.0
+JUMP chromium y none item :: key reject later, rest | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none item :: key reject later, mid | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none item :: key up reject later, mid | jump 50.00 r2@1 | moved 50.0
+JUMP chromium y none item :: key accept later no commit, rest | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none item :: key verdict throws later, mid | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none item :: key requestCancel pending, mid | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none item :: key Escape pending, rest | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none item :: two keys down, second mid | jump 60.00 r3@2 | moved 60.0
+JUMP chromium y none item :: key down then up, mid | jump 60.00 r2@2 | moved 60.0
+JUMP chromium y none item :: flick down | jump 40.00 r1@2 | moved 40.0
+JUMP chromium y none item :: flick up | jump 40.00 r1@2 | moved 40.0
+JUMP chromium y none item :: Escape, rest | jump 40.00 r1@1 | moved 40.0
+JUMP chromium y none item :: Escape, mid | jump 40.00 r1@1 | moved 20.0
+JUMP chromium y none item :: Escape up, mid | jump 40.00 r1@1 | moved 20.0
+JUMP chromium y none item :: Escape from the last, rest | jump 36.00 r2@1 | moved 36.0
+JUMP chromium y none item :: requestCancel, rest | jump 40.00 r1@1 | moved 40.0
+JUMP chromium y none item :: invalidate and requestCancel | jump 40.00 r1@1 | moved 40.0
+JUMP chromium y none item :: drop, reject at once | jump 40.00 r1@1 | moved 40.0
+JUMP chromium y none item :: drop, reject later | jump 40.00 r1@4 | moved 20.0
+JUMP chromium y none item :: drop, accept later no commit | jump 40.00 r1@4 | moved 40.0
+JUMP chromium y none item :: drop, onReorder throws | jump 40.00 r1@1 | moved 40.0
+JUMP chromium y none item :: pointercancel | jump 40.00 r1@1 | moved 40.0
+JUMP chromium y none item :: absent r0 | jump 40.00 r1@1 | moved 40.0
+JUMP chromium y none item :: absent r2 | jump 30.00 r3@1 | moved 30.0
+JUMP chromium y none item :: absent r5 | jump 36.00 r2@1 | moved 36.0
+JUMP chromium y none item :: absent r0, mid | jump 40.00 r1@1 | moved 20.0
+JUMP chromium y none item :: absent r2, mid | jump 30.00 r1@1 | moved 15.0
+JUMP chromium y none item :: absent r5, mid | jump 36.00 r2@1 | moved 18.0
+JUMP chromium y none item :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0
+JUMP chromium y none shell :: key down, insertBefore(next) | jump 72.00 r2@1 | moved 72.0
+JUMP chromium y none shell :: key down, previous.after | jump 72.00 r2@1 | moved 72.0
+JUMP chromium y none shell :: key down, neighbors moved | jump 72.00 r2@1 | moved 72.0
+JUMP chromium y none shell :: key down, commit at 50 ms | jump 60.00 r2@1 | moved 72.0
+JUMP chromium y none shell :: key down, committed to the end | jump 72.00 r2@1 | moved 72.0
+JUMP chromium y none shell :: key up | jump 62.00 r2@1 | moved 62.0
+JUMP chromium y none shell :: key up to the first | jump 72.00 r0@1 | moved 72.0
+JUMP chromium y none shell :: key down to the last | jump 52.00 r5@1 | moved 52.0
+JUMP chromium y none shell :: key reject later, rest | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none shell :: key reject later, mid | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none shell :: key up reject later, mid | jump 50.00 r2@1 | moved 50.0
+JUMP chromium y none shell :: key accept later no commit, rest | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none shell :: key verdict throws later, mid | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none shell :: key requestCancel pending, mid | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none shell :: key Escape pending, rest | jump 60.00 r2@1 | moved 60.0
+JUMP chromium y none shell :: two keys down, second mid | jump 72.00 r3@2 | moved 72.0
+JUMP chromium y none shell :: key down then up, mid | jump 72.00 r2@2 | moved 72.0
+JUMP chromium y none shell :: flick down | jump 52.00 r1@2 | moved 52.0
+JUMP chromium y none shell :: flick up | jump 52.00 r1@2 | moved 52.0
+JUMP chromium y none shell :: drop committed | jump 12.00 r1@1 | moved 12.0
+JUMP chromium y none shell :: Escape, rest | jump 40.00 r1@1 | moved 40.0
+JUMP chromium y none shell :: Escape, mid | jump 40.00 r1@1 | moved 20.0
+JUMP chromium y none shell :: Escape up, mid | jump 40.00 r1@1 | moved 20.0
+JUMP chromium y none shell :: Escape from the last, rest | jump 36.00 r2@1 | moved 36.0
+JUMP chromium y none shell :: requestCancel, rest | jump 40.00 r1@1 | moved 40.0
+JUMP chromium y none shell :: invalidate and requestCancel | jump 40.00 r1@1 | moved 40.0
+JUMP chromium y none shell :: drop, reject at once | jump 40.00 r1@1 | moved 40.0
+JUMP chromium y none shell :: drop, reject later | jump 40.00 r1@4 | moved 20.0
+JUMP chromium y none shell :: drop, accept later no commit | jump 40.00 r1@4 | moved 40.0
+JUMP chromium y none shell :: drop, accept later, commit then | jump 12.00 r1@4 | moved 12.0
+JUMP chromium y none shell :: drop, onReorder throws | jump 40.00 r1@1 | moved 40.0
+JUMP chromium y none shell :: pointercancel | jump 40.00 r1@1 | moved 40.0
+JUMP chromium y none shell :: absent r0 | jump 40.00 r1@1 | moved 40.0
+JUMP chromium y none shell :: absent r2 | jump 30.00 r3@1 | moved 30.0
+JUMP chromium y none shell :: absent r5 | jump 36.00 r2@1 | moved 36.0
+JUMP chromium y none shell :: absent r0, mid | jump 40.00 r1@1 | moved 20.0
+JUMP chromium y none shell :: absent r2, mid | jump 30.00 r1@1 | moved 15.0
+JUMP chromium y none shell :: absent r5, mid | jump 36.00 r2@1 | moved 18.0
+JUMP chromium y none shell :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0
+JUMP chromium xy none shellbox :: key down, insertBefore(next) | jump 88.81 r2@1 | moved 88.8
+JUMP chromium xy none shellbox :: key down, previous.after | jump 88.81 r2@1 | moved 88.8
+JUMP chromium xy none shellbox :: key down, neighbors moved | jump 88.81 r2@1 | moved 88.8
+JUMP chromium xy none shellbox :: key down, commit at 50 ms | jump 98.79 r2@1 | moved 88.8
+JUMP chromium xy none shellbox :: key down, committed to the end | jump 92.00 r5@1 | moved 92.0
+JUMP chromium xy none shellbox :: key up | jump 72.00 r2@1 | moved 72.0
+JUMP chromium xy none shellbox :: key up to the first | jump 102.00 r0@1 | moved 102.0
+JUMP chromium xy none shellbox :: key down to the last | jump 80.92 r5@1 | moved 80.9
+JUMP chromium xy none shellbox :: key reject later, rest | jump 98.79 r2@1 | moved 98.8
+JUMP chromium xy none shellbox :: key reject later, mid | jump 98.79 r2@1 | moved 98.8
+JUMP chromium xy none shellbox :: key up reject later, mid | jump 72.00 r2@1 | moved 72.0
+JUMP chromium xy none shellbox :: key accept later no commit, rest | jump 98.79 r2@1 | moved 98.8
+JUMP chromium xy none shellbox :: key verdict throws later, mid | jump 98.79 r2@1 | moved 98.8
+JUMP chromium xy none shellbox :: key requestCancel pending, mid | jump 98.79 r2@1 | moved 98.8
+JUMP chromium xy none shellbox :: key Escape pending, rest | jump 98.79 r2@1 | moved 98.8
+JUMP chromium xy none shellbox :: two keys down, second mid | jump 102.00 r3@2 | moved 102.0
+JUMP chromium xy none shellbox :: key down then up, mid | jump 88.81 r2@2 | moved 88.8
+JUMP chromium xy none shellbox :: flick down | jump 114.49 r2@2 | moved 114.5
+JUMP chromium xy none shellbox :: flick up | jump 102.00 r2@2 | moved 102.0
+JUMP chromium xy none shellbox :: flick down, rejected later | jump 12.00 r1@2 | moved 12.0
+JUMP chromium xy none shellbox :: flick down, rejected at once | jump 12.00 r1@2 | moved 12.0
+JUMP chromium xy none shellbox :: drop committed | jump 12.00 r1@1 | moved 12.0
+JUMP chromium xy none shellbox :: Escape, rest | jump 125.30 r2@1 | moved 125.3
+JUMP chromium xy none shellbox :: Escape, mid | jump 125.30 r2@1 | moved 62.7
+JUMP chromium xy none shellbox :: Escape up, mid | jump 102.00 r2@1 | moved 51.0
+JUMP chromium xy none shellbox :: Escape from the last, rest | jump 62.00 r2@1 | moved 62.0
+JUMP chromium xy none shellbox :: requestCancel, rest | jump 125.30 r2@1 | moved 125.3
+JUMP chromium xy none shellbox :: invalidate and requestCancel | jump 125.30 r2@1 | moved 125.3
+JUMP chromium xy none shellbox :: drop, reject at once | jump 125.30 r2@1 | moved 125.3
+JUMP chromium xy none shellbox :: drop, reject later | jump 125.30 r2@4 | moved 62.7
+JUMP chromium xy none shellbox :: drop, accept later no commit | jump 125.30 r2@4 | moved 125.3
+JUMP chromium xy none shellbox :: drop, accept later, commit then | jump 12.00 r1@4 | moved 12.0
+JUMP chromium xy none shellbox :: drop, onReorder throws | jump 125.30 r2@1 | moved 125.3
+JUMP chromium xy none shellbox :: pointercancel | jump 125.30 r2@1 | moved 125.3
+JUMP chromium xy none shellbox :: absent r0 | jump 125.30 r2@1 | moved 125.3
+JUMP chromium xy none shellbox :: absent r2 | jump 88.81 r4@1 | moved 88.8
+JUMP chromium xy none shellbox :: absent r5 | jump 62.00 r2@1 | moved 62.0
+JUMP chromium xy none shellbox :: absent r0, mid | jump 125.30 r2@1 | moved 62.7
+JUMP chromium xy none shellbox :: absent r2, mid | jump 88.81 r1@1 | moved 44.4
+JUMP chromium xy none shellbox :: absent r5, mid | jump 62.00 r2@1 | moved 31.0
+JUMP chromium xy none shellbox :: absent r2, the array empty | jump 88.81 r4@1 | moved 88.8
+JUMP chromium y none item row{margin-bottom:8px;} :: key down, insertBefore(next) | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key down, previous.after | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key down, neighbors moved | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key down, commit at 50 ms | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key down, committed to the end | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key up | jump 58.00 r2@1 | moved 58.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key up to the first | jump 68.00 r0@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key down to the last | jump 48.00 r5@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key reject later, rest | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key reject later, mid | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key up reject later, mid | jump 50.00 r2@1 | moved 50.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key accept later no commit, rest | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key verdict throws later, mid | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key requestCancel pending, mid | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key Escape pending, rest | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: two keys down, second mid | jump 68.00 r3@2 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: key down then up, mid | jump 68.00 r2@2 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;} :: flick down | jump 40.00 r1@2 | moved 40.0
+JUMP chromium y none item row{margin-bottom:8px;} :: flick up | jump 48.00 r1@2 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: flick down, rejected later | jump 8.00 r1@2 | moved 8.0
+JUMP chromium y none item row{margin-bottom:8px;} :: flick down, rejected at once | jump 8.00 r1@2 | moved 8.0
+JUMP chromium y none item row{margin-bottom:8px;} :: drop committed | jump 8.00 r4@1 | moved 8.0
+JUMP chromium y none item row{margin-bottom:8px;} :: Escape, rest | jump 48.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: Escape, mid | jump 48.00 r1@1 | moved 28.0
+JUMP chromium y none item row{margin-bottom:8px;} :: Escape up, mid | jump 40.00 r1@1 | moved 20.0
+JUMP chromium y none item row{margin-bottom:8px;} :: Escape from the last, rest | jump 36.00 r2@1 | moved 36.0
+JUMP chromium y none item row{margin-bottom:8px;} :: requestCancel, rest | jump 48.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: invalidate and requestCancel | jump 48.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: drop, reject at once | jump 48.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: drop, reject later | jump 48.00 r1@4 | moved 28.0
+JUMP chromium y none item row{margin-bottom:8px;} :: drop, accept later no commit | jump 48.00 r1@4 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: drop, accept later, commit then | jump 8.00 r4@4 | moved 8.0
+JUMP chromium y none item row{margin-bottom:8px;} :: drop, onReorder throws | jump 48.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: pointercancel | jump 48.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: absent r0 | jump 48.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;} :: absent r2 | jump 38.00 r3@1 | moved 38.0
+JUMP chromium y none item row{margin-bottom:8px;} :: absent r5 | jump 36.00 r2@1 | moved 36.0
+JUMP chromium y none item row{margin-bottom:8px;} :: absent r0, mid | jump 48.00 r1@1 | moved 28.0
+JUMP chromium y none item row{margin-bottom:8px;} :: absent r2, mid | jump 30.00 r1@1 | moved 15.0
+JUMP chromium y none item row{margin-bottom:8px;} :: absent r5, mid | jump 36.00 r2@1 | moved 18.0
+JUMP chromium y none item row{margin-bottom:8px;} :: absent r2, the array empty | jump 38.00 r3@1 | moved 38.0
+JUMP chromium xy none item row{margin:4px;} :: key down, insertBefore(next) | jump 83.23 r2@2 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: key down, previous.after | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: key down, neighbors moved | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: key down, commit at 50 ms | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: key down, committed to the end | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: key up | jump 68.00 r2@1 | moved 68.0
+JUMP chromium xy none item row{margin:4px;} :: key up to the first | jump 98.00 r0@1 | moved 98.0
+JUMP chromium xy none item row{margin:4px;} :: key down to the last | jump 75.29 r5@1 | moved 75.3
+JUMP chromium xy none item row{margin:4px;} :: key reject later, rest | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: key reject later, mid | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: key up reject later, mid | jump 60.00 r2@1 | moved 60.0
+JUMP chromium xy none item row{margin:4px;} :: key accept later no commit, rest | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: key verdict throws later, mid | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: key requestCancel pending, mid | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: key Escape pending, rest | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: two keys down, second mid | jump 109.12 r4@2 | moved 109.1
+JUMP chromium xy none item row{margin:4px;} :: key down then up, mid | jump 83.23 r2@2 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: flick down | jump 109.12 r2@2 | moved 109.1
+JUMP chromium xy none item row{margin:4px;} :: flick up | jump 98.00 r2@2 | moved 98.0
+JUMP chromium xy none item row{margin:4px;} :: flick down, rejected later | jump 8.00 r1@2 | moved 8.0
+JUMP chromium xy none item row{margin:4px;} :: flick down, rejected at once | jump 8.00 r1@2 | moved 8.0
+JUMP chromium xy none item row{margin:4px;} :: drop committed | jump 136.70 r4@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: Escape, rest | jump 136.70 r4@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: Escape, mid | jump 136.70 r4@1 | moved 68.4
+JUMP chromium xy none item row{margin:4px;} :: Escape up, mid | jump 98.00 r2@1 | moved 49.0
+JUMP chromium xy none item row{margin:4px;} :: Escape from the last, rest | jump 50.00 r3@1 | moved 50.0
+JUMP chromium xy none item row{margin:4px;} :: requestCancel, rest | jump 136.70 r4@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: invalidate and requestCancel | jump 136.70 r4@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: drop, reject at once | jump 136.70 r4@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: drop, reject later | jump 136.70 r4@4 | moved 68.4
+JUMP chromium xy none item row{margin:4px;} :: drop, accept later no commit | jump 136.70 r4@4 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: drop, accept later, commit then | jump 136.70 r4@4 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: drop, onReorder throws | jump 136.70 r4@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: pointercancel | jump 136.70 r4@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: absent r0 | jump 136.70 r4@1 | moved 136.7
+JUMP chromium xy none item row{margin:4px;} :: absent r2 | jump 83.23 r4@1 | moved 83.2
+JUMP chromium xy none item row{margin:4px;} :: absent r5 | jump 50.00 r3@1 | moved 50.0
+JUMP chromium xy none item row{margin:4px;} :: absent r0, mid | jump 136.70 r4@1 | moved 68.4
+JUMP chromium xy none item row{margin:4px;} :: absent r2, mid | jump 83.23 r1@1 | moved 41.6
+JUMP chromium xy none item row{margin:4px;} :: absent r5, mid | jump 50.00 r3@1 | moved 25.0
+JUMP chromium xy none item row{margin:4px;} :: absent r2, the array empty | jump 83.23 r4@1 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: key down, insertBefore(next) | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: key down, previous.after | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: key down, neighbors moved | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: key down, commit at 50 ms | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: key down, committed to the end | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: key up | jump 68.00 r2@1 | moved 68.0
+JUMP chromium xy none item list{gap:8px;} :: key up to the first | jump 98.00 r0@1 | moved 98.0
+JUMP chromium xy none item list{gap:8px;} :: key down to the last | jump 75.29 r5@1 | moved 75.3
+JUMP chromium xy none item list{gap:8px;} :: key reject later, rest | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: key reject later, mid | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: key up reject later, mid | jump 68.00 r2@1 | moved 68.0
+JUMP chromium xy none item list{gap:8px;} :: key accept later no commit, rest | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: key verdict throws later, mid | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: key requestCancel pending, mid | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: key Escape pending, rest | jump 83.23 r2@1 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: two keys down, second mid | jump 109.12 r4@2 | moved 109.1
+JUMP chromium xy none item list{gap:8px;} :: key down then up, mid | jump 83.23 r2@2 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: flick down | jump 144.22 r4@2 | moved 144.2
+JUMP chromium xy none item list{gap:8px;} :: flick up | jump 98.00 r2@2 | moved 98.0
+JUMP chromium xy none item list{gap:8px;} :: Escape, rest | jump 144.22 r4@1 | moved 144.2
+JUMP chromium xy none item list{gap:8px;} :: Escape, mid | jump 144.22 r4@1 | moved 72.1
+JUMP chromium xy none item list{gap:8px;} :: Escape up, mid | jump 98.00 r2@1 | moved 49.0
+JUMP chromium xy none item list{gap:8px;} :: Escape from the last, rest | jump 58.00 r3@1 | moved 58.0
+JUMP chromium xy none item list{gap:8px;} :: requestCancel, rest | jump 144.22 r4@1 | moved 144.2
+JUMP chromium xy none item list{gap:8px;} :: invalidate and requestCancel | jump 144.22 r4@1 | moved 144.2
+JUMP chromium xy none item list{gap:8px;} :: drop, reject at once | jump 144.22 r4@1 | moved 144.2
+JUMP chromium xy none item list{gap:8px;} :: drop, reject later | jump 144.22 r4@4 | moved 72.1
+JUMP chromium xy none item list{gap:8px;} :: drop, accept later no commit | jump 144.22 r4@4 | moved 144.2
+JUMP chromium xy none item list{gap:8px;} :: drop, onReorder throws | jump 144.22 r4@1 | moved 144.2
+JUMP chromium xy none item list{gap:8px;} :: pointercancel | jump 144.22 r4@1 | moved 144.2
+JUMP chromium xy none item list{gap:8px;} :: absent r0 | jump 144.22 r4@1 | moved 144.2
+JUMP chromium xy none item list{gap:8px;} :: absent r2 | jump 83.23 r4@1 | moved 83.2
+JUMP chromium xy none item list{gap:8px;} :: absent r5 | jump 58.00 r3@1 | moved 58.0
+JUMP chromium xy none item list{gap:8px;} :: absent r0, mid | jump 144.22 r4@1 | moved 72.1
+JUMP chromium xy none item list{gap:8px;} :: absent r2, mid | jump 83.23 r1@1 | moved 41.6
+JUMP chromium xy none item list{gap:8px;} :: absent r5, mid | jump 58.00 r3@1 | moved 29.0
+JUMP chromium xy none item list{gap:8px;} :: absent r2, the array empty | jump 83.23 r4@1 | moved 83.2
+JUMP chromium xy none shell list{gap:8px;} :: key down, insertBefore(next) | jump 100.00 r2@1 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: key down, previous.after | jump 100.00 r2@1 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: key down, neighbors moved | jump 100.00 r2@1 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: key down, commit at 50 ms | jump 116.62 r2@1 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: key down, committed to the end | jump 100.00 r2@1 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: key up | jump 80.00 r2@1 | moved 80.0
+JUMP chromium xy none shell list{gap:8px;} :: key up to the first | jump 110.00 r0@1 | moved 110.0
+JUMP chromium xy none shell list{gap:8px;} :: key down to the last | jump 100.00 r5@1 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: key reject later, rest | jump 116.62 r2@1 | moved 116.6
+JUMP chromium xy none shell list{gap:8px;} :: key reject later, mid | jump 116.62 r2@1 | moved 116.6
+JUMP chromium xy none shell list{gap:8px;} :: key up reject later, mid | jump 68.00 r2@1 | moved 68.0
+JUMP chromium xy none shell list{gap:8px;} :: key accept later no commit, rest | jump 116.62 r2@1 | moved 116.6
+JUMP chromium xy none shell list{gap:8px;} :: key verdict throws later, mid | jump 116.62 r2@1 | moved 116.6
+JUMP chromium xy none shell list{gap:8px;} :: key requestCancel pending, mid | jump 116.62 r2@1 | moved 116.6
+JUMP chromium xy none shell list{gap:8px;} :: key Escape pending, rest | jump 116.62 r2@1 | moved 116.6
+JUMP chromium xy none shell list{gap:8px;} :: two keys down, second mid | jump 110.00 r3@2 | moved 110.0
+JUMP chromium xy none shell list{gap:8px;} :: key down then up, mid | jump 100.00 r2@2 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: flick down | jump 125.30 r2@2 | moved 125.3
+JUMP chromium xy none shell list{gap:8px;} :: flick up | jump 110.00 r2@2 | moved 110.0
+JUMP chromium xy none shell list{gap:8px;} :: flick down, rejected later | jump 8.00 r1@2 | moved 8.0
+JUMP chromium xy none shell list{gap:8px;} :: flick down, rejected at once | jump 8.00 r1@2 | moved 8.0
+JUMP chromium xy none shell list{gap:8px;} :: drop committed | jump 20.00 r1@1 | moved 20.0
+JUMP chromium xy none shell list{gap:8px;} :: Escape, rest | jump 143.18 r2@1 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: Escape, mid | jump 143.18 r2@1 | moved 71.6
+JUMP chromium xy none shell list{gap:8px;} :: Escape up, mid | jump 110.00 r2@1 | moved 55.0
+JUMP chromium xy none shell list{gap:8px;} :: Escape from the last, rest | jump 58.00 r2@1 | moved 58.0
+JUMP chromium xy none shell list{gap:8px;} :: requestCancel, rest | jump 143.18 r2@1 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: invalidate and requestCancel | jump 143.18 r2@1 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: drop, reject at once | jump 143.18 r2@1 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: drop, reject later | jump 143.18 r2@4 | moved 71.6
+JUMP chromium xy none shell list{gap:8px;} :: drop, accept later no commit | jump 143.18 r2@4 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: drop, accept later, commit then | jump 20.00 r1@4 | moved 20.0
+JUMP chromium xy none shell list{gap:8px;} :: drop, onReorder throws | jump 143.18 r2@1 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: pointercancel | jump 143.18 r2@1 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: absent r0 | jump 143.18 r2@1 | moved 143.2
+JUMP chromium xy none shell list{gap:8px;} :: absent r2 | jump 100.00 r4@1 | moved 100.0
+JUMP chromium xy none shell list{gap:8px;} :: absent r5 | jump 58.00 r2@1 | moved 58.0
+JUMP chromium xy none shell list{gap:8px;} :: absent r0, mid | jump 143.18 r2@1 | moved 71.6
+JUMP chromium xy none shell list{gap:8px;} :: absent r2, mid | jump 100.00 r1@1 | moved 50.0
+JUMP chromium xy none shell list{gap:8px;} :: absent r5, mid | jump 58.00 r2@1 | moved 29.0
+JUMP chromium xy none shell list{gap:8px;} :: absent r2, the array empty | jump 100.00 r4@1 | moved 100.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key down, insertBefore(next) | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key down, previous.after | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key down, neighbors moved | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key down, commit at 50 ms | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key down, committed to the end | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key up | jump 58.00 r2@1 | moved 58.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key up to the first | jump 68.00 r0@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key down to the last | jump 48.00 r5@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key reject later, rest | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key reject later, mid | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key up reject later, mid | jump 58.00 r2@1 | moved 58.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key accept later no commit, rest | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key verdict throws later, mid | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key requestCancel pending, mid | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key Escape pending, rest | jump 68.00 r2@1 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: two keys down, second mid | jump 68.00 r3@2 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: key down then up, mid | jump 68.00 r2@2 | moved 68.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: flick down | jump 48.00 r1@2 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: flick up | jump 48.00 r1@2 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: Escape, rest | jump 48.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: Escape, mid | jump 48.00 r1@1 | moved 24.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: Escape up, mid | jump 48.00 r3@1 | moved 24.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: Escape from the last, rest | jump 44.00 r2@1 | moved 44.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: requestCancel, rest | jump 48.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: invalidate and requestCancel | jump 48.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: drop, reject at once | jump 48.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: drop, reject later | jump 48.00 r2@4 | moved 24.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: drop, accept later no commit | jump 48.00 r1@4 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: drop, onReorder throws | jump 48.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: pointercancel | jump 48.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: absent r0 | jump 48.00 r1@1 | moved 48.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: absent r2 | jump 38.00 r3@1 | moved 38.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: absent r5 | jump 44.00 r2@1 | moved 44.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: absent r0, mid | jump 48.00 r1@1 | moved 24.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: absent r2, mid | jump 38.00 r0@1 | moved 19.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: absent r5, mid | jump 44.00 r4@1 | moved 22.0
+JUMP chromium y none item row{margin-bottom:8px;/*ph*/} :: absent r2, the array empty | jump 38.00 r3@1 | moved 38.0
+## absent items, plain lists, the head
+ok   chromium y none item :: absent r0 | jump 0.00  | moved 40.0
+ok   chromium y none item :: absent r2 | jump 0.00  | moved 30.0
+ok   chromium y none item :: absent r5 | jump 0.00  | moved 36.0
+ok   chromium y none item :: absent r0, mid | jump 0.00  | moved 20.0
+ok   chromium y none item :: absent r2, mid | jump 0.00  | moved 15.0
+ok   chromium y none item :: absent r5, mid | jump 0.00  | moved 18.0
+ok   chromium y none item landing :: absent r0 | jump 0.00  | moved 40.0
+ok   chromium y none item landing :: absent r2 | jump 0.00  | moved 30.0
+ok   chromium y none item landing :: absent r5 | jump 0.00  | moved 36.0
+ok   chromium y none item landing :: absent r0, mid | jump 0.00  | moved 20.0
+ok   chromium y none item landing :: absent r2, mid | jump 0.00  | moved 15.0
+ok   chromium y none item landing :: absent r5, mid | jump 0.00  | moved 18.0
+ok   chromium xy none item :: absent r0 | jump 0.00  | moved 164.9
+ok   chromium xy none item :: absent r2 | jump 0.00  | moved 155.2
+ok   chromium xy none item :: absent r5 | jump 0.00  | moved 155.2
+ok   chromium xy none item :: absent r0, mid | jump 0.00  | moved 82.5
+ok   chromium xy none item :: absent r2, mid | jump 0.00  | moved 35.0
+ok   chromium xy none item :: absent r5, mid | jump 0.00  | moved 77.6
+ok   chromium xy none item landing :: absent r0 | jump 0.00  | moved 164.9
+ok   chromium xy none item landing :: absent r2 | jump 0.00  | moved 155.2
+ok   chromium xy none item landing :: absent r5 | jump 0.00  | moved 155.2
+ok   chromium xy none item landing :: absent r0, mid | jump 0.00  | moved 82.5
+ok   chromium xy none item landing :: absent r2, mid | jump 0.00  | moved 35.0
+ok   chromium xy none item landing :: absent r5, mid | jump 0.00  | moved 77.6
+ok   webkit y none item :: absent r0 | jump 0.00  | moved 40.0
+ok   webkit y none item :: absent r2 | jump 0.00  | moved 30.0
+ok   webkit y none item :: absent r5 | jump 0.00  | moved 36.0
+ok   webkit y none item :: absent r0, mid | jump 0.00  | moved 20.0
+ok   webkit y none item :: absent r2, mid | jump 0.00  | moved 15.0
+ok   webkit y none item :: absent r5, mid | jump 0.00  | moved 18.0
+ok   webkit y none item landing :: absent r0 | jump 0.00  | moved 40.0
+ok   webkit y none item landing :: absent r2 | jump 0.00  | moved 30.0
+ok   webkit y none item landing :: absent r5 | jump 0.00  | moved 36.0
+ok   webkit y none item landing :: absent r0, mid | jump 0.00  | moved 20.0
+ok   webkit y none item landing :: absent r2, mid | jump 0.00  | moved 15.0
+ok   webkit y none item landing :: absent r5, mid | jump 0.00  | moved 18.0
+ok   webkit xy none item :: absent r0 | jump 0.00  | moved 164.9
+ok   webkit xy none item :: absent r2 | jump 0.00  | moved 155.2
+ok   webkit xy none item :: absent r5 | jump 0.00  | moved 155.2
+ok   webkit xy none item :: absent r0, mid | jump 0.00  | moved 82.5
+ok   webkit xy none item :: absent r2, mid | jump 0.00  | moved 35.0
+ok   webkit xy none item :: absent r5, mid | jump 0.00  | moved 77.6
+ok   webkit xy none item landing :: absent r0 | jump 0.00  | moved 164.9
+ok   webkit xy none item landing :: absent r2 | jump 0.00  | moved 155.2
+ok   webkit xy none item landing :: absent r5 | jump 0.00  | moved 155.2
+ok   webkit xy none item landing :: absent r0, mid | jump 0.00  | moved 82.5
+ok   webkit xy none item landing :: absent r2, mid | jump 0.00  | moved 35.0
+ok   webkit xy none item landing :: absent r5, mid | jump 0.00  | moved 77.6
+ok   firefox y none item :: absent r0 | jump 0.00  | moved 40.0
+ok   firefox y none item :: absent r2 | jump 0.00  | moved 30.0
+ok   firefox y none item :: absent r5 | jump 0.00  | moved 36.0
+ok   firefox y none item :: absent r0, mid | jump 0.00  | moved 20.0
+ok   firefox y none item :: absent r2, mid | jump 0.00  | moved 15.0
+ok   firefox y none item :: absent r5, mid | jump 0.00  | moved 18.0
+ok   firefox y none item landing :: absent r0 | jump 0.00  | moved 40.0
+ok   firefox y none item landing :: absent r2 | jump 0.00  | moved 30.0
+ok   firefox y none item landing :: absent r5 | jump 0.00  | moved 36.0
+ok   firefox y none item landing :: absent r0, mid | jump 0.00  | moved 20.0
+ok   firefox y none item landing :: absent r2, mid | jump 0.00  | moved 15.0
+ok   firefox y none item landing :: absent r5, mid | jump 0.00  | moved 18.0
+ok   firefox xy none item :: absent r0 | jump 0.00  | moved 164.9
+ok   firefox xy none item :: absent r2 | jump 0.00  | moved 155.2
+ok   firefox xy none item :: absent r5 | jump 0.00  | moved 155.2
+ok   firefox xy none item :: absent r0, mid | jump 0.00  | moved 82.5
+ok   firefox xy none item :: absent r2, mid | jump 0.00  | moved 35.0
+ok   firefox xy none item :: absent r5, mid | jump 0.00  | moved 77.6
+ok   firefox xy none item landing :: absent r0 | jump 0.00  | moved 164.9
+ok   firefox xy none item landing :: absent r2 | jump 0.00  | moved 155.2
+ok   firefox xy none item landing :: absent r5 | jump 0.00  | moved 155.2
+ok   firefox xy none item landing :: absent r0, mid | jump 0.00  | moved 82.5
+ok   firefox xy none item landing :: absent r2, mid | jump 0.00  | moved 35.0
+ok   firefox xy none item landing :: absent r5, mid | jump 0.00  | moved 77.6
