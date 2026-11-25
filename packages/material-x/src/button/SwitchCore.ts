@@ -1,4 +1,5 @@
 import { Bool } from '@ydinjs/core/attribute.js';
+import { setOwnARIA } from '@ydinjs/core/controllers/useARIA.js';
 import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
@@ -49,8 +50,9 @@ export type SwitchCore = InstanceType<
 /**
  * Sets up a switch whose `.host` is a `<button role="switch">`. The switch is
  * controlled: activation dispatches `input` and `change` and changes no state.
- * `aria-checked`, the `checked` custom state and the form value follow the
- * host's `checked` only.
+ * The `checked` custom state, the form value and the button's own
+ * `aria-checked` follow the host's `checked` only. A host's `aria-checked`
+ * comes before the own one.
  */
 export function useSwitchCore(
   host: SwitchCore,
@@ -68,10 +70,13 @@ export function useSwitchCore(
 
   useValidatable(host, target);
 
+  // An unchecked switch says so before `checked` first changes.
+  setOwnARIA(target, 'aria-checked', 'false');
+
   useAttributes(host, {
     checked: via(Bool, (_, value) => {
       toggleState(innards, 'checked', value);
-      target.ariaChecked = String(value);
+      setOwnARIA(target, 'aria-checked', String(value));
       innards.setFormValue(value ? (host.value ?? 'on') : null);
     }),
     value(_, newValue) {

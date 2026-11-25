@@ -1,0 +1,90 @@
+# RF-130's sizes against the private names' assignment. f9729a393 (main's sources) and c035576e2 (the built change), each cloned and built by .scripts/size-reading.ts.
+# Probe: complete-noise.mjs of #245 at 37cb82784 (.plan/focus-cover-1/probes). For the element rows, `runtime` in it was replaced by the one entry. An element's bundle is the module that imports the entry, so its figure differs from the gate's row.
+
+# The gate's rows, Brotli: f9729a393, c035576e2, difference
+button/button 4858 4897 39
+button/icon-button 5105 5166 61
+button/link-button 4817 4862 45
+button/switch-button 5442 5472 30
+button/switch-icon-button 5840 5879 39
+button/split-button 7441 7480 39
+checkbox/checkbox 4226 4260 34
+fab/fab 4139 4177 38
+list/list-button-item 4839 4893 54
+list/list-link-item 5050 5111 61
+radio/radio 3781 3812 31
+text-field/multiline-text-field 4456 4526 70
+text-field/text-field 8479 8568 89
+complete 23098 23093 -5
+
+# complete
+f9729a393: minified 117926, Brotli 23098, gzip 27501, 228 private names, 228 slots for 228 properties
+  200 name assignments: mean 23127.7, sd 27.2, min 23058, 5% 23087, median 23127, 95% 23179, max 23215
+  60 entry orders: mean 23083.6, sd 40.3, min 22998, 5% 23021, median 23087, 95% 23150, max 23160
+c035576e2: minified 118107, Brotli 23093, gzip 27543, 228 private names, 228 slots for 228 properties
+  200 name assignments: mean 23185.4, sd 24.6, min 23118, 5% 23145, median 23188, 95% 23228, max 23263
+  60 entry orders: mean 23138.2, sd 44.0, min 23053, 5% 23083, median 23137, 95% 23229, max 23252
+
+f9729a393 to c035576e2: minified 181, Brotli -5, gzip 42
+  Brotli, one name assignment for both: mean 57.6, sd 34.6, min -49, 5% -4, median 58, 95% 112, max 159
+  Brotli, one entry order for both: mean 54.6, sd 37.8, min -56, 5% 1, median 54, 95% 125, max 126
+
+# Element rows, names only
+## text-field/text-field
+f9729a393: minified 37163, Brotli 8478, gzip 9474, 228 private names, 228 slots for 228 properties
+  200 name assignments: mean 8541.6, sd 24.8, min 8489, 5% 8503, median 8543, 95% 8580, max 8594
+c035576e2: minified 37357, Brotli 8519, gzip 9537, 228 private names, 228 slots for 228 properties
+  200 name assignments: mean 8604.3, sd 23.3, min 8548, 5% 8565, median 8604, 95% 8642, max 8653
+
+f9729a393 to c035576e2: minified 194, Brotli 41, gzip 63
+  Brotli, one name assignment for both: mean 62.6, sd 31.8, min -25, 5% 7, median 64, 95% 114, max 143
+## button/link-button
+f9729a393: minified 17609, Brotli 4818, gzip 5401, 228 private names, 228 slots for 228 properties
+  200 name assignments: mean 4834.4, sd 7.5, min 4815, 5% 4822, median 4834, 95% 4847, max 4867
+c035576e2: minified 17765, Brotli 4873, gzip 5450, 228 private names, 228 slots for 228 properties
+  200 name assignments: mean 4879.3, sd 8.3, min 4853, 5% 4864, median 4879, 95% 4893, max 4904
+
+f9729a393 to c035576e2: minified 156, Brotli 55, gzip 49
+  Brotli, one name assignment for both: mean 44.8, sd 7.9, min 19, 5% 32, median 45, 95% 59, max 67
+## list/list-link-item
+f9729a393: minified 17465, Brotli 5057, gzip 5694, 228 private names, 228 slots for 228 properties
+  200 name assignments: mean 5057.3, sd 18.8, min 5016, 5% 5030, median 5055, 95% 5084, max 5107
+c035576e2: minified 17627, Brotli 5102, gzip 5754, 228 private names, 228 slots for 228 properties
+  200 name assignments: mean 5117.2, sd 18.9, min 5070, 5% 5088, median 5116, 95% 5145, max 5172
+
+f9729a393 to c035576e2: minified 162, Brotli 45, gzip 60
+  Brotli, one name assignment for both: mean 59.9, sd 23.4, min 0, 5% 23, median 59, 95% 100, max 125
+## button/switch-button
+f9729a393: minified 21797, Brotli 5420, gzip 6089, 228 private names, 228 slots for 228 properties
+  200 name assignments: mean 5443.6, sd 8.5, min 5421, 5% 5430, median 5443, 95% 5457, max 5475
+c035576e2: minified 22003, Brotli 5492, gzip 6156, 228 private names, 228 slots for 228 properties
+  200 name assignments: mean 5506.4, sd 8.9, min 5481, 5% 5492, median 5506, 95% 5522, max 5530
+
+f9729a393 to c035576e2: minified 206, Brotli 72, gzip 67
+  Brotli, one name assignment for both: mean 62.9, sd 10.1, min 34, 5% 48, median 63, 95% 79, max 91
+## button/icon-button
+f9729a393: minified 20818, Brotli 5109, gzip 5737, 228 private names, 228 slots for 228 properties
+  200 name assignments: mean 5128.6, sd 10.3, min 5098, 5% 5110, median 5129, 95% 5145, max 5158
+c035576e2: minified 20936, Brotli 5150, gzip 5776, 228 private names, 228 slots for 228 properties
+  200 name assignments: mean 5176.5, sd 12.0, min 5140, 5% 5156, median 5177, 95% 5196, max 5210
+
+f9729a393 to c035576e2: minified 118, Brotli 41, gzip 39
+  Brotli, one name assignment for both: mean 47.9, sd 14.5, min 6, 5% 25, median 49, 95% 74, max 81
+## checkbox/checkbox
+f9729a393: minified 12469, Brotli 4132, gzip 4642, 228 private names, 228 slots for 228 properties
+  200 name assignments: mean 4146.6, sd 5.3, min 4131, 5% 4140, median 4146, 95% 4157, max 4166
+c035576e2: minified 12580, Brotli 4160, gzip 4674, 228 private names, 228 slots for 228 properties
+  200 name assignments: mean 4177.9, sd 4.9, min 4165, 5% 4171, median 4178, 95% 4188, max 4193
+
+f9729a393 to c035576e2: minified 111, Brotli 28, gzip 32
+  Brotli, one name assignment for both: mean 31.3, sd 4.9, min 6, 5% 24, median 31, 95% 41, max 46
+
+# The order in which collect-props.ts's glob gives the files, 30 runs each, hash of the list and number of files
+f9729a393/packages/material-x/src/ 35a47e8e 42,30
+c035576e2/packages/material-x/src/ 35a47e8e 42,30
+/workspaces/worktrees/e/packages/material-x/src/ a9a0dc2e 44,30
+/workspaces/worktrees/f/packages/material-x/src/ a9a0dc2e 44,30
+
+# sha1 of css-private-props.json that the two clones' builds wrote
+9b36d7b40604b2c8567f468a045ae019e158f682  c035576e2/node_modules/.cache/css/css-private-props.json
+9b36d7b40604b2c8567f468a045ae019e158f682  f9729a393/node_modules/.cache/css/css-private-props.json

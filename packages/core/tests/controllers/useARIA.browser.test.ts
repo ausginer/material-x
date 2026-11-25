@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  setOwnARIA,
   useARIA,
   type ARIATransformer,
 } from '../../src/controllers/useARIA.ts';
@@ -337,5 +338,261 @@ describe('useARIA', () => {
     await nextFrame();
 
     expect(transform).toHaveBeenCalledExactlyOnceWith('aria-label', 'Launch');
+  });
+});
+
+describe('setOwnARIA', () => {
+  const NAME = 'aria-disabled';
+
+  function createMirrored(
+    transform?: ARIATransformer,
+  ): Readonly<{ el: HTMLElement; target: HTMLElement }> {
+    const target = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, target, transform);
+    });
+
+    return { el, target };
+  }
+
+  it('should write the attribute of a target with no mirror', () => {
+    const target = document.createElement('div');
+
+    setOwnARIA(target, NAME, 'true');
+
+    expect(target).toHaveAttribute(NAME, 'true');
+  });
+
+  it('should remove the attribute of a target with no mirror for null', () => {
+    const target = document.createElement('div');
+    target.setAttribute(NAME, 'true');
+
+    setOwnARIA(target, NAME, null);
+
+    expect(target).not.toHaveAttribute(NAME);
+  });
+
+  it('should write the own value at once while the host gives none', () => {
+    const { target } = createMirrored();
+
+    setOwnARIA(target, NAME, 'true');
+
+    expect(target).toHaveAttribute(NAME, 'true');
+  });
+
+  it('should give the own value again when the host loses its value', async () => {
+    const { el, target } = createMirrored();
+    document.body.append(el);
+    setOwnARIA(target, NAME, 'true');
+    el.setAttribute(NAME, 'false');
+    await nextFrame();
+    expect(target).toHaveAttribute(NAME, 'false');
+
+    el.removeAttribute(NAME);
+    await nextFrame();
+
+    expect(target).toHaveAttribute(NAME, 'true');
+  });
+
+  it("should keep the host's value when the own value changes", async () => {
+    const { el, target } = createMirrored();
+    document.body.append(el);
+    el.setAttribute(NAME, 'false');
+    await nextFrame();
+
+    setOwnARIA(target, NAME, 'true');
+
+    expect(target).toHaveAttribute(NAME, 'false');
+  });
+
+  it('should give the own value that changed while the host gave the name', async () => {
+    const { el, target } = createMirrored();
+    document.body.append(el);
+    setOwnARIA(target, NAME, 'true');
+    el.setAttribute(NAME, 'false');
+    await nextFrame();
+    setOwnARIA(target, NAME, 'mixed');
+    el.removeAttribute(NAME);
+    await nextFrame();
+
+    expect(target).toHaveAttribute(NAME, 'mixed');
+  });
+
+  it('should have no attribute after the loss when the own value is null', async () => {
+    const { el, target } = createMirrored();
+    document.body.append(el);
+    setOwnARIA(target, NAME, 'true');
+    el.setAttribute(NAME, 'false');
+    await nextFrame();
+    setOwnARIA(target, NAME, null);
+    expect(target).toHaveAttribute(NAME, 'false');
+    el.removeAttribute(NAME);
+    await nextFrame();
+
+    expect(target).not.toHaveAttribute(NAME);
+  });
+
+  it("should put the transformer's answer before the own value", async () => {
+    const { el, target } = createMirrored((_, value) => value ?? 'Answer');
+    document.body.append(el);
+    setOwnARIA(target, NAME, 'true');
+    await nextFrame();
+
+    expect(target).toHaveAttribute(NAME, 'Answer');
+  });
+
+  it("should give the own value for the transformer's null", async () => {
+    const { el, target } = createMirrored(() => null);
+    document.body.append(el);
+    setOwnARIA(target, NAME, 'true');
+    el.setAttribute(NAME, 'false');
+    await nextFrame();
+
+    expect(target).toHaveAttribute(NAME, 'true');
+  });
+
+  it('should keep the own values of two targets apart', async () => {
+    const first = document.createElement('div');
+    const second = document.createElement('div');
+    const el = host((h) => {
+      useARIA(h, first);
+      useARIA(h, second);
+    });
+    document.body.append(el);
+    setOwnARIA(first, NAME, 'true');
+    setOwnARIA(second, NAME, 'mixed');
+    el.setAttribute(NAME, 'false');
+    await nextFrame();
+    el.removeAttribute(NAME);
+    await nextFrame();
+
+    expect([first.getAttribute(NAME), second.getAttribute(NAME)]).toEqual([
+      'true',
+      'mixed',
+    ]);
+  });
+
+  it('should keep the own values of two names apart', async () => {
+    const { el, target } = createMirrored();
+    document.body.append(el);
+    setOwnARIA(target, NAME, 'true');
+    setOwnARIA(target, 'aria-checked', 'mixed');
+    el.setAttribute(NAME, 'false');
+    await nextFrame();
+    el.removeAttribute(NAME);
+    await nextFrame();
+
+    expect([
+      target.getAttribute(NAME),
+      target.getAttribute('aria-checked'),
+    ]).toEqual(['true', 'mixed']);
+  });
+
+  it("should put the host's empty value before the own value", async () => {
+    const { el, target } = createMirrored();
+    document.body.append(el);
+    setOwnARIA(target, NAME, 'true');
+    el.setAttribute(NAME, '');
+    await nextFrame();
+
+    expect(target).toHaveAttribute(NAME, '');
+  });
+
+  it('should give an empty own value after the host loses its value', async () => {
+    const { el, target } = createMirrored();
+    document.body.append(el);
+    setOwnARIA(target, NAME, '');
+    el.setAttribute(NAME, 'false');
+    await nextFrame();
+    el.removeAttribute(NAME);
+    await nextFrame();
+
+    expect(target).toHaveAttribute(NAME, '');
+  });
+
+  describe('in the task of the loss', () => {
+    const ORDERS: ReadonlyArray<
+      Readonly<{
+        order: string;
+        change: (el: HTMLElement, target: HTMLElement) => void;
+      }>
+    > = [
+      {
+        order: 'the loss and then the own value',
+        change(el, target) {
+          el.removeAttribute(NAME);
+          setOwnARIA(target, NAME, 'true');
+        },
+      },
+      {
+        order: 'the own value and then the loss',
+        change(el, target) {
+          setOwnARIA(target, NAME, 'true');
+          el.removeAttribute(NAME);
+        },
+      },
+    ];
+
+    it.each(ORDERS)(
+      'should give the own value after $order while connected',
+      async ({ change }) => {
+        const { el, target } = createMirrored();
+        document.body.append(el);
+        el.setAttribute(NAME, 'false');
+        await nextFrame();
+        change(el, target);
+        await nextFrame();
+
+        expect(target).toHaveAttribute(NAME, 'true');
+      },
+    );
+
+    describe.each(ORDERS)('$order while out', ({ change }) => {
+      async function reconnect(): Promise<HTMLElement> {
+        const { el, target } = createMirrored();
+        document.body.append(el);
+        el.setAttribute(NAME, 'false');
+        await nextFrame();
+        el.remove();
+        await nextFrame();
+        change(el, target);
+        document.body.append(el);
+
+        return target;
+      }
+
+      it('should give the own value in the connect', async () => {
+        expect(await reconnect()).toHaveAttribute(NAME, 'true');
+      });
+
+      it('should give the own value after the task', async () => {
+        const target = await reconnect();
+        await nextFrame();
+
+        expect(target).toHaveAttribute(NAME, 'true');
+      });
+    });
+
+    describe.each(ORDERS)('$order before the first connect', ({ change }) => {
+      function connect(): HTMLElement {
+        const { el, target } = createMirrored();
+        el.setAttribute(NAME, 'false');
+        change(el, target);
+        document.body.append(el);
+
+        return target;
+      }
+
+      it('should give the own value in the connect', () => {
+        expect(connect()).toHaveAttribute(NAME, 'true');
+      });
+
+      it('should give the own value after the task', async () => {
+        const target = connect();
+        await nextFrame();
+
+        expect(target).toHaveAttribute(NAME, 'true');
+      });
+    });
   });
 });
