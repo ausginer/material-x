@@ -1,0 +1,33 @@
+## no mutation | chromium | 0 failed, 49 passed
+## the line removed | chromium | 4 failed, 45 passed
+   mx-card content's corners should inherit the token of the container shape
+   mx-card content's corners should inherit --md-card-container-shape with one value
+   mx-card content's corners should inherit --md-card-container-shape with four values
+   mx-card content's corners should inherit a page's border-radius on the card
+## the slot as a block | chromium | 4 failed, 45 passed
+   mx-card content should fill a card that a grid stretches
+   mx-card content should end a scroll in both axes with the padding
+   mx-card content should be laid out by a page's grid on the card
+   mx-card content should be laid out by a page's flex on the card
+## no mutation | firefox | 0 failed, 49 passed
+## the line removed | firefox | 4 failed, 45 passed
+   mx-card content's corners should inherit the token of the container shape
+   mx-card content's corners should inherit --md-card-container-shape with one value
+   mx-card content's corners should inherit --md-card-container-shape with four values
+   mx-card content's corners should inherit a page's border-radius on the card
+## the slot as a block | firefox | 4 failed, 45 passed
+   mx-card content should fill a card that a grid stretches
+   mx-card content should end a scroll in both axes with the padding
+   mx-card content should be laid out by a page's grid on the card
+   mx-card content should be laid out by a page's flex on the card
+## no mutation | webkit | 0 failed, 49 passed
+## the line removed | webkit | 4 failed, 45 passed
+   mx-card content's corners should inherit the token of the container shape
+   mx-card content's corners should inherit --md-card-container-shape with one value
+   mx-card content's corners should inherit --md-card-container-shape with four values
+   mx-card content's corners should inherit a page's border-radius on the card
+## the slot as a block | webkit | 4 failed, 45 passed
+   mx-card content should fill a card that a grid stretches
+   mx-card content should end a scroll in both axes with the padding
+   mx-card content should be laid out by a page's grid on the card
+   mx-card content should be laid out by a page's flex on the card

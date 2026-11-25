@@ -2479,6 +2479,15 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 - **`RF-122` (#217), either order.** It removes the two resets from the same rule and keeps this line, and neither changes what the other reads. The second to land merges the first, and its slot rule holds the line alone. Their rows don't overlap. The grid row is in this unit and isn't in `RF-122`'s.
 - **`RF-139`'s limit on wide controls** was told to the owner. He raised no objection, and that isn't an answer.
 
+**Dated 2026-11-25 by the implementer: the list is implemented on `material-x/card-radius-1`, from `main` at `2485fb2df`, for #263, and not closed.** Requested by the coordinator.
+
+- **Source and documentation:** items 1 to 4 as written. `RF-122`'s resets and their comment are unchanged.
+- **Rows,** eight in `card.spec.browser.test.ts`: the file has 49 in each engine. Four for the inherited corner, two guards, and a page's grid and flex.
+- **Witnesses** ([reading](card-radius-1/checks/witnesses.txt), [script](card-radius-1/probes/mutate.mjs)), the same in Chromium, Firefox and WebKit: with the line removed, the four rows of the corner fail and no other. With `display: block` on the slot, the grid row and the flex row fail, and with them two older rows, the stretched card and the scroll's end. Unmutated, none.
+- **Checks:** the card's rows, Chromium 61 passed, Firefox and WebKit 58 and 3 skipped. Material-x without the visual project in Chromium: 2042 passed and 2 expected failures. Typecheck, lint on the changed files, the root format check, publint, `docs-build` and `docs-smoke` (129 of 129) pass. The size gate passes.
+- **Size, Brotli, local, against `2485fb2df`:** `card/card` 1350 to 1354 (+4), `complete` 25869 to 25924 (+55). No other row of 23 moves.
+- **Not run:** the visual project, so _no visual baseline changes_ is CI's to read; Safari; screen readers.
+
 #### RD-54 — `mx-top-app-bar` pins itself, takes its scrolled state from one observer, and changes color without a shadow
 
 **Decided 2026-11-23 by the architect, on `material-x/top-app-bar-1`,** on the coordinator's task for #172, as unit H of `RD-47`'s landing plan. `RD-53` is the highest `RD-` on any branch on `origin` (`material-x/card-1`), so this is the next free number. The [plan](top-app-bar-1/top-app-bar-plan.md) holds the readings, the tokens, the tests and the work.
