@@ -5223,7 +5223,7 @@ Tier C, **closed at `3bbd506f6`**, read by the architect on 2026-11-21 at `82bfa
 
 #### DRF-54 — In WebKit in CI, two arrow presses in a row moved an item one slot, once, with no change to drag
 
-Tier B, **open**: the instrument is unsound until the cause is known, and the tier becomes A if the package loses the press. Registered on 2026-11-23 by the architect, on `repo/register-observations-7`, from [#194](https://github.com/ausginer/material-x/issues/194), relayed by the coordinator. `DRF-53` is the highest `DRF-` on any branch on `origin`, so this is the next free number. **No row is disabled.**
+Tier B, **closed at `767d489f6`**, read by the architect on 2026-11-25. Registered on 2026-11-23 by the architect, on `repo/register-observations-7`, from [#194](https://github.com/ausginer/material-x/issues/194), relayed by the coordinator. `DRF-53` is the highest `DRF-` on any branch on `origin`, so this is the next free number. **No row is disabled.**
 
 - **What was observed** ([reading](../../../.plan/observations-7/checks/webkit-two-arrows.txt)): in `verify` run 45142741219 on #192, whose changes are records only, the `webkit` job's attempt 1 failed `consumer/drag/webkit` › `tests/focus.browser.test.ts` › `DRI-12` › _"should let two arrow presses in a row reorder twice"_, at `:29`. It expected `r1,r2,r0,r3`, and the list was `r1,r0,r2,r3`. Attempt 2 of the job passed.
 - **What it says:** one press moved the item one slot, and the other did nothing. The list doesn't show which press was lost, or where focus was, because the row's focus assertion is after the failed one. The result is the same when the first press is lost and when the second is.
@@ -5324,6 +5324,20 @@ Tier B, **open**: the instrument is unsound until the cause is known, and the ti
 - **Property 4,** by reading `hot-path.browser.test.ts`: each of its presses follows the end of its window.
 - **Suites,** browser, consumer and shipped: Chromium 878 passed, Firefox and WebKit 858 passed and 20 skipped. Typecheck, lint on the file and the root format check pass.
 - **Not run:** Safari, whose branch doesn't change.
+
+**Dated 2026-11-25 by the architect: closed at `767d489f6`.** Requested by the coordinator. Read: the diff of the commit, its [reading](quick-presses-1/checks/repair.txt), `hot-path.browser.test.ts` and the job log of `verify` run 45648244003. No reading was repeated.
+
+- **Required property:** the cause is known and it is repaired in the test, so the row's result depends on the code. The witness is the control, 24 of 750 keys to the wrong frame before and 0 of 750 after. The pairs, 1 of 90 before and 0 of 90 after, say little at that rate.
+- **Properties 1 to 6 hold.**
+  - _1:_ the control in WebKit. In Chromium and Firefox the control lost no key without the repair, it wasn't run with it, and their suites pass.
+  - _2 and 5, by reading:_ `keyPress` awaits the evaluation in the test's frame and catches nothing, so a missing or rejected frame fails the command before the key.
+  - _3:_ outside the record, the branch's only changed file is `tests/support/commands.node.ts`, and its hunks are the type, the helper and the Playwright branch of `keyPress`.
+  - _4, by reading:_ each of the five presses follows the end of its row's window.
+  - _6:_ with `restoreFocus` removed, and 30 ms late, the row fails in Chromium and WebKit, without the repair and with it.
+- **CI:** `verify` run 45648244003 passes at `767d489f6`, in the three engines. Its `measurements` job reports a failure. Its 12 rows pass, and its Comment step ended with _"unexpected end of JSON input"_ from `gh api`, so the size comment wasn't posted. That is neither the row's nor this change's, and nothing is registered for one occurrence. The run is one pass of a race of about 1 %, so it isn't the witness. The commit of this note changes the record alone.
+- **Accepted departures:** other sessions ran in the container, before and after. The loads of the control and the pairs are in the reading, and the control needs a busy second page, not an idle machine. The 30 ms mutation takes `restoreFocus`'s arguments at once, which is the mutation that property 6 asks for. The pairs' reporter printed a probe's line only for a failure, and the totals are the file's own counts.
+- **Remaining limits:** Safari wasn't run. A cross-origin nested frame has no row. `userEvent.tab` has the same exposure, with no known failure, as the acceptance says.
+- Until this dating the entry said **open**, because the instrument was unsound until the cause was known. The package loses no press, so the tier stays B.
 
 #### DRF-55 — A landing is reported as a fault when the dropped item left its list during the verdict
 
