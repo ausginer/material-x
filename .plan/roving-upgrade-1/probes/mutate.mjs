@@ -1,5 +1,5 @@
 // Run from the repository root, with a clean src and core built:
-//   node .plan/roving-upgrade-1/probes/mutate.mjs <engine,...>
+//   node .plan/roving-upgrade-1/probes/mutate.mjs <engine,...> [name of one mutation]
 // RF-141: applies each mutation to core's useRovingTabindex, builds core, runs
 // the rows of core and material-x, and restores the file and the build.
 import { spawnSync } from 'node:child_process';
@@ -14,39 +14,38 @@ const swap = (from, to) => {
 const main = spawnSync('git', ['show', `e57c9f074:${file}`], {
   encoding: 'utf8',
 }).stdout;
-const join = `            if (isItem(node)) {
-              join(nodes, current);
-            }`;
 const mutations = [
   ['no mutation', source],
   ['the hook of main', main],
+  [
+    "main's choice with the new read",
+    swap(
+      'enabled.find((item) => item === this.#chosen) ??',
+      `(this.active && !this.active.disabled && this.contains(this.active)
+        ? this.active
+        : undefined) ??`,
+    ),
+  ],
+  [
+    'focus not recorded',
+    swap('items.choose(target)', 'items.setTabStop(target)'),
+  ],
+  [
+    'the item that is focused at a read not recorded',
+    swap('this.enabled.find((item) => item === focused) ??', ''),
+  ],
+  [
+    'a removed item still the chosen one',
+    swap('value.find((item) => item === this.#chosen);', 'this.#chosen;'),
+  ],
+  ["the slot change's own nodes read", swap('read(current);', 'read(nodes);')],
   ['no upgrade', swap('            customElements.upgrade(node);\n', '')],
   [
     'no wait',
     swap('customElements.whenDefined(node.localName)', 'Promise.resolve()'),
   ],
   [
-    'the read of the registered candidate, with no memory of the choice',
-    swap(
-      join,
-      '            items.value = current.filter(isItem);\n            select();',
-    ),
-  ],
-  [
-    'a default choice is kept',
-    swap('if (chosenBy === nodes) {', 'if (false) {'),
-  ],
-  [
-    "any change's default choice is dropped",
-    swap('if (chosenBy === nodes) {', 'if (chosenBy) {'),
-  ],
-  ['a moved tab stop is dropped', swap('isMoved = true', 'isMoved = false')],
-  [
-    'focus keeps the default choice',
-    swap('        chosenBy = undefined;\n        isMoved', '        isMoved'),
-  ],
-  [
-    'a node that left is read',
+    'a node that left is upgraded',
     swap('if (current.includes(node)) {', 'if (true) {'),
   ],
   [
@@ -68,6 +67,7 @@ const build = () => {
 };
 try {
   for (const [name, text] of mutations) {
+    if (process.argv[3] && process.argv[3] !== name) continue;
     writeFileSync(file, text);
     build();
     for (const engine of process.argv[2].split(','))

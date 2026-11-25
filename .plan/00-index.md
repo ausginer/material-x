@@ -6557,6 +6557,31 @@ Bytes are of `connected-button-group` as the review reads them. The H and I numb
 
 **#262's description** still holds, and #273's too.
 
+**Dated 2026-11-25 by the implementer: the remediation's list is done on `core/roving-upgrade-1`, for #262, and the entry is not closed.** Requested by the coordinator. The readings below are of the hook at `ca18f68aa`, whose branch has `main` at `2c83c7bc0`. Then `main` at `49bd95038` (#267) is merged without a conflict, and no file of core or of the groups changes.
+
+- **Item 1:** as written. `chosenBy`, `isMoved`, `select` with nodes, and `join` are gone.
+- **The one choice that the direction left open:** an item that is focused in the task that adds it has no `focusin` as a managed item. `current` takes it while it stays focused. The hook records it at the read, if it is enabled, so it stays the one that focus moved the tab stop to after a blur. `settled` does the same without the check that it is enabled. A row of its own has it, and in the fuzz the three hooks have the same numbers.
+- **Item 2:** the two rows are renamed and changed. **Item 3:** ten rows, so core's file has 62. The row of an item added after a late one was blind at first: a later slot change waits too, and its read has the right nodes. It now adds the item in the task of the definition, where only the first wait reads.
+- **Item 4,** one engine at a time, with other sessions running on the machine. The same counts in each engine, but for the last row ([witnesses](roving-upgrade-1/checks/remediation-witnesses.txt), [probe](roving-upgrade-1/probes/mutate.mjs)). The [former witnesses](roving-upgrade-1/checks/witnesses.txt) are of `df687de7d`, with the probe as it was there.
+
+  | Change | Core rows that fail, of 62 | material-x, of 30 |
+  | --- | --- | --- |
+  | The hook of `main` | 20 | 3 |
+  | `main`'s choice with the new read | 10 | 0 |
+  | Focus not recorded | 5 | 0 |
+  | The item that is focused at a read not recorded | 2 | 0 |
+  | A removed item still the chosen one | 1 | 0 |
+  | The slot change's own nodes read | 1 | 0 |
+  | No upgrade | 8 | 2 |
+  | No wait | 8 | 1 |
+  | A node that left is upgraded | 1 | 0 |
+  | Customized built-in elements waited for | 1, and 0 in WebKit | 0 |
+
+- **Fuzz,** with the ruling's reference, 1000 sequences in each stratum ([reading](roving-upgrade-1/checks/remediation-fuzz.txt)): the hook reads as `current` in all eleven strata, H, I and J 0, A 13, B 10, C 9, D 1, E 70, F 30, G 29, K 19. In A to D and K, the tab stop is the value's item in each difference. Firefox and WebKit read the same, line for line.
+- **Memory,** Chromium ([reading](roving-upgrade-1/checks/remediation-gc.txt)): removed items 0 of 9, 0 of 9 and 0 of 100 alive. A removed group with an element that is never defined stays, which is the accepted cost.
+- **Size, Brotli,** against `main`'s hook ([sizes](roving-upgrade-1/checks/remediation-sizes.txt)): `button-group/connected-button-group` 3912 to 4005 (+93), `button/split-button` 7562 to 7649 (+87), `complete` 25699 to 25821 (+122). No other row moves, and no limit is exceeded. As the review reads it, minified by rolldown, `connected-button-group` is 3908 to 3987 (+79), where the ruling has +76 for `current`.
+- **Checks:** before the merge of `49bd95038`, core's projects (361 rows) in the three engines. On the merged tree: the hook's rows (62) and `tests/button-group` (130) in the three engines, the size gate, root typecheck, the declarations' typecheck, lint, format check, `docs-build` and `docs-smoke` (129 pages). Nothing fails.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
