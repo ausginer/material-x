@@ -1,0 +1,37 @@
+// Run from the repository root, with a clean tree: it edits two files and restores them.
+import { spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+const MX=process.cwd()+'/packages/material-x/';
+const T=MX+'tests/list/list-item.spec.browser.test.ts', CSS=MX+'src/list/styles/item/main.styles.css';
+const orig=new Map([T,CSS].map(f=>[f,readFileSync(f,'utf8')]));
+const once=(s,a,b)=>{if(s.split(a).length!==2)throw new Error(a);return s.replace(a,()=>b);};
+const X=s=>once(s,"type ControlCase = Readonly<{",`describe.each(SORTABLE_ITEMS)('READ %s', (tag) => {
+  it('trail', async () => {
+    const child = document.createElement('span'); child.textContent = 'x';
+    const frame = await createListWithControl('mx-list', tag, child, 'trail');
+    const item = frame.querySelector(tag)!;
+    for (const s of ['overline', 'support']) { const e = document.createElement('span'); e.slot = s; e.textContent = s; item.append(e); }
+    await nextFrame();
+    const t = item.shadowRoot!.querySelector('.trail')!.getBoundingClientRect(); const c = child.getBoundingClientRect();
+    throw new Error('READ slot ' + [t.top, t.height].map(Math.round) + ' child ' + [c.top, c.height].map(Math.round) + ' item ' + Math.round(item.getBoundingClientRect().height));
+  });
+  it('grip', async () => {
+    if (!customElements.get('x-grip')) customElements.define('x-grip', class extends HTMLElement { constructor() { super(); this.attachShadow({ mode: 'open' }).innerHTML = '<style>:host(:focus-visible){outline:4px dotted red}</style>g'; } });
+    const read: string[] = [];
+    for (const page of ['', 'x-grip:focus-visible { outline: 5px double rgb(1, 2, 3); }']) {
+      const handle = document.createElement('x-grip'); handle.toggleAttribute('data-handle', true);
+      const frame = await createListWithControl('mx-sortable-list', tag, handle, 'lead');
+      const sheet = document.createElement('style'); sheet.textContent = page; frame.append(sheet);
+      await focusControl(frame, handle);
+      read.push(getComputedStyle(handle).outline); frame.remove();
+    }
+    throw new Error('READ grip ' + read.join(' || '));
+  });
+});
+
+type ControlCase = Readonly<{`);
+const NARROW=s=>once(s,"::slotted([data-handle]:focus-visible) {",":is(.lead, .trail)::slotted([data-handle]:focus-visible) {");
+const go=(e,label)=>{const r=spawnSync('aube',['exec','vitest','run','-c','vitest.config.ts','tests/list/list-item.spec'],{cwd:MX,encoding:'utf8',env:{...process.env,NO_COLOR:'1',MX_TEST_ENGINES:e}});const out=r.stdout+r.stderr;console.log(`## ${label} | ${e} | ${/^ +Tests +.*$/m.exec(out)?.[0].trim()??out.slice(-400)}`);for(const l of new Set(out.split('\n').filter(l=>/FAIL |Error: /.test(l))))console.log('   '+l.replace(/^.*?test\.ts(?::\d+)? > /u,'').trim());};
+try{writeFileSync(CSS,NARROW(orig.get(CSS)));writeFileSync(T,X(orig.get(T)));for(const e of ['chromium','firefox','webkit'])go(e,'read');
+ writeFileSync(T,orig.get(T));for(let i=0;i<3;i++)for(const e of ['firefox','webkit'])go(e,'narrowed, existing rows, run '+(i+1));}
+finally{for(const[f,s]of orig)writeFileSync(f,s);}
