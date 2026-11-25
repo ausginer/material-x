@@ -1,0 +1,451 @@
+# chromium 158.0.8127.18, part kinds
+
+## 240px mx-list > mx-list-item ltr
+video, two words: item 240x90 content 36 trail 48 kids [48x40] tops [40] lines [6] past 0
+large video, two words: item 240x110 content 27.9 trail 42.1 kids [42.1x40] tops [60] lines [8] past 0
+avatar, two words: item 240x60 content 43.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 240x60 content 83.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 240x148 content 36 trail 48 kids [47.5x125] tops [11] lines [8] past 0
+avatar, long text: item 240x84 content 36 trail 108 kids [101x61] tops [11] lines [4] past 0
+video, email: item 240x100 content 36 trail 48 kids [47x77] tops [11] lines [5] past 0
+video, 12:30: item 240x76 content 54.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 240x164 content 166.5 trail 29.5 kids [29.5x13] tops [75] lines [1] past 0
+handle and text: item 240x56 content 146.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 240x60 content 116 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 240x60 content 156 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 240x68 content 76 trail 120 kids [115.5x45] tops [11] lines [3] past 0
+
+## 240px mx-list > mx-list-item rtl
+video, two words: item 240x90 content 36 trail 48 kids [48x40] tops [40] lines [6] past 0
+large video, two words: item 240x110 content 27.9 trail 42.1 kids [42.1x40] tops [60] lines [8] past 0
+avatar, two words: item 240x60 content 43.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 240x60 content 83.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 240x148 content 36 trail 48 kids [47.5x125] tops [11] lines [8] past 0
+avatar, long text: item 240x84 content 36 trail 108 kids [101x61] tops [11] lines [4] past 0
+video, email: item 240x100 content 36 trail 48 kids [47x77] tops [11] lines [5] past 0
+video, 12:30: item 240x76 content 54.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 240x164 content 166.5 trail 29.5 kids [29.5x13] tops [75] lines [1] past 0
+handle and text: item 240x56 content 146.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 240x60 content 116 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 240x60 content 156 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 240x68 content 76 trail 120 kids [115.5x45] tops [11] lines [3] past 0
+
+## 240px mx-list > mx-list-button-item ltr
+video, two words: item 240x76 content 31.2 trail 52.8 kids [52.8x40] tops [23] lines [4] past 0
+large video, two words: item 240x110 content 27.9 trail 42.1 kids [42.1x40] tops [60] lines [8] past 0
+avatar, two words: item 240x60 content 43.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 240x60 content 83.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 240x132 content 31.2 trail 52.8 kids [50x109] tops [11] lines [7] past 0
+avatar, long text: item 240x84 content 40 trail 104 kids [101x61] tops [11] lines [4] past 0
+video, email: item 240x84 content 31.2 trail 52.8 kids [50x61] tops [11] lines [4] past 0
+video, 12:30: item 240x76 content 54.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 240x164 content 166.5 trail 29.5 kids [29.5x13] tops [75] lines [1] past 0
+handle and text: item 240x56 content 146.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 240x60 content 116 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 240x60 content 156 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 240x84 content 92 trail 104 kids [99x61] tops [11] lines [4] past 0
+
+## 240px mx-list > mx-list-button-item rtl
+video, two words: item 240x76 content 31.2 trail 52.8 kids [52.8x40] tops [23] lines [4] past 0
+large video, two words: item 240x110 content 27.9 trail 42.1 kids [42.1x40] tops [60] lines [8] past 0
+avatar, two words: item 240x60 content 43.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 240x60 content 83.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 240x132 content 31.2 trail 52.8 kids [50x109] tops [11] lines [7] past 0
+avatar, long text: item 240x84 content 40 trail 104 kids [101x61] tops [11] lines [4] past 0
+video, email: item 240x84 content 31.2 trail 52.8 kids [50x61] tops [11] lines [4] past 0
+video, 12:30: item 240x76 content 54.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 240x164 content 166.5 trail 29.5 kids [29.5x13] tops [75] lines [1] past 0
+handle and text: item 240x56 content 146.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 240x60 content 116 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 240x60 content 156 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 240x84 content 92 trail 104 kids [99x61] tops [11] lines [4] past 0
+
+## 240px mx-list > mx-list-link-item ltr
+video, two words: item 240x76 content 31.2 trail 52.8 kids [52.8x40] tops [23] lines [4] past 0
+large video, two words: item 240x110 content 27.9 trail 42.1 kids [42.1x40] tops [60] lines [8] past 0
+avatar, two words: item 240x60 content 43.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 240x60 content 83.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 240x132 content 31.2 trail 52.8 kids [50x109] tops [11] lines [7] past 0
+avatar, long text: item 240x84 content 40 trail 104 kids [101x61] tops [11] lines [4] past 0
+video, email: item 240x84 content 31.2 trail 52.8 kids [50x61] tops [11] lines [4] past 0
+video, 12:30: item 240x76 content 54.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 240x164 content 166.5 trail 29.5 kids [29.5x13] tops [75] lines [1] past 0
+handle and text: item 240x56 content 146.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 240x60 content 116 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 240x60 content 156 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 240x84 content 92 trail 104 kids [99x61] tops [11] lines [4] past 0
+
+## 240px mx-list > mx-list-link-item rtl
+video, two words: item 240x76 content 31.2 trail 52.8 kids [52.8x40] tops [23] lines [4] past 0
+large video, two words: item 240x110 content 27.9 trail 42.1 kids [42.1x40] tops [60] lines [8] past 0
+avatar, two words: item 240x60 content 43.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 240x60 content 83.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 240x132 content 31.2 trail 52.8 kids [50x109] tops [11] lines [7] past 0
+avatar, long text: item 240x84 content 40 trail 104 kids [101x61] tops [11] lines [4] past 0
+video, email: item 240x84 content 31.2 trail 52.8 kids [50x61] tops [11] lines [4] past 0
+video, 12:30: item 240x76 content 54.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 240x164 content 166.5 trail 29.5 kids [29.5x13] tops [75] lines [1] past 0
+handle and text: item 240x56 content 146.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 240x60 content 116 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 240x60 content 156 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 240x84 content 92 trail 104 kids [99x61] tops [11] lines [4] past 0
+
+## 240px mx-sortable-list > mx-list-item ltr
+video, two words: item 240x90 content 36 trail 48 kids [48x40] tops [40] lines [6] past 0
+large video, two words: item 240x110 content 27.9 trail 42.1 kids [42.1x40] tops [60] lines [8] past 0
+avatar, two words: item 240x60 content 43.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 240x60 content 83.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 240x148 content 36 trail 48 kids [47.5x125] tops [11] lines [8] past 0
+avatar, long text: item 240x84 content 36 trail 108 kids [101x61] tops [11] lines [4] past 0
+video, email: item 240x100 content 36 trail 48 kids [47x77] tops [11] lines [5] past 0
+video, 12:30: item 240x76 content 54.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 240x164 content 166.5 trail 29.5 kids [29.5x13] tops [75] lines [1] past 0
+handle and text: item 240x56 content 146.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 240x60 content 116 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 240x60 content 156 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 240x68 content 76 trail 120 kids [115.5x45] tops [11] lines [3] past 0
+
+## 240px mx-sortable-list > mx-list-item rtl
+video, two words: item 240x90 content 36 trail 48 kids [48x40] tops [40] lines [6] past 0
+large video, two words: item 240x110 content 27.9 trail 42.1 kids [42.1x40] tops [60] lines [8] past 0
+avatar, two words: item 240x60 content 43.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 240x60 content 83.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 240x148 content 36 trail 48 kids [47.5x125] tops [11] lines [8] past 0
+avatar, long text: item 240x84 content 36 trail 108 kids [101x61] tops [11] lines [4] past 0
+video, email: item 240x100 content 36 trail 48 kids [47x77] tops [11] lines [5] past 0
+video, 12:30: item 240x76 content 54.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 240x164 content 166.5 trail 29.5 kids [29.5x13] tops [75] lines [1] past 0
+handle and text: item 240x56 content 146.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 240x60 content 116 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 240x60 content 156 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 240x68 content 76 trail 120 kids [115.5x45] tops [11] lines [3] past 0
+
+## 240px mx-sortable-list > mx-list-button-item ltr
+video, two words: item 240x76 content 31.2 trail 52.8 kids [52.8x40] tops [23] lines [4] past 0
+large video, two words: item 240x110 content 27.9 trail 42.1 kids [42.1x40] tops [60] lines [8] past 0
+avatar, two words: item 240x60 content 43.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 240x60 content 83.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 240x132 content 31.2 trail 52.8 kids [50x109] tops [11] lines [7] past 0
+avatar, long text: item 240x84 content 40 trail 104 kids [101x61] tops [11] lines [4] past 0
+video, email: item 240x84 content 31.2 trail 52.8 kids [50x61] tops [11] lines [4] past 0
+video, 12:30: item 240x76 content 54.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 240x164 content 166.5 trail 29.5 kids [29.5x13] tops [75] lines [1] past 0
+handle and text: item 240x56 content 146.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 240x60 content 116 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 240x60 content 156 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 240x84 content 92 trail 104 kids [99x61] tops [11] lines [4] past 0
+
+## 240px mx-sortable-list > mx-list-button-item rtl
+video, two words: item 240x76 content 31.2 trail 52.8 kids [52.8x40] tops [23] lines [4] past 0
+large video, two words: item 240x110 content 27.9 trail 42.1 kids [42.1x40] tops [60] lines [8] past 0
+avatar, two words: item 240x60 content 43.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 240x60 content 83.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 240x132 content 31.2 trail 52.8 kids [50x109] tops [11] lines [7] past 0
+avatar, long text: item 240x84 content 40 trail 104 kids [101x61] tops [11] lines [4] past 0
+video, email: item 240x84 content 31.2 trail 52.8 kids [50x61] tops [11] lines [4] past 0
+video, 12:30: item 240x76 content 54.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 240x164 content 166.5 trail 29.5 kids [29.5x13] tops [75] lines [1] past 0
+handle and text: item 240x56 content 146.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 240x60 content 116 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 240x60 content 156 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 240x84 content 92 trail 104 kids [99x61] tops [11] lines [4] past 0
+
+## 300px mx-list > mx-list-item ltr
+video, two words: item 300x76 content 45 trail 99 kids [99x40] tops [18] lines [2] past 0
+large video, two words: item 300x88 content 45 trail 85 kids [85x40] tops [24] lines [2] past 0
+avatar, two words: item 300x60 content 103.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 300x60 content 143.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 300x84 content 45 trail 99 kids [82.5x61] tops [11] lines [4] past 0
+avatar, long text: item 300x60 content 54 trail 150 kids [149.5x29] tops [15] lines [2] past 0
+video, email: item 300x76 content 45 trail 99 kids [90.5x45] tops [15] lines [3] past 0
+video, 12:30: item 300x76 content 114.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 300x116 content 226.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 300x56 content 206.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 300x60 content 176 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 300x60 content 216 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 300x68 content 106 trail 150 kids [148.5x45] tops [11] lines [3] past 0
+
+## 300px mx-list > mx-list-item rtl
+video, two words: item 300x76 content 45 trail 99 kids [99x40] tops [18] lines [2] past 0
+large video, two words: item 300x88 content 45 trail 85 kids [85x40] tops [24] lines [2] past 0
+avatar, two words: item 300x60 content 103.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 300x60 content 143.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 300x84 content 45 trail 99 kids [82.5x61] tops [11] lines [4] past 0
+avatar, long text: item 300x60 content 54 trail 150 kids [149.5x29] tops [15] lines [2] past 0
+video, email: item 300x76 content 45 trail 99 kids [90.5x45] tops [15] lines [3] past 0
+video, 12:30: item 300x76 content 114.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 300x116 content 226.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 300x56 content 206.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 300x60 content 176 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 300x60 content 216 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 300x68 content 106 trail 150 kids [148.5x45] tops [11] lines [3] past 0
+
+## 300px mx-list > mx-list-button-item ltr
+video, two words: item 300x76 content 43.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 300x88 content 40.2 trail 89.8 kids [89.8x40] tops [24] lines [2] past 0
+avatar, two words: item 300x60 content 103.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 300x60 content 143.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 300x84 content 40.2 trail 103.8 kids [101x61] tops [11] lines [4] past 0
+avatar, long text: item 300x68 content 70 trail 134 kids [116x45] tops [11] lines [3] past 0
+video, email: item 300x76 content 40.2 trail 103.8 kids [99.5x29] tops [23] lines [2] past 0
+video, 12:30: item 300x76 content 114.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 300x116 content 226.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 300x56 content 206.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 300x60 content 176 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 300x60 content 216 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 300x68 content 122 trail 134 kids [132x45] tops [11] lines [3] past 0
+
+## 300px mx-list > mx-list-button-item rtl
+video, two words: item 300x76 content 43.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 300x88 content 40.2 trail 89.8 kids [89.8x40] tops [24] lines [2] past 0
+avatar, two words: item 300x60 content 103.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 300x60 content 143.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 300x84 content 40.2 trail 103.8 kids [101x61] tops [11] lines [4] past 0
+avatar, long text: item 300x68 content 70 trail 134 kids [116x45] tops [11] lines [3] past 0
+video, email: item 300x76 content 40.2 trail 103.8 kids [99.5x29] tops [23] lines [2] past 0
+video, 12:30: item 300x76 content 114.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 300x116 content 226.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 300x56 content 206.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 300x60 content 176 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 300x60 content 216 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 300x68 content 122 trail 134 kids [132x45] tops [11] lines [3] past 0
+
+## 300px mx-list > mx-list-link-item ltr
+video, two words: item 300x76 content 43.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 300x88 content 40.2 trail 89.8 kids [89.8x40] tops [24] lines [2] past 0
+avatar, two words: item 300x60 content 103.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 300x60 content 143.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 300x84 content 40.2 trail 103.8 kids [101x61] tops [11] lines [4] past 0
+avatar, long text: item 300x68 content 70 trail 134 kids [116x45] tops [11] lines [3] past 0
+video, email: item 300x76 content 40.2 trail 103.8 kids [99.5x29] tops [23] lines [2] past 0
+video, 12:30: item 300x76 content 114.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 300x116 content 226.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 300x56 content 206.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 300x60 content 176 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 300x60 content 216 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 300x68 content 122 trail 134 kids [132x45] tops [11] lines [3] past 0
+
+## 300px mx-list > mx-list-link-item rtl
+video, two words: item 300x76 content 43.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 300x88 content 40.2 trail 89.8 kids [89.8x40] tops [24] lines [2] past 0
+avatar, two words: item 300x60 content 103.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 300x60 content 143.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 300x84 content 40.2 trail 103.8 kids [101x61] tops [11] lines [4] past 0
+avatar, long text: item 300x68 content 70 trail 134 kids [116x45] tops [11] lines [3] past 0
+video, email: item 300x76 content 40.2 trail 103.8 kids [99.5x29] tops [23] lines [2] past 0
+video, 12:30: item 300x76 content 114.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 300x116 content 226.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 300x56 content 206.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 300x60 content 176 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 300x60 content 216 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 300x68 content 122 trail 134 kids [132x45] tops [11] lines [3] past 0
+
+## 300px mx-sortable-list > mx-list-item ltr
+video, two words: item 300x76 content 45 trail 99 kids [99x40] tops [18] lines [2] past 0
+large video, two words: item 300x88 content 45 trail 85 kids [85x40] tops [24] lines [2] past 0
+avatar, two words: item 300x60 content 103.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 300x60 content 143.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 300x84 content 45 trail 99 kids [82.5x61] tops [11] lines [4] past 0
+avatar, long text: item 300x60 content 54 trail 150 kids [149.5x29] tops [15] lines [2] past 0
+video, email: item 300x76 content 45 trail 99 kids [90.5x45] tops [15] lines [3] past 0
+video, 12:30: item 300x76 content 114.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 300x116 content 226.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 300x56 content 206.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 300x60 content 176 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 300x60 content 216 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 300x68 content 106 trail 150 kids [148.5x45] tops [11] lines [3] past 0
+
+## 300px mx-sortable-list > mx-list-item rtl
+video, two words: item 300x76 content 45 trail 99 kids [99x40] tops [18] lines [2] past 0
+large video, two words: item 300x88 content 45 trail 85 kids [85x40] tops [24] lines [2] past 0
+avatar, two words: item 300x60 content 103.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 300x60 content 143.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 300x84 content 45 trail 99 kids [82.5x61] tops [11] lines [4] past 0
+avatar, long text: item 300x60 content 54 trail 150 kids [149.5x29] tops [15] lines [2] past 0
+video, email: item 300x76 content 45 trail 99 kids [90.5x45] tops [15] lines [3] past 0
+video, 12:30: item 300x76 content 114.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 300x116 content 226.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 300x56 content 206.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 300x60 content 176 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 300x60 content 216 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 300x68 content 106 trail 150 kids [148.5x45] tops [11] lines [3] past 0
+
+## 300px mx-sortable-list > mx-list-button-item ltr
+video, two words: item 300x76 content 43.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 300x88 content 40.2 trail 89.8 kids [89.8x40] tops [24] lines [2] past 0
+avatar, two words: item 300x60 content 103.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 300x60 content 143.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 300x84 content 40.2 trail 103.8 kids [101x61] tops [11] lines [4] past 0
+avatar, long text: item 300x68 content 70 trail 134 kids [116x45] tops [11] lines [3] past 0
+video, email: item 300x76 content 40.2 trail 103.8 kids [99.5x29] tops [23] lines [2] past 0
+video, 12:30: item 300x76 content 114.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 300x116 content 226.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 300x56 content 206.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 300x60 content 176 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 300x60 content 216 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 300x68 content 122 trail 134 kids [132x45] tops [11] lines [3] past 0
+
+## 300px mx-sortable-list > mx-list-button-item rtl
+video, two words: item 300x76 content 43.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 300x88 content 40.2 trail 89.8 kids [89.8x40] tops [24] lines [2] past 0
+avatar, two words: item 300x60 content 103.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 300x60 content 143.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 300x84 content 40.2 trail 103.8 kids [101x61] tops [11] lines [4] past 0
+avatar, long text: item 300x68 content 70 trail 134 kids [116x45] tops [11] lines [3] past 0
+video, email: item 300x76 content 40.2 trail 103.8 kids [99.5x29] tops [23] lines [2] past 0
+video, 12:30: item 300x76 content 114.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 300x116 content 226.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 300x56 content 206.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 300x60 content 176 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 300x60 content 216 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 300x68 content 122 trail 134 kids [132x45] tops [11] lines [3] past 0
+
+## 360px mx-list > mx-list-item ltr
+video, two words: item 360x76 content 103.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 360x88 content 89.1 trail 100.9 kids [100.9x40] tops [24] lines [1] past 0
+avatar, two words: item 360x60 content 163.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 360x60 content 203.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 360x76 content 54 trail 150 kids [149.5x29] tops [23] lines [2] past 0
+avatar, long text: item 360x60 content 84 trail 180 kids [149.5x29] tops [15] lines [2] past 0
+video, email: item 360x76 content 54 trail 150 kids [146.5x29] tops [23] lines [2] past 0
+video, 12:30: item 360x76 content 174.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 360x116 content 286.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 360x56 content 266.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 360x60 content 236 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 360x60 content 276 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 360x56 content 136 trail 180 kids [176x29] tops [13] lines [2] past 0
+
+## 360px mx-list > mx-list-item rtl
+video, two words: item 360x76 content 103.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 360x88 content 89.1 trail 100.9 kids [100.9x40] tops [24] lines [1] past 0
+avatar, two words: item 360x60 content 163.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 360x60 content 203.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 360x76 content 54 trail 150 kids [149.5x29] tops [23] lines [2] past 0
+avatar, long text: item 360x60 content 84 trail 180 kids [149.5x29] tops [15] lines [2] past 0
+video, email: item 360x76 content 54 trail 150 kids [146.5x29] tops [23] lines [2] past 0
+video, 12:30: item 360x76 content 174.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 360x116 content 286.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 360x56 content 266.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 360x60 content 236 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 360x60 content 276 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 360x56 content 136 trail 180 kids [176x29] tops [13] lines [2] past 0
+
+## 360px mx-list > mx-list-button-item ltr
+video, two words: item 360x76 content 103.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 360x88 content 89.1 trail 100.9 kids [100.9x40] tops [24] lines [1] past 0
+avatar, two words: item 360x60 content 163.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 360x60 content 203.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 360x76 content 49.2 trail 154.8 kids [149.5x29] tops [23] lines [2] past 0
+avatar, long text: item 360x60 content 100 trail 164 kids [149.5x29] tops [15] lines [2] past 0
+video, email: item 360x76 content 49.2 trail 154.8 kids [153x29] tops [23] lines [2] past 0
+video, 12:30: item 360x76 content 174.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 360x116 content 286.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 360x56 content 266.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 360x60 content 236 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 360x60 content 276 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 360x68 content 152 trail 164 kids [159.5x45] tops [11] lines [3] past 0
+
+## 360px mx-list > mx-list-button-item rtl
+video, two words: item 360x76 content 103.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 360x88 content 89.1 trail 100.9 kids [100.9x40] tops [24] lines [1] past 0
+avatar, two words: item 360x60 content 163.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 360x60 content 203.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 360x76 content 49.2 trail 154.8 kids [149.5x29] tops [23] lines [2] past 0
+avatar, long text: item 360x60 content 100 trail 164 kids [149.5x29] tops [15] lines [2] past 0
+video, email: item 360x76 content 49.2 trail 154.8 kids [153x29] tops [23] lines [2] past 0
+video, 12:30: item 360x76 content 174.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 360x116 content 286.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 360x56 content 266.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 360x60 content 236 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 360x60 content 276 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 360x68 content 152 trail 164 kids [159.5x45] tops [11] lines [3] past 0
+
+## 360px mx-list > mx-list-link-item ltr
+video, two words: item 360x76 content 103.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 360x88 content 89.1 trail 100.9 kids [100.9x40] tops [24] lines [1] past 0
+avatar, two words: item 360x60 content 163.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 360x60 content 203.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 360x76 content 49.2 trail 154.8 kids [149.5x29] tops [23] lines [2] past 0
+avatar, long text: item 360x60 content 100 trail 164 kids [149.5x29] tops [15] lines [2] past 0
+video, email: item 360x76 content 49.2 trail 154.8 kids [153x29] tops [23] lines [2] past 0
+video, 12:30: item 360x76 content 174.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 360x116 content 286.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 360x56 content 266.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 360x60 content 236 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 360x60 content 276 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 360x68 content 152 trail 164 kids [159.5x45] tops [11] lines [3] past 0
+
+## 360px mx-list > mx-list-link-item rtl
+video, two words: item 360x76 content 103.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 360x88 content 89.1 trail 100.9 kids [100.9x40] tops [24] lines [1] past 0
+avatar, two words: item 360x60 content 163.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 360x60 content 203.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 360x76 content 49.2 trail 154.8 kids [149.5x29] tops [23] lines [2] past 0
+avatar, long text: item 360x60 content 100 trail 164 kids [149.5x29] tops [15] lines [2] past 0
+video, email: item 360x76 content 49.2 trail 154.8 kids [153x29] tops [23] lines [2] past 0
+video, 12:30: item 360x76 content 174.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 360x116 content 286.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 360x56 content 266.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 360x60 content 236 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 360x60 content 276 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 360x68 content 152 trail 164 kids [159.5x45] tops [11] lines [3] past 0
+
+## 360px mx-sortable-list > mx-list-item ltr
+video, two words: item 360x76 content 103.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 360x88 content 89.1 trail 100.9 kids [100.9x40] tops [24] lines [1] past 0
+avatar, two words: item 360x60 content 163.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 360x60 content 203.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 360x76 content 54 trail 150 kids [149.5x29] tops [23] lines [2] past 0
+avatar, long text: item 360x60 content 84 trail 180 kids [149.5x29] tops [15] lines [2] past 0
+video, email: item 360x76 content 54 trail 150 kids [146.5x29] tops [23] lines [2] past 0
+video, 12:30: item 360x76 content 174.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 360x116 content 286.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 360x56 content 266.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 360x60 content 236 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 360x60 content 276 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 360x56 content 136 trail 180 kids [176x29] tops [13] lines [2] past 0
+
+## 360px mx-sortable-list > mx-list-item rtl
+video, two words: item 360x76 content 103.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 360x88 content 89.1 trail 100.9 kids [100.9x40] tops [24] lines [1] past 0
+avatar, two words: item 360x60 content 163.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 360x60 content 203.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 360x76 content 54 trail 150 kids [149.5x29] tops [23] lines [2] past 0
+avatar, long text: item 360x60 content 84 trail 180 kids [149.5x29] tops [15] lines [2] past 0
+video, email: item 360x76 content 54 trail 150 kids [146.5x29] tops [23] lines [2] past 0
+video, 12:30: item 360x76 content 174.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 360x116 content 286.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 360x56 content 266.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 360x60 content 236 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 360x60 content 276 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 360x56 content 136 trail 180 kids [176x29] tops [13] lines [2] past 0
+
+## 360px mx-sortable-list > mx-list-button-item ltr
+video, two words: item 360x76 content 103.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 360x88 content 89.1 trail 100.9 kids [100.9x40] tops [24] lines [1] past 0
+avatar, two words: item 360x60 content 163.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 360x60 content 203.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 360x76 content 49.2 trail 154.8 kids [149.5x29] tops [23] lines [2] past 0
+avatar, long text: item 360x60 content 100 trail 164 kids [149.5x29] tops [15] lines [2] past 0
+video, email: item 360x76 content 49.2 trail 154.8 kids [153x29] tops [23] lines [2] past 0
+video, 12:30: item 360x76 content 174.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 360x116 content 286.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 360x56 content 266.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 360x60 content 236 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 360x60 content 276 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 360x68 content 152 trail 164 kids [159.5x45] tops [11] lines [3] past 0
+
+## 360px mx-sortable-list > mx-list-button-item rtl
+video, two words: item 360x76 content 103.1 trail 100.9 kids [100.9x40] tops [18] lines [1] past 0
+large video, two words: item 360x88 content 89.1 trail 100.9 kids [100.9x40] tops [24] lines [1] past 0
+avatar, two words: item 360x60 content 163.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+image, two words: item 360x60 content 203.1 trail 100.9 kids [100.9x40] tops [10] lines [1] past 0
+video, long text: item 360x76 content 49.2 trail 154.8 kids [149.5x29] tops [23] lines [2] past 0
+avatar, long text: item 360x60 content 100 trail 164 kids [149.5x29] tops [15] lines [2] past 0
+video, email: item 360x76 content 49.2 trail 154.8 kids [153x29] tops [23] lines [2] past 0
+video, 12:30: item 360x76 content 174.5 trail 29.5 kids [29.5x13] tops [31] lines [1] past 0
+long label, 12:30: item 360x116 content 286.5 trail 29.5 kids [29.5x13] tops [51] lines [1] past 0
+handle and text: item 360x56 content 266.5 trail 49.5 kids [29.5x13,20x20] tops [26,16] lines [1,1] past 0
+two icon buttons: item 360x60 content 236 trail 80 kids [40x40,40x40] tops [10,10] lines [2,2] past 0
+checkbox: item 360x60 content 276 trail 40 kids [40x40] tops [10] lines [0] past 0
+a long word: item 360x68 content 152 trail 164 kids [159.5x45] tops [11] lines [3] past 0
