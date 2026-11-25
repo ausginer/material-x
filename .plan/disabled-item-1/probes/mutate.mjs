@@ -1,5 +1,5 @@
 // RF-142: applies each mutation, runs sortable-list.browser and sortable-list.spec, and restores the sources.
-// Run from packages/material-x: node ../../.plan/disabled-item-1/probes/mutate.mjs <engine> [name of one mutation]
+// Run from packages/material-x: node ../../.plan/disabled-item-1/probes/mutate.mjs <engine> [names of mutations, separated by ;]
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -26,7 +26,7 @@ const mutations = [
   [
     'no observer',
     ITEM,
-    "  state.observe(host, { attributeFilter: ['disabled'] });\n",
+    "    state.observe(host, { attributeFilter: ['disabled'] });\n",
     '',
   ],
   [
@@ -65,6 +65,31 @@ const mutations = [
     'if (!owned.delete(name)) {',
     'if (!owned.delete(name) && !element) {',
   ],
+  ["aria-disabled isn't watched", ITEM, "    'aria-disabled',\n", ''],
+  [
+    'the state observer is never disconnected',
+    ITEM,
+    '      state.disconnect();\n',
+    '',
+  ],
+  [
+    "a page's touch-action is removed",
+    ITEM,
+    "element!.style.touchAction === 'none'",
+    'true',
+  ],
+  [
+    'a press whose item is disabled before the lift is canceled',
+    LIST,
+    '        dragged = item as ControlledElement;\n',
+    '        dragged = item as ControlledElement;\n        if (isDisabled(item)) controller?.requestCancel();\n',
+  ],
+  [
+    'the disabled attribute of any item observed',
+    ITEM,
+    'if (control !== host) {\n    state',
+    'if (host) {\n    state',
+  ],
 ];
 const out = `${tmpdir()}/disabled-item-${process.pid}.json`;
 const restore = () => {
@@ -72,7 +97,7 @@ const restore = () => {
 };
 try {
   for (const [name, file, from, to] of mutations) {
-    if (process.argv[3] && process.argv[3] !== name) continue;
+    if (process.argv[3] && !process.argv[3].split(';').includes(name)) continue;
     if (file) {
       if (source[file].split(from).length !== 2)
         throw new Error(`not one match: ${name}`);

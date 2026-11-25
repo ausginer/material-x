@@ -179,7 +179,11 @@ export function sortItem(
 
   const state = new MutationObserver(update);
 
-  state.observe(host, { attributeFilter: ['disabled'] });
+  // A static item has no disabled state.
+  if (control !== host) {
+    state.observe(host, { attributeFilter: ['disabled'] });
+  }
+
   update();
 
   return {

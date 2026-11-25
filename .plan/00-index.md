@@ -7010,6 +7010,14 @@ Tier A, **open**, **ready** after #267 and #268 (the last note), pre-existing. R
 - **The row of the semantics after enabling, which needs the one before it:** no act. Together they discriminate.
 - **Owed by the implementer:** the condition, the five rows with their witnesses in the three engines, the size rows if they move, and the note. **A targeted recheck by the same reviewer is owed,** of the delta from `380920c2a`: the condition, the rows and the four mutations with the new one. CI runs on it.
 
+**Dated 2026-11-25 by the implementer: the remediation's list is done on `material-x/disabled-item-1`, for #271, and the entry is not closed.** Requested by the coordinator. `main` at `ee0afea12` (#270, #281) is merged: the index conflicts where both sides append, and both are kept, in the entries' order.
+
+- **The condition:** in `sortItem`, the item's `disabled` is observed only where the control isn't the host, so not on a static item. No other source changes.
+- **Rows:** the five of the ruling, so `sortable-list.browser` and `sortable-list.spec` have 198.
+- **Witnesses: Chromium alone,** on the owner's ruling of 2026-11-25, relayed by the coordinator, that development runs in Chromium and the recheck in the three engines. Each fails its own row and no other, of 198 ([reading](disabled-item-1/checks/remediation-witnesses.txt), [probe](disabled-item-1/probes/mutate.mjs)): a press whose item is disabled before the lift canceled; `aria-disabled` not watched; the state observer never disconnected; a page's `touch-action` removed; the `disabled` attribute of any item observed. _No observer_ fails its 4 rows as before. The other former mutations weren't run again.
+- **Size, Brotli** ([sizes](disabled-item-1/checks/remediation-sizes.txt)): the condition is +5 in `list/sortable-list` and -19 in `complete`. Against `main`, `list/sortable-list` 9117 to 9203 (+86) and `complete` 25924 to 25988 (+64). No other row moves, and the gate passes.
+- **Checks,** on the merged tree, Chromium: material-x without the visual project (2079 rows and 2 expected failures), and the root format check, typecheck, lint and the size gate. **Not run:** Firefox and WebKit, the visual project, publint, the docs build. No baseline file changes.
+
 #### RF-143 — A member that can't take focus keeps a connected group's tab stop
 
 Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `core/hidden-1`, from `reviewer-1` of `RF-121`'s [feature proof](reviews/hidden-1/feature-proof-claude.md), requested by the coordinator. `RF-142` is the highest `RF-` on any branch on `origin`, so this is the next free number. No entry covers it: `RF-141` is about a member that isn't in the order. Read on the head of `RF-121`, built, in Playwright's Chromium, Firefox and WebKit, with the same result ([reading](hidden-1/checks/ruling.txt), [probe](hidden-1/probes/ruling.mjs)).
