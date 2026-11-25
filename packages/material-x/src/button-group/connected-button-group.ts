@@ -1,4 +1,6 @@
+import { useConnected } from '@ydinjs/core/controllers/useConnected.js';
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
+import { useMutationObserver } from '@ydinjs/core/controllers/useMutationObserver.js';
 import { useRovingTabindex } from '@ydinjs/core/controllers/useRovingTabindex.js';
 import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
 import {
@@ -6,10 +8,8 @@ import {
   internals,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
-import type { Checkable } from '@ydinjs/core/traits/checkable.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
-import type { ButtonLike } from '../button/ButtonCore.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {
   type ButtonGroupCoreTraits,
@@ -34,6 +34,10 @@ const ConnectedButtonGroupConstructor: Composed<
  *
  * @summary Connected button groups arrange checkable buttons as a segmented
  * control.
+ *
+ * A member hidden with its `hidden` attribute, or disabled, isn't the group's
+ * tab stop, and no key moves focus to it. The outer corners are on the first
+ * and the last member that isn't hidden.
  *
  * @attr {"outlined"|"elevated"|"text"|"tonal"} color - Shared color variant
  * for child buttons.
@@ -83,25 +87,34 @@ export default class ConnectedButtonGroup extends ConnectedButtonGroupConstructo
       keydown: updateFocusVisible,
     });
 
-    useSlot(this, 'slot', (slot) => {
+    const slot = this.shadowRoot!.querySelector('slot')!;
+    const markEnds = () => {
       // The slot's elements, without the text and comment nodes between them.
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-      const elements = slot.assignedElements() as Array<
-        ButtonLike & Checkable & ControlledElement
-      >;
+      const elements = slot.assignedElements() as HTMLElement[];
 
       elements.forEach((element) => {
         delete element.dataset['first'];
         delete element.dataset['last'];
       });
 
-      if (elements[0]) {
-        elements[0].dataset['first'] = '';
-      }
+      // A page's own `display` can show a hidden member.
+      const shown = elements.filter(
+        (element) => getComputedStyle(element).display !== 'none',
+      );
 
-      if (elements.at(-1)) {
-        elements.at(-1)!.dataset['last'] = '';
+      if (shown[0]) {
+        shown[0].dataset['first'] = '';
+        shown.at(-1)!.dataset['last'] = '';
       }
+    };
+
+    useSlot(this, slot, markEnds);
+    // While the group was out, no member had a computed `display`.
+    useConnected(this, markEnds);
+    useMutationObserver(this, markEnds, {
+      attributeFilter: ['hidden'],
+      subtree: true,
     });
   }
 }

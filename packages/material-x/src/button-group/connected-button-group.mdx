@@ -84,6 +84,7 @@ Use the live example below to inspect connected interaction behavior:
   - Removing the group's `value` unchecks the switch that the previous value selected. No other switch's `checked` changes.
   - A switch that joins a group with no `value` keeps its `checked`.
 - **Keyboard:** Child controls remain focusable and activatable with keyboard input.
+- **Hidden and disabled members:** A hidden or disabled member isn't the group's tab stop, and no key moves focus to it. Hide a member with its `hidden` attribute. When a style alone hides or shows a member, such as a media query, the tab stop and the outer corners follow only at the group's next change.
 - **Keyboard focus:** While a button in the group has keyboard focus, it is raised above the others, and the group is a stacking context. An overlay that a page puts in or near the group belongs in the top layer, such as a popover.
 - **Labeling:** Every segment should have text or icon labels with accessible names.
 - **Disabled:** Group-level `disabled` can block interaction for connected options.

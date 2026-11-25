@@ -6982,6 +6982,39 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 - **Plan needed:** no. **Ready** for an implementer, after #269 and #270, on a branch of its own. Nothing is the owner's to answer.
 - **Size:** _medium_. One hook in core, the connected group, its page and their rows.
 
+**Dated 2026-11-25 by the implementer: implemented on `core/roving-hidden-1`, for #273, from `main` at `2485fb2df`, and not closed.** Requested by the coordinator. It is built on `RF-141`'s choice, whose last note replaces this entry's property 2's sentence about a first member that is shown again.
+
+- **The hook:** eligibility is `disabled` and the computed `display`, one `MutationObserver` hears the items' `hidden` and `disabled`, and the tab stop is chosen again at the connect. The observer is on each item of the last read, because a wider one would also choose again for a change inside an item or of the host's own `disabled`.
+- **The group:** its ends are marked by the computed `display`, at a slot change, at the connect, and after a change of `hidden`.
+- **One rule more than the direction names:** a member that is the only one shown is both ends. The former sheet gave it the last member's corners, so `::slotted([data-first][data-last])` has the outer corner on all sides. Property 4 asks for it. A group with one member had the same corners before.
+- **Engines: Chromium, on the owner's ruling of 2026-11-25,** relayed by the coordinator, that development runs in Chromium and the review in the three engines. It came while the witnesses ran. Finished before it: the rows in the three engines, the witnesses in Chromium and Firefox, and in WebKit the first five mutations. The WebKit run was ended, and the sources and core's build are restored.
+- **Rows:** 30 in core's `useRovingTabindex` (95 in all), three in `button-group.browser.test.ts` and seven in `button-group.spec.browser.test.ts`. They pass in Chromium, Firefox and WebKit. **Witnesses,** Chromium ([reading](roving-hidden-1/checks/witnesses.txt), [probe](roving-hidden-1/probes/mutate.mjs)):
+
+  | Change | Core rows that fail, of 95 | material-x, of 140 |
+  | --- | --- | --- |
+  | The hook, the group and the sheet of `main` | 21 | 8 |
+  | The hook of `main` | 21 | 3 |
+  | The group of `main` | 0 | 5 |
+  | `item.hidden` in place of the computed `display` | 3, with the page's `display` | 0 |
+  | No `display` in the hook | 15 | 2 |
+  | No `disabled` in the hook | 12 | 1 |
+  | `hidden` not heard by the hook | 5 | 1 |
+  | `disabled` not heard by the hook | 5 | 1 |
+  | Items that left still heard | 2 | 1, of the pressed corners |
+  | The items of a read of more than three not heard | 2 | 0 |
+  | No choice at the connect | 2 | 0 |
+  | The group's ends by `hidden` | 0 | 1 |
+  | The group's ends without `display` | 0 | 5 |
+  | The ends not marked at the connect | 0 | 2 |
+  | `hidden` not heard by the group | 0 | 2 |
+  | No rule for the only member | 0 | 1 |
+
+  The nine new core rows that `main`'s hook passes say what must not change: the first item shown or enabled again, the choice of focus kept when it is, an item that left, the page's `display`, and `disabled` in a group built while out. The two such rows of the corners are the ends shown again and the page's `display`. Core's rows fail alike in Firefox, and in WebKit as far as it ran.
+
+- **Intermittent, not this unit's rows:** a row of the pressed inner corners failed once in Chromium and twice in Firefox, each under another mutation of the hook, which doesn't reach it. Those rows passed in every run without a mutation. The cause wasn't read, and other sessions ran on the machine.
+- **Size, Brotli** ([reading](roving-hidden-1/checks/sizes.txt)): `button-group/connected-button-group` 4042 to 4187 (+145), `button/split-button` 7766 to 7887 (+121), `complete` 25869 to 26035 (+166). No other row of the 23 moves, and the gate passes.
+- **Checks:** core's projects (394 rows) and material-x's (2044 rows and 2 expected failures) in Chromium, without the visual one; root format check, typecheck, lint and the size gate. After them, one JSDoc paragraph of the group moved, and only format, lint and typecheck of material-x ran again. **Not run:** the docs build, the two other engines' full suites, and what the entry lists as not read.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

@@ -4,6 +4,7 @@ import { Disableable } from '../traits/disableable.ts';
 import { Valuable } from '../traits/valuable.ts';
 import { createEventNotifier } from '../utils/DOM.ts';
 import { useAttributes } from './useAttributes.ts';
+import { useConnected } from './useConnected.ts';
 import { useEvents } from './useEvents.ts';
 import { useKeyboard, type KeyboardListener } from './useKeyboard.ts';
 import { useSlot } from './useSlot.ts';
@@ -47,8 +48,8 @@ type Direction = typeof DIRECTION_LEFT | typeof DIRECTION_RIGHT;
 /**
  * Internal view over the current managed roving items.
  *
- * This helper keeps slot-derived items and centralizes enabled-item filtering,
- * tab stop selection, and edge / step navigation for
+ * This helper keeps slot-derived items and centralizes the filtering of the
+ * items that can take focus, tab stop selection, and edge / step navigation for
  * `useRovingTabindex(...)`.
  */
 class RovingItems {
@@ -70,7 +71,7 @@ class RovingItems {
     // An item that is focused in the task that adds it has no `focusin` as a
     // managed item.
     this.#chosen =
-      this.enabled.find((item) => item === focused) ??
+      this.eligible.find((item) => item === focused) ??
       value.find((item) => item === this.#chosen);
   }
 
@@ -79,10 +80,16 @@ class RovingItems {
   }
 
   /**
-   * Enabled items that can participate in roving focus and selection.
+   * Items that can take focus: enabled, and not `display: none`.
+   *
+   * The `hidden` attribute doesn't decide, because a page's own `display` can
+   * show a hidden item. The computed `display` is empty while the host is out of
+   * the document, and the item counts then.
    */
-  get enabled(): readonly Item[] {
-    return this.#items.filter((item) => !item.disabled);
+  get eligible(): readonly Item[] {
+    return this.#items.filter(
+      (item) => !item.disabled && getComputedStyle(item).display !== 'none',
+    );
   }
 
   /**
@@ -137,20 +144,20 @@ class RovingItems {
    * Selects the next tab stop candidate for the current host state.
    *
    * Candidates are chosen in this order:
-   * 1. enabled item matching `host.value`
-   * 2. enabled item that focus moved the tab stop to last
-   * 3. first enabled item
+   * 1. eligible item matching `host.value`
+   * 2. eligible item that focus moved the tab stop to last
+   * 3. first eligible item
    *
-   * @returns The preferred tabbable item, if any enabled item exists.
+   * @returns The preferred tabbable item, if any eligible item exists.
    */
   getTabStopCandidate(): Item | undefined {
-    const { enabled } = this;
-    if (!enabled.length) return undefined;
+    const { eligible } = this;
+    if (!eligible.length) return undefined;
 
     return (
-      enabled.find((item) => item.value === this.#host.value) ??
-      enabled.find((item) => item === this.#chosen) ??
-      enabled[0]
+      eligible.find((item) => item.value === this.#host.value) ??
+      eligible.find((item) => item === this.#chosen) ??
+      eligible[0]
     );
   }
 
@@ -179,43 +186,45 @@ class RovingItems {
   }
 
   /**
-   * Focuses the first or last enabled item.
+   * Focuses the first or last eligible item.
    *
    * @param edge - Edge to resolve, matching `Home` / `End` semantics.
-   * @returns The focused edge item, if any enabled item exists.
+   * @returns The focused edge item, if any eligible item exists.
    */
   focusEdge(edge: Edge): Item | undefined {
-    const { enabled } = this;
-    if (!enabled.length) return undefined;
+    const { eligible } = this;
+    if (!eligible.length) return undefined;
 
-    const target = enabled.at(edge);
+    const target = eligible.at(edge);
     return target ? this.focus(target) : undefined;
   }
 
   /**
-   * Computes the next enabled item for arrow navigation with wrap-around.
+   * Computes the next eligible item for arrow navigation with wrap-around.
    *
    * This uses the current active item as the navigation anchor. When there is
-   * no active managed item, it falls back to the enabled item matching
-   * `host.value`, then to the first enabled item.
+   * no active managed item, it falls back to the eligible item matching
+   * `host.value`, then to the first eligible item.
    *
    * @param direction - Navigation direction relative to the active item.
-   * @returns The next enabled item, without focusing it.
+   * @returns The next eligible item, without focusing it.
    */
   step(direction: Direction): Item | undefined {
-    const { enabled } = this;
-    if (!enabled.length) return undefined;
+    const { eligible } = this;
+    if (!eligible.length) return undefined;
 
     const { active } = this;
-    let index = active ? enabled.indexOf(active) : -1;
+    let index = active ? eligible.indexOf(active) : -1;
 
     if (index === -1) {
-      const fromValue = enabled.find((item) => item.value === this.#host.value);
-      index = fromValue ? enabled.indexOf(fromValue) : 0;
+      const fromValue = eligible.find(
+        (item) => item.value === this.#host.value,
+      );
+      index = fromValue ? eligible.indexOf(fromValue) : 0;
     }
 
-    const nextIndex = (index + direction + enabled.length) % enabled.length;
-    return enabled[nextIndex];
+    const nextIndex = (index + direction + eligible.length) % eligible.length;
+    return eligible[nextIndex];
   }
 }
 
@@ -231,18 +240,24 @@ function hasKeyModifier(event: KeyboardEvent): boolean {
  * `Valuable` on top of `ControlledElement`. Elements that do not match that
  * contract are ignored.
  *
- * The controller keeps exactly one enabled item tabbable, and handles `Home`,
+ * An item is eligible while it is enabled and its computed `display` isn't
+ * `none`. The controller keeps exactly one eligible item tabbable, or none when
+ * there is no eligible item, and handles `Home`,
  * `End`, and arrow-key navigation with wrap-around semantics.
  *
- * The tab stop is the enabled item that matches `host.value`; or else the
- * enabled item that focus moved it to last, while that item is in the slot; or
- * else the first enabled item. It is chosen again when the slot's content or
- * `host.value` changes, and when a slotted element is defined later.
+ * The tab stop is the eligible item that matches `host.value`; or else the
+ * eligible item that focus moved it to last, while that item is in the slot; or
+ * else the first eligible item. It is chosen again when the slot's content,
+ * `host.value`, or an item's `hidden` or `disabled` attribute changes, when the
+ * host connects, and when a slotted element is defined later.
  *
  * @remarks Focus entering a managed item, or a composed descendant inside that
  * item, updates the current tab stop immediately. Modified key combos
  * (`Shift`, `Alt`, `Ctrl`, `Meta`) are ignored. In RTL layout, the current
- * previous/next semantics are mirrored for all supported arrow keys.
+ * previous/next semantics are mirrored for all supported arrow keys. Hide an
+ * item with its `hidden` attribute: when a style change alone hides or shows an
+ * item, the keys follow it at once, and the tab stop is chosen again only at
+ * the next of the changes above.
  *
  * @param host - Valuable host element that controls the roving group state.
  * @param slotSelector - Selector for the slot that provides managed item
@@ -255,10 +270,22 @@ export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
     items.setTabStop(items.getTabStopCandidate());
   };
 
+  const observer = new MutationObserver(select);
+
   const read = (nodes: readonly Node[]) => {
-    items.value = nodes.filter(isItem);
+    const value = nodes.filter(isItem);
+    items.value = value;
     select();
+
+    observer.disconnect();
+
+    for (const item of value) {
+      observer.observe(item, { attributeFilter: ['hidden', 'disabled'] });
+    }
   };
+
+  // While the host was out, no item had a computed `display`.
+  useConnected(host, select);
 
   const createEdgeHandler =
     (edge: Edge): KeyboardListener =>
