@@ -20,12 +20,14 @@ export const TAG = 'mx-list';
 export const declaration = getDeclarationByTag(TAG);
 export const summary = declaration?.summary?.trim();
 
-export const importSnippet = "import '@ydinjs/material-x/list/list.js';";
+export const importSnippet = `import '@ydinjs/material-x/icon/icon.js';
+import '@ydinjs/material-x/list/list.js';
+import '@ydinjs/material-x/list/list-button-item.js';`;
 export const sortableImportSnippet =
   "import '@ydinjs/material-x/list/sortable-list.js';";
 export const usageSnippet = `<mx-list>
   <mx-list-button-item>
-    <mx-icon slot="start">inbox</mx-icon>
+    <mx-icon slot="lead">inbox</mx-icon>
     Inbox
   </mx-list-button-item>
 </mx-list>`;
@@ -94,8 +96,12 @@ Use the live example below to inspect selected state, disabled state, and slotte
 - `mx-list-item`: static content item.
 - `mx-list-button-item`: native button-backed action item.
 - `mx-list-link-item`: native anchor-backed navigation item.
-- `start` and `end` slots: leading and trailing affordances.
-- `supporting-text`, `overline`, and `trailing-supporting-text` slots: secondary text regions.
+- Item slots, the same in the three items:
+  - `lead` slot: leading icon, avatar, or image.
+  - `overline` slot: overline text.
+  - `default` slot: primary label text.
+  - `support` slot: supporting text below the label.
+  - `trail` slot: trailing icon, control, or text.
 
 ## Theming
 
