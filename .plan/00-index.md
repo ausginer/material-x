@@ -5480,6 +5480,43 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `m
 
 **Recheck:** none. **Closure:** on the merge of #270, when the coordinator has confirmed that the repair's diff has no source outside the list item's sheet and no test outside the rows, that both witnesses are recorded, and that CI passes on its last commit. Anything else comes back to the architect. Nothing is the owner's.
 
+**Dated 2026-11-25 by the implementer: the list above is implemented, and not closed.** Requested by the coordinator. `main` is merged at `49bd95038` (#267) and at `ca6918376` (#268).
+
+- **Source:** the selector of the list, in the list item's sheet alone, with a comment.
+- **Rows,** nine in `hidden.browser.test.ts`, 144 in each engine: `hidden="true"` on one element, and for an `mx-icon` and a `span` with `data-avatar` in `lead`, not hidden, hidden, `until-found` and `UNTIL-FOUND`.
+- **Witnesses,** every mutation again and four new ones ([reading](hidden-1/checks/witnesses.txt), [script](hidden-1/probes/mutate.mjs)), the same in Chromium, Firefox and WebKit: unmutated, none fails. The avatar's selector as before fails the two hidden rows, `:not([hidden])` alone the four `until-found` ones, and lower case alone the two of `UNTIL-FOUND`. `:host([hidden='']:not([hidden=x]))` fails the row of the other value. With the host sheet not adopted, 49 rows fail now in place of 47. The other counts stand.
+- **The script as committed threw,** because `display: none` is in the sheet's comment too. Its mutation now matches the declaration.
+- **By reading, not asked by the list:** the new selector's specificity is above that of `::slotted([data-image])` and `::slotted([data-video])`. An element with `data-avatar` and one of these now takes the avatar's `inline-size` and `border-radius`, where the later rule won. No story or row has both. The direction stands as the architect ruled it.
+- **Page's `display` on an avatar:** the list asks for no row, and the architect read it.
+- **Checks,** core and drag rebuilt: `tests/core/hidden` and `tests/list`, read again after each merge: Chromium 514 passed, Firefox 502 passed and 2 skipped, WebKit 512 passed and 2 skipped. Firefox has 10 rows fewer in `sortable-list.spec`, by its own condition. Typecheck, lint on the rows' file and the root format check pass. CI on the head is #270's.
+- **Size, Brotli, local, the branch with `main` at `49bd95038` against it:** `complete` 25743 to 25756 (+13). Every row grows, by 12 (`text-field/multiline-text-field`) to 56 (`button/switch-icon-button`):
+
+  | Row                                   | `main` | Branch | Change |
+  | ------------------------------------- | ------ | ------ | ------ |
+  | `button/button`                       | 4909   | 4936   | +27    |
+  | `button/icon-button`                  | 5182   | 5208   | +26    |
+  | `button/link-button`                  | 4872   | 4911   | +39    |
+  | `button/switch-button`                | 5507   | 5537   | +30    |
+  | `button/switch-icon-button`           | 5906   | 5962   | +56    |
+  | `button/split-button`                 | 7585   | 7624   | +39    |
+  | `button-group/button-group`           | 3060   | 3097   | +37    |
+  | `button-group/connected-button-group` | 3916   | 3954   | +38    |
+  | `card/card`                           | 1317   | 1350   | +33    |
+  | `checkbox/checkbox`                   | 4260   | 4290   | +30    |
+  | `fab/fab`                             | 4176   | 4206   | +30    |
+  | `icon/icon`                           | 631    | 667    | +36    |
+  | `list/list`                           | 592    | 625    | +33    |
+  | `list/list-item`                      | 2772   | 2801   | +29    |
+  | `list/list-button-item`               | 4898   | 4933   | +35    |
+  | `list/list-link-item`                 | 5121   | 5137   | +16    |
+  | `list/sortable-list`                  | 9092   | 9117   | +25    |
+  | `radio/radio`                         | 3811   | 3841   | +30    |
+  | `slider/slider`                       | 4015   | 4037   | +22    |
+  | `text-field/multiline-text-field`     | 4547   | 4559   | +12    |
+  | `text-field/text-field`               | 8585   | 8618   | +33    |
+  | `top-app-bar/top-app-bar`             | 1354   | 1391   | +37    |
+  | `complete`                            | 25743  | 25756  | +13    |
+
 #### RF-122 — Slotted content inherits a container's private custom properties, and a few components read them
 
 Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/private-props-1`, relayed by the coordinator. Found by the implementer of #171 (`mx-card`, #213). `RF-121` is the highest `RF-` on any branch on `origin` (`material-x/slider-1`), so this is the next free number. The [diagnosis](private-props-1/private-props.md) holds the readings, the options and their sizes.
