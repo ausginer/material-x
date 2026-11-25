@@ -1,0 +1,203 @@
+## no mutation | chromium | packages/core | 52 passed (52)
+## no mutation | chromium | packages/material-x | 30 passed (30)
+## no mutation | firefox | packages/core | 52 passed (52)
+## no mutation | firefox | packages/material-x | 30 passed (30)
+## no mutation | webkit | packages/core | 52 passed (52)
+## no mutation | webkit | packages/material-x | 30 passed (30)
+## the hook of main | chromium | packages/core | 13 failed | 39 passed (52)
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should manage every clone
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should manage every clone
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should move between the clones with an arrow key
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should manage a clone after a created item
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should move between the clones with an arrow key
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should manage a clone after a created item
+   useRovingTabindex > items upgraded after the slot change > should manage items defined after the host is connected
+   useRovingTabindex > items upgraded after the slot change > should move between items defined after the host is connected
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first and another item was added
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item that matches the host value
+## the hook of main | chromium | packages/material-x | 3 failed | 27 passed (30)
+   mx-connected-button-group defined before its switches > should manage the focus of the switches once they are defined
+   mx-connected-button-group with buttons cloned from a template > should have one tab stop
+   mx-connected-button-group with buttons cloned from a template > should move focus with an arrow key
+## the hook of main | firefox | packages/core | 13 failed | 39 passed (52)
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should manage every clone
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should manage every clone
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should move between the clones with an arrow key
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should move between the clones with an arrow key
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should manage a clone after a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should manage a clone after a created item
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > should manage items defined after the host is connected
+   useRovingTabindex > items upgraded after the slot change > should move between items defined after the host is connected
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first and another item was added
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item that matches the host value
+## the hook of main | firefox | packages/material-x | 3 failed | 27 passed (30)
+   mx-connected-button-group defined before its switches > should manage the focus of the switches once they are defined
+   mx-connected-button-group with buttons cloned from a template > should have one tab stop
+   mx-connected-button-group with buttons cloned from a template > should move focus with an arrow key
+## the hook of main | webkit | packages/core | 13 failed | 39 passed (52)
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should manage every clone
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should move between the clones with an arrow key
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should move between the clones with an arrow key
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should manage a clone after a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should manage a clone after a created item
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should manage every clone
+   useRovingTabindex > items upgraded after the slot change > should manage items defined after the host is connected
+   useRovingTabindex > items upgraded after the slot change > should move between items defined after the host is connected
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first and another item was added
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item that matches the host value
+## the hook of main | webkit | packages/material-x | 3 failed | 27 passed (30)
+   mx-connected-button-group defined before its switches > should manage the focus of the switches once they are defined
+   mx-connected-button-group with buttons cloned from a template > should have one tab stop
+   mx-connected-button-group with buttons cloned from a template > should move focus with an arrow key
+## no upgrade | chromium | packages/core | 8 failed | 44 passed (52)
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should manage every clone
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should manage every clone
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should move between the clones with an arrow key
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should manage a clone after a created item
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should move between the clones with an arrow key
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should manage a clone after a created item
+## no upgrade | chromium | packages/material-x | 2 failed | 28 passed (30)
+   mx-connected-button-group with buttons cloned from a template > should have one tab stop
+   mx-connected-button-group with buttons cloned from a template > should move focus with an arrow key
+## no upgrade | firefox | packages/core | 8 failed | 44 passed (52)
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should manage every clone
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should manage every clone
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should move between the clones with an arrow key
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should move between the clones with an arrow key
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should manage a clone after a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should manage a clone after a created item
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should give the tab stop to a clone before a created item
+## no upgrade | firefox | packages/material-x | 2 failed | 28 passed (30)
+   mx-connected-button-group with buttons cloned from a template > should have one tab stop
+   mx-connected-button-group with buttons cloned from a template > should move focus with an arrow key
+## no upgrade | webkit | packages/core | 8 failed | 44 passed (52)
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should manage every clone
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should move between the clones with an arrow key
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should move between the clones with an arrow key
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should manage a clone after a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should manage a clone after a created item
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should manage every clone
+## no upgrade | webkit | packages/material-x | 2 failed | 28 passed (30)
+   mx-connected-button-group with buttons cloned from a template > should have one tab stop
+   mx-connected-button-group with buttons cloned from a template > should move focus with an arrow key
+## no wait | chromium | packages/core | 5 failed | 47 passed (52)
+   useRovingTabindex > items upgraded after the slot change > should manage items defined after the host is connected
+   useRovingTabindex > items upgraded after the slot change > should move between items defined after the host is connected
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first and another item was added
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item that matches the host value
+## no wait | chromium | packages/material-x | 1 failed | 29 passed (30)
+   mx-connected-button-group defined before its switches > should manage the focus of the switches once they are defined
+## no wait | firefox | packages/core | 5 failed | 47 passed (52)
+   useRovingTabindex > items upgraded after the slot change > should manage items defined after the host is connected
+   useRovingTabindex > items upgraded after the slot change > should move between items defined after the host is connected
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first and another item was added
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item that matches the host value
+## no wait | firefox | packages/material-x | 1 failed | 29 passed (30)
+   mx-connected-button-group defined before its switches > should manage the focus of the switches once they are defined
+## no wait | webkit | packages/core | 5 failed | 47 passed (52)
+   useRovingTabindex > items upgraded after the slot change > should manage items defined after the host is connected
+   useRovingTabindex > items upgraded after the slot change > should move between items defined after the host is connected
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first and another item was added
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item that matches the host value
+## no wait | webkit | packages/material-x | 1 failed | 29 passed (30)
+   mx-connected-button-group defined before its switches > should manage the focus of the switches once they are defined
+## the read of the registered candidate, with no memory of the choice | chromium | packages/core | 5 failed | 47 passed (52)
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first and another item was added
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should keep the tab stop that focus moved away from the host value
+## the read of the registered candidate, with no memory of the choice | chromium | packages/material-x | 30 passed (30)
+## the read of the registered candidate, with no memory of the choice | firefox | packages/core | 5 failed | 47 passed (52)
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first and another item was added
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should keep the tab stop that focus moved away from the host value
+## the read of the registered candidate, with no memory of the choice | firefox | packages/material-x | 30 passed (30)
+## the read of the registered candidate, with no memory of the choice | webkit | packages/core | 5 failed | 47 passed (52)
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first and another item was added
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should keep the tab stop that focus moved away from the host value
+## the read of the registered candidate, with no memory of the choice | webkit | packages/material-x | 30 passed (30)
+## a default choice is kept | chromium | packages/core | 4 failed | 48 passed (52)
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first and another item was added
+## a default choice is kept | chromium | packages/material-x | 30 passed (30)
+## a default choice is kept | firefox | packages/core | 4 failed | 48 passed (52)
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first and another item was added
+## a default choice is kept | firefox | packages/material-x | 30 passed (30)
+## a default choice is kept | webkit | packages/core | 4 failed | 48 passed (52)
+   useRovingTabindex > items upgraded after the slot change > cloned before the first connect > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > cloned while the host is out > should give the tab stop to a clone before a created item
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should give the tab stop to the late item when it is first and another item was added
+## a default choice is kept | webkit | packages/material-x | 30 passed (30)
+## any change's default choice is dropped | chromium | packages/core | 1 failed | 51 passed (52)
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should keep the tab stop of an item that was there before the late one
+## any change's default choice is dropped | chromium | packages/material-x | 30 passed (30)
+## any change's default choice is dropped | firefox | packages/core | 1 failed | 51 passed (52)
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should keep the tab stop of an item that was there before the late one
+## any change's default choice is dropped | firefox | packages/material-x | 30 passed (30)
+## any change's default choice is dropped | webkit | packages/core | 1 failed | 51 passed (52)
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should keep the tab stop of an item that was there before the late one
+## any change's default choice is dropped | webkit | packages/material-x | 30 passed (30)
+## a moved tab stop is dropped | chromium | packages/core | 1 failed | 51 passed (52)
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should keep the tab stop that focus moved away from the host value
+## a moved tab stop is dropped | chromium | packages/material-x | 30 passed (30)
+## a moved tab stop is dropped | firefox | packages/core | 1 failed | 51 passed (52)
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should keep the tab stop that focus moved away from the host value
+## a moved tab stop is dropped | firefox | packages/material-x | 30 passed (30)
+## a moved tab stop is dropped | webkit | packages/core | 1 failed | 51 passed (52)
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should keep the tab stop that focus moved away from the host value
+## a moved tab stop is dropped | webkit | packages/material-x | 30 passed (30)
+## focus keeps the default choice | chromium | packages/core | 1 failed | 51 passed (52)
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should keep the tab stop that focus chose when the host value matches no item
+## focus keeps the default choice | chromium | packages/material-x | 30 passed (30)
+## focus keeps the default choice | firefox | packages/core | 1 failed | 51 passed (52)
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should keep the tab stop that focus chose when the host value matches no item
+## focus keeps the default choice | firefox | packages/material-x | 30 passed (30)
+## focus keeps the default choice | webkit | packages/core | 1 failed | 51 passed (52)
+   useRovingTabindex > items upgraded after the slot change > next to a created item > should keep the tab stop that focus chose when the host value matches no item
+## focus keeps the default choice | webkit | packages/material-x | 30 passed (30)
+## a node that left is read | chromium | packages/core | 1 failed | 51 passed (52)
+   useRovingTabindex > items upgraded after the slot change > should not upgrade an item that left the slot before its definition
+## a node that left is read | chromium | packages/material-x | 30 passed (30)
+## a node that left is read | firefox | packages/core | 1 failed | 51 passed (52)
+   useRovingTabindex > items upgraded after the slot change > should not upgrade an item that left the slot before its definition
+## a node that left is read | firefox | packages/material-x | 30 passed (30)
+## a node that left is read | webkit | packages/core | 1 failed | 51 passed (52)
+   useRovingTabindex > items upgraded after the slot change > should not upgrade an item that left the slot before its definition
+## a node that left is read | webkit | packages/material-x | 30 passed (30)
+## customized built-in elements are waited for | chromium | packages/core | 1 failed | 51 passed (52)
+   useRovingTabindex > items upgraded after the slot change > should not reject for a customized built-in element that is not defined
+## customized built-in elements are waited for | chromium | packages/material-x | 30 passed (30)
+## customized built-in elements are waited for | firefox | packages/core | 1 failed | 51 passed (52)
+   useRovingTabindex > items upgraded after the slot change > should not reject for a customized built-in element that is not defined
+## customized built-in elements are waited for | firefox | packages/material-x | 30 passed (30)
+## customized built-in elements are waited for | webkit | packages/core | 52 passed (52)
+## customized built-in elements are waited for | webkit | packages/material-x | 30 passed (30)

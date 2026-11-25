@@ -6299,6 +6299,31 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 - **Plan needed:** no. **Ready** for an implementer, on a branch of its own. Nothing is the owner's to answer.
 - **Size:** _small_. One hook in core and its rows.
 
+**Dated 2026-11-25 by the implementer: implemented on `core/roving-upgrade-1`, for #262, from `main` at `e57c9f074`, and not closed.** Requested by the coordinator. The direction holds in the three engines.
+
+- **It is more than the candidate, because property 1 asks for it.** The candidate's second read keeps the tab stop that the first read chose only because it was the first enabled item. So a late button before a ready one doesn't get it, as it would if it had been an item at the slot change. And its second read takes the tab stop back to the group's value after focus moved it away. With the candidate's read in place of the hook's, five of the core rows fail in each engine, and none of material-x's. The hook keeps the slot change that chose the tab stop by default, and whether focus moved it since.
+- **A node that left the slot isn't upgraded,** and an undefined customized built-in element (`<button is="…">`) isn't waited for: `whenDefined` rejects its local name. Without that check the rejection is unhandled in Chromium and Firefox.
+- **Rows:** 21 in core's `useRovingTabindex`, two in `button-group.browser.test.ts`, and `button-group-late-switch.browser.test.ts`. **Witnesses** in each engine ([reading](roving-upgrade-1/checks/witnesses.txt), [probe](roving-upgrade-1/probes/mutate.mjs)):
+
+  | Change | Core rows that fail, of 52 | material-x, of 30 |
+  | --- | --- | --- |
+  | The hook of `main` | 13 | 3 |
+  | Without the upgrade | 8, the clones' | 2, the clones' |
+  | Without the wait | 5, the late definitions' | 1 |
+  | The candidate's read | 5 | 0 |
+  | The default choice kept | 4 | 0 |
+  | Any change's default choice dropped | 1 | 0 |
+  | The moved tab stop dropped | 1 | 0 |
+  | Focus keeps the default choice | 1 | 0 |
+  | A node that left is upgraded | 1 | 0 |
+  | Customized built-in elements waited for | 1, and 0 in WebKit | 0 |
+
+  The eight core rows that the hook of `main` passes say what must not change: the node that left isn't managed and isn't upgraded, the five that keep a tab stop chosen by focus, by the value, or for an earlier item, and the customized built-in element's.
+
+- **The callers probe:** 0 of the 126 readings differ in Chromium and Firefox, and in four of five runs in WebKit ([reading](roving-upgrade-1/checks/callers.txt)). `main` reads 9 in WebKit. The first WebKit run read 76: from one case on, each compared reading is the same `mx-text-field`, also in cases of other elements, which don't use the hook. It is the probe's reading, and its cause wasn't found. The arrow keys walk in each engine.
+- **Size, Brotli:** `button-group/connected-button-group` 3914 to 4065 (+151), `button/split-button` 7587 to 7736 (+149), `complete` 25641 to 25793 (+152). No other row moves, and none has a limit that is exceeded ([sizes](roving-upgrade-1/checks/sizes.txt)).
+- **Checks:** every Vitest project of core (28 files) and material-x (42 files) in the three engines, without the visual one and with no failure. Root typecheck, lint, format check, `docs-build` and `docs-smoke` (129 pages) pass, and material-x's publint. Core has no publint recipe, and publint on its tarball exits 0 with two suggestions about the manifest, which this unit does not change.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

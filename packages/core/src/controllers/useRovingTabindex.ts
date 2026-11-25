@@ -229,6 +229,43 @@ function hasKeyModifier(event: KeyboardEvent): boolean {
  */
 export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
   const items = new RovingItems(host);
+  // The nodes of the slot change whose read chose the tab stop only because it
+  // was the first enabled item.
+  let chosenBy: readonly Node[] | undefined;
+  // Whether focus moved the tab stop after the last read.
+  let isMoved = false;
+
+  const select = (nodes = chosenBy) => {
+    const { active } = items;
+    const target = items.getTabStopCandidate();
+
+    items.setTabStop(target);
+    isMoved = false;
+
+    if (target?.value === host.value) {
+      chosenBy = undefined;
+    } else if (target !== active) {
+      chosenBy = nodes;
+    }
+  };
+
+  // Adds the items upgraded after the slot change of `nodes`, with the tab stop
+  // that it would have if they had been items then.
+  const join = (nodes: readonly Node[], current: readonly Node[]) => {
+    const { tabbable } = items;
+
+    if (chosenBy === nodes) {
+      items.setTabStop();
+    }
+
+    items.value = current.filter(isItem);
+
+    if (isMoved) {
+      items.setTabStop(tabbable);
+    } else {
+      select(nodes);
+    }
+  };
 
   const createEdgeHandler =
     (edge: Edge): KeyboardListener =>
@@ -256,10 +293,34 @@ export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
       }
     };
 
-  useSlot(host, slotSelector, (_, nodes) => {
+  useSlot(host, slotSelector, (slot, nodes) => {
     items.value = nodes.filter(isItem);
     // When slot content changes, recompute the active tab stop.
-    items.setTabStop(items.getTabStopCandidate());
+    select(nodes);
+
+    for (const node of nodes) {
+      // A customized built-in element is never an item, and its local name is
+      // no name that `whenDefined` accepts.
+      if (
+        node instanceof HTMLElement &&
+        node.localName.includes('-') &&
+        !node.matches(':defined')
+      ) {
+        void customElements.whenDefined(node.localName).then(() => {
+          const current = slot.assignedNodes();
+
+          if (current.includes(node)) {
+            // A node cloned from a template isn't upgraded by its definition
+            // until it is connected.
+            customElements.upgrade(node);
+
+            if (isItem(node)) {
+              join(nodes, current);
+            }
+          }
+        });
+      }
+    }
   });
 
   const hasRtl = () =>
@@ -286,7 +347,7 @@ export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
   useAttributes(host, {
     value() {
       // Keep tab stop in sync with controlled value updates.
-      items.setTabStop(items.getTabStopCandidate());
+      select();
     },
   });
 
@@ -302,6 +363,8 @@ export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
 
       if (target) {
         items.setTabStop(target);
+        chosenBy = undefined;
+        isMoved = true;
       }
     },
   });
