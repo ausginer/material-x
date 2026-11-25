@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { commands } from 'vitest/browser';
+import { commands, userEvent } from 'vitest/browser';
+import '../../src/button/icon-button.ts';
+import '../../src/icon/icon.ts';
 import '../../src/list/list-button-item.ts';
 import '../../src/list/list-item.ts';
 import '../../src/list/list-link-item.ts';
 import '../../src/list/list.ts';
 import '../../src/list/sortable-list.ts';
 import { nextFrame, pixels, resolveComputed } from '../browser.ts';
-import { coveredIndicator, focusFirst } from '../focus-indicator.ts';
+import { coveredIndicator, focusFirst, TAB } from '../focus-indicator.ts';
 
 const INTERACTIVE_ITEMS = ['mx-list-button-item', 'mx-list-link-item'] as const;
 
@@ -337,6 +339,194 @@ describe.each(ITEMS)('%s focus indicator contract', (tag) => {
     );
   });
 });
+
+/** The element that draws the focus indicator of `control`. */
+function indicatorBoxOf(control: HTMLElement): HTMLElement {
+  return control.shadowRoot?.querySelector<HTMLElement>('button') ?? control;
+}
+
+/** Moves keyboard focus through `frame` to `control`. */
+async function focusControl(
+  frame: HTMLElement,
+  control: HTMLElement,
+): Promise<void> {
+  await focusFirst(frame);
+
+  // An interactive item's own control comes before the handle.
+  if (document.activeElement !== control) {
+    await userEvent.keyboard(TAB);
+  }
+
+  expect(document.activeElement).toBe(control);
+  expect(indicatorBoxOf(control).matches(':focus-visible')).toBe(true);
+}
+
+const CONTROL_SLOTS = ['lead', 'trail'] as const;
+
+type ControlSlot = (typeof CONTROL_SLOTS)[number];
+
+/** An item with `control` in `slot`, in a framed list. */
+async function createListWithControl(
+  list: (typeof LISTS)[number],
+  tag: (typeof ITEMS)[number],
+  control: HTMLElement,
+  slot: ControlSlot,
+): Promise<HTMLElement> {
+  const frame = document.createElement('div');
+  frame.style.cssText = 'padding: 12px; background: white; inline-size: 300px;';
+  const element = document.createElement(list);
+  const item = document.createElement(tag);
+  item.textContent = tag;
+
+  if (tag === 'mx-list-link-item') {
+    item.setAttribute('href', '#link');
+  }
+
+  control.slot = slot;
+  item.append(control);
+  element.append(item);
+  frame.append(element);
+  document.body.append(frame);
+  await nextFrame();
+
+  return frame;
+}
+
+function createHandle(tag: string): HTMLElement {
+  const handle = document.createElement(tag);
+  handle.className = 'handle';
+  handle.toggleAttribute('data-handle', true);
+  handle.textContent = 'drag_handle';
+
+  return handle;
+}
+
+const HANDLES = ['mx-icon', 'span', 'button'] as const;
+const SORTABLE_ITEMS = ['mx-list-item', 'mx-list-button-item'] as const;
+
+describe.each(SORTABLE_ITEMS)('handle focus indicator in %s', (tag) => {
+  describe.each(CONTROL_SLOTS)('in the %s slot', (slot) => {
+    describe.each(HANDLES)('of %s', (handleTag) => {
+      it.each([
+        ['thickness', 'focus.indicator.thickness', 'outline-width'],
+        ['offset', 'focus.indicator.outline.offset', 'outline-offset'],
+        ['colour', 'focus.indicator.color', 'outline-color'],
+      ])('should render the indicator %s', async (_, token, property) => {
+        const { values } = await commands.resolveTokenContract({
+          contract: 'focus.default',
+          state: 'default',
+          tokens: [token],
+        });
+        const handle = createHandle(handleTag);
+
+        await focusControl(
+          await createListWithControl('mx-sortable-list', tag, handle, slot),
+          handle,
+        );
+
+        const expected = String(values[token]!);
+
+        expect(getComputedStyle(handle).getPropertyValue(property)).toBe(
+          property === 'outline-color'
+            ? resolveComputed(property, expected)
+            : `${pixels(expected)}px`,
+        );
+      });
+    });
+
+    it("should leave the outline to a page's own rule on the handle", async () => {
+      const handle = createHandle('mx-icon');
+      const frame = await createListWithControl(
+        'mx-sortable-list',
+        tag,
+        handle,
+        slot,
+      );
+      const sheet = document.createElement('style');
+      sheet.textContent = `.handle:focus-visible {
+        outline: 5px dotted rgb(1, 2, 3);
+        outline-offset: 7px;
+      }`;
+      frame.append(sheet);
+
+      await focusControl(frame, handle);
+      const { outlineWidth, outlineStyle, outlineColor, outlineOffset } =
+        getComputedStyle(handle);
+
+      expect({
+        outlineWidth,
+        outlineStyle,
+        outlineColor,
+        outlineOffset,
+      }).toEqual({
+        outlineWidth: '5px',
+        outlineStyle: 'dotted',
+        outlineColor: 'rgb(1, 2, 3)',
+        outlineOffset: '7px',
+      });
+    });
+  });
+});
+
+type ControlCase = Readonly<{
+  name: string;
+  list: (typeof LISTS)[number];
+  tag: (typeof ITEMS)[number];
+  create: () => HTMLElement;
+}>;
+
+function createIconButton(): HTMLElement {
+  const button = document.createElement('mx-icon-button');
+  const icon = document.createElement('mx-icon');
+  icon.textContent = 'more_vert';
+  button.append(icon);
+
+  return button;
+}
+
+const CONTROL_CASES: readonly ControlCase[] = [
+  ...ITEMS.map((tag): ControlCase => ({
+    name: `mx-icon-button in ${tag}`,
+    list: 'mx-list',
+    tag,
+    create: createIconButton,
+  })),
+  {
+    name: 'mx-icon handle in mx-list-item of a sortable list',
+    list: 'mx-sortable-list',
+    tag: 'mx-list-item',
+    create: () => createHandle('mx-icon'),
+  },
+];
+
+describe.each(CONTROL_CASES)(
+  'whole focus indicator of $name',
+  ({ list, tag, create }) => {
+    it.each(['left', 'right', 'bottom'] as const)(
+      'should paint its %s edge in the trail slot as in the lead slot',
+      async (side) => {
+        const read = async (slot: ControlSlot) => {
+          const control = create();
+          const frame = await createListWithControl(list, tag, control, slot);
+          await focusControl(frame, control);
+          const box = indicatorBoxOf(control);
+          const { painted } = await coveredIndicator(frame, { box, side }, []);
+          const { height } = box.getBoundingClientRect();
+          frame.remove();
+
+          return { painted, height };
+        };
+
+        const lead = await read('lead');
+        const trail = await read('trail');
+
+        // The row reads a whole edge, and not a few pixels.
+        expect(lead.painted).toBeGreaterThan(lead.height);
+        expect(trail.painted).toBeGreaterThanOrEqual(0.9 * lead.painted);
+      },
+    );
+  },
+);
 
 describe.each(LISTS)('%s focus indicator stacking', (list) => {
   describe.each(ITEMS)('of %s', (tag) => {

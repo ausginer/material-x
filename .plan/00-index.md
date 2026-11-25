@@ -5914,6 +5914,16 @@ Tier A, **open**, pre-existing. Until the last note it was Tier C. Registered on
 
 **A feature proof is owed,** and it reads the two entries together. **Not read:** Safari, forced colors, RTL of `trail-focus`, the lifted item. **Size:** _small_.
 
+**Dated 2026-11-25 by the implementer: the list is done for this entry and `RF-135`, for #229 and #253, with `main` at `0dca6e5a0` merged, and neither is closed.** Requested by the coordinator.
+
+- **Source:** items 1 and 2 as written. `.trail`'s `align-content` is in its own rule.
+- **Rows:** 52 in each engine in `list-item.spec.browser.test.ts`: 36 of the three values, 4 of a page's rule, and 12 of `RF-135`'s edges. The values' oracle is `focusTokens`, registered as the contract `focus.default`. The file passes, 125 rows in each engine ([rows and witnesses](handle-focus-1/checks/rows.txt)).
+- **Witness, the rule out:** the 36 rows of values fail in Chromium and Firefox. **In WebKit 24 of them fail: the 12 of thickness pass, because WebKit's own outline is 3px wide.** One edge row of the `mx-icon` handle fails as well in Firefox and WebKit, where the handle has the browser's outline.
+- **Witness, the clip back in `.trail`:** the 12 edge rows fail in each engine, and no other row does.
+- **Item 4:** `handle-paint.mjs` on the built head, with no sheet, has the same pixels in the indicator's color as _rule, .trail overflow: visible_ in every row ([reading](handle-focus-1/checks/handle-paint-head.txt)). The other changed pixels differ by 2 at most, and on interactive items only. `trail-clip.mjs` reads no box that moves ([reading](handle-focus-1/checks/trail-clip-head.txt)).
+- **Size, Brotli,** with and without the two source files, in the same worktree: `list/list-item` 2813 to 2839, `list/list-button-item` 4915 to 4932, `list/list-link-item` 5083 to 5092, `list/sortable-list` 8940 to 8942, `list/list` 686 to 685, `complete` 25660 to 25639. Other rows of material-x move by −17 to +7, and their sources are the same. The cause wasn't read. No limit is exceeded ([all](handle-focus-1/checks/sizes.txt)).
+- **Checks:** material-x's `browser`, `spec` and `node` projects in the three engines, 40 files each, with no failure. Root typecheck, lint, format check, publint, `docs-build` and `docs-smoke` (129 pages) pass. The visual project wasn't run, and CI runs it.
+
 #### RF-129 — The sortable list takes the baseline `dragged` tokens, and Material's `reorder` set is the one for its lists
 
 Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `drag/command-signal-1`, from the note _"Seen, and not registered"_ of `RF-127`, on the owner's answer in chat, relayed by the coordinator: _"Точно да 👍"_ ("Definitely yes"). `RF-128` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `73a2320ef` on the built elements in Chromium, Firefox and WebKit ([readings](command-signal-1/checks/reorder-colors.txt), [probe](command-signal-1/probes/reorder-colors.mjs)).
