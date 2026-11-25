@@ -1,0 +1,92 @@
+## no mutation | chromium | 0 failed, 78 passed
+## main | chromium | 18 failed, 60 passed
+   mx-icon should have its slot inside a hidden element
+   mx-icon accessibility tree should leave the name of mx-button as its label alone
+   mx-icon accessibility tree should leave the name of mx-link-button as its label alone
+   mx-icon accessibility tree should leave the name of mx-switch-button as its label alone
+   mx-icon accessibility tree should leave the name of extended mx-fab as its label alone
+   mx-icon accessibility tree should leave the name of mx-list-button-item as its label alone
+   mx-icon accessibility tree should leave the name of mx-list-link-item as its label alone
+   mx-icon accessibility tree should leave the name of mx-text-field as its label alone
+   mx-icon accessibility tree should leave the name of mx-split-button's leading button as its label alone
+   mx-icon accessibility tree mx-icon-button with the icon alone should take its name from its aria-label
+   mx-icon accessibility tree mx-icon-button with the icon alone should have no name without an aria-label
+   mx-icon accessibility tree mx-switch-icon-button with the icon alone should take its name from its aria-label
+   mx-icon accessibility tree mx-switch-icon-button with the icon alone should have no name without an aria-label
+   mx-icon accessibility tree mx-fab with the icon alone should take its name from its aria-label
+   mx-icon accessibility tree mx-fab with the icon alone should have no name without an aria-label
+   mx-icon accessibility tree should name a control by the label of a named icon
+   mx-icon accessibility tree should expose no text alone
+   mx-icon accessibility tree should expose no text in a static list item
+## no aria-hidden on the span | chromium | 20 failed, 58 passed
+   mx-split-button accessibility tree should expose no name of the trailing button without a label
+   mx-split-button accessibility tree should expose no text of the icon
+   mx-icon should have its slot inside a hidden element
+   mx-icon accessibility tree should leave the name of mx-button as its label alone
+   mx-icon accessibility tree should leave the name of mx-link-button as its label alone
+   mx-icon accessibility tree should leave the name of mx-switch-button as its label alone
+   mx-icon accessibility tree should leave the name of extended mx-fab as its label alone
+   mx-icon accessibility tree should leave the name of mx-list-button-item as its label alone
+   mx-icon accessibility tree should leave the name of mx-list-link-item as its label alone
+   mx-icon accessibility tree should leave the name of mx-text-field as its label alone
+   mx-icon accessibility tree should leave the name of mx-split-button's leading button as its label alone
+   mx-icon accessibility tree mx-icon-button with the icon alone should take its name from its aria-label
+   mx-icon accessibility tree mx-icon-button with the icon alone should have no name without an aria-label
+   mx-icon accessibility tree mx-switch-icon-button with the icon alone should take its name from its aria-label
+   mx-icon accessibility tree mx-switch-icon-button with the icon alone should have no name without an aria-label
+   mx-icon accessibility tree mx-fab with the icon alone should take its name from its aria-label
+   mx-icon accessibility tree mx-fab with the icon alone should have no name without an aria-label
+   mx-icon accessibility tree should name a control by the label of a named icon
+   mx-icon accessibility tree should expose no text alone
+   mx-icon accessibility tree should expose no text in a static list item
+## aria-hidden on the slot | chromium | 1 failed, 77 passed
+   mx-icon should have its slot inside a hidden element
+## the internals' ariaHidden | chromium | 2 failed, 76 passed
+   mx-icon should have its slot inside a hidden element
+   mx-icon accessibility tree should name a control by the label of a named icon
+## aria-hidden on the host too | chromium | 2 failed, 76 passed
+   mx-icon should set no aria-hidden on its host
+   mx-icon accessibility tree should name a control by the label of a named icon
+## the icon's text is its name | chromium | 18 failed, 60 passed
+   mx-split-button accessibility tree should expose no name of the trailing button without a label
+   mx-split-button accessibility tree should expose no text of the icon
+   mx-icon accessibility tree should leave the name of mx-button as its label alone
+   mx-icon accessibility tree should leave the name of mx-link-button as its label alone
+   mx-icon accessibility tree should leave the name of mx-switch-button as its label alone
+   mx-icon accessibility tree should leave the name of extended mx-fab as its label alone
+   mx-icon accessibility tree should leave the name of mx-list-button-item as its label alone
+   mx-icon accessibility tree should leave the name of mx-list-link-item as its label alone
+   mx-icon accessibility tree should leave the name of mx-text-field as its label alone
+   mx-icon accessibility tree should leave the name of mx-split-button's leading button as its label alone
+   mx-icon accessibility tree mx-icon-button with the icon alone should take its name from its aria-label
+   mx-icon accessibility tree mx-icon-button with the icon alone should have no name without an aria-label
+   mx-icon accessibility tree mx-switch-icon-button with the icon alone should take its name from its aria-label
+   mx-icon accessibility tree mx-switch-icon-button with the icon alone should have no name without an aria-label
+   mx-icon accessibility tree mx-fab with the icon alone should take its name from its aria-label
+   mx-icon accessibility tree mx-fab with the icon alone should have no name without an aria-label
+   mx-icon accessibility tree should expose no text alone
+   mx-icon accessibility tree should expose no text in a static list item
+## no mutation | firefox | 0 failed, 57 passed
+## main | firefox | 1 failed, 56 passed
+   mx-icon should have its slot inside a hidden element
+## no aria-hidden on the span | firefox | 1 failed, 56 passed
+   mx-icon should have its slot inside a hidden element
+## aria-hidden on the slot | firefox | 1 failed, 56 passed
+   mx-icon should have its slot inside a hidden element
+## the internals' ariaHidden | firefox | 1 failed, 56 passed
+   mx-icon should have its slot inside a hidden element
+## aria-hidden on the host too | firefox | 1 failed, 56 passed
+   mx-icon should set no aria-hidden on its host
+## the icon's text is its name | firefox | 0 failed, 57 passed
+## no mutation | webkit | 0 failed, 57 passed
+## main | webkit | 1 failed, 56 passed
+   mx-icon should have its slot inside a hidden element
+## no aria-hidden on the span | webkit | 1 failed, 56 passed
+   mx-icon should have its slot inside a hidden element
+## aria-hidden on the slot | webkit | 1 failed, 56 passed
+   mx-icon should have its slot inside a hidden element
+## the internals' ariaHidden | webkit | 1 failed, 56 passed
+   mx-icon should have its slot inside a hidden element
+## aria-hidden on the host too | webkit | 1 failed, 56 passed
+   mx-icon should set no aria-hidden on its host
+## the icon's text is its name | webkit | 0 failed, 57 passed
