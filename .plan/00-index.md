@@ -5891,7 +5891,7 @@ Tier C, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 
 #### RF-129 — The sortable list takes the baseline `dragged` tokens, and Material's `reorder` set is the one for its lists
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `drag/command-signal-1`, from the note _"Seen, and not registered"_ of `RF-127`, on the owner's answer in chat, relayed by the coordinator: _"Точно да 👍"_ ("Definitely yes"). `RF-128` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `73a2320ef` on the built elements in Chromium, Firefox and WebKit ([readings](command-signal-1/checks/reorder-colors.txt), [probe](command-signal-1/probes/reorder-colors.mjs)).
+Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `drag/command-signal-1`, from the note _"Seen, and not registered"_ of `RF-127`, on the owner's answer in chat, relayed by the coordinator: _"Точно да 👍"_ ("Definitely yes"). `RF-128` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `73a2320ef` on the built elements in Chromium, Firefox and WebKit ([readings](command-signal-1/checks/reorder-colors.txt), [probe](command-signal-1/probes/reorder-colors.mjs)).
 
 - **What happens:** the drop zone is `list-item.dragged.state-layer`'s color and opacity. The lifted item takes `list-item.dragged`'s shape, label color and elevation, with its resting container. The store's display group for these is _"Dragged (baseline only)"_, whose description says: _"The dragged state of baseline lists. Use "reorder" tokens for the dragged state of expressive lists."_ The package's lists are expressive: they take `container.expressive.shape` and `segmented.gap`. Of the reorder set they take the shadow's color alone (`RF-77`).
 - **The set, `md.comp.list.reorder`,** described as _"For reordering a list item using a drag handle or accessible alternative. Only use for Expressive lists."_ It has twelve tokens, none deprecated:
@@ -5979,6 +5979,16 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `d
 - **Witnesses** ([reading](reorder-tokens-1/checks/mutations-lift.txt), [script](reorder-tokens-1/probes/mutations-lift.mjs)), over the whole of `tests/list`, the same in the three engines: with `color` and `background-color` out of drag's `UA_PROPS`, the two button rows and the key row fail, and no other. With the static item's rule on `::slotted(:state(drag))`, the two button rows fail, and no other. Unmutated, none.
 - **Checks on the merged tree,** core and drag rebuilt and `build:prepare` run: `tests/list` passes 309 in Chromium, 297 with 2 skipped in Firefox and 307 with 2 skipped in WebKit. material-x without the visual project in Chromium: 1768 passed and 2 expected failures. Typecheck, `typecheck-declarations`, lint, the root format check, publint, `docs-build` and `docs-smoke` (129 of 129) pass.
 - **Not run:** the visual project, Safari, the sizes, which the gate reads, and the whole suite in Firefox and WebKit, which the list doesn't ask for.
+
+**Closed 2026-11-25 by the architect,** on the [feature proof](reviews/reorder-tokens-1/feature-proof-claude.md) of `78dc6d983`, the rulings above, and the implementer's list, read at `4367ae644`, requested by the coordinator. `origin/main` is at `e57c9f074`, which the branch already has. #261 merges the entry, with `Closes #230`.
+
+- **No recheck is owed.** Since `78dc6d983` the branch's own change of `packages/*/src` is the JSDoc's _Lift_ item, in the words of the list. `list-link-item.ts` differs by `main`'s #248 alone. The tests are the three edits of the list.
+- **The witnesses, read in the [record](reorder-tokens-1/checks/mutations-lift.txt) and not run again:** over the whole of `tests/list`, the same in the three engines. Without the two colors in drag's `UA_PROPS` the two button rows and the key row fail, with the static item's rule on every host the two button rows fail, and no other does. Unmutated, none.
+- **`reviewer-1` and `reviewer-2` are closed.** The seven properties hold in the three engines by the proof. Its departures stand, and the witness script beside the unit's is accepted.
+- **The gate passes on `4367ae644`:** `verify`, the three engines, `docs` and `measurements`. Its run on the closing commit, which has records only, is the coordinator's to read.
+- **What remains elsewhere:** a link item by its handle in Firefox, in `RF-76`; `RF-128` and `RF-135` (#229), whose second to merge does what the note above says; and the neighbors that jump in a key move, which are drag's (#265).
+- **Not read,** as before: Safari, touch and a pen, assistive technology, a real high-contrast theme, and a page's background image over the reorder container.
+- **Nothing is the owner's to answer.**
 
 #### RF-130 — A control loses the component's own `aria-*` when the host's same attribute is removed
 
