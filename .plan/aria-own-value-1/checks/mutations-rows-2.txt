@@ -1,0 +1,141 @@
+# The proof's mutations (reviews/aria-own-value-1/probes/mutations.mjs)
+## an empty host value counts as none | chromium | core | 1 failed | 88 passed (89)
+## an empty host value counts as none | chromium | material-x | 49 passed (49)
+## an empty host value counts as none | firefox | core | 1 failed | 88 passed (89)
+## an empty host value counts as none | firefox | material-x | 49 passed (49)
+## an empty host value counts as none | webkit | core | 1 failed | 88 passed (89)
+## an empty host value counts as none | webkit | material-x | 49 passed (49)
+## an empty own value counts as none | chromium | core | 1 failed | 88 passed (89)
+## an empty own value counts as none | chromium | material-x | 49 passed (49)
+## an empty own value counts as none | firefox | core | 1 failed | 88 passed (89)
+## an empty own value counts as none | firefox | material-x | 49 passed (49)
+## an empty own value counts as none | webkit | core | 1 failed | 88 passed (89)
+## an empty own value counts as none | webkit | material-x | 49 passed (49)
+## the own value of null is not kept | chromium | core | 2 failed | 87 passed (89)
+## the own value of null is not kept | chromium | material-x | 8 failed | 41 passed (49)
+## the own value of null is not kept | firefox | core | 2 failed | 87 passed (89)
+## the own value of null is not kept | firefox | material-x | 8 failed | 41 passed (49)
+## the own value of null is not kept | webkit | core | 2 failed | 87 passed (89)
+## the own value of null is not kept | webkit | material-x | 8 failed | 41 passed (49)
+## one Map for all targets | chromium | core | 1 failed | 88 passed (89)
+## one Map for all targets | chromium | material-x | 49 passed (49)
+## one Map for all targets | firefox | core | 1 failed | 88 passed (89)
+## one Map for all targets | firefox | material-x | 49 passed (49)
+## one Map for all targets | webkit | core | 1 failed | 88 passed (89)
+## one Map for all targets | webkit | material-x | 49 passed (49)
+## one value for all names | chromium | core | 1 failed | 88 passed (89)
+## one value for all names | chromium | material-x | 49 passed (49)
+## one value for all names | firefox | core | 1 failed | 88 passed (89)
+## one value for all names | firefox | material-x | 49 passed (49)
+## one value for all names | webkit | core | 1 failed | 88 passed (89)
+## one value for all names | webkit | material-x | 49 passed (49)
+## the write comes before the keeping | chromium | core | 2 failed | 87 passed (89)
+## the write comes before the keeping | chromium | material-x | 2 failed | 47 passed (49)
+## the write comes before the keeping | firefox | core | 2 failed | 87 passed (89)
+## the write comes before the keeping | firefox | material-x | 2 failed | 47 passed (49)
+## the write comes before the keeping | webkit | core | 2 failed | 87 passed (89)
+## the write comes before the keeping | webkit | material-x | 2 failed | 47 passed (49)
+## the host is read without the transformer in setOwnARIA | chromium | core | 1 failed | 88 passed (89)
+## the host is read without the transformer in setOwnARIA | chromium | material-x | 49 passed (49)
+## the host is read without the transformer in setOwnARIA | firefox | core | 1 failed | 88 passed (89)
+## the host is read without the transformer in setOwnARIA | firefox | material-x | 49 passed (49)
+## the host is read without the transformer in setOwnARIA | webkit | core | 1 failed | 88 passed (89)
+## the host is read without the transformer in setOwnARIA | webkit | material-x | 49 passed (49)
+## the own value only while connected | chromium | core | 1 failed | 88 passed (89)
+## the own value only while connected | chromium | material-x | 4 failed | 45 passed (49)
+## the own value only while connected | firefox | core | 1 failed | 88 passed (89)
+## the own value only while connected | firefox | material-x | 4 failed | 45 passed (49)
+## the own value only while connected | webkit | core | 1 failed | 88 passed (89)
+## the own value only while connected | webkit | material-x | 4 failed | 45 passed (49)
+## a connect skips the own value | chromium | core | 8 failed | 81 passed (89)
+## a connect skips the own value | chromium | material-x | 18 failed | 31 passed (49)
+## a connect skips the own value | firefox | core | 8 failed | 81 passed (89)
+## a connect skips the own value | firefox | material-x | 18 failed | 31 passed (49)
+## a connect skips the own value | webkit | core | 8 failed | 81 passed (89)
+## a connect skips the own value | webkit | material-x | 18 failed | 31 passed (49)
+## kept only from the first connect | chromium | core | 4 failed | 85 passed (89)
+## kept only from the first connect | chromium | material-x | 11 failed | 38 passed (49)
+## kept only from the first connect | firefox | core | 4 failed | 85 passed (89)
+## kept only from the first connect | firefox | material-x | 11 failed | 38 passed (49)
+## kept only from the first connect | webkit | core | 4 failed | 85 passed (89)
+## kept only from the first connect | webkit | material-x | 11 failed | 38 passed (49)
+## linkable: no own value goes on re-enable | chromium | core | 1 failed | 88 passed (89)
+## linkable: no own value goes on re-enable | chromium | material-x | 4 failed | 45 passed (49)
+## linkable: no own value goes on re-enable | firefox | core | 1 failed | 88 passed (89)
+## linkable: no own value goes on re-enable | firefox | material-x | 4 failed | 45 passed (49)
+## linkable: no own value goes on re-enable | webkit | core | 1 failed | 88 passed (89)
+## linkable: no own value goes on re-enable | webkit | material-x | 4 failed | 45 passed (49)
+## linkable: restores the host value itself | chromium | core | 1 failed | 88 passed (89)
+## linkable: restores the host value itself | chromium | material-x | 4 failed | 45 passed (49)
+## linkable: restores the host value itself | firefox | core | 1 failed | 88 passed (89)
+## linkable: restores the host value itself | firefox | material-x | 4 failed | 45 passed (49)
+## linkable: restores the host value itself | webkit | core | 1 failed | 88 passed (89)
+## linkable: restores the host value itself | webkit | material-x | 4 failed | 45 passed (49)
+## validatable: required has no own value | chromium | core | 89 passed (89)
+## validatable: required has no own value | chromium | material-x | 4 failed | 45 passed (49)
+## validatable: required has no own value | firefox | core | 89 passed (89)
+## validatable: required has no own value | firefox | material-x | 4 failed | 45 passed (49)
+## validatable: required has no own value | webkit | core | 89 passed (89)
+## validatable: required has no own value | webkit | material-x | 4 failed | 45 passed (49)
+## list-link-item: false in place of none | chromium | core | 89 passed (89)
+## list-link-item: false in place of none | chromium | material-x | 1 failed | 48 passed (49)
+## list-link-item: false in place of none | firefox | core | 89 passed (89)
+## list-link-item: false in place of none | firefox | material-x | 1 failed | 48 passed (49)
+## list-link-item: false in place of none | webkit | core | 89 passed (89)
+## list-link-item: false in place of none | webkit | material-x | 1 failed | 48 passed (49)
+## switch: no call at setup | chromium | core | 89 passed (89)
+## switch: no call at setup | chromium | material-x | 4 failed | 45 passed (49)
+## switch: no call at setup | firefox | core | 89 passed (89)
+## switch: no call at setup | firefox | material-x | 4 failed | 45 passed (49)
+## switch: no call at setup | webkit | core | 89 passed (89)
+## switch: no call at setup | webkit | material-x | 4 failed | 45 passed (49)
+
+# The unit's mutations (probes/mutations.mjs)
+## no mutation | chromium | core | 51 passed (51)
+## no mutation | chromium | material-x | 49 passed (49)
+## no mutation | firefox | core | 51 passed (51)
+## no mutation | firefox | material-x | 49 passed (49)
+## no mutation | webkit | core | 51 passed (51)
+## no mutation | webkit | material-x | 49 passed (49)
+## linkable as on main | chromium | core | 1 failed | 50 passed (51)
+   useDisableableLinkable > should give a disabled mirrored anchor its own aria-disabled after the host gets and loses one
+## linkable as on main | chromium | material-x | 11 failed | 38 passed (49)
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+## linkable as on main | firefox | core | 1 failed | 50 passed (51)
+   useDisableableLinkable > should give a disabled mirrored anchor its own aria-disabled after the host gets and loses one
+## linkable as on main | firefox | material-x | 11 failed | 38 passed (49)
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+## linkable as on main | webkit | core | 1 failed | 50 passed (51)
+   useDisableableLinkable > should give a disabled mirrored anchor its own aria-disabled after the host gets and loses one
+## linkable as on main | webkit | material-x | 11 failed | 38 passed (49)
+   mx-link-button aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "true" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's after the host's is set and lost
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-link-button aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "true" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-disabled, with "false" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-link-button aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-disabled, with "false" on the host > should stay the host's while the source changes, and then be the component's

@@ -1,0 +1,136 @@
+Read at c035576e2 on 2026-11-24, core rebuilt, one engine at a time. Each probe's last test fails on purpose and carries the reading. Firefox and WebKit read as Chromium in each row that names chromium.
+
+## core
+READ chromium | adopted there and back, lost there | "x"
+READ chromium | clone: at once, task, connect, lost, source off, host has it | ["h","h","h","on","off",false]
+READ chromium | constructor: at once, task, connect, lost, source off, host has it | ["setup","setup","setup","setup","setup",false]
+READ chromium | host's change pending, then setOwnARIA, connected: at once, transformer calls, writes | ["false",["false","false"],2]
+READ chromium | host's change pending, then setOwnARIA, never connected: at once, transformer calls, writes | ["false",["false","false"],2]
+READ chromium | imported template: at once, task, connect, lost, source off, host has it | ["h","h","h","on","off",false]
+READ chromium | in an iframe that is removed | "setup"
+READ chromium | own null over a straight value; own ""; host "" over own "true" sync, task; lost; own null | [null,"","","","true",null]
+READ chromium | own, then a straight write: move, other name, host sets and loses | ["straight","straight","own"]
+READ chromium | random: reads, wrong, host attributes wrong, first | [20480,0,0,""]
+READ chromium | role, with a mirror and without | [null,"x"]
+READ chromium | set before the mirror: before connect, after connect, after the host sets and loses | ["true","true",null]
+READ chromium | setOwnARIA in a connect callback after the hook: host has it, host lost it | ["h","own"]
+READ chromium | setOwnARIA in a connect callback before the hook: host has it, host lost it | ["h","own"]
+READ chromium | target elsewhere, host out | "own"
+READ chromium | three names: host label; then label lost and disabled set | [["H","true",null],["L","false",null]]
+READ chromium | two hooks of one host on one target, after the loss | "own"
+READ chromium | two hosts, one target: B sets, B loses, A sets, A loses | ["b","own","a",null]
+READ chromium | two targets of a host | [["h","h"],["one","two"]]
+READ chromium | upgraded in the document: at once, task, connect, lost, source off, host has it | ["h","h","h","on","off",false]
+READ chromium | upgraded out: at once, task, connect, lost, source off, host has it | ["h","h","h","on","off",false]
+
+## material-x
+READ chromium | group: none, a, a has mixed and the group b, lost | [[[false,"false"],[false,"false"]],[[true,"true"],[false,"false"]],[[false,"mixed"],[true,"true"]],[[false,"false"],[true,"true"]]]
+READ chromium | mx-link-button: disabled with false; enabled sync, task; lost; disabled; out, enabled, connect; click while disabled with false | [[["false",null,"-1"],["false","#x","3"],["false","#x","3"],[null,"#x","3"],["true",null,"-1"],[null,"#x","3"]],0,""]
+READ chromium | mx-list-link-item: disabled with false; enabled sync, task; lost; disabled; out, enabled, connect; click while disabled with false | [[["false",null,"-1"],["false","#x","3"],["false","#x","3"],[null,"#x","3"],["true",null,"-1"],[null,"#x","3"]],0,""]
+READ chromium | mx-multiline-text-field ids and invalid | [["label","support","true"],["z","support","false"],["label","support","true"],["label","support",null]]
+READ chromium | mx-switch-button checked on and off before connect | "false"
+READ chromium | mx-switch-button checked with aria-checked=false: connect, lost; state, form | ["false","true",true]
+READ chromium | mx-switch-button parsed: aria-checked=mixed; checked; both; none: upgraded, task, connected | [["mixed","true","mixed","false"],["mixed","true","mixed","false"],["mixed","true","mixed","false"]]
+READ chromium | mx-switch-button shadow html | "<button class=\"host\" part=\"impl\" role=\"switch\" type=\"button\" aria-checked=\"false\" commandfor=\"\" command=\"--activate\"><slot class=\"icon\" name=\"icon\"></slot><slot></slot><div class=\"ripple\"></div></button>"
+READ chromium | mx-switch-icon-button checked on and off before connect | "false"
+READ chromium | mx-switch-icon-button checked with aria-checked=false: connect, lost; state, form | ["false","true",true]
+READ chromium | mx-switch-icon-button parsed: aria-checked=mixed; checked; both; none: upgraded, task, connected | [["mixed","true","mixed","false"],["mixed","true","mixed","false"],["mixed","true","mixed","false"]]
+READ chromium | mx-switch-icon-button shadow html | "<button class=\"host\" part=\"impl\" role=\"switch\" type=\"button\" aria-checked=\"false\" commandfor=\"\" command=\"--activate\"><slot class=\"icon\"></slot><div class=\"ripple\"></div></button>"
+READ chromium | mx-text-field ids and invalid | [["label","support","true"],["z","support","false"],["label","support","true"],["label","support",null]]
+READ chromium | random mx-link-button: reads, wrong, host attributes wrong, first | [1356,0,0,""]
+READ chromium | random mx-list-button-item: reads, wrong, host attributes wrong, first | [1356,0,0,""]
+READ chromium | random mx-list-link-item: reads, wrong, host attributes wrong, first | [2034,0,0,""]
+READ chromium | random mx-multiline-text-field: reads, wrong, host attributes wrong, first | [2034,0,0,""]
+READ chromium | random mx-switch-button: reads, wrong, host attributes wrong, first | [2712,0,0,""]
+READ chromium | random mx-switch-icon-button: reads, wrong, host attributes wrong, first | [2712,0,0,""]
+READ chromium | random mx-text-field: reads, wrong, host attributes wrong, first | [2034,0,0,""]
+READ chromium | sequence mx-button | [[null,null,null],[null,null,null],["false",null,null],["false",null,null],[null,null,null],[null,null,null]]
+READ chromium | sequence mx-checkbox | [[null,null,null],["true","true",null],["true","true",null],["true","true",null],[null,"true",null],["true","true",null]]
+READ chromium | sequence mx-fab | [[null,null,null],[null,null,null],["false",null,null],["false",null,null],[null,null,null],[null,null,null]]
+READ chromium | sequence mx-radio | [[null,null,null],["true","true",null],["true","true",null],["true","true",null],[null,"true",null],["true","true",null]]
+
+## material-x, the sources of f9729a393 (Chromium only), the rows that differ
+READ chromium | group: none, a, a has mixed and the group b, lost | [[[false,"false"],[false,"false"]],[[true,"true"],[false,"false"]],[[false,"mixed"],[true,"true"]],[[false,null],[true,"true"]]]
+READ chromium | mx-multiline-text-field ids and invalid | [["label","support","true"],["z","support","false"],["label","support",null],["label","support",null]]
+READ chromium | mx-switch-button checked with aria-checked=false: connect, lost; state, form | ["false",null,true]
+READ chromium | mx-switch-button parsed: aria-checked=mixed; checked; both; none: upgraded, task, connected | [["false","true","true","false"],["false","true","true","false"],["mixed","true","mixed","false"]]
+READ chromium | mx-switch-button shadow html | "<button aria-checked=\"false\" class=\"host\" part=\"impl\" role=\"switch\" type=\"button\" commandfor=\"\" command=\"--activate\"><slot class=\"icon\" name=\"icon\"></slot><slot></slot><div class=\"ripple\"></div></button>"
+READ chromium | mx-switch-icon-button checked with aria-checked=false: connect, lost; state, form | ["false",null,true]
+READ chromium | mx-switch-icon-button parsed: aria-checked=mixed; checked; both; none: upgraded, task, connected | [["false","true","true","false"],["false","true","true","false"],["mixed","true","mixed","false"]]
+READ chromium | mx-switch-icon-button shadow html | "<button aria-checked=\"false\" class=\"host\" part=\"impl\" role=\"switch\" type=\"button\" commandfor=\"\" command=\"--activate\"><slot class=\"icon\"></slot><div class=\"ripple\"></div></button>"
+READ chromium | mx-text-field ids and invalid | [["label","support","true"],["z","support","false"],["label","support",null],["label","support",null]]
+READ chromium | random mx-link-button: reads, wrong, host attributes wrong, first | [1356,62,0,"seed 1 aria-description= task ~disabled ~disabled aria-disabled= out connect aria-disabled=mixed aria-description=false ~disabled aria-description= out aria-disabled=true out task ~disabled ~disabled aria-disabled=null aria-description=false ~disabled => aria-disabled null want true"]
+READ chromium | random mx-list-button-item: reads, wrong, host attributes wrong, first | [1356,120,0,"seed 1 aria-description= task ~selected ~selected aria-selected= out connect aria-selected=mixed aria-description=false ~selected aria-description= out aria-selected=true out task ~selected ~selected aria-selected=null aria-description=false ~selected => aria-selected null want true"]
+READ chromium | random mx-list-link-item: reads, wrong, host attributes wrong, first | [2034,128,0,"seed 1 aria-disabled= task ~disabled ~disabled aria-current= out connect aria-current=mixed aria-disabled=false ~selected aria-description= out aria-disabled=true out task ~disabled ~selected aria-disabled=null aria-disabled=false ~disabled => aria-current null want mixed"]
+READ chromium | random mx-multiline-text-field: reads, wrong, host attributes wrong, first | [2034,150,0,"seed 1 aria-invalid= task ~error ~error aria-required= out connect aria-required=mixed aria-invalid=false ~required aria-description= out aria-invalid=true out task ~error ~required aria-invalid=null aria-invalid=false ~error => aria-required null want mixed"]
+READ chromium | random mx-switch-button: reads, wrong, host attributes wrong, first | [2712,182,0,"seed 2 ~checked aria-invalid=mixed aria-description=false aria-checked= ~required connect ~checked ~required ~error task => aria-checked true want "]
+READ chromium | random mx-switch-icon-button: reads, wrong, host attributes wrong, first | [2712,182,0,"seed 2 ~checked aria-invalid=mixed aria-description=false aria-checked= ~required connect ~checked ~required ~error task => aria-checked true want "]
+READ chromium | random mx-text-field: reads, wrong, host attributes wrong, first | [2034,150,0,"seed 1 aria-invalid= task ~error ~error aria-required= out connect aria-required=mixed aria-invalid=false ~required aria-description= out aria-invalid=true out task ~error ~required aria-invalid=null aria-invalid=false ~error => aria-required null want mixed"]
+
+## slider, origin/main ab4e536bd merged without a commit and the merge then aborted; with slider, aria-own-value and validatable rows: Chromium 447 passed, Firefox and WebKit 377 passed and 70 skipped
+READ chromium | mx-slider, origin/main merged: reads, wrong, first | [2388,0,""]
+READ firefox | mx-slider, origin/main merged: reads, wrong, first | [2388,0,""]
+READ webkit | mx-slider, origin/main merged: reads, wrong, first | [2388,0,""]
+
+## cost (probes/cost.mjs); the machine had other load
+heap bytes a host, Chromium | plain | main 86, head 86
+heap bytes a host, Chromium | idle | main 566, head 668
+heap bytes a host, Chromium | one own value | main 570, head 673
+heap bytes a host, Chromium | two own values | main 569, head 675
+alive of 500 after collection, head | chromium | {"own value, never connected":0,"own value, connected, removed":0,"the page keeps only the target":500}
+time, 5000 hosts | chromium | make 5000 | main 24 ms, head 23 ms
+time, 5000 hosts | chromium | set error and required out | main 20 ms, head 20 ms
+time, 5000 hosts | chromium | connect | main 10 ms, head 9 ms
+time, 5000 hosts | chromium | move with 3 aria names | main 26 ms, head 26 ms
+time, 5000 hosts | chromium | toggle error 10 times | main 82 ms, head 83 ms
+alive of 500 after collection, head | firefox | {"own value, never connected":0,"own value, connected, removed":0,"the page keeps only the target":500}
+time, 5000 hosts | firefox | make 5000 | main 50 ms, head 48 ms
+time, 5000 hosts | firefox | set error and required out | main 47 ms, head 48 ms
+time, 5000 hosts | firefox | connect | main 13 ms, head 13 ms
+time, 5000 hosts | firefox | move with 3 aria names | main 66 ms, head 62 ms
+time, 5000 hosts | firefox | toggle error 10 times | main 161 ms, head 165 ms
+alive of 500 after collection, head | webkit | {"own value, never connected":0,"own value, connected, removed":0,"the page keeps only the target":500}
+time, 5000 hosts | webkit | make 5000 | main 53 ms, head 56 ms
+time, 5000 hosts | webkit | set error and required out | main 46 ms, head 56 ms
+time, 5000 hosts | webkit | connect | main 12 ms, head 12 ms
+time, 5000 hosts | webkit | move with 3 aria names | main 59 ms, head 57 ms
+time, 5000 hosts | webkit | toggle error 10 times | main 144 ms, head 184 ms
+a second run, Chromium and WebKit, collection on main's build:
+alive of 500 after collection, main | chromium | {"own value, never connected":0,"own value, connected, removed":0,"the page keeps only the target":0}
+time, 5000 hosts | chromium | make 5000 | main 44 ms, head 33 ms
+time, 5000 hosts | chromium | set error and required out | main 27 ms, head 26 ms
+time, 5000 hosts | chromium | connect | main 11 ms, head 12 ms
+time, 5000 hosts | chromium | move with 3 aria names | main 42 ms, head 37 ms
+time, 5000 hosts | chromium | toggle error 10 times | main 114 ms, head 132 ms
+alive of 500 after collection, main | webkit | {"own value, never connected":0,"own value, connected, removed":0,"the page keeps only the target":0}
+time, 5000 hosts | webkit | make 5000 | main 36 ms, head 57 ms
+time, 5000 hosts | webkit | set error and required out | main 38 ms, head 57 ms
+time, 5000 hosts | webkit | connect | main 10 ms, head 12 ms
+time, 5000 hosts | webkit | move with 3 aria names | main 51 ms, head 61 ms
+time, 5000 hosts | webkit | toggle error 10 times | main 147 ms, head 182 ms
+
+## sizes, just size-reading, f9729a393's sources -> the branch
+material-x button/button 4858 -> 4897 39
+material-x button/icon-button 5105 -> 5166 61
+material-x button/link-button 4817 -> 4862 45
+material-x button/switch-button 5442 -> 5472 30
+material-x button/switch-icon-button 5840 -> 5879 39
+material-x button/split-button 7441 -> 7480 39
+material-x checkbox/checkbox 4226 -> 4260 34
+material-x fab/fab 4139 -> 4177 38
+material-x list/list-button-item 4839 -> 4893 54
+material-x list/list-link-item 5050 -> 5111 61
+material-x radio/radio 3781 -> 3812 31
+material-x text-field/multiline-text-field 4456 -> 4526 70
+material-x text-field/text-field 8479 -> 8568 89
+material-x complete 23098 -> 23093 -5
+rows 34 34
+
+## f9729a393's sources (eddf39e7b's are the same), build-lib and size-limit as candidates.mjs, with css-private-props.json from several slots
+this slot, and slot b (the same list): list-link-item 5050 | list 659 | card 1315 | text-field 8479 | complete 23098
+slot f (the same 228 names, another order): 5052 | 659 | 1336 | 8514 | 23104
+slot c (268 names): 5034 | 664 | 1313 | 8509 | 23113
+slot d (238): 5048 | 660 | 1337 | 8514 | 23101
+slot g (229): 5050 | 659 | 1315 | 8499 | 23057
+no list: 5028 | 663 | 1307 | 8453 | 23008
+the plan's main: 5082 | 680 | 1314 | 8462 | 23101

@@ -1,0 +1,23 @@
+// With origin/main merged, core rebuilt. Copy to packages/material-x/tests/ and
+// run there. The test fails on purpose: its message is the reading.
+import { expect, it } from 'vitest';
+import { server } from 'vitest/browser';
+import '../src/slider/slider.ts';
+const task = () => new Promise((r) => setTimeout(r));
+it('reading', async () => {
+  let reads = 0, wrong = 0, first = '';
+  for (let seed = 1; seed <= 150; seed++) {
+    let s = seed * 2654435761;
+    const R = (n: number) => { s = (Math.imul(s ^ (s >>> 15), 2246822519) + 0x9e3779b9) | 0; return ((s >>> 8) % n + n) % n; };
+    const el = document.createElement('mx-slider'); const c = el.shadowRoot!.querySelector('input')!;
+    const names = [['aria-invalid', 'error'], ['aria-required', 'required'], ['aria-valuetext', 'valuetext']] as const; const log: string[] = [];
+    const check = () => names.forEach(([n, src]) => { reads++; const own = src === 'valuetext' ? el.getAttribute(src) : el.hasAttribute(src) ? 'true' : null; const want = el.getAttribute(n) ?? own; if (c.getAttribute(n) !== want) { wrong++; first ||= `${log.join(' ')} => ${n} ${c.getAttribute(n)} want ${want}`; } });
+    for (let k = 0; k < 14; k++) {
+      const op = R(7), [n, src] = names[R(3)]!; log.push(`${op}${src}`);
+      if (op === 0) el.setAttribute(n, 'false'); else if (op === 1) el.removeAttribute(n); else if (op < 4) { if (op === 2) el.setAttribute(src, 'v'); else el.removeAttribute(src); }
+      else if (op === 4) { document.body.append(el); check(); } else if (op === 5) el.remove(); else { await task(); check(); }
+    }
+    await task(); check(); el.remove();
+  }
+  expect.fail(`\nREAD ${server.browser} | mx-slider, origin/main merged: reads, wrong, first | ${JSON.stringify([reads, wrong, first])}\nEND`);
+});

@@ -1,0 +1,188 @@
+// Copy to packages/core/tests/ and run there. The last test fails on purpose:
+// its message is the reading.
+import { expect, it } from 'vitest';
+import { server } from 'vitest/browser';
+import { setOwnARIA, useARIA, type ARIATransformer } from '../src/controllers/useARIA.ts';
+import { useConnected } from '../src/controllers/useConnected.ts';
+import { ControlledElement, use } from '../src/element.ts';
+import { host, nameCE, defineCE, nextFrame } from './browser.ts';
+const rows: string[] = [];
+const say = (name: string, v: unknown) => rows.push(`${name} | ${JSON.stringify(v)}`);
+const N = 'aria-disabled';
+const task = () => new Promise((r) => setTimeout(r));
+function mk(t?: ARIATransformer) {
+  const target = document.createElement('div');
+  const el = host((h) => useARIA(h, target, t));
+  return { el, target, v: (n = N) => target.getAttribute(n) };
+}
+it('set before the mirror', async () => {
+  const target = document.createElement('div');
+  setOwnARIA(target, N, 'true');
+  const el = host((h) => useARIA(h, target));
+  const a = target.getAttribute(N);
+  document.body.append(el);
+  const b = target.getAttribute(N);
+  el.setAttribute(N, 'false'); await task(); el.removeAttribute(N); await task();
+  say('set before the mirror: before connect, after connect, after the host sets and loses', [a, b, target.getAttribute(N)]);
+});
+it('null, empty', async () => {
+  const { el, target, v } = mk();
+  target.setAttribute(N, 'template');
+  setOwnARIA(target, N, null);
+  const a = v();
+  setOwnARIA(target, N, ''); const b = v();
+  el.setAttribute(N, ''); setOwnARIA(target, N, 'true'); const c = v(); await task(); const d = v();
+  el.removeAttribute(N); await task(); const e = v();
+  setOwnARIA(target, N, null);
+  say('own null over a straight value; own ""; host "" over own "true" sync, task; lost; own null', [a, b, c, d, e, v()]);
+});
+it('names apart', async () => {
+  const { el, target, v } = mk();
+  document.body.append(el);
+  setOwnARIA(target, 'aria-label', 'L'); setOwnARIA(target, N, 'true'); setOwnARIA(target, 'aria-current', null);
+  el.setAttribute('aria-label', 'H'); await task();
+  const a = [v('aria-label'), v(), v('aria-current')];
+  el.removeAttribute('aria-label'); el.setAttribute(N, 'false'); await task();
+  say('three names: host label; then label lost and disabled set', [a, [v('aria-label'), v(), v('aria-current')]]);
+});
+it('pending host change and setOwnARIA', async () => {
+  for (const [w, connected] of [['connected', true], ['never connected', false]] as const) {
+    const calls: unknown[] = [];
+    const { el, target } = mk((n, x) => (calls.push(x), x));
+    if (connected) document.body.append(el);
+    const writes: (string | null)[] = [];
+    new MutationObserver((r) => r.forEach(() => writes.push(target.getAttribute(N)))).observe(target, { attributes: true });
+    await task(); calls.length = 0; writes.length = 0;
+    el.setAttribute(N, 'false');
+    setOwnARIA(target, N, 'true');
+    const at = target.getAttribute(N);
+    await task();
+    say(`host's change pending, then setOwnARIA, ${w}: at once, transformer calls, writes`, [at, calls, writes.length]);
+  }
+});
+it('two targets, two hosts, two hooks', async () => {
+  const t1 = document.createElement('i'), t2 = document.createElement('i');
+  const el = host((h) => { useARIA(h, t1); useARIA(h, t2); });
+  document.body.append(el);
+  setOwnARIA(t1, N, 'one'); setOwnARIA(t2, N, 'two');
+  el.setAttribute(N, 'h'); await task(); const a = [t1.getAttribute(N), t2.getAttribute(N)];
+  el.removeAttribute(N); await task();
+  say('two targets of a host', [a, [t1.getAttribute(N), t2.getAttribute(N)]]);
+  const t = document.createElement('i');
+  const A = host((h) => useARIA(h, t)), B = host((h) => useARIA(h, t));
+  document.body.append(A, B);
+  setOwnARIA(t, N, 'own');
+  B.setAttribute(N, 'b'); await task(); const b1 = t.getAttribute(N);
+  B.removeAttribute(N); await task(); const b2 = t.getAttribute(N);
+  A.setAttribute(N, 'a'); await task(); const a1 = t.getAttribute(N);
+  A.removeAttribute(N); await task();
+  say('two hosts, one target: B sets, B loses, A sets, A loses', [b1, b2, a1, t.getAttribute(N)]);
+  const s = document.createElement('i');
+  const C = host((h) => { useARIA(h, s); useARIA(h, s); });
+  document.body.append(C); setOwnARIA(s, N, 'own');
+  C.setAttribute(N, 'c'); await task(); C.removeAttribute(N); await task();
+  say('two hooks of one host on one target, after the loss', s.getAttribute(N));
+});
+it('connect callbacks', async () => {
+  for (const before of [true, false]) {
+    const target = document.createElement('div');
+    const el = host((h) => {
+      if (before) useConnected(h, () => setOwnARIA(target, N, 'own'));
+      useARIA(h, target);
+      if (!before) useConnected(h, () => setOwnARIA(target, N, 'own'));
+    });
+    el.setAttribute(N, 'h'); document.body.append(el); const a = target.getAttribute(N);
+    el.remove(); el.removeAttribute(N); document.body.append(el);
+    say(`setOwnARIA in a connect callback ${before ? 'before' : 'after'} the hook: host has it, host lost it`, [a, target.getAttribute(N)]);
+  }
+});
+it('ways to be created', async () => {
+  const tag = nameCE();
+  const html = `<${tag} ${N}="h" src></${tag}>`;
+  const box = document.createElement('div'); document.body.append(box); box.innerHTML = html;
+  const out = document.createElement('div'); out.innerHTML = html;
+  class X extends ControlledElement {
+    static override observedAttributes = ['src'];
+    t = document.createElement('i');
+    constructor() {
+      super();
+      const t = this.t;
+      // Registered before the mirror, and called after it.
+      use(this, { attrChanged: (_n, _o, v) => setOwnARIA(t, N, v == null ? 'off' : 'on') });
+      useARIA(this, t);
+      setOwnARIA(t, N, 'setup');
+    }
+  }
+  const r: Record<string, unknown> = {};
+  const read = async (k: string, x: X) => {
+    const a = x.t.getAttribute(N); await task(); const b = x.t.getAttribute(N);
+    if (!x.isConnected) document.body.append(x);
+    const c = x.t.getAttribute(N);
+    x.removeAttribute(N); await task(); const d = x.t.getAttribute(N);
+    x.toggleAttribute('src', false); r[k] = [a, b, c, d, x.t.getAttribute(N), x.hasAttribute(N)];
+  };
+  defineCE(tag, X);
+  await read('upgraded in the document', box.firstChild as X);
+  const o = out.firstChild as X; customElements.upgrade(o);
+  await read('upgraded out', o);
+  const src = document.createElement('div'); src.innerHTML = html;
+  const p = src.firstChild as X; customElements.upgrade(p);
+  await read('clone', p.cloneNode(true) as X);
+  const tpl = document.createElement('template'); tpl.innerHTML = html;
+  await read('imported template', document.importNode(tpl.content, true).firstChild as X);
+  const q = new X(); await read('constructor', q);
+  const d = document.implementation.createHTMLDocument(); const z = new X(); z.setAttribute(N, 'h'); d.body.append(z); await task(); z.removeAttribute(N); setOwnARIA(z.t, N, 'x'); document.body.append(z);
+  say('adopted there and back, lost there', z.t.getAttribute(N));
+  const f = document.createElement('iframe'); document.body.append(f); const y = new X(); y.setAttribute(N, 'h'); f.contentDocument!.body.append(y); y.removeAttribute(N); f.remove(); document.body.append(y); say('in an iframe that is removed', y.t.getAttribute(N));
+  for (const [k, v] of Object.entries(r)) say(`${k}: at once, task, connect, lost, source off, host has it`, v);
+});
+it('a straight write', async () => {
+  const { el, target, v } = mk(); document.body.append(el);
+  setOwnARIA(target, N, 'own'); target.setAttribute(N, 'straight');
+  el.remove(); document.body.append(el); const a = v();
+  el.setAttribute('aria-label', 'x'); await task(); const b = v();
+  el.setAttribute(N, 'h'); await task(); el.removeAttribute(N); await task();
+  say('own, then a straight write: move, other name, host sets and loses', [a, b, v()]);
+});
+it('a name that is not aria-*', async () => {
+  const { target, v } = mk(); setOwnARIA(target, 'role', 'x');
+  const t = document.createElement('i'); setOwnARIA(t, 'role', 'x');
+  say('role, with a mirror and without', [v('role'), t.getAttribute('role')]);
+});
+it('a target elsewhere', async () => {
+  const { el, target, v } = mk(); setOwnARIA(target, N, 'own'); el.setAttribute(N, 'h'); await task();
+  document.body.append(target); el.removeAttribute(N); await task(); say('target elsewhere, host out', v());
+});
+it('random: 4 names, 2 targets', async () => {
+  const names = ['aria-disabled', 'aria-label', 'aria-current', 'aria-checked'];
+  const vals = ['', 'a', 'b', null];
+  let wrong = 0, reads = 0, hostWrong = 0; let first = '';
+  for (let seed = 1; seed <= 400; seed++) {
+    let s = seed * 2654435761;
+    const R = (n: number) => { s = (Math.imul(s ^ (s >>> 15), 2246822519) + 0x9e3779b9) | 0; return ((s >>> 8) % n + n) % n; };
+    const ts = [document.createElement('i'), document.createElement('i')];
+    const el = host((h) => ts.forEach((t) => useARIA(h, t)));
+    const own = ts.map(() => new Map<string, string | null>());
+    const H = new Map<string, string | null>();
+    const log: string[] = [];
+    const check = () => {
+      for (const n of names) {
+        if (el.getAttribute(n) !== (H.get(n) ?? null)) hostWrong++;
+        ts.forEach((t, i) => { reads++; const want = H.get(n) ?? own[i]!.get(n) ?? null;
+          if (t.getAttribute(n) !== want) { wrong++; first ||= `${log.join(' ')} => ${n} ${i} ${t.getAttribute(n)} want ${want}`; } });
+      }
+    };
+    for (let k = 0; k < 25; k++) {
+      const op = R(9), n = names[R(4)]!, v = vals[R(4)]!;
+      log.push(`${op}:${n}:${v}`);
+      if (op < 3) { if (v == null) el.removeAttribute(n); else el.setAttribute(n, v); H.set(n, v); }
+      else if (op < 6) { const i = R(2); setOwnARIA(ts[i]!, n, v); own[i]!.set(n, v); }
+      else if (op === 6) { document.body.append(el); check(); }
+      else if (op === 7) el.remove();
+      else { await task(); check(); }
+    }
+    await task(); check(); el.remove();
+  }
+  say('random: reads, wrong, host attributes wrong, first', [reads, wrong, hostWrong, first]);
+});
+it('reading', async () => { await nextFrame(); expect.fail(`\n${rows.map((r) => `READ ${server.browser} | ${r}`).join('\n')}\nEND`); });
