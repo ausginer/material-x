@@ -7,7 +7,7 @@ import '../../src/button/split-button.ts';
 import '../../src/button/switch-button.ts';
 import '../../src/button/switch-icon-button.ts';
 import '../../src/fab/fab.ts';
-import '../../src/icon/icon.ts';
+import Icon from '../../src/icon/icon.ts';
 import '../../src/list/list-button-item.ts';
 import '../../src/list/list-item.ts';
 import '../../src/list/list-link-item.ts';
@@ -22,15 +22,52 @@ function icon(attributes = ''): string {
   return `<mx-icon ${attributes}>${LIGATURE}</mx-icon>`;
 }
 
-describe('mx-icon', () => {
-  it('should have its slot inside a hidden element', () => {
-    const element = document.createElement('mx-icon');
+function getSlot(element: Element): HTMLSlotElement {
+  return element.shadowRoot!.querySelector('slot')!;
+}
 
+describe('mx-icon', () => {
+  it('should hide its slot', () => {
+    expect(getSlot(document.createElement('mx-icon'))).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    );
+  });
+
+  it('should give its slot a box', () => {
+    const element = document.createElement('mx-icon');
+    document.body.append(element);
+
+    expect(getComputedStyle(getSlot(element)).display).toBe('inline');
+  });
+
+  it('should hide its slot after the slot has its nodes', () => {
+    const observer = new MutationObserver(() => {});
+
+    class ObservedIcon extends Icon {
+      override attachShadow(init: ShadowRootInit): ShadowRoot {
+        const root = super.attachShadow(init);
+        observer.observe(root, {
+          attributeFilter: ['aria-hidden'],
+          attributeOldValue: true,
+          childList: true,
+          subtree: true,
+        });
+        return root;
+      }
+    }
+
+    const tag = 'test-observed-icon';
+    document.body.innerHTML = `<${tag}>${LIGATURE}</${tag}>`;
+    customElements.define(tag, ObservedIcon);
+
+    // The template's nodes come with their own attributes, in one record.
     expect(
-      element
-        .shadowRoot!.querySelector('slot')!
-        .parentElement?.getAttribute('aria-hidden'),
-    ).toBe('true');
+      observer.takeRecords().map(({ type, oldValue }) => [type, oldValue]),
+    ).toEqual([
+      ['childList', null],
+      ['attributes', null],
+    ]);
   });
 
   it('should set no aria-hidden on its host', async () => {

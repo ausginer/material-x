@@ -29,6 +29,9 @@ export default class Icon extends ControlledElement {
   constructor() {
     super();
     useCore(this, [template], {}, [iconStyles]);
+    // Firefox keeps the text of an icon that upgrades after its markup in its
+    // tree, if the slot is hidden in the template.
+    this.shadowRoot!.querySelector('slot')!.setAttribute('aria-hidden', 'true');
   }
 }
 

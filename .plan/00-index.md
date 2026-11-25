@@ -6729,6 +6729,17 @@ Tier A, **open**, **ready** (the last note), pre-existing. Registered on 2026-11
 - **Not read:** Safari, screen readers, Firefox below 159, the built elements in Firefox beyond `names.ts`'s order, speed, the suites with the candidate beyond the icon's and the split button's.
 - **`.agents/docs/accessibility.md`** isn't changed by this unit, and doesn't name the icon's content.
 
+**Dated 2026-11-25 by the implementer: the list above is implemented on `material-x/icon-name-1`, with `main` at `ee0afea12` merged.** By the owner's rule of the same day, relayed by the coordinator, an implementer runs Chromium and the reviewer the three engines.
+
+- **Source:** `IN-2`. The slot is read by `querySelector('slot')`. `icon.tpl.html` is `main`'s.
+- **Rows:** the three of item 2 in `icon.browser.test.ts`, in place of the hidden parent's. The tree's and the host attribute's don't change.
+- **Witnesses,** Chromium ([reading](icon-name-1/checks/slot-witnesses.txt), [program](icon-name-1/probes/mutate-slot.mjs)), of 80 rows with the split button's, failed: in the template only 1, in the template and set to the same value 1 (both the third row), nothing hidden 21, in a microtask 2, no `display` 1, on the host 4; beside the six, `main`'s sources 20, and the host too in a microtask 2; none without a mutation. `main` is the icon's three files and the split button's template, whose own `aria-hidden` there holds the two split button rows that _nothing hidden_ fails.
+- **Trees,** by `names.ts` on the built change. [Chromium](icon-name-1/checks/slot-names-chromium.txt): the same output as the span's, line by line. [Firefox](icon-name-1/checks/slot-names-firefox.txt): no node of the tree has `edit`, in any mode, and each name is the contract's. Firefox is run because the property that stopped the span can be shown there alone. **WebKit's is the reviewer's,** and it is the one engine where `display: inline` matters.
+- **Checks,** Chromium: material-x without the visual project 2063 passed and 2 expected failures. The root format check, typecheck, lint, size gate, publint, `docs-build` and `docs-smoke` (129 of 129) pass.
+- **Sizes,** Brotli, one reading each, `main`'s four sources on this branch, then the head's: `icon/icon` 667 to 707, `checkbox/checkbox` 4290 to 4313, `radio/radio` 3841 to 3866, `button/split-button` 7766 to 7764, `text-field/text-field` 8618 to 8615, `complete` 25924 to 25952. The other 30 rows are the same, and none of the six has a limit.
+- **Not run:** WebKit, Firefox's rows and witnesses, the visual project, so _no visual baseline changes_ is the runner's, Safari, a screen reader, the declarations' typecheck, speed.
+- **Next:** the feature proof.
+
 #### RF-138 — A disabled split button isn't disabled
 
 Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from `RF-136`'s reading, whose rows for a disabled split button differed between the engines. `RF-137` is the entry before this one. Run at `4e2972514`, on the built elements, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](records-batch-1/checks/split-disabled.txt), [probe](records-batch-1/probes/split-disabled.mjs)).
