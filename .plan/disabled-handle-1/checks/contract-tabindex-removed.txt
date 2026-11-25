@@ -1,0 +1,12 @@
+# chromium
+B | span | focus before handle of a, disabled body, enabled body | key moves while disabled 0, after 0 | disabled: tabindex=null role=button aria-label=Reorder aria-description=null aria-disabled=true touch-action= | enabled: tabindex=0 role=button aria-label=Reorder aria-description=Use the arrow keys to move aria-disabled=null touch-action=none
+B | button | focus before handle of a, disabled handle of a, enabled handle of a | key moves while disabled 0, after 1 | disabled: tabindex=null role=button aria-label=Reorder aria-description=null aria-disabled=true touch-action= | enabled: tabindex=0 role=button aria-label=Reorder aria-description=Use the arrow keys to move aria-disabled=null touch-action=none
+C | key move, disabled in its handler | focus while disabled handle of a, enabled handle of a | moves 2 | order b,c,a
+# firefox
+B | span | focus before handle of a, disabled body, enabled body | key moves while disabled 0, after 0 | disabled: tabindex=null role=button aria-label=Reorder aria-description=null aria-disabled=true touch-action= | enabled: tabindex=0 role=button aria-label=Reorder aria-description=Use the arrow keys to move aria-disabled=null touch-action=none
+B | button | focus before handle of a, disabled handle of a, enabled handle of a | key moves while disabled 0, after 1 | disabled: tabindex=null role=button aria-label=Reorder aria-description=null aria-disabled=true touch-action= | enabled: tabindex=0 role=button aria-label=Reorder aria-description=Use the arrow keys to move aria-disabled=null touch-action=none
+C | key move, disabled in its handler | focus while disabled handle of a, enabled handle of a | moves 2 | order b,c,a
+# webkit
+B | span | focus before handle of a, disabled body, enabled body | key moves while disabled 0, after 0 | disabled: tabindex=null role=button aria-label=Reorder aria-description=null aria-disabled=true touch-action= | enabled: tabindex=0 role=button aria-label=Reorder aria-description=Use the arrow keys to move aria-disabled=null touch-action=none
+B | button | focus before handle of a, disabled handle of a, enabled handle of a | key moves while disabled 0, after 1 | disabled: tabindex=null role=button aria-label=Reorder aria-description=null aria-disabled=true touch-action= | enabled: tabindex=0 role=button aria-label=Reorder aria-description=Use the arrow keys to move aria-disabled=null touch-action=none
+C | key move, disabled in its handler | focus while disabled handle of a, enabled handle of a | moves 2 | order b,c,a

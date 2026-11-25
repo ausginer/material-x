@@ -1,0 +1,188 @@
+// RF-142: what a disabled item of a sortable list does. Copy to packages/material-x/tests/list/zz-disabled.browser.test.ts and
+// run one engine at a time, with MX_TEST_ENGINES. Each test leaves its lines in its meta, and asserts nothing: --reporter=json
+// --outputFile=<file>.
+import { afterEach, it } from 'vitest';
+import { commands, userEvent } from 'vitest/browser';
+import '../../src/button/icon-button.ts';
+import '../../src/list/list-button-item.ts';
+import '../../src/list/list-item.ts';
+import '../../src/list/list-link-item.ts';
+import { ReorderEvent } from '../../src/list/sortable-list.ts';
+import { nextFrame } from '../browser.ts';
+import { TAB } from '../focus-indicator.ts';
+
+type Any = any;
+const HANDLES = ['none', 'span', 'button', 'mx-icon-button'] as const;
+// In the test's meta, which the JSON reporter writes.
+const lines: string[] = [];
+const say = (line: string) => lines.push(`@@ ${line}`);
+const wait = async (ms: number) =>
+  await new Promise((resolve) => setTimeout(resolve, ms));
+const box = (e: Element) => {
+  const b = (
+    (e.shadowRoot?.querySelector('button.host, a.host') as Element) ?? e
+  ).getBoundingClientRect();
+  return [b.x + b.width / 2, b.y + b.height / 2] as const;
+};
+
+async function create(tag: string, kind: string, disabled: boolean) {
+  const list: Any = document.createElement('mx-sortable-list');
+  list.style.setProperty('--_drag-duration', '0s');
+  list.log = [];
+  list.addEventListener('reorder', (event: Event) => {
+    const { item, next } = event as ReorderEvent;
+    list.log.push('reorder');
+    list.onmove?.(item);
+    list.insertBefore(item, next);
+  });
+  const items = ['a', 'b', 'c'].map((name, i) => {
+    const item: Any = document.createElement(tag);
+    item.id = name;
+    if (tag === 'mx-list-link-item') item.setAttribute('href', '#x');
+    if (kind !== 'none') {
+      const handle = document.createElement(kind);
+      handle.dataset['handle'] = '';
+      handle.slot = 'lead';
+      handle.textContent = '=';
+      item.append(handle);
+    }
+    item.append(`Item ${name}`);
+    if (i === 0) item.toggleAttribute('disabled', disabled);
+    return item;
+  });
+  const before = document.createElement('button');
+  before.textContent = 'before';
+  list.append(...items);
+  document.body.append(before, list);
+  await nextFrame();
+  return { list, items, before, handle: items[0].querySelector('[data-handle]') };
+}
+const active = () => {
+  const e: Any = document.activeElement;
+  return e === document.body
+    ? 'body'
+    : e.dataset.handle === ''
+      ? `handle of ${e.parentElement.id}`
+      : e.id || e.textContent;
+};
+async function tabs(before: HTMLElement, n: number) {
+  before.focus();
+  const stops: string[] = [];
+  for (let i = 0; i < n; i += 1) {
+    await userEvent.keyboard(TAB);
+    stops.push(active());
+  }
+  return stops;
+}
+const written = (h: Any) =>
+  h
+    ? ['tabindex', 'role', 'aria-label', 'aria-description', 'aria-disabled']
+        .map((n) => `${n}=${h.getAttribute(n)}`)
+        .join(' ') + ` touch-action=${h.style.touchAction}`
+    : '';
+
+afterEach(async ({ task }) => {
+  await commands.pointerRelease().catch(() => {});
+  document.body.replaceChildren();
+  (task.meta as Any).lines = lines.splice(0);
+});
+
+for (const tag of ['mx-list-button-item', 'mx-list-link-item', 'mx-list-item'])
+  for (const kind of HANDLES)
+    it(`A ${tag} ${kind}`, async () => {
+      const r = await create(tag, kind, true);
+      const stops = await tabs(r.before, 2);
+      // Keyboard, from the handle by focus(), or from the item's control.
+      (r.handle ?? r.items[0]).focus();
+      const focused = active();
+      await userEvent.keyboard('{ArrowDown}');
+      await wait(60);
+      const key = r.list.log.length;
+      const attributes = written(r.handle);
+      const p = await create(tag, kind, true);
+      p.handle?.scrollIntoView();
+      const [x, y] = box(p.handle ?? p.items[0]);
+      await commands.pointerPress(x, y);
+      await commands.pointerMove(x, y + 12, 3);
+      await commands.pointerMove(x, y + 90, 8);
+      await commands.pointerRelease();
+      await wait(60);
+      // An enabled item moves past the disabled one.
+      const q = await create(tag, kind, true);
+      (q.items[1].querySelector('[data-handle]') ?? q.items[1]).focus();
+      await userEvent.keyboard('{ArrowUp}');
+      await wait(60);
+      say(
+        `A | ${tag} disabled | handle ${kind} | Tab: ${stops} | focus(): ${focused} | key moves ${key} | pointer moves ${p.list.log.length} | an enabled item past it ${q.list.log.length} | ${attributes}`,
+      );
+    });
+
+it('B disabled while its handle has focus', async () => {
+  for (const kind of ['span', 'button']) {
+    const r = await create('mx-list-button-item', kind, false);
+    r.before.focus();
+    for (let i = 0; i < 3 && active() !== 'handle of a'; i += 1)
+      await userEvent.keyboard(TAB);
+    const from = active();
+    r.items[0].disabled = true;
+    await wait(150);
+    const during = active();
+    const inactive = r.list.log.length;
+    await userEvent.keyboard('{ArrowDown}');
+    await wait(60);
+    const moved = r.list.log.length - inactive;
+    const attributes = written(r.handle);
+    r.items[0].disabled = false;
+    await wait(60);
+    const after = active();
+    await userEvent.keyboard('{ArrowDown}');
+    await wait(60);
+    say(
+      `B | ${kind} | focus before ${from}, disabled ${during}, enabled ${after} | key moves while disabled ${moved}, after ${r.list.log.length - moved} | disabled: ${attributes} | enabled: ${written(r.handle)}`,
+    );
+    document.body.replaceChildren();
+  }
+});
+
+it('C disabled in the reorder handler, enabled 300 ms later', async () => {
+  const r = await create('mx-list-button-item', 'span', false);
+  r.list.onmove = (item: Any) => {
+    item.disabled = true;
+    setTimeout(() => {
+      item.disabled = false;
+    }, 300);
+  };
+  r.before.focus();
+  for (let i = 0; i < 3 && active() !== 'handle of a'; i += 1)
+    await userEvent.keyboard(TAB);
+  await userEvent.keyboard('{ArrowDown}');
+  await wait(150);
+  const during = active();
+  await wait(350);
+  const after = active();
+  await userEvent.keyboard('{ArrowDown}');
+  await wait(60);
+  say(
+    `C | key move, disabled in its handler | focus while disabled ${during}, enabled ${after} | moves ${r.list.log.length} | order ${[...r.list.children].map((e: Any) => e.id)}`,
+  );
+});
+
+it('D disabled during a pointer drag, and between the press and the lift', async () => {
+  for (const when of ['before the threshold', 'during the drag']) {
+    const r = await create('mx-list-button-item', 'span', false);
+    const [x, y] = box(r.handle);
+    await commands.pointerPress(x, y);
+    if (when === 'during the drag') await commands.pointerMove(x, y + 12, 3);
+    r.items[0].disabled = true;
+    await wait(60);
+    await commands.pointerMove(x, y + 40, 3);
+    const lifted = r.items[0].matches(':state(drag)');
+    await commands.pointerMove(x, y + 90, 5);
+    await commands.pointerRelease();
+    await wait(150);
+    say(
+      `D | disabled ${when} | lifted after ${lifted} | moves ${r.list.log.length} | drag state left ${r.items[0].matches(':state(drag)')} | ${written(r.handle)}`,
+    );
+    document.body.replaceChildren();
+  }
+});
