@@ -1,7 +1,5 @@
-## no mutation | chromium | Tests  135 passed (135)
-## no mutation | firefox | Tests  135 passed (135)
-## no mutation | webkit | Tests  135 passed (135)
-## not adopted, as on main | chromium | Tests  47 failed | 88 passed (135)
+## no mutation | chromium | Tests  144 passed (144)
+## not adopted, as on main | chromium | Tests  49 failed | 95 passed (144)
    hidden > mx-button > should be hidden with it
    hidden > mx-button > should be rendered as before when it is removed
    hidden > mx-icon-button > should be rendered as before when it is removed
@@ -46,109 +44,13 @@
    hidden > mx-text-field > should be rendered as before when it is removed
    hidden > mx-text-field > should be hidden with it
    hidden > mx-top-app-bar > should be hidden with it
+   hidden > should hide an element with any other value
+   hidden > a list item's mx-icon avatar > should be hidden with it
    hidden > should hide an extended and disabled FAB
    hidden > should hide a list item that is an open popover
    hidden > should outrank a host display of a state
-## not adopted, as on main | firefox | Tests  47 failed | 88 passed (135)
-   hidden > mx-button > should be hidden with it
-   hidden > mx-button > should be rendered as before when it is removed
-   hidden > mx-icon-button > should be hidden with it
-   hidden > mx-icon-button > should be rendered as before when it is removed
-   hidden > mx-link-button > should be rendered as before when it is removed
-   hidden > mx-switch-button > should be rendered as before when it is removed
-   hidden > mx-split-button > should be rendered as before when it is removed
-   hidden > mx-fab > should be rendered as before when it is removed
-   hidden > mx-link-button > should be hidden with it
-   hidden > mx-switch-button > should be hidden with it
-   hidden > mx-switch-icon-button > should be hidden with it
-   hidden > mx-switch-icon-button > should be rendered as before when it is removed
-   hidden > mx-split-button > should be hidden with it
-   hidden > mx-button-group > should be hidden with it
-   hidden > mx-button-group > should be rendered as before when it is removed
-   hidden > mx-connected-button-group > should be rendered as before when it is removed
-   hidden > mx-list > should be rendered as before when it is removed
-   hidden > mx-list-item > should be rendered as before when it is removed
-   hidden > mx-sortable-list > should be rendered as before when it is removed
-   hidden > mx-top-app-bar > should be rendered as before when it is removed
-   hidden > mx-connected-button-group > should be hidden with it
-   hidden > mx-card > should be hidden with it
-   hidden > mx-card > should be rendered as before when it is removed
-   hidden > mx-checkbox > should be hidden with it
-   hidden > mx-checkbox > should be rendered as before when it is removed
-   hidden > mx-radio > should be rendered as before when it is removed
-   hidden > mx-fab > should be hidden with it
-   hidden > mx-icon > should be hidden with it
-   hidden > mx-icon > should be rendered as before when it is removed
-   hidden > mx-list > should be hidden with it
-   hidden > mx-list-item > should be hidden with it
-   hidden > mx-list-button-item > should be hidden with it
-   hidden > mx-list-button-item > should be rendered as before when it is removed
-   hidden > mx-list-link-item > should be rendered as before when it is removed
-   hidden > mx-slider > should be rendered as before when it is removed
-   hidden > mx-list-link-item > should be hidden with it
-   hidden > mx-sortable-list > should be hidden with it
-   hidden > mx-radio > should be hidden with it
-   hidden > mx-slider > should be hidden with it
-   hidden > mx-multiline-text-field > should be hidden with it
-   hidden > mx-multiline-text-field > should be rendered as before when it is removed
-   hidden > mx-text-field > should be rendered as before when it is removed
-   hidden > mx-text-field > should be hidden with it
-   hidden > mx-top-app-bar > should be hidden with it
-   hidden > should hide an extended and disabled FAB
-   hidden > should hide a list item that is an open popover
-   hidden > should outrank a host display of a state
-## not adopted, as on main | webkit | Tests  47 failed | 88 passed (135)
-   hidden > mx-button > should be hidden with it
-   hidden > mx-button > should be rendered as before when it is removed
-   hidden > mx-icon-button > should be rendered as before when it is removed
-   hidden > mx-link-button > should be rendered as before when it is removed
-   hidden > mx-switch-button > should be rendered as before when it is removed
-   hidden > mx-switch-icon-button > should be rendered as before when it is removed
-   hidden > mx-split-button > should be rendered as before when it is removed
-   hidden > mx-fab > should be rendered as before when it is removed
-   hidden > mx-icon-button > should be hidden with it
-   hidden > mx-link-button > should be hidden with it
-   hidden > mx-switch-button > should be hidden with it
-   hidden > mx-switch-icon-button > should be hidden with it
-   hidden > mx-split-button > should be hidden with it
-   hidden > mx-button-group > should be hidden with it
-   hidden > mx-button-group > should be rendered as before when it is removed
-   hidden > mx-connected-button-group > should be rendered as before when it is removed
-   hidden > mx-list > should be rendered as before when it is removed
-   hidden > mx-list-item > should be rendered as before when it is removed
-   hidden > mx-sortable-list > should be rendered as before when it is removed
-   hidden > mx-top-app-bar > should be rendered as before when it is removed
-   hidden > mx-connected-button-group > should be hidden with it
-   hidden > mx-card > should be hidden with it
-   hidden > mx-card > should be rendered as before when it is removed
-   hidden > mx-checkbox > should be hidden with it
-   hidden > mx-checkbox > should be rendered as before when it is removed
-   hidden > mx-radio > should be rendered as before when it is removed
-   hidden > mx-fab > should be hidden with it
-   hidden > mx-icon > should be hidden with it
-   hidden > mx-icon > should be rendered as before when it is removed
-   hidden > mx-list > should be hidden with it
-   hidden > mx-list-item > should be hidden with it
-   hidden > mx-list-button-item > should be hidden with it
-   hidden > mx-list-button-item > should be rendered as before when it is removed
-   hidden > mx-list-link-item > should be rendered as before when it is removed
-   hidden > mx-slider > should be rendered as before when it is removed
-   hidden > mx-list-link-item > should be hidden with it
-   hidden > mx-sortable-list > should be hidden with it
-   hidden > mx-radio > should be hidden with it
-   hidden > mx-slider > should be hidden with it
-   hidden > mx-multiline-text-field > should be hidden with it
-   hidden > mx-multiline-text-field > should be rendered as before when it is removed
-   hidden > mx-text-field > should be rendered as before when it is removed
-   hidden > mx-text-field > should be hidden with it
-   hidden > mx-top-app-bar > should be hidden with it
-   hidden > should hide an extended and disabled FAB
-   hidden > should hide a list item that is an open popover
-   hidden > should outrank a host display of a state
-## adopted before the component | chromium | Tests  135 passed (135)
-## adopted before the component | firefox | Tests  135 passed (135)
-## adopted before the component | webkit | Tests  135 passed (135)
-## without the until-found exception | chromium | Tests  45 failed | 90 passed (135)
+## adopted before the component | chromium | Tests  144 passed (144)
+## without the until-found exception | chromium | Tests  45 failed | 99 passed (144)
    hidden > mx-button > should keep its display with the value until-found
    hidden > mx-button > should keep its display with the value UNTIL-FOUND
    hidden > mx-icon-button > should keep its display with the value until-found
@@ -194,7 +96,120 @@
    hidden > mx-text-field > should keep its display with the value until-found
    hidden > mx-text-field > should keep its display with the value UNTIL-FOUND
    hidden > should outrank a host display of a state
-## without the until-found exception | firefox | Tests  45 failed | 90 passed (135)
+## until-found in lower case alone | chromium | Tests  22 failed | 122 passed (144)
+   hidden > mx-button > should keep its display with the value UNTIL-FOUND
+   hidden > mx-icon-button > should keep its display with the value UNTIL-FOUND
+   hidden > mx-link-button > should keep its display with the value UNTIL-FOUND
+   hidden > mx-switch-button > should keep its display with the value UNTIL-FOUND
+   hidden > mx-switch-icon-button > should keep its display with the value UNTIL-FOUND
+   hidden > mx-split-button > should keep its display with the value UNTIL-FOUND
+   hidden > mx-fab > should keep its display with the value UNTIL-FOUND
+   hidden > mx-button-group > should keep its display with the value UNTIL-FOUND
+   hidden > mx-connected-button-group > should keep its display with the value UNTIL-FOUND
+   hidden > mx-list > should keep its display with the value UNTIL-FOUND
+   hidden > mx-list-item > should keep its display with the value UNTIL-FOUND
+   hidden > mx-sortable-list > should keep its display with the value UNTIL-FOUND
+   hidden > mx-top-app-bar > should keep its display with the value UNTIL-FOUND
+   hidden > mx-card > should keep its display with the value UNTIL-FOUND
+   hidden > mx-checkbox > should keep its display with the value UNTIL-FOUND
+   hidden > mx-radio > should keep its display with the value UNTIL-FOUND
+   hidden > mx-icon > should keep its display with the value UNTIL-FOUND
+   hidden > mx-list-button-item > should keep its display with the value UNTIL-FOUND
+   hidden > mx-list-link-item > should keep its display with the value UNTIL-FOUND
+   hidden > mx-slider > should keep its display with the value UNTIL-FOUND
+   hidden > mx-multiline-text-field > should keep its display with the value UNTIL-FOUND
+   hidden > mx-text-field > should keep its display with the value UNTIL-FOUND
+## with no specificity of the attributes | chromium | Tests  1 failed | 143 passed (144)
+   hidden > should outrank a host display of a state
+## important | chromium | Tests  22 failed | 122 passed (144)
+   hidden > mx-button > should keep a page's own display
+   hidden > mx-icon-button > should keep a page's own display
+   hidden > mx-link-button > should keep a page's own display
+   hidden > mx-switch-button > should keep a page's own display
+   hidden > mx-switch-icon-button > should keep a page's own display
+   hidden > mx-split-button > should keep a page's own display
+   hidden > mx-button-group > should keep a page's own display
+   hidden > mx-connected-button-group > should keep a page's own display
+   hidden > mx-card > should keep a page's own display
+   hidden > mx-checkbox > should keep a page's own display
+   hidden > mx-fab > should keep a page's own display
+   hidden > mx-icon > should keep a page's own display
+   hidden > mx-list > should keep a page's own display
+   hidden > mx-list-item > should keep a page's own display
+   hidden > mx-list-button-item > should keep a page's own display
+   hidden > mx-list-link-item > should keep a page's own display
+   hidden > mx-sortable-list > should keep a page's own display
+   hidden > mx-radio > should keep a page's own display
+   hidden > mx-slider > should keep a page's own display
+   hidden > mx-multiline-text-field > should keep a page's own display
+   hidden > mx-text-field > should keep a page's own display
+   hidden > mx-top-app-bar > should keep a page's own display
+## the empty value alone | chromium | Tests  1 failed | 143 passed (144)
+   hidden > should hide an element with any other value
+## every avatar, as before | chromium | Tests  2 failed | 142 passed (144)
+   hidden > a list item's mx-icon avatar > should be hidden with it
+   hidden > a list item's span avatar > should be hidden with it
+## no avatar with hidden | chromium | Tests  4 failed | 140 passed (144)
+   hidden > a list item's mx-icon avatar > should keep its display with the value until-found
+   hidden > a list item's mx-icon avatar > should keep its display with the value UNTIL-FOUND
+   hidden > a list item's span avatar > should keep its display with the value until-found
+   hidden > a list item's span avatar > should keep its display with the value UNTIL-FOUND
+## the avatar's until-found in lower case alone | chromium | Tests  2 failed | 142 passed (144)
+   hidden > a list item's mx-icon avatar > should keep its display with the value UNTIL-FOUND
+   hidden > a list item's span avatar > should keep its display with the value UNTIL-FOUND
+## no mutation | firefox | Tests  144 passed (144)
+## not adopted, as on main | firefox | Tests  49 failed | 95 passed (144)
+   hidden > mx-button > should be hidden with it
+   hidden > mx-button > should be rendered as before when it is removed
+   hidden > mx-icon-button > should be hidden with it
+   hidden > mx-icon-button > should be rendered as before when it is removed
+   hidden > mx-link-button > should be rendered as before when it is removed
+   hidden > mx-switch-button > should be rendered as before when it is removed
+   hidden > mx-switch-icon-button > should be rendered as before when it is removed
+   hidden > mx-split-button > should be rendered as before when it is removed
+   hidden > mx-fab > should be rendered as before when it is removed
+   hidden > mx-link-button > should be hidden with it
+   hidden > mx-switch-button > should be hidden with it
+   hidden > mx-switch-icon-button > should be hidden with it
+   hidden > mx-split-button > should be hidden with it
+   hidden > mx-button-group > should be hidden with it
+   hidden > mx-button-group > should be rendered as before when it is removed
+   hidden > mx-connected-button-group > should be rendered as before when it is removed
+   hidden > mx-list > should be rendered as before when it is removed
+   hidden > mx-list-item > should be rendered as before when it is removed
+   hidden > mx-sortable-list > should be rendered as before when it is removed
+   hidden > mx-top-app-bar > should be rendered as before when it is removed
+   hidden > mx-connected-button-group > should be hidden with it
+   hidden > mx-card > should be hidden with it
+   hidden > mx-card > should be rendered as before when it is removed
+   hidden > mx-checkbox > should be hidden with it
+   hidden > mx-checkbox > should be rendered as before when it is removed
+   hidden > mx-radio > should be rendered as before when it is removed
+   hidden > mx-fab > should be hidden with it
+   hidden > mx-icon > should be hidden with it
+   hidden > mx-icon > should be rendered as before when it is removed
+   hidden > mx-list > should be hidden with it
+   hidden > mx-list-item > should be hidden with it
+   hidden > mx-list-button-item > should be hidden with it
+   hidden > mx-list-button-item > should be rendered as before when it is removed
+   hidden > mx-list-link-item > should be rendered as before when it is removed
+   hidden > mx-slider > should be rendered as before when it is removed
+   hidden > mx-list-link-item > should be hidden with it
+   hidden > mx-sortable-list > should be hidden with it
+   hidden > mx-radio > should be hidden with it
+   hidden > mx-slider > should be hidden with it
+   hidden > mx-multiline-text-field > should be hidden with it
+   hidden > mx-multiline-text-field > should be rendered as before when it is removed
+   hidden > mx-text-field > should be rendered as before when it is removed
+   hidden > mx-text-field > should be hidden with it
+   hidden > mx-top-app-bar > should be hidden with it
+   hidden > should hide an element with any other value
+   hidden > a list item's mx-icon avatar > should be hidden with it
+   hidden > should hide an extended and disabled FAB
+   hidden > should hide a list item that is an open popover
+   hidden > should outrank a host display of a state
+## adopted before the component | firefox | Tests  144 passed (144)
+## without the until-found exception | firefox | Tests  45 failed | 99 passed (144)
    hidden > mx-button > should keep its display with the value until-found
    hidden > mx-button > should keep its display with the value UNTIL-FOUND
    hidden > mx-icon-button > should keep its display with the value until-found
@@ -240,7 +255,120 @@
    hidden > mx-text-field > should keep its display with the value until-found
    hidden > mx-text-field > should keep its display with the value UNTIL-FOUND
    hidden > should outrank a host display of a state
-## without the until-found exception | webkit | Tests  45 failed | 90 passed (135)
+## until-found in lower case alone | firefox | Tests  22 failed | 122 passed (144)
+   hidden > mx-button > should keep its display with the value UNTIL-FOUND
+   hidden > mx-icon-button > should keep its display with the value UNTIL-FOUND
+   hidden > mx-link-button > should keep its display with the value UNTIL-FOUND
+   hidden > mx-switch-button > should keep its display with the value UNTIL-FOUND
+   hidden > mx-switch-icon-button > should keep its display with the value UNTIL-FOUND
+   hidden > mx-split-button > should keep its display with the value UNTIL-FOUND
+   hidden > mx-fab > should keep its display with the value UNTIL-FOUND
+   hidden > mx-button-group > should keep its display with the value UNTIL-FOUND
+   hidden > mx-connected-button-group > should keep its display with the value UNTIL-FOUND
+   hidden > mx-list > should keep its display with the value UNTIL-FOUND
+   hidden > mx-list-item > should keep its display with the value UNTIL-FOUND
+   hidden > mx-sortable-list > should keep its display with the value UNTIL-FOUND
+   hidden > mx-top-app-bar > should keep its display with the value UNTIL-FOUND
+   hidden > mx-card > should keep its display with the value UNTIL-FOUND
+   hidden > mx-checkbox > should keep its display with the value UNTIL-FOUND
+   hidden > mx-radio > should keep its display with the value UNTIL-FOUND
+   hidden > mx-icon > should keep its display with the value UNTIL-FOUND
+   hidden > mx-list-button-item > should keep its display with the value UNTIL-FOUND
+   hidden > mx-list-link-item > should keep its display with the value UNTIL-FOUND
+   hidden > mx-slider > should keep its display with the value UNTIL-FOUND
+   hidden > mx-multiline-text-field > should keep its display with the value UNTIL-FOUND
+   hidden > mx-text-field > should keep its display with the value UNTIL-FOUND
+## with no specificity of the attributes | firefox | Tests  1 failed | 143 passed (144)
+   hidden > should outrank a host display of a state
+## important | firefox | Tests  22 failed | 122 passed (144)
+   hidden > mx-button > should keep a page's own display
+   hidden > mx-icon-button > should keep a page's own display
+   hidden > mx-link-button > should keep a page's own display
+   hidden > mx-switch-button > should keep a page's own display
+   hidden > mx-switch-icon-button > should keep a page's own display
+   hidden > mx-split-button > should keep a page's own display
+   hidden > mx-button-group > should keep a page's own display
+   hidden > mx-connected-button-group > should keep a page's own display
+   hidden > mx-card > should keep a page's own display
+   hidden > mx-checkbox > should keep a page's own display
+   hidden > mx-fab > should keep a page's own display
+   hidden > mx-icon > should keep a page's own display
+   hidden > mx-list > should keep a page's own display
+   hidden > mx-list-item > should keep a page's own display
+   hidden > mx-list-button-item > should keep a page's own display
+   hidden > mx-list-link-item > should keep a page's own display
+   hidden > mx-sortable-list > should keep a page's own display
+   hidden > mx-radio > should keep a page's own display
+   hidden > mx-slider > should keep a page's own display
+   hidden > mx-multiline-text-field > should keep a page's own display
+   hidden > mx-text-field > should keep a page's own display
+   hidden > mx-top-app-bar > should keep a page's own display
+## the empty value alone | firefox | Tests  1 failed | 143 passed (144)
+   hidden > should hide an element with any other value
+## every avatar, as before | firefox | Tests  2 failed | 142 passed (144)
+   hidden > a list item's mx-icon avatar > should be hidden with it
+   hidden > a list item's span avatar > should be hidden with it
+## no avatar with hidden | firefox | Tests  4 failed | 140 passed (144)
+   hidden > a list item's mx-icon avatar > should keep its display with the value until-found
+   hidden > a list item's mx-icon avatar > should keep its display with the value UNTIL-FOUND
+   hidden > a list item's span avatar > should keep its display with the value until-found
+   hidden > a list item's span avatar > should keep its display with the value UNTIL-FOUND
+## the avatar's until-found in lower case alone | firefox | Tests  2 failed | 142 passed (144)
+   hidden > a list item's mx-icon avatar > should keep its display with the value UNTIL-FOUND
+   hidden > a list item's span avatar > should keep its display with the value UNTIL-FOUND
+## no mutation | webkit | Tests  144 passed (144)
+## not adopted, as on main | webkit | Tests  49 failed | 95 passed (144)
+   hidden > mx-button > should be hidden with it
+   hidden > mx-button > should be rendered as before when it is removed
+   hidden > mx-icon-button > should be rendered as before when it is removed
+   hidden > mx-link-button > should be rendered as before when it is removed
+   hidden > mx-switch-button > should be rendered as before when it is removed
+   hidden > mx-switch-icon-button > should be rendered as before when it is removed
+   hidden > mx-split-button > should be rendered as before when it is removed
+   hidden > mx-fab > should be rendered as before when it is removed
+   hidden > mx-icon-button > should be hidden with it
+   hidden > mx-link-button > should be hidden with it
+   hidden > mx-switch-button > should be hidden with it
+   hidden > mx-switch-icon-button > should be hidden with it
+   hidden > mx-split-button > should be hidden with it
+   hidden > mx-button-group > should be hidden with it
+   hidden > mx-button-group > should be rendered as before when it is removed
+   hidden > mx-connected-button-group > should be rendered as before when it is removed
+   hidden > mx-list > should be rendered as before when it is removed
+   hidden > mx-list-item > should be rendered as before when it is removed
+   hidden > mx-sortable-list > should be rendered as before when it is removed
+   hidden > mx-top-app-bar > should be rendered as before when it is removed
+   hidden > mx-connected-button-group > should be hidden with it
+   hidden > mx-card > should be hidden with it
+   hidden > mx-card > should be rendered as before when it is removed
+   hidden > mx-checkbox > should be hidden with it
+   hidden > mx-checkbox > should be rendered as before when it is removed
+   hidden > mx-radio > should be rendered as before when it is removed
+   hidden > mx-fab > should be hidden with it
+   hidden > mx-icon > should be hidden with it
+   hidden > mx-icon > should be rendered as before when it is removed
+   hidden > mx-list > should be hidden with it
+   hidden > mx-list-item > should be hidden with it
+   hidden > mx-list-button-item > should be hidden with it
+   hidden > mx-list-button-item > should be rendered as before when it is removed
+   hidden > mx-list-link-item > should be rendered as before when it is removed
+   hidden > mx-slider > should be rendered as before when it is removed
+   hidden > mx-list-link-item > should be hidden with it
+   hidden > mx-sortable-list > should be hidden with it
+   hidden > mx-radio > should be hidden with it
+   hidden > mx-slider > should be hidden with it
+   hidden > mx-multiline-text-field > should be hidden with it
+   hidden > mx-multiline-text-field > should be rendered as before when it is removed
+   hidden > mx-text-field > should be rendered as before when it is removed
+   hidden > mx-text-field > should be hidden with it
+   hidden > mx-top-app-bar > should be hidden with it
+   hidden > should hide an element with any other value
+   hidden > a list item's mx-icon avatar > should be hidden with it
+   hidden > should hide an extended and disabled FAB
+   hidden > should hide a list item that is an open popover
+   hidden > should outrank a host display of a state
+## adopted before the component | webkit | Tests  144 passed (144)
+## without the until-found exception | webkit | Tests  45 failed | 99 passed (144)
    hidden > mx-button > should keep its display with the value until-found
    hidden > mx-button > should keep its display with the value UNTIL-FOUND
    hidden > mx-icon-button > should keep its display with the value until-found
@@ -286,7 +414,7 @@
    hidden > mx-text-field > should keep its display with the value until-found
    hidden > mx-text-field > should keep its display with the value UNTIL-FOUND
    hidden > should outrank a host display of a state
-## until-found in lower case alone | chromium | Tests  22 failed | 113 passed (135)
+## until-found in lower case alone | webkit | Tests  22 failed | 122 passed (144)
    hidden > mx-button > should keep its display with the value UNTIL-FOUND
    hidden > mx-icon-button > should keep its display with the value UNTIL-FOUND
    hidden > mx-link-button > should keep its display with the value UNTIL-FOUND
@@ -309,59 +437,9 @@
    hidden > mx-slider > should keep its display with the value UNTIL-FOUND
    hidden > mx-multiline-text-field > should keep its display with the value UNTIL-FOUND
    hidden > mx-text-field > should keep its display with the value UNTIL-FOUND
-## until-found in lower case alone | firefox | Tests  22 failed | 113 passed (135)
-   hidden > mx-button > should keep its display with the value UNTIL-FOUND
-   hidden > mx-icon-button > should keep its display with the value UNTIL-FOUND
-   hidden > mx-link-button > should keep its display with the value UNTIL-FOUND
-   hidden > mx-switch-button > should keep its display with the value UNTIL-FOUND
-   hidden > mx-switch-icon-button > should keep its display with the value UNTIL-FOUND
-   hidden > mx-split-button > should keep its display with the value UNTIL-FOUND
-   hidden > mx-fab > should keep its display with the value UNTIL-FOUND
-   hidden > mx-button-group > should keep its display with the value UNTIL-FOUND
-   hidden > mx-connected-button-group > should keep its display with the value UNTIL-FOUND
-   hidden > mx-list > should keep its display with the value UNTIL-FOUND
-   hidden > mx-list-item > should keep its display with the value UNTIL-FOUND
-   hidden > mx-sortable-list > should keep its display with the value UNTIL-FOUND
-   hidden > mx-top-app-bar > should keep its display with the value UNTIL-FOUND
-   hidden > mx-card > should keep its display with the value UNTIL-FOUND
-   hidden > mx-checkbox > should keep its display with the value UNTIL-FOUND
-   hidden > mx-radio > should keep its display with the value UNTIL-FOUND
-   hidden > mx-icon > should keep its display with the value UNTIL-FOUND
-   hidden > mx-list-button-item > should keep its display with the value UNTIL-FOUND
-   hidden > mx-list-link-item > should keep its display with the value UNTIL-FOUND
-   hidden > mx-slider > should keep its display with the value UNTIL-FOUND
-   hidden > mx-multiline-text-field > should keep its display with the value UNTIL-FOUND
-   hidden > mx-text-field > should keep its display with the value UNTIL-FOUND
-## until-found in lower case alone | webkit | Tests  22 failed | 113 passed (135)
-   hidden > mx-button > should keep its display with the value UNTIL-FOUND
-   hidden > mx-icon-button > should keep its display with the value UNTIL-FOUND
-   hidden > mx-link-button > should keep its display with the value UNTIL-FOUND
-   hidden > mx-switch-button > should keep its display with the value UNTIL-FOUND
-   hidden > mx-switch-icon-button > should keep its display with the value UNTIL-FOUND
-   hidden > mx-split-button > should keep its display with the value UNTIL-FOUND
-   hidden > mx-fab > should keep its display with the value UNTIL-FOUND
-   hidden > mx-button-group > should keep its display with the value UNTIL-FOUND
-   hidden > mx-connected-button-group > should keep its display with the value UNTIL-FOUND
-   hidden > mx-list > should keep its display with the value UNTIL-FOUND
-   hidden > mx-list-item > should keep its display with the value UNTIL-FOUND
-   hidden > mx-sortable-list > should keep its display with the value UNTIL-FOUND
-   hidden > mx-top-app-bar > should keep its display with the value UNTIL-FOUND
-   hidden > mx-card > should keep its display with the value UNTIL-FOUND
-   hidden > mx-checkbox > should keep its display with the value UNTIL-FOUND
-   hidden > mx-radio > should keep its display with the value UNTIL-FOUND
-   hidden > mx-icon > should keep its display with the value UNTIL-FOUND
-   hidden > mx-list-button-item > should keep its display with the value UNTIL-FOUND
-   hidden > mx-list-link-item > should keep its display with the value UNTIL-FOUND
-   hidden > mx-slider > should keep its display with the value UNTIL-FOUND
-   hidden > mx-multiline-text-field > should keep its display with the value UNTIL-FOUND
-   hidden > mx-text-field > should keep its display with the value UNTIL-FOUND
-## with no specificity of the attributes | chromium | Tests  1 failed | 134 passed (135)
+## with no specificity of the attributes | webkit | Tests  1 failed | 143 passed (144)
    hidden > should outrank a host display of a state
-## with no specificity of the attributes | firefox | Tests  1 failed | 134 passed (135)
-   hidden > should outrank a host display of a state
-## with no specificity of the attributes | webkit | Tests  1 failed | 134 passed (135)
-   hidden > should outrank a host display of a state
-## important | chromium | Tests  22 failed | 113 passed (135)
+## important | webkit | Tests  22 failed | 122 passed (144)
    hidden > mx-button > should keep a page's own display
    hidden > mx-icon-button > should keep a page's own display
    hidden > mx-link-button > should keep a page's own display
@@ -384,49 +462,16 @@
    hidden > mx-multiline-text-field > should keep a page's own display
    hidden > mx-text-field > should keep a page's own display
    hidden > mx-top-app-bar > should keep a page's own display
-## important | firefox | Tests  22 failed | 113 passed (135)
-   hidden > mx-button > should keep a page's own display
-   hidden > mx-icon-button > should keep a page's own display
-   hidden > mx-link-button > should keep a page's own display
-   hidden > mx-switch-button > should keep a page's own display
-   hidden > mx-switch-icon-button > should keep a page's own display
-   hidden > mx-split-button > should keep a page's own display
-   hidden > mx-button-group > should keep a page's own display
-   hidden > mx-connected-button-group > should keep a page's own display
-   hidden > mx-card > should keep a page's own display
-   hidden > mx-checkbox > should keep a page's own display
-   hidden > mx-fab > should keep a page's own display
-   hidden > mx-icon > should keep a page's own display
-   hidden > mx-list > should keep a page's own display
-   hidden > mx-list-item > should keep a page's own display
-   hidden > mx-list-button-item > should keep a page's own display
-   hidden > mx-list-link-item > should keep a page's own display
-   hidden > mx-sortable-list > should keep a page's own display
-   hidden > mx-radio > should keep a page's own display
-   hidden > mx-slider > should keep a page's own display
-   hidden > mx-multiline-text-field > should keep a page's own display
-   hidden > mx-text-field > should keep a page's own display
-   hidden > mx-top-app-bar > should keep a page's own display
-## important | webkit | Tests  22 failed | 113 passed (135)
-   hidden > mx-button > should keep a page's own display
-   hidden > mx-icon-button > should keep a page's own display
-   hidden > mx-link-button > should keep a page's own display
-   hidden > mx-switch-button > should keep a page's own display
-   hidden > mx-switch-icon-button > should keep a page's own display
-   hidden > mx-split-button > should keep a page's own display
-   hidden > mx-button-group > should keep a page's own display
-   hidden > mx-connected-button-group > should keep a page's own display
-   hidden > mx-card > should keep a page's own display
-   hidden > mx-checkbox > should keep a page's own display
-   hidden > mx-fab > should keep a page's own display
-   hidden > mx-icon > should keep a page's own display
-   hidden > mx-list > should keep a page's own display
-   hidden > mx-list-item > should keep a page's own display
-   hidden > mx-list-button-item > should keep a page's own display
-   hidden > mx-list-link-item > should keep a page's own display
-   hidden > mx-sortable-list > should keep a page's own display
-   hidden > mx-radio > should keep a page's own display
-   hidden > mx-slider > should keep a page's own display
-   hidden > mx-multiline-text-field > should keep a page's own display
-   hidden > mx-text-field > should keep a page's own display
-   hidden > mx-top-app-bar > should keep a page's own display
+## the empty value alone | webkit | Tests  1 failed | 143 passed (144)
+   hidden > should hide an element with any other value
+## every avatar, as before | webkit | Tests  2 failed | 142 passed (144)
+   hidden > a list item's mx-icon avatar > should be hidden with it
+   hidden > a list item's span avatar > should be hidden with it
+## no avatar with hidden | webkit | Tests  4 failed | 140 passed (144)
+   hidden > a list item's mx-icon avatar > should keep its display with the value until-found
+   hidden > a list item's mx-icon avatar > should keep its display with the value UNTIL-FOUND
+   hidden > a list item's span avatar > should keep its display with the value until-found
+   hidden > a list item's span avatar > should keep its display with the value UNTIL-FOUND
+## the avatar's until-found in lower case alone | webkit | Tests  2 failed | 142 passed (144)
+   hidden > a list item's mx-icon avatar > should keep its display with the value UNTIL-FOUND
+   hidden > a list item's span avatar > should keep its display with the value UNTIL-FOUND

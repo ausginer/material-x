@@ -6,9 +6,11 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 const CSS = 'packages/material-x/src/core/styles/host/host.styles.css';
 const CORE = 'packages/material-x/src/core/utils/useCore.ts';
+const LIST = 'packages/material-x/src/list/styles/item/main.styles.css';
+const AVATAR = "[data-avatar]:not([hidden]:not([hidden='until-found' i]))";
 const RULE = ":host([hidden]:not([hidden='until-found' i]))";
 const originals = new Map(
-  [CSS, CORE].map((file) => [file, readFileSync(file, 'utf8')]),
+  [CSS, CORE, LIST].map((file) => [file, readFileSync(file, 'utf8')]),
 );
 const once = (file, from, to) => {
   const source = originals.get(file);
@@ -28,7 +30,14 @@ const mutations = [
     'with no specificity of the attributes',
     once(CSS, RULE, ":host(:where([hidden]:not([hidden='until-found' i])))"),
   ],
-  ['important', once(CSS, 'display: none', 'display: none !important')],
+  ['important', once(CSS, 'display: none;', 'display: none !important;')],
+  [
+    'the empty value alone',
+    once(CSS, RULE, ":host([hidden='']:not([hidden=x]))"),
+  ],
+  ['every avatar, as before', once(LIST, AVATAR, '[data-avatar]')],
+  ['no avatar with hidden', once(LIST, AVATAR, '[data-avatar]:not([hidden])')],
+  ["the avatar's until-found in lower case alone", once(LIST, "' i]", "']")],
 ];
 const restore = () => {
   for (const [file, source] of originals) writeFileSync(file, source);

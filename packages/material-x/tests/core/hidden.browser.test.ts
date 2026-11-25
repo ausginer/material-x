@@ -87,6 +87,55 @@ describe('hidden', () => {
     });
   });
 
+  // Any value but `until-found` is the hidden state. The elements share the
+  // rule, so one of them reads it.
+  it('should hide an element with any other value', async () => {
+    const button = await create('mx-button', { hidden: 'true' });
+
+    expect([displayOf(button), boxes(button)]).toEqual(['none', []]);
+  });
+
+  describe.each(['mx-icon', 'span'])("a list item's %s avatar", (tag) => {
+    async function createAvatar(
+      attributes: Readonly<Record<string, string>> = {},
+    ): Promise<HTMLElement> {
+      const item = document.createElement('mx-list-item');
+      document.body.append(item);
+      const avatar = await create(tag, {
+        slot: 'lead',
+        'data-avatar': '',
+        ...attributes,
+      });
+      item.append(avatar);
+      await nextFrame();
+      return avatar;
+    }
+
+    it('should be rendered without it', async () => {
+      const avatar = await createAvatar();
+
+      expect(displayOf(avatar)).toBe('grid');
+    });
+
+    it('should be hidden with it', async () => {
+      const avatar = await createAvatar({ hidden: '' });
+
+      expect([displayOf(avatar), avatar.getClientRects().length]).toEqual([
+        'none',
+        0,
+      ]);
+    });
+
+    it.each(['until-found', 'UNTIL-FOUND'])(
+      'should keep its display with the value %s',
+      async (value) => {
+        const avatar = await createAvatar({ hidden: value });
+
+        expect(displayOf(avatar)).toBe('grid');
+      },
+    );
+  });
+
   it('should hide an extended and disabled FAB', async () => {
     const fab = await create('mx-fab', {
       extended: '',
