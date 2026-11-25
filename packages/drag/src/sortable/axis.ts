@@ -24,6 +24,19 @@ export interface DisplacementSink extends Retirable {
    * rebuild, and a row never jumps back.
    */
   displaced(element: HTMLElement): boolean;
+  /**
+   * Moves the placeholder into `insertion` where no resolution measured the move,
+   * and reports each of `rows` that it displaced. It reads the rows before and
+   * after its write: every row, or, when `isLinear`, those it crosses.
+   */
+  relocate(
+    rows: readonly HTMLElement[],
+    isLinear: boolean,
+    insertion: Insertion,
+    context: AxisContext,
+  ): void;
+  /** Ends the animation that displaces `element`, if any. */
+  release(element: HTMLElement): void;
 }
 
 export type DisplacementInstaller = () => DisplacementSink;
@@ -50,6 +63,8 @@ export type AxisContext = Readonly<{
 }>;
 
 export interface InsertionGeometry extends Invalidatable, Retirable {
+  /** Whether a placeholder move displaces only the rows it crosses. */
+  readonly isLinear: boolean;
   /** A new gap, or `null` when the committed one still wins. */
   resolve(query: AxisQuery, context: AxisContext): Insertion | null;
   /**

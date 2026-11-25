@@ -163,6 +163,10 @@ export class SortableBehavior implements Behavior<
       return null;
     }
 
+    // The lift measured the item with what its row animation carries, and the
+    // animation would add that again. Only an activation ends it.
+    this.displacement?.release(drag.item);
+
     const placeholder = createPlaceholder(
       this.#window.document,
       // An object of its own: the factory may keep its argument, and must not
