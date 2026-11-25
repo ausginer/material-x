@@ -91,3 +91,64 @@ So the size is the property's, not this shape's. Two others meet I at +5 and +48
 - `isItem(node)` before the join changes no tab stop in any stratum (J and the disabled ones included); the mutation without it reads as the subject.
 - The 21 core rows are 13 that fail and eight that pass on `main`'s hook, as the note says.
 - `main` reads 76 differences in none of these runs; the implementer's first run is the only one with a text field.
+
+## Recheck of 2026-11-25, at `35eb0c0ef`
+
+**Files were read at:** `35eb0c0ef`, the head of `core/roving-upgrade-1`, in slot `g`, equal to `origin`. **Diff reviewed:** `0f92dc677..35eb0c0ef`, in which core's hook and its rows are the unit's and the rest is `main`'s. **Contract:** `RF-141`'s ruling at `b1f0c79a4`, in [`00-index.md`](../../00-index.md), and the implementer's note after it. Each browser reading is of Playwright's Chromium, Firefox and WebKit, one engine at a time, unless it names one.
+
+**Verdict: pass.** The hook does what the ruling's contract says, and `reviewer-1` to `reviewer-3` are answered. One new Tier C finding about the rows: `reviewer-4`. CI on #269 is green at this head.
+
+### The questions
+
+**The hook against the contract's words: no difference outside `RF-143` and one limit of the same task** ([reading](checks/recheck-model.txt), [probe](probes/recheck-model.browser.test.ts.txt)). The ruling's fuzz compares one hook with another, so this model has no hook as its reference. It reads the value, a log of the document's `focusin`, and the children. It has 12 strata of 1000 sequences, with late items and with none. Its items can take focus before the group manages them, as switch buttons do. Two strata, L and M, focus an item in the task that adds it. The engines read the same, line for line.
+
+- In A to D, H, I, K, L and M, the tab stop is the contract's, or is where a `focusin` moved it off the value's item. After one more slot change it is the contract's in all 1000.
+- In E and F the differences are items that are disabled with no read after it, which is `RF-143`'s. After one more slot change there are none.
+- In G there is one: an item is focused and blurred in the task that adds it, and no read sees it. `focusin` didn't move the tab stop to it, so it isn't a violation.
+- No late item is unmanaged and no second tab stop exists, outside E and F.
+
+**The ruling's fuzz: reproduced in each engine** ([reading](checks/recheck-fuzz.txt)). The head reads A 13, B 10, C 9, D 1, E 70, F 30, G 29, H, I and J 0, K 19, as the note says, line for line. The 10 of G that the ruling didn't classify are of the probe's items: they take no focus until they are managed, so a focus step in the task of their definition does nothing in the late run only. With items that take focus, in Chromium, G reads 19 for the head and the stop is the value's item in each, and 22 for `current`. The other strata don't change.
+
+**Departure (1), the focused item of a read is recorded: it is the contract, and it contradicts nothing in the accepted limit.**
+
+- The contract names "the enabled item that focus moved it to last, while that item is in the slot". It doesn't ask that the item is still focused. The ruling's `current`, which the ruling calls a direction, is the one that isn't the contract: after one more slot change it has another tab stop in 20 (L), 21 (M), and 7 or 3 (G) of 1000, where the head has 0, 0 and 1.
+- The value is still first. With value `b` and an item added and focused in one task, the stop is `b`, in the real group as well. The departure decides only when the value matches none.
+- In the real group, without a value: the added item has the stop, keeps it after a blur and a button put first, and loses it when it is removed and put back ([reading](checks/recheck-focus.txt), [probe](probes/recheck-focus.browser.test.ts.txt)).
+- The check that the item is enabled is right: `settled`, without it, replaces an earlier choice by a focused disabled item, and reads one sequence wrong in E.
+- The note's "in the fuzz the three hooks have the same numbers" is true and says nothing about this case, because the fuzz's items can't be focused before they are managed.
+
+**Departure (2), the row of an item that is added after a late one: right.** It adds the item in the task of the definition. There the slot change finds nothing undefined, so only the first wait reads after it, and the mutation that reads the slot change's own nodes fails that row alone.
+
+**Memory, Chromium** ([reading](checks/recheck-gc.txt)): removed items 0 of 9, 0 of 9 and 0 of 100 alive, as on `main`. A removed group with an element that is never defined stays, which is the accepted cost. `connected-button-group`, minified by rolldown, Brotli: 3909 on `main`'s hook and 3998 here.
+
+**Focus in the real group** (same reading and probe): focus never moves at a definition and no event fires, and the tab stop follows the contract. `reviewer-1`'s three cases, where a ready button is put first, give the stop to it before the definition and the definition moves nothing. A definition gives the stop back to the value's item (`c`) when focus had moved it to `b`, which is the accepted limit. Tab, Shift+Tab, the arrow keys and a click in a group with a late subclass behave as they read.
+
+**The former findings:**
+
+- **`reviewer-1`: answered.** H, I and J read 0. Its own case is a row (a ready item put first, then the late one behind it).
+- **`reviewer-2`: answered.** As above.
+- **`reviewer-3`: answered.** The state of five of its mutations is gone, and the ruling's rows replace it. Two late names in reverse order and an item put first are rows. `reviewer-4` is what the new rows still accept.
+
+**The ruling's witnesses** were not run again: the note's table names each one, and its saved run has the failing rows in the three engines. My mutations are others.
+
+### Scope
+
+**Covered:** the model, the ruling's fuzz, memory, focus in the real group, 18 new mutations of the choice and the read against the 62 rows ([reading](checks/recheck-mutations.txt), [probe](probes/recheck-mutations.mjs)), and against nine strata of the model in Chromium (its page lost the connection before H, I and K). **The root `fmt-check` passes.** The probe files were removed from `packages/`, and no production code is changed.
+
+**Not covered:** what the first section names as not covered, and the sizes by `size-limit`, which the implementer reads and I didn't.
+
+### reviewer-4 — Three mutations of the choice pass all 62 rows
+
+**Tier C, rows.** The three engines, the same counts ([reading](checks/recheck-mutations.txt)); the model's numbers are Chromium's. 15 of the 18 mutations fail a row.
+
+- **Current behavior.**
+  - _Only the first focus is recorded_ (`this.#chosen ??= item`). The contract's word is "last", and no row has focus move twice and then a read. After one more slot change the model differs in 7 or 8 of 1000 in A, and in 1 to 7 in B, E, G, L and M.
+  - _A read prefers the former choice to the focused item._ Focus had chosen one item, and another is added and focused in the same task. The tab stop then stays on the first. The two rows of this shape have no earlier choice. The model differs in 51 of 1000 in L, 26 in M.
+  - _A disabled item that is focused at a read is recorded._ The implementer's note says why it is the enabled one. The model differs in one sequence of E.
+- **Why it is a problem:** the first two are the ordinary meaning of the contract's two clauses about focus, and a later change can lose them with green rows.
+- **Required property.** A row fails for each of the first two. The third is rarer, and is for whoever takes the first two.
+
+### Observations
+
+- The row _"should fall back to the active item when host value does not match any enabled item"_ keeps its name, and the hook no longer falls back to an active item. It still holds, because that item is also the one that focus chose.
+- `focus()` sets the tab stop before it focuses. An item that can't take focus (hidden) is now set for that moment only, because nothing records it and the next read takes it back. It is `RF-143`'s case and was not read here.

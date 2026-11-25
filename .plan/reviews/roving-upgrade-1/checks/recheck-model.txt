@@ -1,0 +1,115 @@
+# chromium; firefox and webkit read the same, line for line. 1000 sequences in a stratum. The hooks main and settledBase are left out
+A: one batch; value, focus, blur: of 1000, at the end | after one more slot change
+  current, late: {"contract":961,"focus moved it off the value":39} | {"contract":1000}
+  current, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  head, late: {"contract":961,"focus moved it off the value":39} | {"contract":1000}
+  head, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+  settled, late: {"contract":961,"focus moved it off the value":39} | {"contract":1000}
+  settled, all ready: {"contract":948,"focus moved it off the value":52} | {"contract":1000}
+B: A, and ready or late items added: of 1000, at the end | after one more slot change
+  current, late: {"contract":960,"focus moved it off the value":40} | {"contract":1000}
+  current, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  head, late: {"contract":960,"focus moved it off the value":40} | {"contract":1000}
+  head, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+  settled, late: {"contract":960,"focus moved it off the value":40} | {"contract":1000}
+  settled, all ready: {"contract":950,"focus moved it off the value":50} | {"contract":1000}
+C: B, and items removed: of 1000, at the end | after one more slot change
+  current, late: {"contract":976,"focus moved it off the value":24} | {"contract":1000}
+  current, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  head, late: {"contract":976,"focus moved it off the value":24} | {"contract":1000}
+  head, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+  settled, late: {"contract":976,"focus moved it off the value":24} | {"contract":1000}
+  settled, all ready: {"contract":967,"focus moved it off the value":33} | {"contract":1000}
+D: C, and items moved or put back: of 1000, at the end | after one more slot change
+  current, late: {"contract":979,"focus moved it off the value":21} | {"contract":1000}
+  current, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  head, late: {"contract":979,"focus moved it off the value":21} | {"contract":1000}
+  head, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+  settled, late: {"contract":979,"focus moved it off the value":21} | {"contract":1000}
+  settled, all ready: {"contract":978,"focus moved it off the value":22} | {"contract":1000}
+E: A, and items disabled: of 1000, at the end | after one more slot change
+  current, late: {"contract":811,"count":104,"other":61,"focus moved it off the value":24} | {"contract":1000}
+  current, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":1000}
+  head, late: {"contract":811,"count":104,"other":61,"focus moved it off the value":24} | {"contract":1000}
+      [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false}],"value":null,"late":true},{"do":"define","k":"B","sync":false},{"do":"define","k":"A","sync":false},{"do":"disable","at":0.685667609795928,"sync":false}]
+      count
+      i0!:0 value null last undefined active 
+      contract
+      i0!:-1 value null last undefined active 
+  head, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":1000}
+      [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false}],"value":null,"late":true},{"do":"define","k":"B","sync":false},{"do":"define","k":"A","sync":false},{"do":"disable","at":0.685667609795928,"sync":false}]
+      count
+      i0!:0 value null last undefined active 
+      contract
+      i0!:-1 value null last undefined active 
+  settled, late: {"contract":811,"count":104,"other":61,"focus moved it off the value":24} | {"contract":999,"other":1}
+  settled, all ready: {"contract":760,"count":121,"other":87,"focus moved it off the value":32} | {"contract":999,"other":1}
+F: D, E, and host in and out: of 1000, at the end | after one more slot change
+  current, late: {"contract":926,"focus moved it off the value":3,"count":41,"other":30} | {"contract":1000}
+  current, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+  head, late: {"contract":926,"focus moved it off the value":3,"count":41,"other":30} | {"contract":1000}
+      [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false}],"value":null,"late":true},{"do":"define","k":"B","sync":false},{"do":"define","k":"A","sync":false},{"do":"disable","at":0.685667609795928,"sync":false}]
+      count
+      i0!:0 value null last undefined active 
+      contract
+      i0!:-1 value null last undefined active 
+  head, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+      [{"do":"batch","items":[{"id":0,"kind":"A","value":"a","disabled":false}],"value":null,"late":true},{"do":"define","k":"B","sync":false},{"do":"define","k":"A","sync":false},{"do":"disable","at":0.685667609795928,"sync":false}]
+      count
+      i0!:0 value null last undefined active 
+      contract
+      i0!:-1 value null last undefined active 
+  settled, late: {"contract":926,"focus moved it off the value":3,"count":41,"other":30} | {"contract":1000}
+  settled, all ready: {"contract":902,"focus moved it off the value":10,"count":52,"other":36} | {"contract":1000}
+G: B, several steps in a task: of 1000, at the end | after one more slot change
+  current, late: {"contract":973,"focus moved it off the value":23,"other":4} | {"contract":993,"other":7}
+  current, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":997,"other":3}
+  head, late: {"contract":976,"focus moved it off the value":23,"other":1} | {"contract":999,"other":1}
+      [{"do":"batch","items":[{"id":0,"kind":"ready","value":"a","disabled":false}],"value":null,"late":false},{"do":"focus","at":0.1926291340496391,"sync":false},{"do":"add","at":0.2252403220627457,"sync":true,"item":{"id":1,"kind":"clone","value":"b","disabled":false},"where":0.4425362821202725},{"do":"define","k":"B","sync":true},{"do":"focus","at":0.4664254765957594,"sync":true},{"do":"blur","
+      other
+      i1:-1 i0:0 value null last i1 active 
+      other
+      i1:-1 i0:0 value null last i1 active 
+  head, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":999,"other":1}
+      [{"do":"batch","items":[{"id":0,"kind":"ready","value":"a","disabled":false}],"value":null,"late":false},{"do":"focus","at":0.1926291340496391,"sync":false},{"do":"add","at":0.2252403220627457,"sync":true,"item":{"id":1,"kind":"clone","value":"b","disabled":false},"where":0.4425362821202725},{"do":"define","k":"B","sync":true},{"do":"focus","at":0.4664254765957594,"sync":true},{"do":"blur","
+      other
+      i1:-1 i0:0 value null last i1 active 
+      other
+      i1:-1 i0:0 value null last i1 active 
+  settled, late: {"contract":976,"focus moved it off the value":23,"other":1} | {"contract":999,"other":1}
+  settled, all ready: {"contract":957,"focus moved it off the value":42,"other":1} | {"contract":999,"other":1}
+L: B, with an item focused in the task that adds it: of 1000, at the end | after one more slot change
+  current, late: {"contract":957,"focus moved it off the value":35,"other":8} | {"contract":980,"other":20}
+  current, all ready: {"contract":950,"focus moved it off the value":46,"other":4} | {"contract":980,"other":20}
+  head, late: {"contract":965,"focus moved it off the value":35} | {"contract":1000}
+  head, all ready: {"contract":954,"focus moved it off the value":46} | {"contract":1000}
+  settled, late: {"contract":965,"focus moved it off the value":35} | {"contract":1000}
+  settled, all ready: {"contract":954,"focus moved it off the value":46} | {"contract":1000}
+M: L, with items removed, moved, put back, and the host in and out: of 1000, at the end | after one more slot change
+  current, late: {"contract":972,"focus moved it off the value":18,"other":10} | {"contract":979,"other":21}
+  current, all ready: {"contract":972,"focus moved it off the value":20,"other":8} | {"contract":979,"other":21}
+  head, late: {"contract":982,"focus moved it off the value":18} | {"contract":1000}
+  head, all ready: {"contract":980,"focus moved it off the value":20} | {"contract":1000}
+  settled, late: {"contract":982,"focus moved it off the value":18} | {"contract":1000}
+  settled, all ready: {"contract":980,"focus moved it off the value":20} | {"contract":1000}
+H: one batch, nothing else: of 1000, at the end | after one more slot change
+  current, late: {"contract":1000} | {"contract":1000}
+  current, all ready: {"contract":1000} | {"contract":1000}
+  head, late: {"contract":1000} | {"contract":1000}
+  head, all ready: {"contract":1000} | {"contract":1000}
+  settled, late: {"contract":1000} | {"contract":1000}
+  settled, all ready: {"contract":1000} | {"contract":1000}
+I: one batch, items added, no value: of 1000, at the end | after one more slot change
+  current, late: {"contract":1000} | {"contract":1000}
+  current, all ready: {"contract":1000} | {"contract":1000}
+  head, late: {"contract":1000} | {"contract":1000}
+  head, all ready: {"contract":1000} | {"contract":1000}
+  settled, late: {"contract":1000} | {"contract":1000}
+  settled, all ready: {"contract":1000} | {"contract":1000}
+K: one batch of one way; the focus moves, and a value: of 1000, at the end | after one more slot change
+  current, late: {"contract":944,"focus moved it off the value":56} | {"contract":1000}
+  current, all ready: {"contract":925,"focus moved it off the value":75} | {"contract":1000}
+  head, late: {"contract":944,"focus moved it off the value":56} | {"contract":1000}
+  head, all ready: {"contract":925,"focus moved it off the value":75} | {"contract":1000}
+  settled, late: {"contract":944,"focus moved it off the value":56} | {"contract":1000}
+  settled, all ready: {"contract":925,"focus moved it off the value":75} | {"contract":1000}
