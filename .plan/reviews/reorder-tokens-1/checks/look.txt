@@ -1,0 +1,413 @@
+token container.color: "#ffd8e4", deprecated false
+token drop-zone.color: "#f7f2fa", deprecated false
+token shape: "16px", deprecated false
+token label-text.color: "#633b48", deprecated false
+token overline.color: "#633b48", deprecated false
+token supporting-text.color: "#633b48", deprecated false
+token trailing-supporting-text.color: "#633b48", deprecated false
+token leading-icon.color: "#633b48", deprecated false
+token trailing-icon.color: "#633b48", deprecated false
+token state-layer.color: "#633b48", deprecated false
+token state-layer.opacity: "0.1", deprecated false
+token shadow-color: "#000000", deprecated false
+
+# chromium 158.0.8127.18
+## a pointer drag of each kind, settled 600 ms
+static: state drag open, host rgb(0, 133, 100), hostColor rgb(245, 255, 248), box rgb(0, 133, 100), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave -, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+button: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selected: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+link: state -, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.968627 0.984314 0.917647), boxColor rgb(25, 29, 19), radius 16px, label rgb(25, 29, 19), over rgb(66, 73, 55), sup rgb(66, 73, 55), lead rgb(66, 73, 55), trail rgb(25, 29, 19), text rgb(66, 73, 55), wave rgb(25, 29, 19)/0.1, zone -
+    after the drop against rest: none
+selectedlink: state -, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.8 0.933333 0.631373), boxColor rgb(81, 109, 47), radius 16px, label rgb(81, 109, 47), over rgb(81, 109, 47), sup rgb(81, 109, 47), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(81, 109, 47), wave rgb(25, 29, 19)/0.1, zone -
+    after the drop against rest: none
+disabled: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.968627 0.984314 0.917647), boxColor rgb(25, 29, 19), radius 4px, label rgb(25, 29, 19), over rgb(25, 29, 19), sup rgb(25, 29, 19), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(66, 73, 55), wave rgb(25, 29, 19)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    against rest: state - -> drag open; zone - -> visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selecteddisabled: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.0980392 0.113725 0.0745098 / 0.38), boxColor rgb(25, 29, 19), radius 16px, label rgb(25, 29, 19), over rgb(25, 29, 19), sup rgb(25, 29, 19), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(25, 29, 19), wave rgb(25, 29, 19)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    against rest: state - -> drag open; zone - -> visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+static by handle: state drag open, host rgb(0, 133, 100), hostColor rgb(245, 255, 248), box rgb(0, 133, 100), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave -, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+button by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selected by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+link by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selectedlink by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+disabled by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.968627 0.984314 0.917647), boxColor rgb(25, 29, 19), radius 4px, label rgb(25, 29, 19), over rgb(25, 29, 19), sup rgb(25, 29, 19), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(66, 73, 55), wave rgb(25, 29, 19)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    against rest: state - -> drag open; zone - -> visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selecteddisabled by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.0980392 0.113725 0.0745098 / 0.38), boxColor rgb(25, 29, 19), radius 16px, label rgb(25, 29, 19), over rgb(25, 29, 19), sup rgb(25, 29, 19), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(25, 29, 19), wave rgb(25, 29, 19)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    against rest: state - -> drag open; zone - -> visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+link, native drag prevented: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selectedlink, native drag prevented: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+link by handle, native drag prevented: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selectedlink by handle, native drag prevented: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+## each frame of a pointer drag, its drop and its flight
+  static
+    5x - | host rgb(247, 251, 234) box rgb(247, 251, 234) label rgb(25, 29, 19) lead rgb(66, 73, 55) trail rgb(66, 73, 55) zone -
+    44x drag open | host rgb(0, 133, 100) box rgb(0, 133, 100) label rgb(245, 255, 248) lead rgb(245, 255, 248) trail rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    30x - | host rgb(247, 251, 234) box rgb(247, 251, 234) label rgb(25, 29, 19) lead rgb(66, 73, 55) trail rgb(66, 73, 55) zone -
+  button
+    5x - | host rgba(0, 0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) lead rgb(66, 73, 55) trail rgb(25, 29, 19) zone -
+    44x drag open | host rgba(0, 0, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) lead rgb(245, 255, 248) trail rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    30x - | host rgba(0, 0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) lead rgb(66, 73, 55) trail rgb(25, 29, 19) zone -
+  selected
+    3x - | host rgba(0, 0, 0, 0) box color(srgb 0.8 0.933333 0.631373) label rgb(81, 109, 47) lead rgb(81, 109, 47) trail rgb(81, 109, 47) zone -
+    2x - | host rgba(0, 0, 0, 0) box color(srgb 0.8 0.933333 0.631373) label rgb(81, 109, 47) lead rgb(25, 29, 19) trail rgb(25, 29, 19) zone -
+    44x drag open | host rgba(0, 0, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) lead rgb(245, 255, 248) trail rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    30x - | host rgba(0, 0, 0, 0) box color(srgb 0.8 0.933333 0.631373) label rgb(81, 109, 47) lead rgb(81, 109, 47) trail rgb(81, 109, 47) zone -
+## a key move: by a handle, and on a link; commit at once, after 100 ms, refused
+static by handle, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static by handle, later: 8 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static by handle, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static by handle, never: 33 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static, later: 8 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static, never: 32 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selected by handle, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selected by handle, later: 8 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selected by handle, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selected by handle, never: 33 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+link, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+link, later: 9 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+link, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+link, never: 32 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selectedlink, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selectedlink, later: 9 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selectedlink, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selectedlink, never: 33 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+## a page's rules, in a pointer drag
+page rule, static: rest host rgb(0, 0, 255)/rgb(255, 0, 0) box rgb(0, 0, 255) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(0, 0, 255)/rgb(255, 0, 0) box rgb(0, 0, 255) label rgb(25, 29, 19) state - style null
+page rule, button: rest host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+page rule, important, static: rest host rgb(0, 0, 255)/rgb(255, 0, 0) box rgb(0, 0, 255) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(0, 0, 255)/rgb(255, 0, 0) box rgb(0, 0, 255) label rgb(25, 29, 19) state - style null
+page rule, important, button: rest host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+popover rule, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+popover rule, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+popover rule, important, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+popover rule, important, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgb(255, 0, 0)/rgb(0, 0, 255) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+container color on the list, static: rest host rgb(9, 9, 9)/rgb(25, 29, 19) box rgb(9, 9, 9) label rgb(25, 29, 19); lifted host rgb(9, 9, 9)/rgb(245, 255, 248) box rgb(9, 9, 9) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(9, 9, 9)/rgb(25, 29, 19) box rgb(9, 9, 9) label rgb(25, 29, 19) state - style null
+container color on the list, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.0352941 0.0352941 0.0352941) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.0352941 0.0352941 0.0352941) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.0352941 0.0352941 0.0352941) label rgb(25, 29, 19) state - style null
+a theme on the list, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(1, 1, 1)/rgb(2, 2, 2) box rgb(1, 1, 1) label rgb(2, 2, 2) zone visible rgb(3, 3, 3)/1 16px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+a theme on the list, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.00392157 0.00392157 0.00392157) label rgb(2, 2, 2) zone visible rgb(3, 3, 3)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+a theme on the item, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(1, 1, 1)/rgb(2, 2, 2) box rgb(1, 1, 1) label rgb(2, 2, 2) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+a theme on the item, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.00392157 0.00392157 0.00392157) label rgb(2, 2, 2) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+a list shape, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 33px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+a list shape, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 33px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+a gradient as the container color, static: rest host rgba(0, 0, 0, 0)/rgb(25, 29, 19) box rgba(0, 0, 0, 0) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(245, 255, 248) box rgba(0, 0, 0, 0) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(25, 29, 19) box rgba(0, 0, 0, 0) label rgb(25, 29, 19) state - style null
+a gradient as the container color, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box rgba(0, 0, 0, 0) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box rgba(0, 0, 0, 0) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box rgba(0, 0, 0, 0) label rgb(25, 29, 19) state - style null
+## forced colors
+static: forced true; against rest: state - -> drag open; radius 4px -> 16px; zone - -> visible rgb(255, 255, 255)/1 16px
+    lifted: state drag open, host rgb(255, 255, 255), hostColor rgb(0, 0, 0), box rgb(255, 255, 255), boxColor rgb(0, 0, 0), radius 16px, label rgb(0, 0, 0), over rgb(0, 0, 0), sup rgb(0, 0, 0), lead rgb(0, 0, 0), trail rgb(0, 0, 0), text rgb(0, 0, 0), wave -, zone visible rgb(255, 255, 255)/1 16px
+button: forced true; against rest: state - -> drag open; radius 4px -> 14.7349px; zone - -> visible rgb(255, 255, 255)/1 16px
+    lifted: state drag open, host rgba(255, 255, 255, 0), hostColor rgb(0, 0, 0), box rgb(255, 255, 255), boxColor rgb(0, 0, 0), radius 14.7349px, label rgb(0, 0, 0), over rgb(0, 0, 0), sup rgb(0, 0, 0), lead rgb(0, 0, 0), trail rgb(0, 0, 0), text rgb(0, 0, 0), wave rgb(255, 255, 255)/0.1, zone visible rgb(255, 255, 255)/1 16px
+selected: forced true; against rest: state - -> drag open; zone - -> visible rgb(255, 255, 255)/1 16px
+    lifted: state drag open, host rgba(255, 255, 255, 0), hostColor rgb(0, 0, 0), box rgb(255, 255, 255), boxColor rgb(0, 0, 0), radius 16px, label rgb(0, 0, 0), over rgb(0, 0, 0), sup rgb(0, 0, 0), lead rgb(0, 0, 0), trail rgb(0, 0, 0), text rgb(0, 0, 0), wave rgb(255, 255, 255)/0.1, zone visible rgb(255, 255, 255)/1 16px
+## re-grab in flight, then drop
+flight - rgb(247, 251, 234)/rgb(25, 29, 19); again drag open rgb(0, 133, 100)/rgb(245, 255, 248); end - rgb(247, 251, 234)/rgb(25, 29, 19)
+## key move pending, then a pointer drag of another item
+pending drag open rgb(247, 251, 234); then static drag open rgb(247, 251, 234)/rgb(25, 29, 19); other - rgb(247, 251, 234)/rgb(25, 29, 19); zone hidden rgb(242, 245, 229)/1 16px
+## a disconnection in a pointer drag
+against rest: radius 4px -> 12px
+## the lifted item moved to a plain list in a pointer drag
+  pageerror drag: sortable/landing-placeholder-lost
+against rest: none
+after the release, against rest: radius 4px -> 12px
+## a consumer's own drag sortable on a plain mx-list
+state - open host rgb(247, 251, 234) zone visible rgba(0, 0, 0, 0)/1 0px
+
+# firefox 159.0
+## a pointer drag of each kind, settled 600 ms
+static: state drag open, host rgb(0, 133, 100), hostColor rgb(245, 255, 248), box rgb(0, 133, 100), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave -, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+button: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selected: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+link: state -, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.968627 0.984314 0.917647), boxColor rgb(25, 29, 19), radius 16px, label rgb(25, 29, 19), over rgb(66, 73, 55), sup rgb(66, 73, 55), lead rgb(66, 73, 55), trail rgb(25, 29, 19), text rgb(66, 73, 55), wave rgb(25, 29, 19)/0.1, zone -
+    after the drop against rest: radius 4px -> 16px
+selectedlink: state -, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.8 0.933333 0.631373), boxColor rgb(81, 109, 47), radius 16px, label rgb(81, 109, 47), over rgb(81, 109, 47), sup rgb(81, 109, 47), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(81, 109, 47), wave rgb(25, 29, 19)/0.1, zone -
+    after the drop against rest: lead rgb(81, 109, 47) -> rgb(25, 29, 19); trail rgb(81, 109, 47) -> rgb(25, 29, 19)
+disabled: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.968627 0.984314 0.917647), boxColor rgb(25, 29, 19), radius 4px, label rgb(25, 29, 19), over rgb(25, 29, 19), sup rgb(25, 29, 19), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(66, 73, 55), wave rgb(25, 29, 19)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    against rest: state - -> drag open; zone - -> visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selecteddisabled: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.0980392 0.113725 0.0745098 / 0.38), boxColor rgb(25, 29, 19), radius 16px, label rgb(25, 29, 19), over rgb(25, 29, 19), sup rgb(25, 29, 19), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(25, 29, 19), wave rgb(25, 29, 19)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    against rest: state - -> drag open; zone - -> visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+static by handle: state drag open, host rgb(0, 133, 100), hostColor rgb(245, 255, 248), box rgb(0, 133, 100), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave -, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+button by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selected by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+link by handle: state -, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.968627 0.984314 0.917647), boxColor rgb(25, 29, 19), radius 16px, label rgb(25, 29, 19), over rgb(66, 73, 55), sup rgb(66, 73, 55), lead rgb(66, 73, 55), trail rgb(25, 29, 19), text rgb(66, 73, 55), wave rgb(25, 29, 19)/0.1, zone -
+    after the drop against rest: radius 4px -> 16px
+selectedlink by handle: state -, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.8 0.933333 0.631373), boxColor rgb(81, 109, 47), radius 16px, label rgb(81, 109, 47), over rgb(81, 109, 47), sup rgb(81, 109, 47), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(81, 109, 47), wave rgb(25, 29, 19)/0.1, zone -
+    after the drop against rest: lead rgb(81, 109, 47) -> rgb(25, 29, 19); trail rgb(81, 109, 47) -> rgb(25, 29, 19)
+disabled by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.968627 0.984314 0.917647), boxColor rgb(25, 29, 19), radius 4px, label rgb(25, 29, 19), over rgb(25, 29, 19), sup rgb(25, 29, 19), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(66, 73, 55), wave rgb(25, 29, 19)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    against rest: state - -> drag open; zone - -> visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selecteddisabled by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.0980392 0.113725 0.0745098 / 0.38), boxColor rgb(25, 29, 19), radius 16px, label rgb(25, 29, 19), over rgb(25, 29, 19), sup rgb(25, 29, 19), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(25, 29, 19), wave rgb(25, 29, 19)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    against rest: state - -> drag open; zone - -> visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+link, native drag prevented: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selectedlink, native drag prevented: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+link by handle, native drag prevented: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selectedlink by handle, native drag prevented: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+## each frame of a pointer drag, its drop and its flight
+  static
+    6x - | host rgb(247, 251, 234) box rgb(247, 251, 234) label rgb(25, 29, 19) lead rgb(66, 73, 55) trail rgb(66, 73, 55) zone -
+    44x drag open | host rgb(0, 133, 100) box rgb(0, 133, 100) label rgb(245, 255, 248) lead rgb(245, 255, 248) trail rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    30x - | host rgb(247, 251, 234) box rgb(247, 251, 234) label rgb(25, 29, 19) lead rgb(66, 73, 55) trail rgb(66, 73, 55) zone -
+  button
+    5x - | host rgba(0, 0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) lead rgb(66, 73, 55) trail rgb(25, 29, 19) zone -
+    44x drag open | host rgba(0, 0, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) lead rgb(245, 255, 248) trail rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    30x - | host rgba(0, 0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) lead rgb(66, 73, 55) trail rgb(25, 29, 19) zone -
+  selected
+    5x - | host rgba(0, 0, 0, 0) box color(srgb 0.8 0.933333 0.631373) label rgb(81, 109, 47) lead rgb(81, 109, 47) trail rgb(81, 109, 47) zone -
+    2x - | host rgba(0, 0, 0, 0) box color(srgb 0.8 0.933333 0.631373) label rgb(81, 109, 47) lead rgb(25, 29, 19) trail rgb(25, 29, 19) zone -
+    44x drag open | host rgba(0, 0, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) lead rgb(245, 255, 248) trail rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    30x - | host rgba(0, 0, 0, 0) box color(srgb 0.8 0.933333 0.631373) label rgb(81, 109, 47) lead rgb(81, 109, 47) trail rgb(81, 109, 47) zone -
+## a key move: by a handle, and on a link; commit at once, after 100 ms, refused
+static by handle, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static by handle, later: 9 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static by handle, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static by handle, never: 33 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static, later: 9 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static, never: 33 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selected by handle, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selected by handle, later: 9 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selected by handle, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selected by handle, never: 33 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+link, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+link, later: 8 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+link, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+link, never: 32 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selectedlink, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selectedlink, later: 9 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selectedlink, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selectedlink, never: 33 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+## a page's rules, in a pointer drag
+page rule, static: rest host rgb(0, 0, 255)/rgb(255, 0, 0) box rgb(0, 0, 255) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(0, 0, 255)/rgb(255, 0, 0) box rgb(0, 0, 255) label rgb(25, 29, 19) state - style null
+page rule, button: rest host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+page rule, important, static: rest host rgb(0, 0, 255)/rgb(255, 0, 0) box rgb(0, 0, 255) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(0, 0, 255)/rgb(255, 0, 0) box rgb(0, 0, 255) label rgb(25, 29, 19) state - style null
+page rule, important, button: rest host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+popover rule, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+popover rule, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+popover rule, important, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+popover rule, important, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgb(255, 0, 0)/rgb(0, 0, 255) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+container color on the list, static: rest host rgb(9, 9, 9)/rgb(25, 29, 19) box rgb(9, 9, 9) label rgb(25, 29, 19); lifted host rgb(9, 9, 9)/rgb(245, 255, 248) box rgb(9, 9, 9) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(9, 9, 9)/rgb(25, 29, 19) box rgb(9, 9, 9) label rgb(25, 29, 19) state - style null
+container color on the list, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.0352941 0.0352941 0.0352941) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.0352941 0.0352941 0.0352941) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.0352941 0.0352941 0.0352941) label rgb(25, 29, 19) state - style null
+a theme on the list, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(1, 1, 1)/rgb(2, 2, 2) box rgb(1, 1, 1) label rgb(2, 2, 2) zone visible rgb(3, 3, 3)/1 16px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+a theme on the list, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.00392157 0.00392157 0.00392157) label rgb(2, 2, 2) zone visible rgb(3, 3, 3)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+a theme on the item, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(1, 1, 1)/rgb(2, 2, 2) box rgb(1, 1, 1) label rgb(2, 2, 2) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+a theme on the item, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.00392157 0.00392157 0.00392157) label rgb(2, 2, 2) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+a list shape, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 33px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+a list shape, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 33px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+a gradient as the container color, static: rest host rgba(0, 0, 0, 0)/rgb(25, 29, 19) box rgba(0, 0, 0, 0) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(245, 255, 248) box rgba(0, 0, 0, 0) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(25, 29, 19) box rgba(0, 0, 0, 0) label rgb(25, 29, 19) state - style null
+a gradient as the container color, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box rgba(0, 0, 0, 0) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box rgba(0, 0, 0, 0) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box rgba(0, 0, 0, 0) label rgb(25, 29, 19) state - style null
+## forced colors
+static: forced true; against rest: state - -> drag open; radius 4px -> 16px; zone - -> visible rgb(255, 255, 255)/1 16px
+    lifted: state drag open, host rgb(255, 255, 255), hostColor rgb(0, 0, 0), box rgb(255, 255, 255), boxColor rgb(0, 0, 0), radius 16px, label rgb(0, 0, 0), over rgb(0, 0, 0), sup rgb(0, 0, 0), lead rgb(0, 0, 0), trail rgb(0, 0, 0), text rgb(0, 0, 0), wave -, zone visible rgb(255, 255, 255)/1 16px
+button: forced true; against rest: state - -> drag open; radius 4px -> 14.9067px; zone - -> visible rgb(255, 255, 255)/1 16px
+    lifted: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box rgb(233, 233, 237), boxColor rgb(0, 0, 0), radius 14.9067px, label rgb(0, 0, 0), over rgb(0, 0, 0), sup rgb(0, 0, 0), lead rgb(0, 0, 0), trail rgb(0, 0, 0), text rgb(0, 0, 0), wave rgb(255, 255, 255)/0.1, zone visible rgb(255, 255, 255)/1 16px
+selected: forced true; against rest: state - -> drag open; zone - -> visible rgb(255, 255, 255)/1 16px
+    lifted: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box rgb(233, 233, 237), boxColor rgb(0, 0, 0), radius 16px, label rgb(0, 0, 0), over rgb(0, 0, 0), sup rgb(0, 0, 0), lead rgb(0, 0, 0), trail rgb(0, 0, 0), text rgb(0, 0, 0), wave rgb(255, 255, 255)/0.1, zone visible rgb(255, 255, 255)/1 16px
+## re-grab in flight, then drop
+flight - rgb(247, 251, 234)/rgb(25, 29, 19); again drag open rgb(0, 133, 100)/rgb(245, 255, 248); end - rgb(247, 251, 234)/rgb(25, 29, 19)
+## key move pending, then a pointer drag of another item
+pending drag open rgb(247, 251, 234); then static drag open rgb(247, 251, 234)/rgb(25, 29, 19); other - rgb(247, 251, 234)/rgb(25, 29, 19); zone hidden rgb(242, 245, 229)/1 16px
+## a disconnection in a pointer drag
+against rest: radius 4px -> 12px
+## the lifted item moved to a plain list in a pointer drag
+  pageerror drag: sortable/landing-placeholder-lost
+against rest: none
+after the release, against rest: radius 4px -> 12px
+## a consumer's own drag sortable on a plain mx-list
+state - open host rgb(247, 251, 234) zone visible rgba(0, 0, 0, 0)/1 0px
+
+# webkit 27.2
+## a pointer drag of each kind, settled 600 ms
+static: state drag open, host rgb(0, 133, 100), hostColor rgb(245, 255, 248), box rgb(0, 133, 100), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave -, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+button: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selected: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+link: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selectedlink: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+disabled: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.968627 0.984314 0.917647), boxColor rgb(25, 29, 19), radius 4px, label rgb(25, 29, 19), over rgb(25, 29, 19), sup rgb(25, 29, 19), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(66, 73, 55), wave rgb(25, 29, 19)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    against rest: state - -> drag open; zone - -> visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selecteddisabled: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.098039 0.113725 0.07451 / 0.38), boxColor rgb(25, 29, 19), radius 16px, label rgb(25, 29, 19), over rgb(25, 29, 19), sup rgb(25, 29, 19), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(25, 29, 19), wave rgb(25, 29, 19)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    against rest: state - -> drag open; zone - -> visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+static by handle: state drag open, host rgb(0, 133, 100), hostColor rgb(245, 255, 248), box rgb(0, 133, 100), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave -, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+button by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selected by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+link by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selectedlink by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+disabled by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.968627 0.984314 0.917647), boxColor rgb(25, 29, 19), radius 4px, label rgb(25, 29, 19), over rgb(25, 29, 19), sup rgb(25, 29, 19), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(66, 73, 55), wave rgb(25, 29, 19)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    against rest: state - -> drag open; zone - -> visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selecteddisabled by handle: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0.098039 0.113725 0.07451 / 0.38), boxColor rgb(25, 29, 19), radius 16px, label rgb(25, 29, 19), over rgb(25, 29, 19), sup rgb(25, 29, 19), lead rgb(25, 29, 19), trail rgb(25, 29, 19), text rgb(25, 29, 19), wave rgb(25, 29, 19)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    against rest: state - -> drag open; zone - -> visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+link, native drag prevented: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selectedlink, native drag prevented: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+link by handle, native drag prevented: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+selectedlink by handle, native drag prevented: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+    after the drop against rest: none
+## each frame of a pointer drag, its drop and its flight
+  static
+    3x - | host rgb(247, 251, 234) box rgb(247, 251, 234) label rgb(25, 29, 19) lead rgb(66, 73, 55) trail rgb(66, 73, 55) zone -
+    34x drag open | host rgb(0, 133, 100) box rgb(0, 133, 100) label rgb(245, 255, 248) lead rgb(245, 255, 248) trail rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    31x - | host rgb(247, 251, 234) box rgb(247, 251, 234) label rgb(25, 29, 19) lead rgb(66, 73, 55) trail rgb(66, 73, 55) zone -
+  button
+    3x - | host rgba(0, 0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) lead rgb(66, 73, 55) trail rgb(25, 29, 19) zone -
+    32x drag open | host rgba(0, 0, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) lead rgb(245, 255, 248) trail rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    31x - | host rgba(0, 0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) lead rgb(66, 73, 55) trail rgb(25, 29, 19) zone -
+  selected
+    3x - | host rgba(0, 0, 0, 0) box color(srgb 0.8 0.933333 0.631373) label rgb(81, 109, 47) lead rgb(81, 109, 47) trail rgb(81, 109, 47) zone -
+    31x drag open | host rgba(0, 0, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) lead rgb(245, 255, 248) trail rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    31x - | host rgba(0, 0, 0, 0) box color(srgb 0.8 0.933333 0.631373) label rgb(81, 109, 47) lead rgb(81, 109, 47) trail rgb(81, 109, 47) zone -
+## a key move: by a handle, and on a link; commit at once, after 100 ms, refused
+static by handle, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static by handle, later: 7 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static by handle, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static by handle, never: 32 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static, later: 6 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+static, never: 32 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selected by handle, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selected by handle, later: 7 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selected by handle, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selected by handle, never: 32 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+link, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+link, later: 8 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+link, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+link, never: 32 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selectedlink, now: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selectedlink, later: 7 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selectedlink, refused: 1 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+selectedlink, never: 32 reads; against rest: none; drag open zone hidden rgb(242, 245, 229)/1 16px
+## a page's rules, in a pointer drag
+page rule, static: rest host rgb(0, 0, 255)/rgb(255, 0, 0) box rgb(0, 0, 255) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(0, 0, 255)/rgb(255, 0, 0) box rgb(0, 0, 255) label rgb(25, 29, 19) state - style null
+page rule, button: rest host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+page rule, important, static: rest host rgb(0, 0, 255)/rgb(255, 0, 0) box rgb(0, 0, 255) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(0, 0, 255)/rgb(255, 0, 0) box rgb(0, 0, 255) label rgb(25, 29, 19) state - style null
+page rule, important, button: rest host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(0, 0, 255)/rgb(255, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+popover rule, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+popover rule, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+popover rule, important, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+popover rule, important, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgb(255, 0, 0)/rgb(0, 0, 255) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+container color on the list, static: rest host rgb(9, 9, 9)/rgb(25, 29, 19) box rgb(9, 9, 9) label rgb(25, 29, 19); lifted host rgb(9, 9, 9)/rgb(245, 255, 248) box rgb(9, 9, 9) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(9, 9, 9)/rgb(25, 29, 19) box rgb(9, 9, 9) label rgb(25, 29, 19) state - style null
+container color on the list, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.035294 0.035294 0.035294) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.035294 0.035294 0.035294) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.035294 0.035294 0.035294) label rgb(25, 29, 19) state - style null
+a theme on the list, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(1, 1, 1)/rgb(2, 2, 2) box rgb(1, 1, 1) label rgb(2, 2, 2) zone visible rgb(3, 3, 3)/1 16px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+a theme on the list, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.003922 0.003922 0.003922) label rgb(2, 2, 2) zone visible rgb(3, 3, 3)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+a theme on the item, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(1, 1, 1)/rgb(2, 2, 2) box rgb(1, 1, 1) label rgb(2, 2, 2) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+a theme on the item, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.003922 0.003922 0.003922) label rgb(2, 2, 2) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+a list shape, static: rest host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19); lifted host rgb(0, 133, 100)/rgb(245, 255, 248) box rgb(0, 133, 100) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 33px
+    after Escape: host rgb(247, 251, 234)/rgb(25, 29, 19) box rgb(247, 251, 234) label rgb(25, 29, 19) state - style null
+a list shape, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0 0.521569 0.392157) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 33px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box color(srgb 0.968627 0.984314 0.917647) label rgb(25, 29, 19) state - style null
+a gradient as the container color, static: rest host rgba(0, 0, 0, 0)/rgb(25, 29, 19) box rgba(0, 0, 0, 0) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(245, 255, 248) box rgba(0, 0, 0, 0) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(25, 29, 19) box rgba(0, 0, 0, 0) label rgb(25, 29, 19) state - style null
+a gradient as the container color, button: rest host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box rgba(0, 0, 0, 0) label rgb(25, 29, 19); lifted host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box rgba(0, 0, 0, 0) label rgb(245, 255, 248) zone visible rgb(242, 245, 229)/1 16px
+    after Escape: host rgba(0, 0, 0, 0)/rgb(0, 0, 0) box rgba(0, 0, 0, 0) label rgb(25, 29, 19) state - style null
+## forced colors
+static: forced true; against rest: state - -> drag open; host rgb(247, 251, 234) -> rgb(0, 133, 100); hostColor rgb(25, 29, 19) -> rgb(245, 255, 248); box rgb(247, 251, 234) -> rgb(0, 133, 100); boxColor rgb(25, 29, 19) -> rgb(245, 255, 248); radius 4px -> 16px; label rgb(25, 29, 19) -> rgb(245, 255, 248); over rgb(66, 73, 55) -> rgb(245, 255, 248); sup rgb(66, 73, 55) -> rgb(245, 255, 248); lead rgb(66, 73, 55) -> rgb(245, 255, 248); trail rgb(66, 73, 55) -> rgb(245, 255, 248); text rgb(66, 73, 55) -> rgb(245, 255, 248); zone - -> visible rgb(242, 245, 229)/1 16px
+    lifted: state drag open, host rgb(0, 133, 100), hostColor rgb(245, 255, 248), box rgb(0, 133, 100), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave -, zone visible rgb(242, 245, 229)/1 16px
+button: forced true; against rest: state - -> drag open; box color(srgb 0.968627 0.984314 0.917647) -> color(srgb 0 0.521569 0.392157); boxColor rgb(25, 29, 19) -> rgb(245, 255, 248); radius 4px -> 5.444623px; label rgb(25, 29, 19) -> rgb(245, 255, 248); over rgb(66, 73, 55) -> rgb(245, 255, 248); sup rgb(66, 73, 55) -> rgb(245, 255, 248); lead rgb(66, 73, 55) -> rgb(245, 255, 248); trail rgb(25, 29, 19) -> rgb(245, 255, 248); text rgb(66, 73, 55) -> rgb(245, 255, 248); wave rgb(25, 29, 19)/0.1 -> rgb(245, 255, 248)/0.1; zone - -> visible rgb(242, 245, 229)/1 16px
+    lifted: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 5.444623px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+selected: forced true; against rest: state - -> drag open; box color(srgb 0.8 0.933333 0.631373) -> color(srgb 0 0.521569 0.392157); boxColor rgb(81, 109, 47) -> rgb(245, 255, 248); label rgb(81, 109, 47) -> rgb(245, 255, 248); over rgb(81, 109, 47) -> rgb(245, 255, 248); sup rgb(81, 109, 47) -> rgb(245, 255, 248); lead rgb(81, 109, 47) -> rgb(245, 255, 248); trail rgb(81, 109, 47) -> rgb(245, 255, 248); text rgb(81, 109, 47) -> rgb(245, 255, 248); wave rgb(25, 29, 19)/0.1 -> rgb(245, 255, 248)/0.1; zone - -> visible rgb(242, 245, 229)/1 16px
+    lifted: state drag open, host rgba(0, 0, 0, 0), hostColor rgb(0, 0, 0), box color(srgb 0 0.521569 0.392157), boxColor rgb(245, 255, 248), radius 16px, label rgb(245, 255, 248), over rgb(245, 255, 248), sup rgb(245, 255, 248), lead rgb(245, 255, 248), trail rgb(245, 255, 248), text rgb(245, 255, 248), wave rgb(245, 255, 248)/0.1, zone visible rgb(242, 245, 229)/1 16px
+## re-grab in flight, then drop
+flight - rgb(247, 251, 234)/rgb(25, 29, 19); again drag open rgb(0, 133, 100)/rgb(245, 255, 248); end - rgb(247, 251, 234)/rgb(25, 29, 19)
+## key move pending, then a pointer drag of another item
+pending drag open rgb(247, 251, 234); then static drag open rgb(247, 251, 234)/rgb(25, 29, 19); other - rgb(247, 251, 234)/rgb(25, 29, 19); zone hidden rgb(242, 245, 229)/1 16px
+## a disconnection in a pointer drag
+against rest: radius 4px -> 12px
+## the lifted item moved to a plain list in a pointer drag
+  pageerror drag: sortable/landing-placeholder-lost
+against rest: none
+after the release, against rest: radius 4px -> 12px
+## a consumer's own drag sortable on a plain mx-list
+state - open host rgb(247, 251, 234) zone visible rgba(0, 0, 0, 0)/1 0px
