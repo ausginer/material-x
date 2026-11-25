@@ -6315,7 +6315,7 @@ Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: 
 
 #### RF-132 — A selected `mx-list-button-item` gives its button `aria-selected`, which the button role doesn't support
 
-Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-131` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `eddf39e7b` ([readings](accessibility-findings-1/checks/axe-and-forced-colors.txt), [probe](accessibility-findings-1/probes/a11y.mjs.txt)).
+Tier A, **open**, **ready** (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-131` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `eddf39e7b` ([readings](accessibility-findings-1/checks/axe-and-forced-colors.txt), [probe](accessibility-findings-1/probes/a11y.mjs.txt)).
 
 - **What happens:** axe-core 4.14.1 reports `aria-allowed-attr`, critical, on the inner `<button>` of a selected `mx-list-button-item`, in Chromium, Firefox and WebKit. It reports nothing on an item that was never selected.
 - **Cause:** core's `useSelectable` writes `aria-selected` on its target: `true` while `selected` is set, and `false` when it is removed. Core's own rows assert both.
@@ -6332,6 +6332,54 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Not read:** a screen reader, Safari.
 - **Plan needed:** no, only the ruling on the replacement.
 - **Size:** _small_, after the ruling.
+
+**Dated 2026-11-25 by the architect, on `material-x/list-selected-1`: the replacement is ruled, and the entry is ready for an implementer.** Requested by the coordinator. `main` at `8bed561de` is the base. Local labels, for Mx Architect to mint where one is wanted: `LS-1` to `LS-4`.
+
+- **`LS-1`: a selected `mx-list-button-item` gives its button its own `aria-current="true"`, and no `aria-*` of selection otherwise.** It is written by `setOwnARIA`, so `RF-130`'s rule holds: a host's `aria-current` comes first, in every order.
+  - It is valid on a button, says nothing about an item that isn't selected, and is what the link item writes with `"page"`. The definition is the property: the element of a set that is visually styled as the current one. ARIA's _SHOULD NOT_ against `aria-current` in place of `aria-selected` is for widgets in which `aria-selected` has that meaning: gridcells, options, rows and tabs ([ARIA 1.2](https://www.w3.org/TR/wai-aria-1.2/#aria-current)).
+- **`LS-2`: `useInteractiveListItemCore` writes it, for both items,** with the value that each one gives. The link item's value and behavior don't change.
+- **`LS-3`: core's `useSelectable` goes. `Selectable`, `SelectableProps` and `SELECTABLE_ATTRS` stay,** and both items have them. The button item was the hook's only adopter. A hook that writes `aria-selected` is right only for a role that supports it, and no component has one. `CONTRIBUTING.md` §8 gives no reason to keep an unused export: `@ydinjs/core` and `@ydinjs/material-x` aren't on the registry (read today, 404 for both). The entry says above that this ruling isn't the owner's, so nothing is asked.
+- **`LS-4`: limits, accepted.** Several selected items each say that they are current, where ARIA asks for one in a set. A page whose items are toggles gives `aria-pressed` and `aria-current="false"` itself, and both reach the button. But `aria-pressed` stays on the host too, whose `listitem` role doesn't support it (`RF-94`), and axe asks for a review of it. So the documentation doesn't recommend it.
+- **Not taken:** `aria-pressed` by the component (the entry's reason: without an explicit `false` the button changes from a toggle to a plain one, and with it every action is a toggle); nothing written by the component (a selected item is then a color); roles of a listbox (an option can't have the controls that an item's slots have, and the keyboard is another one); `useSelectable` kept in core with a value parameter (a mapping that only the list has).
+
+**Read in Chromium 158, Firefox 159 and WebKit 27.2, each by its own tree** ([on `main`](list-selected-1/checks/trees-main.txt), [candidate](list-selected-1/checks/trees-candidate.txt), [probe](list-selected-1/probes/selected.mjs), [candidate's diff](list-selected-1/probes/candidate.diff)):
+
+|  | `main` | Candidate |
+| --- | --- | --- |
+| Chromium's internal tree, a selected item | as one that isn't selected | `ariaCurrentState=true` |
+| Firefox's accessibility service | as one that isn't selected | the attribute `current=true` and the state `current` |
+| WebKit's inspector | `selected: true` | `current: "true"` |
+| Any of them, an item that was selected, or never | nothing but the button | nothing but the button |
+| axe-core 4.14.1, three engines, seven items that are or were selected | `aria-allowed-attr`, critical, on each | nothing |
+
+- **Corrected:** the entry's _"exposes a selected item as a button with the same properties"_ holds for Chromium and Firefox. WebKit exposes `aria-selected` on the button, and that is lost. `aria-current` is exposed in the three.
+- **`disabled` with `selected`** says `current` in the three engines.
+- **Chromium's protocol tree doesn't have `current`,** so `readAccessibilityTree` can't assert it. The rows read the attribute, and the trees above are the evidence for the rest.
+- **`RF-130`'s rows today:** `aria-own-value.browser.test.ts` has the pair `mx-list-button-item`, `aria-selected`, with the host's `"true"` and the own `"true"` and `"false"`, in five rows. On `main`'s source the new pair fails in four of the five.
+
+**The implementer's list,** on `material-x/list-selected-1`. The candidate is a direction, and its form is free.
+
+1. **Source.** `ListInteractiveItemCore.ts`, `list-button-item.ts`, `list-link-item.ts` by `LS-1` and `LS-2`. The value is set after `useARIA`. `packages/core/src/traits/selectable.ts` by `LS-3`, with the imports that nothing uses then.
+2. **JSDoc,** the `selected` attribute, exact words:
+   - button item: _Applies selected visual state, and sets the button's own `aria-current="true"`. An `aria-current` of the host comes first._
+   - link item: _Applies selected visual state, and sets the link's own `aria-current="page"`. An `aria-current` of the host comes first._
+3. **Rows,** `browser`, in each engine:
+   - a new file of `tests/list`, for both items: all `aria-*` of the control are none when it was never selected, only `aria-current` when it is selected before the connect and after it, and none after it is deselected. A [draft](list-selected-1/probes/rows.browser.test.ts.txt) of the eight rows is there;
+   - `aria-own-value.browser.test.ts`: the button item's pair becomes `aria-current`, given `step`, on `true`, off `null`;
+   - core's `selectable.browser.test.ts` loses the two rows of the hook, and `createHostWithTarget`.
+4. **Witnesses,** one engine at a time, each saved: `main`'s sources; `"false"` in place of none; nothing written; `"page"` on the button; `"true"` on the link; the value written past `setOwnARIA`; `aria-pressed` in its place; `aria-selected` beside it. The architect read each on the draft in the three engines, with the same failing rows in each ([reading](list-selected-1/checks/mutations.txt)).
+5. **Checks,** core rebuilt first, and `build-prepare` run: the two packages without the visual project in one engine, `tests/list`, `aria-own-value` and core's `selectable` in the three; typecheck of both, the declarations' typecheck, lint, the root format check, publint, `docs-build` and `docs-smoke`. **No visual baseline changes.**
+6. **Sizes by `just size`,** Brotli, one reading each on the candidate ([reading](list-selected-1/checks/sizes.txt)): `list/list-button-item` 4898 to 4922, `list/list-link-item` 5121 to 5125, `complete` 25879 to 25797. Every other row is the same. Single readings move by tens of bytes with the private names (`RF-130`), so +24 and +4 aren't told apart from that, and the same holds for `complete`'s −82. No row has a limit.
+7. **The description** has `Closes #238`, that core loses `useSelectable`, and the limits of `LS-4`.
+8. **Stop** and return if a row reads differently in an engine, or a mutation fails no row.
+
+- **With `RF-142` (#271, `material-x/disabled-item-1`):** it doesn't touch this code. Its JSDoc of `disabled` is the line after `selected` in both items, so the second to merge keeps both lines. Its rows and readings don't read the selection.
+- **With `RD-57`,** which isn't started: no list to edit, and `aria-allowed-attr` isn't on its first list if this lands before.
+- **With `RF-133`:** independent. A selected item's look in forced colors is still that entry's.
+- **`.agents/docs/accessibility.md`** states the rule after the unit, in its own pull request, which the coordinator takes. The line of interactive items gains: _"A selected item's control has the own `aria-current`, `"true"` on a button and `"page"` on a link, unless the host has an `aria-current`, which comes first."_
+- **The candidate passes** `tests/list` (`browser` and `spec`), `aria-own-value` and `traits-baseline` in the three engines ([reading](list-selected-1/checks/list-suites-candidate.txt)).
+- **Not read:** a screen reader, Safari, core's suite with the hook removed.
+- **A feature proof is owed,** because what a page's users hear changes. **Plan needed:** no. **Size:** _small_. Nothing is the owner's.
 
 #### RF-133 — material-x doesn't adapt to forced colors: a checked, selected or filled element loses what tells it apart
 

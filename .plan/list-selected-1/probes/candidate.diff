@@ -1,0 +1,126 @@
+diff --git a/packages/core/src/traits/selectable.ts b/packages/core/src/traits/selectable.ts
+index 7e5de3b30..c74c8973d 100644
+--- a/packages/core/src/traits/selectable.ts
++++ b/packages/core/src/traits/selectable.ts
+@@ -1,7 +1,4 @@
+ import { Bool, type ConverterOf } from '../attribute.ts';
+-import { setOwnARIA } from '../controllers/useARIA.ts';
+-import { useAttributes } from '../controllers/useAttributes.ts';
+-import type { ControlledElement } from '../element.ts';
+ import { AnyElement, attributes, type Props } from './attribute-traits.ts';
+ import { trait } from './composition.ts';
+ 
+@@ -22,17 +19,3 @@ export class Selectable extends AnyElement {
+  * Framework-facing props derived from {@link Selectable}.
+  */
+ export type SelectableProps = Props<typeof Selectable>;
+-
+-/**
+- * Sets the component's own `aria-selected` of `target` from the `selected`
+- * attribute of `host`.
+- */
+-export function useSelectable(
+-  host: Selectable & ControlledElement,
+-  target: HTMLElement,
+-): void {
+-  useAttributes(host, {
+-    selected: (_, value) =>
+-      setOwnARIA(target, 'aria-selected', String(value != null)),
+-  });
+-}
+diff --git a/packages/material-x/src/list/ListInteractiveItemCore.ts b/packages/material-x/src/list/ListInteractiveItemCore.ts
+index bfab67f9c..4c572ac6a 100644
+--- a/packages/material-x/src/list/ListInteractiveItemCore.ts
++++ b/packages/material-x/src/list/ListInteractiveItemCore.ts
+@@ -1,5 +1,5 @@
+ import { Bool } from '@ydinjs/core/attribute.js';
+-import { useARIA } from '@ydinjs/core/controllers/useARIA.js';
++import { setOwnARIA, useARIA } from '@ydinjs/core/controllers/useARIA.js';
+ import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
+ import { internals, type ControlledElement } from '@ydinjs/core/element.js';
+ import type { Composed } from '@ydinjs/core/traits/composition.js';
+@@ -44,6 +44,7 @@ export type ListInteractiveItemCore = InstanceType<
+ export function useInteractiveListItemCore(
+   host: ListInteractiveItemCore,
+   template: HTMLTemplateElement,
++  current: 'page' | 'true',
+ ): HTMLButtonElement | HTMLAnchorElement {
+   const target = useListItemCore(host, [interactiveBoxStyles], template, {
+     delegatesFocus: true,
+@@ -55,6 +56,7 @@ export function useInteractiveListItemCore(
+   useAttributes(host, {
+     selected: via(Bool, (_, newValue) => {
+       toggleState(internals(host), 'selected', newValue);
++      setOwnARIA(target, 'aria-current', newValue ? current : null);
+     }),
+     disabled: via(Bool, (_, newValue) => {
+       toggleState(internals(host), 'disabled', newValue);
+diff --git a/packages/material-x/src/list/list-button-item.ts b/packages/material-x/src/list/list-button-item.ts
+index fe5f2c0fa..f9f4030e6 100644
+--- a/packages/material-x/src/list/list-button-item.ts
++++ b/packages/material-x/src/list/list-button-item.ts
+@@ -3,7 +3,6 @@ import {
+   type ControlledElementConstructor,
+ } from '@ydinjs/core/element.js';
+ import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
+-import { useSelectable } from '@ydinjs/core/traits/selectable.js';
+ import type { EmptyObject } from 'type-fest';
+ import template from './list-button-item.tpl.html' with { type: 'html' };
+ import {
+@@ -43,8 +42,7 @@ const ListButtonItemConstructor: Composed<
+ export default class ListButtonItem extends ListButtonItemConstructor {
+   constructor() {
+     super();
+-    const target = useInteractiveListItemCore(this, template);
+-    useSelectable(this, target);
++    useInteractiveListItemCore(this, template, 'true');
+   }
+ }
+ 
+diff --git a/packages/material-x/src/list/list-link-item.ts b/packages/material-x/src/list/list-link-item.ts
+index dd86ea672..cfe6bd27f 100644
+--- a/packages/material-x/src/list/list-link-item.ts
++++ b/packages/material-x/src/list/list-link-item.ts
+@@ -1,6 +1,3 @@
+-import { Bool } from '@ydinjs/core/attribute.js';
+-import { setOwnARIA } from '@ydinjs/core/controllers/useARIA.js';
+-import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
+ import {
+   ControlledElement,
+   type ControlledElementConstructor,
+@@ -58,15 +55,10 @@ export default class ListLinkItem extends ListLinkItemConstructor {
+     const target = useInteractiveListItemCore(
+       this,
+       template,
++      'page',
+     ) as HTMLAnchorElement;
+     useLinkable(this, target);
+     useDisableableLinkable(this, target);
+-
+-    useAttributes(this, {
+-      selected: via(Bool, (_, value) => {
+-        setOwnARIA(target, 'aria-current', value ? 'page' : null);
+-      }),
+-    });
+   }
+ }
+ 
+diff --git a/packages/material-x/tests/aria-own-value.browser.test.ts b/packages/material-x/tests/aria-own-value.browser.test.ts
+index fefdbe35b..95fa0b3e9 100644
+--- a/packages/material-x/tests/aria-own-value.browser.test.ts
++++ b/packages/material-x/tests/aria-own-value.browser.test.ts
+@@ -88,11 +88,11 @@ const PAIRS: readonly Pair[] = [
+   },
+   {
+     tag: 'mx-list-button-item',
+-    aria: 'aria-selected',
++    aria: 'aria-current',
+     source: 'selected',
+-    given: 'true',
++    given: 'step',
+     on: 'true',
+-    off: 'false',
++    off: null,
+   },
+ ];
+ 
