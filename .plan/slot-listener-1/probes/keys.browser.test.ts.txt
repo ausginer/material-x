@@ -1,0 +1,30 @@
+// @ts-nocheck
+// Run as packages/material-x/tests/core/keys.browser.test.ts, with core built.
+import { it } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+import '../../src/button-group/connected-button-group.ts';
+import '../../src/button/switch-button.ts';
+const task = () => new Promise((r) => setTimeout(r, 40));
+const B = (v) => `<mx-switch-button value=${v}>${v}</mx-switch-button>`;
+it('keys', async () => {
+  const out = [];
+  for (const kind of ['innerHTML', 'clone'])
+    for (const way of ['connected', 'out', 'late'])
+      for (const order of ['o first', 'group only']) {
+        document.body.replaceChildren();
+        const g = document.createElement('mx-connected-button-group');
+        if (way !== 'late') { document.body.append(g); await task(); }
+        if (way === 'out') { g.remove(); await task(); }
+        if (kind === 'clone') { const t = document.createElement('template'); t.innerHTML = B(1) + B(2) + B(3); g.append(t.content.cloneNode(true)); } else g.innerHTML = B(1) + B(2) + B(3);
+        await task();
+        const o = document.createElement('button'); document.body.prepend(o);
+        if (way !== 'connected') document.body.append(g);
+        await task();
+        // "group only" waits 400 ms more. The names are the script's own.
+        if (order === 'group only') { document.body.offsetWidth; await new Promise((r) => setTimeout(r, 400)); }
+        o.focus(); const path = [];
+        for (const k of ['Tab', 'ArrowRight', 'Tab', 'Tab']) { await userEvent.keyboard('{' + k + '}'); path.push(k + '>' + (document.activeElement.getAttribute('value') ?? document.activeElement.localName)); }
+        out.push(`${kind} ${way} ${order}: ${[...g.children].map((c) => c.getAttribute('tabindex'))} | ${path.join(' ')}`);
+      }
+  await commands.writeFile(`./out-keys-${server.browser}.txt`, out.join('\n') + '\n');
+}, 100000);

@@ -1,0 +1,31 @@
+## no mutation | chromium | 2 passed | 27 skipped (29)
+## no mutation | firefox | 2 passed | 27 skipped (29)
+## no mutation | webkit | 2 passed | 27 skipped (29)
+## the listener through useEvents, as before the repair | chromium | 2 failed | 27 skipped (29)
+   mx-list-item large leading image > should give the item its height and no leading space when the image changes while it is out of the document
+   mx-list-item large leading image > should give the item its height and no leading space when the image is there in a task before its first con…
+   AssertionError: expected { height: 56, leadingSpace: -24 } to deeply equal { height: 76, leadingSpace: +0 }
+## the listener through useEvents, as before the repair | firefox | 2 failed | 27 skipped (29)
+   mx-list-item large leading image > should give the item its height and no leading space when the image changes while it is out of the document
+   AssertionError: expected { height: 56, leadingSpace: -24 } to deeply equal { height: 76, leadingSpace: +0 }
+   mx-list-item large leading image > should give the item its height and no leading space when the image is there in a task before its first con…
+   AssertionError: expected { height: 56, leadingSpace: -24 } to deeply equal { height: 76, leadingSpace: +0 }
+## the listener through useEvents, as before the repair | webkit | 2 failed | 27 skipped (29)
+   mx-list-item large leading image > should give the item its height and no leading space when the image changes while it is out of the document
+   AssertionError: expected { height: 56, leadingSpace: -24 } to deeply equal { height: 76, leadingSpace: +0 }
+   mx-list-item large leading image > should give the item its height and no leading space when the image is there in a task before its first con…
+   AssertionError: expected { height: 56, leadingSpace: -24 } to deeply equal { height: 76, leadingSpace: +0 }
+## lead-large never set | chromium | 2 failed | 27 skipped (29)
+   mx-list-item large leading image > should give the item its height and no leading space when the image changes while it is out of the document
+   mx-list-item large leading image > should give the item its height and no leading space when the image is there in a task before its first con…
+   AssertionError: expected { height: 76, leadingSpace: 16 } to deeply equal { height: 76, leadingSpace: +0 }
+## lead-large never set | firefox | 2 failed | 27 skipped (29)
+   mx-list-item large leading image > should give the item its height and no leading space when the image changes while it is out of the document
+   AssertionError: expected { height: 76, leadingSpace: 16 } to deeply equal { height: 76, leadingSpace: +0 }
+   mx-list-item large leading image > should give the item its height and no leading space when the image is there in a task before its first con…
+   AssertionError: expected { height: 76, leadingSpace: 16 } to deeply equal { height: 76, leadingSpace: +0 }
+## lead-large never set | webkit | 2 failed | 27 skipped (29)
+   mx-list-item large leading image > should give the item its height and no leading space when the image changes while it is out of the document
+   AssertionError: expected { height: 76, leadingSpace: 16 } to deeply equal { height: 76, leadingSpace: +0 }
+   mx-list-item large leading image > should give the item its height and no leading space when the image is there in a task before its first con…
+   AssertionError: expected { height: 76, leadingSpace: 16 } to deeply equal { height: 76, leadingSpace: +0 }
