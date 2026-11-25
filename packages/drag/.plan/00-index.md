@@ -1,4 +1,4 @@
-| DRD-72 | decided on 2026-11-25 by the architect, on `drag/displacement-1`, for #265. Unimplemented. It waits for the owner's Q1, on the cost. Amends `DRI-14`, `DRI-17` and the public surface in the implementing commit |
+| DRD-72 | decided on 2026-11-25 by the architect, on `drag/displacement-1`, for #265. Unimplemented. The owner answered Q1 the same day, (a): the cost is accepted. Amends `DRI-14`, `DRI-17` and the public surface in the implementing commit |
 
 # `@ydinjs/drag` record: decisions
 
@@ -3340,13 +3340,15 @@ Every other row reads 0. The argument is additive, so drag's release (#57) doesn
 - **A zero-duration animation under the preference,** as `landing()` has it: a row's animation has no end that anyone waits for, so starting none is the same to see and does less.
 - **`duration` and `easing` as functions, each:** two calls for one reading, and the pair can disagree.
 
-**Owner's question:** Q1 below. **Ready** for an implementer when it is answered.
+**Owner's question:** Q1 below, answered. **Ready** for an implementer, on `drag/displacement-1`, with #265 at `r2`.
 
 **Q1, for the owner — is the cost accepted?**
 
 - **(a) Yes. Recommended.** The rows' ceilings move to the unit's readings (`DRO-20`), and a consumer without `displacement` carries about 0.2 kB more. The cost is mostly the operation's part, which has to know when it writes.
 - (b) Only a pointer drop and a command, with no return home. It is cheaper by a part that wasn't measured, and a canceled drag and a refused key still jump.
 - (c) No. The defect stays as it is, and the README says so.
+
+**Answered by the owner on 2026-11-25,** in chat, relayed by the coordinator: _"Q1 (a)"_. Recorded in #265 as Amendment 2. The ceilings move to the unit's readings, and a reading well above the candidate's comes back to the owner with the table.
 
 ## Disposition of the 2026-11-07 reviews
 
