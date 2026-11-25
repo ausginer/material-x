@@ -1,0 +1,22 @@
+diff --git a/packages/material-x/src/icon/icon.tpl.html b/packages/material-x/src/icon/icon.tpl.html
+index ebc19abc6..13e0e91ed 100644
+--- a/packages/material-x/src/icon/icon.tpl.html
++++ b/packages/material-x/src/icon/icon.tpl.html
+@@ -1 +1 @@
+-<span aria-hidden="true"><slot></slot></span>
++<slot></slot>
+diff --git a/packages/material-x/src/icon/icon.ts b/packages/material-x/src/icon/icon.ts
+index 91ba4c372..28186917d 100644
+--- a/packages/material-x/src/icon/icon.ts
++++ b/packages/material-x/src/icon/icon.ts
+@@ -31,0 +32 @@ export default class Icon extends ControlledElement {
++    this.shadowRoot!.firstElementChild!.setAttribute('aria-hidden', 'true');
+diff --git a/packages/material-x/src/icon/styles/icon.ctr.css b/packages/material-x/src/icon/styles/icon.ctr.css
+index b8d3209c8..161a3113a 100644
+--- a/packages/material-x/src/icon/styles/icon.ctr.css
++++ b/packages/material-x/src/icon/styles/icon.ctr.css
+@@ -22,0 +23,4 @@
++
++slot {
++  display: inline;
++}
