@@ -1,0 +1,12 @@
+# chromium 158.0.8127.18
+manual | the page's own open popover stays open true | after a click on the page off@0
+auto | the page's own open popover stays open false | after a click on the page on WRONG@0
+
+# firefox 159.0
+manual | the page's own open popover stays open true | after a click on the page off@0
+auto | the page's own open popover stays open false | after a click on the page on WRONG@0
+
+# webkit 27.2
+manual | the page's own open popover stays open true | after a click on the page off@0
+auto | the page's own open popover stays open false | after a click on the page on WRONG@0
+

@@ -115,6 +115,12 @@ import type {
   TextFieldEvents,
   TextFieldProperties,
 } from './text-field/TextFieldCore.ts';
+import type TopAppBar from './top-app-bar/top-app-bar.ts';
+import type {
+  TopAppBarCSSProperties,
+  TopAppBarEvents,
+  TopAppBarProperties,
+} from './top-app-bar/top-app-bar.ts';
 
 type JSXWrapper<
   C extends HTMLElement,
@@ -209,6 +215,8 @@ type MultilineTextFieldJSX = JSXWrapper<
   TextFieldEvents
 >;
 
+type TopAppBarJSX = JSXWrapper<TopAppBar, TopAppBarProperties, TopAppBarEvents>;
+
 declare module 'react' {
   namespace JSX {
     interface IntrinsicElements {
@@ -233,6 +241,7 @@ declare module 'react' {
       'mx-icon': IconJSX;
       'mx-text-field': TextFieldJSX;
       'mx-multiline-text-field': MultilineTextFieldJSX;
+      'mx-top-app-bar': TopAppBarJSX;
     }
   }
   export interface CSSProperties
@@ -256,5 +265,6 @@ declare module 'react' {
       SortableListCSSProperties,
       RadioCSSProperties,
       SliderCSSProperties,
-      TextFieldCSSProperties {}
+      TextFieldCSSProperties,
+      TopAppBarCSSProperties {}
 }

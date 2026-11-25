@@ -1,0 +1,188 @@
+## clean: passed 245 failed 0
+## root element as target, its old options and state: passed 230 failed 15
+   3x scrolled state should follow the scroll position with html { margin-top: 46px; }
+   3x scrolled state should follow the scroll position with html { position: relative; top: 20px; }
+   3x scrolled state should follow the scroll position with body { position: absolute; inset: 0 0 auto; }
+   3x scrolled state should follow the scroll position with html { height: 0; }
+   3x scrolled state should be off while the bar is hidden on a scrolled page, and on when it is shown there
+## the options, box and state of 8f5ad01db: passed 236 failed 9
+   3x scrolled state should draw its resting color from its first frame when it is shown from display: none at the start
+   3x scrolled state should draw its resting color from its first frame when it is shown from a closed dialog at the start
+   3x scrolled state should be off while the bar is hidden on a scrolled page, and on when it is shown there
+## viewport as the area, state from the box top: passed 221 failed 24
+   3x scrolled state should be on after 1px
+   3x scrolled state should follow the scroll position with html { margin-top: 46px; }
+   3x scrolled state should follow the scroll position with html { position: relative; top: 20px; }
+   3x scrolled state should follow the scroll position with body { position: absolute; inset: 0 0 auto; }
+   3x scrolled state should follow the scroll position with html { height: 0; }
+   3x scrolled state should follow the scroll position with html { height: 100%; }
+   3x scrolled state should be on when a bar hidden at the start is shown at a scrolled position
+   3x scrolled state should be off while the bar is hidden on a scrolled page, and on when it is shown there
+## an entry that is not intersecting is ignored: passed 212 failed 33
+   3x scrolled state should be off again at the start
+   3x scrolled state should match the start when the bar reconnects there
+   3x scrolled state should match a scrolled position when a bar removed as it connected is inserted there
+   3x scrolled state should follow the scroll position when another element moves the bar as it connects
+   3x scrolled state should follow the scroll position with html { margin-top: 46px; }
+   3x scrolled state should follow the scroll position with html { position: relative; top: 20px; }
+   3x scrolled state should follow the scroll position with body { position: absolute; inset: 0 0 auto; }
+   3x scrolled state should follow the scroll position with html { height: 0; }
+   3x scrolled state should follow the scroll position with html { height: 100%; }
+   3x scrolled state should be off when a scrolled page becomes too short to scroll
+   3x scrolled state should be off while the bar is hidden on a scrolled page, and on when it is shown there
+## box 2px below the start: passed 227 failed 18
+   3x scrolled state should be on after 1px
+   3x scrolled state should follow the scroll position with html { margin-top: 46px; }
+   3x scrolled state should follow the scroll position with html { position: relative; top: 20px; }
+   3x scrolled state should follow the scroll position with body { position: absolute; inset: 0 0 auto; }
+   3x scrolled state should follow the scroll position with html { height: 0; }
+   3x scrolled state should follow the scroll position with html { height: 100%; }
+## box without a size: passed 200 failed 45
+   3x scrolled state should be on after 1px
+   3x scrolled state should be on after a jump to the end
+   3x scrolled state should be off again at the start
+   3x scrolled state should match the start when a bar removed as it connected is inserted there
+   3x scrolled state should match a scrolled position when a bar removed as it connected is inserted there
+   3x scrolled state should follow the scroll position when another element moves the bar as it connects
+   3x scrolled state should be on at a scrolled position after a click on the page
+   3x scrolled state should follow the scroll position with html { margin-top: 46px; }
+   3x scrolled state should follow the scroll position with html { position: relative; top: 20px; }
+   3x scrolled state should follow the scroll position with body { position: absolute; inset: 0 0 auto; }
+   3x scrolled state should follow the scroll position with html { height: 0; }
+   3x scrolled state should follow the scroll position with html { height: 100%; }
+   3x scrolled state should follow the block axis of a wide page scrolled sideways past one viewport
+   3x scrolled state should be off when a scrolled page becomes too short to scroll
+   3x scrolled state should change once over many scroll steps away from the start
+## no threshold: passed 200 failed 45
+   3x scrolled state should be on after 1px
+   3x scrolled state should be on after a jump to the end
+   3x scrolled state should be off again at the start
+   3x scrolled state should match the start when a bar removed as it connected is inserted there
+   3x scrolled state should match a scrolled position when a bar removed as it connected is inserted there
+   3x scrolled state should follow the scroll position when another element moves the bar as it connects
+   3x scrolled state should be on at a scrolled position after a click on the page
+   3x scrolled state should follow the scroll position with html { margin-top: 46px; }
+   3x scrolled state should follow the scroll position with html { position: relative; top: 20px; }
+   3x scrolled state should follow the scroll position with body { position: absolute; inset: 0 0 auto; }
+   3x scrolled state should follow the scroll position with html { height: 0; }
+   3x scrolled state should follow the scroll position with html { height: 100%; }
+   3x scrolled state should follow the block axis of a wide page scrolled sideways past one viewport
+   3x scrolled state should be off when a scrolled page becomes too short to scroll
+   3x scrolled state should change once over many scroll steps away from the start
+## top margin 100000000px: passed 239 failed 6
+   webkit scrolled state should be on after 1px
+   webkit scrolled state should follow the scroll position with html { margin-top: 46px; }
+   webkit scrolled state should follow the scroll position with html { position: relative; top: 20px; }
+   webkit scrolled state should follow the scroll position with body { position: absolute; inset: 0 0 auto; }
+   webkit scrolled state should follow the scroll position with html { height: 0; }
+   webkit scrolled state should follow the scroll position with html { height: 100%; }
+## side margins 0: passed 242 failed 3
+   3x scrolled state should follow the block axis of a wide page scrolled sideways past one viewport
+## default root: passed 194 failed 51
+   3x scrolled state should be on after 1px
+   3x scrolled state should be on after a jump to the end
+   3x scrolled state should be off again at the start
+   3x scrolled state should match the start when a bar removed as it connected is inserted there
+   3x scrolled state should match a scrolled position when a bar removed as it connected is inserted there
+   3x scrolled state should follow the scroll position when another element moves the bar as it connects
+   3x scrolled state should be on at a scrolled position after a click on the page
+   3x scrolled state should follow the scroll position with html { margin-top: 46px; }
+   3x scrolled state should follow the scroll position with html { position: relative; top: 20px; }
+   3x scrolled state should follow the scroll position with body { position: absolute; inset: 0 0 auto; }
+   3x scrolled state should follow the scroll position with html { height: 0; }
+   3x scrolled state should follow the scroll position with html { height: 100%; }
+   3x scrolled state should follow the block axis of a wide page scrolled sideways past one viewport
+   3x scrolled state should be off when a scrolled page becomes too short to scroll
+   3x scrolled state should be on when a bar hidden at the start is shown at a scrolled position
+   3x scrolled state should be off while the bar is hidden on a scrolled page, and on when it is shown there
+   3x scrolled state should change once over many scroll steps away from the start
+## popover auto: passed 239 failed 6
+   3x scrolled state should leave the page's open popover open when the bar connects
+   3x scrolled state should be on at a scrolled position after a click on the page
+## popover hint: passed 242 failed 3
+   3x scrolled state should be on at a scrolled position after a click on the page
+## nothing at a connect while the box is open: passed 242 failed 3
+   3x scrolled state should follow the scroll position when another element moves the bar as it connects
+## state never turns off: passed 212 failed 33
+   3x scrolled state should be off again at the start
+   3x scrolled state should match the start when the bar reconnects there
+   3x scrolled state should match a scrolled position when a bar removed as it connected is inserted there
+   3x scrolled state should follow the scroll position when another element moves the bar as it connects
+   3x scrolled state should follow the scroll position with html { margin-top: 46px; }
+   3x scrolled state should follow the scroll position with html { position: relative; top: 20px; }
+   3x scrolled state should follow the scroll position with body { position: absolute; inset: 0 0 auto; }
+   3x scrolled state should follow the scroll position with html { height: 0; }
+   3x scrolled state should follow the scroll position with html { height: 100%; }
+   3x scrolled state should be off when a scrolled page becomes too short to scroll
+   3x scrolled state should be off while the bar is hidden on a scrolled page, and on when it is shown there
+## not shown: passed 179 failed 66
+   3x scrolled state should be on after 1px
+   3x scrolled state should be on after a jump to the end
+   3x scrolled state should be on when the bar connects to a scrolled page
+   3x scrolled state should match a scrolled position when the bar reconnects there
+   3x scrolled state should match the start when a bar removed as it connected is inserted there
+   3x scrolled state should match a scrolled position when a bar removed as it connected is inserted there
+   3x scrolled state should follow the scroll position when another element moves the bar as it connects
+   3x scrolled state should be on at a scrolled position after a click on the page
+   3x scrolled state should follow the scroll position with html { margin-top: 46px; }
+   3x scrolled state should follow the scroll position with html { position: relative; top: 20px; }
+   3x scrolled state should follow the scroll position with body { position: absolute; inset: 0 0 auto; }
+   3x scrolled state should follow the scroll position with html { height: 0; }
+   3x scrolled state should follow the scroll position with html { height: 100%; }
+   3x scrolled state should follow the block axis of a wide page scrolled sideways past one viewport
+   3x scrolled state should be off when a scrolled page becomes too short to scroll
+   3x scrolled state should be on when a bar hidden at the start is shown at a scrolled position
+   3x scrolled state should be off while the bar is hidden on a scrolled page, and on when it is shown there
+   3x scrolled state should change once over many scroll steps away from the start
+   3x container contract should render the on-scroll container color when scrolled
+   3x container contract should draw no shadow when scrolled
+   3x container contract should change the color over the motion duration and easing
+   3x CSS properties should render --md-top-app-bar-on-scroll-container-color when scrolled
+## shown at the first connect only: passed 242 failed 3
+   3x scrolled state should match a scrolled position when the bar reconnects there
+## no connected check: passed 242 failed 3
+   3x scrolled state should report no error when another element removes the bar as it connects
+## started at the first connect only, also one while disconnected: passed 230 failed 15
+   3x scrolled state should match the start when the bar reconnects there
+   3x scrolled state should match a scrolled position when the bar reconnects there
+   3x scrolled state should match the start when a bar removed as it connected is inserted there
+   3x scrolled state should match a scrolled position when a bar removed as it connected is inserted there
+   3x scrolled state should follow the scroll position when another element moves the bar as it connects
+## window listener, no work: passed 242 failed 3
+   3x scrolled state should change once over many scroll steps away from the start
+## bare listener, no work: passed 242 failed 3
+   3x scrolled state should change once over many scroll steps away from the start
+## document listener, no work: passed 242 failed 3
+   3x scrolled state should change once over many scroll steps away from the start
+## document listener sets state: passed 236 failed 9
+   3x scrolled state should keep its value while the bar is disconnected
+   3x scrolled state should be off while the bar is hidden on a scrolled page, and on when it is shown there
+   3x scrolled state should change once over many scroll steps away from the start
+## one more element: passed 242 failed 3
+   3x accessibility should hold only its three slots and the scroll start in its shadow root
+## position fixed: passed 242 failed 3
+   3x position should take its space in the flow
+## slots shrink: passed 239 failed 6
+   3x slot layout should keep the width of lead in a bar that is too narrow
+   3x slot layout should keep the width of trail in a bar that is too narrow
+## slots not centered: passed 239 failed 6
+   3x slot layout should center content of different heights in lead
+   3x slot layout should center content of different heights in trail
+## headline without color: passed 239 failed 6
+   3x headline contract color should apply to text
+   3x headline contract color should apply to a slotted h1
+## headline without font-family: passed 239 failed 6
+   3x headline contract font-family should apply to text
+   3x headline contract font-family should apply to a slotted h1
+## headline without font-size: passed 239 failed 6
+   3x headline contract font-size should apply to text
+   3x headline contract font-size should apply to a slotted h1
+## headline without font-weight: passed 239 failed 6
+   3x headline contract font-weight should apply to text
+   3x headline contract font-weight should apply to a slotted h1
+## headline without line-height: passed 239 failed 6
+   3x headline contract line-height should apply to text
+   3x headline contract line-height should apply to a slotted h1
+## headline without letter-spacing: passed 239 failed 6
+   3x headline contract letter-spacing should apply to text
+   3x headline contract letter-spacing should apply to a slotted h1

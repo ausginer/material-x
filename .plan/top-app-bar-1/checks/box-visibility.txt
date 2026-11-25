@@ -1,0 +1,22 @@
+Read at 634dae5ef's source (9bf471bd8), as built in the slot.
+# chromium 158.0.8127.18
+as built | hit button, checkVisibility false
+visibility: visible | hit mx-top-app-bar, checkVisibility true
+visibility: visible; opacity: 0 | hit mx-top-app-bar, checkVisibility false
+visibility: visible; pointer-events: none | hit button, checkVisibility true
+visibility: visible; pointer-events: none; opacity: 0 | hit button, checkVisibility false
+visibility: visible; background: none | hit mx-top-app-bar, checkVisibility true
+# firefox 159.0
+as built | hit button, checkVisibility false
+visibility: visible | hit mx-top-app-bar, checkVisibility true
+visibility: visible; opacity: 0 | hit mx-top-app-bar, checkVisibility false
+visibility: visible; pointer-events: none | hit button, checkVisibility true
+visibility: visible; pointer-events: none; opacity: 0 | hit button, checkVisibility false
+visibility: visible; background: none | hit mx-top-app-bar, checkVisibility true
+# webkit 27.2
+as built | hit button, checkVisibility false
+visibility: visible | hit mx-top-app-bar, checkVisibility true
+visibility: visible; opacity: 0 | hit mx-top-app-bar, checkVisibility false
+visibility: visible; pointer-events: none | hit button, checkVisibility true
+visibility: visible; pointer-events: none; opacity: 0 | hit button, checkVisibility false
+visibility: visible; background: none | hit mx-top-app-bar, checkVisibility true

@@ -1,0 +1,18 @@
+# chromium 158.0.8127.18
+control | moved as it connects: off@0 on@300 off@0, errors 0  | the page's open auto popover stays open true | after a click: off@0 on@300 off@0
+nothing at a connect while the box is open | moved as it connects: off@0 off@300 off@0, errors 0  | the page's open auto popover stays open true | after a click: off@0 on@300 off@0
+no connected check | moved as it connects: off@0 on@300 off@0, errors 0  | the page's open auto popover stays open true | after a click: off@0 on@300 off@0
+popover auto | moved as it connects: off@0 on@300 off@0, errors 0  | the page's open auto popover stays open false | after a click: off@0 off@300 off@0
+popover hint | moved as it connects: off@0 on@300 off@0, errors 0  | the page's open auto popover stays open true | after a click: off@0 off@300 off@0
+# firefox 159.0
+control | moved as it connects: off@0 on@300 off@0, errors 0  | the page's open auto popover stays open true | after a click: off@0 on@300 off@0
+nothing at a connect while the box is open | moved as it connects: off@0 off@300 off@0, errors 0  | the page's open auto popover stays open true | after a click: off@0 on@300 off@0
+no connected check | moved as it connects: off@0 on@300 off@0, errors 0  | the page's open auto popover stays open true | after a click: off@0 on@300 off@0
+popover auto | moved as it connects: off@0 on@300 off@0, errors 0  | the page's open auto popover stays open false | after a click: off@0 off@300 off@0
+popover hint | moved as it connects: off@0 on@300 off@0, errors 0  | the page's open auto popover stays open true | after a click: off@0 off@300 off@0
+# webkit 27.2
+control | moved as it connects: off@0 on@300 off@0, errors 0  | the page's open auto popover stays open true | after a click: off@0 on@300 off@0
+nothing at a connect while the box is open | moved as it connects: off@0 off@300 off@0, errors 0  | the page's open auto popover stays open true | after a click: off@0 on@300 off@0
+no connected check | moved as it connects: off@0 on@300 off@0, errors 0  | the page's open auto popover stays open true | after a click: off@0 on@300 off@0
+popover auto | moved as it connects: off@0 on@300 off@0, errors 0  | the page's open auto popover stays open false | after a click: off@0 off@300 off@0
+popover hint | moved as it connects: off@0 on@300 off@0, errors 0  | the page's open auto popover stays open true | after a click: off@0 off@300 off@0
