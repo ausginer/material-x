@@ -2567,7 +2567,7 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 #### RD-56 — A finding lives in one GitHub issue, whose body is its contract, and the registers hold decisions
 
-**Accepted 2026-11-24 by the owner, with a trial before the cut-over. Stages 1 and 2 are approved to start, and stage 3, the trial, isn't. Stage 1 is on `main` (#244, `8663d722b`), and stage 2 merges with #250 (the last note).** Proposed the same day by the architect on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this entry at `87c55405f`. The owner's answers, relayed by the coordinator: _"По переезду: Q1-Q3 (a), Q4-Q5 (b) Q6: (a)"_ ("On the move: Q1-Q3 (a), Q4-Q5 (b), Q6 (a)"). He answered a summary that proposed a small tool and the first three stages only, which the architect takes as his direction. The [plan](findings-on-github-1/findings-on-github-plan.md) has his words, the counts, the alternatives, what is lost, the stages and the implementer's work list. `RD-55` (`material-x/slider-1`) is the next lower number on any branch on `origin`.
+**Accepted 2026-11-24 by the owner, with a trial before the cut-over. Stages 1 and 2 are on `main` (#244, `8663d722b`, and #250, `855990331`). Stage 3, the trial, is approved (the last note), and stage 4 isn't.** Proposed the same day by the architect on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this entry at `87c55405f`. The owner's answers, relayed by the coordinator: _"По переезду: Q1-Q3 (a), Q4-Q5 (b) Q6: (a)"_ ("On the move: Q1-Q3 (a), Q4-Q5 (b), Q6 (a)"). He answered a summary that proposed a small tool and the first three stages only, which the architect takes as his direction. The [plan](findings-on-github-1/findings-on-github-plan.md) has his words, the counts, the alternatives, what is lost, the stages and the implementer's work list. `RD-55` (`material-x/slider-1`) is the next lower number on any branch on `origin`.
 
 **What is in force, and when:**
 
@@ -2607,6 +2607,8 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 **Dated 2026-11-24 by the architect: stage 1 is on `main`,** as #244 (`8663d722b`). The status above said _"Stage 1 is written on `repo/findings-on-github-1` (#244), and isn't merged."_ Stage 2 is #250, open. So the first row of the table is still the one in force: there is no `tier:` label and no trial, and a new finding goes to its register. The plan's status line is stage 2's branch's to change, because that branch edits it.
 
 **Dated 2026-11-25 by the architect: stage 2 is closed** on `repo/finding-tool-1`, and #250 merges it. The plan's [closure](findings-on-github-1/findings-on-github-plan.md#stage-2-closed) has the readings. With that merge stages 1 and 2 are on `main`, so the second row of the table is in force. It changes nothing for a new finding: stage 3 isn't approved, and no `tier:` label exists. No property changes.
+
+**Dated 2026-11-25 by the architect: the owner approved stage 3 the same day,** relayed by the coordinator: _"да на этап 3"_ ("yes to stage 3"). The second row of the table is in force with its exception. The coordinator created the labels `tier:A`, `tier:B` and `tier:C`. The trial is the next new finding that a unit repairs at once, and the coordinator names it. None is named yet, so each new finding still goes to its register unless the coordinator says otherwise. The status above said _"Stages 1 and 2 are approved to start, and stage 3, the trial, isn't. Stage 1 is on `main` (#244, `8663d722b`), and stage 2 merges with #250 (the last note)."_ No property changes.
 
 #### RD-57 — axe-core checks material-x's elements in the browser tests, supplementary, with each known violation listed by rule and target
 
@@ -4085,6 +4087,8 @@ Tier A, **open**. Registered on 2026-11-20 by the architect, on `repo/list-sorta
 - **Re-planned on the owner's direction,** relayed by the coordinator: `RD-31` (#90) merges first, and this unit follows on top of it. So core's trait, which #90 deletes, isn't changed here. Drag's lift already keeps that set, and closes `reviewer-3`. This unit makes `RD-31`'s knock-on itself: a static item's sortable writes go on its host, `mx-list-item` drops `FocusForwarding` and `delegatesFocus`, and the sortable list's `visual` callback goes. The architect amends `RD-31` on this branch after the merge.
 - **Read in the code, not run:** drag's lift writes `transition: none` inline, so with the host lifted, the item's elevation wouldn't rise over the drag's duration. The re-plan restores that one transition for the lift, after a reading.
 
+**Dated 2026-11-25 by the architect: the handoff's property 6 is amended for `RF-129`** (#230), on `material-x/reorder-tokens-1`. In a pointer drag an `mx-list-item` host takes the reorder colors in place of its own. The [handoff](list-roles-1/list-roles-handoff.md#what-rf-129-replaces) has what it replaces. The entry's status isn't changed by this note.
+
 #### RF-69 — A context consumer that connects before its provider is defined never resolves it
 
 Tier A, **closed 2026-11-21** (below). Before closure: open. Registered on 2026-11-21 by the architect, on `core/context-late-provider-1`, from Mx Architect B's proposal in `RD-31`'s [plan](https://github.com/ausginer/material-x/blob/6214e3b57/.plan/list-sortable-1/list-sortable-plan.md) at `6214e3b57`, which read the code and didn't run it. Relayed by the coordinator. `RF-68` (`material-x/list-roles-1`) is the highest `RF-` on any branch on `origin`, so this is the next free number. The proposal gave Tier B. A correctly integrated page sees the buttons ignore their group, so by consequence it is Tier A.
@@ -4331,6 +4335,13 @@ Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Not established:** the cause in Chromium. The review set `draggable="false"` on the shadow anchor from a probe. Firefox then lifts the item, and Chromium still fires `dragstart` and doesn't. The unit establishes the cause, and a Chromium row decides the repair.
 - **Rows,** `browser`, in each engine at `RD-20`'s floor: each interactive item lifts in `mx-sortable-list` under a real pointer drag, and a released link item leaves the page's location unchanged. `RF-70`'s row in `tests/core/elevation.spec.browser.test.ts` then reads the link item at its dragged level, as it reads the button item.
 - **Size:** _medium_. The link item's drag in `mx-sortable-list`, the Chromium cause, and the rows.
+
+**Dated 2026-11-25 by the architect: the property covers a link item with a handle,** from an observation in the [feature proof](reviews/reorder-tokens-1/feature-proof-claude.md#observations-no-finding) of `RF-129`, requested by the coordinator. On `material-x/reorder-tokens-1`.
+
+- **Read in the [proof's reading](reviews/reorder-tokens-1/checks/look.txt), not run again:** by its handle, a link item and a selected one are lifted in Chromium and WebKit, and not in Firefox. When the page stops the native drag, Firefox lifts both, with a handle and without. So it is this entry's defect, the native drag of the anchor, and it gets no number of its own.
+- **The required property gains:** in each engine at `RD-20`'s floor, a link item with a handle lifts under a pointer drag of its handle. Releasing the drag doesn't follow the link.
+- **The rows gain** the handle. In `sortable-list.spec.browser.test.ts`, `LIFTED_ITEMS` no longer leaves Firefox out, and has a link item without a handle.
+- **Corrected here:** the entry's _What happens_ is of an item without a handle. `RF-129`'s _Not read_, _"a pointer drag doesn't lift one in Chromium or Firefox"_, holds without a handle alone.
 
 #### RF-77 — The elevated button and the list items draw their shadows in surface tint
 
@@ -5934,6 +5945,33 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `d
   - **Read in addition:** a link item by its handle takes the tokens in Chromium and WebKit, and isn't lifted in Firefox. The press ripple's wave takes `state-layer`. In the built sheets the names that the list sets are the names that the items read.
   - **Not discriminated by a row:** that a key move's corners take no `dragged` or `reorder` shape. Its item always has focus, and the focused shape is the same 16 px.
   - **Not read:** forced colors, Safari, and a link item without a handle. No list baseline exists, so none changes.
+
+**Dated 2026-11-25 by the architect,** on the [feature proof](reviews/reorder-tokens-1/feature-proof-claude.md) of `78dc6d983`, requested by the coordinator. `main` at `e57c9f074` is merged without a conflict. **The seven properties hold, no behavior changes, and the implementer owes rows and the words of one text.** The readings are the architect's own unless said ([reading](reorder-tokens-1/checks/ruling.txt), [probe](reorder-tokens-1/probes/ruling.mjs.txt)), in Chromium, Firefox and WebKit.
+
+- **`reviewer-1`: confirmed, and one case wider.** The rows list's _"keeps rect, padding and overflow, and gets the new color expectation"_ meant `mx-list-item`, which alone changes. For an interactive item's host `RD-31` property 4 stands whole, so its row keeps `color` and `background-color`. **The static item lost its hold in a key move too:** property 6 wants it there, and only the pointer rows read it under a page's `[popover]` rule. The key row of the diff sets the colors inline on the item, and drag's lift doesn't have to keep those. With drag's lift keeping neither color, the candidate rows fail in each engine: the two of the button item and one of a static item's key move. With the static item's rule on every item's host, the two of the button item fail. Unmutated they pass.
+- **`reviewer-2`: confirmed.** The text says of every item what holds for `mx-list-item`, and of a disabled item what doesn't hold. The words are in the list below. The sentence _"A keyboard move keeps its color and background color too"_ goes with it, because an interactive item's host keeps them in either operation.
+- **The page's `background-color` row** says _at rest and after the drop_ and reads after the drop alone. The key-move row reads the rest, so the title is corrected and nothing is added.
+- **A link item by its handle in Firefox** is `RF-76`'s, which is widened, and isn't a finding of its own. The branch leaves the row out for Firefox rightly.
+- **A plain `mx-list` with a page's own drag `sortable` loses the footprint: accepted, and not a finding.** `RD-31` property 2 says that `mx-list` doesn't sort, and nothing documents a placeholder look for it. The page styles `[data-drag-placeholder]`, as drag's own stories do. The cost is stated in #261.
+- **Not owed:** a row for property 7, which the size rows show and no contract asked for; a key move's corners; and a page's background image over the reorder container, because property 6 names the two colors. The departures stand as the proof reads them.
+- **`RF-68` property 6** is amended in its [handoff](list-roles-1/list-roles-handoff.md#what-rf-129-replaces), in this branch, as property 6 announces.
+
+**The implementer's list,** on `material-x/reorder-tokens-1`, with `main` merged. No source line changes but the JSDoc.
+
+1. **`list-roles.browser.test.ts`, the lift rows:** for `mx-list-button-item`, with no page rule and with the popover rule, they also hold `color` and `background-color`, and the title says so for that tag. For `mx-list-item` they stay. The row's other title, _"should have the page's background-color at rest and after the drop"_, loses _at rest and_.
+2. **`sortable-list.browser.test.ts`, _lifted item in a key move_:** a static item without colors of its own keeps its host's `color` and `background-color` in the handler and after the move, with a page's `[popover] { background: red; color: blue; }`. The page's rule is a sheet's and not an inline style.
+3. **`sortable-list.ts`, the _Lift_ item of the JSDoc,** its sentences from _The lift keeps_ to _the container color_:
+
+   > The lift keeps the item's size, position, padding, border, overflow, color and background color. In a pointer drag, an item that isn't disabled takes Material's reorder colors, and they replace a page's `color` and `background-color` on an `mx-list-item`. `--md-list-item-container-color` still overrides the container color.
+
+4. **Witnesses,** in the three engines, saved under `reorder-tokens-1/checks/`: with `color` and `background-color` out of drag's `UA_PROPS` and drag rebuilt, the two button rows and the key row fail, and no other in `tests/list`. With the static item's rule on `::slotted(:state(drag))`, the two button rows fail, and no other. Unmutated, none. Drag's source and build are restored.
+5. **#261's description:** the rows and the witnesses; that the lift's color is the interactive item's host's too; the plain list's loss; and that a link item by its handle isn't lifted in Firefox, which is `RF-76`.
+6. **Checks on the merged tree,** core and drag rebuilt and material-x's `build:prepare` run (`main` added `mx-top-app-bar`'s names, and the node row of `tests/list` fails on a stale list): `tests/list` in the three engines, material-x without the visual project in one, typecheck, the declarations' typecheck, lint, the root format check, publint, `docs-build` and `docs-smoke`. Sizes by the gate.
+7. **Stop** and return if a row's reading differs in an engine, if a witness fails another row, or if a source line other than the JSDoc would change.
+
+**A recheck isn't owed:** no behavior changes, the text is given, and the rows have two named mutations that this note has read. The coordinator checks the witnesses, and the architect closes. Nothing is the owner's to answer.
+
+**With `RF-128` and `RF-135` (#229, `material-x/handle-focus-1`):** the branches share `.plan/00-index.md`, which merges too, and `tests/support/visual-contracts.node.ts`, where each adds its own contract. Read at `b9428b5df`: `git merge-tree` has no conflict, and with that branch's package files on this one `tests/list` passes, 360, 348 and 358 in Chromium, Firefox and WebKit. The sheets meet nowhere: #229 has the item's sheet and the default path of its tokens, and this has the list's sheets and the `dragged` filter in `utils.ts`. **The second to merge** merges `main`, keeps both contracts and both notes, runs `build:prepare` and `tests/list` in the three engines again, and lets the gate read the sizes, where the private names shift once more. A new reading is owed only if that run fails or a conflict appears in a sheet. The focus indicator of a handle in a pointer drag takes no reorder token, because the set has none.
 
 #### RF-130 — A control loses the component's own `aria-*` when the host's same attribute is removed
 
