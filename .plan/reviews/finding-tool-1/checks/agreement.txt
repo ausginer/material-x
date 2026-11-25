@@ -1,0 +1,24 @@
+ticks in one second: 1, an unsound amendment is edited
+states: 46800, in order for the tool: 4, the model disagrees: 0
+repaired: 46796, the tool then refuses: 0
+stopped repairs read by the tool: 376296, the model disagrees: 0
+started again and then refused by the tool: 0
+a refusal with output, or without a cause, or a pass with an error: 0
+ticks in one second: 1, an unsound amendment is unstamped
+states: 46800, in order for the tool: 4, the model disagrees: 0
+repaired: 46796, the tool then refuses: 0
+stopped repairs read by the tool: 376296, the model disagrees: 0
+started again and then refused by the tool: 0
+a refusal with output, or without a cause, or a pass with an error: 0
+ticks in one second: 3, an unsound amendment is edited
+states: 46800, in order for the tool: 5, the model disagrees: 0
+repaired: 46795, the tool then refuses: 0
+stopped repairs read by the tool: 376294, the model disagrees: 0
+started again and then refused by the tool: 0
+a refusal with output, or without a cause, or a pass with an error: 0
+ticks in one second: 5, an unsound amendment is unstamped
+states: 46800, in order for the tool: 5, the model disagrees: 0
+repaired: 46795, the tool then refuses: 0
+stopped repairs read by the tool: 376294, the model disagrees: 0
+started again and then refused by the tool: 0
+a refusal with output, or without a cause, or a pass with an error: 0

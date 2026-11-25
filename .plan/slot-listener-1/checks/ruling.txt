@@ -1,0 +1,203 @@
+# Read by the architect on 96442bad3 with main at a110683b3 merged (the tree of packages/ at the merge), core rebuilt.
+# 1. The proof's callers probe (reviews/slot-listener-1/probes/callers.browser.test.ts.txt), built as committed, and with the candidate (probes/roving-candidate.diff)
+## chromium, base: 9 differ, 117 same
+      3 cg child cloned from a template, added 
+      3 cg children cloned from a template 
+      3 cg first replaced by a template clone 
+slider label add | out: same
+slider label add | late: same
+slider label add | lateUndone: same
+slider label removed | out: same
+slider label removed | late: same
+slider label removed | lateUndone: same
+slider label, aria-label | out: same
+slider label, aria-label | late: same
+slider label, aria-label | lateUndone: same
+bar lead, trail add | out: same
+bar lead, trail add | late: same
+bar lead, trail add | lateUndone: same
+bar lead removed | out: same
+bar lead removed | late: same
+bar lead removed | lateUndone: same
+bar headline add | out: same
+bar headline add | late: same
+bar headline add | lateUndone: same
+bg press connected: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press out: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press late: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>body
+cg template clone keys late: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>body
+errors: none
+## chromium, cand: 0 differ, 126 same
+slider label add | out: same
+slider label add | late: same
+slider label add | lateUndone: same
+slider label removed | out: same
+slider label removed | late: same
+slider label removed | lateUndone: same
+slider label, aria-label | out: same
+slider label, aria-label | late: same
+slider label, aria-label | lateUndone: same
+bar lead, trail add | out: same
+bar lead, trail add | late: same
+bar lead, trail add | lateUndone: same
+bar lead removed | out: same
+bar lead removed | late: same
+bar lead removed | lateUndone: same
+bar headline add | out: same
+bar headline add | late: same
+bar headline add | lateUndone: same
+bg press connected: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press out: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press late: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys late: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+errors: none
+## firefox, base: 9 differ, 117 same
+      3 cg child cloned from a template, added 
+      3 cg children cloned from a template 
+      3 cg first replaced by a template clone 
+slider label add | out: same
+slider label add | late: same
+slider label add | lateUndone: same
+slider label removed | out: same
+slider label removed | late: same
+slider label removed | lateUndone: same
+slider label, aria-label | out: same
+slider label, aria-label | late: same
+slider label, aria-label | lateUndone: same
+bar lead, trail add | out: same
+bar lead, trail add | late: same
+bar lead, trail add | lateUndone: same
+bar lead removed | out: same
+bar lead removed | late: same
+bar lead removed | lateUndone: same
+bar headline add | out: same
+bar headline add | late: same
+bar headline add | lateUndone: same
+bg press connected: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press out: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press late: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>3
+cg template clone keys late: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>body
+errors: none
+## firefox, cand: 0 differ, 126 same
+slider label add | out: same
+slider label add | late: same
+slider label add | lateUndone: same
+slider label removed | out: same
+slider label removed | late: same
+slider label removed | lateUndone: same
+slider label, aria-label | out: same
+slider label, aria-label | late: same
+slider label, aria-label | lateUndone: same
+bar lead, trail add | out: same
+bar lead, trail add | late: same
+bar lead, trail add | lateUndone: same
+bar lead removed | out: same
+bar lead removed | late: same
+bar lead removed | lateUndone: same
+bar headline add | out: same
+bar headline add | late: same
+bar headline add | lateUndone: same
+bg press connected: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press out: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press late: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>2 Tab>2 Tab>body Tab>button
+cg template clone keys late: Tab>1 ArrowRight>2 Tab>2 Tab>body Tab>button
+errors: none
+## webkit, base: 9 differ, 117 same
+      3 cg child cloned from a template, added 
+      3 cg children cloned from a template 
+      3 cg first replaced by a template clone 
+slider label add | out: same
+slider label add | late: same
+slider label add | lateUndone: same
+slider label removed | out: same
+slider label removed | late: same
+slider label removed | lateUndone: same
+slider label, aria-label | out: same
+slider label, aria-label | late: same
+slider label, aria-label | lateUndone: same
+bar lead, trail add | out: same
+bar lead, trail add | late: same
+bar lead, trail add | lateUndone: same
+bar lead removed | out: same
+bar lead removed | late: same
+bar lead removed | lateUndone: same
+bar headline add | out: same
+bar headline add | late: same
+bar headline add | lateUndone: same
+bg press connected: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press out: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press late: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>body
+cg template clone keys late: Tab>1 ArrowRight>1 Tab>2 Tab>3 Tab>body
+errors: none
+## webkit, cand: 0 differ, 126 same
+slider label add | out: same
+slider label add | late: same
+slider label add | lateUndone: same
+slider label removed | out: same
+slider label removed | late: same
+slider label removed | lateUndone: same
+slider label, aria-label | out: same
+slider label, aria-label | late: same
+slider label, aria-label | lateUndone: same
+bar lead, trail add | out: same
+bar lead, trail add | late: same
+bar lead, trail add | lateUndone: same
+bar lead removed | out: same
+bar lead removed | late: same
+bar lead removed | lateUndone: same
+bar headline add | out: same
+bar headline add | late: same
+bar headline add | lateUndone: same
+bg press connected: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press out: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+bg press late: 1:--_interaction-direction-leading: -1;,3:null,4:--_interaction-direction-trailing: -1;
+cg template clone keys connected: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys out: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+cg template clone keys late: Tab>1 ArrowRight>2 Tab>body Tab>button Tab>2
+errors: none
+# 2. The proof's late-items probe, as committed (it overwrites one file, so this is the last engine's) and with the candidate
+webkit: connected group, items defined in a later task: tabindex ,
+chromium: connected group, items defined in a later task: tabindex 0,-1
+firefox: connected group, items defined in a later task: tabindex 0,-1
+webkit: connected group, items defined in a later task: tabindex 0,-1
+# 3. The large leading image, Chromium: item height, image start and size, with data-large and without
+as committed: none: item 56 | img: item 76, image 16,56x56 | img data-large: item 76, image 0,56x56
+lead-large never set: none: item 56 | img: item 76, image 16,56x56 | img data-large: item 76, image 16,56x56; slotted-content 29 passed
+# 4. Keys in a group built three ways (probes/keys.browser.test.ts.txt), with the candidate; tabindex after the first Tab and arrow
+## chromium
+innerHTML connected o first: -1,0,-1 | Tab>1 ArrowRight>2 Tab>body Tab>button
+innerHTML connected group only: -1,0,-1 | Tab>1 ArrowRight>2 Tab>body Tab>button
+innerHTML out o first: -1,0,-1 | Tab>1 ArrowRight>2 Tab>body Tab>button
+innerHTML out group only: -1,0,-1 | Tab>1 ArrowRight>2 Tab>body Tab>button
+innerHTML late o first: -1,0,-1 | Tab>1 ArrowRight>2 Tab>button Tab>2
+innerHTML late group only: -1,0,-1 | Tab>1 ArrowRight>2 Tab>body Tab>button
+clone connected o first: -1,0,-1 | Tab>1 ArrowRight>2 Tab>body Tab>button
+clone connected group only: -1,0,-1 | Tab>1 ArrowRight>2 Tab>body Tab>button
+clone out o first: -1,0,-1 | Tab>1 ArrowRight>2 Tab>body Tab>button
+clone out group only: -1,0,-1 | Tab>1 ArrowRight>2 Tab>button Tab>2
+clone late o first: -1,0,-1 | Tab>1 ArrowRight>2 Tab>body Tab>button
+clone late group only: -1,0,-1 | Tab>1 ArrowRight>2 Tab>body Tab>button
+## firefox
+innerHTML connected o first: -1,0,-1 | Tab>1 ArrowRight>2 Tab>body Tab>button
+innerHTML connected group only: -1,0,-1 | Tab>1 ArrowRight>2 Tab>2 Tab>body
+innerHTML out o first: -1,0,-1 | Tab>1 ArrowRight>2 Tab>2 Tab>body
+innerHTML out group only: -1,0,-1 | Tab>1 ArrowRight>2 Tab>2 Tab>body
+innerHTML late o first: -1,0,-1 | Tab>1 ArrowRight>2 Tab>2 Tab>body
+innerHTML late group only: -1,0,-1 | Tab>1 ArrowRight>2 Tab>2 Tab>body
+clone connected o first: -1,0,-1 | Tab>1 ArrowRight>2 Tab>2 Tab>body
+clone connected group only: -1,0,-1 | Tab>1 ArrowRight>2 Tab>2 Tab>body
+clone out o first: -1,0,-1 | Tab>1 ArrowRight>2 Tab>2 Tab>body
+clone out group only: -1,0,-1 | Tab>1 ArrowRight>2 Tab>2 Tab>body
+clone late o first: -1,0,-1 | Tab>1 ArrowRight>2 Tab>2 Tab>body
+clone late group only: -1,0,-1 | Tab>1 ArrowRight>2 Tab>2 Tab>body
+# 5. The same keys without the candidate, the rows of a clone that is out or late (the same in Firefox and Chromium): tabindex ",,", Tab>1 ArrowRight>1 Tab>2 Tab>3. Every other row, and Firefox's "Tab>2" after the arrow in a group that was never out, read as with the candidate.

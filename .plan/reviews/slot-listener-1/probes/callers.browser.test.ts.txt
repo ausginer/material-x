@@ -1,0 +1,229 @@
+// @ts-nocheck
+import { it } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+import '../../src/button-group/button-group.ts';
+import '../../src/button-group/connected-button-group.ts';
+import '../../src/button/button.ts';
+import '../../src/button/switch-button.ts';
+import '../../src/list/list.ts';
+import '../../src/list/list-item.ts';
+import '../../src/list/list-button-item.ts';
+import '../../src/list/list-link-item.ts';
+import '../../src/list/sortable-list.ts';
+import '../../src/slider/slider.ts';
+import '../../src/text-field/multiline-text-field.ts';
+import '../../src/text-field/text-field.ts';
+import '../../src/top-app-bar/top-app-bar.ts';
+
+
+const task = () => new Promise((r) => setTimeout(r, 40));
+const errors = [];
+addEventListener('error', (e) => errors.push(`error ${e.message}`));
+addEventListener('unhandledrejection', (e) => errors.push(`rejection ${e.reason}`));
+const STATES = ['has-lead','has-trail','has-default','has-label','has-support','has-counter','has-prefix','has-suffix','has-title','has-description','has-overline','has-supporting','lead-large','drag','command','focus-visible','populated','error'];
+const attrs = (n) => [...n.attributes].filter((a) => /^(data-|aria-|tabindex|role|class|popover|style)/.test(a.name)).map((a) => `${a.name}=${a.value}`).sort().join(' ');
+const refs = (n) => ['ariaLabelledByElements', 'ariaDescribedByElements'].map((p) => (n[p] ?? []).map((x) => x.className || x.id || x.localName).join('+')).join('/');
+function look(e) {
+  const s = [];
+  const all = (n, d) => {
+    const st = STATES.filter((x) => { try { return n.matches(`:state(${x})`); } catch { return false; } });
+    const b = n.getBoundingClientRect();
+    s.push(`${d}${n.localName}[${attrs(n)}]{${st}}<${refs(n)}>${Math.round(b.width)}x${Math.round(b.height)} ${n.localName === 'button' ? getComputedStyle(n).borderRadius : n.localName === 'slot' ? getComputedStyle(n).padding : ''}`);
+    for (const c of n.children) all(c, d + ' ');
+    if (n.shadowRoot) for (const c of n.shadowRoot.children) all(c, `${d}#`);
+  };
+  all(e, '');
+  return s;
+}
+const el = (html) => { const t = document.createElement('div'); t.innerHTML = html; const r = t.firstElementChild; r.remove(); return r; };
+const add = (html) => (e) => e.append(el(html));
+const rm = (sel) => (e) => e.querySelector(sel)?.remove();
+const B = (v) => `<mx-switch-button value=${v}>${v}</mx-switch-button>`;
+const seq = (...f) => f;
+// [initial html, changes, each in a task of its own]
+const CASES = {
+  'tf label add': ['<mx-text-field></mx-text-field>', [add('<span slot=label>L</span>')]],
+  'tf label add, remove': ['<mx-text-field></mx-text-field>', [add('<span slot=label>L</span>'), rm('span')]],
+  'tf label replaced': ['<mx-text-field><span slot=label>L</span></mx-text-field>', [rm('span'), add('<b slot=label>M</b>')]],
+  'tf label to support': ['<mx-text-field><span slot=label>L</span></mx-text-field>', [(e) => { e.firstElementChild.slot = 'support'; }]],
+  'tf aria-labelledby set, label add, then lost': ['<mx-text-field></mx-text-field>', [(e) => e.setAttribute('aria-labelledby', 'x'), add('<span slot=label>L</span>'), (e) => e.removeAttribute('aria-labelledby')]],
+  'tf label and aria-labelledby: lost + label removed, one task': ['<mx-text-field aria-labelledby=x><span slot=label>L</span></mx-text-field>', [(e) => { e.removeAttribute('aria-labelledby'); e.firstElementChild.remove(); }]],
+  'tf label removed + aria-labelledby lost, one task': ['<mx-text-field aria-labelledby=x><span slot=label>L</span></mx-text-field>', [(e) => { e.firstElementChild.remove(); e.removeAttribute('aria-labelledby'); }]],
+  'tf label add + aria-labelledby set, one task': ['<mx-text-field></mx-text-field>', [(e) => { e.append(el('<span slot=label>L</span>')); e.setAttribute('aria-labelledby', 'x'); }]],
+  'tf aria-labelledby set then lost in one task, with label': ['<mx-text-field></mx-text-field>', [(e) => { e.append(el('<span slot=label>L</span>')); e.setAttribute('aria-labelledby', 'x'); e.removeAttribute('aria-labelledby'); }]],
+  'tf support, counter, one removed': ['<mx-text-field><i slot=support>S</i></mx-text-field>', [add('<b slot=counter>C</b>'), rm('i')]],
+  'tf every slot': ['<mx-text-field></mx-text-field>', ['lead', 'trail', 'prefix', 'suffix', 'label', 'support', 'counter'].map((n) => add(`<u slot=${n}>${n}</u>`))],
+  'tf every slot removed': ['<mx-text-field><u slot=lead>a</u><u slot=trail>a</u><u slot=prefix>a</u><u slot=suffix>a</u><u slot=label>a</u><u slot=support>a</u></mx-text-field>', [1, 2, 3, 4, 5, 6].map(() => rm('u'))],
+  'multi label add': ['<mx-multiline-text-field></mx-multiline-text-field>', [add('<span slot=label>L</span>')]],
+  'multi every slot': ['<mx-multiline-text-field></mx-multiline-text-field>', ['label', 'support', 'counter'].map((n) => add(`<u slot=${n}>${n}</u>`))],
+  'cg add': [`<mx-connected-button-group value=1>${B(1)}${B(2)}</mx-connected-button-group>`, [add(B(3))]],
+  'cg remove first': [`<mx-connected-button-group>${B(1)}${B(2)}${B(3)}</mx-connected-button-group>`, [rm('mx-switch-button')]],
+  'cg remove all, add': [`<mx-connected-button-group>${B(1)}</mx-connected-button-group>`, [rm('mx-switch-button'), add(B(5)), add(B(6))]],
+  'cg value changes, then add of it': [`<mx-connected-button-group value=1>${B(1)}${B(2)}</mx-connected-button-group>`, [(e) => e.setAttribute('value', '3'), add(B(3))]],
+  'cg add, then value': [`<mx-connected-button-group value=1>${B(1)}${B(2)}</mx-connected-button-group>`, [add(B(3)), (e) => e.setAttribute('value', '3')]],
+  'cg first disabled, then added': [`<mx-connected-button-group>${B(1)}${B(2)}</mx-connected-button-group>`, [(e) => e.firstElementChild.setAttribute('disabled', ''), add(B(3))]],
+  'cg reordered': [`<mx-connected-button-group>${B(1)}${B(2)}${B(3)}</mx-connected-button-group>`, [(e) => e.append(e.firstElementChild)]],
+  'cg children cloned from a template': ['<mx-connected-button-group></mx-connected-button-group>', [(e) => { const t = document.createElement('template'); t.innerHTML = B(1) + B(2); e.append(t.content.cloneNode(true)); }]],
+  'cg child cloned from a template, added': [`<mx-connected-button-group>${B(1)}</mx-connected-button-group>`, [(e) => { const t = document.createElement('template'); t.innerHTML = B(2); e.append(t.content.cloneNode(true)); }]],
+  'cg first replaced by a template clone': [`<mx-connected-button-group>${B(1)}</mx-connected-button-group>`, [(e) => { const t = document.createElement('template'); t.innerHTML = B(2); e.replaceChildren(t.content.cloneNode(true)); }]],
+  'bg add': ['<mx-button-group><mx-button>1</mx-button></mx-button-group>', [add('<mx-button>2</mx-button>')]],
+  'li lead, trail': ['<mx-list-item>x</mx-list-item>', [add('<i slot=lead>l</i>'), add('<b slot=trail>t</b>'), rm('i')]],
+  'li large image': ['<mx-list-item>x</mx-list-item>', [add('<img slot=lead data-large alt>')]],
+  'li large image removed': ['<mx-list-item>x<img slot=lead data-large alt></mx-list-item>', [rm('img')]],
+  'button item large image': ['<mx-list-button-item>x</mx-list-button-item>', [add('<img slot=lead data-large alt>')]],
+  'link item large image': ['<mx-list-link-item>x</mx-list-link-item>', [add('<img slot=lead data-large alt>')]],
+  'li every slot': ['<mx-list-item></mx-list-item>', ['overline', 'supporting', 'description', 'lead', 'trail'].map((n) => add(`<u slot=${n}>${n}</u>`))],
+  'slider label add': ['<mx-slider></mx-slider>', [add('<span slot=label>L</span>')]],
+  'slider label removed': ['<mx-slider><span slot=label>L</span></mx-slider>', [rm('span')]],
+  'slider label, aria-label': ['<mx-slider></mx-slider>', [(e) => e.setAttribute('aria-label', 'n'), add('<span slot=label>L</span>'), rm('span')]],
+  'sl item add': ['<mx-sortable-list><mx-list-item>1</mx-list-item></mx-sortable-list>', [add('<mx-list-item>2</mx-list-item>'), add('<mx-list-button-item>3</mx-list-button-item>')]],
+  'sl item removed': ['<mx-sortable-list><mx-list-item>1</mx-list-item><mx-list-item>2</mx-list-item></mx-sortable-list>', [rm('mx-list-item')]],
+  'sl handle added to an item': ['<mx-sortable-list><mx-list-item>1</mx-list-item></mx-sortable-list>', [(e) => e.firstElementChild.append(el('<i slot=lead data-handle>h</i>'))]],
+  'sl handle removed': ['<mx-sortable-list><mx-list-item>1<i slot=trail data-handle>h</i></mx-list-item></mx-sortable-list>', [(e) => e.querySelector('i').remove()]],
+  'sl items cloned from a template': ['<mx-sortable-list></mx-sortable-list>', [(e) => { const t = document.createElement('template'); t.innerHTML = '<mx-list-item>1</mx-list-item><mx-list-button-item>2</mx-list-button-item>'; e.append(t.content.cloneNode(true)); }]],
+};
+
+Object.assign(CASES, {
+  'bar lead, trail add': ['<mx-top-app-bar><h1>T</h1></mx-top-app-bar>', [add('<i slot=lead>l</i>'), add('<b slot=trail>t</b>')]],
+  'bar lead removed': ['<mx-top-app-bar><i slot=lead>l</i><h1>T</h1></mx-top-app-bar>', [rm('i')]],
+  'bar headline add': ['<mx-top-app-bar></mx-top-app-bar>', [add('<h1>T</h1>')]],
+});
+async function compare(out) {
+  for (const [name, [html, changes]] of Object.entries(CASES)) {
+    const read = {};
+    for (const way of ['right', 'out', 'late', 'lateUndone']) {
+      document.body.replaceChildren();
+      const e = el(html);
+      if (way === 'late') {
+        // Content and changes before the first connect.
+        await task();
+      } else {
+        document.body.append(e);
+        await task();
+        if (way !== 'right') { e.remove(); await task(); }
+      }
+      for (const c of changes) { c(e); await task(); }
+      if (!e.isConnected) { document.body.append(e); await task(); }
+      if (way === 'lateUndone') { e.remove(); document.body.append(e); await task(); e.remove(); await task(); document.body.append(e); await task(); }
+      await new Promise((r) => setTimeout(r, 450));
+      read[way] = look(e);
+    }
+    for (const way of ['out', 'late', 'lateUndone']) {
+      const bad = read.right.map((x, i) => (x === read[way][i] ? null : `   right ${x}\n   got   ${read[way][i]}`)).filter(Boolean);
+      out.push(`${name} | ${way}: ${bad.length || read.right.length !== read[way].length ? `DIFFERS\n${bad.join('\n')}` : 'same'}`);
+    }
+  }
+}
+it('compare', async () => {
+  const out = [`# ${server.browser}`];
+  await compare(out);
+
+  // A standard group's press effect.
+  for (const way of ['connected', 'out', 'late']) {
+    document.body.replaceChildren();
+    const g = el('<mx-button-group><mx-button>1</mx-button><mx-button>2</mx-button><mx-button>3</mx-button></mx-button-group>');
+    if (way !== 'late') { document.body.append(g); await task(); }
+    if (way === 'out') { g.remove(); await task(); }
+    await task();
+    g.children[1].remove();
+    g.append(el('<mx-button>4</mx-button>'));
+    await task();
+    if (way !== 'connected') { document.body.append(g); await task(); }
+    g.children[1].dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+    out.push(`bg press ${way}: ${[...g.children].map((c) => `${c.textContent}:${c.getAttribute('style')}`)}`);
+  }
+  // Arrow keys in a group whose children were cloned from a template.
+  for (const way of ['connected', 'out', 'late']) {
+    document.body.replaceChildren();
+    const g = document.createElement('mx-connected-button-group');
+    if (way !== 'late') { document.body.append(g); await task(); }
+    if (way === 'out') { g.remove(); await task(); }
+    const t = document.createElement('template'); t.innerHTML = B(1) + B(2) + B(3); g.append(t.content.cloneNode(true)); await task();
+    const o = el('<button>o</button>'); document.body.prepend(o);
+    if (way !== 'connected') document.body.append(g);
+    await task(); o.focus(); const path = [];
+    for (const k of ['Tab', 'ArrowRight', 'Tab', 'Tab', 'Tab']) { await userEvent.keyboard('{' + k + '}'); path.push(k + '>' + (document.activeElement.getAttribute('value') ?? document.activeElement.localName)); }
+    out.push('cg template clone keys ' + way + ': ' + path.join(' '));
+  }
+  // Focus and tab stops.
+  for (const way of ['connected', 'out']) {
+    document.body.replaceChildren();
+    const other = el('<button>o</button>');
+    const g = el(`<mx-connected-button-group>${B(1)}${B(2)}${B(3)}</mx-connected-button-group>`);
+    document.body.append(other, g);
+    await task();
+    g.children[1].focus();
+    await task();
+    const before = [...g.children].map((c) => c.getAttribute('tabindex')).join();
+    if (way === 'out') { g.remove(); await task(); }
+    g.append(el(B(4))); await task();
+    const active = document.activeElement.localName;
+    if (way === 'out') { document.body.append(g); await task(); }
+    out.push(`cg focus on 2, add ${way}: before ${before} after ${[...g.children].map((c) => c.getAttribute('tabindex'))} active then ${active} now ${document.activeElement.localName}`);
+    other.focus();
+    await userEvent.keyboard('{Tab}');
+    out.push(`   tab -> ${document.activeElement.getAttribute('value') ?? document.activeElement.localName}`);
+    await userEvent.keyboard('{ArrowRight}');
+    out.push(`   right -> ${document.activeElement.getAttribute('value') ?? document.activeElement.localName}`);
+  }
+  // Another control has focus while a group that is out changes.
+  {
+    document.body.replaceChildren();
+    const other = el('<input>');
+    const g = el(`<mx-connected-button-group>${B(1)}${B(2)}</mx-connected-button-group>`);
+    document.body.append(other, g); await task(); g.remove(); await task();
+    other.focus(); let blurred = 0; other.addEventListener('blur', () => { blurred += 1; });
+    const log = []; for (const n of ['focusin', 'input', 'change']) { g.addEventListener(n, () => log.push(n)); document.addEventListener(n, () => log.push(`d:${n}`)); }
+    g.append(el(B(3))); await task(); g.firstElementChild.remove(); await task(); document.body.append(g); await task();
+    out.push(`focus elsewhere: active ${document.activeElement.localName} blurred ${blurred} events [${log}]`);
+  }
+  // The focused item moves from a connected group to one that is out, and back.
+  {
+    document.body.replaceChildren();
+    const a = el(`<mx-connected-button-group>${B(1)}${B(2)}</mx-connected-button-group>`);
+    const b = el(`<mx-connected-button-group>${B(8)}${B(9)}</mx-connected-button-group>`);
+    document.body.append(a); await task();
+    a.children[0].focus(); await task();
+    const x = a.children[0]; b.append(x); await task();
+    const l = (g) => [...g.children].map((c) => `${c.value}:${c.getAttribute('tabindex')}:${Object.keys(c.dataset)}`).join(' ');
+    out.push(`moved to an out group: a [${l(a)}] b [${l(b)}]`);
+    a.append(x); await task(); document.body.append(b); await task();
+    out.push(`   and back: a [${l(a)}] b [${l(b)}]`);
+  }
+  // Sortable list: changes out, then a keyboard move; and a drag or a pending commit that a removal ends.
+  for (const way of ['connected', 'out', 'late', 'pending commit, out, commit while out', 'pending commit, removed and changed in one task', 'removed in the handler, changed out', 'pending, removed, put back, then committed']) {
+    document.body.replaceChildren();
+    const s = el('<mx-sortable-list><mx-list-button-item>1</mx-list-button-item><mx-list-button-item>2</mx-list-button-item><mx-list-button-item>3</mx-list-button-item></mx-sortable-list>');
+    const log = [];
+    let mode = 'apply';
+    let last;
+    s.addEventListener('reorder', (ev) => { last = ev; log.push(`${ev.item.textContent}:${ev.from}>${ev.to}`); if (mode === 'apply') s.insertBefore(ev.item, ev.next); if (mode === 'remove') s.remove(); });
+    const add4 = () => s.append(el('<mx-list-button-item>4</mx-list-button-item>'));
+    const key = async (i, k) => { s.children[i].focus(); await task(); await userEvent.keyboard(k); await task(); await new Promise((r) => setTimeout(r, 300)); };
+    if (way === 'late') { await task(); add4(); await task(); document.body.append(s); await task(); }
+    else { document.body.append(s); await task(); }
+    if (way === 'connected') { add4(); await task(); }
+    if (way === 'out') { s.remove(); await task(); s.firstElementChild.remove(); await task(); add4(); await task(); document.body.append(s); await task(); }
+    if (way.startsWith('pending')) {
+      mode = 'hold';
+      s.children[0].focus(); await task(); await userEvent.keyboard('{ArrowDown}');
+      s.remove();
+      if (way.includes('one task')) { s.insertBefore(last.item, last.next); add4(); }
+      await task();
+      if (way.includes('while out')) { s.insertBefore(last.item, last.next); await task(); add4(); await task(); }
+      document.body.append(s); await task();
+      if (way.includes('put back')) { s.insertBefore(last.item, last.next); await task(); add4(); await task(); }
+    }
+    if (way.startsWith('removed')) {
+      mode = 'remove'; s.children[0].focus(); await task(); await userEvent.keyboard('{ArrowDown}'); await task();
+      add4(); await task(); document.body.append(s); await task();
+    }
+    mode = 'apply';
+    await new Promise((r) => setTimeout(r, 600));
+    const n = s.children.length;
+    await key(n - 1, '{ArrowUp}');
+    out.push(`sl ${way}: log ${log} now ${[...s.children].map((c) => c.textContent.trim())} popovers ${s.querySelectorAll('[popover]').length} drag ${s.querySelectorAll(':state(drag)').length}`);
+  }
+  out.push(`errors: ${errors.join(' ; ') || 'none'}`);
+  await commands.writeFile(`./out-${server.browser}.txt`, `${out.join('\n')}\n`);
+}, 200000);

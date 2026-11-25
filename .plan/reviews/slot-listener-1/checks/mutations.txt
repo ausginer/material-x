@@ -1,0 +1,61 @@
+## one more listener at each connect | chromium | packages/core | 4 failed | 15 passed (19)
+   useSlot > should isolate updates between multiple slots
+   useSlot > should observe a slot change while host is disconnected
+   useSlot > should not call callback at a connection without a slot change
+   useSlot > should resume observing slot changes after host reconnect
+## one more listener at each connect | chromium | packages/material-x | 29 passed (29)
+## one more listener at each reconnect | chromium | packages/core | 1 failed | 18 passed (19)
+   useSlot > should resume observing slot changes after host reconnect
+## one more listener at each reconnect | chromium | packages/material-x | 29 passed (29)
+## once | chromium | packages/core | 6 failed | 13 passed (19)
+   useSlot > should update assigned nodes when slotted content is removed
+   useSlot > should observe slot changes when HTMLSlotElement is passed directly
+   useSlot > should move assigned node between default and named slots when slot attribute changes
+   useSlot > should preserve assignedNodes order after slotted children reorder
+   useSlot > should observe a slot change while host is disconnected
+   useSlot > should resume observing slot changes after host reconnect
+## once | chromium | packages/material-x | 5 failed | 24 passed (29)
+## only while host.isConnected | chromium | packages/core | 3 failed | 16 passed (19)
+   useSlot > should observe a slot change while host is disconnected
+   useSlot > should observe a slot change before the first connection
+   useSlot > should resume observing slot changes after host reconnect
+## only while host.isConnected | chromium | packages/material-x | 29 failed (29)
+## until the first disconnect | chromium | packages/core | 2 failed | 17 passed (19)
+   useSlot > should observe a slot change while host is disconnected
+   useSlot > should resume observing slot changes after host reconnect
+## until the first disconnect | chromium | packages/material-x | 15 failed | 14 passed (29)
+## from the first connect | chromium | packages/core | 1 failed | 18 passed (19)
+   useSlot > should observe a slot change before the first connection
+## from the first connect | chromium | packages/material-x | 14 failed | 15 passed (29)
+## a call at the first connect too | chromium | packages/core | 5 failed | 14 passed (19)
+   useSlot > should isolate updates between multiple slots
+   useSlot > should observe a slot change while host is disconnected
+   useSlot > should not call callback at a connection without a slot change
+   useSlot > should resume observing slot changes after host reconnect
+   useSlot > should not call callback for an initially empty slot before first slotchange
+## a call at the first connect too | chromium | packages/material-x | 29 passed (29)
+## a call at each reconnect too | chromium | packages/core | 2 failed | 17 passed (19)
+   useSlot > should not call callback at a connection without a slot change
+   useSlot > should resume observing slot changes after host reconnect
+## a call at each reconnect too | chromium | packages/material-x | 29 passed (29)
+## silent while out, a call at the connect if one was missed | chromium | packages/core | 3 failed | 16 passed (19)
+   useSlot > should observe a slot change while host is disconnected
+   useSlot > should observe a slot change before the first connection
+   useSlot > should resume observing slot changes after host reconnect
+## silent while out, a call at the connect if one was missed | chromium | packages/material-x | 29 passed (29)
+## no listener | chromium | packages/core | 14 failed | 5 passed (19)
+   useSlot > should snapshot initially assigned nodes after upgrade from HTML
+   useSlot > should snapshot initially assigned nodes when appended after definition
+   useSlot > should update assigned nodes when slotted content is added
+   useSlot > should update assigned nodes when slotted content is removed
+   useSlot > should observe slot changes when HTMLSlotElement is passed directly
+   useSlot > should update named slot when element with matching slot attribute is assigned
+   useSlot > should move assigned node between default and named slots when slot attribute changes
+   useSlot > should isolate updates between multiple slots
+   useSlot > should preserve assignedNodes order after slotted children reorder
+   useSlot > should include text nodes assigned to the default slot
+   useSlot > should observe a slot change while host is disconnected
+   useSlot > should observe a slot change before the first connection
+   useSlot > should not call callback at a connection without a slot change
+   useSlot > should resume observing slot changes after host reconnect
+## no listener | chromium | packages/material-x | 26 failed | 3 passed (29)

@@ -1,0 +1,26 @@
+repo:microsoft/vscode is:issue created:2019-03-01..2019-03-10
+repo:rust-lang/rust is:issue created:2021-01-01..2021-03-01
+repo:flutter/flutter is:issue created:2019-05-21..2019-06-05
+repo:kubernetes/kubernetes is:issue created:2018-01-01..2018-04-01
+repo:nodejs/node is:issue created:2019-03-01..2020-01-01
+repo:home-assistant/core is:issue created:2020-03-01..2020-04-15
+repo:angular/angular is:issue created:2018-01-01..2018-06-01
+repo:microsoft/TypeScript is:issue created:2018-01-01..2018-06-01
+issues read: 6678, with an edited body: 2416
+edited, and editor is null: 49 whose author is null, 0 whose author isn't
+the author isn't null, and one of the first ten edits has a null editor: 0
+an editor without an edit: 0, times with a fraction: 0
+several editors: 247, where editor isn't the latest edit's: 0
+https://github.com/microsoft/vscode/issues/70162 lastEditedAt 2019-04-21T08:12:35Z author null editor null edits [["2019-04-21T08:12:35Z",null],["2019-04-21T08:12:16Z",null],["2019-04-21T08:10:52Z",null],["2019-03-10T15:40:50Z",null],["2019-03-10T15:36:48Z",null],["2019-03-10T15:36:36Z",null],["2019-03-10T15:36:19Z",null],["2019-03-10T15:31:41Z",null]]
+https://github.com/microsoft/vscode/issues/70099 lastEditedAt 2019-03-11T09:09:36Z author null editor null edits [["2019-03-11T09:09:36Z",null],["2019-03-08T23:56:13Z",null]]
+https://github.com/microsoft/vscode/issues/70081 lastEditedAt 2019-03-08T17:50:34Z author null editor null edits [["2019-03-08T17:50:34Z",null],["2019-03-08T17:50:11Z",null]]
+https://github.com/microsoft/vscode/issues/69751 lastEditedAt 2019-03-03T23:48:55Z author null editor null edits [["2019-03-03T23:48:55Z",null],["2019-03-03T23:43:51Z",null]]
+https://github.com/microsoft/vscode/issues/69737 lastEditedAt 2019-03-04T11:23:22Z author null editor null edits [["2019-03-04T11:23:22Z",null],["2019-03-03T13:31:15Z",null]]
+https://github.com/rust-lang/rust/issues/81555 lastEditedAt 2021-02-01T15:00:17Z author null editor null edits [["2021-02-01T15:00:17Z",null],["2021-02-01T14:59:55Z",null],["2021-02-01T14:55:31Z",null],["2021-02-01T14:42:26Z",null],["2021-01-30T20:22:21Z",null],["2021-01-30T17:30:49Z",null],["2021-01-30T16:45:00Z",null],["2021-01-30T16:42:02Z",null],["2021-01-30T16:40:00Z",null],["2021-01-30T16:15:09Z",null]]
+https://github.com/flutter/flutter/issues/33687 lastEditedAt 2019-05-31T23:35:32Z author null editor null edits [["2019-05-31T23:35:32Z",null],["2019-05-31T23:34:01Z",null],["2019-05-31T23:33:30Z",null]]
+https://github.com/flutter/flutter/issues/33424 lastEditedAt 2019-05-28T11:23:19Z author null editor null edits [["2019-05-28T11:23:19Z",null],["2019-05-28T11:16:15Z",null]]
+
+# The first run, with other queries (the same reading, before the count of earlier edits):
+read 7279 edited 2349 | null editor, null author 45 | null editor, live author 0 | editor without an edit 0 | several editors 302 editor is not the latest 0 | fractions 0
+
+[exited with code 0]

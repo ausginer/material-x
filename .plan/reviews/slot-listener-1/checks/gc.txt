@@ -1,0 +1,6 @@
+chromium: alive of 300 {"x-hook never connected":0,"x-hook never connected, with content":0,"x-hook connected, removed":0,"x-hook ten reconnects, changed out":0,"x-plain never connected":0,"x-plain never connected, with content":0,"x-plain connected, removed":0,"x-plain ten reconnects, changed out":0}
+chromium: calls for a change of a host kept by its child only, after GC: 1
+firefox: alive of 300 {"x-hook never connected":0,"x-hook never connected, with content":0,"x-hook connected, removed":0,"x-hook ten reconnects, changed out":0,"x-plain never connected":0,"x-plain never connected, with content":0,"x-plain connected, removed":0,"x-plain ten reconnects, changed out":0}
+firefox: calls for a change of a host kept by its child only, after GC: 1
+webkit: alive of 300 {"x-hook never connected":0,"x-hook never connected, with content":0,"x-hook connected, removed":0,"x-hook ten reconnects, changed out":0,"x-plain never connected":0,"x-plain never connected, with content":0,"x-plain connected, removed":0,"x-plain ten reconnects, changed out":0}
+webkit: calls for a change of a host kept by its child only, after GC: 1
