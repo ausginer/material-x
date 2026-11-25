@@ -1,4 +1,4 @@
-import { Bool } from '@ydinjs/core/attribute.js';
+import { Bool, Str } from '@ydinjs/core/attribute.js';
 import {
   transfer,
   useAttributes,
@@ -19,6 +19,7 @@ import {
   trait,
   type Composed,
 } from '@ydinjs/core/traits/composition.js';
+import { DISABLEABLE_ATTRS } from '@ydinjs/core/traits/disableable.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import type { Simplify } from 'type-fest';
 import '../button-group/connected-button-group.ts';
@@ -37,9 +38,10 @@ import splitButtonTemplate from './split-button.tpl.html' with { type: 'html' };
 import splitButtonStyles from './styles/split/main.css.ts' with { type: 'css' };
 
 @trait
-@attributes({ open: Bool })
+@attributes({ open: Bool, secondarylabel: Str })
 export class SplitButtonLike extends AnyElement {
   accessor open!: boolean;
+  accessor secondarylabel!: string | null;
 }
 
 export type SplitButtonLikeProps = Props<typeof SplitButtonLike>;
@@ -70,7 +72,10 @@ const SplitButtonConstructor: Composed<
  * the default (small) size.
  * @attr {"round"|"square"} shape - Button shape. Omit to use round corners.
  * @attr {boolean} disabled - Disables both actions.
- * @attr {boolean} open - Marks the trailing toggle as opened.
+ * @attr {boolean} open - Marks the trailing toggle as opened, and is its
+ * expanded state.
+ * @attr {string} secondarylabel - Accessible name of the trailing button.
+ * Required.
  *
  * @slot - Primary action label/content.
  * @slot icon - Primary action leading icon content.
@@ -101,6 +106,8 @@ export default class SplitButton extends SplitButtonConstructor {
     super();
     useCore(this, [splitButtonTemplate], {}, [splitButtonStyles]);
 
+    const trailing = this.shadowRoot!.querySelector('mx-icon-button')!;
+
     useEvents(
       this,
       {
@@ -109,22 +116,28 @@ export default class SplitButton extends SplitButtonConstructor {
           notify(this, 'secondaryaction');
         },
       },
-      this.shadowRoot!.querySelector('mx-icon-button') ?? undefined,
+      trailing,
     );
 
     const innards = internals(this);
 
     useAttributes(this, {
       open(_, newValue) {
-        toggleState(innards, 'open', Bool.from(newValue));
+        const open = Bool.from(newValue);
+        toggleState(innards, 'open', open);
+        trailing.setAttribute('aria-expanded', String(open));
       },
+      secondarylabel: transfer(trailing, 'aria-label'),
     });
 
     const group = this.shadowRoot!.querySelector('mx-connected-button-group')!;
     useAttributes(
       this,
       Object.fromEntries(
-        Object.keys(BUTTON_ATTRS).map((attr) => [attr, transfer(group, attr)]),
+        Object.keys({ ...BUTTON_ATTRS, ...DISABLEABLE_ATTRS }).map((attr) => [
+          attr,
+          transfer(group, attr),
+        ]),
       ),
     );
   }

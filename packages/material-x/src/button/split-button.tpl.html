@@ -2,7 +2,11 @@
   <mx-button part="leading" exportparts="impl:leading-impl">
     <slot name="icon" slot="icon"></slot><slot></slot>
   </mx-button>
-  <mx-icon-button part="trailing" exportparts="impl:trailing-impl">
-    <mx-icon>keyboard_arrow_down</mx-icon>
+  <mx-icon-button
+    part="trailing"
+    aria-expanded="false"
+    exportparts="impl:trailing-impl"
+  >
+    <mx-icon aria-hidden="true">keyboard_arrow_down</mx-icon>
   </mx-icon-button>
 </mx-connected-button-group>

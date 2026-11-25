@@ -6197,6 +6197,17 @@ Tier A, **open**, **ready** (the last note), pre-existing. Registered on 2026-11
 6. **Checks:** the `.ts` checks of `handoff.md`, both browser projects of the package in the three engines without the visual one, publint, `docs-build`, `docs-smoke`, sizes by the gate. **No visual baseline changes.** Stop and return if one does.
 7. **The description** has `Closes #243` and `Closes #260`. A feature proof is owed, and it reads `RF-136` and `RF-138` together.
 
+**Dated 2026-11-25 by the implementer: implemented with `RF-138` on `material-x/split-button-names-1`, from `main` at `855990331`, for #243 and #260, and not closed.** Requested by the coordinator.
+
+- **Source:** as the note's list. `secondarylabel` is transferred to the inner icon button's `aria-label`, and each change of `open` sets its `aria-expanded`. The template has `aria-expanded="false"`, and `aria-hidden="true"` on its icon. The constructor now finds the icon button once, for the event and the two attributes. No source change outside `split-button.ts` and its template.
+- **Rows,** `split-button.browser.test.ts`: 56 in Chromium, and 52 in Firefox and WebKit. Four of them read Chromium's tree. `traits-baseline.json` changes by `secondarylabel` only.
+- **Witnesses** ([reading](split-button-names-1/checks/witnesses.txt), [script](split-button-names-1/probes/mutate.mjs)), by engine: `main`'s source fails 32 rows in Chromium, 25 in Firefox and 25 in WebKit. **Not every row fails on `main`,** as the contract asks. The three rows of an absence (neither the leading button nor the host, a host `aria-label` on neither button) pass there, and each is failed by a mutation of its own in the three engines. So do the rows of the enabled state (16), the existing two, a click on the disabled leading button (3), which the host's own disabled state holds, and in Firefox and WebKit a key on it (3), as the entry of `RF-138` reads. With `disabled` not transferred, 21, 18 and 18 fail. The icon's `aria-hidden` is held by Chromium's rows only.
+- **Trees on the built change** ([Chromium](split-button-names-1/checks/names-chromium.txt), [Firefox](split-button-names-1/checks/names-firefox.txt), [WebKit](split-button-names-1/checks/names-webkit.txt), [probe](split-button-names-1/probes/names.ts)): `names.ts` with four rows added for the label. The three agree: named by the label, no name without it, expanded with `open` and collapsed without, and a host `aria-label` on neither. Firefox's states are in its list in document order. WebKit's reading has the expanded state here, which the registered reading of the native control didn't have.
+- **Checks:** material-x without the visual project: Chromium 1745 passed and 2 expected failures; Firefox 1663 passed, 3 expected failures and 81 skipped; WebKit 1664 passed, 2 expected failures and 81 skipped. Typecheck, `typecheck-declarations`, the root format check, publint, `docs-build` and `docs-smoke` (129 of 129) pass. The size budgets pass.
+- **Lint fails, with three errors in the rows' file,** all surviving the autofix, and left as `handoff.md` says: `no-await-in-loop` twice (one change of `open` and one press of Tab per step), and `strict-void-return` once (a listener that returns `push`'s value).
+- **Size, Brotli, local, against `main`'s two sources on the same tree:** `button/split-button` 7567 to 7650 (+83), `complete` 25660 to 25686 (+26). No other row of 23 moves.
+- **Not run:** the visual project, Safari, screen readers.
+
 #### RF-137 — An `mx-icon`'s ligature text is part of the name of the control that it is in
 
 Tier A, **open**, **ready** after `RF-136` (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from the reading that `RF-136` asked for. `RF-136` is the entry before this one. Read as `RF-136`, with the same probe.
@@ -6260,6 +6271,8 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 - **Plan needed:** no. **Ready** for an implementer, in `RF-136`'s unit (below). **Size:** _small_.
 
 **Dated 2026-11-25 by the architect: approved for implementation by the owner on 2026-11-24.** In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). It goes with `RF-136` on `material-x/split-button-names-1`, because both edit the constructor of `split-button.ts` and its rows' file. The constructor transfers `disabled` to the inner group, with the three attributes that it takes already, and the rest of the entry is the contract. **The JSDoc and the page stand.**
+
+**Dated 2026-11-25 by the implementer: implemented with `RF-136`, whose last note has the rows, the witnesses and the checks, and not closed.** The constructor transfers `disabled` with the three attributes that it took already. The rows' colors are compared with a standalone `mx-button` and `mx-icon-button` in the same state.
 
 #### RF-139 — A list item's long texts run out of it, and two trailing children stack
 
