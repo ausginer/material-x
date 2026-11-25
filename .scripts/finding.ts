@@ -135,9 +135,12 @@ if (author?.login !== ACCOUNT) {
   );
 }
 
-// An absent editor means that the body was never edited.
-if (editor && editor.login !== ACCOUNT) {
-  fail(`#${number} was last edited by ${editor.login}, not ${ACCOUNT}`);
+// GitHub's editor is absent for a body that was never edited, and for one whose
+// editor's account is deleted. Only the time of the last edit tells them apart.
+if ((editor || lastEditedAt !== null) && editor?.login !== ACCOUNT) {
+  fail(
+    `#${number} was last edited by ${editor?.login ?? 'an absent account'}, not ${ACCOUNT}`,
+  );
 }
 
 const tiers = issue.labels.nodes

@@ -19,6 +19,21 @@ cat "\${0%/*}/answer.json"
 const USAGE = 'usage: node .scripts/finding.ts <number> [r<revision>]\n';
 const ISSUE_URL = 'https://github.com/ausginer/material-x/issues/300';
 
+const QUESTION = `query($number: Int!) {
+  repository(owner: "ausginer", name: "material-x") {
+    issue(number: $number) {
+      number title url state body lastEditedAt
+      author { login }
+      editor { login }
+      labels(first: 100) { nodes { name } }
+      comments(first: 100) {
+        totalCount
+        nodes { body createdAt lastEditedAt author { login } }
+      }
+    }
+  }
+}`;
+
 type Run = Readonly<{ code: number; stdout: string; stderr: string }>;
 type Account = Readonly<{ login: string }> | null;
 
@@ -174,6 +189,7 @@ describe('finding', () => {
         call.split('\n').filter((line) => line === 'graphql'),
       ).toHaveLength(1);
       expect(call).toContain('\nnumber=300\n');
+      expect(call).toContain(`\nquery=${QUESTION}\n`);
     });
 
     it('should print r2 with its amendments and without other comments', async () => {
@@ -184,7 +200,10 @@ describe('finding', () => {
           amendment(1, '10:00:00'),
           comment('I think so.', '10:30:00'),
           amendment(2, '11:00:05'),
-          comment('Accepted for closure.\n\n— ARCHITECT', '12:00:00'),
+          comment(
+            'Accepted for closure.\n\n### Amendment 3\n\n— ARCHITECT',
+            '12:00:00',
+          ),
         ],
       });
 
@@ -227,8 +246,9 @@ describe('finding', () => {
       expect(result.stdout).not.toContain('Amendment 3');
     });
 
-    it('should read CRLF line ends', async () => {
-      const crlf = (text: string): string => text.replaceAll('\n', '\r\n');
+    it('should read CRLF line ends and a final line end', async () => {
+      const crlf = (text: string): string =>
+        `${text}\n`.replaceAll('\n', '\r\n');
       const result = await finding({
         ...R2,
         body: crlf(bodyAt(2)),
@@ -297,6 +317,12 @@ describe('finding', () => {
       );
     });
 
+    it('should refuse a body that an absent account edited last', async () => {
+      expect(await finding({ ...R2, editor: null })).toEqual(
+        refusal('#300 was last edited by an absent account, not Lodin'),
+      );
+    });
+
     it('should refuse an issue without a tier', async () => {
       expect(await finding({ labels: ['pkg:core'] })).toEqual(
         refusal(
@@ -318,9 +344,11 @@ describe('finding', () => {
     );
 
     it('should refuse a body without its revision', async () => {
-      expect(await finding({ body: 'It breaks.\n\n— ARCHITECT' })).toEqual(
-        BAD_ENDING,
-      );
+      expect(
+        await finding({
+          body: 'It breaks.\n\nRevision 0\n\nIt breaks again.\n\n— ARCHITECT',
+        }),
+      ).toEqual(BAD_ENDING);
     });
 
     it('should refuse a body without its stamp', async () => {
@@ -340,7 +368,9 @@ describe('finding', () => {
         await finding({
           ...R2,
           comments: [
-            amendment(1, '10:00:00', { body: '### Amendment 1\n\nReason.' }),
+            amendment(1, '10:00:00', {
+              body: '### Amendment 1\n\nReason. — ARCHITECT',
+            }),
             amendment(2, '11:00:05'),
           ],
         }),
@@ -352,11 +382,11 @@ describe('finding', () => {
         await finding({
           ...R2,
           comments: [
-            amendment(1, '10:00:00', { lastEditedAt: at('10:05:00') }),
-            amendment(2, '11:00:05'),
+            amendment(1, '10:00:00'),
+            amendment(2, '11:00:05', { lastEditedAt: at('11:05:00') }),
           ],
         }),
-      ).toEqual(refusal(`#300's Amendment 1 was edited at ${at('10:05:00')}`));
+      ).toEqual(refusal(`#300's Amendment 2 was edited at ${at('11:05:00')}`));
     });
 
     it('should refuse a missing amendment', async () => {
