@@ -315,6 +315,23 @@ describe('useRovingTabindex', () => {
       expectTabStop([added, first, second], second);
     });
 
+    it('should keep the tab stop that the last focus chose when an item is put first', async () => {
+      const host = createHost();
+      const first = createItem({ value: 'first' });
+      const second = createItem({ value: 'second' });
+      const third = createItem({ value: 'third' });
+      const added = createItem({ value: 'added' });
+
+      await mountHost(host, first, second, third);
+      second.focus();
+      third.focus();
+      third.blur();
+      host.prepend(added);
+      await nextFrame();
+
+      expectTabStop([added, first, second, third], third);
+    });
+
     it('should move the tab stop to the first item when the host value stops matching and focus chose none', async () => {
       const host = createHost();
       const first = createItem({ value: 'first' });
@@ -386,6 +403,37 @@ describe('useRovingTabindex', () => {
         await nextFrame();
 
         expectTabStop([added, first, second], second);
+      });
+
+      it('should give the tab stop to it when focus chose another earlier', async () => {
+        const host = createHost();
+        const first = createItem({ value: 'first' });
+        const second = createItem({ value: 'second' });
+        const third = createItem({ value: 'third' });
+
+        await mountHost(host, first, second);
+        second.focus();
+        host.append(third);
+        third.focus();
+        await nextFrame();
+
+        expectTabStop([first, second, third], third);
+      });
+
+      it('should keep the tab stop that focus chose earlier when the added item is disabled', async () => {
+        const host = createHost();
+        const first = createItem({ value: 'first' });
+        const second = createItem({ value: 'second' });
+        const third = createItem({ disabled: true, value: 'third' });
+
+        await mountHost(host, first, second);
+        second.focus();
+        host.append(third);
+        third.focus();
+        await nextFrame();
+
+        expect(document.activeElement).toBe(third);
+        expectTabStop([first, second, third], second);
       });
     });
 
