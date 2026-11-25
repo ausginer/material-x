@@ -1,6 +1,6 @@
 # The component's own `aria-*` value — plan
 
-**For `repo:RF-130` (#232).** Planned on 2026-11-24 by an architect, on the coordinator's task, on `core/aria-own-value-1` from `main` at `eddf39e7b`. The owner approved planning it: _"понял, да, делаем"_ ("got it, yes, let's do it"). **Status: implemented at `65f822807`, proved, and ruled on in [Feature proof's rulings](#feature-proofs-rulings), whose list is ready for an implementer. No question is open.** The owner answered [Q1](#q1--what-does-the-control-show-while-the-host-gives-the-name) on 2026-11-24 with (a), and the entry's note records it. Labels `OV-…` are local to this plan.
+**For `repo:RF-130` (#232).** Planned on 2026-11-24 by an architect, on the coordinator's task, on `core/aria-own-value-1` from `main` at `eddf39e7b`. The owner approved planning it: _"понял, да, делаем"_ ("got it, yes, let's do it"). **Status: closed on 2026-11-25, with `repo:RF-130`'s last note. Implemented at `65f822807`, proved, ruled on in [Feature proof's rulings](#feature-proofs-rulings), and the rulings' list done at `b7dcdde75`. No question is open.** The owner answered [Q1](#q1--what-does-the-control-show-while-the-host-gives-the-name) on 2026-11-24 with (a), and the entry's note records it. Labels `OV-…` are local to this plan.
 
 ## The answer in short
 
