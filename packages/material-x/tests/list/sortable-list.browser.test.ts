@@ -995,6 +995,31 @@ describe('mx-sortable-list lifted item in a key move', () => {
       Array.from({ length: 3 }, () => ['rgb(0, 0, 255)', 'rgb(255, 0, 0)']),
     );
   });
+
+  it("should keep a static item's own background-color and color with a page rule for popovers", async () => {
+    const style = document.createElement('style');
+    style.textContent = '[popover] { background: red; color: blue; }';
+    document.head.append(style);
+    onTestFinished(() => style.remove());
+    const [list, item] = await createFocused({
+      item: 'mx-list-item',
+      selected: false,
+    });
+    const read: Array<readonly [string, string]> = [];
+    const record = (): void => {
+      const { backgroundColor, color } = getComputedStyle(item);
+      read.push([backgroundColor, color]);
+    };
+    list.addEventListener('reorder', record);
+    commitOnReorder(list);
+
+    record();
+    await userEvent.keyboard('{ArrowDown}');
+    await whenSettled(list, item);
+    record();
+
+    expect(read).toEqual(Array.from({ length: 3 }, () => read[0]));
+  });
 });
 
 describe('mx-sortable-list static item focus', () => {

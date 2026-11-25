@@ -244,7 +244,15 @@ describe('mx-list item roles', () => {
   describe.each(['mx-list-item', 'mx-list-button-item'] as const)(
     '%s lifted by mx-sortable-list',
     (tag) => {
-      const LIFT_STYLES = ['padding', 'overflow'] as const;
+      // In a pointer drag a static item's colors are the reorder tokens'.
+      const LIFT_STYLES: readonly string[] =
+        tag === 'mx-list-item'
+          ? ['padding', 'overflow']
+          : ['padding', 'overflow', 'color', 'background-color'];
+      const KEPT =
+        tag === 'mx-list-item'
+          ? 'rect, padding and overflow'
+          : 'rect, padding, overflow, color and background-color';
       const POPOVER_RULE =
         '[popover] { padding: 16px; background: red; overflow: auto; color: blue; }';
 
@@ -310,7 +318,7 @@ describe('mx-list item roles', () => {
       ];
 
       it.each(RULE_CASES)(
-        "should keep the host's rect, padding and overflow with %s",
+        `should keep the host's ${KEPT} with %s`,
         async (_, rule) => {
           if (rule) {
             addPageRule(rule);
@@ -346,7 +354,7 @@ describe('mx-list item roles', () => {
           },
         );
 
-        it("should have the page's background-color at rest and after the drop", async () => {
+        it("should have the page's background-color after the drop", async () => {
           addPageRule('#s { background-color: rgb(0, 0, 255); }');
           const { item } = await lift();
           await commands.pointerRelease();

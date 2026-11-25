@@ -1,0 +1,24 @@
+## as it is | chromium | Tests  309 passed (309)
+## as it is | firefox | Tests  297 passed | 2 skipped (299)
+## as it is | webkit | Tests  307 passed | 2 skipped (309)
+## color and background-color out of drag's UA_PROPS | chromium | Tests  3 failed | 306 passed (309)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background-color with no page rule
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background-color with a page rule for popovers
+   mx-sortable-list lifted item in a key move > should keep a static item's own background-color and color with a page rule for popovers
+## color and background-color out of drag's UA_PROPS | firefox | Tests  3 failed | 294 passed | 2 skipped (299)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background-color with no page rule
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background-color with a page rule for popovers
+   mx-sortable-list lifted item in a key move > should keep a static item's own background-color and color with a page rule for popovers
+## color and background-color out of drag's UA_PROPS | webkit | Tests  3 failed | 304 passed | 2 skipped (309)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background-color with no page rule
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background-color with a page rule for popovers
+   mx-sortable-list lifted item in a key move > should keep a static item's own background-color and color with a page rule for popovers
+## the static item's rule on ::slotted(:state(drag)) | chromium | Tests  2 failed | 307 passed (309)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background-color with no page rule
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background-color with a page rule for popovers
+## the static item's rule on ::slotted(:state(drag)) | firefox | Tests  2 failed | 295 passed | 2 skipped (299)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background-color with no page rule
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background-color with a page rule for popovers
+## the static item's rule on ::slotted(:state(drag)) | webkit | Tests  2 failed | 305 passed | 2 skipped (309)
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background-color with no page rule
+   mx-list item roles > mx-list-button-item lifted by mx-sortable-list > should keep the host's rect, padding, overflow, color and background-color with a page rule for popovers

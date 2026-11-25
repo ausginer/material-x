@@ -111,12 +111,12 @@ const SortableListConstructor: Composed<
  *   item without one, is described as _Use the arrow keys to move_.
  * - **Lift.** During a drag, the item element carries `popover="manual"` and
  *   matches `[popover]` and `:popover-open`. The lift keeps the item's size,
- *   position, padding, border and overflow. A keyboard move keeps its color and
- *   background color too. In a pointer drag the item takes Material's reorder
- *   colors, over a page's `color` and `background-color` on it, and
- *   `--md-list-item-container-color` still overrides the container color. A
- *   page's popover rule that sets other properties, such as `box-shadow`,
- *   applies to the item while it is lifted.
+ *   position, padding, border, overflow, color and background color. In a
+ *   pointer drag, an item that isn't disabled takes Material's reorder colors,
+ *   and they replace a page's `color` and `background-color` on an
+ *   `mx-list-item`. `--md-list-item-container-color` still overrides the
+ *   container color. A page's popover rule that sets other properties, such as
+ *   `box-shadow`, applies to the item while it is lifted.
  * - **Nested controls.** A control inside an item without a handle that uses
  *   the arrow keys itself, such as a text field or a slider, needs a
  *   `data-drag-ignore` attribute. Otherwise its arrow keys move the item.
