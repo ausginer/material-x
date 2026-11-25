@@ -3350,6 +3350,40 @@ Every other row reads 0. The argument is additive, so drag's release (#57) doesn
 
 **Answered by the owner on 2026-11-25,** in chat, relayed by the coordinator: _"Q1 (a)"_. Recorded in #265 as Amendment 2. The ceilings move to the unit's readings, and a reading well above the candidate's comes back to the owner with the table.
 
+**Dated 2026-11-25 by the implementer: implemented on `drag/displacement-1` at `fcbd26a4d`, for #265 at `r2`, with `main` at `ca6918376` merged.** Requested by the coordinator. Properties 1 to 10 hold in the rows, and no stop was met.
+
+- **The form** isn't the candidate's. The sink has one member that moves the placeholder and reads the rows around its own write, so a throw leaves nothing behind. With `y()` it takes the crossed rows from the DOM and not from a kept gap index, which a rebase leaves stale. It doesn't settle its two reads: they are in one task, so what an animation draws is the same in both and leaves the difference. A mutation that removed the settling failed no row.
+- **Property 8's press that activates nothing:** the item's animation ends after the activation's last decline, so a press that is declined there ends none. The candidate ended it before.
+- **Beyond the text, for the architect:** an item that left the collection and stays in the list has no home gap (its index is −1, so `home` names the first row). Its return is its own place. The same condition makes a removed item's return none, beside the anchor's and the placeholder's. `DRI-22` says both. A report of the return home alone failed a row of its own.
+- **Seen, and not changed:** a consumer that commits after it accepted, in `onEnd` or in a later render, is by property 2 an accepted item that isn't beside the placeholder, so its rows are sent home, and its late commit then moves them. By reading only. `sortable` documents that `onReorder` commits.
+- **Rows:** 85 in `displacement.browser.test.ts`, in the source and the consumer project of each engine. **Witnesses,** the same counts in Chromium, Firefox and WebKit ([reading](displacement-1/checks/witnesses.txt), [probe](displacement-1/probes/mutate.mjs)):
+
+  | Change | Rows that fail, of 85 |
+  | --- | --- |
+  | The report of `drop()` removed | 40 |
+  | A pointer drop's report removed | 2 |
+  | A command's report removed | 38 |
+  | The report of the return removed | 36 |
+  | The return only with a landing | 18 |
+  | The fault's return removed | 4 |
+  | An accepted item's return removed | 4 |
+  | The row's release at the activation removed | 1 |
+  | The row's release before the activation can decline | 1 |
+  | The preference not read, or read once | 5 each |
+  | `timing` called under the preference | 1 |
+  | The array read after the drop | 4 |
+  | The rows not kept at a rebase | 1 |
+  | An absent item returned home | 1 |
+  | A lost anchor, or a lost item, not checked | 1 each |
+  | `y()` reads every row | 2 |
+
+- **An unsteady state of the rows, and its repair:** with animations of 60 s, two rows of `y()` without landing, _Escape_ and _requestCancel_, failed once in Chromium under a mutation that doesn't reach them. The message wasn't saved, and the cause isn't established. A 60 s animation moves a row 1 px in 1.5 s, which is the rows' limit, so they are an hour now. They passed four runs beside 16 busy processes.
+- **The plan's probe on the head** reads as the candidate in each case ([reading](displacement-1/checks/head.txt)): the differences are of the dragged item and of when it was sampled. Firefox's row in a return during a scroll is still 18 px short.
+- **Existing rows:** changed where they pass `duration`, and one private test double has the sink's two new members.
+- **Size, Brotli** ([all](displacement-1/checks/sizes-head.txt)): _sortable + y_ 6538 to 6689 (+151, where the candidate is +235), _sortable + xy_ 6506 to 6641 (+135, +209), _complete_ 7156 to 7489 (+333, +360). Every other row reads 0. The three ceilings are those readings (`DRO-20`).
+- **Checks:** drag's source and consumer projects in each engine (537 and 502, with 9 skipped in Firefox and WebKit), the `shipped` project in each, the node projects (76), root typecheck, the declarations' typecheck, lint, the size gate, `docs-build`, `docs-smoke` and the root format check. No file that begins with a key press failed in WebKit.
+- **Not here:** `accessibility.md`'s two lines, which the coordinator takes.
+
 ## Disposition of the 2026-11-07 reviews
 
 Each finding and question of the [review round](reviews/production/production-summary.md) and the [architecture challenge](reviews/architecture/production-design-challenge.md), both read at `d7e7b0d3a`. "Handoff" means [`remediation-handoff.md`](remediation-handoff.md).
