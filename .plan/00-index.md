@@ -2657,7 +2657,7 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 #### RD-57 — axe-core checks material-x's elements in the browser tests, supplementary, with each known violation listed by rule and target
 
-**Decided 2026-11-24 by the architect, on `repo/accessibility-findings-1`,** from Mx Architect Explainer's proposal, relayed by the coordinator. The owner approved its registration with the branch's other items: _"Да, отличный анализ, пасиба! Кидай всё"_ ("Yes, great analysis, thanks! Send it all"). That covers registration and not the design. `RD-56` (`repo/findings-on-github-1`) is the highest `RD-` on any branch on `origin`, so this is the next free number. **Unimplemented:** a short plan comes first.
+**Decided 2026-11-24 by the architect, on `repo/accessibility-findings-1`,** from Mx Architect Explainer's proposal, relayed by the coordinator. The owner approved its registration with the branch's other items: _"Да, отличный анализ, пасиба! Кидай всё"_ ("Yes, great analysis, thanks! Send it all"). That covers registration and not the design. `RD-56` (`repo/findings-on-github-1`) is the highest `RD-` on any branch on `origin`, so this is the next free number. **Status: implemented** on `repo/axe-checks-1`, as the last dated note here says.
 
 **The dependency is approved by the owner,** the same day in chat, relayed by the coordinator: _"Согласие на axe-core сразу даю, зря что ли инициировал"_ ("I give my consent to axe-core right away, I didn't start this for nothing"). It is a development dependency only. axe-core 4.14.1 is MPL-2.0 and its manifest has no `dependencies` (read).
 
@@ -2677,6 +2677,13 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 **Order:** it waits for nothing. It is most useful before `RF-132` and `RF-94`, whose repairs then change its list. **Size:** _large_, because a plan comes first. The plan is short.
 
 **Dated 2026-11-25 by the architect, on `repo/axe-checks-1`: planned, and ready for an implementer.** The [plan](axe-checks-1/axe-checks-plan.md) settles what this entry left to it. Read again at `8bed561de`: the same two violations, with `RF-132`'s also on an item that was selected and no longer is, and a third, `nested-interactive` (`RF-144`). The list starts with those three owners. Chromium alone, at about 6.5 s locally. The dependency is in material-x's `devDependencies`. The roles that a host has through `ElementInternals` aren't seen by axe's rules, which is a limit beside those above. Nothing is the owner's to answer.
+
+**Dated 2026-11-25 by the implementer, on `repo/axe-checks-1`: implemented,** in `packages/material-x/tests/axe.browser.test.ts`, with `main` at `ee0afea12`. 68 rows for 22 elements, the standing row and the coverage row: 70 of 70 pass in Chromium. 15 rows have a violation: `RF-94` 10, `RF-132` 2 and `RF-144` 3. The added time is 4.9 to 8.2 s in five pairs at a load under 6 ([readings](axe-checks-1/checks/implementation-time.txt)). Witnesses 1 to 5 fail as they should ([readings](axe-checks-1/checks/witnesses.txt), [script](axe-checks-1/probes/witnesses.mjs)). Witness 6 is read in Chromium alone. Its Firefox and WebKit half is CI's, by the owner's rule of Chromium only locally, and the unit closes on `verify`'s jobs. Departures from the plan, the first ruled on by the architect, relayed by the coordinator:
+
+- **A hidden icon in a control.** In the probe's fixtures the icon is exposed, and its ligature text names the control after it loses its `aria-label`, so witness 2 failed in the split button's rows alone. The icons in the controls are `aria-hidden="true"`, within property 2. Witness 2 then fails in 11 rows. When `RF-137` lands, the attribute is redundant, and whichever unit lands second may remove it with witness 2 again.
+- **Witness 2b, added:** the FAB calls `useARIA` itself. Without that call, its _icon only_ and _disabled_ rows fail with `button-name`, and _extended and closed_ has its own text.
+- **`RF-144` has three rows,** not two: the third is a handle in a disabled button item, which the probe has. Each target is the item's button with a control in it.
+- **The lockfile** nests axe-core 4.14.1 under `packages/material-x`.
 
 #### RD-58 — A page names the split button's trailing button with `secondarylabel`, and `open` is its expanded state
 

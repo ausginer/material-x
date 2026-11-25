@@ -1,0 +1,14 @@
+# Chromium, 12 cores, main at ee0afea12 merged. Paired durations that vitest reports: zz-one imports axe and every element and has one row; axe is tests/axe.browser.test.ts. Each pair started at a load under 6.
+load 5.69 zz-one       Tests  1 passed | 2 skipped (3)    Duration  4.92s (tests 79%, worker 20%, setup 1%, import 1%) 
+load 6.68 axe       Tests  70 passed (70)    Duration  9.79s (tests 94%, worker 6%) 
+load 5.88 zz-one       Tests  1 passed | 2 skipped (3)    Duration  4.35s (tests 80%, worker 19%) 
+load 6.93 axe       Tests  70 passed (70)    Duration  11.19s (tests 93%, worker 6%) 
+load 5.79 zz-one       Tests  1 passed | 2 skipped (3)    Duration  3.38s (tests 82%, worker 16%, setup 1%, import 1%) 
+load 5.65 axe       Tests  70 passed (70)    Duration  10.97s (tests 93%, worker 6%) 
+load 5.81 zz-one       Tests  1 passed | 2 skipped (3)    Duration  9.25s (tests 88%, worker 11%) 
+load 8.65 axe       Tests  70 passed (70)    Duration  14.80s (tests 91%, worker 8%, import 1%) 
+load 5.95 zz-one       Tests  1 passed | 2 skipped (3)    Duration  3.82s (tests 85%, worker 14%) 
+load 6.44 axe       Tests  70 passed (70)    Duration  12.03s (tests 92%, worker 7%) 
+# Added: 4.9, 6.8, 7.6, 5.6, 8.2 s
+# Earlier, with one more frame in each row: load about 19: 7.6, 7.4, 11.0 s. Load 8 to 13, rising: 7.3, 6.9, 12.1 s.
+# Cold Vite cache (node_modules/.vite removed), Chromium, load 18, with one more frame in each row: 70 of 70 passed, no reload message, 19.28 s. Firefox and WebKit weren't run.
