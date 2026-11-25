@@ -4155,5 +4155,55 @@
         ]
       }
     ]
+  },
+  {
+    "tag": "mx-top-app-bar",
+    "className": "TopAppBar",
+    "observedAttributes": [],
+    "reflection": [],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": false,
+      "Linkable": false,
+      "Nameable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": false,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SliderLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "CardLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "TopAppBar"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "TopAppBar",
+        "keys": [
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
   }
 ]

@@ -1,0 +1,66 @@
+== head
+# chromium 158.0.8127.18
+before the group is defined: isolation auto, visible true, z auto
+after it: isolation auto, visible true, z auto
+after a key: isolation isolate, visible true, z 1
+a badge on the first member's corner, no z-index: red pixels at rest 1014, with keyboard focus on the second 768
+a badge on the first member's corner, z-index:1: red pixels at rest 1202, with keyboard focus on the second 768
+a badge on the first member's corner, z-index:2: red pixels at rest 1202, with keyboard focus on the second 1202
+rtl split mx-button: whole
+rtl split mx-icon-button: whole
+page errors: 5
+== head without the two declarations
+# chromium 158.0.8127.18
+before the group is defined: isolation auto, visible true, z auto
+after it: isolation auto, visible true, z auto
+after a key: isolation auto, visible true, z auto
+a badge on the first member's corner, no z-index: red pixels at rest 1014, with keyboard focus on the second 768
+a badge on the first member's corner, z-index:1: red pixels at rest 1202, with keyboard focus on the second 1202
+a badge on the first member's corner, z-index:2: red pixels at rest 1202, with keyboard focus on the second 1202
+rtl split mx-button: whole
+rtl split mx-icon-button: whole
+page errors: 5
+== head
+# firefox 159.0
+before the group is defined: isolation auto, visible true, z auto
+after it: isolation auto, visible true, z auto
+after a key: isolation isolate, visible true, z 1
+a badge on the first member's corner, no z-index: red pixels at rest 1013, with keyboard focus on the second 752
+a badge on the first member's corner, z-index:1: red pixels at rest 1201, with keyboard focus on the second 752
+a badge on the first member's corner, z-index:2: red pixels at rest 1201, with keyboard focus on the second 1201
+rtl split mx-button: whole
+rtl split mx-icon-button: whole
+page errors: 5
+== head without the two declarations
+# firefox 159.0
+before the group is defined: isolation auto, visible true, z auto
+after it: isolation auto, visible true, z auto
+after a key: isolation auto, visible true, z auto
+a badge on the first member's corner, no z-index: red pixels at rest 1013, with keyboard focus on the second 752
+a badge on the first member's corner, z-index:1: red pixels at rest 1201, with keyboard focus on the second 1201
+a badge on the first member's corner, z-index:2: red pixels at rest 1201, with keyboard focus on the second 1201
+rtl split mx-button: whole
+rtl split mx-icon-button: whole
+page errors: 5
+== head
+# webkit 27.2
+before the group is defined: isolation auto, visible true, z auto
+after it: isolation auto, visible true, z auto
+after a key: isolation isolate, visible true, z 1
+a badge on the first member's corner, no z-index: red pixels at rest 1015, with keyboard focus on the second 769
+a badge on the first member's corner, z-index:1: red pixels at rest 1202, with keyboard focus on the second 769
+a badge on the first member's corner, z-index:2: red pixels at rest 1202, with keyboard focus on the second 1202
+rtl split mx-button: whole
+rtl split mx-icon-button: whole
+page errors: 5
+== head without the two declarations
+# webkit 27.2
+before the group is defined: isolation auto, visible true, z auto
+after it: isolation auto, visible true, z auto
+after a key: isolation auto, visible true, z auto
+a badge on the first member's corner, no z-index: red pixels at rest 1015, with keyboard focus on the second 769
+a badge on the first member's corner, z-index:1: red pixels at rest 1202, with keyboard focus on the second 1202
+a badge on the first member's corner, z-index:2: red pixels at rest 1202, with keyboard focus on the second 1202
+rtl split mx-button: whole
+rtl split mx-icon-button: whole
+page errors: 5

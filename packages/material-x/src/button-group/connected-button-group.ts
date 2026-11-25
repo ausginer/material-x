@@ -1,11 +1,14 @@
+import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import { useRovingTabindex } from '@ydinjs/core/controllers/useRovingTabindex.js';
 import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
 import {
   ControlledElement,
+  internals,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import type { Checkable } from '@ydinjs/core/traits/checkable.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
+import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import type { ButtonLike } from '../button/ButtonCore.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {
@@ -57,6 +60,28 @@ export default class ConnectedButtonGroup extends ConnectedButtonGroupConstructo
     ]);
 
     useRovingTabindex(this);
+
+    const innards = internals(this);
+    // A member's host matches `:focus` and never `:focus-visible`, so CSS can't
+    // tell the keyboard's focus from a pointer's. The focused control is read
+    // rather than the event's target: an arrow key moves focus during
+    // `keydown`, whose target is then the former control.
+    const updateFocusVisible = () => {
+      toggleState(
+        innards,
+        'focus-visible',
+        Array.from(this.children).some((member) =>
+          member.shadowRoot?.activeElement?.matches(':focus-visible'),
+        ),
+      );
+    };
+
+    useEvents(this, {
+      focusin: updateFocusVisible,
+      // After a click, a key can make the focused control match
+      // `:focus-visible` without a `focusin`.
+      keydown: updateFocusVisible,
+    });
 
     useSlot(this, 'slot', (slot) => {
       // The slot's elements, without the text and comment nodes between them.

@@ -1,0 +1,46 @@
+Readings of 2026-11-24 by the implementer, RF-130, on core/aria-own-value-1 with main at f9729a393 merged.
+
+## Brotli bytes, the gate's size reading of the merge base and of the built change; the plan's candidate on the same base gives the same bytes in each row
+button/button 4858 -> 4897 (39)
+button/icon-button 5105 -> 5166 (61)
+button/link-button 4817 -> 4862 (45)
+button/switch-button 5442 -> 5472 (30)
+button/switch-icon-button 5840 -> 5879 (39)
+button/split-button 7441 -> 7480 (39)
+checkbox/checkbox 4226 -> 4260 (34)
+fab/fab 4139 -> 4177 (38)
+list/list-button-item 4839 -> 4893 (54)
+list/list-link-item 5050 -> 5111 (61)
+radio/radio 3781 -> 3812 (31)
+text-field/multiline-text-field 4456 -> 4526 (70)
+text-field/text-field 8479 -> 8568 (89)
+complete 23098 -> 23093 (-5)
+
+## probes/own-value.browser.test.ts on the built change
+READ chromium | mx-link-button aria-disabled="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ chromium | mx-link-button aria-disabled="true" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ chromium | mx-list-button-item aria-selected="true" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ chromium | mx-list-link-item aria-current="step" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ chromium | mx-list-link-item aria-disabled="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ chromium | mx-multiline-text-field aria-required="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ chromium | mx-switch-button aria-checked="mixed" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ chromium | mx-switch-button aria-invalid="grammar" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ chromium | mx-text-field aria-invalid="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ firefox | mx-link-button aria-disabled="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ firefox | mx-link-button aria-disabled="true" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ firefox | mx-list-button-item aria-selected="true" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ firefox | mx-list-link-item aria-current="step" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ firefox | mx-list-link-item aria-disabled="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ firefox | mx-multiline-text-field aria-required="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ firefox | mx-switch-button aria-checked="mixed" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ firefox | mx-switch-button aria-invalid="grammar" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ firefox | mx-text-field aria-invalid="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-link-button aria-disabled="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-link-button aria-disabled="true" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-list-button-item aria-selected="true" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-list-link-item aria-current="step" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-list-link-item aria-disabled="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-multiline-text-field aria-required="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-switch-button aria-checked="mixed" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-switch-button aria-invalid="grammar" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 
+READ webkit | mx-text-field aria-invalid="false" | reads 709 | wrong {"absent":0,"given":0,"absentSync":0,"givenSync":0} | 

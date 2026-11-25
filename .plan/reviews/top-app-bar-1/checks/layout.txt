@@ -1,0 +1,36 @@
+Error: @@ chromium
+bar x=24 w=1232 h=64; rest top=24; next sibling after:
+mx-icon-button[lead] x=4.0..44.0 c=32.00 w=40.0
+h1[] x=48.0..1009.3 c=32.00 w=961.3
+mx-icon[trail] x=1013.3..1037.3 c=32.00 w=24.0
+mx-link-button[trail] x=1037.3..1188.0 c=32.00 w=150.7
+mx-icon-button[trail] x=1188.0..1228.0 c=32.00 w=40.0
+link-button width 150.7 -> narrow 150.7
+flow: next sibling top 88 vs bar bottom 88
+mx-icon-button in bar 24px,rgb(66, 73, 55),14px,rgb(255, 255, 255),20px,0.1px,40,40.0 || alone 24px,rgb(66, 73, 55),14px,rgb(255, 255, 255),20px,0.1px,40,40.0 SAME
+mx-link-button in bar 24px,rgb(66, 73, 55),14px,rgb(255, 255, 255),20px,0.1px,40,150.7 || alone 16px,rgb(0, 0, 0),14px,rgb(255, 255, 255),20px,0.1px,40,150.7 DIFF
+wrapped h1 margin 29.48px size 44px
+Error: @@ firefox
+bar x=24 w=1232 h=64; rest top=24; next sibling after:
+mx-icon-button[lead] x=4.0..44.0 c=32.00 w=40.0
+h1[] x=48.0..1009.3 c=32.00 w=961.3
+mx-icon[trail] x=1013.3..1037.3 c=32.00 w=24.0
+mx-link-button[trail] x=1037.3..1188.0 c=32.00 w=150.7
+mx-icon-button[trail] x=1188.0..1228.0 c=32.00 w=40.0
+link-button width 150.7 -> narrow 150.7
+flow: next sibling top 88 vs bar bottom 88
+mx-icon-button in bar 24px,rgb(66, 73, 55),14px,rgb(255, 255, 255),20px,0.1px,40,40.0 || alone 24px,rgb(66, 73, 55),14px,rgb(255, 255, 255),20px,0.1px,40,40.0 SAME
+mx-link-button in bar 24px,rgb(66, 73, 55),14px,rgb(255, 255, 255),20px,0.1px,40,150.7 || alone 16px,rgb(0, 0, 0),14px,rgb(255, 255, 255),20px,0.1px,40,150.7 DIFF
+wrapped h1 margin 29.48px size 44px
+Error: @@ webkit
+bar x=24 w=1232 h=64; rest top=24; next sibling after:
+mx-icon-button[lead] x=4.0..44.0 c=32.00 w=40.0
+h1[] x=48.0..1009.3 c=32.00 w=961.3
+mx-icon[trail] x=1013.3..1037.3 c=32.00 w=24.0
+mx-link-button[trail] x=1037.3..1188.0 c=32.00 w=150.7
+mx-icon-button[trail] x=1188.0..1228.0 c=32.00 w=40.0
+link-button width 150.7 -> narrow 150.7
+flow: next sibling top 88 vs bar bottom 88
+mx-icon-button in bar 24px,rgb(66, 73, 55),14px,rgb(255, 255, 255),20px,0.1px,40,40.0 || alone 24px,rgb(66, 73, 55),14px,rgb(255, 255, 255),20px,0.1px,40,40.0 SAME
+mx-link-button in bar 24px,rgb(66, 73, 55),14px,rgb(255, 255, 255),20px,0.1px,40,150.7 || alone 16px,rgb(0, 0, 0),14px,rgb(255, 255, 255),20px,0.1px,40,150.7 DIFF
+wrapped h1 margin 29.46875px size 44px

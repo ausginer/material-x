@@ -1,0 +1,186 @@
+Read at 634dae5ef, the packages rebuilt.
+# chromium 158.0.8127.18
+{
+ "box": true,
+ "tab": "L>T>inv>sum>after>LTitleTopeninhxs>before>L",
+ "autoDismissed": true,
+ "autoDismissedAtBox": true,
+ "autoEscape": true,
+ "boxAfterDismissals": true,
+ "dlgFocus": "indlg",
+ "stateUnderModal": "off@0 on@300 off@0",
+ "dlgEscape": true,
+ "dlgLight": true,
+ "hits": [
+  "before/body/html false",
+  "before/body/html false",
+  "tall/body/html false",
+  "tall/body/html false"
+ ],
+ "size": "800x3145",
+ "snapshot": "- textbox\n- button \"L\"\n- heading \"Title\" [level=1]\n- button \"T\"\n- button \"open\"\n- group: s\n- textbox",
+ "popoversSeen": [
+  0,
+  null
+ ],
+ "backdrop": "block hidden rgba(0, 0, 0, 0) pe:none",
+ "ax": "RootWebArea: textbox: generic: button:open group: textbox: generic: generic: button:L heading:Title button:T StaticText:open DisclosureTriangleGrouped:s generic: StaticText:L StaticText:Title StaticText:T InlineTextBox:open StaticText:s InlineTextBox:L InlineTextBox:Title InlineTextBox:T InlineTextBox:s"
+}
+{
+ "box": false,
+ "tab": "L>T>inv>sum>after>LTitleTopeninhxs>before>L",
+ "autoDismissed": true,
+ "autoDismissedAtBox": true,
+ "autoEscape": true,
+ "boxAfterDismissals": false,
+ "dlgFocus": "indlg",
+ "stateUnderModal": "off@0 off WRONG@300 off@0",
+ "dlgEscape": true,
+ "dlgLight": true,
+ "hits": [
+  "before/body/html false",
+  "before/body/html false",
+  "tall/body/html false",
+  "tall/body/html false"
+ ],
+ "size": "800x3145",
+ "snapshot": "- textbox\n- button \"L\"\n- heading \"Title\" [level=1]\n- button \"T\"\n- button \"open\"\n- group: s\n- textbox",
+ "popoversSeen": [
+  0,
+  null
+ ],
+ "backdrop": "block hidden rgba(0, 0, 0, 0) pe:auto",
+ "ax": "RootWebArea: textbox: generic: button:open group: textbox: generic: generic: button:L heading:Title button:T StaticText:open DisclosureTriangleGrouped:s generic: StaticText:L StaticText:Title StaticText:T InlineTextBox:open StaticText:s InlineTextBox:L InlineTextBox:Title InlineTextBox:T InlineTextBox:s"
+}
+connects: ["p",true,"","removed:","p",true,""]
+fullscreen true off@0 | after off@0 off@0 on@1 on@300 on@4464 off@0
+print media on@300 | off@0 | back off@0 on@1 on@300 on@4464 off@0
+pdf, box shown true scrolled to 0 pages 3 bytes 6618 states false,false then off@0
+pdf, box shown true scrolled to 2500 pages 3 bytes 6621 states true,true then on@1964
+pdf, box shown false scrolled to 0 pages 3 bytes 6618 states false,false then off@0
+pdf, box shown false scrolled to 2500 pages 3 bytes 6623 states false,false then off WRONG@1964
+pinch zoom 1 visual 1 offsetTop 0 off@0 on@1 on@300 on@4464 off@0
+pinch zoom 2 visual 2 offsetTop 0 off@0 on@1 on@300 on@4464 off@0
+pinch zoom 3 visual 3 offsetTop 0 off@0 on@1 on@300 on@4464 off@0
+  a pan of 60px while zoomed 3 scrollY 0 visual offsetTop 60 pageTop 60 off@0
+  overscroll at the start off@0
+inert parent | before off@0 | after off@0 on@1 on@300 on@5400 off@0
+inside a closed dialog, then opened | before off@0 | after off@0 on@1 on@300 on@3400 off@0
+inside a popover, then opened | before off@0 | after off@0 on@1 on@300 on@3400 off@0
+content-visibility:hidden parent | before off@0 | after off@0 on@1 on@300 on@8464 off@0
+# firefox 159.0
+{
+ "box": true,
+ "tab": "L>T>inv>sum>after>LTitleTopeninhxs>after>after",
+ "autoDismissed": true,
+ "autoDismissedAtBox": true,
+ "autoEscape": true,
+ "boxAfterDismissals": true,
+ "dlgFocus": "indlg",
+ "stateUnderModal": "off@0 on@300 off@0",
+ "dlgEscape": true,
+ "dlgLight": true,
+ "hits": [
+  "before/body/html false",
+  "before/body/html false",
+  "tall/body/html false",
+  "tall/body/html false"
+ ],
+ "size": "800x3154",
+ "snapshot": "- textbox\n- button \"L\"\n- heading \"Title\" [level=1]\n- button \"T\"\n- button \"open\"\n- group: s\n- textbox",
+ "popoversSeen": [
+  0,
+  null
+ ],
+ "backdrop": "block hidden rgba(0, 0, 0, 0) pe:none"
+}
+{
+ "box": false,
+ "tab": "L>T>inv>sum>after>LTitleTopeninhxs>after>after",
+ "autoDismissed": true,
+ "autoDismissedAtBox": true,
+ "autoEscape": true,
+ "boxAfterDismissals": false,
+ "dlgFocus": "indlg",
+ "stateUnderModal": "off@0 off WRONG@300 off@0",
+ "dlgEscape": true,
+ "dlgLight": true,
+ "hits": [
+  "before/body/html false",
+  "before/body/html false",
+  "tall/body/html false",
+  "tall/body/html false"
+ ],
+ "size": "800x3154",
+ "snapshot": "- textbox\n- button \"L\"\n- heading \"Title\" [level=1]\n- button \"T\"\n- button \"open\"\n- group: s\n- textbox",
+ "popoversSeen": [
+  0,
+  null
+ ],
+ "backdrop": "block hidden rgba(0, 0, 0, 0) pe:auto"
+}
+connects: ["p",true,"","removed:","p",true,""]
+fullscreen true off@0 | after off@0 off@0 on@1 on@300 on@4464 off@0
+print media on@300 | off@0 | back off@0 on@1 on@300 on@4464 off@0
+inert parent | before off@0 | after off@0 on@1 on@300 on@5400 off@0
+inside a closed dialog, then opened | before off@0 | after off@0 on@1 on@300 on@3400 off@0
+inside a popover, then opened | before off@0 | after off@0 on@1 on@300 on@3400 off@0
+content-visibility:hidden parent | before off@0 | after off@0 on@1 on@300 on@8464 off@0
+# webkit 27.2
+{
+ "box": true,
+ "tab": "L>T>inv>sum>after>LTitleTopeninhxs>before>L",
+ "autoDismissed": true,
+ "autoDismissedAtBox": true,
+ "autoEscape": true,
+ "boxAfterDismissals": true,
+ "dlgFocus": "indlg",
+ "stateUnderModal": "off@0 on@300 off@0",
+ "dlgEscape": true,
+ "dlgLight": true,
+ "hits": [
+  "body/html false",
+  "before/body/html false",
+  "tall/body/html false",
+  "tall/body/html false"
+ ],
+ "size": "800x3169",
+ "snapshot": "- textbox\n- button \"L\"\n- heading \"Title\" [level=1]\n- button \"T\"\n- button \"open\"\n- group: s\n- textbox",
+ "popoversSeen": [
+  0,
+  null
+ ],
+ "backdrop": "block hidden rgba(0, 0, 0, 0) pe:none"
+}
+{
+ "box": false,
+ "tab": "L>T>inv>sum>after>LTitleTopeninhxs>before>L",
+ "autoDismissed": true,
+ "autoDismissedAtBox": true,
+ "autoEscape": true,
+ "boxAfterDismissals": false,
+ "dlgFocus": "indlg",
+ "stateUnderModal": "off@0 off WRONG@300 off@0",
+ "dlgEscape": true,
+ "dlgLight": true,
+ "hits": [
+  "body/html false",
+  "before/body/html false",
+  "tall/body/html false",
+  "tall/body/html false"
+ ],
+ "size": "800x3169",
+ "snapshot": "- textbox\n- button \"L\"\n- heading \"Title\" [level=1]\n- button \"T\"\n- button \"open\"\n- group: s\n- textbox",
+ "popoversSeen": [
+  0,
+  null
+ ],
+ "backdrop": "block hidden rgba(0, 0, 0, 0) pe:auto"
+}
+connects: ["p",true,"","removed:","p",true,""]
+fullscreen true off@0 | after on@300 off@0 on@1 on@300 on@4464 off@0
+print media on@300 | off@0 | back off@0 on@1 on@300 on@4464 off@0
+inert parent | before off@0 | after off@0 on@1 on@300 on@5400 off@0
+inside a closed dialog, then opened | before off@0 | after off@0 on@1 on@300 on@3400 off@0
+inside a popover, then opened | before off@0 | after off@0 on@1 on@300 on@3400 off@0
+content-visibility:hidden parent | before off@0 | after off@0 on@1 on@300 on@8464 off@0

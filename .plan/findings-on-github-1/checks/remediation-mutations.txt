@@ -1,0 +1,61 @@
+0 nothing: SURVIVED (38 rows pass)
+1 gh failure ignored: should refuse with the message of gh when gh fails
+1 message replaced: should refuse with the message of gh when gh fails
+1 message not used as a fallback: SURVIVED (38 rows pass)
+2 author removed: should refuse an issue that another account opened | should refuse an issue whose author is absent
+2 absent author passes: should refuse an issue whose author is absent
+2 editor removed: should refuse a body that another account edited last | should refuse a body that an absent account edited last
+2 absent editor refused: 7 rows
+2 editor: the old condition: should refuse a body that an absent account edited last
+3 removed: should refuse an issue without a tier | should refuse an issue with two tiers
+3 two pass: should refuse an issue with two tiers
+3 none passes: should refuse an issue without a tier
+3 any tier: label: SURVIVED (38 rows pass)
+4 stamp removed: should refuse a body without its stamp
+4 revision not at the start of the line: SURVIVED (38 rows pass)
+4 revision not at the end of the line: SURVIVED (38 rows pass)
+4 stamp at the end of any line: SURVIVED (38 rows pass)
+4 revision anywhere: should refuse a body without its revision
+4 empty lines kept: 18 rows
+5 removed: should refuse more than 100 comments
+5 100 refused: should read exactly 100 comments
+6 stamp removed: should refuse an amendment without its stamp
+6 edit removed: should refuse an amendment that was edited
+6 stamp not a whole line: should refuse an amendment without its stamp
+6 stamp anywhere: should refuse an amendment without its stamp
+6 only the last amendment checked: should refuse an amendment without its stamp
+6 only the first amendment checked: should refuse an amendment that was edited
+6 heading with text after the number: SURVIVED (38 rows pass)
+6 heading on any line: should print r2 with its amendments and without other comments
+6 heading of any level: SURVIVED (38 rows pass)
+7 count removed: should refuse a missing amendment | should refuse a surplus amendment
+7 order removed: should refuse amendments out of order
+7 sorted first: should refuse amendments out of order
+8 removed: should refuse a body that was edited at r0 | should refuse a body that was edited after its last amendment
+8 at r0 removed: should refuse a body that was edited at r0
+8 later removed: should refuse a body that was edited after its last amendment
+8 equal refused: should pass an edit in the last amendment's second
+8 against the first amendment: 9 rows
+9 removed: should refuse a revision later than the given one | should refuse a revision earlier than the given one
+9 later only: should refuse a revision earlier than the given one
+9 earlier only: should refuse a revision later than the given one
+9 the word: should refuse a revision later than the given one | should refuse a revision earlier than the given one
+read: another account counted: should leave out another account's amendment
+read: an absent account counted: should leave out an absent account's amendment
+read: CRLF kept: should read CRLF line ends and a final line end
+read: trailing space kept: should read CRLF line ends and a final line end
+read: a closed issue refused: should print a closed issue with its state
+read: number not asked: should ask GitHub once, for the given number
+read: revision not anchored: SURVIVED (38 rows pass)
+read: number not anchored: SURVIVED (38 rows pass)
+read: surplus argument: should print the usage for "300"
+print: closed comments count: should print r2 with its amendments and without other comments | should leave out another account's amendment
+ask: no body editor: should ask GitHub once, for the given number
+ask: no time of the body edit: should ask GitHub once, for the given number
+ask: no time of a comment edit: should ask GitHub once, for the given number
+ask: no creation time: should ask GitHub once, for the given number
+ask: no total: should ask GitHub once, for the given number
+ask: the first 10 comments: should ask GitHub once, for the given number
+ask: the last 100 comments: should ask GitHub once, for the given number
+ask: another repository: should ask GitHub once, for the given number
+ask: the last-updated order: should ask GitHub once, for the given number

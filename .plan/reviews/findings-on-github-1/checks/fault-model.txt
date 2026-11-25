@@ -1,0 +1,28 @@
+probes/fault-model.mjs, a model of the plan's checks 4, 6, 7 and 8 with the repairs of findings.md at 3840b2abc, 2026-11-24. The tool doesn't exist yet.
+
+amendment 2 of 3 has no stamp: refused 6: out of form
+  bullet 1: accepted r3
+amendment 2 of 2 was edited (neither bullet names it): refused 6: edited
+  as bullet 1: accepted r2
+amendment 3 is posted as 4, the body is r3: refused 7: [1,2,4] at r3
+  bullet 1, the number as posted: refused 7: [1,2,4] at r3
+  bullet 1, the number corrected: accepted r3
+amendment 2 is posted twice: refused 7: [1,2,2] at r2
+  bullet 1, as posted: refused 7: [1,2,2] at r2
+  bullet 1, the number corrected: refused 7: [1,2,3] at r2
+  deleted and not posted again: accepted r2
+amendment 3 is posted and the body stays r2: refused 7: [1,2,3] at r2
+  bullet 1: refused 7: [1,2,3] at r2
+  deleted, then amended as r3: accepted r3
+the body is edited and stays r2: refused 8: the body was edited after the last amendment
+  bullet 2, r3: accepted r3
+stopped between steps 2 and 3: the body is r3, amendments 1 and 2: refused 7: [1,2] at r3
+  bullet 2, next after the body, r4: refused 7: [1,2,4] at r4
+  bullet 2, next after the last amendment, r3: accepted r3
+  amendment 3 alone: accepted r3
+the body lost its stamp, r2 (neither bullet names it): refused 4: the body has no revision or stamp
+  the stamp put back under r2: refused 8: the body was edited after the last amendment
+  as bullet 2, r3: accepted r3
+registered without a stamp, r0 (neither bullet names it): refused 4: the body has no revision or stamp
+  the stamp put back under r0: refused 8: the body was edited after the last amendment
+  as bullet 2, r1: accepted r1

@@ -1,0 +1,57 @@
+Error: @@ chromium vars
+lead <mx-checkbox></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+lead <mx-checkbox checked></mx-checkbox>
+     /#mx-icon.icon|clip-path: inset(0px 77.8044% 0px 0px) -> inset(0px 77.8306% 0px 0px)
+lead <mx-checkbox disabled></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+trail <mx-checkbox></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+trail <mx-checkbox checked></mx-checkbox>
+     /#mx-icon.icon|clip-path: inset(0px 77.8058% 0px 0px) -> inset(0px 77.7839% 0px 0px)
+trail <mx-checkbox disabled></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+default <mx-checkbox></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+default <mx-checkbox checked></mx-checkbox>
+     /#mx-icon.icon|clip-path: inset(0px 77.7664% 0px 0px) -> inset(0px 64.4913% 0px 0px)
+default <mx-checkbox disabled></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+Error: @@ firefox vars
+lead <mx-checkbox></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+lead <mx-checkbox checked></mx-checkbox>
+     /#mx-icon.icon|clip-path: inset(0px 64.8786% 0px 0px) -> inset(0px 63.8908% 0px 0px)
+lead <mx-checkbox disabled></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+trail <mx-checkbox></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+trail <mx-checkbox checked></mx-checkbox>
+     /#mx-icon.icon|clip-path: inset(0px 63.985% 0px 0px) -> inset(0px 64.7287% 0px 0px)
+trail <mx-checkbox disabled></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+default <mx-checkbox></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+default <mx-checkbox checked></mx-checkbox>
+     /#mx-icon.icon|clip-path: inset(0px 64.682% 0px 0px) -> inset(0px 63.9578% 0px 0px)
+default <mx-checkbox disabled></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+Error: @@ webkit vars
+lead <mx-checkbox></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+lead <mx-checkbox checked></mx-checkbox>
+     /#mx-icon.icon|clip-path: inset(0px 65.853973% 0px 0px) -> inset(0px 80.655472% 0px 0px)
+lead <mx-checkbox disabled></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+trail <mx-checkbox></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+trail <mx-checkbox checked></mx-checkbox>
+     /#mx-icon.icon|clip-path: inset(0px 65.853973% 0px 0px) -> inset(0px 66.668022% 0px 0px)
+trail <mx-checkbox disabled></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+default <mx-checkbox></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
+default <mx-checkbox checked></mx-checkbox>
+     /#mx-icon.icon|clip-path: inset(0px 66.668022% 0px 0px) -> inset(0px 65.853973% 0px 0px)
+default <mx-checkbox disabled></mx-checkbox>
+     mx-checkbox::after|background-color: rgba(0, 0, 0, 0) -> rgb(247, 251, 234)
