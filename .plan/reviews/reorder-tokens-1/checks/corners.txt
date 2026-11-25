@@ -1,0 +1,6 @@
+chromium mx-list-item: rest corner 0,0,255, middle 0,0,255; lifted corner 242,245,229, middle 0,133,100
+chromium mx-list-button-item: rest corner 247,251,234, middle 247,251,234; lifted corner 0,0,255, middle 0,133,100
+firefox mx-list-item: rest corner 28,28,255, middle 0,0,255; lifted corner 241,244,228, middle 0,133,100
+firefox mx-list-button-item: rest corner 219,223,236, middle 247,251,234; lifted corner 0,0,254, middle 0,133,100
+webkit mx-list-item: rest corner 0,0,255, middle 0,0,255; lifted corner 241,244,228, middle 0,133,100
+webkit mx-list-button-item: rest corner 247,251,234, middle 247,251,234; lifted corner 0,0,254, middle 0,133,100

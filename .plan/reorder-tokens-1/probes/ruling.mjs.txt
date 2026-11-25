@@ -1,0 +1,50 @@
+// Run from the repository root, with a clean tree: it edits four files, rebuilds drag, and restores both.
+import { spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+const B=process.cwd()+'/', MX=B+'packages/material-x/';
+const ROLES=MX+'tests/list/list-roles.browser.test.ts', SORT=MX+'tests/list/sortable-list.browser.test.ts';
+const LIFT=B+'packages/drag/src/lift.ts', CSS=MX+'src/list/styles/sortable/main.styles.css';
+const files=[ROLES,SORT,LIFT,CSS]; const orig=new Map(files.map(f=>[f,readFileSync(f,'utf8')]));
+const once=(s,a,b)=>{ if(s.split(a).length!==2) throw new Error('not once: '+a); return s.replace(a,()=>b); };
+const rows={
+ [ROLES]: s=>once(s,"const LIFT_STYLES = ['padding', 'overflow'] as const;","const LIFT_STYLES = tag === 'mx-list-item' ? (['padding','overflow'] as const) : (['padding','overflow','color','background-color'] as const);"),
+ [SORT]: s=>once(s,"describe('mx-sortable-list static item focus', () => {",`describe('CANDIDATE', () => {
+  it('should keep the static host colors in a key move with a page rule for popovers', async () => {
+    const style = document.createElement('style');
+    style.textContent = '[popover] { background: red; color: blue; }';
+    document.head.append(style);
+    onTestFinished(() => style.remove());
+    const [list, [item]] = await createList(['A', 'B', 'C'], { item: 'mx-list-item' });
+    item!.focus();
+    await nextFrame();
+    const read: Array<readonly [string, string]> = [];
+    const record = (): void => {
+      const { backgroundColor, color } = getComputedStyle(item!);
+      read.push([backgroundColor, color]);
+    };
+    list.addEventListener('reorder', record);
+    commitOnReorder(list);
+    record();
+    await userEvent.keyboard('{ArrowDown}');
+    await whenSettled(list, item!);
+    expect(read.length).toBe(2);
+    expect(read[1]).toEqual(read[0]);
+  });
+});
+
+describe('mx-sortable-list static item focus', () => {`)};
+const muts=[['as it is',{}],
+ ['lift keeps no color and no background color',{[LIFT]:s=>once(s,"  'overflow',\n  'color',\n  'background-color',\n];","  'overflow',\n];")}],
+ ["the static item's rule on every item's host",{[CSS]:s=>once(s,'mx-list-item:state(drag)',':state(drag)')}]];
+const sh=(cwd,args,env={})=>{const r=spawnSync('aube',['exec',...args],{cwd,encoding:'utf8',env:{...process.env,NO_COLOR:'1',...env}});return r.stdout+r.stderr+(r.status?'':'' )};
+const build=()=>{const r=spawnSync('aube',['exec','just','build'],{cwd:B+'packages/drag',encoding:'utf8'}); if(r.status) throw new Error('drag build')};
+try{
+ for(const [name,m] of muts){
+  for(const f of files){let s=orig.get(f); if(rows[f]) s=rows[f](s); if(m[f]) s=m[f](s); writeFileSync(f,s);}
+  build();
+  for(const e of ['chromium','firefox','webkit']){
+   const out=sh(MX,['vitest','run','-c','vitest.config.ts','tests/list/list-roles','tests/list/sortable-list.browser'],{MX_TEST_ENGINES:e});
+   console.log(`## ${name} | ${e} | ${/^ +Tests +.*$/m.exec(out)?.[0].trim()??out.slice(-600)}`);
+   for(const l of new Set(out.split('\n').filter(l=>l.includes('FAIL ')))) console.log('   '+l.replace(/^.*?test\.ts(?::\d+)? > /u,'').trim());
+  }}
+} finally { for(const [f,s] of orig) writeFileSync(f,s); build(); }
