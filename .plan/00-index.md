@@ -2603,7 +2603,7 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 #### RD-56 — A finding lives in one GitHub issue, whose body is its contract, and the registers hold decisions
 
-**Accepted 2026-11-24 by the owner, with a trial before the cut-over. Stages 1 and 2 are approved to start, and stage 3, the trial, isn't. Stage 1 is on `main` (#244, `8663d722b`).** Proposed the same day by the architect on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this entry at `87c55405f`. The owner's answers, relayed by the coordinator: _"По переезду: Q1-Q3 (a), Q4-Q5 (b) Q6: (a)"_ ("On the move: Q1-Q3 (a), Q4-Q5 (b), Q6 (a)"). He answered a summary that proposed a small tool and the first three stages only, which the architect takes as his direction. The [plan](findings-on-github-1/findings-on-github-plan.md) has his words, the counts, the alternatives, what is lost, the stages and the implementer's work list. `RD-55` (`material-x/slider-1`) is the next lower number on any branch on `origin`.
+**Accepted 2026-11-24 by the owner, with a trial before the cut-over. Stages 1 and 2 are approved to start, and stage 3, the trial, isn't. Stage 1 is on `main` (#244, `8663d722b`), and stage 2 merges with #250 (the last note).** Proposed the same day by the architect on `repo/findings-on-github-1` from `ee7d838cc`, and the proposal is this entry at `87c55405f`. The owner's answers, relayed by the coordinator: _"По переезду: Q1-Q3 (a), Q4-Q5 (b) Q6: (a)"_ ("On the move: Q1-Q3 (a), Q4-Q5 (b), Q6 (a)"). He answered a summary that proposed a small tool and the first three stages only, which the architect takes as his direction. The [plan](findings-on-github-1/findings-on-github-plan.md) has his words, the counts, the alternatives, what is lost, the stages and the implementer's work list. `RD-55` (`material-x/slider-1`) is the next lower number on any branch on `origin`.
 
 **What is in force, and when:**
 
@@ -2641,6 +2641,8 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 **Costs,** each in the plan: the review of a contract change isn't in the diff, the history is GitHub's, a deletion there has no other copy, two edits of one body at once aren't reported, and a role without a network has no finding. It saves 19 of the 31 conflicts and 2 of the 19 pull requests.
 
 **Dated 2026-11-24 by the architect: stage 1 is on `main`,** as #244 (`8663d722b`). The status above said _"Stage 1 is written on `repo/findings-on-github-1` (#244), and isn't merged."_ Stage 2 is #250, open. So the first row of the table is still the one in force: there is no `tier:` label and no trial, and a new finding goes to its register. The plan's status line is stage 2's branch's to change, because that branch edits it.
+
+**Dated 2026-11-25 by the architect: stage 2 is closed** on `repo/finding-tool-1`, and #250 merges it. The plan's [closure](findings-on-github-1/findings-on-github-plan.md#stage-2-closed) has the readings. With that merge stages 1 and 2 are on `main`, so the second row of the table is in force. It changes nothing for a new finding: stage 3 isn't approved, and no `tier:` label exists. No property changes.
 
 #### RD-57 — axe-core checks material-x's elements in the browser tests, supplementary, with each known violation listed by rule and target
 
