@@ -6316,6 +6316,24 @@ Tier A, **open**, **ready** (the last note), pre-existing. Registered on 2026-11
 - **Size, Brotli, local, against `main`'s two sources on the same tree:** `button/split-button` 7567 to 7650 (+83), `complete` 25660 to 25686 (+26). No other row of 23 moves.
 - **Not run:** the visual project, Safari, screen readers.
 
+**Dated 2026-11-25 by the architect,** on the [feature proof](reviews/split-button-names-1/feature-proof-claude.md) of `66e7cf867`, for this entry, `RF-138` and `RD-58`, requested by the coordinator. `main` at `56bba2895` is merged. **Every required property holds, and no source changes. The implementer owes three rows and a corrected witness.** CI, which hadn't run when the proof was written, passed on `c7db9e65a`, the first merge of `main`.
+
+- **`reviewer-1`: confirmed, and repaired by three rows.** `RF-138` requires that the group's other attributes keep working, and no row fails when one isn't transferred. Run by the architect in the three engines ([reading](split-button-names-1/checks/ruling-rows.txt), [probe](split-button-names-1/probes/ruling-rows.mjs.txt)): a row per attribute that compares the leading button with a standalone `mx-button` that has it passes, and fails with that attribute alone left out. Rows of a later change and of a removal were run too. **They aren't asked for:** one expression transfers the four attributes, and `disabled`'s rows hold its changes and its removals. The two parts take the attributes from one group, so the leading button is enough.
+- **`reviewer-2`: confirmed, and the record is repaired.** The recorded mutation throws before it writes, so it witnesses nothing of the row _"should be on neither the leading button nor the host"_, and the sentence _"each is failed by a mutation of its own"_ was true of two rows of the three. The proof's own two mutations fail the row in the three engines, so it stands unchanged. The script and its saved reading take them.
+- **`reviewer-3`: confirmed, and answered here.** _"Lint fails, with three errors in the rows' file"_ in the note above was true at `31b2a2c6a`, and `66e7cf867` repaired it. Nothing is owed.
+- **The departures stand** as the proof accepts them: rows that pass on `main`, `aria-hidden` by Chromium's tree alone, and the React types through `SplitButtonLikeProps`.
+
+**The implementer's list,** on `material-x/split-button-names-1`.
+
+1. **Rows,** in `split-button.browser.test.ts`, in each engine, one for each of `color`, `size` and `shape`: a split button with a value other than the default has, on its leading native button, the background, height and start corner of a standalone `mx-button` with the same attribute and text, both settled. Members settle by their host, because `settleAnimations` reads the host's shadow root.
+2. **[`mutate.mjs`](split-button-names-1/probes/mutate.mjs):** _open on the leading button and the host too_ becomes two mutations, the leading button and the host, that write without an error. Three more leave out one attribute each.
+3. **Witnesses,** for those five mutations and the unmutated file, in the three engines, **one engine at a time and with nothing else running,** saved in `split-button-names-1/checks/`. The first two each fail _"should be on neither the leading button nor the host"_; on the leading button, Chromium's tree row for `open` fails as well, as the proof has it. The other three each fail the row of their attribute. No other row of the file fails. The three sections of the old mutation leave [`witnesses.txt`](split-button-names-1/checks/witnesses.txt), and a line there says where the new ones are.
+4. **A dated note here:** the rows, the new counts, the witnesses, and that the sentence about the three absence rows holds with them. **#268's description:** the counts and the rows.
+5. **Checks,** core and drag rebuilt after the merge and `build:prepare` run: the file in the three engines, `tests/button` and `tests/button-group` in one, typecheck, lint, the root format check. CI on the head.
+6. **Stop** and return if a witness fails another row in a second run too, or if a row needs a change of the source.
+
+**A recheck isn't owed:** no source changes, and the proof read the property itself at 200 split buttons. The coordinator checks the witnesses, and the architect closes both entries. Nothing is the owner's to answer.
+
 #### RF-137 — An `mx-icon`'s ligature text is part of the name of the control that it is in
 
 Tier A, **open**, **ready** after `RF-136` (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from the reading that `RF-136` asked for. `RF-136` is the entry before this one. Read as `RF-136`, with the same probe.
@@ -6381,6 +6399,8 @@ Tier A, **open**, pre-existing. Registered on 2026-11-24 by the architect, on `r
 **Dated 2026-11-25 by the architect: approved for implementation by the owner on 2026-11-24.** In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). It goes with `RF-136` on `material-x/split-button-names-1`, because both edit the constructor of `split-button.ts` and its rows' file. The constructor transfers `disabled` to the inner group, with the three attributes that it takes already, and the rest of the entry is the contract. **The JSDoc and the page stand.**
 
 **Dated 2026-11-25 by the implementer: implemented with `RF-136`, whose last note has the rows, the witnesses and the checks, and not closed.** The constructor transfers `disabled` with the three attributes that it took already. The rows' colors are compared with a standalone `mx-button` and `mx-icon-button` in the same state.
+
+**Dated 2026-11-25 by the architect:** the feature proof finds the property whole, and no row for its last sentence. The ruling and the list are in `RF-136`'s last note.
 
 #### RF-139 — A list item's long texts run out of it, and two trailing children stack
 
@@ -6464,6 +6484,36 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 - **Order:** after #256 (`RF-131`), because the group's rows read its slot while out. It doesn't wait for `RF-94` or `RF-130`.
 - **Plan needed:** no. **Ready** for an implementer, on a branch of its own. Nothing is the owner's to answer.
 - **Size:** _small_. One hook in core and its rows.
+
+#### RF-142 — A disabled list item dims the focus indicator of the controls in it, which still work
+
+Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `material-x/split-button-names-1`, from [#271](https://github.com/ausginer/material-x/issues/271), requested by the coordinator. It was seen by `RF-128`'s feature proof, on `material-x/handle-focus-1`. `RF-141` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `c7db9e65a`, with `main` at `e57c9f074`, on the built elements, by Tab and from screenshots, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](disabled-handle-1/checks/ring.txt), [probe](disabled-handle-1/probes/ring.mjs)).
+
+- **The cause.** `:host(:state(disabled)) slot` in `interactive-box.styles.css` has the disabled opacity, 0.38. An opacity of the slot dims all that is painted in it, the outline of a control included.
+- **What happens,** in `mx-list-button-item` and `mx-list-link-item` with `disabled`, in `lead`, in the three engines. The contrasts are of the indicator's darkest changed pixel with what was there before:
+
+  | Control | Enabled item | Disabled item |
+  | --- | --- | --- |
+  | A handle, the browser's outline (today) | 14.6 to 18:1 in Chromium, 5:1 in Firefox, 2.7:1 in WebKit | 2.5:1, 1.8:1 and 1.4:1 |
+  | A handle, `RF-128`'s outline | 5.6:1 | 1.8:1 |
+  | `mx-icon-button`, its own indicator | 5.6:1 | 1.8:1 |
+  | A native `<button>`, the browser's outline | 12:1, 5:1 and 2.6:1 | 2.3:1, 1.8:1 and 1.4:1 |
+
+- **The controls work.** In the disabled item Tab reaches each of them, an arrow key on it proposes a move, and a click reaches it.
+- **`trail`** has the same opacity. Its readings on `main` are of a clipped indicator (`RF-135`), so they aren't in the table.
+- **Not affected:** a static `mx-list-item`, which can't be disabled, and an item's own indicator, which isn't in a slot.
+- **Why it is a problem:** a keyboard user can't see where focus is, on a control that works. The exception for inactive components in the WCAG's contrast rule doesn't apply: the control is active.
+- **Required property,** for (a) or (b) below: the focus indicator of a control in a disabled item has the contrast that it has in an enabled one, in `lead` and `trail`, in the three engines, and the item's own content keeps its disabled look.
+- **A candidate that holds for the handle, read in `lead`** ([reading](disabled-handle-1/checks/candidate.txt), [probe](disabled-handle-1/probes/candidate.mjs)): in `lead` and `trail` the opacity is on the slotted elements, `::slotted(:not(:focus-within))`, instead of on the slot. The focused handle's indicator is undimmed, 324 px of it in each engine, and the unfocused item has the same pixels with an icon and with a native button. **Its limits:** the focused control loses its dimming with its indicator, also after a click on it; an `mx-icon-button` is `display: contents`, so it takes no opacity and is drawn as enabled at all times; and, by reading, a page's own opacity on its element replaces the disabled one, and the trailing text's opacity isn't composed with it. The sizes weren't read.
+- **Q1, for the owner — what does a disabled item do to the controls in it?**
+  - **(a) The focused control, with its indicator, is drawn without the dimming. Recommended.** No behavior changes, and the item's disabled look changes only while a control in it has focus. With the candidate, an `mx-icon-button` is undimmed at all times, which is what it is: enabled. **Cost:** the limits above, and a few bytes in two bundles.
+  - (b) A control in a disabled item is never dimmed, only the item's own text and icons. It is what the control is. The package can't tell a control from an icon or a text in a slot, apart from a handle and its own elements, so a page's native button would need a mark.
+  - (c) A disabled item isn't reorderable: its handle isn't a button, takes no focus and lifts nothing. It changes the behavior that `RF-129`'s ruling reads, a page that only wants the item's action off loses its reorder, and other controls in the item stay dimmed.
+  - (d) Nothing changes.
+- **Order:** after #267 (`RF-128` with `RF-135`), whose `trail` and outline it reads, and after Q1.
+- **Rows,** `browser`, in each engine, once Q1 is answered: for (a), the painted indicator of a handle and of an `mx-icon-button` in `lead` and in `trail` of a disabled button item has the computed color, with `coveredIndicator`, whose reading is nothing today. **Witness:** with the slot's opacity back, they fail. The unfocused disabled item has the opacity on its icon, its text and its label.
+- **Not read:** `trail` without its clip, a slotted image or text, `selected` with `disabled`, forced colors, Safari, screen readers.
+- **Plan needed:** no, once Q1 is answered. **Size:** _small_.
 
 ## Questions
 

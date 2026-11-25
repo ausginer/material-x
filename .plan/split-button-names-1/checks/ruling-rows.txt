@@ -1,0 +1,43 @@
+# reviewer-1: candidate rows in split-button.browser.test.ts, unmutated and with the constructor's transfer mutated, at c7db9e65a (ruling-rows.mjs.txt)
+## as it is | chromium | Tests  12 passed | 56 skipped (68)
+## as it is | firefox | Tests  12 passed | 56 skipped (68)
+## no color | chromium | Tests  2 failed | 10 passed | 56 skipped (68)
+   color > initial
+   color > set later
+## no color | firefox | Tests  2 failed | 10 passed | 56 skipped (68)
+   color > initial
+   color > set later
+## no size | chromium | Tests  2 failed | 10 passed | 56 skipped (68)
+   size > initial
+   size > set later
+## no size | firefox | Tests  2 failed | 10 passed | 56 skipped (68)
+   size > initial
+   size > set later
+## no shape | chromium | Tests  2 failed | 10 passed | 56 skipped (68)
+   shape > initial
+   shape > set later
+## no shape | firefox | Tests  2 failed | 10 passed | 56 skipped (68)
+   shape > initial
+   shape > set later
+## never removed | chromium | Tests  3 failed | 9 passed | 56 skipped (68)
+   color > removed
+   size > removed
+   shape > removed
+## never removed | firefox | Tests  3 failed | 9 passed | 56 skipped (68)
+   color > removed
+   size > removed
+   shape > removed
+## as it is | webkit | Tests  12 passed | 56 skipped (68)
+## no color | webkit | Tests  2 failed | 10 passed | 56 skipped (68)
+   color > initial
+   color > set later
+## no size | webkit | Tests  2 failed | 10 passed | 56 skipped (68)
+   size > initial
+   size > set later
+## no shape | webkit | Tests  2 failed | 10 passed | 56 skipped (68)
+   shape > initial
+   shape > set later
+## never removed | webkit | Tests  3 failed | 9 passed | 56 skipped (68)
+   color > removed
+   size > removed
+   shape > removed

@@ -1,0 +1,30 @@
+# chromium 158.0.8127.18
+handle, mx-icon | as it is | Tab reaches it | 0 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 1,1, of the control with focus 1
+handle, mx-icon | candidate | Tab reaches it | 324 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 0.38,0.38, of the control with focus 1
+handle, mx-icon | unfocused, the candidate against the item as it is: 0 px differ, by 0 at most, in the box 1000000000,1000000000,0,0; the trail icon's box is 272,45,292,65, the control's 24,45,44,65
+native button | as it is | Tab reaches it | 0 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 1,1, of the control with focus 1
+native button | candidate | Tab reaches it | 0 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 0.38,0.38, of the control with focus 1
+native button | unfocused, the candidate against the item as it is: 0 px differ, by 0 at most, in the box 1000000000,1000000000,0,0; the trail icon's box is 272,45,292,65, the control's 24,43,48,67
+mx-icon-button | as it is | Tab reaches it | 0 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 1,1, of the control with focus 1
+mx-icon-button | candidate | Tab reaches it | 159 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 0.38,0.38, of the control with focus 1
+mx-icon-button | unfocused, the candidate against the item as it is: 224 px differ, by 145 at most, in the box 24,47,39,62; the trail icon's box is 272,45,292,65, the control's 0,-30,0,-30
+# firefox 159.0
+handle, mx-icon | as it is | Tab reaches it | 0 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 1,1, of the control with focus 1
+handle, mx-icon | candidate | Tab reaches it | 324 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 0.38,0.38, of the control with focus 1
+handle, mx-icon | unfocused, the candidate against the item as it is: 0 px differ, by 0 at most, in the box 1000000000,1000000000,0,0; the trail icon's box is 272,47,292,67, the control's 24,47,44,67
+native button | as it is | Tab reaches it | 0 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 1,1, of the control with focus 1
+native button | candidate | Tab reaches it | 0 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 0.38,0.38, of the control with focus 1
+native button | unfocused, the candidate against the item as it is: 0 px differ, by 0 at most, in the box 1000000000,1000000000,0,0; the trail icon's box is 272,47,292,67, the control's 24,45,48,69
+mx-icon-button | as it is | Tab reaches it | 0 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 1,1, of the control with focus 1
+mx-icon-button | candidate | Tab reaches it | 159 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 0.38,0.38, of the control with focus 1
+mx-icon-button | unfocused, the candidate against the item as it is: 224 px differ, by 144 at most, in the box 24,49,39,64; the trail icon's box is 272,47,292,67, the control's 0,-30,0,-30
+# webkit 27.2
+handle, mx-icon | as it is | Tab reaches it | 0 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 1,1, of the control with focus 1
+handle, mx-icon | candidate | Tab reaches it | 324 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 0.38,0.38, of the control with focus 1
+handle, mx-icon | unfocused, the candidate against the item as it is: 0 px differ, by 0 at most, in the box 1000000000,1000000000,0,0; the trail icon's box is 272,54,292,74, the control's 24,54,44,74
+native button | as it is | Tab reaches it | 0 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 1,1, of the control with focus 1
+native button | candidate | Tab reaches it | 0 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 0.38,0.38, of the control with focus 1
+native button | unfocused, the candidate against the item as it is: 0 px differ, by 0 at most, in the box 1000000000,1000000000,0,0; the trail icon's box is 272,54,292,74, the control's 24,52,48,76
+mx-icon-button | as it is | Tab reaches it | 0 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 1,1, of the control with focus 1
+mx-icon-button | candidate | Tab reaches it | 159 px in the indicator's undimmed color | opacity of the control and the trail icon before focus 0.38,0.38, of the control with focus 1
+mx-icon-button | unfocused, the candidate against the item as it is: 224 px differ, by 144 at most, in the box 24,56,39,71; the trail icon's box is 272,54,292,74, the control's 0,-30,0,-30

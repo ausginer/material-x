@@ -1,0 +1,52 @@
+import { spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+const MX=process.cwd()+'/packages/material-x/', T=MX+'tests/button/split-button.browser.test.ts', SRC=MX+'src/button/split-button.ts';
+const o=new Map([T,SRC].map(f=>[f,readFileSync(f,'utf8')]));
+const row=s=>s+`
+describe('CANDIDATE', () => {
+  async function look(member: HTMLElement) {
+    await settleAnimations(member);
+    const s = getComputedStyle(member.shadowRoot!.querySelector('.host')!);
+    return { background: srgb(s.backgroundColor), height: s.height, corner: s.borderStartStartRadius };
+  }
+  async function alone(attributes: Readonly<Record<string, string>>) {
+    const b = document.createElement('mx-button');
+    b.textContent = 'Save';
+    for (const [n, v] of Object.entries(attributes)) b.setAttribute(n, v);
+    document.body.append(b);
+    await nextFrame();
+    return await look(b);
+  }
+  describe.each([['color', 'tonal'], ['size', 'large'], ['shape', 'square']])('%s', (name, value) => {
+    it('control: the value changes the look', async () => {
+      expect(await alone({ [name]: value })).not.toEqual(await alone({}));
+    });
+    it('initial', async () => {
+      const b = createSplitButton({ [name]: value });
+      await nextFrame();
+      expect(await look(getMember(b, 'leading'))).toEqual(await alone({ [name]: value }));
+    });
+    it('set later', async () => {
+      const b = createSplitButton();
+      await nextFrame();
+      b.setAttribute(name, value);
+      await nextFrame();
+      expect(await look(getMember(b, 'leading'))).toEqual(await alone({ [name]: value }));
+    });
+    it('removed', async () => {
+      const b = createSplitButton({ [name]: value });
+      await nextFrame();
+      b.removeAttribute(name);
+      await nextFrame();
+      expect(await look(getMember(b, 'leading'))).toEqual(await alone({}));
+    });
+  });
+});
+`;
+const only=(names)=>s=>{const a="Object.keys({ ...BUTTON_ATTRS, ...DISABLEABLE_ATTRS }).map";if(s.split(a).length!==2)throw 1;return s.replace(a,`Object.keys({ ...BUTTON_ATTRS, ...DISABLEABLE_ATTRS }).filter((n) => !${JSON.stringify(names)}.includes(n)).map`);};
+const b="transfer(group, attr),";
+const keep=s=>{if(s.split(b).length!==2)throw 2;return s.replace(b,"(_: string | null, v: string | null) => { if (v != null || attr === 'disabled') transfer(group, attr)(_, v); },");};
+const muts0=[['as it is',s=>s],['no color',only(['color'])],['no size',only(['size'])],['no shape',only(['shape'])],['never removed',keep]];
+const muts=process.argv[3]?muts0.filter(([n])=>process.argv[3].split(',').includes(n)):muts0;
+try{for(const[n,f]of muts){writeFileSync(T,row(o.get(T)));writeFileSync(SRC,f(o.get(SRC)));for(const e of process.argv[2].split(',')){const r=spawnSync('aube',['exec','vitest','run','-c','vitest.config.ts','tests/button/split-button.browser','-t','CANDIDATE'],{cwd:MX,encoding:'utf8',env:{...process.env,NO_COLOR:'1',MX_TEST_ENGINES:e}});const out=r.stdout+r.stderr;console.log(`## ${n} | ${e} | ${/^ +Tests +.*$/m.exec(out)?.[0].trim()??out.slice(-400)}`);for(const l of new Set(out.split('\n').filter(l=>/FAIL /.test(l))))console.log('   '+l.replace(/^.*CANDIDATE > /u,'').trim());if(n==='as it is')for(const l of out.split('\n').filter(l=>/Error/.test(l)).slice(0,14))console.log('      '+l);}}}
+finally{for(const[f,s]of o)writeFileSync(f,s);}

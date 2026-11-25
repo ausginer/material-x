@@ -1,0 +1,99 @@
+# chromium 158.0.8127.18
+mx-list-button-item | lead | handle, mx-icon | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(16, 16, 16) | 252 px, rgb(16,16,16) on rgb(247,251,234), 18.07:1 | reorder click
+mx-list-button-item | lead | handle, mx-icon | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(16, 16, 16) | 168 px, rgb(158,161,150) on rgb(247,251,234), 2.50:1 | reorder click
+mx-list-button-item | lead | handle, mx-icon, RF-128's outline | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 324 px, rgb(70,94,39) on rgb(224,228,212), 5.61:1 | reorder click
+mx-list-button-item | lead | handle, mx-icon, RF-128's outline | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 324 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click
+mx-list-button-item | lead | native button | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(16, 16, 16) | 268 px, rgb(17,17,16) on rgb(208,208,207), 12.24:1 | reorder click click
+mx-list-button-item | lead | native button | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(16, 16, 16) | 176 px, rgb(158,161,150) on rgb(240,242,232), 2.32:1 | reorder click click
+mx-list-button-item | lead | mx-icon-button | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 284 px, rgb(70,94,39) on rgb(224,228,212), 5.61:1 | reorder click click
+mx-list-button-item | lead | mx-icon-button | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 273 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click click
+mx-list-button-item | trail | handle, mx-icon | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(16, 16, 16) | 88 px, rgb(17,17,16) on rgb(224,228,212), 14.59:1 | reorder click
+mx-list-button-item | trail | handle, mx-icon | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(16, 16, 16) | 88 px, rgb(158,161,150) on rgb(247,251,234), 2.50:1 | reorder click
+mx-list-button-item | trail | handle, mx-icon, RF-128's outline | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 0 px, rgb(224,228,212) on rgb(224,228,212), 1.00:1 | reorder click
+mx-list-button-item | trail | handle, mx-icon, RF-128's outline | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 0 px, rgb(247,251,234) on rgb(247,251,234), 1.00:1 | reorder click
+mx-list-button-item | trail | native button | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(16, 16, 16) | 180 px, rgb(17,17,16) on rgb(208,208,207), 12.24:1 | reorder click click
+mx-list-button-item | trail | native button | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(16, 16, 16) | 176 px, rgb(158,161,150) on rgb(240,242,232), 2.32:1 | reorder click click
+mx-list-button-item | trail | mx-icon-button | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 12 px, rgb(70,94,39) on rgb(224,228,212), 5.61:1 | reorder click click
+mx-list-button-item | trail | mx-icon-button | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 12 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click click
+mx-list-link-item | lead | handle, mx-icon | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(16, 16, 16) | 244 px, rgb(17,17,16) on rgb(224,228,212), 14.59:1 | reorder click
+mx-list-link-item | lead | handle, mx-icon | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(16, 16, 16) | 168 px, rgb(158,161,150) on rgb(247,251,234), 2.50:1 | reorder click
+mx-list-link-item | lead | handle, mx-icon, RF-128's outline | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 324 px, rgb(70,94,39) on rgb(224,228,212), 5.61:1 | reorder click
+mx-list-link-item | lead | handle, mx-icon, RF-128's outline | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 324 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click
+mx-list-link-item | lead | native button | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(16, 16, 16) | 268 px, rgb(17,17,16) on rgb(208,208,207), 12.24:1 | reorder click click
+mx-list-link-item | lead | native button | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(16, 16, 16) | 176 px, rgb(158,161,150) on rgb(240,242,232), 2.32:1 | reorder click click
+mx-list-link-item | lead | mx-icon-button | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 284 px, rgb(70,94,39) on rgb(224,228,212), 5.61:1 | reorder click click
+mx-list-link-item | lead | mx-icon-button | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 273 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click click
+mx-list-link-item | trail | handle, mx-icon | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(16, 16, 16) | 88 px, rgb(17,17,16) on rgb(224,228,212), 14.59:1 | reorder click
+mx-list-link-item | trail | handle, mx-icon | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(16, 16, 16) | 88 px, rgb(158,161,150) on rgb(247,251,234), 2.50:1 | reorder click
+mx-list-link-item | trail | handle, mx-icon, RF-128's outline | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 0 px, rgb(224,228,212) on rgb(224,228,212), 1.00:1 | reorder click
+mx-list-link-item | trail | handle, mx-icon, RF-128's outline | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 0 px, rgb(247,251,234) on rgb(247,251,234), 1.00:1 | reorder click
+mx-list-link-item | trail | native button | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(16, 16, 16) | 180 px, rgb(17,17,16) on rgb(208,208,207), 12.24:1 | reorder click click
+mx-list-link-item | trail | native button | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(16, 16, 16) | 176 px, rgb(158,161,150) on rgb(240,242,232), 2.32:1 | reorder click click
+mx-list-link-item | trail | mx-icon-button | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 12 px, rgb(70,94,39) on rgb(224,228,212), 5.61:1 | reorder click click
+mx-list-link-item | trail | mx-icon-button | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 12 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click click
+# firefox 159.0
+mx-list-button-item | lead | handle, mx-icon | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(66, 73, 55) | 264 px, rgb(0,96,223) on rgb(247,251,234), 5.33:1 | reorder click
+mx-list-button-item | lead | handle, mx-icon | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(25, 29, 19) | 172 px, rgb(152,191,229) on rgb(247,251,234), 1.83:1 | reorder click
+mx-list-button-item | lead | handle, mx-icon, RF-128's outline | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 324 px, rgb(69,94,39) on rgb(223,227,211), 5.57:1 | reorder click
+mx-list-button-item | lead | handle, mx-icon, RF-128's outline | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 324 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click
+mx-list-button-item | lead | native button | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(0, 0, 0) | 264 px, rgb(2,88,201) on rgb(223,227,211), 4.96:1 | reorder click click
+mx-list-button-item | lead | native button | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(0, 0, 0) | 184 px, rgb(152,191,229) on rgb(247,251,234), 1.83:1 | reorder click click
+mx-list-button-item | lead | mx-icon-button | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 280 px, rgb(69,94,39) on rgb(223,227,211), 5.57:1 | reorder click click
+mx-list-button-item | lead | mx-icon-button | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 266 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click click
+mx-list-button-item | trail | handle, mx-icon | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(25, 29, 19) | 0 px, rgb(223,227,211) on rgb(223,227,211), 1.00:1 | reorder click
+mx-list-button-item | trail | handle, mx-icon | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(25, 29, 19) | 0 px, rgb(247,251,234) on rgb(247,251,234), 1.00:1 | reorder click
+mx-list-button-item | trail | handle, mx-icon, RF-128's outline | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 0 px, rgb(223,227,211) on rgb(223,227,211), 1.00:1 | reorder click
+mx-list-button-item | trail | handle, mx-icon, RF-128's outline | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 0 px, rgb(247,251,234) on rgb(247,251,234), 1.00:1 | reorder click
+mx-list-button-item | trail | native button | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(66, 73, 55) | 104 px, rgb(2,88,201) on rgb(223,227,211), 4.96:1 | reorder click click
+mx-list-button-item | trail | native button | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(66, 73, 55) | 104 px, rgb(152,191,229) on rgb(247,251,234), 1.83:1 | reorder click click
+mx-list-button-item | trail | mx-icon-button | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 0 px, rgb(75,109,25) on rgb(71,105,19), 1.06:1 | reorder click click
+mx-list-button-item | trail | mx-icon-button | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 0 px, rgb(183,200,154) on rgb(181,198,152), 1.02:1 | reorder click click
+mx-list-link-item | lead | handle, mx-icon | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(66, 73, 55) | 262 px, rgb(2,88,201) on rgb(223,227,211), 4.96:1 | reorder click
+mx-list-link-item | lead | handle, mx-icon | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(25, 29, 19) | 172 px, rgb(152,191,229) on rgb(247,251,234), 1.83:1 | reorder click
+mx-list-link-item | lead | handle, mx-icon, RF-128's outline | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 324 px, rgb(69,94,39) on rgb(223,227,211), 5.57:1 | reorder click
+mx-list-link-item | lead | handle, mx-icon, RF-128's outline | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 324 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click
+mx-list-link-item | lead | native button | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(0, 0, 0) | 264 px, rgb(2,88,201) on rgb(223,227,211), 4.96:1 | reorder click click
+mx-list-link-item | lead | native button | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(0, 0, 0) | 184 px, rgb(152,191,229) on rgb(247,251,234), 1.83:1 | reorder click click
+mx-list-link-item | lead | mx-icon-button | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 280 px, rgb(69,94,39) on rgb(223,227,211), 5.57:1 | reorder click click
+mx-list-link-item | lead | mx-icon-button | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 266 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click click
+mx-list-link-item | trail | handle, mx-icon | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(25, 29, 19) | 0 px, rgb(223,227,211) on rgb(223,227,211), 1.00:1 | reorder click
+mx-list-link-item | trail | handle, mx-icon | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(25, 29, 19) | 0 px, rgb(247,251,234) on rgb(247,251,234), 1.00:1 | reorder click
+mx-list-link-item | trail | handle, mx-icon, RF-128's outline | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 0 px, rgb(223,227,211) on rgb(223,227,211), 1.00:1 | reorder click
+mx-list-link-item | trail | handle, mx-icon, RF-128's outline | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 0 px, rgb(247,251,234) on rgb(247,251,234), 1.00:1 | reorder click
+mx-list-link-item | trail | native button | enabled | Tab reaches it | slot opacity 1 | auto 1px rgb(66, 73, 55) | 104 px, rgb(2,88,201) on rgb(223,227,211), 4.96:1 | reorder click click
+mx-list-link-item | trail | native button | disabled | Tab reaches it | slot opacity 0.38 | auto 1px rgb(66, 73, 55) | 104 px, rgb(152,191,229) on rgb(247,251,234), 1.83:1 | reorder click click
+mx-list-link-item | trail | mx-icon-button | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 0 px, rgb(75,109,25) on rgb(71,105,19), 1.06:1 | reorder click click
+mx-list-link-item | trail | mx-icon-button | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 0 px, rgb(183,200,154) on rgb(181,198,152), 1.02:1 | reorder click click
+# webkit 27.2
+mx-list-button-item | lead | handle, mx-icon | enabled | Tab reaches it | slot opacity 1 | auto 3px rgb(66, 73, 55) | 184 px, rgb(90,155,229) on rgb(247,251,234), 2.75:1 | reorder click
+mx-list-button-item | lead | handle, mx-icon | disabled | Tab reaches it | slot opacity 0.38 | auto 3px rgb(25, 29, 19) | 176 px, rgb(187,214,232) on rgb(247,251,234), 1.43:1 | reorder click
+mx-list-button-item | lead | handle, mx-icon, RF-128's outline | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 324 px, rgb(69,94,39) on rgb(223,227,211), 5.57:1 | reorder click
+mx-list-button-item | lead | handle, mx-icon, RF-128's outline | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 324 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click
+mx-list-button-item | lead | native button | enabled | Tab reaches it | slot opacity 1 | auto 3px rgba(0, 0, 0, 0.8) | 184 px, rgb(84,141,208) on rgb(224,224,223), 2.61:1 | reorder click click
+mx-list-button-item | lead | native button | disabled | Tab reaches it | slot opacity 0.38 | auto 3px rgba(0, 0, 0, 0.8) | 176 px, rgb(187,214,233) on rgb(248,250,239), 1.43:1 | reorder click click
+mx-list-button-item | lead | mx-icon-button | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 284 px, rgb(69,94,39) on rgb(223,227,211), 5.57:1 | reorder click click
+mx-list-button-item | lead | mx-icon-button | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 273 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click click
+mx-list-button-item | trail | handle, mx-icon | enabled | Tab reaches it | slot opacity 1 | auto 3px rgb(25, 29, 19) | 12 px, rgb(131,172,208) on rgb(223,227,211), 1.83:1 | reorder click
+mx-list-button-item | trail | handle, mx-icon | disabled | Tab reaches it | slot opacity 0.38 | auto 3px rgb(25, 29, 19) | 4 px, rgb(208,227,233) on rgb(247,251,234), 1.26:1 | reorder click
+mx-list-button-item | trail | handle, mx-icon, RF-128's outline | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 0 px, rgb(223,227,211) on rgb(223,227,211), 1.00:1 | reorder click
+mx-list-button-item | trail | handle, mx-icon, RF-128's outline | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 0 px, rgb(247,251,234) on rgb(247,251,234), 1.00:1 | reorder click
+mx-list-button-item | trail | native button | enabled | Tab reaches it | slot opacity 1 | auto 3px rgb(66, 73, 55) | 184 px, rgb(84,141,208) on rgb(224,224,223), 2.61:1 | reorder click click
+mx-list-button-item | trail | native button | disabled | Tab reaches it | slot opacity 0.38 | auto 3px rgb(66, 73, 55) | 176 px, rgb(187,214,233) on rgb(248,250,239), 1.43:1 | reorder click click
+mx-list-button-item | trail | mx-icon-button | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 12 px, rgb(69,94,39) on rgb(223,227,211), 5.57:1 | reorder click click
+mx-list-button-item | trail | mx-icon-button | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 12 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click click
+mx-list-link-item | lead | handle, mx-icon | enabled | Tab reaches it | slot opacity 1 | auto 3px rgb(66, 73, 55) | 184 px, rgb(83,141,206) on rgb(223,227,211), 2.65:1 | reorder click
+mx-list-link-item | lead | handle, mx-icon | disabled | Tab reaches it | slot opacity 0.38 | auto 3px rgb(25, 29, 19) | 176 px, rgb(187,214,232) on rgb(247,251,234), 1.43:1 | reorder click
+mx-list-link-item | lead | handle, mx-icon, RF-128's outline | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 324 px, rgb(69,94,39) on rgb(223,227,211), 5.57:1 | reorder click
+mx-list-link-item | lead | handle, mx-icon, RF-128's outline | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 324 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click
+mx-list-link-item | lead | native button | enabled | Tab reaches it | slot opacity 1 | auto 3px rgba(0, 0, 0, 0.8) | 184 px, rgb(84,141,208) on rgb(224,224,223), 2.61:1 | reorder click click
+mx-list-link-item | lead | native button | disabled | Tab reaches it | slot opacity 0.38 | auto 3px rgba(0, 0, 0, 0.8) | 176 px, rgb(187,214,233) on rgb(248,250,239), 1.43:1 | reorder click click
+mx-list-link-item | lead | mx-icon-button | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 284 px, rgb(69,94,39) on rgb(223,227,211), 5.57:1 | reorder click click
+mx-list-link-item | lead | mx-icon-button | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 273 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click click
+mx-list-link-item | trail | handle, mx-icon | enabled | Tab reaches it | slot opacity 1 | auto 3px rgb(25, 29, 19) | 12 px, rgb(131,172,208) on rgb(223,227,211), 1.83:1 | reorder click
+mx-list-link-item | trail | handle, mx-icon | disabled | Tab reaches it | slot opacity 0.38 | auto 3px rgb(25, 29, 19) | 4 px, rgb(208,227,233) on rgb(247,251,234), 1.26:1 | reorder click
+mx-list-link-item | trail | handle, mx-icon, RF-128's outline | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 0 px, rgb(223,227,211) on rgb(223,227,211), 1.00:1 | reorder click
+mx-list-link-item | trail | handle, mx-icon, RF-128's outline | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 0 px, rgb(247,251,234) on rgb(247,251,234), 1.00:1 | reorder click
+mx-list-link-item | trail | native button | enabled | Tab reaches it | slot opacity 1 | auto 3px rgb(66, 73, 55) | 184 px, rgb(84,141,208) on rgb(224,224,223), 2.61:1 | reorder click click
+mx-list-link-item | trail | native button | disabled | Tab reaches it | slot opacity 0.38 | auto 3px rgb(66, 73, 55) | 176 px, rgb(187,214,233) on rgb(248,250,239), 1.43:1 | reorder click click
+mx-list-link-item | trail | mx-icon-button | enabled | Tab reaches it | slot opacity 1 | solid 3px rgb(75, 102, 42) | 12 px, rgb(69,94,39) on rgb(223,227,211), 5.57:1 | reorder click click
+mx-list-link-item | trail | mx-icon-button | disabled | Tab reaches it | slot opacity 0.38 | solid 3px rgb(75, 102, 42) | 12 px, rgb(181,193,160) on rgb(247,251,234), 1.80:1 | reorder click click
