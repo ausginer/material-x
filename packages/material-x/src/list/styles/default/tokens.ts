@@ -11,8 +11,6 @@ const SET_NAME = 'md.comp.list';
 const SPECIAL_TOKENS = {
   'drag.duration': motionEffects['expressive.slow-spatial.duration'],
   'drag.easing': motionEffects['expressive.slow-spatial'],
-  'footprint.color': `${SET_NAME}.list-item.dragged.state-layer.color`,
-  'footprint.opacity': `${SET_NAME}.list-item.dragged.state-layer.opacity`,
 };
 
 const fixFullShape: ResolveAdjuster = createFullShapeFix(

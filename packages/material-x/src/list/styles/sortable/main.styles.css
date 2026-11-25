@@ -1,0 +1,22 @@
+::slotted([data-drag-placeholder]) {
+  box-sizing: border-box;
+  border-radius: var(--md-list-container-shape, var(--_container-shape));
+  background-color: var(--_drop-zone-color);
+}
+
+/* A command commits at once, so the drop zone would only flash. */
+:host(:state(command)) ::slotted([data-drag-placeholder]) {
+  visibility: hidden;
+}
+
+/*
+ * A static item's host is its container, and drag's lift writes the host's
+ * resting colors inline. An important rule of the list's tree outranks them.
+ */
+:host(:not(:state(command))) ::slotted(mx-list-item:state(drag)) {
+  background-color: var(
+    --md-list-item-container-color,
+    var(--_container-color)
+  ) !important;
+  color: var(--_label-text-color) !important;
+}
