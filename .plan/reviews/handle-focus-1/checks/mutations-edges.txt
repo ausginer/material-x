@@ -1,0 +1,60 @@
+# chromium: 0,/^\.lead,$/!b;s/^\.lead,$/.lead, .trail { overflow: hidden; }\n.lead,/
+      Tests  9 failed | 3 passed | 113 skipped (125)
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item > should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-item > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-item > should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item > should paint its right edge in the trail slot as in the lead slot
+# firefox: 0,/^\.lead,$/!b;s/^\.lead,$/.lead, .trail { overflow: hidden; }\n.lead,/
+      Tests  12 failed | 113 skipped (125)
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item > should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item > should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-item > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-item > should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-item > should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item > should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item > should paint its right edge in the trail slot as in the lead slot
+# webkit: 0,/^\.lead,$/!b;s/^\.lead,$/.lead, .trail { overflow: hidden; }\n.lead,/
+      Tests  9 failed | 3 passed | 113 skipped (125)
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item > should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-item > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-item > should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item > should paint its right edge in the trail slot as in the lead slot
+# chromium: /^\.trail {$/{N;s/\n  align-content/\n  overflow: clip; overflow-clip-margin: 4px;\n  align-content/}
+      Tests  3 failed | 9 passed | 113 skipped (125)
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its right edge in the trail slot as in the lead slot
+# firefox: /^\.trail {$/{N;s/\n  align-content/\n  overflow: clip; overflow-clip-margin: 4px;\n  align-content/}
+      Tests  3 failed | 9 passed | 113 skipped (125)
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its right edge in the trail slot as in the lead slot
+# webkit: /^\.trail {$/{N;s/\n  align-content/\n  overflow: clip; overflow-clip-margin: 4px;\n  align-content/}
+      Tests  12 failed | 113 skipped (125)
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon handle in mx-list-item of a sor… > should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item > should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-button-item > should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-item > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-item > should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-item > should paint its right edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item > should paint its bottom edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item > should paint its left edge in the trail slot as in the lead slot
+whole focus indicator of mx-icon-button in mx-list-link-item > should paint its right edge in the trail slot as in the lead slot
