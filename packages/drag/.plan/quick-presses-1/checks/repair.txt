@@ -1,0 +1,132 @@
+# DRF-54: the repair at 1395cb423, before it and with it. One engine at a time; other sessions ran in the container.
+# frame-focus.sh webkit y-geometry: 'nothing between' is drag's own keyPress, 250 keys a run.
+= before, webkit, y-geometry beside, cpus 10-11, run 1
+engine webkit, load before: 4.93 5.04 6.31 6/5073 320998
+FRAME nothing between: {"focusedFirst":250,"child":243,"parent":7,"none":0}
+FRAME one frame between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME two frames between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a mouse up between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a Shift press between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME userEvent.keyboard, which evaluates in the frame first: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+      Tests  14 passed (14)
+load after: 8.99 6.00 6.56 27/5231 323071
+= before, webkit, y-geometry beside, cpus 10-11, run 2
+engine webkit, load before: 8.99 6.00 6.56 30/5234 323078
+FRAME nothing between: {"focusedFirst":250,"child":241,"parent":9,"none":0}
+FRAME one frame between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME two frames between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a mouse up between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a Shift press between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME userEvent.keyboard, which evaluates in the frame first: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+      Tests  14 passed (14)
+load after: 18.94 9.52 7.73 13/5121 326416
+= before, webkit, y-geometry beside, cpus 10-11, run 3
+engine webkit, load before: 18.94 9.52 7.73 14/5121 326421
+FRAME nothing between: {"focusedFirst":250,"child":242,"parent":8,"none":0}
+FRAME one frame between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME two frames between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a mouse up between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a Shift press between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME userEvent.keyboard, which evaluates in the frame first: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+      Tests  14 passed (14)
+load after: 20.84 12.07 8.74 11/5041 329400
+= after, webkit, y-geometry beside, cpus 10-11, run 1
+engine webkit, load before: 8.45 10.96 9.70 5/5099 337213
+FRAME nothing between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME one frame between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME two frames between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a mouse up between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a Shift press between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME userEvent.keyboard, which evaluates in the frame first: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+      Tests  14 passed (14)
+load after: 16.19 12.64 10.42 24/5101 338584
+= after, webkit, y-geometry beside, cpus 10-11, run 2
+engine webkit, load before: 16.19 12.64 10.42 12/5098 338589
+FRAME nothing between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME one frame between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME two frames between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a mouse up between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a Shift press between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME userEvent.keyboard, which evaluates in the frame first: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+      Tests  14 passed (14)
+load after: 12.76 13.03 10.77 2/4973 341984
+= after, webkit, y-geometry beside, cpus 10-11, run 3
+engine webkit, load before: 12.76 13.03 10.77 5/4972 341989
+FRAME nothing between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME one frame between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME two frames between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a mouse up between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME a Shift press between: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+FRAME userEvent.keyboard, which evaluates in the frame first: {"focusedFirst":250,"child":250,"parent":0,"none":0}
+      Tests  14 passed (14)
+load after: 10.60 12.19 10.60 8/5133 344886
+
+# pairs.sh 30 consumer/webkit y-geometry. The reporter prints a probe's line only when its row fails; a run has 30 'first' rows.
+== before: pairs.sh 30 y-geometry, cpus 10-11, 1
+load before: 20.84 12.07 8.74 23/5015 329558
+load after: 18.72 15.13 10.32 6/5001 331418
+ Test Files  61 passed (61)
+      Tests  403 passed (403)
+== before: pairs.sh 30 y-geometry, cpus 10-11, 2
+load before: 18.72 15.13 10.32 10/5005 331591
+load after: 8.79 12.84 9.98 7/4990 332868
+ Test Files  61 passed (61)
+      Tests  403 passed (403)
+== before: pairs.sh 30 y-geometry, cpus 10-11, 3
+      1 PROBE first FAIL
+load before: 8.65 12.74 9.97 7/5000 333031
+load after: 7.37 11.22 9.69 4/5134 334567
+ Test Files  1 failed | 60 passed (61)
+      Tests  1 failed | 402 passed (403)
+== after: pairs.sh 30 y-geometry, cpus 10-11, 1
+load before: 10.60 12.19 10.60 7/5109 345046
+load after: 8.04 11.01 10.35 5/5157 350143
+ Test Files  61 passed (61)
+      Tests  403 passed (403)
+== after: pairs.sh 30 y-geometry, cpus 10-11, 2
+load before: 8.04 11.01 10.35 3/5153 350324
+load after: 7.35 10.30 10.19 8/5081 356018
+ Test Files  61 passed (61)
+      Tests  403 passed (403)
+== after: pairs.sh 30 y-geometry, cpus 10-11, 3
+load before: 7.35 10.30 10.19 6/5070 356191
+load after: 8.31 9.91 10.07 15/5181 361238
+ Test Files  61 passed (61)
+      Tests  403 passed (403)
+
+# Property 6: focus.browser.test.ts 'two arrow presses', --repeats=19, browser and browser/webkit, no pinning. removed: session.ts's two restoreFocus calls do nothing; late30: each is called by setTimeout, 30 ms, with the arguments taken at once.
+== before unmutated,  lines changed
+chromium:       Tests  1 passed | 12 skipped (13)
+webkit:       Tests  1 passed | 12 skipped (13)
+== before removed, 2 lines changed
+chromium:       Tests  1 failed | 12 skipped (13)       1 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+webkit:       Tests  1 failed | 12 skipped (13)       2 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+== before late30, 2 lines changed
+chromium:       Tests  1 failed | 12 skipped (13)       1 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+webkit:       Tests  1 failed | 12 skipped (13)       2 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+== after unmutated,  lines changed
+chromium:       Tests  1 passed | 12 skipped (13)
+webkit:       Tests  1 passed | 12 skipped (13)
+== after removed, 2 lines changed
+chromium:       Tests  1 failed | 12 skipped (13)       1 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+webkit:       Tests  1 failed | 12 skipped (13)       2 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+== after late30, 2 lines changed
+chromium:       Tests  1 failed | 12 skipped (13)       1 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+webkit:       Tests  1 failed | 12 skipped (13)       2 AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+
+# drag's suites, browser, consumer and shipped
+# chromium, with the repair
+exit 0
+ Test Files  58 passed (58)
+      Tests  878 passed (878)
+   Duration  228.16s (tests 98%, worker 2%)
+# firefox, with the repair
+exit 0
+ Test Files  58 passed (58)
+      Tests  858 passed | 20 skipped (878)
+   Duration  395.25s (tests 97%, worker 2%, import 1%)
+# webkit, with the repair
+exit 0
+ Test Files  58 passed (58)
+      Tests  858 passed | 20 skipped (878)
+   Duration  126.59s (tests 97%, worker 2%, import 1%)

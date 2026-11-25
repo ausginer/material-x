@@ -1,0 +1,12 @@
+# webkit, with key-press-ack.diff applied
+ Test Files  58 passed (58)
+      Tests  858 passed | 20 skipped (878)
+   Duration  138.34s (tests 94%, worker 4%, import 1%, setup 1%)
+# chromium, with key-press-ack.diff applied
+ Test Files  58 passed (58)
+      Tests  878 passed (878)
+   Duration  228.95s (tests 98%, worker 1%)
+# firefox, with key-press-ack.diff applied
+ Test Files  58 passed (58)
+      Tests  858 passed | 20 skipped (878)
+   Duration  393.19s (tests 97%, worker 2%, import 1%)
