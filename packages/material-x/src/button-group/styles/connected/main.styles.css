@@ -41,6 +41,23 @@
 }
 
 /*
+ * The corners of `border-radius` are physical. The group's direction decides
+ * where its ends are, so a member's own `dir` doesn't move the member's
+ * corners, as logical corner properties on the member would.
+ */
+:host(:dir(rtl)) {
+  ::slotted([data-first]:not([data-last])) {
+    --_border-radius: var(--_inner-corner) var(--_outer-corner)
+      var(--_outer-corner) var(--_inner-corner);
+  }
+
+  ::slotted([data-last]:not([data-first])) {
+    --_border-radius: var(--_outer-corner) var(--_inner-corner)
+      var(--_inner-corner) var(--_outer-corner);
+  }
+}
+
+/*
  * A member with keyboard focus is raised, so that no other member covers its
  * focus indicator. The group is a stacking context at the same time, so the
  * raised member doesn't rise above anything outside the group. At any other
