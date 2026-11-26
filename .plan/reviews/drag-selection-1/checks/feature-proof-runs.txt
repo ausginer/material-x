@@ -1,0 +1,89 @@
+# RF-151 feature proof, read at c3209df1d (material-x/drag-selection-1, PR #314), 2026-11-26, slot c, one engine at a time.
+# Each mutation edits packages/material-x/src/list/styles/sortable/main.styles.css and is restored before the next; git status was clean after.
+# Command, from packages/material-x: MX_TEST_ENGINES=<engine> aube exec just test tests/list/sortable-list.browser.test.ts -t "mx-sortable-list text selection"
+# The Justfile's {{ ARGS }} splits the quoted pattern, so vitest ran -t mx-sortable-list with 'text' and 'selection' as extra file filters:
+# every row of sortable-list.browser.test.ts whose name starts with mx-sortable-list ran (187 of 210 in Firefox and WebKit, 199 in Chromium);
+# the files matched by 'text' (text-field) ran no row. So each mutation below is read over that whole file, not only the 8 rows.
+#   none       = the ::slotted(:state(drag)) rule deleted
+#   every      = ::slotted(:state(drag)) replaced by ::slotted(*)
+#   noprefix   = '-webkit-user-select: none;' deleted
+#   prefixonly = 'user-select: none;' deleted
+
+## unmutated, chromium: tests/list/sortable-list.browser, sortable-list.spec.browser, list-roles.browser, list-item.spec.browser, core/elevation.spec.browser, axe.browser
+ Test Files  6 passed (6)
+      Tests  522 passed (522)
+
+## none chromium
+      Tests  199 passed | 231 skipped (430)
+exit=0
+
+## none firefox
+      Tests  187 passed | 243 skipped (430)
+exit=0
+
+## none webkit
+       × should select no text while a mouse drags the item 217ms
+       × should select no text after a mouse drops the item 646ms
+       × should select no text while a mouse drags the item 155ms
+       × should select no text after a mouse drops the item 670ms
+     × should select no text when the held mouse leaves the list over page text 151ms
+AssertionError: expected ' some text' to be '' // Object.is equality
+AssertionError: expected ' some text' to be '' // Object.is equality
+AssertionError: expected ' some text\n' to be '' // Object.is equality
+AssertionError: expected { during: 'e text', after: 'e text' } to deeply equal { during: '', after: '' }
+      Tests  5 failed | 182 passed | 243 skipped (430)
+exit=1
+
+## every chromium
+     × should still select text by a mouse press that moves less than the threshold 225ms
+AssertionError: expected '' not to be '' // Object.is equality
+      Tests  1 failed | 198 passed | 231 skipped (430)
+exit=1
+
+## every firefox
+     × should still select text by a mouse press that moves less than the threshold 284ms
+AssertionError: expected '' not to be '' // Object.is equality
+      Tests  1 failed | 186 passed | 243 skipped (430)
+exit=1
+
+## every webkit
+     × should still select text by a mouse press that moves less than the threshold 600ms
+AssertionError: expected '' not to be '' // Object.is equality
+      Tests  1 failed | 186 passed | 243 skipped (430)
+exit=1
+
+## noprefix chromium
+      Tests  199 passed | 231 skipped (430)
+exit=0
+
+## noprefix firefox
+      Tests  187 passed | 243 skipped (430)
+exit=0
+
+## noprefix webkit
+      Tests  187 passed | 243 skipped (430)
+exit=0
+
+## prefixonly chromium
+      Tests  199 passed | 231 skipped (430)
+exit=0
+
+## prefixonly firefox
+      Tests  187 passed | 243 skipped (430)
+exit=0
+
+## prefixonly webkit
+      Tests  187 passed | 243 skipped (430)
+exit=0
+
+## CI: verify run 45882776261 on c3209df1d65af3bc59a93972393b6fd9ff096bb0, conclusion success
+# job 140126200295
+ ✓  browser/material-x/firefox (firefox)  tests/list/sortable-list.browser.test.ts (210 tests | 12 skipped) 41555ms
+ ↓  browser/material-x/firefox (firefox)  tests/axe.browser.test.ts (71 tests | 71 skipped)
+ ✓  spec/material-x/firefox (firefox)  tests/list/sortable-list.spec.browser.test.ts (26 tests) 5624ms
+ Test Files  136 passed | 1 skipped (137)
+# job 140126200269
+ ↓  browser/material-x/webkit (webkit)  tests/axe.browser.test.ts (71 tests | 71 skipped)
+ ✓  browser/material-x/webkit (webkit)  tests/list/sortable-list.browser.test.ts (210 tests | 12 skipped) 32537ms
+ ✓  spec/material-x/webkit (webkit)  tests/list/sortable-list.spec.browser.test.ts (36 tests) 7535ms
+ Test Files  136 passed | 1 skipped (137)
