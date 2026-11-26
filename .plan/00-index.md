@@ -7074,6 +7074,24 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 - **Size, Brotli** ([reading](roving-hidden-1/checks/sizes-ends.txt)): `button-group/connected-button-group` 4042 at `main`, 4187 at `810cffceb`, 4147 now (+105 over `main`); `button/split-button` 7766, 7887, 7872 (+106); `complete` 25869, 26035, 26016 (+147). No other row of the 36 moves, and none is over its limit.
 - **Checks:** core's suite (396 rows) and the 10 material-x files that use the group (277 rows), in Chromium; the format, lint and typecheck of each changed file, core and material-x; the root format check and `git diff --check`. One ESLint `prefer-destructuring` error on a new line of the group was fixed by rewriting the line. **Not run:** Firefox, WebKit beyond the two files, material-x's full suite, the docs build, and the size gate's own recipe; the table above reads the same rows with `just size-reading`.
 
+**Dated 2026-11-26 by the architect: the cost of `e8be2ba17` is ruled met, and `reviewer-3`'s required property is replaced,** requested by the coordinator. Read from the implementer's [reading](roving-hidden-1/checks/cost-ends.txt), with no run of my own.
+
+**The property as written can't be met by any head on this machine, `main` included.** In the same reading, `main`'s own median for one row differs between its runs by up to 2.83 times in the first series and 2.21 in the second, so a single pair over 1.5 says nothing about the head. What `reviewer-3` found was 3.4 to 7.5 times, in every row. Summed over each series, the head is 1.34 and 0.97 of `main` for the groups and 0.91 and 0.74 for the split buttons, so that finding is gone.
+
+**The property now, in place of** _"each median of seven is at most 1.5 times `main`'s, read in turn with `main`, three times"_: in Chromium, connecting 20, 100 and 300 groups of four, and as many split buttons, in one task, read in two series of three runs in turn with `main`, one with the head first and one with `main` first. **Summed over a series' runs, the groups' times and the split buttons' times are each at most 1.5 times `main`'s, in both series.** A single pair above it isn't a finding. The 1.34 of the groups in the first series is within it, and a cost of that size is the hook's read at the connect, which the ruling accepts.
+
+- **Met at `e8be2ba17`:** 1.34 and 0.97, 0.91 and 0.74.
+- **The recheck** reads it the same way, in Chromium, Firefox and WebKit, one engine at a time.
+
+**The two choices that the list didn't name are confirmed:**
+
+- **The group's observer, for its whole life.** The hook's observer does the same. The group holds it and its callback through the registration on its own node, so nothing outlives the group. While out, a change of `hidden` writes marks and reads no style. With the connect's read gone, an observer that stops while out would leave property 3 to nothing.
+- **Core's rows of the hidden ancestor and host, with a `display: contents` item and `:host([hidden]) { display: none }`.** WebKit's stale `display` is of that shape, as the proof and the [ruling's reading](roving-hidden-1/checks/ruling-ends.txt) read it. A plain item reads `none` there, so a row with it would show nothing in any engine. The row has to show the defect, and the shape is the material-x member's.
+
+**Sizes:** +105, +106 and +147 B over `main`, each less than at `810cffceb`. Accepted.
+
+**Ready for the recheck** by the same reviewer, as the ruling says, with this property for the cost.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
