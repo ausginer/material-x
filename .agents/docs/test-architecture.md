@@ -181,7 +181,7 @@ Development runs in Chromium, a review runs in the three engines, and CI runs th
 - **A contract** says _Rows_ and _Witness_ with no engine, and names one only where one engine alone shows the property. In a contract that already says _in the three engines_, that is the review's for witnesses and affected files, and CI's for rows. A closing condition is met the same way. Runs already made stand.
 - **A reading whose question is about engines** runs in those engines, whoever makes it.
 
-To run one file in another engine: `MX_TEST_ENGINES=firefox aube exec just test <file>` in the package, or `webkit`. The devcontainer installs Playwright's Chromium and WebKit, and not Firefox ([#285](https://github.com/ausginer/material-x/issues/285)): until it does, install it in the container with `aube exec playwright install firefox`.
+To run one file in another engine: `MX_TEST_ENGINES=firefox aube exec just test <file>` in the package, or `webkit`. The devcontainer installs Playwright's Chromium, Firefox and WebKit when it is created and each time it starts.
 
 ## Implementation roadmap
 
