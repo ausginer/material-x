@@ -1,0 +1,28 @@
+# A browser that doesn't start, probed at 0cc0d9516 on 2026-11-26 with ../../probes/recheck/p2-browser.sh, nothing else running. $S is the scratch directory.
+
+## U. TMPDIR of 103 characters, the label mutation
+exit 2
+mutator: unmutated, chromium
+mutator: selectors that cover no row
+  - label, chromium: tests/dom.browser.test.ts > should hold its text covers no row that ran
+no report
+
+## U'. Vitest itself in that TMPDIR, and in a short one
+Vitest exit 1
+FATAL:chrome/browser/process_singleton_posix.cc:315] Socket path too long: 
+{"file":"tests/dom.browser.test.ts","status":"passed","message":"","rows":0,"success":true}
+Vitest exit 0 in a short TMPDIR; left there: []
+
+## M. TMPDIR /tmp/mxr.Ezb8, a mutation that stops the browser from starting
+exit 1
+unmutated rows: 1
+{"outcome":"void","failed":[],"voided":["tests/dom.browser.test.ts > label should hold its text"],"unrun":{"tests/dom.browser.test.ts > label should hold its text":["Vitest reported no row of its file"]}}
+### launch, chromium: void
+
+- expected fails: tests/dom.browser.test.ts > should hold its text
+  - void, did not run: tests/dom.browser.test.ts > label should hold its text
+    - Vitest reported no row of its file
+left in /tmp/mxr.Ezb8: [playwright-artifacts-FdxHap
+playwright-artifacts-JDrdbq
+playwright_chromiumdev_profile-GWkaM6
+playwright_chromiumdev_profile-XmzXFp]
