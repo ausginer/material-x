@@ -1,0 +1,98 @@
+# probes/move.mjs run by the reviewer at b197acdd3 in a scratch clone (git clone --no-checkout of the local repository, detached at b197acdd3): node .plan/decision-files-1/probes/move.mjs --classified <tsv>
+# git add -A; git diff --cached --quiet e94ab0e9b: exit 0, the tree is e94ab0e9b's. The classified links equal checks/move-classified.tsv.
+
+{
+ "entries": {
+  "RD": 64,
+  "DRD": 72,
+  "DRO": 21
+ },
+ "moved": 157,
+ "bytes": {
+  ".plan/00-index.md": 534292,
+  "packages/drag/.plan/00-index.md": 533956
+ },
+ "statusRows": 72,
+ "insideRelative": 736,
+ "insideRewritten": 736,
+ "insideAbsolute": 22,
+ "elsewhere": {
+  "fragMoved": 6,
+  "fragOther": 4,
+  "textFile": 16,
+  "toFile": 56,
+  "toDir": 67,
+  "unchanged": 211
+ },
+ "elsewhereTotal": 360,
+ "elsewhereFiles": 289,
+ "sameIndexFragments": 1,
+ "filesWritten": 157,
+ "filesChanged": 290
+}
+Left to a person (3):
+  .plan/00-index.md:1379: a link in code, o; kept
+  .plan/decision-files-1/decision-files-report.md:54: a link in code, ../00-index.md; kept
+  .plan/decision-files-1/decision-files-report.md:55: a link in code, ../00-index.md; kept
+
+# Run 2: the script again on its committed output
+{
+ "entries": {},
+ "moved": 0,
+ "bytes": {},
+ "statusRows": 0,
+ "insideRelative": 0,
+ "insideRewritten": 0,
+ "insideAbsolute": 0,
+ "elsewhere": {
+  "fragMoved": 0,
+  "fragOther": 4,
+  "textFile": 0,
+  "toFile": 0,
+  "toDir": 0,
+  "unchanged": 211
+ },
+ "elsewhereTotal": 215,
+ "elsewhereFiles": 172,
+ "sameIndexFragments": 0,
+ "filesWritten": 0,
+ "filesChanged": 0
+}
+Left to a person (2):
+  .plan/decision-files-1/decision-files-report.md:54: a link in code, ../00-index.md; kept
+  .plan/decision-files-1/decision-files-report.md:55: a link in code, ../00-index.md; kept
+
+# Run 3: on the committed output with both indexes restored from b197acdd3, as a merge of main resolved to main's side would give. git diff --cached --quiet e94ab0e9b: exit 0
+{
+ "entries": {
+  "RD": 64,
+  "DRD": 72,
+  "DRO": 21
+ },
+ "moved": 157,
+ "bytes": {
+  ".plan/00-index.md": 534292,
+  "packages/drag/.plan/00-index.md": 533956
+ },
+ "statusRows": 72,
+ "insideRelative": 736,
+ "insideRewritten": 736,
+ "insideAbsolute": 22,
+ "elsewhere": {
+  "fragMoved": 1,
+  "fragOther": 4,
+  "textFile": 0,
+  "toFile": 0,
+  "toDir": 0,
+  "unchanged": 211
+ },
+ "elsewhereTotal": 216,
+ "elsewhereFiles": 173,
+ "sameIndexFragments": 1,
+ "filesWritten": 157,
+ "filesChanged": 2
+}
+Left to a person (3):
+  .plan/00-index.md:1379: a link in code, o; kept
+  .plan/decision-files-1/decision-files-report.md:54: a link in code, ../00-index.md; kept
+  .plan/decision-files-1/decision-files-report.md:55: a link in code, ../00-index.md; kept
