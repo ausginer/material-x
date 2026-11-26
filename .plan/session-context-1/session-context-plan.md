@@ -1,6 +1,8 @@
 # The coordinator reads each role session's context size, and the owner clears it between units
 
-**Status: proposed, waiting for the owner's answers** ([questions](#questions-for-the-owner)). Written by the architect on `repo/session-context-1`, from `origin/main` at `b523011b6`, on the coordinator's task of 2026-11-26. The labels `SC-1` to `SC-7` are local to this plan. The main architect mints them as one `RD` after the answers ([Identifiers](#identifiers)). Nothing outside this directory changes until then.
+**Status: decided 2026-11-26 as `repo:RD-67`,** in [`.plan/00-index.md`](../00-index.md), on the owner's [answers](#questions-for-the-owner) of the same day. **Where this plan and `RD-67` differ, `RD-67` applies.** The documents changed in the same pull request: [coordinator-setup.md](../../.agents/docs/coordinator-setup.md) §Direct send step 5 and §Context readings, and [the coordinator's role definition](../../.claude/agents/coordinator.md) §Sessions. SC-4, SC-5, SC-6 and the section on idle compaction are amended below to the answers, and each amendment says what the text said. (**Amended 2026-11-26 by `RD-67`.** This paragraph began: _"**Status: proposed, waiting for the owner's answers**"_, and ended: _"The main architect mints them as one `RD` after the answers ([Identifiers](#identifiers)). Nothing outside this directory changes until then."_)
+
+Written by the architect on `repo/session-context-1`, from `origin/main` at `b523011b6`, on the coordinator's task of 2026-11-26. The labels `SC-1` to `SC-7` are local to this plan ([Identifiers](#identifiers)).
 
 **Where it comes from:**
 
@@ -26,7 +28,7 @@ All readings were taken on 2026-11-26 with Claude Code 2.1.332, in this containe
 - **When the status line runs:** at session start and resume, after each new assistant message, after `/compact`, and at a few other events. Updates are debounced by 300 ms. **A new update cancels a script that is still running,** so a writer must never leave a half-written file.
 - **No hook carries the context size.** `hooks.md` has no `context_window` and no `total_input_tokens`. The status line is the only documented carrier.
 - **A project's `statusLine` overrides the user's.** The precedence is managed, command line, project local, shared project, user.
-- **Idle compaction** ([below](#idle-compaction-is-on-in-the-owners-settings)).
+- **Idle compaction** ([below](#idle-compaction-isnt-part-of-this-design)).
 
 **The owner's configuration, read and not changed.** `~/.claude` and `CLAUDE_CONFIG_DIR` (`/agents/claude`) are one directory, mounted from the host. `settings.json` sets `statusLine` to `bash ~/.claude/statusline-command.sh`, which prints the model, effort, agent and `context_window.total_input_tokens`, and writes nothing. It also sets `autoCompactEnabled: true` and, for `claude-opus-5-5`, `autoCompactWindow: "auto"`, and doesn't set `idleCompaction`.
 
@@ -96,11 +98,15 @@ jq -r '"\(.session_name): \(.context_window.total_input_tokens) tokens, \(.conte
   "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/ctx/Mx Implementer B.json"
 ```
 
+(**Amended 2026-11-26 by `RD-67`.** The command in [coordinator-setup.md](../../.agents/docs/coordinator-setup.md#context-readings) prints no percentage and no window size, because the coordinator compares tokens with 300,000 and tells the owner no size. The one above is the plan's.)
+
 **A reading is valid when it was written after the coordinator sent the task.** An older file, or no file, is "no reading": the session hasn't run its status line since the owner's change, has no name, or runs on another machine. The coordinator then says so once and doesn't ask the session.
 
 **The reading may be one reply behind.** A role sends its closing message with `SendMessage`, which is a tool call, and its turn ends with one more reply. A reply adds a few thousand tokens to a context of hundreds of thousands, which doesn't change what the reading is for.
 
 ### SC-4 — At the end of a unit, the coordinator tells the owner and holds that session's next unit
+
+**Amended 2026-11-26 by `RD-67` properties 4 and 5, on the answers to Q1 and Q2.** The hold is adopted (Q1). The message names no size: _"Mx Implementer B: the unit is closed, the session can be cleared"_ (Q2: _"контекст упоминать не надо"_). Inside a unit, the 50% threshold and the mention of a size are replaced: **a closing message whose reading shows more than 300,000 `total_input_tokens` makes the coordinator tell the owner that the session can be cleared, and hold that session's next task the same way.** The paragraphs below are the text as proposed. The example said _"555k (55%), /clear before the next unit"_, and the third paragraph's rule and its _"holds nothing"_ no longer apply.
 
 **At a closing message that ends the session's part of a unit, the coordinator tells the owner in one line,** in the owner's language, before it routes that session anything else. For example, _"Mx Implementer B: the unit is closed, 555k (55%), /clear before the next unit"_. A unit's end is the boundary at which [coordinator-setup.md](../../.agents/docs/coordinator-setup.md#session-names) already says to clear the session. So the coordinator reminds the owner at every unit's end, whatever the size, and adds no threshold there.
 
@@ -112,9 +118,11 @@ jq -r '"\(.session_name): \(.context_window.total_input_tokens) tokens, \(.conte
 
 ### SC-5 — The coordinator's own size
 
-**At each owner checkpoint, the coordinator reads its own file,** `Mx Coordinator.json`, and mentions its size when `used_percentage` is at least the same 50. Its continuity is in the repository and the work queue on GitHub, so after a clear it recovers its state as [coordinator.md](../../.agents/docs/coordinator.md) says.
+**At each owner checkpoint, the coordinator reads its own file,** `Mx Coordinator.json`, and tells the owner that it can be cleared when the file shows more than 300,000 `total_input_tokens`. (**Amended 2026-11-26 by `RD-67` property 6, on the answer to Q2.** This said: _"and mentions its size when `used_percentage` is at least the same 50."_) Its continuity is in the repository and the work queue on GitHub, so after a clear it recovers its state as [coordinator.md](../../.agents/docs/coordinator.md) says.
 
 ### SC-6 — The documents' text
+
+**Amended 2026-11-26 by `RD-67`.** The documents carry the text as this pull request writes it, which follows `RD-67` properties 4 to 6: a session can be cleared at a unit's end or past 300,000 tokens, with no size, and the hold applies to both. The drafts below were written before the answers and are kept as proposed. They are not the text.
 
 **[coordinator-setup.md](../../.agents/docs/coordinator-setup.md) §Direct send, step 5, becomes:**
 
@@ -135,31 +143,39 @@ The explainer's proposal named only step 5. The role definition says the same as
 - **Two live sessions with one name** would write one file. [Session names](../../.agents/docs/coordinator-setup.md#session-names) already forbids that, for `SendMessage`'s sake.
 - **A cancelled run can leave a `.tmp.*` file** in `ctx/`. The reader reads only the named file.
 
-## Idle compaction is on in the owner's settings
+## Idle compaction isn't part of this design
 
-**This isn't part of the design, and only the owner can change it.** By `settings-reference.md`, idle compaction is on by default when `autoCompactEnabled` is on. It compacts a conversation that has reached 200,000 tokens and has been idle for about an hour, before the prompt cache expires, and the terminal then shows a line that starts with _"Compacted while idle, before the prompt cache expired"_. His settings turn `autoCompactEnabled` on and don't set `idleCompaction`. So a role session that waits an hour for him, for example an architect at 468k waiting for his answers, is compacted between two of its tasks. That may be what he sees as autocompact _"in the middle of a session"_. It is not established that he does: he can recognize it by that line.
+**The owner's answer to Q3:** idle compaction is compaction while a session is idle, which he knows. The harness starts it when he has left a session alone for a while and the session is doing nothing, probably not even listening to a shell, which he hasn't established. He is still deciding whether to turn it off, and it isn't connected with this question. So it isn't what he called autocompact _"in the middle of a session"_, and nothing in the design depends on it. (**Amended 2026-11-26 by `RD-67` property 8.** This section was titled _"Idle compaction is on in the owner's settings"_, and after the reading below it said: _"So a role session that waits an hour for him, for example an architect at 468k waiting for his answers, is compacted between two of its tasks. That may be what he sees as autocompact "in the middle of a session". It is not established that he does: he can recognize it by that line."_)
 
-**If he wants it off,** he adds `"idleCompaction": false` to `~/.claude/settings.json`, or turns off the _Idle compaction_ row in `/config`, which writes the same key. Compaction near the window's limit stays as he has set it.
+**The reading, which stays true:** by `settings-reference.md`, idle compaction is on by default when `autoCompactEnabled` is on. It compacts a conversation that has reached 200,000 tokens and has been idle for about an hour, before the prompt cache expires, and the terminal then shows a line that starts with _"Compacted while idle, before the prompt cache expired"_. His settings turn `autoCompactEnabled` on and don't set `idleCompaction`. `"idleCompaction": false` in `~/.claude/settings.json`, or the _Idle compaction_ row in `/config`, turns it off. Compaction near the window's limit stays as he has set it.
 
 ## Cost
 
 - **The owner:** eleven lines in his status line script, once.
 - **Each status line run:** about 15 ms more. 50 runs of the writer took 0.74 s, and 50 runs of his current script 0.94 s ([`writer.txt`](checks/writer.txt)). It writes 400 bytes per session name, and there is one file per name.
 - **The coordinator:** one command per closing message, and one per owner checkpoint for its own size. Each is about a hundred tokens of output.
-- **The owner's time:** a slot whose unit has ended waits for his `/clear` or his word. That is the point of the hold. The other slots don't wait.
+- **The owner's time:** a slot whose unit has ended, or whose session is past 300,000 tokens at a task's end, waits for his `/clear` or his word. That is the point of the hold. The other slots don't wait. (**Amended 2026-11-26 by `RD-67`,** which adds the second case.)
 - **The repository:** two documents. No tracked code, no CI and no test.
 
 ## Units, in order
 
 1. **This plan.** On `repo/session-context-1`.
-2. **The owner's answers, then the documents,** on the same branch and in the same pull request ([one unit](../../.agents/docs/agent-workflow.md#one-branch-and-one-pull-request-per-unit)). The main architect mints the decision and writes SC-6's text, because a rule in `.agents/docs/` and in a role definition changes. The owner adds SC-2's lines to his script whenever he chooses: until then, every reading is "no reading", and the coordinator says so.
+2. **The owner's answers, then the documents. Done 2026-11-26 as `RD-67`,** on the same branch and in the same pull request ([one unit](../../.agents/docs/agent-workflow.md#one-branch-and-one-pull-request-per-unit)). The main architect mints the decision and writes SC-6's text, because a rule in `.agents/docs/` and in a role definition changes. The owner adds SC-2's lines to his script whenever he chooses: until then, every reading is "no reading", and the coordinator says so.
 
 ## Identifiers
 
-`SC-1` to `SC-7` are this plan's. After the answers, the main architect mints them as one `RD` in [`.plan/00-index.md`](../00-index.md), or in a file of its own if `RD-64`'s unit has landed by then. `RD-65` (`repo/mutations-1`) is the highest `RD-` on any branch on `origin` today.
+`SC-1` to `SC-7` are this plan's. **They are minted as `repo:RD-67`,** in [`.plan/00-index.md`](../00-index.md), because `RD-64`'s unit, #302, hasn't landed. If #302 merges first, this branch writes the entry as `.plan/decisions/RD-67.md`, taking `main`'s side of the index conflict (`RD-64` property 7). `RD-66` (`repo/mutations-1`) was the highest `RD-` on any branch on `origin` at the minting, minted there after this plan was written.
 
 ## Questions for the owner
 
 1. **The hold (SC-4).** At the end of a unit, the coordinator holds that session's next unit until it sees your `/clear` or you tell it to send. **Recommended: yes.** Without the hold, the next unit reaches the session before you can clear it. The cost is that the slot waits for you.
 2. **The threshold inside a unit (SC-4, SC-5).** At a task boundary inside a unit, the coordinator mentions a session's size, and its own, at 50% of the window or more (500k for Opus 5.5) and holds nothing. **Recommended: 50%.** Another number is equally easy, and "never inside a unit" is too.
-3. **Idle compaction.** Is it what you saw ([above](#idle-compaction-is-on-in-the-owners-settings))? If yes, `"idleCompaction": false` in your user settings turns it off. It's your setting, and the design doesn't need either answer.
+3. **Idle compaction.** Is it what you saw ([above](#idle-compaction-isnt-part-of-this-design))? If yes, `"idleCompaction": false` in your user settings turns it off. It's your setting, and the design doesn't need either answer.
+
+**The owner's answers, 2026-11-26,** relayed by the coordinator. His words, with the coordinator's English, which the architect checked against the Russian:
+
+1. **Q1: yes.** _"Да"_ ("Yes").
+2. **Q2: no size, and 300k.** _"Ммм, на самом деле контекст упоминать не надо, достаточно будет, если ты при превышении 300к контекста при работе над задачей дождёшься её окончания и сообщишь мне, что сессию можно чистить."_ ("Hmm, actually there's no need to mention the context; it's enough if, when a session goes over 300k of context while working on a task, you wait for the task to end and tell me that the session can be cleared.")
+3. **Q3: no.** _"Нене, Idle compaction - это сжатие именно в простое. Если я про вас забыл на некоторое время, харнесс инициирует сжатие. Но для этого сессия не должна ничего делать (скорее всего, даже shell слушать, но это не точно). Это нормально, я пока размышляю, стоит ли выключать или нет, но оно никак не связано с этим вопросом."_ ("No no, idle compaction is compaction specifically while idle. If I forget about you for a while, the harness starts a compaction. But for that the session must be doing nothing (probably not even listening to a shell, but that's not certain). That's fine; I'm still thinking about whether to turn it off, but it isn't connected with this question at all.")
+
+How `RD-67` reads Q2 is in its _Readings of the answers_.

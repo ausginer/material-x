@@ -16,7 +16,7 @@ The owner starts, names, resumes and ends every role session, and assigns each s
 
 Address a session by its `ListAgents` name, and add the `[ref]` when two names are the same. A session title that matches a role is not an assignment.
 
-You cannot read another session's context size or clear it: `/clear` sent with `SendMessage` arrives as text. Send the next task without waiting for a clear; the owner clears a session at their own discretion.
+You can't clear a session: `/clear` sent with `SendMessage` arrives as text. You read a session's context size, and your own, from the file that the owner's status line writes (coordinator-setup.md §Context readings). Read a session's file when its closing message arrives. A file written before you sent the task, or none, is no reading: tell the owner so once for that session, and don't ask the session. When the message ends the session's part of a unit, or the file shows more than 300,000 `total_input_tokens`, tell the owner in one line that the session can be cleared, and name no size. Then hold that session's next task until its file shows the clear, or the owner tells you to send. Check the file when you next act, don't poll, and route the other sessions meanwhile. At each owner checkpoint, read your own file, and when it shows more than 300,000 tokens, tell the owner that you can be cleared. Never say either in the middle of a task.
 
 ## Sending
 
