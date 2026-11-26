@@ -1,0 +1,52 @@
+# Chromium 158.0.8127.18. The rows of tests/list/sortable-list.browser.test.ts that match 'touch|handle box', on the remedy (properties 3 and 4) and with one change at a time to the handle rules. W1 to W3 list failing rows only.
+
+## The remedy
+✓ |browser (chromium)| mx-sortable-list disabled items > should keep the touch-action that the page writes on a handle after the claim
+✓ |browser (chromium)| mx-sortable-list handle box > should keep a page's display on a handle
+✓ |browser (chromium)| mx-sortable-list handle box > should keep a hidden handle hidden
+✓ |browser (chromium)| mx-sortable-list handle box > should keep the inline-grid box of a handle hidden until found
+✓ |browser (chromium)| mx-sortable-list handle box > in lead > should center the mx-icon of a span handle in its box
+✓ |browser (chromium)| mx-sortable-list handle box > in lead > should center the mx-icon of a button handle in its box
+✓ |browser (chromium)| mx-sortable-list handle box > in trail > should center the mx-icon of a span handle in its box
+✓ |browser (chromium)| mx-sortable-list handle box > in trail > should center the mx-icon of a button handle in its box
+✓ |browser (chromium)| mx-sortable-list handle box > should center the mx-icon of a span handle that the page sizes
+✓ |browser (chromium)| mx-sortable-list handle box > should keep the text of a lead handle inside its box
+✓ |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by a span with text
+✓ |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by an mx-icon
+✓ |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by a span with an mx-icon
+✓ |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by an mx-icon-button
+✓ |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by a native button with an mx-icon
+✓ |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by a span with text
+✓ |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by an mx-icon
+✓ |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by a span with an mx-icon
+✓ |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by an mx-icon-button
+✓ |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by a native button with an mx-icon
+✓ |browser (chromium)| mx-sortable-list touch > should propose nothing in a swipe on mx-list-item without a handle
+✓ |browser (chromium)| mx-sortable-list touch > should propose nothing in a swipe on mx-list-button-item without a handle
+Tests  22 passed | 161 skipped (183)
+
+## W1: the handle rule of f529f3264 (inline-block, no line-height)
+× |browser (chromium)| mx-sortable-list handle box > should keep the inline-grid box of a handle hidden until found
+× |browser (chromium)| mx-sortable-list handle box > in lead > should center the mx-icon of a button handle in its box
+× |browser (chromium)| mx-sortable-list handle box > in trail > should center the mx-icon of a span handle in its box
+× |browser (chromium)| mx-sortable-list handle box > in trail > should center the mx-icon of a button handle in its box
+× |browser (chromium)| mx-sortable-list handle box > should center the mx-icon of a span handle that the page sizes
+× |browser (chromium)| mx-sortable-list handle box > should keep the text of a lead handle inside its box
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+Tests  6 failed | 16 passed | 161 skipped (183)
+AssertionError: 0 above, 5 below: expected 5 to be less than or equal to 1
+AssertionError: 3 above, 6 below: expected 3 to be less than or equal to 1
+AssertionError: 3 above, 8 below: expected 5 to be less than or equal to 1
+
+## W2: no line-height: normal in lead
+× |browser (chromium)| mx-sortable-list handle box > should keep the text of a lead handle inside its box
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 20 passed | 161 skipped (182)
+
+## W3: no place-items: center
+× |browser (chromium)| mx-sortable-list handle box > should center the mx-icon of a span handle that the page sizes
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 21 passed | 161 skipped (183)
+
+## W4: the rule on a bare mx-icon too (no row fails; see remedy-boxes.txt of the architect, at a device scale of 4)
+Tests  21 passed | 161 skipped (182)

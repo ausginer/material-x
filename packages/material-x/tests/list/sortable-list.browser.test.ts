@@ -7,7 +7,7 @@ import '../../src/list/list-item.ts';
 import '../../src/list/list-link-item.ts';
 import '../../src/list/list.ts';
 import { ReorderEvent } from '../../src/list/sortable-list.ts';
-import { nextFrame } from '../browser.ts';
+import { nextFrame, whenFontsReady } from '../browser.ts';
 import { TAB } from '../focus-indicator.ts';
 
 type ListTag = 'mx-list' | 'mx-sortable-list';
@@ -2430,11 +2430,78 @@ describe('mx-sortable-list handle box', () => {
     expect(getComputedStyle(handleOf(a!)).display).toBe('none');
   });
 
-  it('should keep the inline-block box of a handle hidden until found', async () => {
+  it('should keep the inline-grid box of a handle hidden until found', async () => {
     const [, [a]] = await createList(['A'], { handles: true });
     handleOf(a!).setAttribute('hidden', 'until-found');
 
-    expect(getComputedStyle(handleOf(a!)).display).toBe('inline-block');
+    expect(getComputedStyle(handleOf(a!)).display).toBe('inline-grid');
+  });
+
+  /** A list of one item whose handle in `slot` is a `tag` with an `mx-icon`. */
+  const createIconHandle = async (
+    tag: string,
+    slot: string,
+  ): Promise<HTMLElement> => {
+    const [, [a]] = await createList(['A']);
+    const handle = document.createElement(tag);
+    const icon = document.createElement('mx-icon');
+    icon.textContent = 'check';
+    handle.append(icon);
+    handle.dataset['handle'] = '';
+    handle.slot = slot;
+    a!.prepend(handle);
+    await whenFontsReady();
+    await nextFrame();
+    return handle;
+  };
+
+  describe.each(['lead', 'trail'])('in %s', (slot) => {
+    it.each(['span', 'button'])(
+      'should center the mx-icon of a %s handle in its box',
+      async (tag) => {
+        const handle = await createIconHandle(tag, slot);
+        const box = handle.getBoundingClientRect();
+        const icon = handle.querySelector('mx-icon')!.getBoundingClientRect();
+        const above = icon.top - box.top;
+        const below = box.bottom - icon.bottom;
+
+        expect(
+          Math.abs(above - below),
+          `${above} above, ${below} below`,
+        ).toBeLessThanOrEqual(1);
+      },
+    );
+  });
+
+  it('should center the mx-icon of a span handle that the page sizes', async () => {
+    const handle = await createIconHandle('span', 'lead');
+    handle.style.inlineSize = '48px';
+    handle.style.blockSize = '48px';
+    await nextFrame();
+    const box = handle.getBoundingClientRect();
+    const icon = handle.querySelector('mx-icon')!.getBoundingClientRect();
+
+    expect([
+      Math.abs(icon.top - box.top - (box.bottom - icon.bottom)) <= 1,
+      Math.abs(icon.left - box.left - (box.right - icon.right)) <= 1,
+    ]).toEqual([true, true]);
+  });
+
+  it('should keep the text of a lead handle inside its box', async () => {
+    const [, [a]] = await createList(['A'], { handles: true });
+    await whenFontsReady();
+    const handle = handleOf(a!);
+    const range = document.createRange();
+    range.selectNodeContents(handle);
+    const text = range.getBoundingClientRect();
+    const box = handle.getBoundingClientRect();
+
+    expect([
+      text.top >= box.top,
+      text.bottom <= box.bottom,
+      text.left >= box.left,
+      text.right <= box.right,
+    ]).toEqual([true, true, true, true]);
   });
 });
 

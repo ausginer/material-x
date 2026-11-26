@@ -62,13 +62,26 @@ slot:has-slotted {
 
 /*
  * `touch-action` applies to no inline or `display: contents` box, so a handle
- * such as a `span` or an `mx-icon-button` would let a touch pan. A page's own
- * `display` on the handle wins, and `hidden` still hides it.
+ * such as a `span` or an `mx-icon-button` would let a touch pan. The grid
+ * centers the handle's content, which an inline-level `mx-icon` stands on the
+ * baseline of otherwise. An `mx-icon` handle is already `inline-block`, and
+ * the grid would move its glyph. A page's own `display` on the handle wins, and
+ * `hidden` still hides it.
  */
 :is(.lead, .trail)::slotted([data-handle]:not(
+  mx-icon,
   [hidden]:not([hidden='until-found' i])
 )) {
-  display: inline-block;
+  display: inline-grid;
+  place-items: center;
+}
+
+/*
+ * The `lead` slot's `line-height: 0` would make a text handle's line 0 high,
+ * and its focus indicator would cross the text.
+ */
+.lead::slotted([data-handle]:not(mx-icon)) {
+  line-height: normal;
 }
 
 /*
