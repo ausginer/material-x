@@ -126,6 +126,8 @@ field.addEventListener('change', () => {
 - `icon` slot: leading icon content.
 - `impl` CSS part: internal native button with the `switch` role, which is the visual container and the focus target.
 
+The label breaks between its words and never inside one, whatever `overflow-wrap` its container or the element has. To let it break inside words, set `overflow-wrap` on `::part(impl)`. `word-break` still applies.
+
 ## Theming
 
 - Uses CSS custom properties for dimensions, spacing, and typography overrides.

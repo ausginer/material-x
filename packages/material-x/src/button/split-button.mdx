@@ -105,6 +105,8 @@ Use the live example below to inspect interaction states:
 - `icon` slot: leading icon content.
 - CSS parts: `impl`, `group`, `leading`, `trailing`, `leading-impl`, `trailing-impl`.
 
+The leading button's label breaks between its words and never inside one, whatever `overflow-wrap` its container or the element has. To let it break inside words, set `overflow-wrap` on `::part(leading-impl)`. `word-break` still applies.
+
 ## Theming
 
 - Uses CSS custom properties for container, split segments, and state styling.

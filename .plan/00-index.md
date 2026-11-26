@@ -6826,6 +6826,13 @@ Tier A, **open**, **remediation owed** (the architect's note of 2026-11-26), wit
   4. **The description of #286** says that a button's label keeps its words, in a list and outside one, so the owner reads it there.
 - **No recheck is owed:** four sentences and rows whose witness the coordinator reads in the implementer's report. CI runs the rows in Firefox and WebKit.
 
+**Dated 2026-11-26 by the implementer, on `material-x/item-overflow-1`: the texts and the rows are in.** Requested by the coordinator. Chromium alone (`RD-62`).
+
+- **Texts:** the sentence is in the _Anatomy_ of `button.mdx`, `link-button.mdx` and `switch-button.mdx`, with `::part(impl)`, and of `split-button.mdx`, for its leading button, with `::part(leading-impl)`.
+- **Rows:** 9 in `tests/button/button-label-breaks.browser.test.ts`, three on each of `mx-button`, `mx-link-button` and `mx-switch-button`. _Download_ is in a 60px container. With `overflow-wrap: anywhere` on the container, and with it on the element, the label has one line, and the element is wider than 60px and at least as wide as the label's text without a container. With it on `::part(impl)`, the label has more than one line, and the element is at most 60px wide.
+- **Witness** ([reading](item-overflow-1/checks/label-breaks-witness.txt)): unmutated, 9 of 9 pass. With `overflow-wrap: inherit` on `.host`, the six rows on the container and on the element fail, and the three on `::part(impl)` pass.
+- **No source change,** so the size gate is unchanged.
+
 #### RF-140 — The list's documentation names slots that the templates don't have
 
 Tier B, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from [#255](https://github.com/ausginer/material-x/issues/255), relayed by the coordinator. `RF-139` is the entry before this one. Read at `4e2972514`, in the sources.
