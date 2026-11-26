@@ -4957,6 +4957,30 @@ Tier B, **open**, cause not read, pre-existing. Registered on 2026-11-26 by the 
 - **Not read:** CI's history of the row, Chromium and Firefox under the same load, Safari.
 - **Plan needed:** no. **Size:** _not known yet._
 
+#### RF-151 — In WebKit, a mouse drag of a list item highlights its text
+
+Tier A, **open**, **ready**, not this unit's. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from the implementer's side observation in `RD-60`'s unit, relayed by the coordinator. `RF-150` is the entry before this one. Read at `5448c4fd6`, on one screenshot.
+
+- **What was observed:** the unit's probe lifts `B` of an `mx-sortable-list` of four `mx-list-item`s without handles, with `commands.pointerPress` and two `pointerMove`s, and screenshots the list while the item is held over `C`. In WebKit, the text _"xt"_ of the lifted item is highlighted under the pointer ([screenshot](sortable-displacement-1/checks/shots/webkit-overshoot-pointer.png), [probe](sortable-displacement-1/probes/shots.browser.test.ts.txt), _"overshoot, pointer drop"_). In Chromium and Firefox, the same frame has no highlight.
+- **What drag does:** its kernel clears the selection when a drag activates (`packages/drag/src/kernel/session.ts`, `#move`). It never prevents a press, and `draggable`'s JSDoc tells the consumer to give the handle `user-select: none` for text. An item without a handle is its own handle, and `mx-sortable-list` writes no `user-select` on it. `RF-146` property 3 decided that, for touch. So WebKit extends a selection after the activation, as the mouse moves.
+- **Why it is a problem:** the user sees a text selection on the item they are moving, which no other engine shows and nothing in the list's documentation promises.
+- **Not this unit's,** by reading: `RD-60`'s unit changes no input, selection or `user-select` code. **Not read at the base.**
+- **Required property:** in each engine, while a mouse drags an item without a handle, and after its drop, no text of the list is selected. A press without a drag still selects text as it does today, unless the repair decides otherwise and says so. **Witness:** a row in `browser`, in each engine, by real mouse input, that reads the document's selection during the drag and after the drop, and fails in WebKit at `5448c4fd6`.
+- **For the unit that takes it:** the repair amends `RF-146` property 3 if it writes `user-select` on an item. Whether WebKit reports this highlight through `getSelection()` decides whether the row can read it, or needs a screenshot.
+- **Not read:** Safari, an item with a handle, the button and link items, the selection after the drop, whether `getSelection()` reports the highlight.
+- **Plan needed:** no. **Size:** _small_.
+
+#### RF-152 — `parseMs` reads a duration in milliseconds as seconds
+
+Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from the implementer's point 4 in `RD-60`'s unit, relayed by the coordinator. `RF-151` is the entry before this one. Read at `5448c4fd6`.
+
+- **What happens:** `parseMs` in `packages/material-x/src/core/utils/fns.ts` returns `parseFloat(value) * 1000`, whatever the value's unit, so `250ms` reads as 250,000 ms. It has done so since `b140ce683`. It reads the ripple's two durations, the sortable list's landing since `RF-109` (#199), and the list's layout animation since `RD-60`.
+- **Why the values are right today:** each value that reaches it is a tproc motion token, which tproc writes in milliseconds, such as `500ms`. lightningcss, which every material-x sheet passes through, prints a time of 100 ms or more in seconds, minified or not, and keeps `99ms` and `50ms` as they are ([reading](sortable-displacement-1/checks/lightningcss-time.txt), [probe](sortable-displacement-1/probes/lightningcss-time.mjs)). tproc's shortest motion duration is 150 ms. The properties are private, and no public property feeds them.
+- **Why it is a problem:** the function is right because of a printer's choice that nothing records. A token under 100 ms, or a value that doesn't pass through lightningcss, gives a duration 1,000 times too long, with no error.
+- **Tier C:** no consumer reads a wrong duration, and no row relies on it.
+- **Required property:** `parseMs` returns milliseconds for a `<time>` in either unit: `0.25s` and `250ms` both give 250. It throws on a value that has no number, as today. **Witness:** a row that gives a private duration in `ms` fails at `5448c4fd6`.
+- **Plan needed:** no. **Size:** _small_.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

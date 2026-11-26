@@ -1,0 +1,17 @@
+# RD-60 row 6's witness, read by the architect at 5448c4fd6: in sortable-list.ts, the landing's timing reads LAYOUT_CSS_PROPS in place of DRAG_CSS_PROPS.
+# Run: MX_TEST_ENGINES=<engine> aube exec vitest run -c vitest.config.ts --project 'browser*' tests/list/sortable-list.browser.test.ts -t neighbors, from packages/material-x, then the file restored.
+== chromium
+       × should time the landing and the lifted item's elevation by the landing's pair, with the neighbors' private properties set
+       × should time the landing and the lifted item's elevation by the landing's pair, without a page rule
+      Tests  2 failed | 17 passed | 183 skipped (202)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+== firefox
+       × should time the landing and the lifted item's elevation by the landing's pair, with the neighbors' private properties set
+       × should time the landing and the lifted item's elevation by the landing's pair, without a page rule
+      Tests  2 failed | 17 passed | 183 skipped (202)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+== webkit
+       × should time the landing and the lifted item's elevation by the landing's pair, with the neighbors' private properties set
+       × should time the landing and the lifted item's elevation by the landing's pair, without a page rule
+      Tests  2 failed | 17 passed | 183 skipped (202)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
