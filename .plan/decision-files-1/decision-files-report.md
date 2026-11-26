@@ -1,6 +1,6 @@
 # A file per decision — report
 
-**Items 1 to 4 of the [plan](decision-files-plan.md#work-list), by the implementer, on 2026-11-26,** on `repo/decision-files-1`, from `d8954069e`. Requested by the coordinator. Item 5, the move, waits for #293 and #298 on `main` (Q1 (a); #297 and #295 have merged), and nothing has moved. Items 6 and 7 come with it. The code is at `c7b7c0621`, with `main` at `4b7e6e181` merged.
+**Items 1 to 4 of the [plan](decision-files-plan.md#work-list), by the implementer, on 2026-11-26,** on `repo/decision-files-1`, from `d8954069e`. Requested by the coordinator. The code is at `c7b7c0621`, with `main` at `4b7e6e181` merged. **Items 5 to 7, the move, its checks and this report, the same day,** once #297, #293, #295 and #298 were on `main` (Q1 (a)): see [the move](#the-move).
 
 ## The resolver
 
@@ -72,6 +72,40 @@ The bytes differ by one per entry from the plan's probe, which counts a line bre
 
 `.scripts/entry.ts` and its tests: `oxfmt`, `oxlint` and ESLint, `tsc -p tsconfig.json`, and the `repo` Vitest project, 171 rows. The Markdown: `oxfmt`, the links by `links-resolve.mjs`, with the same 37 that don't resolve at `d8954069e`, and `git diff --check`.
 
+## The move
+
+**`b197acdd3` merges `origin/main` at `e457ed209`,** with #293 on it. **`e94ab0e9b` is the move: the output of [`probes/move.mjs`](probes/move.mjs), unchanged since the dry run, and nothing else** ([reading](checks/move.txt), [every link it classified](checks/move-classified.tsv)). No file was moved or edited by hand. The dry run against the move:
+
+| What | Dry run | Move |
+| --- | --: | --: |
+| Entries `RD`, `DRD`, `DRO` | 64, 72, 21 | 64, 72, 21 |
+| Bytes | 519,533 and 533,956 | 534,292 and 533,956 |
+| Relative links inside the entries, status rows included | 718 | 736 |
+| Absolute links inside the entries | 18 | 22 |
+| Rule 5, a moved entry's fragment | 6 | 6 |
+| Rule 5, another fragment | 4 | 4 |
+| Rule 5, the link's text names one identifier | 16 | 16 |
+| Rule 5, the line names one identifier | 55 | 56 |
+| Rule 5, the line names several identifiers | 67 | 67 |
+| Rule 5, unchanged | 206 | 211 |
+| Links elsewhere into an index, and their files | 354 in 283 | 360 in 289 |
+| Status rows | 72 | 72 |
+| Files written, and files changed | 157 and 289 | 157 and 290 |
+
+**Every difference comes from `main`'s merge.** The dry run had `main` at `4b7e6e181`, and since then #298 and #293 have changed `RD-9`, `RD-13`, `RD-56`, `RD-57` and `RD-58`, which accounts for 14,759 bytes, 18 relative links and 4 absolute ones. The six new files elsewhere that link into an index come from the material-x pull requests merged since. They add one link that the line's one identifier decides, and five that stay unchanged. **The script left no link to a person.** It reported the same three links in code as the dry run did, and kept them. `.plan/00-index.md:1375` is now `:1379`. **Nothing happened that the rules didn't foresee.**
+
+**The checks at `e94ab0e9b`:**
+
+- **`RD-64` property 2's witness** ([reading](checks/move-witness.txt)): for each of the 157 identifiers, `entry.sh` at `b197acdd3`, in a scratch clone, and at `e94ab0e9b` prints the same text, except for 615 link targets and 72 added status paragraphs. No identifier differs in anything else.
+- **Relative links** ([reading](checks/move-links.txt)): 37 don't resolve before the move and 37 after it. They are the same 37 targets as in the dry run, and all of them are older than this unit.
+- `entry.sh --duplicates` passes. `oxfmt --check` passes on the 290 files, and `git diff --check` prints nothing. **The script, run again on its committed output, changes no file,** and `git status` is empty after it.
+
+**The branches that add a decision entry after the move** remake it as a file, by the plan's [order](decision-files-plan.md#order-against-open-pull-requests). The script isn't run on them:
+
+- **#301, `repo/mutations-1`,** adds `RD-65` under the repository index's _Decisions_. After it merges `main`, it takes `main`'s side of the index conflict and writes the entry as `.plan/decisions/RD-65.md`, with its relative links made relative to `.plan/decisions/`. **`--duplicates` doesn't catch an entry that is only in the index,** so it guards nothing here. A new entry that is kept in the index's _Decisions_ passes every check, and the reviewer of #301 reads the index's section for it.
+- **`repo/session-context-1`** has no index change at `origin`. The decision that Mx Architect is about to mint there is written as a file in `.plan/decisions/` if the move is on `main` by then. If it is written in the index, the branch remakes it as #301 does.
+
 ## Open
 
-- Items 5 to 7, after #293 and #298 merge.
+- The reviewer's feature proof, by the plan's [work list](decision-files-plan.md#work-list).
+- The architect's notes on `RD-17` and `RD-64`, after the review.
