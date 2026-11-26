@@ -1,0 +1,24 @@
+# RF-139 remediation: size-limit, Brotli, local, Chromium build. base = this tree with the merge base 2485fb2df sheets of the list item and mx-button; head = this tree.
+button/button | base 4936 | head 4947 | +11 | within
+button/icon-button | base 5208 | head 5218 | +10 | within
+button/link-button | base 4911 | head 4917 | +6 | within
+button/switch-button | base 5537 | head 5549 | +12 | within
+button/switch-icon-button | base 5962 | head 5947 | -15 | within
+button/split-button | base 7766 | head 7769 | +3 | within
+button-group/button-group | base 3097 | head 3102 | +5 | within
+button-group/connected-button-group | base 4042 | head 4052 | +10 | within
+card/card | base 1350 | head 1350 | +0 | within
+checkbox/checkbox | base 4290 | head 4290 | +0 | within
+fab/fab | base 4206 | head 4206 | +0 | within
+icon/icon | base 667 | head 667 | +0 | within
+list/list | base 625 | head 625 | +0 | within
+list/list-item | base 2803 | head 2824 | +21 | within
+list/list-button-item | base 4968 | head 4982 | +14 | within
+list/list-link-item | base 5146 | head 5182 | +36 | within
+list/sortable-list | base 9117 | head 9117 | +0 | within
+radio/radio | base 3841 | head 3841 | +0 | within
+slider/slider | base 4037 | head 4037 | +0 | within
+text-field/multiline-text-field | base 4559 | head 4559 | +0 | within
+text-field/text-field | base 8618 | head 8616 | -2 | within
+top-app-bar/top-app-bar | base 1391 | head 1391 | +0 | within
+complete | base 25869 | head 25922 | +53 | within

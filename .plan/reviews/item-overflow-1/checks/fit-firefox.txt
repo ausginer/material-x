@@ -1,0 +1,433 @@
+# firefox 159.0, part fit
+fit-content mx-list > mx-list-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-item | Copy, shortcut | now: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-item | Label, two words text | now: item 174.3x56 content 43.1 trail 87.2 kids [55.5x30] tops [13] lines [2] past 0
+fit-content mx-list > mx-list-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+fit-content mx-list > mx-list-item | Label, button | now: item 186.3x60 content 49.1 trail 93.1 kids [93.1x40] tops [10] lines [2] past 0
+fit-content mx-list > mx-list-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+fit-content mx-list > mx-list-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+fit-content mx-list > mx-list-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+fit-content mx-list > mx-list-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+fit-content mx-list > mx-list-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+fit-content mx-list > mx-list-item | On, two icon buttons | now: item 144.8x100 content 28.4 trail 72.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+fit-content mx-list > mx-list-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+fit-content mx-list > mx-list-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+max-content mx-list > mx-list-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-item | Copy, shortcut | now: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-item | Label, two words text | now: item 174.3x56 content 43.1 trail 87.2 kids [55.5x30] tops [13] lines [2] past 0
+max-content mx-list > mx-list-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+max-content mx-list > mx-list-item | Label, button | now: item 186.3x60 content 49.1 trail 93.1 kids [93.1x40] tops [10] lines [2] past 0
+max-content mx-list > mx-list-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+max-content mx-list > mx-list-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+max-content mx-list > mx-list-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+max-content mx-list > mx-list-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+max-content mx-list > mx-list-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+max-content mx-list > mx-list-item | On, two icon buttons | now: item 144.8x100 content 28.4 trail 72.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+max-content mx-list > mx-list-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+max-content mx-list > mx-list-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+inline-block mx-list > mx-list-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-item | Copy, shortcut | now: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-item | Label, two words text | now: item 174.3x56 content 43.1 trail 87.2 kids [55.5x30] tops [13] lines [2] past 0
+inline-block mx-list > mx-list-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+inline-block mx-list > mx-list-item | Label, button | now: item 186.3x60 content 49.1 trail 93.1 kids [93.1x40] tops [10] lines [2] past 0
+inline-block mx-list > mx-list-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+inline-block mx-list > mx-list-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+inline-block mx-list > mx-list-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+inline-block mx-list > mx-list-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+inline-block mx-list > mx-list-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+inline-block mx-list > mx-list-item | On, two icon buttons | now: item 144.8x100 content 28.4 trail 72.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+inline-block mx-list > mx-list-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+inline-block mx-list > mx-list-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+absolute mx-list > mx-list-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-item | Copy, shortcut | now: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-item | Label, two words text | now: item 174.3x56 content 43.1 trail 87.2 kids [55.5x30] tops [13] lines [2] past 0
+absolute mx-list > mx-list-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+absolute mx-list > mx-list-item | Label, button | now: item 186.3x60 content 49.1 trail 93.1 kids [93.1x40] tops [10] lines [2] past 0
+absolute mx-list > mx-list-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+absolute mx-list > mx-list-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+absolute mx-list > mx-list-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+absolute mx-list > mx-list-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+absolute mx-list > mx-list-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+absolute mx-list > mx-list-item | On, two icon buttons | now: item 144.8x100 content 28.4 trail 72.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+absolute mx-list > mx-list-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+absolute mx-list > mx-list-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+flex row item mx-list > mx-list-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-item | Copy, shortcut | now: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-item | Label, two words text | now: item 174.3x56 content 43.1 trail 87.2 kids [55.5x30] tops [13] lines [2] past 0
+flex row item mx-list > mx-list-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+flex row item mx-list > mx-list-item | Label, button | now: item 186.3x60 content 49.1 trail 93.1 kids [93.1x40] tops [10] lines [2] past 0
+flex row item mx-list > mx-list-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+flex row item mx-list > mx-list-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+flex row item mx-list > mx-list-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+flex row item mx-list > mx-list-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+flex row item mx-list > mx-list-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+flex row item mx-list > mx-list-item | On, two icon buttons | now: item 144.8x100 content 28.4 trail 72.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+flex row item mx-list > mx-list-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+flex row item mx-list > mx-list-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+min-content mx-list > mx-list-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+min-content mx-list > mx-list-item | OK, 12:30 | now: item 72.3x56 content 10.8 trail 17.5 kids [16.9x30] tops [13] lines [2] past 0
+min-content mx-list > mx-list-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+min-content mx-list > mx-list-item | Copy, shortcut | now: item 89.2x68 content 13.4 trail 31.8 kids [26.1x46] tops [11] lines [3] past 0
+min-content mx-list > mx-list-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+min-content mx-list > mx-list-item | Label, 12:30 | now: item 91.4x56 content 17 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+min-content mx-list > mx-list-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+min-content mx-list > mx-list-item | Label, two words text | now: item 91.5x68 content 13.7 trail 33.8 kids [30.4x46] tops [11] lines [3] past 0
+min-content mx-list > mx-list-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+min-content mx-list > mx-list-item | Label, button | now: item 127.6x60 content 19.8 trail 63.8 kids [63.8x40] tops [10] lines [3] past 0
+min-content mx-list > mx-list-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+min-content mx-list > mx-list-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+min-content mx-list > mx-list-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+min-content mx-list > mx-list-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+min-content mx-list > mx-list-item | On, two icon buttons | main: item 104.8x100 content 20.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+min-content mx-list > mx-list-item | On, two icon buttons | now: item 104.8x100 content 15.7 trail 45.1 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+min-content mx-list > mx-list-item | Label, no trail | main: item 78.2x140 content 46.2 trail 0 kids [] tops [] lines [] past 0
+min-content mx-list > mx-list-item | Label, no trail | now: item 78.2x140 content 46.2 trail 0 kids [] tops [] lines [] past 0
+fit-content mx-list > mx-list-button-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-button-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-button-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-button-item | Copy, shortcut | now: item 148.1x56 content 46 trail 58 kids [51.8x30] tops [13] lines [2] past 0
+fit-content mx-list > mx-list-button-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-button-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-button-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-button-item | Label, two words text | now: item 174.3x56 content 59.1 trail 71.2 kids [55.5x30] tops [13] lines [2] past 0
+fit-content mx-list > mx-list-button-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+fit-content mx-list > mx-list-button-item | Label, button | now: item 186.3x60 content 65.1 trail 77.1 kids [77.1x40] tops [10] lines [2] past 0
+fit-content mx-list > mx-list-button-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+fit-content mx-list > mx-list-button-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+fit-content mx-list > mx-list-button-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+fit-content mx-list > mx-list-button-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+fit-content mx-list > mx-list-button-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+fit-content mx-list > mx-list-button-item | On, two icon buttons | now: item 144.8x100 content 44.4 trail 56.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+fit-content mx-list > mx-list-button-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+fit-content mx-list > mx-list-button-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+max-content mx-list > mx-list-button-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-button-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-button-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-button-item | Copy, shortcut | now: item 148.1x56 content 46 trail 58 kids [51.8x30] tops [13] lines [2] past 0
+max-content mx-list > mx-list-button-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-button-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-button-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-button-item | Label, two words text | now: item 174.3x56 content 59.1 trail 71.2 kids [55.5x30] tops [13] lines [2] past 0
+max-content mx-list > mx-list-button-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+max-content mx-list > mx-list-button-item | Label, button | now: item 186.3x60 content 65.1 trail 77.1 kids [77.1x40] tops [10] lines [2] past 0
+max-content mx-list > mx-list-button-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+max-content mx-list > mx-list-button-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+max-content mx-list > mx-list-button-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+max-content mx-list > mx-list-button-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+max-content mx-list > mx-list-button-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+max-content mx-list > mx-list-button-item | On, two icon buttons | now: item 144.8x100 content 44.4 trail 56.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+max-content mx-list > mx-list-button-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+max-content mx-list > mx-list-button-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+inline-block mx-list > mx-list-button-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-button-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-button-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-button-item | Copy, shortcut | now: item 148.1x56 content 46 trail 58 kids [51.8x30] tops [13] lines [2] past 0
+inline-block mx-list > mx-list-button-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-button-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-button-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-button-item | Label, two words text | now: item 174.3x56 content 59.1 trail 71.2 kids [55.5x30] tops [13] lines [2] past 0
+inline-block mx-list > mx-list-button-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+inline-block mx-list > mx-list-button-item | Label, button | now: item 186.3x60 content 65.1 trail 77.1 kids [77.1x40] tops [10] lines [2] past 0
+inline-block mx-list > mx-list-button-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+inline-block mx-list > mx-list-button-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+inline-block mx-list > mx-list-button-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+inline-block mx-list > mx-list-button-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+inline-block mx-list > mx-list-button-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+inline-block mx-list > mx-list-button-item | On, two icon buttons | now: item 144.8x100 content 44.4 trail 56.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+inline-block mx-list > mx-list-button-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+inline-block mx-list > mx-list-button-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+absolute mx-list > mx-list-button-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-button-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-button-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-button-item | Copy, shortcut | now: item 148.1x56 content 46 trail 58 kids [51.8x30] tops [13] lines [2] past 0
+absolute mx-list > mx-list-button-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-button-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-button-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-button-item | Label, two words text | now: item 174.3x56 content 59.1 trail 71.2 kids [55.5x30] tops [13] lines [2] past 0
+absolute mx-list > mx-list-button-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+absolute mx-list > mx-list-button-item | Label, button | now: item 186.3x60 content 65.1 trail 77.1 kids [77.1x40] tops [10] lines [2] past 0
+absolute mx-list > mx-list-button-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+absolute mx-list > mx-list-button-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+absolute mx-list > mx-list-button-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+absolute mx-list > mx-list-button-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+absolute mx-list > mx-list-button-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+absolute mx-list > mx-list-button-item | On, two icon buttons | now: item 144.8x100 content 44.4 trail 56.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+absolute mx-list > mx-list-button-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+absolute mx-list > mx-list-button-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+flex row item mx-list > mx-list-button-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-button-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-button-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-button-item | Copy, shortcut | now: item 148.1x56 content 46 trail 58 kids [51.8x30] tops [13] lines [2] past 0
+flex row item mx-list > mx-list-button-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-button-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-button-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-button-item | Label, two words text | now: item 174.3x56 content 59.1 trail 71.2 kids [55.5x30] tops [13] lines [2] past 0
+flex row item mx-list > mx-list-button-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+flex row item mx-list > mx-list-button-item | Label, button | now: item 186.3x60 content 65.1 trail 77.1 kids [77.1x40] tops [10] lines [2] past 0
+flex row item mx-list > mx-list-button-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+flex row item mx-list > mx-list-button-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+flex row item mx-list > mx-list-button-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+flex row item mx-list > mx-list-button-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+flex row item mx-list > mx-list-button-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+flex row item mx-list > mx-list-button-item | On, two icon buttons | now: item 144.8x100 content 44.4 trail 56.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+flex row item mx-list > mx-list-button-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+flex row item mx-list > mx-list-button-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+min-content mx-list > mx-list-button-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+min-content mx-list > mx-list-button-item | OK, 12:30 | now: item 72.3x56 content 8.1 trail 20.1 kids [16.9x30] tops [13] lines [2] past 0
+min-content mx-list > mx-list-button-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+min-content mx-list > mx-list-button-item | Copy, shortcut | now: item 89.2x68 content 16.6 trail 28.6 kids [26.1x46] tops [11] lines [3] past 0
+min-content mx-list > mx-list-button-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+min-content mx-list > mx-list-button-item | Label, 12:30 | now: item 91.4x56 content 17.7 trail 29.7 kids [23.7x30] tops [13] lines [2] past 0
+min-content mx-list > mx-list-button-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+min-content mx-list > mx-list-button-item | Label, two words text | now: item 91.5x100 content 17.8 trail 29.8 kids [28.9x78] tops [11] lines [5] past 0
+min-content mx-list > mx-list-button-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+min-content mx-list > mx-list-button-item | Label, button | now: item 127.6x90 content 35.8 trail 47.8 kids [47.8x40] tops [40] lines [6] past 0
+min-content mx-list > mx-list-button-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+min-content mx-list > mx-list-button-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+min-content mx-list > mx-list-button-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+min-content mx-list > mx-list-button-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+min-content mx-list > mx-list-button-item | On, two icon buttons | main: item 104.8x100 content 20.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+min-content mx-list > mx-list-button-item | On, two icon buttons | now: item 104.8x100 content 20.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+min-content mx-list > mx-list-button-item | Label, no trail | main: item 78.2x140 content 46.2 trail 0 kids [] tops [] lines [] past 0
+min-content mx-list > mx-list-button-item | Label, no trail | now: item 78.2x140 content 46.2 trail 0 kids [] tops [] lines [] past 0
+fit-content mx-list > mx-list-link-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-link-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-link-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-link-item | Copy, shortcut | now: item 148.1x56 content 46 trail 58 kids [51.8x30] tops [13] lines [2] past 0
+fit-content mx-list > mx-list-link-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-link-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-link-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+fit-content mx-list > mx-list-link-item | Label, two words text | now: item 174.3x56 content 59.1 trail 71.2 kids [55.5x30] tops [13] lines [2] past 0
+fit-content mx-list > mx-list-link-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+fit-content mx-list > mx-list-link-item | Label, button | now: item 186.3x60 content 65.1 trail 77.1 kids [77.1x40] tops [10] lines [2] past 0
+fit-content mx-list > mx-list-link-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+fit-content mx-list > mx-list-link-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+fit-content mx-list > mx-list-link-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+fit-content mx-list > mx-list-link-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+fit-content mx-list > mx-list-link-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+fit-content mx-list > mx-list-link-item | On, two icon buttons | now: item 144.8x100 content 44.4 trail 56.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+fit-content mx-list > mx-list-link-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+fit-content mx-list > mx-list-link-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+max-content mx-list > mx-list-link-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-link-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-link-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-link-item | Copy, shortcut | now: item 148.1x56 content 46 trail 58 kids [51.8x30] tops [13] lines [2] past 0
+max-content mx-list > mx-list-link-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-link-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-link-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+max-content mx-list > mx-list-link-item | Label, two words text | now: item 174.3x56 content 59.1 trail 71.2 kids [55.5x30] tops [13] lines [2] past 0
+max-content mx-list > mx-list-link-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+max-content mx-list > mx-list-link-item | Label, button | now: item 186.3x60 content 65.1 trail 77.1 kids [77.1x40] tops [10] lines [2] past 0
+max-content mx-list > mx-list-link-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+max-content mx-list > mx-list-link-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+max-content mx-list > mx-list-link-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+max-content mx-list > mx-list-link-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+max-content mx-list > mx-list-link-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+max-content mx-list > mx-list-link-item | On, two icon buttons | now: item 144.8x100 content 44.4 trail 56.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+max-content mx-list > mx-list-link-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+max-content mx-list > mx-list-link-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+inline-block mx-list > mx-list-link-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-link-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-link-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-link-item | Copy, shortcut | now: item 148.1x56 content 46 trail 58 kids [51.8x30] tops [13] lines [2] past 0
+inline-block mx-list > mx-list-link-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-link-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-link-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+inline-block mx-list > mx-list-link-item | Label, two words text | now: item 174.3x56 content 59.1 trail 71.2 kids [55.5x30] tops [13] lines [2] past 0
+inline-block mx-list > mx-list-link-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+inline-block mx-list > mx-list-link-item | Label, button | now: item 186.3x60 content 65.1 trail 77.1 kids [77.1x40] tops [10] lines [2] past 0
+inline-block mx-list > mx-list-link-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+inline-block mx-list > mx-list-link-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+inline-block mx-list > mx-list-link-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+inline-block mx-list > mx-list-link-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+inline-block mx-list > mx-list-link-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+inline-block mx-list > mx-list-link-item | On, two icon buttons | now: item 144.8x100 content 44.4 trail 56.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+inline-block mx-list > mx-list-link-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+inline-block mx-list > mx-list-link-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+absolute mx-list > mx-list-link-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-link-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-link-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-link-item | Copy, shortcut | now: item 148.1x56 content 46 trail 58 kids [51.8x30] tops [13] lines [2] past 0
+absolute mx-list > mx-list-link-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-link-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-link-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+absolute mx-list > mx-list-link-item | Label, two words text | now: item 174.3x56 content 59.1 trail 71.2 kids [55.5x30] tops [13] lines [2] past 0
+absolute mx-list > mx-list-link-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+absolute mx-list > mx-list-link-item | Label, button | now: item 186.3x60 content 65.1 trail 77.1 kids [77.1x40] tops [10] lines [2] past 0
+absolute mx-list > mx-list-link-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+absolute mx-list > mx-list-link-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+absolute mx-list > mx-list-link-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+absolute mx-list > mx-list-link-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+absolute mx-list > mx-list-link-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+absolute mx-list > mx-list-link-item | On, two icon buttons | now: item 144.8x100 content 44.4 trail 56.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+absolute mx-list > mx-list-link-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+absolute mx-list > mx-list-link-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+flex row item mx-list > mx-list-link-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-link-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-link-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-link-item | Copy, shortcut | now: item 148.1x56 content 46 trail 58 kids [51.8x30] tops [13] lines [2] past 0
+flex row item mx-list > mx-list-link-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-link-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-link-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+flex row item mx-list > mx-list-link-item | Label, two words text | now: item 174.3x56 content 59.1 trail 71.2 kids [55.5x30] tops [13] lines [2] past 0
+flex row item mx-list > mx-list-link-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+flex row item mx-list > mx-list-link-item | Label, button | now: item 186.3x60 content 65.1 trail 77.1 kids [77.1x40] tops [10] lines [2] past 0
+flex row item mx-list > mx-list-link-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+flex row item mx-list > mx-list-link-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+flex row item mx-list > mx-list-link-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+flex row item mx-list > mx-list-link-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+flex row item mx-list > mx-list-link-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+flex row item mx-list > mx-list-link-item | On, two icon buttons | now: item 144.8x100 content 44.4 trail 56.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+flex row item mx-list > mx-list-link-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+flex row item mx-list > mx-list-link-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+min-content mx-list > mx-list-link-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+min-content mx-list > mx-list-link-item | OK, 12:30 | now: item 72.3x56 content 8.1 trail 20.1 kids [16.9x30] tops [13] lines [2] past 0
+min-content mx-list > mx-list-link-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+min-content mx-list > mx-list-link-item | Copy, shortcut | now: item 89.2x68 content 16.6 trail 28.6 kids [26.1x46] tops [11] lines [3] past 0
+min-content mx-list > mx-list-link-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+min-content mx-list > mx-list-link-item | Label, 12:30 | now: item 91.4x56 content 17.7 trail 29.7 kids [23.7x30] tops [13] lines [2] past 0
+min-content mx-list > mx-list-link-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+min-content mx-list > mx-list-link-item | Label, two words text | now: item 91.5x100 content 17.8 trail 29.8 kids [28.9x78] tops [11] lines [5] past 0
+min-content mx-list > mx-list-link-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+min-content mx-list > mx-list-link-item | Label, button | now: item 127.6x90 content 35.8 trail 47.8 kids [47.8x40] tops [40] lines [6] past 0
+min-content mx-list > mx-list-link-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+min-content mx-list > mx-list-link-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+min-content mx-list > mx-list-link-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+min-content mx-list > mx-list-link-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+min-content mx-list > mx-list-link-item | On, two icon buttons | main: item 104.8x100 content 20.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+min-content mx-list > mx-list-link-item | On, two icon buttons | now: item 104.8x100 content 20.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+min-content mx-list > mx-list-link-item | Label, no trail | main: item 78.2x140 content 46.2 trail 0 kids [] tops [] lines [] past 0
+min-content mx-list > mx-list-link-item | Label, no trail | now: item 78.2x140 content 46.2 trail 0 kids [] tops [] lines [] past 0
+fit-content mx-sortable-list > mx-list-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-sortable-list > mx-list-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-sortable-list > mx-list-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+fit-content mx-sortable-list > mx-list-item | Copy, shortcut | now: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+fit-content mx-sortable-list > mx-list-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-sortable-list > mx-list-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+fit-content mx-sortable-list > mx-list-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+fit-content mx-sortable-list > mx-list-item | Label, two words text | now: item 174.3x56 content 43.1 trail 87.2 kids [55.5x30] tops [13] lines [2] past 0
+fit-content mx-sortable-list > mx-list-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+fit-content mx-sortable-list > mx-list-item | Label, button | now: item 186.3x60 content 49.1 trail 93.1 kids [93.1x40] tops [10] lines [2] past 0
+fit-content mx-sortable-list > mx-list-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+fit-content mx-sortable-list > mx-list-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+fit-content mx-sortable-list > mx-list-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+fit-content mx-sortable-list > mx-list-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+fit-content mx-sortable-list > mx-list-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+fit-content mx-sortable-list > mx-list-item | On, two icon buttons | now: item 144.8x100 content 28.4 trail 72.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+fit-content mx-sortable-list > mx-list-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+fit-content mx-sortable-list > mx-list-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+max-content mx-sortable-list > mx-list-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-sortable-list > mx-list-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-sortable-list > mx-list-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+max-content mx-sortable-list > mx-list-item | Copy, shortcut | now: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+max-content mx-sortable-list > mx-list-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-sortable-list > mx-list-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+max-content mx-sortable-list > mx-list-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+max-content mx-sortable-list > mx-list-item | Label, two words text | now: item 174.3x56 content 43.1 trail 87.2 kids [55.5x30] tops [13] lines [2] past 0
+max-content mx-sortable-list > mx-list-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+max-content mx-sortable-list > mx-list-item | Label, button | now: item 186.3x60 content 49.1 trail 93.1 kids [93.1x40] tops [10] lines [2] past 0
+max-content mx-sortable-list > mx-list-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+max-content mx-sortable-list > mx-list-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+max-content mx-sortable-list > mx-list-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+max-content mx-sortable-list > mx-list-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+max-content mx-sortable-list > mx-list-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+max-content mx-sortable-list > mx-list-item | On, two icon buttons | now: item 144.8x100 content 28.4 trail 72.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+max-content mx-sortable-list > mx-list-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+max-content mx-sortable-list > mx-list-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+inline-block mx-sortable-list > mx-list-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-sortable-list > mx-list-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-sortable-list > mx-list-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+inline-block mx-sortable-list > mx-list-item | Copy, shortcut | now: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+inline-block mx-sortable-list > mx-list-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-sortable-list > mx-list-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+inline-block mx-sortable-list > mx-list-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+inline-block mx-sortable-list > mx-list-item | Label, two words text | now: item 174.3x56 content 43.1 trail 87.2 kids [55.5x30] tops [13] lines [2] past 0
+inline-block mx-sortable-list > mx-list-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+inline-block mx-sortable-list > mx-list-item | Label, button | now: item 186.3x60 content 49.1 trail 93.1 kids [93.1x40] tops [10] lines [2] past 0
+inline-block mx-sortable-list > mx-list-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+inline-block mx-sortable-list > mx-list-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+inline-block mx-sortable-list > mx-list-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+inline-block mx-sortable-list > mx-list-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+inline-block mx-sortable-list > mx-list-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+inline-block mx-sortable-list > mx-list-item | On, two icon buttons | now: item 144.8x100 content 28.4 trail 72.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+inline-block mx-sortable-list > mx-list-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+inline-block mx-sortable-list > mx-list-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+absolute mx-sortable-list > mx-list-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-sortable-list > mx-list-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-sortable-list > mx-list-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+absolute mx-sortable-list > mx-list-item | Copy, shortcut | now: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+absolute mx-sortable-list > mx-list-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-sortable-list > mx-list-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+absolute mx-sortable-list > mx-list-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+absolute mx-sortable-list > mx-list-item | Label, two words text | now: item 174.3x56 content 43.1 trail 87.2 kids [55.5x30] tops [13] lines [2] past 0
+absolute mx-sortable-list > mx-list-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+absolute mx-sortable-list > mx-list-item | Label, button | now: item 186.3x60 content 49.1 trail 93.1 kids [93.1x40] tops [10] lines [2] past 0
+absolute mx-sortable-list > mx-list-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+absolute mx-sortable-list > mx-list-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+absolute mx-sortable-list > mx-list-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+absolute mx-sortable-list > mx-list-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+absolute mx-sortable-list > mx-list-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+absolute mx-sortable-list > mx-list-item | On, two icon buttons | now: item 144.8x100 content 28.4 trail 72.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+absolute mx-sortable-list > mx-list-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+absolute mx-sortable-list > mx-list-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+flex row item mx-sortable-list > mx-list-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-sortable-list > mx-list-item | OK, 12:30 | now: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-sortable-list > mx-list-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+flex row item mx-sortable-list > mx-list-item | Copy, shortcut | now: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+flex row item mx-sortable-list > mx-list-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-sortable-list > mx-list-item | Label, 12:30 | now: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+flex row item mx-sortable-list > mx-list-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+flex row item mx-sortable-list > mx-list-item | Label, two words text | now: item 174.3x56 content 43.1 trail 87.2 kids [55.5x30] tops [13] lines [2] past 0
+flex row item mx-sortable-list > mx-list-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+flex row item mx-sortable-list > mx-list-item | Label, button | now: item 186.3x60 content 49.1 trail 93.1 kids [93.1x40] tops [10] lines [2] past 0
+flex row item mx-sortable-list > mx-list-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+flex row item mx-sortable-list > mx-list-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+flex row item mx-sortable-list > mx-list-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+flex row item mx-sortable-list > mx-list-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+flex row item mx-sortable-list > mx-list-item | On, two icon buttons | main: item 144.8x100 content 60.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+flex row item mx-sortable-list > mx-list-item | On, two icon buttons | now: item 144.8x100 content 28.4 trail 72.4 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+flex row item mx-sortable-list > mx-list-item | Label, no trail | main: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+flex row item mx-sortable-list > mx-list-item | Label, no trail | now: item 201x56 content 169 trail 0 kids [] tops [] lines [] past 0
+min-content mx-sortable-list > mx-list-item | OK, 12:30 | main: item 96.4x56 content 22 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+min-content mx-sortable-list > mx-list-item | OK, 12:30 | now: item 72.3x56 content 10.8 trail 17.5 kids [16.9x30] tops [13] lines [2] past 0
+min-content mx-sortable-list > mx-list-item | Copy, shortcut | main: item 148.1x56 content 38 trail 66.1 kids [66.1x14] tops [21] lines [1] past 0
+min-content mx-sortable-list > mx-list-item | Copy, shortcut | now: item 89.2x68 content 13.4 trail 31.8 kids [26.1x46] tops [11] lines [3] past 0
+min-content mx-sortable-list > mx-list-item | Label, 12:30 | main: item 115.6x56 content 41.2 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+min-content mx-sortable-list > mx-list-item | Label, 12:30 | now: item 91.4x56 content 17 trail 30.4 kids [30.4x14] tops [21] lines [1] past 0
+min-content mx-sortable-list > mx-list-item | Label, two words text | main: item 174.3x56 content 41.2 trail 89.1 kids [89.1x14] tops [21] lines [1] past 0
+min-content mx-sortable-list > mx-list-item | Label, two words text | now: item 91.5x68 content 13.7 trail 33.8 kids [30.4x46] tops [11] lines [3] past 0
+min-content mx-sortable-list > mx-list-item | Label, button | main: item 186.3x60 content 41.2 trail 101.1 kids [101.1x40] tops [10] lines [1] past 0
+min-content mx-sortable-list > mx-list-item | Label, button | now: item 127.6x60 content 19.8 trail 63.8 kids [63.8x40] tops [10] lines [3] past 0
+min-content mx-sortable-list > mx-list-item | icon, Label, icon | main: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+min-content mx-sortable-list > mx-list-item | icon, Label, icon | now: item 137.2x56 content 41.2 trail 20 kids [20x20] tops [18] lines [1] past 0
+min-content mx-sortable-list > mx-list-item | On, checkbox | main: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+min-content mx-sortable-list > mx-list-item | On, checkbox | now: item 104.8x60 content 20.8 trail 40 kids [40x40] tops [10] lines [0] past 0
+min-content mx-sortable-list > mx-list-item | On, two icon buttons | main: item 104.8x100 content 20.8 trail 40 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+min-content mx-sortable-list > mx-list-item | On, two icon buttons | now: item 104.8x100 content 15.7 trail 45.1 kids [40x40,40x40] tops [10,50] lines [2,2] past 0
+min-content mx-sortable-list > mx-list-item | Label, no trail | main: item 78.2x140 content 46.2 trail 0 kids [] tops [] lines [] past 0
+min-content mx-sortable-list > mx-list-item | Label, no trail | now: item 78.2x140 content 46.2 trail 0 kids [] tops [] lines [] past 0

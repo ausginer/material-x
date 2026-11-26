@@ -1,0 +1,13 @@
+# chromium 158.0.8127.18
+60px, anywhere on the container | base: button 60.0x40.0, label 3 lines 56px high, past the container 0.0px
+60px, anywhere on the container | head: button 95.8x40.0, label 1 lines 16px high, past the container 35.8px
+60px, break-word on the container | base: button 95.8x40.0, label 1 lines 16px high, past the container 35.8px
+60px, break-word on the container | head: button 95.8x40.0, label 1 lines 16px high, past the container 35.8px
+60px, anywhere on mx-button | base: button 60.0x40.0, label 3 lines 56px high, past the container 0.0px
+60px, anywhere on mx-button | head: button 95.8x40.0, label 1 lines 16px high, past the container 35.8px
+60px, anywhere through ::part(impl) | base: button 60.0x40.0, label 3 lines 56px high, past the container 0.0px
+60px, anywhere through ::part(impl) | head: button 60.0x40.0, label 3 lines 56px high, past the container 0.0px
+60px, word-break: break-all on the container | base: button 60.0x40.0, label 3 lines 56px high, past the container 0.0px
+60px, word-break: break-all on the container | head: button 60.0x40.0, label 3 lines 56px high, past the container 0.0px
+60px, no page rule | base: button 95.8x40.0, label 1 lines 16px high, past the container 35.8px
+60px, no page rule | head: button 95.8x40.0, label 1 lines 16px high, past the container 35.8px

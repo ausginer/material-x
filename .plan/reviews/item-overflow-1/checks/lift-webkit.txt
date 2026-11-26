@@ -1,0 +1,49 @@
+# webkit 27.2
+mx-list-item ltr long text
+   at rest: item 300x56 content 74x24 trail 150x32
+   lifted: item 300x56 content 74x24 trail 150x32
+mx-list-item ltr video, long text
+   at rest: item 300x96 content 45x24 trail 99x64
+   lifted: item 300x96 content 45x24 trail 99x64
+mx-list-item ltr video, two words
+   at rest: item 300x96 content 45x24 trail 99x40
+   lifted: item 300x96 content 45x24 trail 99x40
+mx-list-item ltr long label, text
+   at rest: item 300x308 content 74x288 trail 150x32
+   lifted: item 300x308 content 74x288 trail 150x32
+mx-list-item rtl long text
+   at rest: item 300x56 content 74x24 trail 150x32
+   lifted: item 300x56 content 74x24 trail 150x32
+mx-list-item rtl video, long text
+   at rest: item 300x96 content 45x24 trail 99x64
+   lifted: item 300x96 content 45x24 trail 99x64
+mx-list-item rtl video, two words
+   at rest: item 300x96 content 45x24 trail 99x40
+   lifted: item 300x96 content 45x24 trail 99x40
+mx-list-item rtl long label, text
+   at rest: item 300x308 content 74x288 trail 150x32
+   lifted: item 300x308 content 74x288 trail 150x32
+mx-list-button-item ltr long text
+   at rest: item 300x68 content 90x24 trail 134x48
+   lifted: item 300x68 content 90x24 trail 134x48
+mx-list-button-item ltr video, long text
+   at rest: item 300x96 content 40.2x24 trail 103.8x64
+   lifted: item 300x96 content 40.2x24 trail 103.8x64
+mx-list-button-item ltr video, two words
+   at rest: item 300x96 content 42.9x24 trail 101.1x40
+   lifted: item 300x96 content 42.9x24 trail 101.1x40
+mx-list-button-item ltr long label, text
+   at rest: item 300x308 content 90x288 trail 134x32
+   lifted: item 300x308 content 90x288 trail 134x32
+mx-list-button-item rtl long text
+   at rest: item 300x68 content 90x24 trail 134x48
+   lifted: item 300x68 content 90x24 trail 134x48
+mx-list-button-item rtl video, long text
+   at rest: item 300x96 content 40.2x24 trail 103.8x64
+   lifted: item 300x96 content 40.2x24 trail 103.8x64
+mx-list-button-item rtl video, two words
+   at rest: item 300x96 content 42.9x24 trail 101.1x40
+   lifted: item 300x96 content 42.9x24 trail 101.1x40
+mx-list-button-item rtl long label, text
+   at rest: item 300x308 content 90x288 trail 134x32
+   lifted: item 300x308 content 90x288 trail 134x32

@@ -1,0 +1,14 @@
+# RF-139's rows outside a list, tests/button/button-label-breaks.browser.test.ts, Chromium, on 72469ac79 with the rows. 2026-11-26, the implementer.
+# Unmutated: 9 passed (9).
+# Witness: overflow-wrap: inherit in place of normal on .host, packages/material-x/src/button/styles/default/main.styles.css:80, reverted after the run.
+ × |browser (chromium)| tests/button/button-label-breaks.browser.test.ts:76 > mx-button label's breaks in a narrow container > should keep the word on one line with overflow-wrap: anywhere on the container
+ × |browser (chromium)| tests/button/button-label-breaks.browser.test.ts:76 > mx-button label's breaks in a narrow container > should keep the word on one line with overflow-wrap: anywhere on the element
+ ✓ |browser (chromium)| tests/button/button-label-breaks.browser.test.ts:89 > mx-button label's breaks in a narrow container > should break the word with overflow-wrap: anywhere on ::part(impl)
+ × |browser (chromium)| tests/button/button-label-breaks.browser.test.ts:76 > mx-link-button label's breaks in a narrow container > should keep the word on one line with overflow-wrap: anywhere on the container
+ × |browser (chromium)| tests/button/button-label-breaks.browser.test.ts:76 > mx-link-button label's breaks in a narrow container > should keep the word on one line with overflow-wrap: anywhere on the element
+ ✓ |browser (chromium)| tests/button/button-label-breaks.browser.test.ts:89 > mx-link-button label's breaks in a narrow container > should break the word with overflow-wrap: anywhere on ::part(impl)
+ × |browser (chromium)| tests/button/button-label-breaks.browser.test.ts:76 > mx-switch-button label's breaks in a narrow container > should keep the word on one line with overflow-wrap: anywhere on the container
+ × |browser (chromium)| tests/button/button-label-breaks.browser.test.ts:76 > mx-switch-button label's breaks in a narrow container > should keep the word on one line with overflow-wrap: anywhere on the element
+ ✓ |browser (chromium)| tests/button/button-label-breaks.browser.test.ts:89 > mx-switch-button label's breaks in a narrow container > should break the word with overflow-wrap: anywhere on ::part(impl)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  6 failed | 3 passed (9)
