@@ -1,6 +1,6 @@
 // Every relative link in a tracked Markdown file of the tree, and whether its path resolves to a
 // file or a directory. Fragments aren't checked. A link in a fenced block or an inline code span
-// isn't read. Run from the root of the tree:
+// isn't read, a span as CommonMark reads it, as in move.mjs. Run from the root of the tree:
 //
 //     node .plan/decision-files-1/probes/links-resolve.mjs
 //
@@ -27,6 +27,31 @@ const files = execFileSync(
   .trim()
   .split('\n');
 let links = 0;
+/**
+ * Whether the match at `index` of `line` is inside an inline code span, as CommonMark reads one: a
+ * run of n backticks opens it, and the next run of exactly n closes it. A run that nothing closes
+ * is text.
+ */
+function inCode(line, index) {
+  const runs = [...line.matchAll(/`+/gu)];
+
+  for (let i = 0; i < runs.length && runs[i].index < index; i += 1) {
+    const close = runs.findIndex(
+      (run, j) => j > i && run[0].length === runs[i][0].length,
+    );
+
+    if (close !== -1) {
+      if (index < runs[close].index) {
+        return true;
+      }
+
+      i = close;
+    }
+  }
+
+  return false;
+}
+
 const broken = [];
 
 for (const file of files) {
@@ -50,7 +75,7 @@ for (const file of files) {
           /^[a-z][a-z0-9+.-]*:/iu.test(href) ||
           href.startsWith('#') ||
           href.startsWith('/') ||
-          (line.slice(0, match.index).match(/`/gu)?.length ?? 0) % 2 === 1
+          inCode(line, match.index)
         ) {
           continue;
         }
