@@ -1,0 +1,16 @@
+## no mutation | webkit | 198 passed, 0 failed
+## no observer | webkit | 194 passed, 4 failed
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-button-item should describe the control of an item without a handle only while it is enabled
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should describe the control of an item without a handle only while it is enabled
+## aria-disabled isn't watched | webkit | 197 passed, 1 failed
+   mx-sortable-list disabled items should keep the aria-disabled that the page writes on a disabled handle
+## the state observer is never disconnected | webkit | 197 passed, 1 failed
+   mx-sortable-list disabled items should write nothing on the handle of an item that left when it is disabled
+## a page's touch-action is removed | webkit | 197 passed, 1 failed
+   mx-sortable-list disabled items should keep the touch-action that the page writes on a handle after the claim
+## a press whose item is disabled before the lift is canceled | webkit | 197 passed, 1 failed
+   mx-sortable-list disabled items should lift and move an item that is disabled between the press and the lift
+## the disabled attribute of any item observed | webkit | 197 passed, 1 failed
+   mx-sortable-list disabled items should not make an mx-list-item a tab stop again when the attribute is set after the page removed its tabindex

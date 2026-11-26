@@ -1,0 +1,97 @@
+# chromium 158.0.8127.18
+built | mx-list-item, lead | span with text | inline 9x17, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-item, lead | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-item, lead | span with an mx-icon | inline 16x17, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-item, lead | mx-icon-button | contents 40x40, item 60, touch-action none | lifted true, pointercancel true
+built | mx-list-item, lead | native button | inline-block 24x21, item 56, touch-action none | lifted true, pointercancel false
+built | mx-list-item, lead | native button with an mx-icon | inline-block 29x22, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-item, trail | span with text | inline 7x12, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-item, trail | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-item, trail | span with an mx-icon | inline 11x12, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-item, trail | mx-icon-button | contents 40x40, item 60, touch-action none | lifted true, pointercancel true
+built | mx-list-item, trail | native button | inline-block 23x22, item 56, touch-action none | lifted true, pointercancel false
+built | mx-list-item, trail | native button with an mx-icon | inline-block 27x22, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-button-item, lead | span with text | inline 9x17, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-button-item, lead | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-button-item, lead | span with an mx-icon | inline 16x17, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-button-item, lead | mx-icon-button | contents 40x40, item 60, touch-action none | lifted true, pointercancel true
+built | mx-list-button-item, lead | native button | inline-block 24x21, item 56, touch-action none | lifted true, pointercancel false
+built | mx-list-button-item, lead | native button with an mx-icon | inline-block 29x22, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-button-item, trail | span with text | inline 7x12, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-button-item, trail | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-button-item, trail | span with an mx-icon | inline 11x12, item 56, touch-action none | lifted true, pointercancel true
+built | mx-list-button-item, trail | mx-icon-button | contents 40x40, item 60, touch-action none | lifted true, pointercancel true
+built | mx-list-button-item, trail | native button | inline-block 23x22, item 56, touch-action none | lifted true, pointercancel false
+built | mx-list-button-item, trail | native button with an mx-icon | inline-block 27x22, item 56, touch-action none | lifted true, pointercancel true
+inline-block handle | mx-list-item, lead | span with text | inline-block 9x0, item 56, touch-action none | lifted true, pointercancel false
+inline-block handle | mx-list-item, lead | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel true
+inline-block handle | mx-list-item, lead | span with an mx-icon | inline-block 16x16, item 56, touch-action none | lifted true, pointercancel true
+inline-block handle | mx-list-item, lead | mx-icon-button | inline-block 40x40, item 60, touch-action none | lifted true, pointercancel false
+inline-block handle | mx-list-item, lead | native button | inline-block 24x21, item 56, touch-action none | lifted true, pointercancel false
+inline-block handle | mx-list-item, lead | native button with an mx-icon | inline-block 29x22, item 56, touch-action none | lifted true, pointercancel true
+inline-block handle | mx-list-item, trail | span with text | inline-block 7x16, item 56, touch-action none | lifted true, pointercancel false
+inline-block handle | mx-list-item, trail | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel true
+inline-block handle | mx-list-item, trail | span with an mx-icon | inline-block 11x16, item 56, touch-action none | lifted true, pointercancel true
+inline-block handle | mx-list-item, trail | mx-icon-button | inline-block 40x40, item 60, touch-action none | lifted true, pointercancel false
+inline-block handle | mx-list-item, trail | native button | inline-block 23x22, item 56, touch-action none | lifted true, pointercancel false
+inline-block handle | mx-list-item, trail | native button with an mx-icon | inline-block 27x22, item 56, touch-action none | lifted true, pointercancel true
+inline-block handle | mx-list-button-item, lead | span with text | inline-block 9x0, item 56, touch-action none | lifted true, pointercancel false
+inline-block handle | mx-list-button-item, lead | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel true
+inline-block handle | mx-list-button-item, lead | span with an mx-icon | inline-block 16x16, item 56, touch-action none | lifted true, pointercancel true
+inline-block handle | mx-list-button-item, lead | mx-icon-button | inline-block 40x40, item 60, touch-action none | lifted true, pointercancel false
+inline-block handle | mx-list-button-item, lead | native button | inline-block 24x21, item 56, touch-action none | lifted true, pointercancel false
+inline-block handle | mx-list-button-item, lead | native button with an mx-icon | inline-block 29x22, item 56, touch-action none | lifted true, pointercancel true
+inline-block handle | mx-list-button-item, trail | span with text | inline-block 7x16, item 56, touch-action none | lifted true, pointercancel false
+inline-block handle | mx-list-button-item, trail | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel true
+inline-block handle | mx-list-button-item, trail | span with an mx-icon | inline-block 11x16, item 56, touch-action none | lifted true, pointercancel true
+inline-block handle | mx-list-button-item, trail | mx-icon-button | inline-block 40x40, item 60, touch-action none | lifted true, pointercancel false
+inline-block handle | mx-list-button-item, trail | native button | inline-block 23x22, item 56, touch-action none | lifted true, pointercancel false
+inline-block handle | mx-list-button-item, trail | native button with an mx-icon | inline-block 27x22, item 56, touch-action none | lifted true, pointercancel true
+block slot in mx-icon | mx-list-item, lead | span with text | inline 9x17, item 56, touch-action none | lifted true, pointercancel true
+block slot in mx-icon | mx-list-item, lead | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel false
+block slot in mx-icon | mx-list-item, lead | span with an mx-icon | inline 16x17, item 56, touch-action none | lifted true, pointercancel true
+block slot in mx-icon | mx-list-item, lead | mx-icon-button | contents 40x40, item 60, touch-action none | lifted true, pointercancel true
+block slot in mx-icon | mx-list-item, lead | native button | inline-block 24x21, item 56, touch-action none | lifted true, pointercancel false
+block slot in mx-icon | mx-list-item, lead | native button with an mx-icon | inline-block 29x22, item 56, touch-action none | lifted true, pointercancel false
+block slot in mx-icon | mx-list-item, trail | span with text | inline 7x12, item 56, touch-action none | lifted true, pointercancel true
+block slot in mx-icon | mx-list-item, trail | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel false
+block slot in mx-icon | mx-list-item, trail | span with an mx-icon | inline 11x12, item 56, touch-action none | lifted true, pointercancel true
+block slot in mx-icon | mx-list-item, trail | mx-icon-button | contents 40x40, item 60, touch-action none | lifted true, pointercancel true
+block slot in mx-icon | mx-list-item, trail | native button | inline-block 23x22, item 56, touch-action none | lifted true, pointercancel false
+block slot in mx-icon | mx-list-item, trail | native button with an mx-icon | inline-block 27x22, item 56, touch-action none | lifted true, pointercancel false
+block slot in mx-icon | mx-list-button-item, lead | span with text | inline 9x17, item 56, touch-action none | lifted true, pointercancel true
+block slot in mx-icon | mx-list-button-item, lead | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel false
+block slot in mx-icon | mx-list-button-item, lead | span with an mx-icon | inline 16x17, item 56, touch-action none | lifted true, pointercancel true
+block slot in mx-icon | mx-list-button-item, lead | mx-icon-button | contents 40x40, item 60, touch-action none | lifted true, pointercancel true
+block slot in mx-icon | mx-list-button-item, lead | native button | inline-block 24x21, item 56, touch-action none | lifted true, pointercancel false
+block slot in mx-icon | mx-list-button-item, lead | native button with an mx-icon | inline-block 29x22, item 56, touch-action none | lifted true, pointercancel false
+block slot in mx-icon | mx-list-button-item, trail | span with text | inline 7x12, item 56, touch-action none | lifted true, pointercancel true
+block slot in mx-icon | mx-list-button-item, trail | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel false
+block slot in mx-icon | mx-list-button-item, trail | span with an mx-icon | inline 11x12, item 56, touch-action none | lifted true, pointercancel true
+block slot in mx-icon | mx-list-button-item, trail | mx-icon-button | contents 40x40, item 60, touch-action none | lifted true, pointercancel true
+block slot in mx-icon | mx-list-button-item, trail | native button | inline-block 23x22, item 56, touch-action none | lifted true, pointercancel false
+block slot in mx-icon | mx-list-button-item, trail | native button with an mx-icon | inline-block 27x22, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-item, lead | span with text | inline-block 9x0, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-item, lead | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-item, lead | span with an mx-icon | inline-block 16x16, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-item, lead | mx-icon-button | inline-block 40x40, item 60, touch-action none | lifted true, pointercancel false
+both | mx-list-item, lead | native button | inline-block 24x21, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-item, lead | native button with an mx-icon | inline-block 29x22, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-item, trail | span with text | inline-block 7x16, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-item, trail | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-item, trail | span with an mx-icon | inline-block 11x16, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-item, trail | mx-icon-button | inline-block 40x40, item 60, touch-action none | lifted true, pointercancel false
+both | mx-list-item, trail | native button | inline-block 23x22, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-item, trail | native button with an mx-icon | inline-block 27x22, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-button-item, lead | span with text | inline-block 9x0, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-button-item, lead | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-button-item, lead | span with an mx-icon | inline-block 16x16, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-button-item, lead | mx-icon-button | inline-block 40x40, item 60, touch-action none | lifted true, pointercancel false
+both | mx-list-button-item, lead | native button | inline-block 24x21, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-button-item, lead | native button with an mx-icon | inline-block 29x22, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-button-item, trail | span with text | inline-block 7x16, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-button-item, trail | mx-icon | inline-block 20x20, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-button-item, trail | span with an mx-icon | inline-block 11x16, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-button-item, trail | mx-icon-button | inline-block 40x40, item 60, touch-action none | lifted true, pointercancel false
+both | mx-list-button-item, trail | native button | inline-block 23x22, item 56, touch-action none | lifted true, pointercancel false
+both | mx-list-button-item, trail | native button with an mx-icon | inline-block 27x22, item 56, touch-action none | lifted true, pointercancel false

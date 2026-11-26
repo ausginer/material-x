@@ -5566,6 +5566,8 @@ None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DR
 
 **Default: Chromium's emulated touch runs in the suite, and physical touch and pen are stated as unverified.** The implementer has no hardware. **Recommendation: try one touch device and one pen before calling the package released.** The case most likely to differ is `pointercancel` from touch scrolling. **If a touch list that also scrolls can't be dragged there, activation by a long press becomes a feature decision.** The package has no activation by time (`DRD-17`).
 
+**Dated 2026-11-25 by the architect: the case was met,** in the owner's check of material-x's sortable list on a phone, in Chrome and Firefox on Android (`repo:RF-146`). An item without `touch-action: none` can't be dragged by a finger there. The owner wants activation by a long press later (_"(с) на потом"_, "(c) for later"), and `repo:RQ-3` carries it, with a decision here as its first step. `DRD-17` stands until then, and this entry's default and recommendation for drag's release don't change.
+
 #### DRO-4 — Costs measured after remediation
 
 **Default: none is accepted until you read it.** The remediation report gives, under the rules fixed in `DRD-22`:
@@ -5935,6 +5937,8 @@ No timing was taken.
 **Dated 2026-11-16, by the architect, on the owner's direction:** `repo:RD-13` makes local runs **Chromium only**. A check that names `npx just test-engines` is owed locally in Chromium, through `browser` and `shipped`. Firefox and Safari are read in CI on the unit's pull request (`repo:RD-13` property 8). `test-engines` sets no engine list, so it runs the engines that `MX_TEST_ENGINES` lists, Chromium by default. This replaces the local Firefox selection above. The project names in each engine don't change.
 
 **Dated 2026-11-17, by the architect,** on `repo/ci-speed-1` at `229829ef7`, on the owner's decisions relayed by the coordinator: `repo:RD-12` makes Playwright's WebKit the gate's third engine, and Safari runs weekly outside the gate. The owner also asked that a rebuild of the development image install WebKit's system libraries in advance (_"чтобы при ребилде всё устанавливалось заранее (aube и библиотеки для webkit)"_), which reverses this entry's _"WebKit isn't restored in the local environment"_. **Why WebKit didn't run locally:** the image never had its system libraries. The earlier units' `webkit-env.sh` pointed WebKit at Debian packages unpacked into a scratch directory, and a Playwright reinstall removed those links. In the devcontainer at `229829ef7`, WebKit still fails to launch for missing libraries, and their 247 packages resolve from Debian 13 ([reading](../../../.plan/ci-speed-1/checks/webkit-local-probe.txt)). The [dev image handoff](../../../.plan/ci-speed-1/devimage-handoff.md) installs them. **What a unit owes doesn't change:** a local check is Chromium (`repo:RD-13` property 8). WebKit locally is a reproduction, and its projects are `browser/webkit` and `shipped/webkit`.
+
+**Dated 2026-11-25, by the architect, on the owner's direction:** `repo:RD-62` keeps an implementer's check in Chromium and runs a feature proof in Chromium, Firefox and WebKit. A feature proof of drag runs `browser` and `shipped` in each, on the files that the unit changes or tests. Its local WebKit and Firefox results are evidence, which the last note's _reproduction_ doesn't say.
 
 #### DRO-19 — The code the tests run is the code the user receives
 

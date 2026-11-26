@@ -38,7 +38,9 @@ const ListLinkItemConstructor: Composed<
  * @summary Interactive list items navigate with native anchor behavior.
  *
  * @attr {boolean} selected - Applies selected visual state.
- * @attr {boolean} disabled - Disables navigation and focus.
+ * @attr {boolean} disabled - Disables navigation and focus. In
+ *   `mx-sortable-list`, the user can't reorder the item. Controls in the item's
+ *   slots aren't disabled.
  * @attr {string} href - Link destination URL.
  * @attr {string} target - Navigation target (for example `_blank`).
  *
