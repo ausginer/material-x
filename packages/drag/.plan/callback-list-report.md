@@ -1,6 +1,6 @@
 # Callback list report
 
-**Input:** `drag/feature-composition` at `fd2c9631c`, which carries [`callback-list-handoff.md`](callback-list-handoff.md). **Governing records:** `DRD-35` and `DRO-12` in [`00-index.md`](00-index.md), `DRD-34`, `DRD-6` and `DRD-16`, and [`contract.md`](contract.md).
+**Input:** `drag/feature-composition` at `fd2c9631c`, which carries [`callback-list-handoff.md`](callback-list-handoff.md). **Governing records:** `DRD-35` and `DRO-12` in [`00-index.md`](decisions/), `DRD-34`, `DRD-6` and `DRD-16`, and [`contract.md`](contract.md).
 
 **Base check:** all four steps succeeded before any edit.
 

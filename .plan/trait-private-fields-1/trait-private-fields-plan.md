@@ -4,7 +4,7 @@
 
 **Deferred earlier the same day, and resumed by the decision above.** The owner's words then, in translation: _"Let's defer RD-33. It's a good thing, but we'll implement it when a real user appears, or after we finish material-x, for its users. Put `constructor` in there too. I think it needs to be one unit."_ The constructor, [decision 7](#7-constructors), was added the same day, before any implementation, and is part of the same unit. Its first lowering was revised the same day on the owner's decisions, which also refuse `this` in a trait's field initializer (decision 1).
 
-**Recipient:** the implementer. **Branch:** `repo/trait-private-fields-1`, from `main` at `640658b5c`. **Merge `origin/main` at `bd1dee7df` first.** Since `640658b5c` it changed only `packages/drag` (#94), so the merge touches no file this plan names, and the plan was re-checked against it ([below](#re-checked-against-main)). **Input:** the architect's commits on this file. **Decided** by the owner on 2026-11-21, relayed by the coordinator ([`RD-33`](../00-index.md)). The plan and its implementation share this branch and one pull request (`RD-32`): continue here, and open the pull request after the implementation.
+**Recipient:** the implementer. **Branch:** `repo/trait-private-fields-1`, from `main` at `640658b5c`. **Merge `origin/main` at `bd1dee7df` first.** Since `640658b5c` it changed only `packages/drag` (#94), so the merge touches no file this plan names, and the plan was re-checked against it ([below](#re-checked-against-main)). **Input:** the architect's commits on this file. **Decided** by the owner on 2026-11-21, relayed by the coordinator ([`RD-33`](../decisions/RD-33.md)). The plan and its implementation share this branch and one pull request (`RD-32`): continue here, and open the pull request after the implementation.
 
 **Governing records:**
 
@@ -61,7 +61,7 @@ An initializer goes through the same walker, links and rewrites as a member's bo
 
 - **Read, write, call, update and compound assignment** of `this.#name` are allowed, and so is `this.#name` as an assignment or destructuring target.
 - **A private field with no initializer that no member or constructor of its trait references isn't copied.** Nothing observes it: no code names it, `#name in` is refused, and it runs nothing. So leaving it out keeps the runtime the same, and `#brand!: true` stays as it is today, with no special case for it.
-- **A private field with an initializer is copied, whether or not anything references it.** The hand-written class runs its initializer once per instance, and an initializer's effects are observable: `#registered = registry.add(…)` calls an imported function. So the copy runs it too, in its place in decision 1's order, and checks it as every copied initializer is checked (decisions 1 and 2): `this` in it is `trait-member`. **Amended 2026-11-21** on the feature proof's `reviewer-1`; [`RD-33`](../00-index.md) property 8 records what this said before.
+- **A private field with an initializer is copied, whether or not anything references it.** The hand-written class runs its initializer once per instance, and an initializer's effects are observable: `#registered = registry.add(…)` calls an imported function. So the copy runs it too, in its place in decision 1's order, and checks it as every copied initializer is checked (decisions 1 and 2): `this` in it is `trait-member`. **Amended 2026-11-21** on the feature proof's `reviewer-1`; [`RD-33`](../decisions/RD-33.md) property 8 records what this said before.
 
 ### 4. What stays forbidden
 

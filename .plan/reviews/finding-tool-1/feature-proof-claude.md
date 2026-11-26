@@ -1,6 +1,6 @@
 # Feature proof — the tool that reads a finding (`repo:RD-56`, stage 2, #250)
 
-**Read at `77f5df0e5`,** `repo/finding-tool-1`, on 2026-11-24. Against [the plan](../../findings-on-github-1/findings-on-github-plan.md)'s _The tool_ and _Stage 2: the tool_ with both sets of rulings, `RD-56` in [the register](../../00-index.md), [`findings.md`](../../../.agents/docs/findings.md) and the [repair model](../../findings-on-github-1/probes/repair-model.mjs). #244 at `97e69359e` changes neither the plan nor `.agents/`, and the branch merges with it without a conflict.
+**Read at `77f5df0e5`,** `repo/finding-tool-1`, on 2026-11-24. Against [the plan](../../findings-on-github-1/findings-on-github-plan.md)'s _The tool_ and _Stage 2: the tool_ with both sets of rulings, `RD-56` in [the register](../../decisions/RD-56.md), [`findings.md`](../../../.agents/docs/findings.md) and the [repair model](../../findings-on-github-1/probes/repair-model.mjs). #244 at `97e69359e` changes neither the plan nor `.agents/`, and the branch merges with it without a conflict.
 
 **Verdict: every planned check is there, in the planned order, and refuses what the plan says. One finding is tier B and is the architect's, because the tool does what the plan says and the plan's premise is false. Three are tier C.** No refusal of a state that the plan passes was found. The one request, its fields, the output, the usage and the absence of a dependency agree with the plan.
 

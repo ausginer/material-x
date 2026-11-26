@@ -1,6 +1,6 @@
 # Instrument repair handoff
 
-**One bounded unit for one implementer.** It repairs the two instrument defects that the [ownership report](ownership-report.md) found, before the combined review reads the branch. The architect's assessment of that unit, and how its findings were handled, are in [`00-index.md`](00-index.md) §Disposition of the ownership report. The instrument rule this unit applies is the last bullet of `DRD-23`.
+**One bounded unit for one implementer.** It repairs the two instrument defects that the [ownership report](ownership-report.md) found, before the combined review reads the branch. The architect's assessment of that unit, and how its findings were handled, are in [`00-index.md`](decisions/DRD-23.md) §Disposition of the ownership report. The instrument rule this unit applies is the last bullet of `DRD-23`.
 
 **Base:** `drag/production` at the commit that carries this file. Its source equals `89995c27e`'s. Work on that branch.
 

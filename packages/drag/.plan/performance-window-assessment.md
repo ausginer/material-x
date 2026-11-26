@@ -1,6 +1,6 @@
 # Performance window assessment
 
-**Read:** [`performance-window-report.md`](performance-window-report.md) at `56c1c27c3`, on `drag/performance`, by the architect on 2026-11-12. **Code read:** `501f60ab7`, against `71f20df20`. **Governing records:** `DRD-49`, `DRD-47`, `DRD-46` property 8, `DRD-40` property 6, `DRI-17` and `DRO-4`, in [`00-index.md`](00-index.md). CONTRIBUTING Part II §0, §14 and §17.
+**Read:** [`performance-window-report.md`](performance-window-report.md) at `56c1c27c3`, on `drag/performance`, by the architect on 2026-11-12. **Code read:** `501f60ab7`, against `71f20df20`. **Governing records:** `DRD-49`, `DRD-47`, `DRD-46` property 8, `DRD-40` property 6, `DRI-17` and `DRO-4`, in [`00-index.md`](decisions/). CONTRIBUTING Part II §0, §14 and §17.
 
 **Outcome:** `DRD-49`'s window conforms and is **confirmed**. "50 activate-and-drop cycles, 2000 items, no landing" is "faster" in `scriptUs` by −2,508 µs per cycle, against an A/A bound of 427 µs, and lower in 7 of 7 rounds. The owner had approved the scope and the ordering term before the unit started. Two changes that the unit made to fit the byte ceilings need more, and `DRD-50` decides them:
 

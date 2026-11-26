@@ -1,6 +1,6 @@
 # Performance trace report
 
-**Input:** [`performance-trace-handoff.md`](performance-trace-handoff.md), carried by `067f59bb7`. **Governing records:** `DRD-46`, with `DRD-40` properties 4 and 7 and `DRD-45` property 9, in [`00-index.md`](00-index.md), and [`performance-plan.md`](performance-plan.md) §2 P1c. **Traced source:** `packages/drag/src` at `566ebfc65`, on `drag/performance`. Every line number below is that revision's.
+**Input:** [`performance-trace-handoff.md`](performance-trace-handoff.md), carried by `067f59bb7`. **Governing records:** `DRD-46`, with `DRD-40` properties 4 and 7 and `DRD-45` property 9, in [`00-index.md`](decisions/), and [`performance-plan.md`](performance-plan.md) §2 P1c. **Traced source:** `packages/drag/src` at `566ebfc65`, on `drag/performance`. Every line number below is that revision's.
 
 **Outcome: complete, no return condition met.** The trace mode is committed, 20 traces are recorded and analysed, and five candidates are named for the architect. Three of them are decisions first. No production source changed, and no comparison, `--before`, `--prove`, `--floors` or timing campaign ran.
 

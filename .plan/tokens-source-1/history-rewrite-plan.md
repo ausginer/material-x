@@ -1,6 +1,6 @@
 # Removing Material's tables from the repository's history — plan
 
-**Status: proposed, and deferred by the owner on 2026-11-20** ([his answer](#the-owners-answer-2026-11-20)). He means to run it later, and he executes it, after answering its questions. Until his answer, this line began: _"proposed. The owner executes it, and he answers its questions first."_ Written by the architect on 2026-11-20, on the coordinator's task, on `tproc/tokens-source-1`. It proposes `repo:RD-29` ([`00-index.md`](../00-index.md)). `RD-28` is the highest decision number on any branch on `origin` and in any slot, so this is the next free number.
+**Status: proposed, and deferred by the owner on 2026-11-20** ([his answer](#the-owners-answer-2026-11-20)). He means to run it later, and he executes it, after answering its questions. Until his answer, this line began: _"proposed. The owner executes it, and he answers its questions first."_ Written by the architect on 2026-11-20, on the coordinator's task, on `tproc/tokens-source-1`. It proposes `repo:RD-29` ([`00-index.md`](../decisions/)). `RD-28` is the highest decision number on any branch on `origin` and in any slot, so this is the next free number.
 
 **Agents never force-push or change a ruleset** (`AGENTS.md`). Each step below names who does it.
 

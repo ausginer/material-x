@@ -1,6 +1,6 @@
 # Callback list completion handoff
 
-**One bounded unit for one implementer.** It implements `DRD-36`, `DRD-37` and `DRD-38` in [`00-index.md`](00-index.md), closes what the [callback list report](callback-list-report.md) left open, and reports the figures that `DRO-12` asks for.
+**One bounded unit for one implementer.** It implements `DRD-36`, `DRD-37` and `DRD-38` in [`00-index.md`](decisions/), closes what the [callback list report](callback-list-report.md) left open, and reports the figures that `DRO-12` asks for.
 
 **Read before starting:**
 

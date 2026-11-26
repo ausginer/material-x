@@ -7,7 +7,7 @@
 - **Pinned to the report commit `6ec32ad06`.** It adds only files under `packages/drag/.plan/`, so its code equals `42f42a164`'s ([`input-and-scope.txt`](recheck-reviewer-probes/input-and-scope.txt): 0 files differ outside `.plan`). The main checkout was clean at `6ec32ad06` when this review started.
 - **The reviewed range is `d1df32018..42f42a164`:** the six remediation commits on top of commit A. Ten files changed, all inside the handoff's boundaries. No file under `packages/box-quad/` changed.
 - **Governing records:**
-  - `DRD-63` properties 1 to 7, in [`00-index.md`](../../00-index.md), and what it amends;
+  - `DRD-63` properties 1 to 7, in [`00-index.md`](../../decisions/DRD-63.md), and what it amends;
   - the [assessment](../../owner-class-refactor-assessment.md), §5, which scopes this recheck;
   - the [handoff](../../owner-class-refactor-handoff.md);
   - the [remediation report](../../owner-class-refactor-report.md), with its evidence under [`measurements/2026-11-14-class-refactor-remediation/`](../../measurements/2026-11-14-class-refactor-remediation/);

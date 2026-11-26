@@ -1,6 +1,6 @@
 # Performance drop assessment
 
-**Read:** [`performance-drop-report.md`](performance-drop-report.md) at `8eda874f0`, on `drag/performance`, by the architect on 2026-11-12. **Code read:** `bf9d1caed`, against `093f31c7f`, whose `packages/drag/src` equals `566ebfc65`'s. **Governing records:** `DRD-47`, `DRD-46` property 8, `DRD-40` properties 4 and 6, `DRD-33` C7 and `DRO-4`, in [`00-index.md`](00-index.md).
+**Read:** [`performance-drop-report.md`](performance-drop-report.md) at `8eda874f0`, on `drag/performance`, by the architect on 2026-11-12. **Code read:** `bf9d1caed`, against `093f31c7f`, whose `packages/drag/src` equals `566ebfc65`'s. **Governing records:** `DRD-47`, `DRD-46` property 8, `DRD-40` properties 4 and 6, `DRD-33` C7 and `DRO-4`, in [`00-index.md`](decisions/).
 
 **Outcome:** `DRD-47` conforms and is **confirmed**. "50 activate-and-drop cycles, 2000 items, no landing" is "faster" in `scriptUs`, by −2,449 µs per cycle against an A/A bound of 409 µs, lower in 7 of 7 rounds. The owner accepts the measured cost of +125 to +140 B Brotli on the sortable compositions, and no budget changes. `DRF-22` is decided by `DRD-48`: `freeDrag`'s drop measures its drop targets and its bounds again before it resolves. [`free-drag-drop-handoff.md`](free-drag-drop-handoff.md) is the next unit.
 

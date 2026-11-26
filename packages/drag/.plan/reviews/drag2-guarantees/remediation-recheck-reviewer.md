@@ -2,7 +2,7 @@
 
 **Read at `349616213`** on `drag2/removal`. The range is `326d86773..349616213`: `a275d1dd3` (the merge of `origin/main`), `cc3b839f9` (items 1 to 4 and 6 to 12) and `349616213` (item 5's logs and the report). `349616213` changes only files under `.plan/`, so its tests and `src` are the tree that item 5's logs record, `cc3b839f9`.
 
-**Subject:** the [remediation report](../../drag2-guarantees-remediation-report.md) and the tree it describes. They are checked against [`drag2-guarantees-remediation-handoff.md`](../../drag2-guarantees-remediation-handoff.md), §Disposition of the guarantee tests proof in [`00-index.md`](../../00-index.md), `drag:DRD-67` property 4 as clarified, `drag:DRO-19`, and the findings of the [proof](proof-reviewer.md) at `1c1e93bd9`.
+**Subject:** the [remediation report](../../drag2-guarantees-remediation-report.md) and the tree it describes. They are checked against [`drag2-guarantees-remediation-handoff.md`](../../drag2-guarantees-remediation-handoff.md), §Disposition of the guarantee tests proof in [`00-index.md`](../../decisions/), `drag:DRD-67` property 4 as clarified, `drag:DRO-19`, and the findings of the [proof](proof-reviewer.md) at `1c1e93bd9`.
 
 **Lens:** a targeted recheck, not a fresh independent review. For each finding, the questions were whether the record or the test resolves it as the disposition requires, and whether each witness it owes fails for the reason the witness names.
 

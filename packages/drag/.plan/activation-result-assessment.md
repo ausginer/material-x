@@ -81,7 +81,7 @@ The question: both operations keep their whole behavior and read its public fiel
 - **It isn't a runtime defect.** Only one operation per controller exists at a time. The single gate drops a pointer event that arrives during a pass, so `#computeMotion` can't be re-entered.
 - **It isn't a defect against the record.** `DRD-30` points to `DRD-20`'s list, and that list includes scratch buffers. So it is a gap in the decision, and the decision is amended.
 
-**Amendment to `DRD-30`, recorded in [`00-index.md`](00-index.md):**
+**Amendment to `DRD-30`, recorded in [`00-index.md`](decisions/DRD-30.md):**
 
 - A scratch buffer belongs to the object whose work writes it.
 - The behavior keeps scratch only for its own admission and activation, and an operation writes no member of its behavior.

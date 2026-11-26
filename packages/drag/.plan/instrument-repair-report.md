@@ -1,6 +1,6 @@
 # Instrument repair report
 
-**Input:** `drag/production` at `c63ea2bae`, which carries [`instrument-repair-handoff.md`](instrument-repair-handoff.md). Its source is the same as `89995c27e`'s. **Governing records:** the handoff, and the last bullet of `DRD-23` in [`00-index.md`](00-index.md).
+**Input:** `drag/production` at `c63ea2bae`, which carries [`instrument-repair-handoff.md`](instrument-repair-handoff.md). Its source is the same as `89995c27e`'s. **Governing records:** the handoff, and the last bullet of `DRD-23` in [`00-index.md`](decisions/DRD-23.md).
 
 **Outcome: returned to the architect at item 1.** The repaired per-sample test selects the kernel by location, but the unmutated test fails in 3 of the 5 prescribed runs. The kernel figure is 16.11 to 16.64 B per move against `< 16`. Across all 11 runs on the repaired selection, the figure is 13.33 to 17.49 B per move and 6 runs fail. The handoff treats this as "a kernel figure for `DRO-7`, not something to fix here", and lists it first under §Return to the architect.
 

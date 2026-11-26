@@ -1,6 +1,6 @@
 # Report: private instance members and constructors in traits (`RD-33`)
 
-**Input:** `repo/trait-private-fields-1` at `23b9c71cf`, which carries the [plan](trait-private-fields-plan.md), merged with `origin/main` at `bd1dee7df` in `dbf0ab8ae`. **Governing records:** `RD-33` in [`../00-index.md`](../00-index.md), `RD-26` property 2, and [`trait-flattener-plugin.md`](../../.agents/docs/trait-flattener-plugin.md).
+**Input:** `repo/trait-private-fields-1` at `23b9c71cf`, which carries the [plan](trait-private-fields-plan.md), merged with `origin/main` at `bd1dee7df` in `dbf0ab8ae`. **Governing records:** `RD-33` in [`../00-index.md`](../decisions/), `RD-26` property 2, and [`trait-flattener-plugin.md`](../../.agents/docs/trait-flattener-plugin.md).
 
 **Outcome: the plan is implemented, and no stop condition was met.** Proofs 1 to 13 hold. No change reaches `Composed`'s types, a published package's public surface or another trait's source. core's and material-x's built output is byte-identical to `bd1dee7df`'s (proof 12). Neither `RD-31` (#90) nor `RF-69` (#100) had merged when it was read, so that is the `main` it compares against.
 

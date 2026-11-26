@@ -1,6 +1,6 @@
 # Publish mangle: review round summary
 
-**Reviewed tree:** `436b105c6` on `drag/size`. All three passes verified HEAD and read that commit. Its `src`, `build/`, `tests` and `tsdown.config.ts` are as at `31f92f5a9`. **Brief:** [`publish-mangle-assessment.md`](../../publish-mangle-assessment.md) §9. **Binding sources:** `DRD-56` as corrected by that assessment, and `DRD-55` property 1, in [`00-index.md`](../../00-index.md).
+**Reviewed tree:** `436b105c6` on `drag/size`. All three passes verified HEAD and read that commit. Its `src`, `build/`, `tests` and `tsdown.config.ts` are as at `31f92f5a9`. **Brief:** [`publish-mangle-assessment.md`](../../publish-mangle-assessment.md) §9. **Binding sources:** `DRD-56` as corrected by that assessment, and `DRD-55` property 1, in [`00-index.md`](../../decisions/).
 
 **The passes ran independently and in parallel.** None saw another's prompt or report:
 

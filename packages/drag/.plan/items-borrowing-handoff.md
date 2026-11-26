@@ -1,6 +1,6 @@
 # `items()` borrowing handoff
 
-**One bounded unit for one implementer.** It implements `DRD-31` in [`00-index.md`](00-index.md): `sortable` stops copying the array that `items()` returns, and the operation saves the item's home gap at activation and at every rebase. The contract's `DRI-14` states the consumer's consistency rule, and [`items-copy-assessment.md`](items-copy-assessment.md) is the evidence. Read `DRD-31`, `DRI-14` and the assessment's §3, §4 and §7 before starting.
+**One bounded unit for one implementer.** It implements `DRD-31` in [`00-index.md`](decisions/DRD-31.md): `sortable` stops copying the array that `items()` returns, and the operation saves the item's home gap at activation and at every rebase. The contract's `DRI-14` states the consumer's consistency rule, and [`items-copy-assessment.md`](items-copy-assessment.md) is the evidence. Read `DRD-31`, `DRI-14` and the assessment's §3, §4 and §7 before starting.
 
 **Base:** `drag/production` at the commit that carries this handoff, or a later one.
 

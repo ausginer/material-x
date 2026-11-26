@@ -1,6 +1,6 @@
 # `@ydinjs/core` declares `"sideEffects": false`
 
-**Planned 2026-11-20 by the architect** on `core/side-effects-1`, from `origin/main` at `e4b0e475d`. `RD-30` in [`00-index.md`](../00-index.md) records the decision.
+**Planned 2026-11-20 by the architect** on `core/side-effects-1`, from `origin/main` at `e4b0e475d`. `RD-30` in [`00-index.md`](../decisions/RD-30.md) records the decision.
 
 **Input:** the owner's answer to question 1 of the [`@trait` follow-ups plan](https://github.com/ausginer/material-x/blob/repo/trait-decorator-2/.plan/trait-decorator-2/trait-decorator-2-plan.md#questions-for-the-owner), relayed by the coordinator: _"Да, давай по обоим пунктам"_ ("Yes, go on both"). `RD-26`'s fourth amendment, on `repo/trait-decorator-2`, records the answer.
 

@@ -1,6 +1,6 @@
 # Consumer tests: assessment
 
-**Read:** [`consumer-tests-report.md`](consumer-tests-report.md) at `87288b9d2` on `drag/size`, and the unit's code commit `5ea7bb7e6`. **Governing records:** [`consumer-tests-handoff.md`](consumer-tests-handoff.md), `DRD-54` and `DRO-15` in [`00-index.md`](00-index.md). Assessed by the architect on 2026-11-13.
+**Read:** [`consumer-tests-report.md`](consumer-tests-report.md) at `87288b9d2` on `drag/size`, and the unit's code commit `5ea7bb7e6`. **Governing records:** [`consumer-tests-handoff.md`](consumer-tests-handoff.md), `DRD-54` and `DRO-15` in [`00-index.md`](decisions/). Assessed by the architect on 2026-11-13.
 
 **Outcome: accepted, with one guard gap.** The `consumer` project runs 22 files and 326 tests against the emitted tree, and all of them pass. The source projects keep their titles and verdicts, and no return condition was met. The owner found and reproduced the gap:
 

@@ -4,7 +4,7 @@
 
 **Recipient:** the implementer. **Branch:** `drag2/removal`, or one the owner names. **Input:** the architect's record commit on `drag2/removal` that adds this handoff.
 
-**Governing records:** `drag:DRD-67` property 2 and its decided property 7 stop, and `drag:DRD-65` property 6, in [`00-index.md`](00-index.md), with §Disposition of the `y()` geometry terms report. The evidence is the architect's [probe](probes/y-geometry-terms-ruling/README.md).
+**Governing records:** `drag:DRD-67` property 2 and its decided property 7 stop, and `drag:DRD-65` property 6, in [`00-index.md`](decisions/), with §Disposition of the `y()` geometry terms report. The evidence is the architect's [probe](probes/y-geometry-terms-ruling/README.md).
 
 **Scope:** `tests/layout-animation.browser.test.ts`, `bench/size/measure.ts`, `bench/compare.ts` and `src/sortable/y.ts`'s module comment. Code in `src` and `bench` doesn't change. The emitted `.js` differs from the input's only in comments.
 

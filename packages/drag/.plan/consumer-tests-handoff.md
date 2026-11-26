@@ -4,7 +4,7 @@
 
 **Governing records:**
 
-- `DRD-54` in [`00-index.md`](00-index.md): the decision, and required properties 1 to 6;
+- `DRD-54` in [`00-index.md`](decisions/DRD-54.md): the decision, and required properties 1 to 6;
 - `DRO-15`, as the owner answered it on 2026-11-12: this is its step 1;
 - [`property-mangling-exploration.md`](property-mangling-exploration.md) §4 and §5, the runtime check that this unit makes part of the suite;
 - [`performance-plan.md`](performance-plan.md) §3, on sequencing runs and waiting for them.

@@ -1,6 +1,6 @@
 # Animation-end layout probe
 
-**Run:** by the architect on 2026-11-12, at `bb8e5ebb8` on `drag/performance`, as [`performance-window-correction-assessment.md`](performance-window-correction-assessment.md) §4.3 proposed and the owner asked. **Governing records:** `DRD-44` property 6 and `DRD-40` property 4, in [`00-index.md`](00-index.md). It changed no production code and no instrument.
+**Run:** by the architect on 2026-11-12, at `bb8e5ebb8` on `drag/performance`, as [`performance-window-correction-assessment.md`](performance-window-correction-assessment.md) §4.3 proposed and the owner asked. **Governing records:** `DRD-44` property 6 and `DRD-40` property 4, in [`00-index.md`](decisions/). It changed no production code and no instrument.
 
 **Outcome: the runtime pass is ready to close.** The owner closed it on 2026-11-12 ([`performance-plan.md`](performance-plan.md) §2 P3).
 

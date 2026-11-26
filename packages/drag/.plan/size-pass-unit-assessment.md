@@ -1,6 +1,6 @@
 # Size pass unit: assessment
 
-**Read:** [`size-pass-unit-report.md`](size-pass-unit-report.md) at `ed4bd589f` on `drag/size`, and the unit's code commits `15e9d1ef2`, `312f4ec32` and `237d65d2f`. **Governing records:** [`size-pass-unit-handoff.md`](size-pass-unit-handoff.md), and `DRD-51`, `DRD-52` and `DRD-53` in [`00-index.md`](00-index.md). Assessed by the architect on 2026-11-12.
+**Read:** [`size-pass-unit-report.md`](size-pass-unit-report.md) at `ed4bd589f` on `drag/size`, and the unit's code commits `15e9d1ef2`, `312f4ec32` and `237d65d2f`. **Governing records:** [`size-pass-unit-handoff.md`](size-pass-unit-handoff.md), and `DRD-51`, `DRD-52` and `DRD-53` in [`00-index.md`](decisions/). Assessed by the architect on 2026-11-12.
 
 **Outcome: accepted.** Every required property of the handoff holds, and no return condition was met. The size readings equal the architect's joint reading on every row. The allocation reading stands against its limits, and the timing reading holds. Neither reading shows that the unit costs nothing (§2). The report raises two findings, and the assessment adds two:
 

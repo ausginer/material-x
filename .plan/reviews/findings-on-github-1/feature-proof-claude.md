@@ -2,7 +2,7 @@
 
 **Files were read at:** `b8d8dce76` (`repo/findings-on-github-1`, slot `f`, clean, equal to `origin`, pull request #244). **Diff reviewed:** `2990a5add` to `b8d8dce76`, and the merge `2990a5add`. Documents only.
 
-**Governing records, at the same commit:** `repo:RD-56` in [`00-index.md`](../../00-index.md), and the [plan](../../findings-on-github-1/findings-on-github-plan.md), with the work list _Stage 1: the documents_.
+**Governing records, at the same commit:** `repo:RD-56` in [`00-index.md`](../../decisions/RD-56.md), and the [plan](../../findings-on-github-1/findings-on-github-plan.md), with the work list _Stage 1: the documents_.
 
 **Lens:** feature proof. The implementer's six disagreements were not read. Nothing is repaired, and no record is amended.
 

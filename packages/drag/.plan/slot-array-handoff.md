@@ -8,7 +8,7 @@
 
 **Governing records:**
 
-- `DRD-58` in [`00-index.md`](00-index.md), properties 1 to 9 and its cost list. This is the owner's direction of 2026-11-13;
+- `DRD-58` in [`00-index.md`](decisions/DRD-58.md), properties 1 to 9 and its cost list. This is the owner's direction of 2026-11-13;
 - `DRD-52` as `DRD-58` amends it: `RectIndex`'s ownership and `_lend`;
 - `DRD-50` property 1 and its witnesses W7 and W8: range settling in the cache's own buffer;
 - `DRD-39`: the installer types are unpublished;

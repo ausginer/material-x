@@ -1,0 +1,5 @@
+#### DRO-17 — Retire and delete drag2, keeping its stories
+
+**Decided by the owner on 2026-11-15,** relayed by the coordinator to the architect on `drag2/removal` at `0870abd75`. drag2 is drag's ancestor and is no longer needed now that drag exists, so it is retired and deleted. **The one thing to carry over is drag2's stories:** there are more of them, and they look better than drag's. Before deletion, the owner asked for a short comparison establishing that everything worth keeping has been taken into drag.
+
+**Applied by `DRD-64`.** The comparison is [`drag2-retirement-assessment.md`](../drag2-retirement-assessment.md). Beyond the stories, it carries over two accessibility conclusions, the record resolver (`repo:RD-5`), and tests for 18 guarantees drag implements (`DRF-45`). **What the owner gives up,** in `DRD-64` property 4's terms: a same-session timing and heap comparison against drag2's implementation, which hasn't bundled since `7d8d7a805` (`DRF-43`). TransformedStage's lift-mode control also goes, because drag has only the faithful lift.

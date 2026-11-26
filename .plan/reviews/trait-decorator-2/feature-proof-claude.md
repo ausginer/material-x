@@ -2,7 +2,7 @@
 
 **Files were read at:** `69b721a3e` (`repo/trait-decorator-2`, PR #88), in the detached worktree of slot b. **Baseline:** `origin/main` at `e4b0e475d`, in a scratch worktree of my own, with `aube ci` and `just build`. The plan's baseline is `645410c12`. `e4b0e475d` is `645410c12` plus RF-55, whose only change under `vite-traits-plugin` is its `package.json`. **Diff reviewed:** `f8db02de3` to `801b94e23`, the implementation, and the report's commits after it.
 
-**Governing records:** `RD-26`'s fourth amendment of 2026-11-20 in [`00-index.md`](../../00-index.md) (`badd1295a`, `65b45c0aa`); the [plan](../../trait-decorator-2/trait-decorator-2-plan.md), tasks 1 to 4 and proofs 1 to 6; and the implementer's [report](../../trait-decorator-2/trait-decorator-2-report.md) with its `checks/`. Out of scope, as the plan says: `reviewer-4`'s mechanism (ii), `reviewer-5`, core's `sideEffects` (`RD-30`), and bare imports in the `.d.ts` files.
+**Governing records:** `RD-26`'s fourth amendment of 2026-11-20 in [`00-index.md`](../../decisions/) (`badd1295a`, `65b45c0aa`); the [plan](../../trait-decorator-2/trait-decorator-2-plan.md), tasks 1 to 4 and proofs 1 to 6; and the implementer's [report](../../trait-decorator-2/trait-decorator-2-report.md) with its `checks/`. Out of scope, as the plan says: `reviewer-4`'s mechanism (ii), `reviewer-5`, core's `sideEffects` (`RD-30`), and bare imports in the `.d.ts` files.
 
 **Lens:** feature proof. Each claim below is my own reading or my own run. Nothing is repaired, and no record is amended.
 
