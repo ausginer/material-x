@@ -1,6 +1,6 @@
 # Remediation handoff
 
-**One bounded unit for one implementer: bring `@ydinjs/drag` from `d7e7b0d3a` to the 2026-11-07 contract, restructure the built-ins as internal classes, repair the integration and evidence defects, validate the affected costs once, and stop for review.** The decisions are `DRD-14` to `DRD-23` in [`00-index.md`](decisions/). The behavior owed is [`contract.md`](contract.md). Each item names the finding it closes, as listed under the index's disposition table.
+**One bounded unit for one implementer: bring `@ydinjs/drag` from `d7e7b0d3a` to the 2026-11-07 contract, restructure the built-ins as internal classes, repair the integration and evidence defects, validate the affected costs once, and stop for review.** The decisions are `DRD-14` to `DRD-23` in [`00-index.md`](00-index.md#disposition-of-the-2026-11-07-reviews). The behavior owed is [`contract.md`](contract.md). Each item names the finding it closes, as listed under the index's disposition table.
 
 **Base:** `drag/production` at the commit carrying this file. Work on that branch.
 

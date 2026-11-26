@@ -153,7 +153,7 @@ The architect reads the report, closes `DRF-24` to `DRF-37` and `DRF-39` (§Disp
 
 ## Independent review
 
-**Added on 2026-11-14** by the architect, after the report was accepted ([`00-index.md`](decisions/) §Disposition of the mangling rollback report). No independent pass has read the rollback: the reviews of `DRD-61` and `DRD-62` put it out of scope. Their suite and lint runs, and the architect's checks at `6296b741a`, cover the consumer verdict, the baseline lint, the removals and the two configuration files. This review covers what only the report establishes.
+**Added on 2026-11-14** by the architect, after the report was accepted ([`00-index.md`](00-index.md#disposition-of-the-mangling-rollback-report) §Disposition of the mangling rollback report). No independent pass has read the rollback: the reviews of `DRD-61` and `DRD-62` put it out of scope. Their suite and lint runs, and the architect's checks at `6296b741a`, cover the consumer verdict, the baseline lint, the removals and the two configuration files. This review covers what only the report establishes.
 
 **For:** one fresh `reviewer` session, a feature proof, which the owner starts. It works on `drag/size` from the commit that adds this section, and reads the historical commits in detached scratch worktrees with the checkout's installed packages. **Pinned to:** the base `7420cbb9a`, commit A `cc752cc1b`, commit B `b8e37b37c` and the report at `8904947f6`. No browser runs.
 

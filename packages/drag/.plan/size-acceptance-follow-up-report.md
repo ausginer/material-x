@@ -1,6 +1,6 @@
 # Report: the last built-in receiver declaration, and the lab comment on the arms
 
-**Handoff:** [`size-acceptance-follow-up-handoff.md`](size-acceptance-follow-up-handoff.md), items 1 and 2. **Input:** `9c248f11f` on `drag/size-acceptance`. **Governing records:** `drag:DRD-69` property 4 as amended, `drag:DRO-5`, `drag:DRD-68` property 3, and §Disposition of the size acceptance cleanup report, open items 1 and 2, in [`00-index.md`](decisions/).
+**Handoff:** [`size-acceptance-follow-up-handoff.md`](size-acceptance-follow-up-handoff.md), items 1 and 2. **Input:** `9c248f11f` on `drag/size-acceptance`. **Governing records:** `drag:DRD-69` property 4 as amended, `drag:DRO-5`, `drag:DRD-68` property 3, and §Disposition of the size acceptance cleanup report, open items 1 and 2, in [`00-index.md`](00-index.md#disposition-of-the-size-acceptance-cleanup-report).
 
 **Outcome:** both items are implemented, and every check passes. **No stop was hit:** typecheck exits 0, and no size row moves.
 

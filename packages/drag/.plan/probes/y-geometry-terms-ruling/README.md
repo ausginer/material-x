@@ -1,6 +1,6 @@
 # Probe: the two stops of the `y()` geometry terms unit
 
-**By:** the architect, on 2026-11-15, at `1c1e93bd9` on `drag2/removal`, after a fresh `tsdown` build. **For:** §Disposition of the `y()` geometry terms report in [`00-index.md`](../../decisions/), `drag:DRD-65` properties 5 and 6, and `drag:DRD-67` property 2 and its property 7 stop.
+**By:** the architect, on 2026-11-15, at `1c1e93bd9` on `drag2/removal`, after a fresh `tsdown` build. **For:** §Disposition of the `y()` geometry terms report in [`00-index.md`](../../00-index.md#disposition-of-the-y-geometry-terms-report), `drag:DRD-65` properties 5 and 6, and `drag:DRD-67` property 2 and its property 7 stop.
 
 Each mutation was applied to the tree, the named projects were run, and the file was restored with `git checkout`. The tree was clean afterwards.
 
