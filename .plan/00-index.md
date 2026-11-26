@@ -4966,7 +4966,7 @@ Tier B, **open**, cause not read, pre-existing. Registered on 2026-11-26 by the 
 
 #### RF-151 — In WebKit, a mouse drag of a list item highlights its text
 
-Tier A, **open**, **ready**, not this unit's. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from the implementer's side observation in `RD-60`'s unit, relayed by the coordinator. `RF-150` is the entry before this one. Read at `5448c4fd6`, on one screenshot.
+Tier A, **closed 2026-11-26** by #314 at `a36f577f8` (the last note). Before closure: open, ready, not this unit's. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from the implementer's side observation in `RD-60`'s unit, relayed by the coordinator. `RF-150` is the entry before this one. Read at `5448c4fd6`, on one screenshot.
 
 - **What was observed:** the unit's probe lifts `B` of an `mx-sortable-list` of four `mx-list-item`s without handles, with `commands.pointerPress` and two `pointerMove`s, and screenshots the list while the item is held over `C`. In WebKit, the text _"xt"_ of the lifted item is highlighted under the pointer ([screenshot](sortable-displacement-1/checks/shots/webkit-overshoot-pointer.png), [probe](sortable-displacement-1/probes/shots.browser.test.ts.txt), _"overshoot, pointer drop"_). In Chromium and Firefox, the same frame has no highlight.
 - **What drag does:** its kernel clears the selection when a drag activates (`packages/drag/src/kernel/session.ts`, `#move`). It never prevents a press, and `draggable`'s JSDoc tells the consumer to give the handle `user-select: none` for text. An item without a handle is its own handle, and `mx-sortable-list` writes no `user-select` on it. `RF-146` property 3 decided that, for touch. So WebKit extends a selection after the activation, as the mouse moves.
@@ -5001,6 +5001,8 @@ Tier A, **open**, **ready**, not this unit's. Registered on 2026-11-26 by the ar
 - **Witnesses,** WebKit with Chromium beside it ([reading](drag-selection-1/checks/witnesses.txt)): without the rule, WebKit fails rows 1 and 2 for `mx-list-item` and `mx-list-link-item`, and row 4, and Chromium passes all eight. With the rule on `::slotted(*)`, row 3 fails in both. With the rule, all eight pass in both.
 - **Checks:** `tests/list` passes in Chromium (286) and WebKit (272, 14 skipped). Lint and typecheck are clean. Firefox is CI's.
 - **Sizes** ([reading](drag-selection-1/checks/sizes.txt)): `list/sortable-list` goes from 9.94 to 9.95 kB, and `complete` from 26.89 to 26.91 kB. No other composition changes.
+
+**Dated 2026-11-26 by the architect, on `repo/register-observations-10`: closed.** Requested by the coordinator. The [feature proof](reviews/drag-selection-1/feature-proof-claude.md) of `c3209df1d` found that the repair meets the three required properties and their rows, and that the witnesses fail where this entry says, in each of the three engines. It has no finding. `verify` passed on `c3209df1d` (run 45882776261). The pull request's head, `af3d7e79c`, adds only the proof's files and a merge of `main` at `6588c7361`. #314 merged at `a36f577f8` on 2026-11-26, and #311 closed with it. The status above said _"Tier A, **open**, **ready**, not this unit's."_
 
 #### RF-152 — `parseMs` reads a duration in milliseconds as seconds
 
