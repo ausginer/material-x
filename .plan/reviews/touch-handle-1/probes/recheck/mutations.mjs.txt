@@ -1,0 +1,50 @@
+// The recheck's mutations of RF-145's remedy at 4cc69c603: one at a time in the item's styles, runs a test file
+// in the browser project, restores. Run from packages/material-x: node mut.mjs <engine> <names separated by ;|all> <test file>
+import { spawnSync } from 'node:child_process';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+const ITEM = 'src/list/styles/item/main.styles.css';
+const GRID = 'display: inline-grid;\n  place-items: center;\n}';
+const LINE = '\n/*\n * The `lead` slot\'s `line-height: 0` would make a text handle\'s line 0 high,\n * and its focus indicator would cross the text.\n */\n.lead::slotted([data-handle]:not(mx-icon)) {\n  line-height: normal;\n}\n';
+const SEL = ":is(.lead, .trail)::slotted([data-handle]:not(\n  mx-icon,\n  [hidden]:not([hidden='until-found' i])\n)) {\n  " + GRID + '\n';
+const OLD = ":is(.lead, .trail)::slotted([data-handle]:not(\n  [hidden]:not([hidden='until-found' i])\n)) {\n  display: inline-block;\n}\n";
+// [name, [from, to]...] applied in order to ITEM
+const M = [
+  ['no mutation'],
+  ["W1: the rule of f529f3264", [SEL + LINE, OLD]],
+  ['W2: no line-height: normal in lead', [LINE, '']],
+  ['W3: no place-items: center', ['display: inline-grid;\n  place-items: center;', 'display: inline-grid;']],
+  ['W4: the rules on a bare mx-icon too', ['  mx-icon,\n', ''], [':not(mx-icon)) {\n  line-height', ') {\n  line-height']],
+  ['W4a: the grid rule on a bare mx-icon too', ['  mx-icon,\n', '']],
+  ['W4b: the lead line-height on a bare mx-icon too', [':not(mx-icon)) {\n  line-height', ') {\n  line-height']],
+  ['without the handle rule', [SEL, '']],
+  ['own: inline-block, keeping place-items and line-height', ['display: inline-grid;', 'display: inline-block;']],
+  ['own: align-items in place of place-items', ['inline-grid;\n  place-items: center;', 'inline-grid;\n  align-items: center;']],
+  ['own: the handle inline', ['display: inline-grid;', 'display: inline;']],
+  ['without the hidden guard', [",\n  [hidden]:not([hidden='until-found' i])\n", '\n']],
+  ['the handle rule !important', ['display: inline-grid;', 'display: inline-grid !important;']],
+  ['own: until-found hidden too', ["  [hidden]:not([hidden='until-found' i])\n)) {\n  display: inline-grid", '  [hidden]\n)) {\n  display: inline-grid']],
+];
+const [engine, names, file] = process.argv.slice(2);
+const source = readFileSync(ITEM, 'utf8');
+const restore = () => writeFileSync(ITEM, source);
+const out = `${process.env.T}/mut-${process.pid}.json`;
+try {
+  for (const [name, ...edits] of M) {
+    if (names !== 'all' && !names.split(';').includes(name)) continue;
+    let text = source;
+    for (const [from, to] of edits) {
+      if (text.split(from).length !== 2) throw new Error(`not one match: ${name}: ${from}`);
+      text = text.replace(from, () => to);
+    }
+    if (process.env.DRY) { console.log('ok', name); continue; }
+    writeFileSync(ITEM, text);
+    const run = spawnSync('aube', ['exec', '--', 'vitest', 'run', '-c', 'vitest.config.ts', '--project', 'browser*', file, '--reporter=default', '--reporter=json', `--outputFile.json=${out}`],
+      { env: { ...process.env, MX_TEST_ENGINES: engine, NO_COLOR: '1' }, encoding: 'utf8', timeout: 900_000 });
+    restore();
+    if (process.env.SAVE) writeFileSync(`${process.env.T}/${engine}-${name.replace(/[^a-z0-9]+/gi, '-')}.out`, `${run.stdout}\n${run.stderr}`);
+    const json = existsSync(out) ? JSON.parse(readFileSync(out, 'utf8')) : null;
+    rmSync(out, { force: true });
+    console.log(`## ${name} | ${engine} | ${file} | ${json?.numTotalTests ? `${json.numFailedTests} failed, ${json.numPassedTests} passed, ${json.numPendingTests} skipped` : 'no result'}`);
+    for (const r of json?.testResults ?? []) for (const t of r.assertionResults) if (t.status === 'failed') console.log(`   ${t.fullName} :: ${(t.failureMessages[0] ?? '').split('\n')[0]}`);
+  }
+} finally { restore(); }
