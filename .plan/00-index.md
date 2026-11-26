@@ -2731,7 +2731,15 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 - **(a) Yes. Recommended.** One attribute in the split button's template, and a row in `RD-57`'s check: the split button without `secondarylabel` reports `button-name`, listed under this entry. The reason above is then true again for a page that audits with axe-core. The icon is hidden twice in the browsers, which changes no name.
 - **(b) No.** The page learns it from the documentation, which says that the attribute is required, and from the browser's own tree.
 
-#### RD-59 — `mx-icon` hides its content from assistive technology
+**Dated 2026-11-26 by the architect: Q1 is answered by the owner, (a),** relayed by the coordinator, after the architect's reading: _"окей, тогда давай (a)"_ ("okay, then let's do (a)"). The reading he answered: with `RF-137`, Chromium, Firefox and WebKit give the trailing button no name, and axe-core 4.14.1 names it `keyboard_arrow_down` ([Chromium](reviews/icon-name-1/checks/names-chromium.txt), [Firefox](reviews/icon-name-1/checks/names-firefox.txt), [WebKit](reviews/icon-name-1/checks/names-webkit.txt), _split, trailing_; [axe](reviews/axe-checks-1/checks/icon-names-chromium.txt)). The browsers do what [accname 1.2](https://www.w3.org/TR/accname-1.2/) defines: step 2F.3 makes a slot's assigned nodes its rendered children, and step 2A gives a hidden node the empty string, so a hidden slot adds nothing to the name. axe-core doesn't implement that step. No axe-core issue about it was found. **Filing one is on the owner's list, for later.** With this answer the last sentence of _Why_ is true again.
+
+**Owed by the implementer, on `repo/axe-checks-1`** (#293):
+
+1. **`split-button.tpl.html`:** `aria-hidden="true"` on the trailing button's `<mx-icon>`, with a comment that gives the reason: axe-core doesn't apply `mx-icon`'s hidden slot (accname 1.2, step 2F.3), so without the attribute an axe audit doesn't report a split button without `secondarylabel`. The comment also says that the attribute is redundant in the browsers, and stays harmless if axe implements the step.
+2. **A row in `tests/axe.browser.test.ts`:** `mx-split-button` without `secondarylabel`, whose listed violation is `button-name` at its trailing button, owned by `repo:RD-58`. **Witness:** without item 1, the row fails, because the listed violation is gone.
+3. **`RD-57`'s witness 2,** on the tree with item 1: it fails all 11 control rows, the split button's three among them. The implementer's reading of 8 above is then replaced by a new one, committed.
+4. **Unchanged, and run:** the split button's own rows, among them _should expose no name of the trailing button without a label_, and `RF-137`'s icon rows. The size gate, for one attribute.
+5. **A bounded recheck is owed,** as `RD-62` property 6 says, of what this changes: the new row and its witness, and the split button's rows in the three engines. `mx-icon` hides its content from assistive technology
 
 **Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer of 2026-11-24 to `RF-137`'s Q2, (a). In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). The contract is in `RF-137`.
 
