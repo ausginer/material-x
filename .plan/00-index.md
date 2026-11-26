@@ -500,7 +500,7 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
    (**Amended 2026-11-16 at `347d4e499`.** The job ran every Safari project in one Vitest process, with `npx just test --project '*/safari'`.)
 
 7. **Safari isn't pinned.** Its version is the runner image's, and the job log's Safari version tells whether a failure comes from a repository change or from an image update. **A Safari failure is triaged from property 12's issue, not under `RD-8`,** which governs the gate. A failing Safari row that no finding names becomes a finding when the architect reads it. Whether a known intermittent row is skipped in Safari is decided in its own finding. `RD-9` pins only the visual environment, and visual runs in Chromium only. (**Amended 2026-11-17 at `229829ef7`.** The third sentence said: _"A Safari failure is handled under `RD-8`, like any engine's, whether it comes from a repository change or from an image update, and the job log's Safari version tells which."_)
-8. **Locally, Safari can't run, and WebKit runs only on request.** The devcontainer runs Linux, so Safari can't run there. **Playwright's WebKit runs locally with `MX_TEST_ENGINES=webkit`** once the development image carries WebKit's system libraries ([dev image handoff](ci-speed-1/devimage-handoff.md)) and the devcontainer installs its build (`RD-13` property 7). A local run is still Chromium by default, and a local WebKit run is a reproduction, not evidence (`RD-13` properties 7 and 8). (**Amended 2026-11-17 at `229829ef7`.** The first two sentences said: _"**Locally, nothing runs Safari or WebKit.** The devcontainer runs Linux, so Safari can't run there, and no Playwright WebKit build is installed or started anywhere."_) A developer on macOS with remote automation enabled can run `just test-safari`, and the repository promises nothing more there. (**Amended 2026-11-16 at `347d4e499`:** this sentence named _"`MX_TEST_ENGINES=safari`"_, and a single Vitest process run with it opens only its first Safari project.) (**Amended 2026-11-16 by `RD-13`.** This property said: _"drag's `test-engines` runs `chromium,firefox`. Its project names are `browser`, `browser/firefox`, `shipped` and `shipped/firefox`, which are exactly `drag:DRO-18`'s selection."_)
+8. **Locally, Safari can't run, and WebKit runs only on request.** The devcontainer runs Linux, so Safari can't run there. **Playwright's WebKit runs locally with `MX_TEST_ENGINES=webkit`** once the development image carries WebKit's system libraries ([dev image handoff](ci-speed-1/devimage-handoff.md)) and the devcontainer installs its build (`RD-13` property 7). A local run is still Chromium by default, and a local WebKit run is a reproduction, or a review's evidence (`RD-62`). (**Amended 2026-11-25 by `RD-62`.** This sentence said: _"a local WebKit run is a reproduction, not evidence (`RD-13` properties 7 and 8)"_.) (**Amended 2026-11-17 at `229829ef7`.** The first two sentences said: _"**Locally, nothing runs Safari or WebKit.** The devcontainer runs Linux, so Safari can't run there, and no Playwright WebKit build is installed or started anywhere."_) A developer on macOS with remote automation enabled can run `just test-safari`, and the repository promises nothing more there. (**Amended 2026-11-16 at `347d4e499`:** this sentence named _"`MX_TEST_ENGINES=safari`"_, and a single Vitest process run with it opens only its first Safari project.) (**Amended 2026-11-16 by `RD-13`.** This property said: _"drag's `test-engines` runs `chromium,firefox`. Its project names are `browser`, `browser/firefox`, `shipped` and `shipped/firefox`, which are exactly `drag:DRO-18`'s selection."_)
 9. **A Vitest or provider upgrade re-reads the Safari job,** because the provider is released apart from Vitest. The reading is the Safari job's result on the upgrade's pull request. No row watches it.
 10. **A Safari page reports the same user preferences as a Chromium or Firefox page reports by default:** `prefers-reduced-motion: no-preference` (added at `83ff45024`).
     - **How each engine gets it:** Chromium and Firefox have it from Playwright's default, and drag's landing rows also reset it by emulation. Safari's driver can't emulate the preference, so **the `safari` job sets the runner's macOS preference before the tests.** It turns Reduce Motion off as the runner's user, reads the value back, and logs it. The step fails if the value read back isn't off.
@@ -598,8 +598,8 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 7. **Local runs are Chromium only, without visual (O15).**
    - **Visual:** the shared factory declares the visual project only when `MX_TEST_VISUAL=1`. The gate's `chromium` job and the `record` job set the variable. No recipe sets it, and material-x's `test-visual` and `test-visual-update` recipes are removed.
    - **Engines:** `MX_TEST_ENGINES` still defaults to `chromium`. The devcontainer installs Playwright's Chromium and WebKit builds, and WebKit launches where the development image carries its system libraries (`RD-12` property 8). (**Amended 2026-11-17 by `RD-12`.** This sentence said: _"The devcontainer installs only Playwright's Chromium."_) drag's `test-engines` sets no engine list: it runs drag's browser and shipped projects in the engines that `MX_TEST_ENGINES` lists, which is Chromium by default.
-   - **Other engines** run in CI. A developer who sets either variable locally gets an unchecked run, and its result is not evidence.
-8. **What a unit owes locally.** A local check covers Chromium, without visual. Firefox, WebKit and visual results are read in CI on the unit's pull request. A unit that changes something they can see pushes and reads them there before it reports. **A unit that changes something only Safari can see,** such as a WebdriverIO command, the Safari configuration or the Safari workflow, starts the Safari workflow on its branch (`RD-12` property 12) and reads it before it reports. (**Amended 2026-11-17 by `RD-12`.** The second sentence said: _"Firefox, Safari and visual results are read in CI on the unit's pull request."_ The sentence about the Safari workflow is new.) A visual change is recorded through property 2, and the owner reviews the proposal.
+   - **Other engines** run in CI. A developer who sets either variable locally gets an unchecked run. Its result is evidence only as `RD-62` says, and never for visual. (**Amended 2026-11-25 by `RD-62`.** The last sentence said: _"A developer who sets either variable locally gets an unchecked run, and its result is not evidence."_ This property's title stays true of what a local run does by default.)
+8. **What a unit owes locally.** A local check covers Chromium, without visual. Visual results are read in CI on the unit's pull request. `RD-62` says which engines a unit and a review run, and when CI's result is read. **A unit that changes something only Safari can see,** such as a WebdriverIO command, the Safari configuration or the Safari workflow, starts the Safari workflow on its branch (`RD-12` property 12) and reads it before it reports. (**Amended 2026-11-17 by `RD-12`.** The second sentence said: _"Firefox, Safari and visual results are read in CI on the unit's pull request."_ The sentence about the Safari workflow is new.) (**Amended 2026-11-25 by `RD-62`.** The second and third sentences said: _"Firefox, WebKit and visual results are read in CI on the unit's pull request. A unit that changes something they can see pushes and reads them there before it reports."_) A visual change is recorded through property 2, and the owner reviews the proposal.
 9. **Diagnostics, not guards.** The gate's `chromium` job and the `record` job log the runner image's version (`ImageOS`, `ImageVersion`) and the processor model before the tests. Nothing compares them. If the visual rows turn intermittent in CI, the unit stops, and the owner decides (`RD-9` property 4).
 
 **Why.**
@@ -609,7 +609,7 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 - **Two jobs,** because the labeled trigger runs code that the person who adds the label hasn't read in full: the branch's dependencies, its tests and the tools they start. The job that holds the write token runs none of it, and takes from it only image files at baseline paths. **This doesn't protect against the branch's author.** A pull request's run uses the workflow file of the branch's own merge commit, so an author with write access can change the workflow itself. Before adding the label, the person who adds it reads the branch's changes under `.github/`. Property 3's _What `propose` writes_ keeps that reading sufficient: without it, a symbolic link at a baseline path also reached the token (`RF-38`). (**Amended 2026-11-16, `RF-38`.** This reason said: _"because the labeled trigger runs a branch's code. The job that holds a write token runs none of it, so a branch can't use the token for anything except the proposal."_)
 - **One force-pushed branch per target,** so there is one open proposal per target, and the latest recording replaces the earlier one.
 - **`workflow_dispatch` for `main` only.** Only `main` has a rule that needs a check on the proposal. Into any other branch, the owner's merge already runs the target's own gate on the merged result, which is the run that matters.
-- **Local runs without visual or other engines,** on the owner's direction. CI is the authority for them, and a local result that can't match CI would only be noise.
+- **Local runs without visual,** on the owner's direction. CI is the authority for it, and a local visual result that can't match CI would only be noise. Which engines a unit and a review run locally is `RD-62`'s. (**Amended 2026-11-26 by `RD-62`.** This reason said: _"**Local runs without visual or other engines,** on the owner's direction. CI is the authority for them, and a local result that can't match CI would only be noise."_)
 
 **Not adopted.**
 
@@ -1951,6 +1951,10 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 
 > drag's `visual` is the item itself, and drag's lift keeps its padding, border, overflow, color and background color.
 
+**Amended a ninth time on 2026-11-25, after implementation,** for `RF-146`, on the owner's answer (a), which that entry quotes. Property 4's (Q3, Q6) item says what touch does on an item without a handle. The code doesn't change. Its replaced text:
+
+> and an item without one drags by its whole surface. There is no
+
 **Dated 2026-11-23 by the architect, not an amendment:** property 4's _"once the slot shows the move"_ and _"each accepted move"_ are read by `RF-103` property 2, with the limit that it states.
 
 **Amended 2026-11-20, before implementation,** for Q1 to Q3: the status, properties 4 and 9, the reasons about the handle and about drag, and the list of what isn't adopted. **Amended again the same day, before implementation,** for Q4 and Q5: the status, property 4's keyboard, handle and announcement items, property 9, the reasons, and the list of what isn't adopted. **Amended a third time on 2026-11-21, before implementation,** for Q6 and its follow-ups: the status, the answers, property 4's handle, Q6 and handle-semantics items, property 7, a reason, and the list of what isn't adopted. It was written from slot b in `745fccb8c`, and the main slot's architect confirmed it the same day and corrected this list of what it changed, which named the keyboard item. **Amended a fourth time on 2026-11-21, before implementation,** for how a static item takes focus, on the implementer's reading [`item-focus.txt`](list-sortable-1/checks/item-focus.txt) and `RF-68`'s [reading](https://github.com/ausginer/material-x/blob/45272694ce5d6792f9c7590f839614aa9dc88289/.plan/list-roles-1/checks/list-roles.txt) on `material-x/list-roles-1`: three sentences of property 4's (Q6) item and a clause of its item on handle semantics. Proposed from slot b in the plan at `9f90572fb`. **Amended a fifth time on 2026-11-21, before implementation,** for the context between the list and its items, on the owner's rule that a parent–child link uses context: three passages of property 4, in the (Q6) item, the item on handle semantics and the last item, and a reason. Proposed from slot b in the plan at `d875ceb25`. **Amended a sixth time on 2026-11-21, before implementation,** for where the items' sortable writes live, on Mx Architect B's ruling on the implementer's size stop at `88801757e` (the plan's [Where the sortable writes live](list-sortable-1/list-sortable-plan.md#where-the-sortable-writes-live)): a passage of property 4's item on handle semantics, property 7's last sentence, and a reason. Proposed from slot b in the plan at `6de14c896`. The main slot's architect registered it with the item on handle semantics reworded, so that it reads with the fifth amendment: the item applies the writes, the (Q6) tab stop included, and the code that writes is in the list's module. **Amended a seventh time on 2026-11-21, after implementation,** for `RF-68`'s fold of `mx-list-item`'s inner element into its host, on `RF-68`'s re-plan: property 4's (Q6) item and its item on handle semantics, a new item of property 4 on drag's `visual`, property 7 and a reason. What each amendment replaced is at the end. The first amendment's new items in the list of what isn't adopted were a grab built in the list and `handle(item, event)`.
@@ -1962,7 +1966,7 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 3. **No runtime entry other than `list/sortable-list` reaches `@ydinjs/drag`,** directly or through other modules, the list items included. A test over the built package checks this, and a temporary drag import in `list.ts` makes the test fail. The published declarations of `list/sortable-list` and `react` name no drag type.
 4. **The sortable list runs drag's `sortable` with `y()` and `landing()`, as drag is today, with the kind that `drag:DRD-71` adds to `onStart`.**
    - Its items are its slotted item elements. It calls `invalidate()` during a drag when they change, and not when only the placeholder moves.
-   - **(Q3, Q6) The handle is optional, and decides per item.** drag's `handle` is the item's `[data-handle]` when it has one, and otherwise the item itself. So an item with a handle drags only by it, by pointer and keyboard, and an item without one drags by its whole surface. There is no `handle-only` attribute: a handle's presence makes its own item handle-only.
+   - **(Q3, Q6) The handle is optional, and decides per item.** drag's `handle` is the item's `[data-handle]` when it has one, and otherwise the item itself. So an item with a handle drags only by it, by pointer and keyboard, and an item without one drags by its whole surface, except by touch: a finger on it does what it does on any item (`RF-146`). There is no `handle-only` attribute: a handle's presence makes its own item handle-only.
    - **(Q4) The keyboard is drag's ordinary model:** an arrow key moves the item one slot at once and proposes the move, inside the same `handle`. So an arrow key moves an item from its focused handle. If the item has no handle, an arrow key also moves it from any focused element inside it, such as an interactive item's own button or link. At the collection's edge the key keeps its meaning.
    - **(Q6) A static item without a handle is a tab stop in a sortable list,** and moves from the keyboard while it has focus. `mx-sortable-list` provides a context, and each item consumes it through core's `useContext`, and is in the list while the provider is its parent element. While it is and has no `[data-handle]`, the item sets `tabindex="0"` and the arrow-key description on its host, where the consumer hasn't set them, and removes what it set when it gains a handle or disconnects. The item resolves the context in whatever order the two are defined (`RF-69`). The host has a box and is the item's `listitem` (`RF-68`), so it takes focus in every engine and has no accessibility node of its own. `mx-list-item` composes neither `FocusForwarding` nor `delegatesFocus`, and shows Material's list focus indicator on its host. A consumer's `tabindex` on its host stands, in either list. Interactive items keep their own control as their only tab stop. In `mx-list`, no item makes itself a tab stop: a static item is one only by a consumer's `tabindex`.
    - **A control inside a handle-less item that uses the arrow keys itself,** such as a text field or a slider, carries `data-drag-ignore`, which drag already honors. Otherwise its arrow keys move the item. The JSDoc says so.
@@ -2655,6 +2659,8 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 **Dated 2026-11-25 by the architect: the owner approved stage 3 the same day,** relayed by the coordinator: _"да на этап 3"_ ("yes to stage 3"). The second row of the table is in force with its exception. The coordinator created the labels `tier:A`, `tier:B` and `tier:C`. The trial is the next new finding that a unit repairs at once, and the coordinator names it. None is named yet, so each new finding still goes to its register unless the coordinator says otherwise. The status above said _"Stages 1 and 2 are approved to start, and stage 3, the trial, isn't. Stage 1 is on `main` (#244, `8663d722b`), and stage 2 merges with #250 (the last note)."_ No property changes.
 
+**Dated 2026-11-25 by the architect, from the trial (#265): which text governs where a finding's body and a decision that it names differ. The body does, for what the repair must do.** The decision gives the form and the public surface, and doesn't narrow the body. A role that finds a difference stops, or judges by the body and reports it if it is a review, and the architect amends the wrong text. `findings.md` doesn't say this: it says that the body alone is the contract, and that a decision in a register is named by the body. **Stage 4 adds the sentence to its _The body_,** and the trial report names the case: #265 property 1 and `drag:DRD-72` property 1, found by the feature proof after the implementation and one ruling had passed over it. Until then #265 says it in its own body, at `r4`. No property changes.
+
 #### RD-57 — axe-core checks material-x's elements in the browser tests, supplementary, with each known violation listed by rule and target
 
 **Decided 2026-11-24 by the architect, on `repo/accessibility-findings-1`,** from Mx Architect Explainer's proposal, relayed by the coordinator. The owner approved its registration with the branch's other items: _"Да, отличный анализ, пасиба! Кидай всё"_ ("Yes, great analysis, thanks! Send it all"). That covers registration and not the design. `RD-56` (`repo/findings-on-github-1`) is the highest `RD-` on any branch on `origin`, so this is the next free number. **Status: implemented** on `repo/axe-checks-1`, as the last dated note here says.
@@ -2685,6 +2691,20 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 - **`RF-144` has three rows,** not two: the third is a handle in a disabled button item, which the probe has. Each target is the item's button with a control in it.
 - **The lockfile** nests axe-core 4.14.1 under `packages/material-x`.
 
+**Dated 2026-11-26 by the architect: the feature proof's two findings are accepted, and `main` is merged.** Requested by the coordinator. Read: the [feature proof](reviews/axe-checks-1/feature-proof-claude.md) of `d20c356bd` with its readings, and `RF-137` as it is on `main` (#292). Nothing was probed again. No property of this entry changes, and nothing is the owner's here. `RD-58`'s note has a question for him.
+
+- **`reviewer-1`, accepted.** axe-core 4.14.1 doesn't apply the `aria-hidden` that `RF-137` sets on an `mx-icon`'s shadow slot. So it names a control by the icon's text, where the browsers give the control no name ([reading](reviews/axe-checks-1/checks/icon-names-chromium.txt)).
+  - **The note above is wrong in its last sentence:** _"When `RF-137` lands, the attribute is redundant, and whichever unit lands second may remove it with witness 2 again."_ **The fixtures' `aria-hidden` on an icon in a control stays.** It is what lets axe see a control that has lost its name. With `RF-137` and without the attribute, witness 2 fails none of its 11 control rows ([reading](reviews/axe-checks-1/checks/with-rf137-witness2-chromium.txt)).
+  - **A limit of the check, beside the role through `ElementInternals`:** axe names an `mx-icon` by its text, however the icon hides it. An icon-only control without a name is held by `RF-137`'s tree rows, not by this check, as property 1 says of any rule engine.
+  - `RF-137`'s _Not read_ and `RD-58`'s reason said otherwise. Each has a note.
+- **`reviewer-2`, accepted, by the row's name.** No `mx-icon` handle with a ligature reads as unnamed to axe when the component names nothing, so no fixture of that form can hold the component's name. The row's state becomes _with an icon as a handle and no label of the page's_, which is what it checks: the ARIA rules on an icon that is a handle. The component's name of a handle is held by `sortable-list.browser`'s rows, which read `aria-label` `Reorder`, and in this file by the row _with a handle that the component names_, a `span` whose icon is hidden, which fails without it.
+- **The merge of `main`** is the architect's, in the commit that has this note. It conflicted at the end of _Findings_ alone: `RF-144` here, `RF-143`'s notes and `RF-145` and `RF-146` on `main`. Both sides are kept, with `RF-144` in its place by number.
+- **Owed by the implementer,** in `tests/axe.browser.test.ts`, and no other file:
+  1. The header's bullet on icons gives this reason: axe takes an `mx-icon`'s text into the control's name although the icon's slot is hidden from the browsers' trees, so an icon in a control is `aria-hidden`, or the control's lost name isn't reported. _Limits_ gains: axe names an `mx-icon` by its text.
+  2. The row's state of `reviewer-2`.
+  3. On the merged tree, in Chromium: the 70 rows pass, and witness 2 with the fixtures as they are fails its 11 control rows. The reading is committed.
+- **No recheck is owed:** text and a state's name, and one reading of a witness that the coordinator reads in the report.
+
 #### RD-58 — A page names the split button's trailing button with `secondarylabel`, and `open` is its expanded state
 
 **Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer of 2026-11-24 to `RF-136`'s Q1, (a). In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). `RD-57` is the highest `RD-` on any branch on `origin`, so this is the next free number. The [contract](#rf-136--the-split-buttons-trailing-button-is-named-by-its-icons-ligature-cant-be-given-a-name-and-doesnt-expose-open) is in `RF-136`.
@@ -2696,6 +2716,13 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 **Why.** The host has two buttons and one name, so the name of one of them needs a place of its own, beside `secondaryaction`. A default would be an English string in every bundle, and a page in another language that forgets the attribute would not see that it did. An unnamed button is reported by axe-core's `button-name` (`RD-57`).
 
 **Costs.** One more attribute. Every page that has a split button sets it, and one that doesn't has an unnamed button, where today it is named by a ligature. The inner `mx-icon-button` has the name and the state on its own node too, which is `RF-94`'s.
+
+**Dated 2026-11-26 by the architect: the last sentence of _Why_ is false since `RF-137`,** from `RD-57`'s feature proof (`reviewer-1`), requested by the coordinator. It said: _"An unnamed button is reported by axe-core's `button-name` (`RD-57`)."_ `RF-137`'s unit took the `aria-hidden` off the template's icon, because `mx-icon` now hides its own text. The browsers then give the trailing button no name, and the split button's row _should expose no name of the trailing button without a label_ holds it. axe-core doesn't apply the icon's hidden slot, and names the button `keyboard_arrow_down`, so a page whose audit is axe-core's doesn't see that it forgot the attribute. No property changes.
+
+**Q1, for the owner — does the template hide its icon again, so that axe-core reports a split button without `secondarylabel`?**
+
+- **(a) Yes. Recommended.** One attribute in the split button's template, and a row in `RD-57`'s check: the split button without `secondarylabel` reports `button-name`, listed under this entry. The reason above is then true again for a page that audits with axe-core. The icon is hidden twice in the browsers, which changes no name.
+- **(b) No.** The page learns it from the documentation, which says that the attribute is required, and from the browser's own tree.
 
 #### RD-59 — `mx-icon` hides its content from assistive technology
 
@@ -2709,9 +2736,43 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 **Costs.** An icon-only control that relies on its ligature loses its name. An SVG or a text with a meaning inside an `mx-icon` is hidden too. Each icon has one more element, whose speed wasn't measured.
 
+**Dated 2026-11-25 by the architect:** the slot itself is hidden, so no icon has one more element (`RF-137`'s last note). Properties 1 to 3 don't change. A new cost: an inline SVG with a size of its own moves by a few pixels in an icon that a page makes a flex or grid container.
+
+#### RD-60 — `mx-sortable-list` moves its neighbors smoothly, by drag's `layoutAnimation` with Material's timing
+
+**Decided 2026-11-25 by the architect, on `drag/displacement-1`,** from Mx Architect Explainer's message, whose sending the owner approved, relayed by the coordinator. For #266, which isn't a tier finding. **Unimplemented. It follows `drag:DRD-72` (#265), and waits for it on `main`.** Before it, the list would have the same keyboard defect in its own elements. `RD-58` and `RD-59` are on `material-x/split-button-names-1`, so this is the next free number. The owner's observation is in `DRD-72`. His answer about the timing: _"Скорее, он должен задаваться извне, с неким дефолтом. В mx-sortable-list это будет M3"_ ("Rather, it should be given from outside, with some default. In `mx-sortable-list` it will be M3").
+
+**What it supersedes:**
+
+- `RD-31`'s _Not adopted_ of `layoutAnimation`, and the list plan's bullet of it. Their reason was that today's rows don't animate and that adding it is a separate choice. This is that choice.
+- `RF-127`'s _"The neighbors aren't animated in either case. `RD-31` doesn't adopt `layoutAnimation`."_
+
+The unit of #266 quotes and amends both, on its own branch.
+
+**Properties.**
+
+1. **`mx-sortable-list` composes `displacement: layoutAnimation({ timing })`,** for pointer and keyboard alike. It isn't a property or an attribute of the element.
+2. **The timing is Material's, read from private custom properties of the list's own sheet,** as `--_drag-duration` is, through one `useCSSProps` call apart from the landing's. They are in the sheet that only `mx-sortable-list` adopts (`RF-129`'s, `list/styles/sortable`), so `mx-list` pays nothing. They start at the `expressive.fast-spatial` pair, 350 ms and `cubic-bezier(0.42, 1.67, 0.21, 0.9)`, and not at the landing's 650 ms. The pair overshoots, as the press's does. **The final value is the owner's, by his eye, on a story** (Q1).
+3. **No motion under `prefers-reduced-motion: reduce`,** by `drag:DRD-72` property 9. The list's own code does nothing about it, so `RF-107`'s visitor and its list-first order don't meet it: the animation is the script's, and no sheet has a transition of it.
+4. **What else the list shows doesn't change:** the command's hidden placeholder and the resting colors (`RF-127`, `RF-129`), the reorder colors, the elevation and its duration, the landing, the announcement, the handles, focus. A refused move and one that the page never commits (the 500 ms fallback) return the neighbors smoothly, by drag, where they jump back today.
+5. **No public surface is added.** The JSDoc of the element says that the neighbors move, in its _Lift_ text's neighborhood, and that the preference stops it.
+6. **Only `list/sortable-list` and `complete` grow.** The list's composition costs about 0.42 kB of Brotli above drag's own unit in a reading with a candidate, and drag's unit 0.23 kB, so `list/sortable-list` goes from 8.94 to about 9.59 kB and `complete` from 25.64 to about 26.3 ([reading](../packages/drag/.plan/displacement-1/checks/sizes.txt)). `RF-129`'s +136 B isn't in it. `RD-31`'s unit had a bound of 9,600 B in its report, which no row holds the list to now (`RD-24`). With `RF-129` and this unit the list passes it.
+
+**Rows,** each in Chromium, Firefox and WebKit, with real input: a key move, a slow pointer move, a flick, `Escape`, a refused move by pointer and by key, the page that commits after 100 ms and the one that never does, and a change of the preference between two moves. Each reads the neighbor's drawn position at the first frame and its place at the end. With the preference, the neighbor is in its place in the next frame, and nothing is left running. `canEmulateReducedMotion` excludes Safari from that one. One row reads the timing: a private property's value on the list changes the animation's duration. **Witness:** with `displacement` removed, every row but the preference's fails.
+
+**What is read before the unit:** the frame of a row that overshoots over a neighbor, and the focus indicator of a row that is moving, because an animated `translate` makes a stacking context (`RF-125`). Neither is read.
+
+**Q1, for the owner, at the unit's end, on the story — which Material timing is it?**
+
+- **(a) `expressive.fast-spatial`, 350 ms. The start, and the recommendation until he has seen it:** it is the pair of the press and of the small moves.
+- (b) `standard.fast-spatial`, 350 ms, the same time with almost no overshoot.
+- (c) The landing's `expressive.slow-spatial`, 650 ms, which follows the item, and makes the neighbors as slow as it.
+
+**Plan needed:** no, beyond this entry. **Size:** _medium_. **Order:** after `drag:DRD-72` and `RF-129` (#261), whose sheet it uses.
+
 #### RD-61 — In `mx-sortable-list`, the user can't reorder a disabled item
 
-**Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer to `RF-142`'s Q1, (c), in the wider form that Mx Architect Explainer proposed and he approved as a whole, relayed by the coordinator. His words: _"почему ручка вообще фокусится, если item disabled? Я бы предположил, что если item disabled, то всё у него внутри тоже disabled. Я верно понимаю a11y?"_ ("why does the handle take focus at all if the item is disabled? I'd expect that if an item is disabled, everything inside it is disabled too. Do I understand a11y right?"), and then, to the readings and the proposal: _"Да, отправляй"_ ("Yes, send it"). The contract is in `RF-142`. `RD-60` is on `drag/displacement-1`, so this is the next free number. **Unimplemented.**
+**Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer to `RF-142`'s Q1, (c), in the wider form that Mx Architect Explainer proposed and he approved as a whole, relayed by the coordinator. His words: _"почему ручка вообще фокусится, если item disabled? Я бы предположил, что если item disabled, то всё у него внутри тоже disabled. Я верно понимаю a11y?"_ ("why does the handle take focus at all if the item is disabled? I'd expect that if an item is disabled, everything inside it is disabled too. Do I understand a11y right?"), and then, to the readings and the proposal: _"Да, отправляй"_ ("Yes, send it"). The contract is in `RF-142`. `RD-60` is on `drag/displacement-1`, so this is the next free number. **Implemented at `754e2089f` (#278), with properties 1, 2 and 8 amended the same day (the last note).**
 
 1. **A `mx-list-button-item` or `mx-list-link-item` with `disabled` isn't picked up by the user,** by pointer or by keyboard, with a handle or without, wherever in the item focus is. An arrow key then keeps its native meaning. It stays in the collection: the other items move past it and displace it. A page's own change of the DOM isn't affected.
 2. **Its handle is a disabled button:** it keeps its role and name, and has `aria-disabled="true"`. It is no tab stop, and it doesn't have the description _Use the arrow keys to move_ or `touch-action: none`. Enabled, it has again what it had. As for the rest of the handle, a value that the page wrote is the page's and stays.
@@ -2729,6 +2790,60 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 **Supersedes** the sentence of `RF-129`'s property 1 _"A disabled item keeps its disabled look: a handle lifts a disabled button item, in the three engines"_, and its row of a disabled button item lifted by its handle. What is left: an item disabled during its drag takes its disabled look, so `:not(:state(disabled))` in `styles/sortable/tokens.ts` stays. `RF-129`'s text in the list's JSDoc, _"an item that isn't disabled takes Material's reorder colors"_, stays true.
 
 **Costs.** A page that disables an item and lets the user reorder it loses the reorder. A disabled item can be neither moved nor announced as movable. The size wasn't measured. The item's observer sees `disabled` in a list that sorts alone, so `mx-list` and the items pay nothing with the candidate read.
+
+**Amended 2026-11-25 by the architect, on the feature proof of #278** ([report](reviews/disabled-item-1/feature-proof-claude.md)), before the merge:
+
+- **Property 1, in nested sortable lists.** What the list refuses is refused by that list. An outer sortable list may then take the press or the key, as drag's _Nested roots_ has it for anything that an inner root declines, so _"an arrow key then keeps its native meaning"_ doesn't hold there. `mx-sortable-list` in an item of another one is not a supported arrangement of its own: no record asks for it, and it has drag's rule and no promise of the package. An `mx-list` in an item is unchanged.
+- **Property 2, _"it has again what it had"_, covers the values that are on the handle.** An attribute that the page _removed_ isn't a value that the page wrote. The list writes an absent one again when the slot or `disabled` changes, as it does on `main` after a slot change. A page that wants no tab stop writes `tabindex="-1"`, which stands.
+- **Property 8 holds as written,** so the item's `disabled` isn't observed on an `mx-list-item`: setting it runs no update.
+
+#### RD-62 — Development runs in Chromium, a review runs in the three engines, and CI runs the whole suite in each
+
+**Decided 2026-11-25 by the owner,** in chat, relayed by the coordinator, after he asked why implementers' runs take so long: _"А вот два первых - да. НО! Пусть ревьюеры гоняют все три движка: тогда они найдут проблемы уже в готовом коде … В общем, разработка - хром, ревью - все три"_ ("the first two, yes; BUT let the reviewers run all three engines: they then find problems in finished code … In short, development is Chrome, review is all three"). The first two are: witnesses in Chromium only, and the other engines' full suite left to CI. **One long-lived Vitest for all mutations is refused:** it was tried. The architect proposed properties 1 to 10, and the owner confirmed the two readings of his words that they rest on (properties 2, and 4 with 5) the same day: _"Подтверждаю обе трактовки"_ ("I confirm both readings"). Written on `repo/engines-1`. `RD-61` is the highest `RD-` on any branch on `origin`. The rule has applied since 2026-11-25, before this record.
+
+**Properties.** The rule in force is [_Engines in development and in review_](../.agents/docs/test-architecture.md#engines-in-development-and-in-review).
+
+1. **An implementer runs Chromium:** rows, suites, witnesses and probes. CI's `verify` runs every row in Chromium, Firefox and WebKit on the pull request.
+2. **The exception: a row that can't show its property in Chromium,** because the defect or the code path exists only in another engine, or the row has an engine condition. That row and its witness run in the engines that show it, that file only. Reproducing a CI failure is the same.
+3. **The implementer doesn't wait for CI.** The report names the head, and says that `verify` is pending or gives its result. A failure returns to the implementer as remediation. Nothing is accepted or proposed for merging until `verify` passes on its head. A run that `RD-15` reduces counts. A unit whose subject is CI, the harness or an engine's configuration reads CI before it reports.
+4. **A feature proof runs Chromium, Firefox and WebKit,** one engine at a time with nothing else running: the test files that the unit adds or changes, the files that test the source it changes, the reviewer's own probes, and the mutations of property 5. It doesn't repeat the whole suite. It cites `verify`'s run on the reviewed head, or on the last commit before it that changed more than records, or says that there is none. These local runs are the review's evidence. Visual stays CI's.
+5. **The mutations that a feature proof repeats in the three engines:**
+   - for each required property, the one that removes its mechanism;
+   - each whose mechanism engines implement differently, such as focus and Tab, selectors with a fallback, the accessibility tree, forms and restoration, pointer and touch, top layer and popover, scrolling, layout rounding, animation and timers, custom element and slot timing;
+   - each that survived, was called equivalent, or that the reviewer doubts.
+
+   The others are read from the implementer's Chromium record, and the report lists both groups. A mutation that a row catches in one engine and not in another is a finding, unless the row or the contract says why.
+
+6. **A recheck** does the same for what the remediation changed.
+7. **A unit with no feature proof** has CI's three engines for its rows and Chromium for its witnesses, and its record says so. A contract whose property is in the second group of property 5 and that changes source asks for a feature proof.
+8. **Contracts already written aren't edited.** _In the three engines_, of witnesses or of affected files, is read as the review's, by properties 4 and 5. _Rows, in each engine_ is met by CI. A contract that names one engine, or says where engines differ, keeps that. A closing condition is met the same way. Runs already made stand.
+9. **A new contract** says _Rows_ and _Witness_ with no engine, and names one only for property 2.
+10. **Not changed:** a reading whose question is about engines runs in those engines, whoever makes it; Safari (`RD-12`); visual (`RD-13`).
+
+**Why.** Three engines multiply each mutation run. A problem that only one engine shows is found by CI's rows and by the review, in finished code.
+
+**Cost.** A row that passes without its mechanism in Firefox or WebKit is found at the review, or not at all for a mutation that nobody repeats there. A review is longer than it was when it read the implementer's runs.
+
+**What this amends.** `RD-13` properties 7 and 8 and `RD-12` property 8, in place with what they said. `drag:DRO-18` and the texts below, by a note or in place. `RD-13`'s last reason, that a local result which can't match CI is noise, stands for visual, and is amended in place. The performance plan of drag already says Chromium, in its §3, and two of its lines ask for the three-engine suite, which property 8 reads: the whole suite in each engine is CI's `verify`, and a feature proof runs the three engines on the files that the unit changes or tests.
+
+- `.agents/docs/test-architecture.md` §CI policy said: _"Local runs are Chromium only by default, without the visual suite; Firefox, WebKit and visual results are read in CI, and a change that only Safari can see starts the Safari workflow on its branch (`repo:RD-13` property 8)."_ It gained the section.
+- `.agents/docs/handoff.md`, `.agents/docs/coordinator.md` and `.claude/agents/`'s `implementer.md`, `reviewer.md` and `architect.md` gained a sentence or two and lost none.
+
+**Not in this unit:** no devcontainer script installs Firefox, so a new container or a `playwright` update leaves a reviewer without it. That is [#285](https://github.com/ausginer/material-x/issues/285), in a pull request of its own.
+
+**Independent read: one, short, before the owner merges,** by a fresh `integrity` session, and not a feature proof, because no code changes. It checks that the six texts and the ten properties agree, that no other document still says otherwise, and that the replaced text is quoted as it was.
+
+**Dated 2026-11-26 by the architect: the integrity read of `f6c1e9bce` is triaged,** requested by the coordinator, who verified each finding at its cited line. No property's substance changes, so nothing is the owner's.
+
+- **`integrity-1`, accepted.** `RD-13`'s last reason is amended in place, with what it said, and _What this amends_ says so.
+- **`integrity-2`, accepted.** The gate of property 3 is in `handoff.md`'s list of what a finalized handoff identifies. Every role reads `handoff.md` before it commits (`AGENTS.md`), and `architect.md` and `consolidator.md` name it, so no role definition changes.
+- **`integrity-3`, accepted.** `test-architecture.md` has property 4's _"These local runs are the review's evidence"_ and property 8's _"A closing condition is met the same way. Runs already made stand."_
+- **`integrity-4`, accepted.** _What this amends_ says how property 8 reads the drag plan's _three-engine suite_: the whole suite in each engine is CI's, and a feature proof runs the three on the files that the unit changes or tests. The plan isn't edited, by property 8.
+- **`integrity-5`, accepted.** `test-architecture.md` says that the devcontainer doesn't install Firefox until #285, and how to install it in the container. `reviewer.md` reaches it through its link to the section.
+- **`integrity-6`, accepted,** by the same sentence as `integrity-2`: a handoff names the head and `verify`'s state there.
+- **`integrity-7`, rejected.** _Rows and witnesses name no engine_ binds a contract, which the architect writes. A test's author follows the contract, and an implementer's engines are in `implementer.md`. The `test-component` skill says how a row is written, and nothing in it names an engine to contradict this.
+
+**Checks:** Markdown only, so no build or test applies. Root format check; the changed links and anchors resolved by a scratch script; `git diff --check`. Lint doesn't apply to Markdown. `aube exec playwright install --dry-run firefox` resolves Playwright's Firefox 159.0.
 
 ## Findings
 
@@ -6632,7 +6747,7 @@ Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: 
 
 #### RF-137 — An `mx-icon`'s ligature text is part of the name of the control that it is in
 
-Tier A, **open**, **ready** after `RF-136` (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from the reading that `RF-136` asked for. `RF-136` is the entry before this one. Read as `RF-136`, with the same probe.
+Tier A, **open**, **ready** (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from the reading that `RF-136` asked for. `RF-136` is the entry before this one. Read as `RF-136`, with the same probe.
 
 - **What happens:** with `<mx-icon>edit</mx-icon>` and the label _Save_, in Chromium, Firefox and WebKit:
 
@@ -6672,6 +6787,82 @@ Tier A, **open**, **ready** after `RF-136` (the last note), pre-existing. Regist
 5. **Rows.** In Chromium through `readAccessibilityTree`: the table's rows, where the name is the label alone; an icon-only control with a host `aria-label`; one without, which has no name; `role="img"` with a label on the icon of a button, whose name then has it; an icon alone and one in a static list item, with no text. In the three engines: the slot is inside the hidden span, and the host has no `aria-hidden`. **Witness:** each tree row fails on `main`, apart from the one with a host `aria-label`. The trees of Firefox and WebKit are read by [`names.ts`](records-batch-1/probes/names.ts) on the built change, for the same contents.
 6. **Pixels:** no visual baseline changes. **Sizes** by the gate. **Stop** and return if a baseline changes, or if a row of another element that queries by name needs more than a label on its fixture.
 7. **The description** has `Closes #259`. A feature proof is owed. **Costs** are `RD-59`'s.
+
+**Dated 2026-11-25 by the implementer: the list is implemented on `material-x/icon-name-1`, from `main` at `2485fb2df`, and it stops: the required property doesn't hold in Firefox.** Requested by the coordinator, for #259. No pull request is open.
+
+- **What fails** ([control](icon-name-1/checks/firefox-upgrade.txt), [probe](icon-name-1/probes/firefox-upgrade.ts)): in Firefox 159, when the markup is parsed and the element is defined after, with the accessibility service on, the icon's text stays in Firefox's tree as a text leaf. The control has plain custom elements and nothing of material-x. Defined 500 ms after the markup, 3 of 3 runs; at once, 1 of 3. In a native button, the button's name is still `edit`. Defined before the markup is inserted, 0 of 3. `aria-hidden` on the slot, and a span of `display: block`, are the same as the span. `aria-hidden="true"` on the host by the page is clean.
+- **On the built change,** the same: [`names.ts`](split-button-names-1/probes/names.ts) (the copy that has all of `records-batch-1`'s contents) gives every **name** of the contract in the three engines ([Chromium](icon-name-1/checks/names-chromium.txt), [Firefox](icon-name-1/checks/names-firefox.txt), [WebKit](icon-name-1/checks/names-webkit.txt)). Firefox's tree still has 10 text leaves `edit`, in the mode that reads the elements as they are. `main` has 28.
+- **Why the earlier reading had none:** its `wrap` mode moves the slot into the span, and sets `aria-hidden`, after the upgrade. A page doesn't.
+- **What is inferred:** Firefox makes the leaf before the upgrade and doesn't remove it when the text moves into a subtree that is hidden from the start. Gecko's source wasn't read.
+- **A candidate, read in the control only, 3 runs each:** the template has a plain span, and `aria-hidden` is set on it in a microtask, in the next frame, two frames or 300 ms after the constructor. Each is clean. It wasn't run in `icon.ts`, and nothing of it is implemented. Not read: whether a page that slots text later keeps it clean, Chromium and WebKit, and its cost.
+- **Is any of it worth having without it?** Nothing gets worse than `main`, where the text is exposed in all cases. That judgment is the architect's.
+
+**Implemented,** and unchanged whatever is decided: the two templates; the documentation of item 3; the labels of item 4; the rows.
+
+- **Labels gained** (item 4): `icon-button.stories.tsx` 15, `switch-icon-button.stories.tsx` 15, `fab.stories.tsx` 13, `button-group.stories.tsx` 4, `connected-button-group.stories.tsx` 4, `list.stories.tsx` 1 (the `chat` button), and the usage snippets of `icon-button.mdx`, `switch-icon-button.mdx`, `fab.mdx` and `connected-button-group.mdx` (two buttons, which had no content at all). The top app bar's had theirs.
+- **Rows,** `tests/icon/icon.browser.test.ts`: 19 in Chromium and 2 in Firefox and WebKit. Each tree row also reads that the icon's text isn't anywhere in the tree.
+- **Witnesses** ([reading](icon-name-1/checks/witnesses.txt), [script](icon-name-1/probes/mutate.mjs)), with the split button's rows beside, by engine (Chromium, Firefox, WebKit): `main` 18, 1 and 1; no `aria-hidden` on the span 20, 1 and 1; `aria-hidden` on the slot 1, 1 and 1; the internals' `ariaHidden` 2, 1 and 1; `aria-hidden` on the host too 2, 1 and 1; the icon's text as its own name 18, 0 and 0. Unmutated, none. Every tree row fails on `main`, also those with a host `aria-label`, because of the reading of the whole tree. The row of the host's attribute passes there, and the mutation of the host fails it.
+- **The split button's template without `aria-hidden`** is held by its own two Chromium rows.
+- **Checks:** material-x without the visual project, before `main`'s #270 was merged: Chromium 1908 passed and 2 expected failures, Firefox 1799, 3 and 98 skipped, WebKit 1810, 2 and 98 skipped. After it, the rows of the icon, the split button and `hidden`: 223, 202 and 202 passed. Lint on the changed files, typecheck, the root format check and the size gate pass.
+- **Size, Brotli, local, against `2485fb2df`:** `icon/icon` 667 to 682 (+15), `checkbox/checkbox`, `radio/radio` and `button/split-button` +9 each, `text-field/text-field` 8618 to 8592 (-26), `complete` 25869 to 25953 (+84). No other row of 23 moves.
+- **Documentation that is its own pull request:** `architecture.md`'s invariant says that `mx-icon` renders its children through one `<slot>` alone, and the slot is now in a span. The template has no `.host` and takes no focus, so it stays in the case _only a slot_.
+- **Not run:** the visual project, so item 6's _no baseline changes_ is unread; Safari; screen readers; `docs-build`. An `mx-icon` with a `display` of a page or the list's avatar, whose item is now the span, wasn't read either.
+
+**Dated 2026-11-25 by the architect, on the implementer's stop, requested by the coordinator: the required property stands, and the form changes.** Read at `6ac64bce1`. Local labels, for Mx Architect to mint where one is wanted: `IN-1` to `IN-5`. Nothing is the owner's.
+
+- **`IN-1`: it is a defect of Gecko, and not a limit of the property.** It is cheap to avoid, and a page whose elements upgrade after its markup is a common one: module scripts are deferred, and server-rendered markup always is.
+  - **The cause, read in Gecko's source** (`DocAccessible.cpp`, the head of `main` of 2026-11-25, which isn't the version that was run): `PruneOrInsertSubtree` removes an accessible that has lost its frame, and doesn't ask whether its new ancestors are `aria-hidden`. So a leaf made before the upgrade stays when its text moves into a subtree that is hidden from the start. `AttributeChanged` calls `ContentRemoved` on the element when its `aria-hidden` becomes true. That removes the leaves, through the slot's assigned nodes. So the attribute has to change after the slot has its nodes, and it doesn't have to be later than that.
+  - **It is wider than the stop says: names fail too.** In the control, with the button defined 400 ms before the icon, `x-button` is `edit Save` with the template's `aria-hidden`, 3 of 3. A native button with the icon is `edit` in each late order.
+- **`IN-2`: the slot itself is hidden, by the constructor, and there is no span.** The template is `<slot></slot>`, as on `main`. The style gives the slot `display: inline`. The constructor sets `aria-hidden="true"` on it after the template is in the shadow tree, synchronously. `RD-59` holds, and its cost of one more element goes.
+  - **Why the slot can be it:** WebKit ignores `aria-hidden` on an element of `display: contents`, whether a slot or a span (read for both), and takes it from a slot that has a box. That is the reason for the earlier candidate's failure in WebKit. `main`'s slot has no box.
+  - **Why synchronously:** a microtask, the next frame and the connect are clean in the control as well, but then the attribute isn't there when the constructor returns. The element needs no second step.
+  - **Not enough:** `aria-hidden` in the template, with the constructor setting the same value (read, `same`: the leaves stay); `aria-hidden` in the template only, on a slot or a span; the span with `display: contents` ([WebKit exposes every text](icon-name-1/checks/span-contents-webkit.txt)).
+- **`IN-3`: `architecture.md` doesn't change, and no pull request is owed for it.** Its sentence, that `mx-icon` renders its children through one `<slot>`, is true again. The implementer's remark was right for the span.
+- **`IN-4`: the two untested cases.** Both were read ([reading](icon-name-1/checks/layout.txt), [probe](icon-name-1/probes/layout.mjs)), with nine forms against `main`, 70 cases, in the three engines, by boxes and pixels. The slot of `IN-2` and the span differ from `main` in the same cases: 9 in Chromium, 8 in Firefox and WebKit. **No ligature, and no SVG of `100%`, differs in any case.**
+  - What differs is an SVG that is inline and has a size of its own, smaller than the icon, in an icon that a page or the avatar makes `flex`, `grid` or `contents` (`flex`, `inline-flex`, `grid`, `inline-grid`, and the avatar): it lies on the baseline of the slot's line, by up to 6px. As the list's avatar it is 3.5px above the center (3.25px in Firefox). In a page's `inline-flex` icon the box of the icon moves by 1 to 6px too, also for a block SVG.
+  - **Accepted as a limit, undocumented.** The avatar is for the page's `<div>` (the stories'), not for an icon, and no story, page or snippet has such an icon. `display: block` on the SVG gives `main`'s place in every case but `inline-flex`, which the span has as well. Six other displays of the box were read, and each differs in more cases. Only `contents` is `main`'s, and WebKit excludes it.
+- **`IN-5`: what the rows can hold.** Firefox's tree isn't readable from a row: its accessibility service is read by Marionette in a process of its own, and Playwright's protocol for Firefox has no accessibility domain (read in its bundle). So the rows hold the mechanism, in each engine, and the evidence for Firefox is `names.ts`, `firefox-hide.ts` and this note. The proof of Firefox is not repeated by the gate.
+
+**Read with the candidate** ([diff](icon-name-1/probes/hide-candidate.diff), applied with `git apply --unidiff-zero`):
+
+| What | Chromium 158 | Firefox 159 | WebKit 27.2 |
+| --- | --- | --- | --- |
+| `names.ts`, built elements, markup then upgrade ([reading](icon-name-1/checks/hide-names.txt)) | the names of the span | the names of the span, no leaf `edit` (10 with the span) | the names of the span |
+| A named icon, `role="img"` with a label | in the name | in the name | in the name |
+| The orders of definition, the text replaced, moved in and moved, an icon moved ([built elements](icon-name-1/checks/hide-orders.txt), [probe](icon-name-1/probes/orders.mjs)) | clean | [the control](icon-name-1/checks/firefox-hide.txt) ([probe](icon-name-1/probes/firefox-hide.ts)), with plain elements: clean, 33 of 33 | clean |
+
+- **In Firefox's control,** eight forms, eleven orders, 3 runs each. Set by the constructor on a span or a slot, in a microtask, and at the connect: clean in all. In the template, or there and set to the same value: 5 of the 11 orders aren't, 3 of 3 each. `At once` had 1 of 3 in the implementer's run and 0 of 3 here.
+- **Sizes** ([reading](icon-name-1/checks/hide-sizes.txt)), Brotli, `just size`, one reading, against `main`'s two icon files and split button's template on this branch: `icon/icon` 667 to 726, `checkbox/checkbox` +30, `radio/radio` +31, `button/split-button` +24, `text-field/text-field` +5, `complete` 25869 to 25926, which is 27 less than the span's. Speed isn't read: one `setAttribute` for each icon.
+
+**The implementer's list,** on `material-x/icon-name-1`. The candidate is a direction, and its form is free. **Unchanged:** the split button's template, the documentation of item 3, the labels of item 4, the 17 tree rows and the row of the host's attribute.
+
+1. **`icon.tpl.html`** is `main`'s. **`icon.ts`:** `IN-2`, with a comment that gives the reason: _Firefox keeps the text of an icon that upgrades after its markup in its tree, if the slot is hidden in the template._ **`icon.ctr.css`:** the slot's `display: inline`, with: _WebKit ignores `aria-hidden` on an element without a box._ The JSDoc of the class, and `icon.mdx`, don't change.
+2. **Rows,** `icon.browser.test.ts`, in each engine. The row of the hidden parent becomes the first of these. A [draft](icon-name-1/probes/hide-rows.browser.test.ts.txt) is there:
+   - the slot has `aria-hidden="true"` when the constructor returns;
+   - the slot's computed `display` is `inline`;
+   - with the element defined after its markup, the slot gets its nodes and then the attribute, whose old value is `null`: a subclass whose `attachShadow` observes the root, defined after the fixture.
+3. **Witnesses,** one engine at a time, each saved. Read on the draft, with the same failing rows in each engine but for the tree's ([reading](icon-name-1/checks/hide-mutations.txt)): the attribute in the template only (the third row), in the template and set to the same value (the third, by its old value), nothing hidden (the first and the third, and the 17 tree rows and the split button's two in Chromium), in a microtask (the first and the third), no `display` (the second), on the host (all three, and the named icon's; the element isn't made by `createElement` then).
+4. **Trees and checks:** `names.ts` on the built change, in the three engines; the checks of the implementer's note, with `main` merged, `docs-build` and `docs-smoke`; the visual project is the runner's, and **no visual baseline changes** is what it is to show. Sizes by the gate.
+5. **Not to change:** checkbox's and radio's own `aria-hidden` on their icons, which is in their templates and isn't a text that a page has written.
+6. **Stop** and return if a tree has the icon's text, a baseline changes, or a mutation fails no row.
+
+- **A feature proof is owed,** as before.
+- **The notes above about the span are replaced by this one,** and the records of `RD-59` and of this entry keep it as the history.
+- **Not read:** Safari, screen readers, Firefox below 159, the built elements in Firefox beyond `names.ts`'s order, speed, the suites with the candidate beyond the icon's and the split button's.
+- **`.agents/docs/accessibility.md`** isn't changed by this unit, and doesn't name the icon's content.
+
+**Dated 2026-11-25 by the implementer: the list above is implemented on `material-x/icon-name-1`, with `main` at `ee0afea12` merged.** By the owner's rule of the same day, relayed by the coordinator, an implementer runs Chromium and the reviewer the three engines.
+
+- **Source:** `IN-2`. The slot is read by `querySelector('slot')`. `icon.tpl.html` is `main`'s.
+- **Rows:** the three of item 2 in `icon.browser.test.ts`, in place of the hidden parent's. The tree's and the host attribute's don't change.
+- **Witnesses,** Chromium ([reading](icon-name-1/checks/slot-witnesses.txt), [program](icon-name-1/probes/mutate-slot.mjs)), of 80 rows with the split button's, failed: in the template only 1, in the template and set to the same value 1 (both the third row), nothing hidden 21, in a microtask 2, no `display` 1, on the host 4; beside the six, `main`'s sources 20, and the host too in a microtask 2; none without a mutation. `main` is the icon's three files and the split button's template, whose own `aria-hidden` there holds the two split button rows that _nothing hidden_ fails.
+- **Trees,** by `names.ts` on the built change. [Chromium](icon-name-1/checks/slot-names-chromium.txt): the same output as the span's, line by line. [Firefox](icon-name-1/checks/slot-names-firefox.txt): no node of the tree has `edit`, in any mode, and each name is the contract's. Firefox is run because the property that stopped the span can be shown there alone. **WebKit's is the reviewer's,** and it is the one engine where `display: inline` matters.
+- **Checks,** Chromium: material-x without the visual project 2063 passed and 2 expected failures. The root format check, typecheck, lint, size gate, publint, `docs-build` and `docs-smoke` (129 of 129) pass.
+- **Sizes,** Brotli, one reading each, `main`'s four sources on this branch, then the head's: `icon/icon` 667 to 707, `checkbox/checkbox` 4290 to 4313, `radio/radio` 3841 to 3866, `button/split-button` 7766 to 7764, `text-field/text-field` 8618 to 8615, `complete` 25924 to 25952. The other 30 rows are the same, and none of the six has a limit.
+- **Not run:** WebKit, Firefox's rows and witnesses, the visual project, so _no visual baseline changes_ is the runner's, Safari, a screen reader, the declarations' typecheck, speed.
+- **Next:** the feature proof.
+
+**Dated 2026-11-26 by the architect: the _Not read_ line on `RD-57`'s check is read, and it is false.** It said that after the repair, _"its `button-name` and `link-name` would then report an icon-only control with no label."_ They don't. axe-core 4.14.1 doesn't apply the `aria-hidden` that this repair sets on the icon's slot, and names the control by the icon's text, read by `RD-57`'s feature proof (`reviewer-1`, [reading](reviews/axe-checks-1/checks/icon-names-chromium.txt), on `repo/axe-checks-1` until it merges). This entry's property is held by its own rows over each engine's tree, which is what `RD-57` property 1 asks of a component's contract. No property changes. `RD-57` and `RD-58` have notes.
 
 #### RF-138 — A disabled split button isn't disabled
 
@@ -6973,6 +7164,50 @@ Tier A, **open**, **ready** after #267 and #268 (the last note), pre-existing. R
 
 **A feature proof is owed,** because public behavior changes. **`.agents/docs/accessibility.md`,** whose list section states the rule after the unit, is project documentation, so it has its own pull request, which the coordinator takes: a disabled item can't be reordered, its handle is `aria-disabled` and no tab stop, and the page's own controls in it are the page's to disable. Nothing is the owner's to answer.
 
+**Dated 2026-11-25 by the implementer: implemented on `material-x/disabled-item-1` at `754e2089f`, for #271, from `main` at `ca6918376`, and not closed.** Requested by the coordinator. `main` at `8bed561de` (#269, #274) is merged without a conflict. No stop was met: drag, `mx-list`, the items' code and `styles/sortable/tokens.ts` don't change.
+
+- **Source:** the candidate's rule and observer. Its `release` by name isn't used: `claim` takes `null` for a value that the item doesn't have now, and what the item owns is a set and not an array. `isDisabled` is the one rule, for the admission and the semantics.
+- **Texts:** as written, in the three JSDocs and in `list.mdx`.
+- **Rows:** 32 in `sortable-list.browser.test.ts`, and the superseded row of `sortable-list.spec` is replaced. Beyond the list: a pointer drag whose item is disabled goes on, and the semantics of an `mx-list-item` with the attribute. A row of the page's values also covers `aria-disabled`.
+- **Witnesses,** one engine at a time, each with the same rows in Chromium, Firefox and WebKit ([reading](disabled-item-1/checks/witnesses.txt), [probe](disabled-item-1/probes/mutate.mjs)). Unmutated 193, 183 and 193 pass:
+
+  | Change | Rows that fail |
+  | --- | --- |
+  | The admission's rule out | 10: the eight of pointer and key, and the two of the focused handle |
+  | The semantics' rule out | 12: Tab's, the attributes' and the description's |
+  | No observer | 4: the attributes and the description after it is disabled |
+  | The tab index removed instead of `-1` | 11, among them the focus row of a `span` |
+  | The operation ended when its item is disabled | 3: the handler's two, and the drag's |
+  | The attribute read on any item | 2 |
+  | `:not(:state(disabled))` out | 1, the spec row |
+  | A page's value replaced | 4 |
+  | A page's value removed on enabling | 1 |
+
+  With the tab index removed, the Tab row of a `span` passes, because a `span` without one is no tab stop.
+
+- **Firefox's link items:** `RF-76` and the spec file say that a pointer drag doesn't lift one there. With the admission's rule out, the two pointer rows of a link item fail in Firefox as elsewhere, so they aren't blind there. Why wasn't read.
+- **Size, Brotli** ([sizes](disabled-item-1/checks/sizes.txt)): `list/sortable-list` 9092 to 9182 (+90), `complete` 25813 to 25880 (+67). No other row moves.
+- **Checks:** at `754e2089f`'s sources, material-x without the visual project in Chromium (42 files), the declarations' typecheck, publint, `docs-build` and `docs-smoke`. On the merged tree, `tests/list` in Chromium (402), Firefox (390, 2 skipped) and WebKit (400, 2 skipped), typecheck, lint, the size gate and the root format check. No baseline changes.
+- **Not here:** `accessibility.md`, by the list.
+
+**Dated 2026-11-25 by the architect: the feature proof of #278 is ruled on** ([report](reviews/disabled-item-1/feature-proof-claude.md), at `9173a25a1`). Requested by the coordinator. Not repeated: the proof's readings. Read: the source at `380920c2a`, `main`'s `sortable-item.ts`, and drag's contract. `RD-61` has the amendments. Nothing is the owner's.
+
+- **`reviewer-1`: accepted, and the four rows are owed.** The list of rows in the note above is a minimum and not complete, because the properties are the contract. The rows: a press whose item is disabled before the lift is lifted and proposes its move; a page's `aria-disabled` written on a disabled handle stands on enabling; an item that left the list writes nothing on its handle when `disabled` changes; a page's `touch-action` written after the claim stands through disabling and enabling. **Witnesses:** his four mutations, each of which now fails a row.
+- **`reviewer-2`: accepted in part.** On an `mx-list-item`, property 8 is exact and the repair is one condition: the `disabled` observer isn't set on a static item, which has no such state. A row: with its `tabindex` removed by the page, `disabled` set on it writes none. **Witness:** with the observer on any item it fails. On the handle of an interactive item the contract doesn't cover a removal, and `RD-61`'s amended property 2 says so. The comment in `sortable-item.ts`, which says that a value is the item's until anyone removes it, stays true. A removal also comes back after a slot change on `main`, so it isn't this unit's.
+- **The three departures: accepted,** as the proof reads them. `claim` takes `null` and the owned names are a set. The two rows beyond the list stay. The link item's rows in Firefox aren't blind, and the cause is read.
+- **Nested sortable lists:** no finding. `RD-61`'s amended property 1 says what holds.
+- **Touch by an inline handle:** registered as `RF-145`, and wider than the observation. It is pre-existing, and not this unit's.
+- **The row of the semantics after enabling, which needs the one before it:** no act. Together they discriminate.
+- **Owed by the implementer:** the condition, the five rows with their witnesses in the three engines, the size rows if they move, and the note. **A targeted recheck by the same reviewer is owed,** of the delta from `380920c2a`: the condition, the rows and the four mutations with the new one. CI runs on it.
+
+**Dated 2026-11-25 by the implementer: the remediation's list is done on `material-x/disabled-item-1`, for #271, and the entry is not closed.** Requested by the coordinator. `main` at `ee0afea12` (#270, #281) is merged: the index conflicts where both sides append, and both are kept, in the entries' order.
+
+- **The condition:** in `sortItem`, the item's `disabled` is observed only where the control isn't the host, so not on a static item. No other source changes.
+- **Rows:** the five of the ruling, so `sortable-list.browser` and `sortable-list.spec` have 198.
+- **Witnesses: Chromium alone,** on the owner's ruling of 2026-11-25, relayed by the coordinator, that development runs in Chromium and the recheck in the three engines. Each fails its own row and no other, of 198 ([reading](disabled-item-1/checks/remediation-witnesses.txt), [probe](disabled-item-1/probes/mutate.mjs)): a press whose item is disabled before the lift canceled; `aria-disabled` not watched; the state observer never disconnected; a page's `touch-action` removed; the `disabled` attribute of any item observed. _No observer_ fails its 4 rows as before. The other former mutations weren't run again.
+- **Size, Brotli** ([sizes](disabled-item-1/checks/remediation-sizes.txt)): the condition is +5 in `list/sortable-list` and -19 in `complete`. Against `main`, `list/sortable-list` 9117 to 9203 (+86) and `complete` 25924 to 25988 (+64). No other row moves, and the gate passes.
+- **Checks,** on the merged tree, Chromium: material-x without the visual project (2079 rows and 2 expected failures), and the root format check, typecheck, lint and the size gate. **Not run:** Firefox and WebKit, the visual project, publint, the docs build. No baseline file changes.
+
 #### RF-143 — A member that can't take focus keeps a connected group's tab stop
 
 Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `core/hidden-1`, from `reviewer-1` of `RF-121`'s [feature proof](reviews/hidden-1/feature-proof-claude.md), requested by the coordinator. `RF-142` is the highest `RF-` on any branch on `origin`, so this is the next free number. No entry covers it: `RF-141` is about a member that isn't in the order. Read on the head of `RF-121`, built, in Playwright's Chromium, Firefox and WebKit, with the same result ([reading](hidden-1/checks/ruling.txt), [probe](hidden-1/probes/ruling.mjs)).
@@ -7000,6 +7235,116 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 - **Plan needed:** no. **Ready** for an implementer, after #269 and #270, on a branch of its own. Nothing is the owner's to answer.
 - **Size:** _medium_. One hook in core, the connected group, its page and their rows.
 
+**Dated 2026-11-25 by the implementer: implemented on `core/roving-hidden-1`, for #273, from `main` at `2485fb2df`, and not closed.** Requested by the coordinator. It is built on `RF-141`'s choice, whose last note replaces this entry's property 2's sentence about a first member that is shown again.
+
+- **The hook:** eligibility is `disabled` and the computed `display`, one `MutationObserver` hears the items' `hidden` and `disabled`, and the tab stop is chosen again at the connect. The observer is on each item of the last read, because a wider one would also choose again for a change inside an item or of the host's own `disabled`.
+- **The group:** its ends are marked by the computed `display`, at a slot change, at the connect, and after a change of `hidden`.
+- **One rule more than the direction names:** a member that is the only one shown is both ends. The former sheet gave it the last member's corners, so `::slotted([data-first][data-last])` has the outer corner on all sides. Property 4 asks for it. A group with one member had the same corners before.
+- **Engines: Chromium, on the owner's ruling of 2026-11-25,** relayed by the coordinator, that development runs in Chromium and the review in the three engines. It came while the witnesses ran. Finished before it: the rows in the three engines, the witnesses in Chromium and Firefox, and in WebKit the first five mutations. The WebKit run was ended, and the sources and core's build are restored.
+- **Rows:** 30 in core's `useRovingTabindex` (95 in all), three in `button-group.browser.test.ts` and seven in `button-group.spec.browser.test.ts`. They pass in Chromium, Firefox and WebKit. **Witnesses,** Chromium ([reading](roving-hidden-1/checks/witnesses.txt), [probe](roving-hidden-1/probes/mutate.mjs)):
+
+  | Change | Core rows that fail, of 95 | material-x, of 140 |
+  | --- | --- | --- |
+  | The hook, the group and the sheet of `main` | 21 | 8 |
+  | The hook of `main` | 21 | 3 |
+  | The group of `main` | 0 | 5 |
+  | `item.hidden` in place of the computed `display` | 3, with the page's `display` | 0 |
+  | No `display` in the hook | 15 | 2 |
+  | No `disabled` in the hook | 12 | 1 |
+  | `hidden` not heard by the hook | 5 | 1 |
+  | `disabled` not heard by the hook | 5 | 1 |
+  | Items that left still heard | 2 | 1, of the pressed corners |
+  | The items of a read of more than three not heard | 2 | 0 |
+  | No choice at the connect | 2 | 0 |
+  | The group's ends by `hidden` | 0 | 1 |
+  | The group's ends without `display` | 0 | 5 |
+  | The ends not marked at the connect | 0 | 2 |
+  | `hidden` not heard by the group | 0 | 2 |
+  | No rule for the only member | 0 | 1 |
+
+  The nine new core rows that `main`'s hook passes say what must not change: the first item shown or enabled again, the choice of focus kept when it is, an item that left, the page's `display`, and `disabled` in a group built while out. The two such rows of the corners are the ends shown again and the page's `display`. Core's rows fail alike in Firefox, and in WebKit as far as it ran.
+
+- **Intermittent, not this unit's rows:** a row of the pressed inner corners failed once in Chromium and twice in Firefox, each under another mutation of the hook, which doesn't reach it. Those rows passed in every run without a mutation. The cause wasn't read, and other sessions ran on the machine.
+- **Size, Brotli** ([reading](roving-hidden-1/checks/sizes.txt)): `button-group/connected-button-group` 4042 to 4187 (+145), `button/split-button` 7766 to 7887 (+121), `complete` 25869 to 26035 (+166). No other row of the 23 moves, and the gate passes.
+- **Checks:** core's projects (394 rows) and material-x's (2044 rows and 2 expected failures) in Chromium, without the visual one; root format check, typecheck, lint and the size gate. After them, one JSDoc paragraph of the group moved, and only format, lint and typecheck of material-x ran again. **Not run:** the docs build, the two other engines' full suites, and what the entry lists as not read.
+
+**Dated 2026-11-26 by the architect: the [feature proof](reviews/roving-hidden-1/feature-proof-claude.md) of `810cffceb` is ruled, and properties 1 and 4 are amended,** requested by the coordinator. The three findings are accepted. My own reading is of the end marks by CSS alone, in the three engines one at a time ([reading](roving-hidden-1/checks/ruling-ends.txt), [probe](roving-hidden-1/probes/ruling-ends.mjs), [again after frames](roving-hidden-1/probes/ruling-ends-frames.mjs)). The rest is the proof's readings.
+
+**One cause behind two findings: the computed `display` is read where an attribute already decides.** WebKit keeps a stale `display` in a subtree that isn't rendered (`reviewer-1`), and an undefined member that a page hides has `display: none` with no change to hear when it is defined (`reviewer-2`). The group's reads of computed style, between its writes of the marks, are the cost (`reviewer-3`), by the proof's attribution. Where the page used `hidden`, the attribute gives the right answer in each case without a read.
+
+**The contract now:**
+
+- **Property 1, in place of its second sentence** (_"`hidden` alone doesn't decide: a page's own `display` can show the member, and it is then one like the others"_): **a member with the `hidden` attribute is out, whatever a page's style does with it.** The computed `display` still decides for a member without `hidden`, so a page's own `display: none` still keeps the keys from it. A page that shows a hidden member has a member that the keys don't reach. The author declared it irrelevant, and the group's page says to hide a member with `hidden`. Keeping the computed `display` as the only test leaves the unit's own finding open in WebKit, for correct use, in an inactive panel.
+- **Property 4, in place of its first sentence:** the outer corners are on the first and the last member **without the `hidden` attribute**, after a slot change or a change of a member's `hidden`. The ends read no computed style, so they need no read at the connect. A member that a page's style alone hides or shows doesn't move the corners. That is visual only, because the tab stop and the keys follow property 1.
+- **Not adopted: ends by CSS alone,** `::slotted(:nth-child(1 of :not([hidden])))` and its `:nth-last-child` twin. They match in the three engines when the group is built, also in RTL and with undefined members. In WebKit, a change of a sibling's `hidden` isn't matched again, also two frames later, so every end stays unmarked until something else changes the group.
+- **Not adopted: the group's reads kept, written only where a mark changes.** It would keep a page's style for the corners, which the ends don't need. `reviewer-2` would still need the group to hear a definition, which only the hook hears, and `reviewer-1`'s corners would stay stale in WebKit.
+
+**Triage:**
+
+- **`reviewer-1`: accepted, pre-existing.** Answered by property 1 as amended: the observer hears `hidden`, and the attribute isn't stale. **The limit that stays, WebKit's, accepted:** a member that is shown again while its group isn't rendered still reads `display: none` there. It isn't given the tab stop back at that change, and the next choice gives it. Another member keeps the tab stop meanwhile, so Tab still enters the group, on another member than the value's when the value names it. The entry and the hook's JSDoc say nothing of it, as of any engine's defect, and this note records it.
+- **`reviewer-2`: accepted, this unit's regression.** Answered by property 4 as amended: an undefined member that a page hides has no `hidden`, so it is an end before and after its definition.
+- **`reviewer-3`: accepted, this unit's. A group without a hidden member may not cost this:** each `mx-split-button` has one, and its members are never hidden. With the group's ends of `main` and this unit's hook, the proof reads `main`'s times in Chromium, so the hook's reads at the connect are accepted. **Required property:** in Chromium, connecting 20, 100 and 300 groups of four, and as many split buttons, in one task, each median of seven is at most 1.5 times `main`'s, read in turn with `main`, three times. It is a reading, not a row, because a row can't hold a time on a loaded machine.
+- **The departure, the only shown member with four outer corners, and a group of one with them too:** accepted, as the proof accepts it.
+- **It isn't the owner's.** The changes are of a unit that isn't on `main`, and core has no release. A page that shows a hidden member is the only one that sees a difference, and its own markup contradicts itself there.
+
+**The list:**
+
+1. **The hook:** an item with the `hidden` attribute isn't eligible. The computed `display` is read only for an item that is enabled and not hidden. The hook's JSDoc and the comment on `eligible` state property 1 as amended.
+2. **The group:** the ends are marked by `hidden` at a slot change and at a change of a member's `hidden`. The read at the connect and the reads of computed style go. A mark is written only where it changes, so a slot change that changes no end writes nothing. That is how to write it, not a required property. The group's JSDoc already says _"isn't hidden"_.
+3. **`connected-button-group.mdx`,** the sentence after _"Hide a member with its `hidden` attribute."_: a hidden member stays out of the group's order even where a page's style shows it. When a style alone hides or shows a member, the tab stop follows at the group's next change, and the outer corners don't follow it.
+4. **Rows that change:** core's two rows _"hidden and shown by a page's display"_ now say that a hidden item that a page's `display` shows isn't the tab stop, and that an arrow key passes it. material-x's _"should count a hidden member that a page's display shows"_ now says that the ends pass over it. Core's row _"should skip an item on an arrow key that a style alone hides"_ stays.
+5. **Rows added:**
+   - In core: an item hidden while the host's ancestor has `hidden` isn't the tab stop, and the next item is, after the ancestor is shown. The same with `hidden` on the host.
+   - In material-x: a group in a `hidden` ancestor, its first member hidden, then the ancestor shown: Tab reaches the second member, and the ends are on the second and the last.
+   - In material-x: a page with `:not(:defined) { display: none }`, the group defined before its members: after their definition, the ends are on the first and the last.
+6. **Witnesses:** `hidden` not read by the hook, which fails the core and material-x rows of the hidden ancestor in WebKit, and core's rows of item 4 in each engine; the group's ends by the computed `display`, as at `810cffceb`, which fails the `:not(:defined)` row in Chromium and the material-x row of item 4; the ends not marked at a change of `hidden`. The rows of the hidden ancestor are blind in Chromium, which reads `none` there. They are witnessed in WebKit, under `RD-62`, in those two files only.
+7. **The cost reading** of `reviewer-3` in Chromium, with the proof's [probe](reviews/roving-hidden-1/probes/proof-cost.browser.test.ts.txt), recorded with the unit.
+
+**Checks owed:** the affected rows in Chromium, the witnesses there and in WebKit as item 6 says, the size table, typecheck, lint and the root format check.
+
+**Recheck:** targeted, by the same reviewer, in the three engines: the proof's readings of the group while it isn't rendered and of a late definition, the cost in turn with `main` in each engine, the sizes, and the new witnesses. Nothing else of the proof is read again.
+
+**`RF-134` (#291)** marks the ends in RTL with the same `data-first` and `data-last`, so it is unaffected. Its sheet's edit is beside this unit's, and the second to reach `main` merges it.
+
+**Dated 2026-11-26 by the implementer: the ruling of 2026-11-26 is implemented on `core/roving-hidden-1`, from `ec9969500`, and not closed.** Requested by the coordinator. Developed and witnessed in Chromium, and the rows of the hidden ancestor also in WebKit, in their two files only, under `RD-62`.
+
+- **The hook (item 1):** `eligible` reads `disabled`, then `hidden`, and the computed `display` only for an item that passes both. Its comment and the hook's JSDoc state property 1 as amended. The read at the connect stays, as the ruling accepts.
+- **The group (item 2):** the ends are the first and the last member without `hidden`, written with `toggleAttribute`, so a mark is written only where it changes. No computed style is read, and nothing is read at the connect.
+- **One choice that the list doesn't name:** the group's `MutationObserver` observes from the constructor and is never disconnected, as the hook's is. `useMutationObserver` disconnects while the group is out, so with the connect's read gone, a member hidden while the group is out isn't heard. The row _"should be right in a group that was changed while out"_ is the one that fails with it. The group's code is 40 B less than at `810cffceb`.
+- **The page (item 3):** the sentence is replaced as the list says.
+- **Rows (items 4 and 5):** the three rows of item 4 changed as listed. Added: core's two rows of the hidden ancestor and of the hidden host (97 in the file), the material-x row of the hidden ancestor in `button-group.browser.test.ts`, and the row of `:not(:defined)` in `button-group-late-switch.browser.test.ts`, whose second member module is `mx-button`. **Core's two rows need an item whose host is `display: contents` with `:host([hidden]) { display: none }`,** the shape of a material-x member. With the plain test item, WebKit reads `none` and the rows are blind there too. The rows define that item.
+- **Witnesses (item 6)** ([reading](roving-hidden-1/checks/witnesses-ends.txt), [probe](roving-hidden-1/probes/witness-ends.mjs)). Without a mutation, core's 97 and material-x's 142 pass in Chromium, and the two files' 97 and 30 in WebKit.
+
+  | Mutation | Engine | Core rows that fail | material-x rows that fail |
+  | --- | --- | --- | --- |
+  | `hidden` not read by the hook | Chromium | 2, of item 4 | 0 |
+  | `hidden` not read by the hook | WebKit | 4: item 4's and the hidden ancestor's and host's | 1, the hidden ancestor |
+  | The group of `810cffceb`, its ends by the computed `display` | Chromium | 0 | 2: `:not(:defined)`, and the page's `display` of item 4 |
+  | The ends not marked at a change of `hidden` | Chromium | 0 | 5, the hidden ancestor among them |
+  | The group's observer only while it is connected | Chromium | 0 | 1, changed while out |
+
+- **The cost (item 7)** ([reading](roving-hidden-1/checks/cost-ends.txt), [probe](roving-hidden-1/probes/cost-ends.sh), with the proof's probe), Chromium, at a load of 11 to 20 on 12 cores. Two series of three, the first with this unit before `main` and the second with `main` first. **The head's median over `main`'s is 0.41 to 2.13, and 8 of the 36 pairs are above 1.5:** in the first series, the groups' three rows of its second run (1.76 to 1.83) and four rows of its third (1.58 to 2.13); in the second, the 20 groups of its second run (1.53, 13.0 against 8.5 ms). Summed over each series' runs, the groups are 1.34 and 0.97 of `main`, and the split buttons 0.91 and 0.74. The proof read 3.4 to 7.5 at `810cffceb`. So the property, as read here, isn't met for every pair. I didn't find the cause of the pairs above 1.5, and they aren't in the same rows in the two series. The recheck reads the cost again.
+- **Size, Brotli** ([reading](roving-hidden-1/checks/sizes-ends.txt)): `button-group/connected-button-group` 4042 at `main`, 4187 at `810cffceb`, 4147 now (+105 over `main`); `button/split-button` 7766, 7887, 7872 (+106); `complete` 25869, 26035, 26016 (+147). No other row of the 36 moves, and none is over its limit.
+- **Checks:** core's suite (396 rows) and the 10 material-x files that use the group (277 rows), in Chromium; the format, lint and typecheck of each changed file, core and material-x; the root format check and `git diff --check`. One ESLint `prefer-destructuring` error on a new line of the group was fixed by rewriting the line. **Not run:** Firefox, WebKit beyond the two files, material-x's full suite, the docs build, and the size gate's own recipe; the table above reads the same rows with `just size-reading`.
+
+**Dated 2026-11-26 by the architect: the cost of `e8be2ba17` is ruled met, and `reviewer-3`'s required property is replaced,** requested by the coordinator. Read from the implementer's [reading](roving-hidden-1/checks/cost-ends.txt), with no run of my own.
+
+**The property as written can't be met by any head on this machine, `main` included.** In the same reading, `main`'s own median for one row differs between its runs by up to 2.83 times in the first series and 2.21 in the second, so a single pair over 1.5 says nothing about the head. What `reviewer-3` found was 3.4 to 7.5 times, in every row. Summed over each series, the head is 1.34 and 0.97 of `main` for the groups and 0.91 and 0.74 for the split buttons, so that finding is gone.
+
+**The property now, in place of** _"each median of seven is at most 1.5 times `main`'s, read in turn with `main`, three times"_: in Chromium, connecting 20, 100 and 300 groups of four, and as many split buttons, in one task, read in two series of three runs in turn with `main`, one with the head first and one with `main` first. **Summed over a series' runs, the groups' times and the split buttons' times are each at most 1.5 times `main`'s, in both series.** A single pair above it isn't a finding. The 1.34 of the groups in the first series is within it, and a cost of that size is the hook's read at the connect, which the ruling accepts.
+
+- **Met at `e8be2ba17`:** 1.34 and 0.97, 0.91 and 0.74.
+- **The recheck** reads it the same way, in Chromium, Firefox and WebKit, one engine at a time.
+
+**The two choices that the list didn't name are confirmed:**
+
+- **The group's observer, for its whole life.** The hook's observer does the same. The group holds it and its callback through the registration on its own node, so nothing outlives the group. While out, a change of `hidden` writes marks and reads no style. With the connect's read gone, an observer that stops while out would leave property 3 to nothing.
+- **Core's rows of the hidden ancestor and host, with a `display: contents` item and `:host([hidden]) { display: none }`.** WebKit's stale `display` is of that shape, as the proof and the [ruling's reading](roving-hidden-1/checks/ruling-ends.txt) read it. A plain item reads `none` there, so a row with it would show nothing in any engine. The row has to show the defect, and the shape is the material-x member's.
+
+**Sizes:** +105, +106 and +147 B over `main`, each less than at `810cffceb`. Accepted.
+
+**Ready for the recheck** by the same reviewer, as the ruling says, with this property for the cost.
+
 #### RF-144 — A control in a slot of `mx-list-button-item` or `mx-list-link-item` is inside the item's button or link
 
 Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `repo/axe-checks-1`, from the readings of `RD-57`'s plan. `RF-143` is the highest `RF-` on any branch on `origin` (`core/hidden-1`), so this is the next free number. Read at `8bed561de` in Chromium, Firefox and WebKit ([readings](axe-checks-1/checks/nested.txt), [probe](axe-checks-1/probes/nested.browser.test.ts.txt)).
@@ -7012,6 +7357,76 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `r
 - **Interaction:** `RD-57`'s list names the button item's lines, and a repair removes them. `RF-142` doesn't touch it.
 - **Plan needed:** yes, by the architect. It changes the items' structure.
 - **Size:** _large_.
+
+#### RF-145 — In Chromium, touch doesn't reorder an item by most handles, `mx-icon` among them
+
+Tier A, **open**, **ready**, pre-existing. Registered on 2026-11-25 by the architect, on `material-x/disabled-item-1`, from an observation of #278's feature proof, requested by the coordinator. `RF-144` is the highest `RF-` on any branch on `origin` (`repo/axe-checks-1`), so this is the next free number. Read in Chromium 158 by CDP touch, on the built elements of `754e2089f`, an enabled item, static and button, in `lead` and `trail` ([reading](inline-handle-1/checks/touch.txt), [probe](inline-handle-1/probes/touch.mjs)), and without the package ([reading](inline-handle-1/checks/slot-text.txt), [probe](inline-handle-1/probes/slot-text.mjs)). `main` wasn't run; its `touch-action` line is the same.
+
+- **What happens:** the item is lifted, and then the finger pans: the browser sends `pointercancel`, which ends the drag. The handle has `touch-action: none` in its inline style in each case.
+
+  | Handle                                          | Touch    |
+  | ----------------------------------------------- | -------- |
+  | `mx-icon`, the handle of the list's own stories | Canceled |
+  | A `span` with text or with an `mx-icon`         | Canceled |
+  | `mx-icon-button`                                | Canceled |
+  | A native button with an `mx-icon`               | Canceled |
+  | A native button with text                       | Works    |
+
+- **Two causes.** `touch-action` doesn't apply to an inline element, nor to a `display: contents` one, which `mx-icon-button`'s host is. And in Chromium, a text slotted into a `display: contents` slot doesn't have the touch action of the host around it: with no package code, a host with `touch-action: none` and a `<slot>` pans from its text, and with a `span` or `div` around the slot too. With `slot { display: block }`, or with an element as the slotted content, it doesn't. The text of `mx-icon` is slotted so.
+- **Why it is a problem:** the JSDoc promises `touch-action: none` for any `[data-handle]` child, and the documented handle is an icon. In Chromium, a touch user can't reorder by it.
+- **Required properties:**
+  1. A touch that starts on a handle of an enabled item, the handle an inline element, an `mx-icon`, an `mx-icon-button` or a native button with any of them in it, lifts the item and isn't canceled by a pan.
+  2. Nothing changes for a mouse, the keyboard, a disabled item (`RD-61` property 2) or a page's own `touch-action`, which stands.
+- **Candidate, read in Chromium:** `display: inline-block` on a slotted `[data-handle]`, and `display: block` on `mx-icon`'s slot. Either alone leaves some of the table canceled, and both together pass all of it. Each changes boxes: the span handle in `lead` was 9x17 and is 9x0 in the reading, and a page's `display` on the handle must still win. Where the rules go is the implementer's.
+- **Interaction:** `RF-137` (`material-x/icon-name-1`) puts `mx-icon`'s slot in a `<span aria-hidden="true">`, which fails in the reading without the package as the plain slot does. So the repair must hold on both, and the second to land reads the other.
+- **Rows,** `browser`, in Chromium, by CDP touch: property 1 for each handle. **Witness:** each fails at `754e2089f`. Screenshots of the handles' boxes don't change, or the owner sees them.
+- **Not read:** Firefox, beyond the owner's check below, WebKit and Safari, and whether the package's other touch surfaces meet the same.
+- **Size:** _medium_.
+
+**Dated 2026-11-25 by the architect: confirmed by the owner on a phone, in Chrome on Android with real touch,** the same day, relayed by the coordinator (the phone and the versions aren't known, nor which handle he tried). His words: _"Ручка: не тащится. Происходит покрас, начинается движение - и тут же сбрасывается"_ ("The handle: it doesn't drag. It is painted, the move starts, and is at once reset"). It is what the emulation shows: a lift, and then a `pointercancel`. Properties, order and size don't change. An item without a handle is `RF-146`.
+
+**Dated 2026-11-25 by the architect: this unit also carries `RF-146`'s (a),** the documentation of an item without a handle and one row, as that entry's last note says. Nothing else of this entry changes.
+
+**Added the same day: Firefox on the same phone,** relayed by the coordinator: _"работает, но «схватиться» за ручку сложнее, чем в хроме"_ ("it works, but it is harder to grab the handle than in Chrome"). It is the handle only: an item without one doesn't move there either (`RF-146`). That it works fits the second cause, which is read in Chromium only, if the handle was the stories' `mx-icon`: that host is `inline-block`, so the first cause doesn't apply to it. **Why it is harder isn't established.** The touch target is small: `mx-icon` in `lead` and in `trail` is 20x20 px in the [reading](inline-handle-1/checks/touch.txt), below the 24x24 of WCAG 2.5.8 without its spacing exception and the 48 dp that Material asks for (both by knowledge, not read here). It is the same in both browsers, so alone it explains that a handle is hard to grab and not the difference. A difference in how each browser moves a touch to a nearby target could, and wasn't read. A larger target isn't a property of this entry: it changes the look or the hit area of every handle, and gets an entry of its own if the owner wants it.
+
+#### RF-146 — By touch, an item without a handle isn't reordered
+
+Tier A, **open**, **ready, with `RF-145`'s unit** (the last note), pre-existing. Until that note: waiting on the owner (Q1). Registered on 2026-11-25 by the architect, on `material-x/disabled-item-1`, from the same check by the owner, relayed by the coordinator: _"Без ручки: вообще ничего не происходит, браузер пытается текст выделить вместо перетаскивания"_ ("Without a handle: nothing happens at all, the browser tries to select text instead of dragging"). Read in Chromium 158, by CDP touch, on the built elements of `754e2089f` ([reading](inline-handle-1/checks/no-handle.txt), [probe](inline-handle-1/probes/no-handle.mjs)).
+
+- **What happens, emulated:** on a static, a button and a link item the finger's move lifts the item, the pan sends `pointercancel`, and nothing is proposed. A press held for 800 ms before the move gives the same. With `touch-action: none` on the item each of them is proposed. The mouse works throughout. Emulation never selected text, which the phone does, and the phone shows no lift.
+- **On the phone, the same in Firefox and in Chrome on Android,** by the owner, relayed by the coordinator on the same day: in Firefox only text is selected, and nothing moves.
+- **What is promised:** `list.mdx` and the JSDoc say that an item without a handle drags _by its whole surface_, and that the user reorders _by pointer_. Neither names touch. drag leaves it to its consumer: _"Give each row `touch-action: none` for touch input and `user-select: none` for text"_, and has no long press. `mx-sortable-list` is that consumer and writes `touch-action` on handles only. `RD-31` (Q3, Q6) decided the whole-surface drag, and no record decided what a finger does there, where a swipe is also how the page scrolls.
+- **So it isn't by contract, and it isn't `RF-145`:** that is a handle that has `touch-action: none` and loses it. Here nothing asks for it, and the repair is a choice.
+- **Q1, for the owner — what does a finger do on an item without a handle?**
+  - **(a) It scrolls, as on any item. A touch user reorders by a handle. Recommended for now.** The documentation says that an item without a handle is reordered by mouse, pen where it doesn't scroll, and keyboard, and that a list used by touch gives its items handles. No code. **Cost:** such a list can't be reordered by touch.
+  - (b) It drags at once: the item has `touch-action: none` and `user-select: none`. A few lines. **Cost:** a finger on an item can't scroll the page or the list, so a list longer than the screen can't be scrolled by its items.
+  - (c) A press held for a moment lifts the item, and a swipe scrolls. It is the usual pattern on phones. **Cost:** drag has to change, which has no long press today: a delay before the activation for touch, a non-passive listener that keeps the browser from scrolling after the lift, and the selection and the menu of a long press suppressed. Not measured or planned. It can follow (a) later.
+- **Why (a):** it keeps scrolling, which everybody needs, and breaks nothing. (b) trades a broken scroll for a drag. (c) is the right behavior if touch matters for these lists, and is a feature with its own decision in drag, so it needs his word.
+- **After the answer:** (a) is the JSDoc and `list.mdx`, _small_. (b) is _small_, with rows by CDP touch. (c) is _large_, with a plan first, in drag and then here.
+- **Order:** it waits for no unit, and `RF-145` doesn't wait for it.
+- **Not read:** Firefox beyond the owner's check, WebKit and Safari, the phone's long press beyond the owner's words, and what Material says.
+
+**Dated 2026-11-25 by the architect: the owner answered Q1 with (a), and wants (c) later.** In chat, relayed by the coordinator: _"Согласен с тобой: (а) сейчас, (с) на потом"_ ("I agree with you: (a) now, (c) for later"). The coordinator had proposed that (c) gets an entry of its own, which is `RQ-3`. He took up no larger handle target (`RF-145`'s last note), so it has no entry. `RD-31` property 4 has the rule.
+
+- **Where: `RF-145`'s unit,** on its branch and in its pull request, which closes both. The text sends a touch user to a handle, and in Chromium most handles don't work by touch until that repair. So (a) doesn't land before it, and isn't added to #278, whose proof is done. Both are ready to be taken, on the base that has #278, which changes the same documents.
+- **Required properties:**
+  1. Each place in the table says what it says now, and that: a mouse drags an item without a handle by its whole surface, and so does a pen where the browser doesn't scroll with it; a finger on it doesn't reorder it and does what it does on any item, such as scroll; and the items of a list that is used by touch need handles.
+  2. No text promises a touch reorder of an item without a handle.
+  3. No code changes for (a). `touch-action` and `user-select` aren't written on an item.
+
+  | Text | Change |
+  | --- | --- |
+  | `sortable-list.ts`, JSDoc, _Handles_: _"An item without a handle drags by its whole surface"_ | Property 1 |
+  | `list.mdx`, _Sortable lists_, the second bullet's first sentence | Property 1 |
+  | `sortable-list.ts`'s `@summary`, and `list.mdx`'s opening: _by pointer and keyboard_ | None: of the list as a whole, and a finger reorders by a handle |
+  | The two texts on an item with a handle and on a disabled item | None: true of each pointer once `RF-145` is repaired |
+  | `list-item.ts`, the button and link items, the stories | None: they promise no pointer drag |
+  | drag: `README.md`, `draggable.ts`'s JSDoc, `contract.md` | None: they tell the consumer to give a row `touch-action: none` for touch, which is so, and promise no drag without it. _"By mouse, touch or pen"_ there defines `onStart`'s kind |
+
+- **Candidate,** for both places: _"A mouse drags an item without a handle by its whole surface, as does a pen that the browser doesn't scroll with. A finger on it scrolls instead, so give the items of a list that is used by touch a handle."_
+- **Row,** `browser`, in Chromium, by CDP touch, beside `RF-145`'s: a swipe that starts on an enabled item without a handle, static and button, proposes nothing. **Witness:** `touch-action: none` on the item fails it, as in the [reading](inline-handle-1/checks/no-handle.txt).
+- **Limit:** the emulated swipe lifts the item before the pan cancels it, and the phone shows no lift. The text doesn't promise that there is none. A lift that a person sees on a device is an observation of its own.
+- **Size:** _small_, with `RF-145`, whose size stays _medium_. `RF-145`'s properties don't change.
 
 ## Questions
 
@@ -7032,3 +7447,23 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `r
   - The disposition rejected reconciling on the switch's own `value`, because that makes the group a second writer that reacts to consumer writes. A reactive value would change that premise. It wouldn't make the group a second writer.
 - **What answers it:** a design unit for reactive values in `@ydinjs/core`, when the owner orders one. The stronger invariant would then be a decision of its own. Until then, the ruling stands.
 - **Routed** to the owner, through the work queue (`RD-22`), as not for now.
+
+#### RQ-3 — How does a press held by touch lift an item without a handle, while a swipe scrolls?
+
+**Opened 2026-11-25 by the architect,** on `material-x/disabled-item-1`, on the owner's answer to `RF-146`'s Q1, _"(с) на потом"_ ("(c) for later"), which that entry quotes whole. `RQ-2` is the highest `RQ-` on any branch on `origin`, so this is the next free number.
+
+- **The behavior:** a touch user can't reorder an item of `mx-sortable-list` that has no handle. By `RF-146`'s (a), that is documented, and the user reorders by a handle.
+- **Why a question, not a finding:** with (a) the code does what the decision and the documentation say. The wish is a feature, and drag rejects it today: _"Activation by time, such as a long press, is not supported"_ (`drag:DRD-17`). `drag:DRO-3` named the case: _"If a touch list that also scrolls can't be dragged there, activation by a long press becomes a feature decision."_ The owner's phone showed that case.
+- **First: a decision in drag, and drag's plan.** The decision is a `DRD-` in drag's register, minted when the unit is ordered. It amends `DRD-17`, and the owner accepts its cost and its public surface. The plan has readings on real phones, because emulation shows neither the selection nor the menu of a long press. material-x follows in a step of its own.
+- **What the decision and the plan must settle:**
+  1. The delay, and the movement that ends the press as a scroll; which pointers it applies to, with pen named; and that the mouse, the keyboard and a handle's immediate drag don't change.
+  2. How the browser is kept from scrolling after the lift, and doesn't cancel the pointer, while a swipe before it scrolls as natively as now. The listener that this takes may make scrolling slower, and it is measured.
+  3. What becomes of the press's other effects: text selection, the context menu, the native drag and menu of a link item, the click after the release, and a control in the item with its own long press.
+  4. How an `Escape`, a second finger, a disabled item, `data-drag-ignore`, a nested root and a list that changes during the delay end or refuse the press.
+  5. Whether it is a feature that a consumer composes, so that a consumer without it pays nothing in bytes or at a press.
+  6. How a user learns of it, and whether the lift gives a sign that it has begun.
+- **Then, in material-x:** `RD-31` property 4's touch sentence, the two texts that `RF-146` (a) changes and its row change with it. Whether `mx-sortable-list` takes it for each item without a handle or on a page's choice is for that step.
+- **Not read:** any engine's behavior beyond `RF-146`'s readings, what Material says, and the sizes.
+- **What answers it:** the decision in drag. Until then, (a) stands.
+- **Size:** _large_.
+- **Routed** to the owner, through the work queue (`RD-22`), as for later.

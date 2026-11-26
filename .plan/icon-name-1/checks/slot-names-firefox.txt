@@ -1,0 +1,439 @@
+# firefox 159.0
+
+## built
+  split, trailing                                {"role":"button","name":null}
+  split, open, trailing                          {"role":"button","name":null}
+  split, label, trailing                         {"role":"button","name":"More"}
+  split, label, leading                          {"role":"button","name":"Save"}
+  split, label, open, trailing                   {"role":"button","name":"More"}
+  split, label, host aria-label, trailing        {"role":"button","name":"More"}
+  split, host aria-label, trailing               {"role":"button","name":null}
+  split, host aria-label, leading                {"role":"button","name":"Save"}
+  split, host aria-label, host                   {"role":"generic","name":"A"}
+  split, host aria-expanded, trailing            {"role":"button","name":null}
+  split, host aria-haspopup, trailing            {"role":"button","name":null}
+  split, icon, leading                           {"role":"button","name":"Save"}
+  split, disabled, trailing                      {"role":"button","name":null}
+  split, disabled, leading                       {"role":"button","name":"Save"}
+  button, disabled (control)                     {"role":"button","name":"Save"}
+  native button, expanded, disabled (control)    {"role":"button","name":"Save"}
+  button, icon and label                         {"role":"button","name":"Save"}
+  button, icon aria-hidden and label             {"role":"button","name":"Save"}
+  button, icon role=img aria-label, and label    {"role":"button","name":"Draft Save"}
+  button, aria-label, icon and label             {"role":"button","name":"A"}
+  link-button, icon and label                    {"role":"link","name":"Save"}
+  switch-button, icon and label                  {"role":"switch","name":"Save"}
+  icon-button, no name                           {"role":"button","name":null}
+  icon-button, aria-label                        {"role":"button","name":"A"}
+  switch-icon-button, no name                    {"role":"switch","name":null}
+  fab, icon slot only                            {"role":"button","name":null}
+  fab, extended, icon and label                  {"role":"button","name":"Save"}
+  list button item, lead, label, trail           {"role":"button","name":"Save"}
+  list link item, lead, label, trail             {"role":"link","name":"Save"}
+  list item, lead, label, trail: host            {"role":"listitem","name":"Save"}
+  text-field, label, lead and trail              {"role":"textbox","name":"Save"}
+  mx-icon alone                                  {"role":"generic","name":null}
+  mx-icon alone, role=img aria-label             {"role":"image","name":"Draft"}
+  the tree in document order: role | name | states
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | expanded expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | expanded expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | unavailable
+    text leaf | "Save" | 
+    pushbutton | null | unavailable collapsed expandable
+    pushbutton | "Save" | unavailable
+    text leaf | "Save" | 
+    pushbutton | null | unavailable collapsed expandable
+    pushbutton | "Save" | unavailable
+    text leaf | "Save" | 
+    pushbutton | "Save" | unavailable expanded haspopup expandable
+    text leaf | "Save" | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "Draft Save" | 
+    graphic | "Draft" | 
+    text leaf | "Save" | 
+    pushbutton | "A" | 
+    text leaf | "Save" | 
+    link | "Save" | 
+    text leaf | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | 
+    pushbutton | "A" | 
+    pushbutton | null | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    listitem | "Save" | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    listitem | "Save" | 
+    link | "Save" | 
+    text leaf | "Save" | 
+    listitem | "Save" | 
+    text leaf | "Save" | 
+    entry | "Save" | 
+    text leaf | "Save" | 
+    graphic | "Draft" | 
+
+## hidden
+  split, trailing                                {"role":"button","name":null}
+  split, open, trailing                          {"role":"button","name":null}
+  split, label, trailing                         {"role":"button","name":"More"}
+  split, label, leading                          {"role":"button","name":"Save"}
+  split, label, open, trailing                   {"role":"button","name":"More"}
+  split, label, host aria-label, trailing        {"role":"button","name":"More"}
+  split, host aria-label, trailing               {"role":"button","name":null}
+  split, host aria-label, leading                {"role":"button","name":"Save"}
+  split, host aria-label, host                   {"role":"generic","name":"A"}
+  split, host aria-expanded, trailing            {"role":"button","name":null}
+  split, host aria-haspopup, trailing            {"role":"button","name":null}
+  split, icon, leading                           {"role":"button","name":"Save"}
+  split, disabled, trailing                      {"role":"button","name":null}
+  split, disabled, leading                       {"role":"button","name":"Save"}
+  button, disabled (control)                     {"role":"button","name":"Save"}
+  native button, expanded, disabled (control)    {"role":"button","name":"Save"}
+  button, icon and label                         {"role":"button","name":"Save"}
+  button, icon aria-hidden and label             {"role":"button","name":"Save"}
+  button, icon role=img aria-label, and label    {"role":"button","name":"Draft Save"}
+  button, aria-label, icon and label             {"role":"button","name":"A"}
+  link-button, icon and label                    {"role":"link","name":"Save"}
+  switch-button, icon and label                  {"role":"switch","name":"Save"}
+  icon-button, no name                           {"role":"button","name":null}
+  icon-button, aria-label                        {"role":"button","name":"A"}
+  switch-icon-button, no name                    {"role":"switch","name":null}
+  fab, icon slot only                            {"role":"button","name":null}
+  fab, extended, icon and label                  {"role":"button","name":"Save"}
+  list button item, lead, label, trail           {"role":"button","name":"Save"}
+  list link item, lead, label, trail             {"role":"link","name":"Save"}
+  list item, lead, label, trail: host            {"role":"listitem","name":"Save"}
+  text-field, label, lead and trail              {"role":"textbox","name":"Save"}
+  mx-icon alone                                  {"role":"generic","name":null}
+  mx-icon alone, role=img aria-label             {"role":"image","name":"Draft"}
+  the tree in document order: role | name | states
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | expanded expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | expanded expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | unavailable
+    text leaf | "Save" | 
+    pushbutton | null | unavailable collapsed expandable
+    pushbutton | "Save" | unavailable
+    text leaf | "Save" | 
+    pushbutton | null | unavailable collapsed expandable
+    pushbutton | "Save" | unavailable
+    text leaf | "Save" | 
+    pushbutton | "Save" | unavailable expanded haspopup expandable
+    text leaf | "Save" | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "Draft Save" | 
+    graphic | "Draft" | 
+    text leaf | "Save" | 
+    pushbutton | "A" | 
+    text leaf | "Save" | 
+    link | "Save" | 
+    text leaf | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | 
+    pushbutton | "A" | 
+    pushbutton | null | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    listitem | "Save" | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    listitem | "Save" | 
+    link | "Save" | 
+    text leaf | "Save" | 
+    listitem | "Save" | 
+    text leaf | "Save" | 
+    entry | "Save" | 
+    text leaf | "Save" | 
+    graphic | "Draft" | 
+
+## wrap
+  split, trailing                                {"role":"button","name":null}
+  split, open, trailing                          {"role":"button","name":null}
+  split, label, trailing                         {"role":"button","name":"More"}
+  split, label, leading                          {"role":"button","name":"Save"}
+  split, label, open, trailing                   {"role":"button","name":"More"}
+  split, label, host aria-label, trailing        {"role":"button","name":"More"}
+  split, host aria-label, trailing               {"role":"button","name":null}
+  split, host aria-label, leading                {"role":"button","name":"Save"}
+  split, host aria-label, host                   {"role":"generic","name":"A"}
+  split, host aria-expanded, trailing            {"role":"button","name":null}
+  split, host aria-haspopup, trailing            {"role":"button","name":null}
+  split, icon, leading                           {"role":"button","name":"Save"}
+  split, disabled, trailing                      {"role":"button","name":null}
+  split, disabled, leading                       {"role":"button","name":"Save"}
+  button, disabled (control)                     {"role":"button","name":"Save"}
+  native button, expanded, disabled (control)    {"role":"button","name":"Save"}
+  button, icon and label                         {"role":"button","name":"Save"}
+  button, icon aria-hidden and label             {"role":"button","name":"Save"}
+  button, icon role=img aria-label, and label    {"role":"button","name":"Draft Save"}
+  button, aria-label, icon and label             {"role":"button","name":"A"}
+  link-button, icon and label                    {"role":"link","name":"Save"}
+  switch-button, icon and label                  {"role":"switch","name":"Save"}
+  icon-button, no name                           {"role":"button","name":null}
+  icon-button, aria-label                        {"role":"button","name":"A"}
+  switch-icon-button, no name                    {"role":"switch","name":null}
+  fab, icon slot only                            {"role":"button","name":null}
+  fab, extended, icon and label                  {"role":"button","name":"Save"}
+  list button item, lead, label, trail           {"role":"button","name":"Save"}
+  list link item, lead, label, trail             {"role":"link","name":"Save"}
+  list item, lead, label, trail: host            {"role":"listitem","name":"Save"}
+  text-field, label, lead and trail              {"role":"textbox","name":"Save"}
+  mx-icon alone                                  {"role":"generic","name":null}
+  mx-icon alone, role=img aria-label             {"role":"image","name":"Draft"}
+  the tree in document order: role | name | states
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | expanded expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | expanded expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | unavailable
+    text leaf | "Save" | 
+    pushbutton | null | unavailable collapsed expandable
+    pushbutton | "Save" | unavailable
+    text leaf | "Save" | 
+    pushbutton | null | unavailable collapsed expandable
+    pushbutton | "Save" | unavailable
+    text leaf | "Save" | 
+    pushbutton | "Save" | unavailable expanded haspopup expandable
+    text leaf | "Save" | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "Draft Save" | 
+    graphic | "Draft" | 
+    text leaf | "Save" | 
+    pushbutton | "A" | 
+    text leaf | "Save" | 
+    link | "Save" | 
+    text leaf | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | 
+    pushbutton | "A" | 
+    pushbutton | null | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    listitem | "Save" | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    listitem | "Save" | 
+    link | "Save" | 
+    text leaf | "Save" | 
+    listitem | "Save" | 
+    text leaf | "Save" | 
+    entry | "Save" | 
+    text leaf | "Save" | 
+    graphic | "Draft" | 
+
+## host
+  split, trailing                                {"role":"button","name":null}
+  split, open, trailing                          {"role":"button","name":null}
+  split, label, trailing                         {"role":"button","name":"More"}
+  split, label, leading                          {"role":"button","name":"Save"}
+  split, label, open, trailing                   {"role":"button","name":"More"}
+  split, label, host aria-label, trailing        {"role":"button","name":"More"}
+  split, host aria-label, trailing               {"role":"button","name":null}
+  split, host aria-label, leading                {"role":"button","name":"Save"}
+  split, host aria-label, host                   {"role":"generic","name":"A"}
+  split, host aria-expanded, trailing            {"role":"button","name":null}
+  split, host aria-haspopup, trailing            {"role":"button","name":null}
+  split, icon, leading                           {"role":"button","name":"Save"}
+  split, disabled, trailing                      {"role":"button","name":null}
+  split, disabled, leading                       {"role":"button","name":"Save"}
+  button, disabled (control)                     {"role":"button","name":"Save"}
+  native button, expanded, disabled (control)    {"role":"button","name":"Save"}
+  button, icon and label                         {"role":"button","name":"Save"}
+  button, icon aria-hidden and label             {"role":"button","name":"Save"}
+  button, icon role=img aria-label, and label    {"role":"button","name":"Save"}
+  button, aria-label, icon and label             {"role":"button","name":"A"}
+  link-button, icon and label                    {"role":"link","name":"Save"}
+  switch-button, icon and label                  {"role":"switch","name":"Save"}
+  icon-button, no name                           {"role":"button","name":null}
+  icon-button, aria-label                        {"role":"button","name":"A"}
+  switch-icon-button, no name                    {"role":"switch","name":null}
+  fab, icon slot only                            {"role":"button","name":null}
+  fab, extended, icon and label                  {"role":"button","name":"Save"}
+  list button item, lead, label, trail           {"role":"button","name":"Save"}
+  list link item, lead, label, trail             {"role":"link","name":"Save"}
+  list item, lead, label, trail: host            {"role":"listitem","name":"Save"}
+  text-field, label, lead and trail              {"role":"textbox","name":"Save"}
+  mx-icon alone                                  {"ignored":true}
+  mx-icon alone, role=img aria-label             {"ignored":true}
+  the tree in document order: role | name | states
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | expanded expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | expanded expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "More" | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | collapsed expandable
+    pushbutton | "Save" | unavailable
+    text leaf | "Save" | 
+    pushbutton | null | unavailable collapsed expandable
+    pushbutton | "Save" | unavailable
+    text leaf | "Save" | 
+    pushbutton | null | unavailable collapsed expandable
+    pushbutton | "Save" | unavailable
+    text leaf | "Save" | 
+    pushbutton | "Save" | unavailable expanded haspopup expandable
+    text leaf | "Save" | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | "A" | 
+    text leaf | "Save" | 
+    link | "Save" | 
+    text leaf | "Save" | 
+    text leaf | "Save" | 
+    pushbutton | null | 
+    pushbutton | "A" | 
+    pushbutton | null | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    listitem | "Save" | 
+    pushbutton | "Save" | 
+    text leaf | "Save" | 
+    listitem | "Save" | 
+    link | "Save" | 
+    text leaf | "Save" | 
+    listitem | "Save" | 
+    text leaf | "Save" | 
+    entry | "Save" | 
+    text leaf | "Save" | 

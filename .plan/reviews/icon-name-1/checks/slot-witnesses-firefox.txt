@@ -1,0 +1,23 @@
+## no mutation | firefox | 0 failed, 59 passed
+## main | firefox | 3 failed, 56 passed
+   mx-icon should hide its slot
+   mx-icon should give its slot a box
+   mx-icon should hide its slot after the slot has its nodes
+## in the template only | firefox | 1 failed, 58 passed
+   mx-icon should hide its slot after the slot has its nodes
+## in the template, and set to the same value | firefox | 1 failed, 58 passed
+   mx-icon should hide its slot after the slot has its nodes
+## nothing hidden | firefox | 2 failed, 57 passed
+   mx-icon should hide its slot
+   mx-icon should hide its slot after the slot has its nodes
+## in a microtask | firefox | 2 failed, 57 passed
+   mx-icon should hide its slot
+   mx-icon should hide its slot after the slot has its nodes
+## no display | firefox | 1 failed, 58 passed
+   mx-icon should give its slot a box
+## on the host | firefox | 3 failed, 56 passed
+   mx-icon should hide its slot
+   mx-icon should give its slot a box
+   mx-icon should hide its slot after the slot has its nodes
+## on the host too, in a microtask | firefox | 1 failed, 58 passed
+   mx-icon should set no aria-hidden on its host

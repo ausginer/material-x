@@ -1,0 +1,246 @@
+diff --git a/packages/drag/src/sortable/axis.ts b/packages/drag/src/sortable/axis.ts
+index f599c22bf..841a4c226 100644
+--- a/packages/drag/src/sortable/axis.ts
++++ b/packages/drag/src/sortable/axis.ts
+@@ -24,6 +24,12 @@ export interface DisplacementSink extends Retirable {
+    * rebuild, and a row never jumps back.
+    */
+   displaced(element: HTMLElement): boolean;
++  /** Reads `rows` from `lo` to before `hi`, settled, before the library moves the placeholder outside a resolution. */
++  depart(rows: readonly HTMLElement[], lo: number, hi: number): void;
++  /** Reads them again after it, and reports each that moved. */
++  arrive(space: Space): void;
++  /** Ends what a running animation applies to `element`. */
++  release(element: HTMLElement): void;
+ }
+ 
+ export type DisplacementInstaller = () => DisplacementSink;
+@@ -50,6 +56,8 @@ export type AxisContext = Readonly<{
+ }>;
+ 
+ export interface InsertionGeometry extends Invalidatable, Retirable {
++  /** Whether a placeholder move displaces only the rows it crosses. */
++  readonly linear: boolean;
+   /** A new gap, or `null` when the committed one still wins. */
+   resolve(query: AxisQuery, context: AxisContext): Insertion | null;
+   /**
+diff --git a/packages/drag/src/sortable/behavior.ts b/packages/drag/src/sortable/behavior.ts
+index 889c72b4f..999bf329d 100644
+--- a/packages/drag/src/sortable/behavior.ts
++++ b/packages/drag/src/sortable/behavior.ts
+@@ -142,6 +142,8 @@ export class SortableBehavior implements Behavior<
+     // First, so that its release is the operation's first disposer and runs last.
+     const lift = this.#lifter.acquire(drag, state.visual, state.box);
+ 
++    this.displacement?.release(drag.item);
++
+     // The second pull closes the window between admission and activation, in
+     // which foreign code runs: a press before its threshold, and a command
+     // through the lift's popover events. An item that left, or a command whose
+diff --git a/packages/drag/src/sortable/layout-animation.ts b/packages/drag/src/sortable/layout-animation.ts
+index 2d2d2f8b5..a6dcd7c9e 100644
+--- a/packages/drag/src/sortable/layout-animation.ts
++++ b/packages/drag/src/sortable/layout-animation.ts
+@@ -60,6 +60,8 @@ class LayoutAnimationSink implements DisplacementSink {
+   // What the last `displaced` call answered with, read through the getters.
+   #carriedX = 0;
+   #carriedY = 0;
++  #rows: readonly HTMLElement[] = [];
++  #before: ReadonlyArray<readonly [number, number]> = [];
+ 
+   constructor(duration: number, easing: string) {
+     this.#duration = duration;
+@@ -119,6 +121,44 @@ class LayoutAnimationSink implements DisplacementSink {
+     this.#running.set(element, record);
+   }
+ 
++  depart(rows: readonly HTMLElement[], lo: number, hi: number): void {
++    this.#rows = rows.slice(lo, hi);
++    this.#before = this.#rows.map((row) => this.#settled(row));
++  }
++
++  arrive(space: Space): void {
++    const after = this.#rows.map((row) => this.#settled(row));
++
++    for (const [i, row] of this.#rows.entries()) {
++      const [x, y] = this.#before[i]!;
++      const [left, top] = after[i]!;
++
++      if (x !== left || y !== top) {
++        this.report(row, x - left, y - top, space);
++      }
++    }
++
++    this.#rows = [];
++    this.#before = [];
++  }
++
++  release(element: HTMLElement): void {
++    const held = this.#running.get(element);
++
++    if (held) {
++      this.#running.delete(element);
++      held.animation.cancel();
++    }
++  }
++
++  #settled(row: HTMLElement): readonly [number, number] {
++    const { left, top } = row.getBoundingClientRect();
++
++    return this.displaced(row)
++      ? [left - this.#carriedX, top - this.#carriedY]
++      : [left, top];
++  }
++
+   displaced(element: HTMLElement): boolean {
+     const held = this.#running.get(element);
+ 
+diff --git a/packages/drag/src/sortable/operation.ts b/packages/drag/src/sortable/operation.ts
+index 884ee9ee1..244267dc8 100644
+--- a/packages/drag/src/sortable/operation.ts
++++ b/packages/drag/src/sortable/operation.ts
+@@ -58,6 +58,10 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+   #home: Insertion;
+   /** `null` until the drop: a cancel before it has none. */
+   #request: ReorderRequest | null = null;
++  /** The destination's rows, only with a displacement sink. */
++  #rows: readonly HTMLElement[] = [];
++  /** The gap the placeholder is in. */
++  #gap: number;
+   /** Recorded at `settle` and reported at `end`. */
+   #result: SortableResult | null = null;
+ 
+@@ -79,6 +83,8 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+     this.#frame = frame;
+     this.#context = context;
+     this.#home = home;
++    this.#gap = home.index;
++    this.#collect(snapshot);
+     this.#query = {
+       item: drag.item,
+       snapshot,
+@@ -124,7 +130,21 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+     );
+ 
+     this.#request = request;
+-    movePlaceholder(this.#context.placeholder, this.#query.insertion);
++
++    if (isPointerOperation) {
++      if (!placeholderAt(this.#context.placeholder, this.#query.insertion)) {
++        movePlaceholder(this.#context.placeholder, this.#query.insertion);
++
++        if (this.#context.displacement) {
++          this.#behavior.axis.moved(this.#query, this.#context);
++        }
++      }
++    } else {
++      this.#relocate(this.#query.insertion.index, () => {
++        movePlaceholder(this.#context.placeholder, this.#query.insertion);
++      });
++    }
++    this.#gap = this.#query.insertion.index;
+ 
+     if (isPointerOperation) {
+       this.#lift.translate(
+@@ -142,6 +162,34 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+   settle(outcome: Outcome<ReorderResolution>): void {
+     const recovery = this.#recordResult(outcome);
+ 
++    if (this.#context.displacement) {
++      const { placeholder } = this.#context;
++      const { item } = this.#query;
++      const anchor = this.#home.after ?? this.#home.before;
++      const home = recovery !== RECOVERY_DESTINATION;
++
++      if (
++        placeholder.parentElement === item.parentElement &&
++        placeholder.isConnected &&
++        (home
++          ? anchor?.parentNode === placeholder.parentNode &&
++            !placeholderAt(placeholder, this.#home)
++          : placeholder.nextElementSibling !== item)
++      ) {
++        if (!home) {
++          this.#gap = 0;
++        }
++
++        this.#relocate(home ? this.#home.index : this.#rows.length, () => {
++          if (home) {
++            movePlaceholder(placeholder, this.#home);
++          } else {
++            item.before(placeholder);
++          }
++        });
++      }
++    }
++
+     if (this.#behavior.landing && recovery !== RECOVERY_IMMEDIATE) {
+       // Called once: it moves the placeholder and then reads layout.
+       const { left, top } = this.#landingTarget(recovery);
+@@ -158,6 +206,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+   rebase(next: CollectionSnapshot): void {
+     this.#query.snapshot = next;
+     this.#home = homeInsertion(next, this.#drag.item);
++    this.#collect(next);
+ 
+     if (next.items.includes(this.#drag.item)) {
+       const insertion = reconcileCollection(
+@@ -201,6 +250,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+       movePlaceholder(this.#context.placeholder, resolved);
+       this.#behavior.axis.moved(this.#query, this.#context);
+       stale = false;
++      this.#gap = resolved.index;
+     } finally {
+       if (stale) {
+         this.#behavior.axis.invalidate();
+@@ -208,6 +258,26 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+     }
+   }
+ 
++  #collect(snapshot: CollectionSnapshot): void {
++    if (this.#context.displacement) {
++      this.#rows = snapshot.items.filter((row) => row !== this.#drag.item);
++    }
++  }
++
++  /** Moves the placeholder outside a resolution, and reports the rows it displaced. */
++  #relocate(to: number, move: () => void): void {
++    const { displacement, space } = this.#context;
++    const { linear } = this.#behavior.axis;
++
++    displacement?.depart(
++      this.#rows,
++      linear ? Math.min(this.#gap, to) : 0,
++      linear ? Math.max(this.#gap, to) : this.#rows.length,
++    );
++    move();
++    displacement?.arrive(space);
++  }
++
+   /** Records the terminal result, and says where the visual goes. */
+   #recordResult(outcome: Outcome<ReorderResolution>): Recovery {
+     if (outcome.type === 'canceled') {
+diff --git a/packages/drag/src/sortable/xy.ts b/packages/drag/src/sortable/xy.ts
+index 117e0606d..25545811d 100644
+--- a/packages/drag/src/sortable/xy.ts
++++ b/packages/drag/src/sortable/xy.ts
+@@ -49,6 +49,7 @@ function refresh(
+ }
+ 
+ class XYAxisGeometry implements InsertionGeometry {
++  readonly linear = false;
+   readonly #index = new RetainingRectIndex();
+   #last = -1;
+ 
+diff --git a/packages/drag/src/sortable/y.ts b/packages/drag/src/sortable/y.ts
+index 9d95ea5e7..2ad0bd22f 100644
+--- a/packages/drag/src/sortable/y.ts
++++ b/packages/drag/src/sortable/y.ts
+@@ -37,6 +37,7 @@ import { LinearShift } from './linear-shift.ts';
+ import { CENTER_Y, PLACEHOLDER, RectIndex, TOP } from './rect-index.ts';
+ 
+ class YAxisGeometry implements InsertionGeometry {
++  readonly linear = true;
+   readonly #index = new RectIndex(TOP);
+   readonly #shift = new LinearShift(this.#index);
+ 

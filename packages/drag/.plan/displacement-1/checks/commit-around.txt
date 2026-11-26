@@ -1,0 +1,333 @@
+# commit-around.browser.test.ts, plain rows, y() and xy(), with a landing and without: the head 7afeebd11, and the candidate below, which isn't final code.
+## head-chromium
+JUMP chromium xy none item :: drop mid row, old order appended, rejected | jump 155.24 r3@1 | moved 155.2 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 92.6
+JUMP chromium xy none item :: drop up, every row appended in order | jump 80.00 r0@1 | moved 0.0 | anims 1 | r0r4r1r2r3r5 | start,accepted |  | shell 8.5
+JUMP chromium xy none item :: drop, all appended then throws | jump 155.24 r3@1 | moved 155.2 | anims 2 | r0r1r2r3r4r5 | start,canceled | x | shell 92.6
+JUMP chromium xy none item :: drop, all at once, accepted at 50 | jump 164.92 r3@1 | moved 0.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 131.5
+JUMP chromium xy none item :: drop, every row appended in order | jump 164.92 r3@1 | moved 0.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+JUMP chromium xy none item :: drop, old order appended, rejected | jump 164.92 r3@1 | moved 164.9 | anims 0 | r0r1r2r3r4r5 | start,rejected |  | shell 43.1
+JUMP chromium xy none item :: drop, prepend all reversed | jump 60.00 r4@1 | moved 0.0 | anims 2 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+JUMP chromium xy none item :: drop, server order (one before), appended | jump 164.92 r3@1 | moved 164.9 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 97.0
+JUMP chromium xy none item :: drop, server order first, appended | jump 155.24 r3@1 | moved 155.2 | anims 0 | r2r0r1r3r4r5 | start,accepted |  | shell 80.5
+JUMP chromium xy none item :: flick down, every row appended in order | jump 164.92 r3@2 | moved 164.9 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 40.0
+JUMP chromium xy none item :: key down, all at once, accepted at 50 | jump 90.00 r0@1 | moved 90.0 | anims 2 | r0r2r1r3r4r5 | start,accepted |  | shell 240.3
+JUMP chromium xy none item :: key down, all, then fails: old order appended, rejected at 50 | jump 90.00 r0@1 | moved 0.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 172.4
+JUMP chromium xy none item :: key down, every row appended at 50 ms | jump 90.00 r0@4 | moved 90.0 | anims 2 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+JUMP chromium xy none item :: key down, every row appended in order | jump 90.00 r0@1 | moved 90.0 | anims 2 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+JUMP chromium xy none item :: key down, old order appended, rejected at once | jump 90.00 r0@1 | moved 0.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+JUMP chromium xy none item :: key up, every row appended in order | jump 60.00 r0@1 | moved 155.2 | anims 5 | r0r1r3r2r4r5 | start,accepted |  | shell 155.2
+JUMP chromium xy none item landing :: drop mid row, old order appended, rejected | jump 155.24 r3@1 | moved 155.2 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 36.1
+JUMP chromium xy none item landing :: drop up, every row appended in order | jump 80.00 r0@1 | moved 0.0 | anims 1 | r0r4r1r2r3r5 | start,accepted |  | shell 3.3
+JUMP chromium xy none item landing :: drop, all appended then throws | jump 155.24 r3@1 | moved 155.2 | anims 2 | r0r1r2r3r4r5 | start,canceled | x | shell 92.6
+JUMP chromium xy none item landing :: drop, all at once, accepted at 50 | jump 164.92 r3@1 | moved 0.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 131.5
+JUMP chromium xy none item landing :: drop, every row appended in order | jump 164.92 r3@1 | moved 0.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 1.7
+JUMP chromium xy none item landing :: drop, old order appended, rejected | jump 164.92 r3@1 | moved 164.9 | anims 0 | r0r1r2r3r4r5 | start,rejected |  | shell 16.8
+JUMP chromium xy none item landing :: drop, prepend all reversed | jump 60.00 r4@1 | moved 0.0 | anims 2 | r1r2r3r0r4r5 | start,accepted |  | shell 1.7
+JUMP chromium xy none item landing :: drop, server order (one before), appended | jump 164.92 r3@1 | moved 164.9 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 38.0
+JUMP chromium xy none item landing :: drop, server order first, appended | jump 155.24 r3@1 | moved 155.2 | anims 0 | r2r0r1r3r4r5 | start,accepted |  | shell 31.5
+JUMP chromium xy none item landing :: flick down, every row appended in order | jump 164.92 r3@2 | moved 164.9 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 43.1
+JUMP chromium xy none item landing :: key down, all at once, accepted at 50 | jump 90.00 r0@1 | moved 90.0 | anims 2 | r0r2r1r3r4r5 | start,accepted |  | shell 172.4
+JUMP chromium xy none item landing :: key down, all, then fails: old order appended, rejected at 50 | jump 90.00 r0@1 | moved 0.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 172.4
+JUMP chromium xy none item landing :: key down, every row appended at 50 ms | jump 90.00 r0@6 | moved 90.0 | anims 2 | r0r2r1r3r4r5 | start,accepted |  | shell 27.5
+JUMP chromium xy none item landing :: key down, every row appended in order | jump 90.00 r0@2 | moved 90.0 | anims 2 | r0r2r1r3r4r5 | start,accepted |  | shell 27.3
+JUMP chromium xy none item landing :: key down, old order appended, rejected at once | jump 90.00 r0@1 | moved 0.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+JUMP chromium xy none item landing :: key up, every row appended in order | jump 60.00 r0@1 | moved 155.2 | anims 5 | r0r1r3r2r4r5 | start,accepted |  | shell 60.4
+JUMP chromium y none item :: drop mid row, old order appended, rejected | jump 30.00 r0@1 | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 88.1
+JUMP chromium y none item :: drop up, every row appended in order | jump 40.00 r0@1 | moved 0.0 | anims 1 | r0r4r1r2r3r5 | start,accepted |  | shell 13.3
+JUMP chromium y none item :: drop, all appended then throws | jump 30.00 r0@1 | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,canceled | x | shell 88.1
+JUMP chromium y none item :: drop, all at once, accepted at 50 | jump 40.00 r1@1 | moved 0.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 219.5
+JUMP chromium y none item :: drop, every row appended in order | jump 40.00 r1@1 | moved 0.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+JUMP chromium y none item :: drop, old order appended, rejected | jump 40.00 r1@1 | moved 40.0 | anims 0 | r0r1r2r3r4r5 | start,rejected |  | shell 138.0
+JUMP chromium y none item :: drop, prepend all reversed | jump 40.00 r4@1 | moved 0.0 | anims 2 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+JUMP chromium y none item :: drop, server order (one before), appended | jump 40.00 r1@1 | moved 40.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 78.1
+JUMP chromium y none item :: drop, server order first, appended | jump 30.00 r0@1 | moved 30.0 | anims 0 | r2r0r1r3r4r5 | start,accepted |  | shell 188.0
+JUMP chromium y none item :: flick down, every row appended in order | jump 40.00 r2@2 | moved 40.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 138.0
+JUMP chromium y none item :: key down, all at once, accepted at 50 | jump 60.00 r0@1 | moved 60.0 | anims 2 | r0r2r1r3r4r5 | start,accepted |  | shell 170.3
+JUMP chromium y none item :: key down, all, then fails: old order appended, rejected at 50 | jump 60.00 r0@1 | moved 0.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 148.7
+JUMP chromium y none item :: key down, every row appended at 50 ms | jump 60.00 r0@4 | moved 60.0 | anims 2 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+JUMP chromium y none item :: key down, every row appended in order | jump 60.00 r0@3 | moved 60.0 | anims 2 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+JUMP chromium y none item :: key down, old order appended, rejected at once | jump 60.00 r0@1 | moved 0.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+JUMP chromium y none item :: key up, every row appended in order | jump 50.00 r0@1 | moved 50.0 | anims 3 | r0r1r3r2r4r5 | start,accepted |  | shell 30.0
+JUMP chromium y none item landing :: drop mid row, old order appended, rejected | jump 30.00 r0@1 | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 34.8
+JUMP chromium y none item landing :: drop up, every row appended in order | jump 40.00 r0@1 | moved 0.0 | anims 1 | r0r4r1r2r3r5 | start,accepted |  | shell 5.2
+JUMP chromium y none item landing :: drop, all appended then throws | jump 30.00 r0@1 | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,canceled | x | shell 88.1
+JUMP chromium y none item landing :: drop, all at once, accepted at 50 | jump 40.00 r1@1 | moved 0.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 219.3
+JUMP chromium y none item landing :: drop, every row appended in order | jump 40.00 r1@1 | moved 0.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 1.4
+JUMP chromium y none item landing :: drop, old order appended, rejected | jump 40.00 r1@1 | moved 40.0 | anims 0 | r0r1r2r3r4r5 | start,rejected |  | shell 54.2
+JUMP chromium y none item landing :: drop, prepend all reversed | jump 40.00 r4@1 | moved 0.0 | anims 2 | r1r2r3r0r4r5 | start,accepted |  | shell 1.4
+JUMP chromium y none item landing :: drop, server order (one before), appended | jump 40.00 r1@1 | moved 40.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 30.6
+JUMP chromium y none item landing :: drop, server order first, appended | jump 30.00 r0@1 | moved 30.0 | anims 0 | r2r0r1r3r4r5 | start,accepted |  | shell 73.5
+JUMP chromium y none item landing :: flick down, every row appended in order | jump 40.00 r1@2 | moved 40.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 139.8
+JUMP chromium y none item landing :: key down, all at once, accepted at 50 | jump 60.00 r0@2 | moved 60.0 | anims 2 | r0r2r1r3r4r5 | start,accepted |  | shell 148.7
+JUMP chromium y none item landing :: key down, all, then fails: old order appended, rejected at 50 | jump 60.00 r0@1 | moved 0.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 148.7
+JUMP chromium y none item landing :: key down, every row appended at 50 ms | jump 60.00 r0@4 | moved 60.0 | anims 2 | r0r2r1r3r4r5 | start,accepted |  | shell 11.8
+JUMP chromium y none item landing :: key down, every row appended in order | jump 60.00 r0@1 | moved 60.0 | anims 2 | r0r2r1r3r4r5 | start,accepted |  | shell 11.7
+JUMP chromium y none item landing :: key down, old order appended, rejected at once | jump 60.00 r0@1 | moved 0.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+JUMP chromium y none item landing :: key up, every row appended in order | jump 50.00 r0@1 | moved 50.0 | anims 3 | r0r1r3r2r4r5 | start,accepted |  | shell 11.8
+ok   chromium xy none item :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   chromium xy none item :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+ok   chromium xy none item :: key, replaceChildren | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   chromium xy none item landing :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   chromium xy none item landing :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 4.2
+ok   chromium xy none item landing :: key, replaceChildren | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 70.0
+ok   chromium y none item :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   chromium y none item :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+ok   chromium y none item :: key, replaceChildren | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   chromium y none item landing :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   chromium y none item landing :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 3.6
+ok   chromium y none item landing :: key, replaceChildren | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 30.0
+## candidate-chromium
+JUMP chromium xy none item :: drop, all at once, accepted at 50 | jump 164.92 r3@1 | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 131.5
+JUMP chromium xy none item :: key down, all at once, accepted at 50 | jump 90.00 r2@4 | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 240.3
+JUMP chromium xy none item :: key down, all, then fails: old order appended, rejected at 50 | jump 90.00 r2@4 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 172.4
+JUMP chromium xy none item landing :: drop, all at once, accepted at 50 | jump 164.92 r3@1 | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 131.5
+JUMP chromium xy none item landing :: key down, all at once, accepted at 50 | jump 90.00 r2@4 | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 172.4
+JUMP chromium xy none item landing :: key down, all, then fails: old order appended, rejected at 50 | jump 90.00 r2@4 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 172.4
+JUMP chromium y none item :: drop, all at once, accepted at 50 | jump 40.00 r1@1 | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 219.5
+JUMP chromium y none item :: key down, all at once, accepted at 50 | jump 60.00 r2@4 | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 170.3
+JUMP chromium y none item :: key down, all, then fails: old order appended, rejected at 50 | jump 60.00 r0@1 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 148.7
+JUMP chromium y none item landing :: drop, all at once, accepted at 50 | jump 40.00 r1@1 | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 219.3
+JUMP chromium y none item landing :: key down, all at once, accepted at 50 | jump 60.00 r2@4 | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 148.7
+JUMP chromium y none item landing :: key down, all, then fails: old order appended, rejected at 50 | jump 60.00 r0@1 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 148.7
+ok   chromium xy none item :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   chromium xy none item :: drop mid row, old order appended, rejected | jump 0.00  | moved 155.2 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 92.6
+ok   chromium xy none item :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 8.5
+ok   chromium xy none item :: drop, all appended then throws | jump 0.00  | moved 155.2 | anims 3 | r0r1r2r3r4r5 | start,canceled | x | shell 92.6
+ok   chromium xy none item :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+ok   chromium xy none item :: drop, old order appended, rejected | jump 0.00  | moved 164.9 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 43.1
+ok   chromium xy none item :: drop, prepend all reversed | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+ok   chromium xy none item :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+ok   chromium xy none item :: drop, server order (one before), appended | jump 0.00  | moved 164.9 | anims 2 | r1r0r2r3r4r5 | start,accepted |  | shell 97.0
+ok   chromium xy none item :: drop, server order first, appended | jump 0.00  | moved 155.2 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 80.5
+ok   chromium xy none item :: flick down, every row appended in order | jump 0.00  | moved 164.9 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 43.1
+ok   chromium xy none item :: key down, every row appended at 50 ms | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   chromium xy none item :: key down, every row appended in order | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   chromium xy none item :: key down, old order appended, rejected at once | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   chromium xy none item :: key up, every row appended in order | jump 0.00  | moved 155.2 | anims 3 | r0r1r3r2r4r5 | start,accepted |  | shell 155.2
+ok   chromium xy none item :: key, replaceChildren | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   chromium xy none item landing :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   chromium xy none item landing :: drop mid row, old order appended, rejected | jump 0.00  | moved 155.2 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 36.1
+ok   chromium xy none item landing :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 3.3
+ok   chromium xy none item landing :: drop, all appended then throws | jump 0.00  | moved 155.2 | anims 3 | r0r1r2r3r4r5 | start,canceled | x | shell 92.6
+ok   chromium xy none item landing :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.7
+ok   chromium xy none item landing :: drop, old order appended, rejected | jump 0.00  | moved 164.9 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 16.9
+ok   chromium xy none item landing :: drop, prepend all reversed | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.7
+ok   chromium xy none item landing :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 4.2
+ok   chromium xy none item landing :: drop, server order (one before), appended | jump 0.00  | moved 164.9 | anims 2 | r1r0r2r3r4r5 | start,accepted |  | shell 38.1
+ok   chromium xy none item landing :: drop, server order first, appended | jump 0.00  | moved 155.2 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 31.3
+ok   chromium xy none item landing :: flick down, every row appended in order | jump 0.00  | moved 164.9 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 43.1
+ok   chromium xy none item landing :: key down, every row appended at 50 ms | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 27.4
+ok   chromium xy none item landing :: key down, every row appended in order | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 27.5
+ok   chromium xy none item landing :: key down, old order appended, rejected at once | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   chromium xy none item landing :: key up, every row appended in order | jump 0.00  | moved 155.2 | anims 3 | r0r1r3r2r4r5 | start,accepted |  | shell 60.5
+ok   chromium xy none item landing :: key, replaceChildren | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 70.0
+ok   chromium y none item :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   chromium y none item :: drop mid row, old order appended, rejected | jump 0.00  | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 88.1
+ok   chromium y none item :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 13.3
+ok   chromium y none item :: drop, all appended then throws | jump 0.00  | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,canceled | x | shell 88.1
+ok   chromium y none item :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+ok   chromium y none item :: drop, old order appended, rejected | jump 0.00  | moved 40.0 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 138.0
+ok   chromium y none item :: drop, prepend all reversed | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+ok   chromium y none item :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+ok   chromium y none item :: drop, server order (one before), appended | jump 0.00  | moved 40.0 | anims 2 | r1r0r2r3r4r5 | start,accepted |  | shell 78.1
+ok   chromium y none item :: drop, server order first, appended | jump 0.00  | moved 30.0 | anims 4 | r2r0r1r3r4r5 | start,accepted |  | shell 188.0
+ok   chromium y none item :: flick down, every row appended in order | jump 0.00  | moved 40.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 138.0
+ok   chromium y none item :: key down, every row appended at 50 ms | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   chromium y none item :: key down, every row appended in order | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   chromium y none item :: key down, old order appended, rejected at once | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   chromium y none item :: key up, every row appended in order | jump 0.00  | moved 50.0 | anims 1 | r0r1r3r2r4r5 | start,accepted |  | shell 30.0
+ok   chromium y none item :: key, replaceChildren | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   chromium y none item landing :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   chromium y none item landing :: drop mid row, old order appended, rejected | jump 0.00  | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 34.5
+ok   chromium y none item landing :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 5.2
+ok   chromium y none item landing :: drop, all appended then throws | jump 0.00  | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,canceled | x | shell 88.1
+ok   chromium y none item landing :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.4
+ok   chromium y none item landing :: drop, old order appended, rejected | jump 0.00  | moved 40.0 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 53.8
+ok   chromium y none item landing :: drop, prepend all reversed | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.4
+ok   chromium y none item landing :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 3.6
+ok   chromium y none item landing :: drop, server order (one before), appended | jump 0.00  | moved 40.0 | anims 2 | r1r0r2r3r4r5 | start,accepted |  | shell 30.6
+ok   chromium y none item landing :: drop, server order first, appended | jump 0.00  | moved 30.0 | anims 4 | r2r0r1r3r4r5 | start,accepted |  | shell 73.3
+ok   chromium y none item landing :: flick down, every row appended in order | jump 0.00  | moved 40.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 138.0
+ok   chromium y none item landing :: key down, every row appended at 50 ms | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 11.7
+ok   chromium y none item landing :: key down, every row appended in order | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 11.8
+ok   chromium y none item landing :: key down, old order appended, rejected at once | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   chromium y none item landing :: key up, every row appended in order | jump 0.00  | moved 50.0 | anims 1 | r0r1r3r2r4r5 | start,accepted |  | shell 11.9
+ok   chromium y none item landing :: key, replaceChildren | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 30.0
+## candidate-firefox
+JUMP firefox xy none item :: drop, all at once, accepted at 50 | jump 164.92 r3@1 | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 131.5
+JUMP firefox xy none item :: key down, all at once, accepted at 50 | jump 90.00 r0@2 | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 240.3
+JUMP firefox xy none item :: key down, all, then fails: old order appended, rejected at 50 | jump 90.00 r0@1 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 172.4
+JUMP firefox xy none item landing :: drop, all at once, accepted at 50 | jump 164.92 r3@1 | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 131.5
+JUMP firefox xy none item landing :: key down, all at once, accepted at 50 | jump 90.00 r0@1 | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 172.4
+JUMP firefox xy none item landing :: key down, all, then fails: old order appended, rejected at 50 | jump 90.00 r0@2 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 172.4
+JUMP firefox y none item :: drop, all at once, accepted at 50 | jump 40.00 r1@1 | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 219.5
+JUMP firefox y none item :: key down, all at once, accepted at 50 | jump 60.00 r0@3 | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 170.3
+JUMP firefox y none item :: key down, all, then fails: old order appended, rejected at 50 | jump 60.00 r0@2 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 148.7
+JUMP firefox y none item landing :: drop, all at once, accepted at 50 | jump 40.00 r1@1 | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 219.3
+JUMP firefox y none item landing :: key down, all at once, accepted at 50 | jump 60.00 r0@1 | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 148.7
+JUMP firefox y none item landing :: key down, all, then fails: old order appended, rejected at 50 | jump 60.00 r0@2 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 148.7
+ok   firefox xy none item :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   firefox xy none item :: drop mid row, old order appended, rejected | jump 0.00  | moved 155.2 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 92.6
+ok   firefox xy none item :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 8.5
+ok   firefox xy none item :: drop, all appended then throws | jump 0.00  | moved 155.2 | anims 3 | r0r1r2r3r4r5 | start,canceled | x | shell 92.6
+ok   firefox xy none item :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+ok   firefox xy none item :: drop, old order appended, rejected | jump 0.00  | moved 164.9 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 43.1
+ok   firefox xy none item :: drop, prepend all reversed | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+ok   firefox xy none item :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+ok   firefox xy none item :: drop, server order (one before), appended | jump 0.00  | moved 164.9 | anims 2 | r1r0r2r3r4r5 | start,accepted |  | shell 97.0
+ok   firefox xy none item :: drop, server order first, appended | jump 0.00  | moved 155.2 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 80.5
+ok   firefox xy none item :: flick down, every row appended in order | jump 0.00  | moved 164.9 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 43.1
+ok   firefox xy none item :: key down, every row appended at 50 ms | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   firefox xy none item :: key down, every row appended in order | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   firefox xy none item :: key down, old order appended, rejected at once | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   firefox xy none item :: key up, every row appended in order | jump 0.00  | moved 155.2 | anims 3 | r0r1r3r2r4r5 | start,accepted |  | shell 155.2
+ok   firefox xy none item :: key, replaceChildren | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   firefox xy none item landing :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   firefox xy none item landing :: drop mid row, old order appended, rejected | jump 0.00  | moved 155.2 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 37.6
+ok   firefox xy none item landing :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 3.3
+ok   firefox xy none item landing :: drop, all appended then throws | jump 0.00  | moved 155.2 | anims 3 | r0r1r2r3r4r5 | start,canceled | x | shell 92.6
+ok   firefox xy none item landing :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.6
+ok   firefox xy none item landing :: drop, old order appended, rejected | jump 0.00  | moved 164.9 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 16.5
+ok   firefox xy none item landing :: drop, prepend all reversed | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.7
+ok   firefox xy none item landing :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 4.2
+ok   firefox xy none item landing :: drop, server order (one before), appended | jump 0.00  | moved 164.9 | anims 2 | r1r0r2r3r4r5 | start,accepted |  | shell 39.5
+ok   firefox xy none item landing :: drop, server order first, appended | jump 0.00  | moved 155.2 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 30.6
+ok   firefox xy none item landing :: flick down, every row appended in order | jump 0.00  | moved 164.9 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 43.1
+ok   firefox xy none item landing :: key down, every row appended at 50 ms | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 28.5
+ok   firefox xy none item landing :: key down, every row appended in order | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 26.6
+ok   firefox xy none item landing :: key down, old order appended, rejected at once | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   firefox xy none item landing :: key up, every row appended in order | jump 0.00  | moved 155.2 | anims 3 | r0r1r3r2r4r5 | start,accepted |  | shell 62.9
+ok   firefox xy none item landing :: key, replaceChildren | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 70.0
+ok   firefox y none item :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   firefox y none item :: drop mid row, old order appended, rejected | jump 0.00  | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 88.1
+ok   firefox y none item :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 13.3
+ok   firefox y none item :: drop, all appended then throws | jump 0.00  | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,canceled | x | shell 88.1
+ok   firefox y none item :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+ok   firefox y none item :: drop, old order appended, rejected | jump 0.00  | moved 40.0 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 138.0
+ok   firefox y none item :: drop, prepend all reversed | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+ok   firefox y none item :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+ok   firefox y none item :: drop, server order (one before), appended | jump 0.00  | moved 40.0 | anims 2 | r1r0r2r3r4r5 | start,accepted |  | shell 78.1
+ok   firefox y none item :: drop, server order first, appended | jump 0.00  | moved 30.0 | anims 4 | r2r0r1r3r4r5 | start,accepted |  | shell 188.0
+ok   firefox y none item :: flick down, every row appended in order | jump 0.00  | moved 40.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 140.0
+ok   firefox y none item :: key down, every row appended at 50 ms | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   firefox y none item :: key down, every row appended in order | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   firefox y none item :: key down, old order appended, rejected at once | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   firefox y none item :: key up, every row appended in order | jump 0.00  | moved 50.0 | anims 1 | r0r1r3r2r4r5 | start,accepted |  | shell 30.0
+ok   firefox y none item :: key, replaceChildren | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   firefox y none item landing :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   firefox y none item landing :: drop mid row, old order appended, rejected | jump 0.00  | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 33.2
+ok   firefox y none item landing :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 5.4
+ok   firefox y none item landing :: drop, all appended then throws | jump 0.00  | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,canceled | x | shell 88.1
+ok   firefox y none item landing :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.4
+ok   firefox y none item landing :: drop, old order appended, rejected | jump 0.00  | moved 40.0 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 52.2
+ok   firefox y none item landing :: drop, prepend all reversed | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.4
+ok   firefox y none item landing :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 3.6
+ok   firefox y none item landing :: drop, server order (one before), appended | jump 0.00  | moved 40.0 | anims 2 | r1r0r2r3r4r5 | start,accepted |  | shell 29.4
+ok   firefox y none item landing :: drop, server order first, appended | jump 0.00  | moved 30.0 | anims 4 | r2r0r1r3r4r5 | start,accepted |  | shell 71.9
+ok   firefox y none item landing :: flick down, every row appended in order | jump 0.00  | moved 40.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 138.0
+ok   firefox y none item landing :: key down, every row appended at 50 ms | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 11.6
+ok   firefox y none item landing :: key down, every row appended in order | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 11.4
+ok   firefox y none item landing :: key down, old order appended, rejected at once | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   firefox y none item landing :: key up, every row appended in order | jump 0.00  | moved 50.0 | anims 1 | r0r1r3r2r4r5 | start,accepted |  | shell 11.5
+ok   firefox y none item landing :: key, replaceChildren | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 30.0
+## candidate-webkit
+JUMP webkit xy none item :: drop, all at once, accepted at 50 | jump 164.92 r3@1 | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 131.5
+JUMP webkit xy none item :: key down, all at once, accepted at 50 | jump 90.00 r2@4 | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 240.3
+JUMP webkit xy none item :: key down, all, then fails: old order appended, rejected at 50 | jump 90.00 r2@3 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 172.4
+JUMP webkit xy none item landing :: drop, all at once, accepted at 50 | jump 164.92 r3@1 | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 131.5
+JUMP webkit xy none item landing :: key down, all at once, accepted at 50 | jump 90.00 r2@4 | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 172.4
+JUMP webkit xy none item landing :: key down, all, then fails: old order appended, rejected at 50 | jump 90.00 r2@4 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 172.4
+JUMP webkit y none item :: drop, all at once, accepted at 50 | jump 40.00 r1@1 | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 219.5
+JUMP webkit y none item :: key down, all at once, accepted at 50 | jump 60.00 r2@4 | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 170.3
+JUMP webkit y none item :: key down, all, then fails: old order appended, rejected at 50 | jump 60.00 r0@1 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 148.7
+JUMP webkit y none item landing :: drop, all at once, accepted at 50 | jump 40.00 r1@1 | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 219.3
+JUMP webkit y none item landing :: key down, all at once, accepted at 50 | jump 60.00 r2@4 | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 148.7
+JUMP webkit y none item landing :: key down, all, then fails: old order appended, rejected at 50 | jump 60.00 r0@1 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 148.7
+ok   webkit xy none item :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   webkit xy none item :: drop mid row, old order appended, rejected | jump 0.00  | moved 155.2 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 92.6
+ok   webkit xy none item :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 8.5
+ok   webkit xy none item :: drop, all appended then throws | jump 0.00  | moved 155.2 | anims 3 | r0r1r2r3r4r5 | start,canceled | x | shell 92.6
+ok   webkit xy none item :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+ok   webkit xy none item :: drop, old order appended, rejected | jump 0.00  | moved 164.9 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 43.1
+ok   webkit xy none item :: drop, prepend all reversed | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+ok   webkit xy none item :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+ok   webkit xy none item :: drop, server order (one before), appended | jump 0.00  | moved 164.9 | anims 2 | r1r0r2r3r4r5 | start,accepted |  | shell 97.0
+ok   webkit xy none item :: drop, server order first, appended | jump 0.00  | moved 155.2 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 80.5
+ok   webkit xy none item :: flick down, every row appended in order | jump 0.00  | moved 164.9 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 40.0
+ok   webkit xy none item :: key down, every row appended at 50 ms | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   webkit xy none item :: key down, every row appended in order | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   webkit xy none item :: key down, old order appended, rejected at once | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   webkit xy none item :: key up, every row appended in order | jump 0.00  | moved 155.2 | anims 3 | r0r1r3r2r4r5 | start,accepted |  | shell 155.2
+ok   webkit xy none item :: key, replaceChildren | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   webkit xy none item landing :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   webkit xy none item landing :: drop mid row, old order appended, rejected | jump 0.00  | moved 155.2 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 53.5
+ok   webkit xy none item landing :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 4.6
+ok   webkit xy none item landing :: drop, all appended then throws | jump 0.00  | moved 155.2 | anims 3 | r0r1r2r3r4r5 | start,canceled | x | shell 92.6
+ok   webkit xy none item landing :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 2.3
+ok   webkit xy none item landing :: drop, old order appended, rejected | jump 0.00  | moved 164.9 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 18.8
+ok   webkit xy none item landing :: drop, prepend all reversed | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 2.9
+ok   webkit xy none item landing :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 4.2
+ok   webkit xy none item landing :: drop, server order (one before), appended | jump 0.00  | moved 164.9 | anims 2 | r1r0r2r3r4r5 | start,accepted |  | shell 51.9
+ok   webkit xy none item landing :: drop, server order first, appended | jump 0.00  | moved 155.2 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 35.1
+ok   webkit xy none item landing :: flick down, every row appended in order | jump 0.00  | moved 164.9 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 43.1
+ok   webkit xy none item landing :: key down, every row appended at 50 ms | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 57.8
+ok   webkit xy none item landing :: key down, every row appended in order | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 35.9
+ok   webkit xy none item landing :: key down, old order appended, rejected at once | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   webkit xy none item landing :: key up, every row appended in order | jump 0.00  | moved 155.2 | anims 3 | r0r1r3r2r4r5 | start,accepted |  | shell 120.5
+ok   webkit xy none item landing :: key, replaceChildren | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 70.0
+ok   webkit y none item :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   webkit y none item :: drop mid row, old order appended, rejected | jump 0.00  | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 88.1
+ok   webkit y none item :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 13.3
+ok   webkit y none item :: drop, all appended then throws | jump 0.00  | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,canceled | x | shell 88.1
+ok   webkit y none item :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+ok   webkit y none item :: drop, old order appended, rejected | jump 0.00  | moved 40.0 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 138.0
+ok   webkit y none item :: drop, prepend all reversed | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+ok   webkit y none item :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+ok   webkit y none item :: drop, server order (one before), appended | jump 0.00  | moved 40.0 | anims 2 | r1r0r2r3r4r5 | start,accepted |  | shell 78.1
+ok   webkit y none item :: drop, server order first, appended | jump 0.00  | moved 30.0 | anims 4 | r2r0r1r3r4r5 | start,accepted |  | shell 188.0
+ok   webkit y none item :: flick down, every row appended in order | jump 0.00  | moved 40.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 140.0
+ok   webkit y none item :: key down, every row appended at 50 ms | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   webkit y none item :: key down, every row appended in order | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   webkit y none item :: key down, old order appended, rejected at once | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   webkit y none item :: key up, every row appended in order | jump 0.00  | moved 50.0 | anims 1 | r0r1r3r2r4r5 | start,accepted |  | shell 30.0
+ok   webkit y none item :: key, replaceChildren | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   webkit y none item landing :: cancel in onStart of a key | jump 0.00  | moved 0.0 | anims 0 | r0r1r2r3r4r5 | canceled |  | shell 0.0
+ok   webkit y none item landing :: drop mid row, old order appended, rejected | jump 0.00  | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,rejected |  | shell 34.1
+ok   webkit y none item landing :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 4.7
+ok   webkit y none item landing :: drop, all appended then throws | jump 0.00  | moved 30.0 | anims 2 | r0r1r2r3r4r5 | start,canceled | x | shell 88.1
+ok   webkit y none item landing :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.3
+ok   webkit y none item landing :: drop, old order appended, rejected | jump 0.00  | moved 40.0 | anims 3 | r0r1r2r3r4r5 | start,rejected |  | shell 53.5
+ok   webkit y none item landing :: drop, prepend all reversed | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.5
+ok   webkit y none item landing :: drop, replaceChildren | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 3.6
+ok   webkit y none item landing :: drop, server order (one before), appended | jump 0.00  | moved 40.0 | anims 2 | r1r0r2r3r4r5 | start,accepted |  | shell 30.2
+ok   webkit y none item landing :: drop, server order first, appended | jump 0.00  | moved 30.0 | anims 4 | r2r0r1r3r4r5 | start,accepted |  | shell 102.2
+ok   webkit y none item landing :: flick down, every row appended in order | jump 0.00  | moved 40.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 138.0
+ok   webkit y none item landing :: key down, every row appended at 50 ms | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 11.6
+ok   webkit y none item landing :: key down, every row appended in order | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 12.5
+ok   webkit y none item landing :: key down, old order appended, rejected at once | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   webkit y none item landing :: key up, every row appended in order | jump 0.00  | moved 50.0 | anims 1 | r0r1r3r2r4r5 | start,accepted |  | shell 11.9
+ok   webkit y none item landing :: key, replaceChildren | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted | sortable/landing-placeholder-lost | shell 30.0
+
+## The candidate, against src/sortable/operation.ts
+268a269,285
+>       const gap = this.#query.insertion;
+>
+>       // The consumer's commit may have moved the rows around the placeholder. Back
+>       // at the gap of the drop, the rows stand where they were drawn.
+>       if (
+>         this.#request &&
+>         (gap.after ?? gap.before)?.parentNode === placeholder.parentNode
+>       ) {
+>         const { after, before } = gap;
+>         const side = after ? 'previousElementSibling' : 'nextElementSibling';
+>         const beside = (after ?? before)![side];
+>
+>         if ((beside === item ? item[side] : beside) !== placeholder) {
+>           movePlaceholder(placeholder, gap);
+>         }
+>       }
+>
+
+## Brotli of the candidate, by bench/size, head to candidate: sortable + y 6689 to 6754, sortable + xy 6641 to 6713, complete 7489 to 7549
+## displacement.browser.test.ts on the candidate, Chromium: 85 passed. With a put-back whenever the item stands between the placeholder and the gap, two rows of the rects of xy() failed: 18 reads for 10, and 10 for 2.
+## The candidate without its guard on an operation that hasn't dropped, Chromium, 'cancel in onStart of a key': jump 60 in y(), 90 in xy(), with a landing and without. With the guard, none.

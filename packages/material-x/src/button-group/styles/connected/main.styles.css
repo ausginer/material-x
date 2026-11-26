@@ -38,6 +38,11 @@
     --_border-radius: var(--_inner-corner) var(--_outer-corner)
       var(--_outer-corner) var(--_inner-corner);
   }
+
+  /* The only member that isn't hidden. */
+  ::slotted([data-first][data-last]) {
+    --_border-radius: var(--_outer-corner);
+  }
 }
 
 /*

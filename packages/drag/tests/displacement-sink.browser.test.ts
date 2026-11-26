@@ -96,7 +96,9 @@ function expectOwnRows(calls: readonly DisplacedCall[]): void {
 describe('sortable options', () => {
   it('should call the layoutAnimation sink with its receiver, with rows in flight', async () => {
     const list = makeList(4);
-    const install = layoutAnimation({ duration: 3000 });
+    const install = layoutAnimation({
+      timing: () => ({ duration: 3000, easing: 'ease-out' }),
+    });
     let sink: DisplacementSink | null = null;
 
     basicSortable(list, {
@@ -139,7 +141,9 @@ describe('sortable options', () => {
 
   it('drag:DRD-50 should settle each row y() measures by asking the sink about that row', async () => {
     const list = makeList(12);
-    const install = layoutAnimation({ duration: 3000 });
+    const install = layoutAnimation({
+      timing: () => ({ duration: 3000, easing: 'ease-out' }),
+    });
     let sink: DisplacementSink | null = null;
 
     basicSortable(list, {
@@ -183,7 +187,9 @@ describe('sortable options', () => {
       row.style.cssText = 'width:100px;height:60px;touch-action:none';
     }
 
-    const install = layoutAnimation({ duration: 3000 });
+    const install = layoutAnimation({
+      timing: () => ({ duration: 3000, easing: 'ease-out' }),
+    });
     let sink: DisplacementSink | null = null;
 
     basicSortable(list, {
@@ -215,7 +221,9 @@ describe('sortable options', () => {
     const list = makeList(10);
     // Linear and long, so that a row in flight is drawn most of a row below its
     // flow position for the whole test.
-    const install = layoutAnimation({ duration: 60_000, easing: 'linear' });
+    const install = layoutAnimation({
+      timing: () => ({ duration: 60_000, easing: 'linear' }),
+    });
     let sink: DisplacementSink | null = null;
     const controller = basicSortable(list, {
       displacement: () => {
@@ -365,6 +373,9 @@ function recordingSink(
       inner?.report(element, dx, dy, reportSpace);
     },
     displaced: (element) => (inner ? inner.displaced(element) : false),
+    // A driven axis makes resolved moves alone.
+    relocate() {},
+    release() {},
     retire() {
       inner?.retire();
     },
@@ -472,7 +483,9 @@ describe('xy() reported vectors', () => {
 
   it("drag:DRD-62 should report each xy() cell's flow travel while displaced cells are still animating", () => {
     const { setup, reports, context, geometry } = installXy(
-      layoutAnimation({ duration: 60_000, easing: 'linear' })(),
+      layoutAnimation({
+        timing: () => ({ duration: 60_000, easing: 'linear' }),
+      })(),
     );
 
     driveCommittedMoves(setup, geometry, context, reports, 1, [4, 9, 1, 10, 5]);

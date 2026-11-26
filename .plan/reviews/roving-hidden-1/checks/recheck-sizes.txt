@@ -1,0 +1,5 @@
+# The recheck at 1d2c5e0b8: just size-reading at the head, and with the three sources of 2485fb2df (main). Brotli; the rows that move.
+material-x button/split-button main 7766 | head 7872 (+106) | limit null
+material-x button-group/connected-button-group main 4042 | head 4147 (+105) | limit null
+material-x complete main 25869 | head 26016 (+147) | limit null
+36 rows, 36 at main, over a limit at the head: 0

@@ -1,0 +1,106 @@
+# candidate-sink.diff: the sink measures. Adopted as the direction.
+chromium | key, commit at once | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px | r1r0r2r3r4r5
+chromium | key up, commit at once | r1:smooth r2:smooth || animate r1:0px -30px r2:0px 60px | r0r2r1r3r4r5
+chromium | key, commit after 100 | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px | r1r0r2r3r4r5
+chromium | key, commit moves the neighbor | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px | r1r0r2r3r4r5
+chromium | key, rejected at once | still || animate r1:0px 40px r1:0px 0px | r0r1r2r3r4r5
+chromium | key, rejected after 400 | r1:smooth || animate r1:0px 40px r1:0px -40px | r0r1r2r3r4r5
+chromium | key, accepted after 400 and never committed | r1:smooth || animate r1:0px 40px r1:0px -40px | r0r1r2r3r4r5
+chromium | key, no landing | r0:jump60 r1:smooth || animate r1:0px 40px | r1r0r2r3r4r5
+chromium | key, rejected after 400, no landing | r1:smooth || animate r1:0px 40px r1:0px -40px | r0r1r2r3r4r5
+chromium | key, flex gap | r0:smooth r1:smooth || animate r1:0px 50px r0:0px -70px | r1r0r2r3r4r5
+chromium | slow pointer | r0:jump14 r1:smooth r2:smooth || animate r1:0px 40px r1:0px -4.453333333333141px r1:0px 35.79308444444463px r2:0px 40px r0:0px 30px | r1r2r0r3r4r5
+chromium | flick | r0:jump130 r1:smooth r2:smooth r3:smooth || animate r1:0px 40px r2:0px 40px r3:0px 40px r0:0px -10px | r1r2r3r0r4r5
+chromium | flick, no landing | r0:jump140 r1:smooth r2:smooth r3:smooth || animate r1:0px 40px r2:0px 40px r3:0px 40px | r1r2r3r0r4r5
+chromium | flick, rejected after 400 | r0:jump130 r1:smooth r2:smooth r3:smooth || animate r1:0px 40px r2:0px 40px r3:0px 40px r1:0px -40px r2:0px -40px r3:0px -40px r0:0px 130px | r0r1r2r3r4r5
+chromium | escape after slow | r0:jump15 r1:smooth r2:smooth || animate r1:0px 40px r1:0px -2.226666666666688px r1:0px 37.89728444444442px r2:0px 40px r1:0px -40px r2:0px -40px r0:0px 120px | r0r1r2r3r4r5
+chromium | escape after slow, no landing | r0:jump120 r1:smooth r2:smooth || animate r1:0px 40px r1:0px -2.226666666666688px r1:0px 37.89654222222221px r2:0px 40px r1:0px -40px r2:0px -40px | r0r1r2r3r4r5
+chromium | escape right after a move | r0:jump45 r1:smooth r2:smooth || animate r1:0px 40px r2:0px 40px r1:0px -8.893333333332976px r2:0px -4.440000000000083px r0:0px 90px | r0r1r2r3r4r5
+chromium | key, onReorder throws | still || animate r1:0px 40px r1:0px 0px | r0r1r2r3r4r5 | FAULTS drag: no
+chromium | key, rejected after 400 with a scroll at 150 | r0:jump60 r1:smooth || animate r1:0px 40px r1:0px -40px r0:0px 60px | r0r1r2r3r4r5
+chromium | xy key, rejected after 400 with a scroll at 150 | r0:jump60 r1:smooth || animate r1:60px 0px r1:-60px 0px r0:0px 60px | r0r1r2r3r4r5
+chromium | key, rejected after 400, the array cleared at 100 | r1:smooth || animate r1:0px 40px r1:0px -40px | r0r1r2r3r4r5
+chromium | key, scaled and rotated list | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px | r1r0r2r3r4r5
+chromium | xy escape after slow | r0:jump27 r1:smooth r2:smooth r3:smooth r4:smooth r5:smooth || animate r1:60px 0px r1:56.66000015258783px 0px r2:-90px 40px r3:70px 0px r4:-120px 40px r5:80px 0px r1:47.216666259766626px 0px r2:14.999999999998295px -6.666661580402888px r3:-11.66666158040232px 0px r4:19.999999999997726px -6.666661580402888px r5:-13.333323160805776px 0px r1:-60px 0px r0:100px 35px | r0r1r2r3r4r5
+chromium | cancel right after invalidate | r0:jump15 r1:smooth r2:smooth || animate r1:0px 40px r1:0px -2.226666666666688px r1:0px 37.89654222222218px r2:0px 40px r1:0px -40px r2:0px -40px r0:0px 120px | r0r1r2r3r4r5
+chromium | cancel a frame after invalidate | r0:jump15 r1:smooth r2:smooth || animate r1:0px 40px r1:0px -2.239999999999519px r1:0px 37.88394666666715px r2:0px 40px r1:0px -40px r2:0px -40px r0:1px 121px | r0r1r2r3r4r5
+chromium | key, then key again at 100 ms | r0:smooth r1:smooth r2:smooth || animate r1:0px 40px r0:0px -60px r2:0px 40px r0:0px -55.44826126098633px | r1r2r0r3r4r5
+chromium | key down, then up at 100 ms | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px r1:0px -13.319999999999752px r0:0px 34.51606750488281px | r0r1r2r3r4r5
+chromium | xy key | r0:smooth r1:smooth || animate r1:60px 0px r0:-90px 0px | r1r0r2r3r4r5
+chromium | xy flick | r0:jump100 r1:smooth r2:smooth r3:smooth r4:smooth r5:smooth || animate r1:60px 0px r2:-90px 40px r3:70px 0px r4:-120px 40px r5:80px 0px | r1r2r3r0r4r5
+chromium | xy key rejected after 400 | r1:smooth || animate r1:60px 0px r1:-60px 0px | r0r1r2r3r4r5
+chromium | reads with y: key 4, drop after a resolved move 2, Escape 5
+chromium | reads with xy: key 12, drop after a resolved move 2, Escape 11
+chromium | reads without y: key 2, drop after a resolved move 2, Escape 1
+chromium | reads without xy: key 2, drop after a resolved move 2, Escape 1
+chromium | grab in flight: carried 1 before 31 then 0,31,31,32,33,34,35,36,37,38,38,39,39,39,40,40,40,40,40,40,40,40,40,40,40,40
+firefox | key, commit at once | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px | r1r0r2r3r4r5
+firefox | key up, commit at once | r1:smooth r2:smooth || animate r1:0px -30px r2:0px 60px | r0r2r1r3r4r5
+firefox | key, commit after 100 | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px | r1r0r2r3r4r5
+firefox | key, commit moves the neighbor | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px | r1r0r2r3r4r5
+firefox | key, rejected at once | still || animate r1:0px 40px r1:0px 0px | r0r1r2r3r4r5
+firefox | key, rejected after 400 | r1:smooth || animate r1:0px 40px r1:0px -40px | r0r1r2r3r4r5
+firefox | key, accepted after 400 and never committed | r1:smooth || animate r1:0px 40px r1:0px -40px | r0r1r2r3r4r5
+firefox | key, no landing | r0:jump60 r1:smooth || animate r1:0px 40px | r1r0r2r3r4r5
+firefox | key, rejected after 400, no landing | r1:smooth || animate r1:0px 40px r1:0px -40px | r0r1r2r3r4r5
+firefox | key, flex gap | r0:smooth r1:smooth || animate r1:0px 50px r0:0px -70px | r1r0r2r3r4r5
+firefox | slow pointer | r0:jump14 r1:smooth r2:smooth || animate r1:0px 40px r1:0px -2.1556142666666673px r1:0px 37.9673777255593px r2:0px 40px r0:0px 30px | r1r2r0r3r4r5
+firefox | flick | r0:jump130 r1:smooth r2:smooth r3:smooth || animate r1:0px 40px r2:0px 40px r3:0px 40px r0:0px -10px | r1r2r3r0r4r5
+firefox | flick, no landing | r0:jump140 r1:smooth r2:smooth r3:smooth || animate r1:0px 40px r2:0px 40px r3:0px 40px | r1r2r3r0r4r5
+firefox | flick, rejected after 400 | r0:jump130 r1:smooth r2:smooth r3:smooth || animate r1:0px 40px r2:0px 40px r3:0px 40px r1:0px -40px r2:0px -40px r3:0px -40px r0:0px 130px | r0r1r2r3r4r5
+firefox | escape after slow | r0:jump15 r1:smooth r2:smooth || animate r1:0px 40px r1:0px -2.203038933333332px r1:0px 37.91554142171487px r2:0px 40px r1:0px -40px r2:0px -40px r0:0px 120px | r0r1r2r3r4r5
+firefox | escape after slow, no landing | r0:jump120 r1:smooth r2:smooth || animate r1:0px 40px r1:0px -2.1552964000000046px r1:0px 37.96762112357538px r2:0px 40px r1:0px -40px r2:0px -40px | r0r1r2r3r4r5
+firefox | escape right after a move | r0:jump45 r1:smooth r2:smooth || animate r1:0px 40px r2:0px 40px r1:0px -8.858801733333333px r2:0px -4.429875199999998px r0:0px 90px | r0r1r2r3r4r5
+firefox | key, onReorder throws | still || animate r1:0px 40px r1:0px 0px | r0r1r2r3r4r5 | FAULTS drag: no
+firefox | key, rejected after 400 with a scroll at 150 | r0:jump60 r1:jump18 || animate r1:0px 40px r1:0px -22.26666259765625px r0:0px 77.73333740234375px | r0r1r2r3r4r5
+firefox | xy key, rejected after 400 with a scroll at 150 | r0:jump60 r1:smooth || animate r1:60px 0px r1:-60px 0px r0:0px 60px | r0r1r2r3r4r5
+firefox | key, rejected after 400, the array cleared at 100 | r1:smooth || animate r1:0px 40px r1:0px -40px | r0r1r2r3r4r5
+firefox | key, scaled and rotated list | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px | r1r0r2r3r4r5
+firefox | xy escape after slow | r0:jump27 r1:smooth r2:smooth r3:smooth r4:smooth r5:smooth || animate r1:60px 0px r1:56.768887002343746px 0px r2:-90px 40px r3:70px 0px r4:-120px 40px r5:80px 0px r1:47.23241931868333px 0px r2:15.117876098828134px -6.720915920768235px r3:-11.765757066666659px 0px r4:20.162732503515628px -6.720915920768228px r5:-13.441816582747407px 0px r1:44.694215888510605px 0px r2:-75.693132957092px 33.6508446567746px r3:58.876932446572px 0px r4:-100.93586972921209px 33.65084465677461px r5:67.28502507243745px 0px r1:-60px 0px r2:90px -40px r3:-70px 0px r4:120px -40px r5:-80px 0px r0:100px 35px | r0r1r2r3r4r5
+firefox | cancel right after invalidate | r0:jump15 r1:smooth r2:smooth || animate r1:0px 40px r1:0px -2.3032619999999966px r1:0px 37.823207782447845px r2:0px 40px r1:0px -40px r2:0px -40px r0:0px 120px | r0r1r2r3r4r5
+firefox | cancel a frame after invalidate | r0:jump16 r1:smooth r2:smooth || animate r1:0px 40px r1:0px -2.2769877333333355px r1:0px 37.845687401996955px r2:0px 40px r1:0px -40px r2:0px -40px r0:1px 121px | r0r1r2r3r4r5
+firefox | key, then key again at 100 ms | r0:smooth r1:smooth r2:smooth || animate r1:0px 40px r0:0px -60px r2:0px 40px r0:0px -55.18333435058594px | r1r2r0r3r4r5
+firefox | key down, then up at 100 ms | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px r1:0px -11.137785066666666px r0:0px 28.183334350585938px | r0r1r2r3r4r5
+firefox | xy key | r0:smooth r1:smooth || animate r1:60px 0px r0:-90px 0px | r1r0r2r3r4r5
+firefox | xy flick | r0:jump100 r1:smooth r2:smooth r3:smooth r4:smooth r5:smooth || animate r1:60px 0px r2:-90px 40px r3:70px 0px r4:-120px 40px r5:80px 0px | r1r2r3r0r4r5
+firefox | xy key rejected after 400 | r1:smooth || animate r1:60px 0px r1:-60px 0px | r0r1r2r3r4r5
+firefox | reads with y: key 4, drop after a resolved move 2, Escape 5
+firefox | reads with xy: key 12, drop after a resolved move 2, Escape 11
+firefox | reads without y: key 2, drop after a resolved move 2, Escape 1
+firefox | reads without xy: key 2, drop after a resolved move 2, Escape 1
+firefox | grab in flight: carried 1 before 33 then 0,31,31,31,32,33,34,35,36,37,38,38,39,39,39,40,40,40,40,40,40,40,40,40,40,40
+webkit | key, commit at once | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px | r1r0r2r3r4r5
+webkit | key up, commit at once | r1:smooth r2:smooth || animate r1:0px -30px r2:0px 60px | r0r2r1r3r4r5
+webkit | key, commit after 100 | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px | r1r0r2r3r4r5
+webkit | key, commit moves the neighbor | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px | r1r0r2r3r4r5
+webkit | key, rejected at once | still || animate r1:0px 40px r1:0px 0px | r0r1r2r3r4r5
+webkit | key, rejected after 400 | r1:smooth || animate r1:0px 40px r1:0px -40px | r0r1r2r3r4r5
+webkit | key, accepted after 400 and never committed | r1:smooth || animate r1:0px 40px r1:0px -40px | r0r1r2r3r4r5
+webkit | key, no landing | r0:jump60 r1:smooth || animate r1:0px 40px | r1r0r2r3r4r5
+webkit | key, rejected after 400, no landing | r1:smooth || animate r1:0px 40px r1:0px -40px | r0r1r2r3r4r5
+webkit | key, flex gap | r0:smooth r1:smooth || animate r1:0px 50px r0:0px -70px | r1r0r2r3r4r5
+webkit | slow pointer | r0:jump48 r1:smooth r2:smooth || animate r1:0px 40px r2:0px 40px r0:0px 30px | r1r2r0r3r4r5
+webkit | flick | r0:jump130 r1:smooth r2:smooth r3:smooth || animate r1:0px 40px r2:0px 40px r3:0px 40px r0:0px -10px | r1r2r3r0r4r5
+webkit | flick, no landing | r0:jump140 r1:smooth r2:smooth r3:smooth || animate r1:0px 40px r2:0px 40px r3:0px 40px | r1r2r3r0r4r5
+webkit | flick, rejected after 400 | r0:jump130 r1:smooth r2:smooth r3:smooth || animate r1:0px 40px r2:0px 40px r3:0px 40px r1:0px -40px r2:0px -40px r3:0px -40px r0:0px 130px | r0r1r2r3r4r5
+webkit | escape after slow | r0:jump72 r1:smooth r2:smooth || animate r1:0px 40px r2:0px 40px r1:0px -40px r2:0px -40px r0:0px 120px | r0r1r2r3r4r5
+webkit | escape after slow, no landing | r0:jump120 r1:smooth r2:smooth || animate r1:0px 40px r2:0px 40px r1:0px -40px r2:0px -40px | r0r1r2r3r4r5
+webkit | escape right after a move | r0:jump90 r1:smooth r2:smooth || animate r1:0px 40px r2:0px 40px r1:0px -3.6000000000001364px r2:0px -3.599992370605605px r0:0px 90px | r0r1r2r3r4r5
+webkit | key, onReorder throws | still || animate r1:0px 40px r1:0px 0px | r0r1r2r3r4r5 | FAULTS drag: no
+webkit | key, rejected after 400 with a scroll at 150 | r0:jump60 r1:smooth || animate r1:0px 40px r1:0px -40px r0:0px 60px | r0r1r2r3r4r5
+webkit | xy key, rejected after 400 with a scroll at 150 | r0:jump60 r1:smooth || animate r1:60px 0px r1:-60px 0px r0:0px 60px | r0r1r2r3r4r5
+webkit | key, rejected after 400, the array cleared at 100 | r1:smooth || animate r1:0px 40px r1:0px -40px | r0r1r2r3r4r5
+webkit | key, scaled and rotated list | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px | r1r0r2r3r4r5
+webkit | xy escape after slow | r0:jump135 r1:smooth r2:smooth r3:smooth r4:smooth r5:smooth || animate r1:60px 0px r2:-90px 40px r3:70px 0px r4:-120px 40px r5:80px 0px r1:-60px 0px r2:90px -40px r3:-70px 0px r4:120px -40px r5:-80px 0px r0:100px 35px | r0r1r2r3r4r5
+webkit | cancel right after invalidate | r0:jump53 r1:smooth r2:smooth || animate r1:0px 40px r2:0px 40px r1:0px -40px r2:0px -40px r0:0px 120px | r0r1r2r3r4r5
+webkit | cancel a frame after invalidate | r0:jump57 r1:smooth r2:smooth || animate r1:0px 40px r2:0px 40px r1:0px -40px r2:0px -40px r0:1px 121px | r0r1r2r3r4r5
+webkit | key, then key again at 100 ms | r0:smooth r1:smooth r2:smooth || animate r1:0px 40px r0:0px -60px r2:0px 40px r0:0px -62.888328552246094px | r1r2r0r3r4r5
+webkit | key down, then up at 100 ms | r0:smooth r1:smooth || animate r1:0px 40px r0:0px -60px r1:0px -10.666668574016022px r0:0px 26.685379028320312px | r0r1r2r3r4r5
+webkit | xy key | r0:smooth r1:smooth || animate r1:60px 0px r0:-90px 0px | r1r0r2r3r4r5
+webkit | xy flick | r0:jump100 r1:smooth r2:smooth r3:smooth r4:smooth r5:smooth || animate r1:60px 0px r2:-90px 40px r3:70px 0px r4:-120px 40px r5:80px 0px | r1r2r3r0r4r5
+webkit | xy key rejected after 400 | r1:smooth || animate r1:60px 0px r1:-60px 0px | r0r1r2r3r4r5
+webkit | reads with y: key 4, drop after a resolved move 7, Escape 5
+webkit | reads with xy: key 12, drop after a resolved move 8, Escape 11
+webkit | reads without y: key 2, drop after a resolved move 7, Escape 1
+webkit | reads without xy: key 2, drop after a resolved move 7, Escape 1
+webkit | grab in flight: carried 1 before 37 then 0,37,37,37,38,38,39,39,39,39,39,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40

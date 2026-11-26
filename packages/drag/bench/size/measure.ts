@@ -124,14 +124,14 @@ export const COMPOSITIONS: readonly Composition[] = [
   {
     name: 'sortable + y',
     imports: { 'src/sortable': ['sortable'], 'src/sortable/y': ['y'] },
-    budget: 6538,
+    budget: 6698,
     present: ['linear-shift'],
     absent: [...OPTIONAL, 'sortable/xy', ...FREE_DRAG_ONLY],
   },
   {
     name: 'sortable + xy',
     imports: { 'src/sortable': ['sortable'], 'src/sortable/xy': ['xy'] },
-    budget: 6506,
+    budget: 6651,
     absent: [...OPTIONAL, 'linear-shift', 'sortable/y', ...FREE_DRAG_ONLY],
   },
   {
@@ -142,7 +142,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'src/sortable/landing': ['landing'],
       'src/sortable/layout-animation': ['layoutAnimation'],
     },
-    budget: 7156,
+    budget: 7554,
     present: [...OPTIONAL, 'linear-shift'],
     absent: FREE_DRAG_ONLY,
   },

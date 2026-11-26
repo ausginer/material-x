@@ -1,0 +1,28 @@
+## no mutation
+# chromium: 32 tests, 0 failed, ok 94, DIFF 0
+## aria-disabled isn't watched
+ 1 file changed, 1 deletion(-)
+# chromium: 32 tests, 0 failed, ok 90, DIFF 4
+DIFF P2 span aria-disabled set disabled | got ["false",null,null] | want ["false","false","false"]
+DIFF P2 span aria-disabled set task, after enabling | got [null,null] | want ["false","false"]
+DIFF P2 button aria-disabled set disabled | got ["false",null,null] | want ["false","false","false"]
+DIFF P2 button aria-disabled set task, after enabling | got [null,null] | want ["false","false"]
+## the state observer is never disconnected
+ 1 file changed, 1 deletion(-)
+# chromium: 32 tests, 0 failed, ok 91, DIFF 3
+DIFF in mx-list, enabled | got ["0 button Reorder Use the arrow keys to move null /none",null] | want ["null null null null null /",null]
+DIFF in mx-list, disabled again | got "-1 button Reorder null true /" | want "null null null null null /"
+DIFF disabled and removed in one task | got "-1 button Reorder null true /" | want "null null null null null /"
+## a page's touch-action is removed
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+# chromium: 32 tests, 0 failed, ok 88, DIFF 6
+DIFF P2 span touch-action set enabled | got ["","none",""] | want ["pan-x","pan-x","pan-x"]
+DIFF P2 span touch-action set task, before | got ["","none",""] | want ["pan-x","pan-x","pan-x"]
+DIFF P2 span touch-action set task, after | got ["","none",""] | want ["pan-x","pan-x","pan-x"]
+DIFF P2 button touch-action set enabled | got ["","none",""] | want ["pan-x","pan-x","pan-x"]
+DIFF P2 button touch-action set task, before | got ["","none",""] | want ["pan-x","pan-x","pan-x"]
+DIFF P2 button touch-action set task, after | got ["","none",""] | want ["pan-x","pan-x","pan-x"]
+## a press whose item is disabled before the lift is canceled
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+# chromium: 32 tests, 0 failed, ok 93, DIFF 1
+DIFF P5 mx-list-button-item span disabled between the press and the lift | got [false,0,"a",true,"-1 button Reorder null true /"] | want [true,1,"b",true,"-1 button Reorder null true /"]

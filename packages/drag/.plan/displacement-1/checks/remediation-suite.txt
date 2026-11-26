@@ -1,0 +1,10 @@
+# The surviving mutations against drag's whole suite, Chromium, before the rows of this pass (8340bcac0's tests, the repaired source)
+## no mutation | chromium | 537 passed, 0 failed
+## the vector is not local | chromium | 533 passed, 4 failed
+   layoutAnimation composition should render one slot of travel under an ancestor scale()
+   layoutAnimation with a visual that is not the item should render one slot of travel under an ancestor scale()
+   layoutAnimation with a visual that is not the item should ignore a transformed wrapper between the item and its visual
+   Sortable stories should reorder ZoomedContext twice in a row
+## home kept at a rebase | chromium | 536 passed, 1 failed
+   drag:DRI-14 collection should land at the rebased home when a drag is canceled after a rebase
+## the placeholder's parent is not compared | chromium | 537 passed, 0 failed

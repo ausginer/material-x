@@ -1,0 +1,76 @@
+# proof-append at 9b36f075e, the plain item on y() and xy(), with a landing and without. One line a case; 'jump' is the greatest change of a row's drawn center between two frames, with row animations of an hour.
+## chromium
+ok   chromium y none item :: key down, every row appended in order | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   chromium y none item :: key up, every row appended in order | jump 0.00  | moved 50.0 | anims 1 | r0r1r3r2r4r5 | start,accepted |  | shell 30.0
+ok   chromium y none item :: key down, every row appended at 50 ms | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   chromium y none item :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+ok   chromium y none item :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 13.3
+ok   chromium y none item :: flick down, every row appended in order | jump 0.00  | moved 40.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 138.0
+ok   chromium y none item landing :: key down, every row appended in order | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 11.8
+ok   chromium y none item landing :: key up, every row appended in order | jump 0.00  | moved 50.0 | anims 1 | r0r1r3r2r4r5 | start,accepted |  | shell 11.8
+ok   chromium y none item landing :: key down, every row appended at 50 ms | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 11.8
+ok   chromium y none item landing :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.4
+ok   chromium y none item landing :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 5.3
+ok   chromium y none item landing :: flick down, every row appended in order | jump 0.00  | moved 40.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 138.0
+ok   chromium xy none item :: key down, every row appended in order | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   chromium xy none item :: key up, every row appended in order | jump 0.00  | moved 155.2 | anims 3 | r0r1r3r2r4r5 | start,accepted |  | shell 155.2
+ok   chromium xy none item :: key down, every row appended at 50 ms | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   chromium xy none item :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+ok   chromium xy none item :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 8.5
+ok   chromium xy none item :: flick down, every row appended in order | jump 0.00  | moved 164.9 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 43.1
+ok   chromium xy none item landing :: key down, every row appended in order | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 27.2
+ok   chromium xy none item landing :: key up, every row appended in order | jump 0.00  | moved 155.2 | anims 3 | r0r1r3r2r4r5 | start,accepted |  | shell 60.5
+ok   chromium xy none item landing :: key down, every row appended at 50 ms | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 27.6
+ok   chromium xy none item landing :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.7
+ok   chromium xy none item landing :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 3.3
+ok   chromium xy none item landing :: flick down, every row appended in order | jump 0.00  | moved 164.9 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 43.1
+## firefox
+ok   firefox y none item :: key down, every row appended in order | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   firefox y none item :: key up, every row appended in order | jump 0.00  | moved 50.0 | anims 1 | r0r1r3r2r4r5 | start,accepted |  | shell 30.0
+ok   firefox y none item :: key down, every row appended at 50 ms | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   firefox y none item :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+ok   firefox y none item :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 13.3
+ok   firefox y none item :: flick down, every row appended in order | jump 0.00  | moved 40.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 138.0
+ok   firefox y none item landing :: key down, every row appended in order | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 11.3
+ok   firefox y none item landing :: key up, every row appended in order | jump 0.00  | moved 50.0 | anims 1 | r0r1r3r2r4r5 | start,accepted |  | shell 12.1
+ok   firefox y none item landing :: key down, every row appended at 50 ms | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 11.3
+ok   firefox y none item landing :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.5
+ok   firefox y none item landing :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 5.0
+ok   firefox y none item landing :: flick down, every row appended in order | jump 0.00  | moved 40.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 138.0
+ok   firefox xy none item :: key down, every row appended in order | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   firefox xy none item :: key up, every row appended in order | jump 0.00  | moved 155.2 | anims 3 | r0r1r3r2r4r5 | start,accepted |  | shell 155.2
+ok   firefox xy none item :: key down, every row appended at 50 ms | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   firefox xy none item :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+ok   firefox xy none item :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 8.5
+ok   firefox xy none item :: flick down, every row appended in order | jump 0.00  | moved 164.9 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 43.1
+ok   firefox xy none item landing :: key down, every row appended in order | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 27.5
+ok   firefox xy none item landing :: key up, every row appended in order | jump 0.00  | moved 155.2 | anims 3 | r0r1r3r2r4r5 | start,accepted |  | shell 61.1
+ok   firefox xy none item landing :: key down, every row appended at 50 ms | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 28.4
+ok   firefox xy none item landing :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.6
+ok   firefox xy none item landing :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 3.3
+ok   firefox xy none item landing :: flick down, every row appended in order | jump 0.00  | moved 164.9 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 43.1
+## webkit
+ok   webkit y none item :: key down, every row appended in order | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   webkit y none item :: key up, every row appended in order | jump 0.00  | moved 50.0 | anims 1 | r0r1r3r2r4r5 | start,accepted |  | shell 30.0
+ok   webkit y none item :: key down, every row appended at 50 ms | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   webkit y none item :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 3.6
+ok   webkit y none item :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 13.3
+ok   webkit y none item :: flick down, every row appended in order | jump 0.00  | moved 40.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 140.0
+ok   webkit y none item landing :: key down, every row appended in order | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 15.3
+ok   webkit y none item landing :: key up, every row appended in order | jump 0.00  | moved 50.0 | anims 1 | r0r1r3r2r4r5 | start,accepted |  | shell 11.3
+ok   webkit y none item landing :: key down, every row appended at 50 ms | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 11.3
+ok   webkit y none item landing :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.4
+ok   webkit y none item landing :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 5.2
+ok   webkit y none item landing :: flick down, every row appended in order | jump 0.00  | moved 40.0 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 138.0
+ok   webkit xy none item :: key down, every row appended in order | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   webkit xy none item :: key up, every row appended in order | jump 0.00  | moved 155.2 | anims 3 | r0r1r3r2r4r5 | start,accepted |  | shell 155.2
+ok   webkit xy none item :: key down, every row appended at 50 ms | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   webkit xy none item :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 4.2
+ok   webkit xy none item :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 8.5
+ok   webkit xy none item :: flick down, every row appended in order | jump 0.00  | moved 164.9 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 40.0
+ok   webkit xy none item landing :: key down, every row appended in order | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 27.8
+ok   webkit xy none item landing :: key up, every row appended in order | jump 0.00  | moved 155.2 | anims 3 | r0r1r3r2r4r5 | start,accepted |  | shell 106.7
+ok   webkit xy none item landing :: key down, every row appended at 50 ms | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.5
+ok   webkit xy none item landing :: drop, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r1r2r3r0r4r5 | start,accepted |  | shell 1.6
+ok   webkit xy none item landing :: drop up, every row appended in order | jump 0.00  | moved 0.0 | anims 0 | r0r4r1r2r3r5 | start,accepted |  | shell 3.3
+ok   webkit xy none item landing :: flick down, every row appended in order | jump 0.00  | moved 164.9 | anims 3 | r1r2r3r0r4r5 | start,accepted |  | shell 43.1

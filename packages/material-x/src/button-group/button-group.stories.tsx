@@ -118,16 +118,20 @@ export const Switch = (): JSX.Element => {
         setSelected(target.value ?? undefined)
       }
     >
-      <mx-switch-icon-button width="narrow" value="bluetooth">
+      <mx-switch-icon-button
+        aria-label="Bluetooth"
+        width="narrow"
+        value="bluetooth"
+      >
         <mx-icon>bluetooth</mx-icon>
       </mx-switch-icon-button>
-      <mx-switch-icon-button value="alarm">
+      <mx-switch-icon-button aria-label="Alarm" value="alarm">
         <mx-icon>alarm</mx-icon>
       </mx-switch-icon-button>
-      <mx-switch-icon-button width="narrow" value="link">
+      <mx-switch-icon-button aria-label="Link" width="narrow" value="link">
         <mx-icon>link</mx-icon>
       </mx-switch-icon-button>
-      <mx-switch-icon-button width="wide" value="wifi">
+      <mx-switch-icon-button aria-label="Wi-Fi" width="wide" value="wifi">
         <mx-icon>wifi</mx-icon>
       </mx-switch-icon-button>
     </mx-button-group>

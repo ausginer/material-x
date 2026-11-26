@@ -1,0 +1,1224 @@
+## head, chromium
+chromium switch-button hidden a d in the markup | stop b | tab b back b | ends bc
+chromium switch-button hidden a d in the markup keys from b: c c c c b c
+chromium switch-button hidden a d in the markup keys from c: b b b b b c
+chromium switch-button hidden a later | stop b | tab b back b | ends bd
+chromium switch-button hidden a later, off again | stop b | tab b back b | ends ad
+chromium switch-button hidden b c later keys from a: d d d d a d
+chromium switch-button hidden b c later | stop d | tab d back d | ends ad
+chromium switch-button hidden the value c later | stop a | tab a back a | ends ad
+chromium switch-button hidden the value c, off again | stop c | tab c back c | ends ad
+chromium switch-button hidden c chosen by focus, later | stop a | tab a back a | ends ad
+chromium switch-button hidden the focused b | active body stop a
+chromium switch-button hidden the focused b then ArrowRight body
+chromium switch-button hidden the focused b then Tab body
+chromium switch-button hidden all | stop - | tab body back body | ends --
+chromium switch-button hidden all but b | stop b | tab b back b | ends bb
+chromium switch-button hidden built out | stop b | tab b back b | ends bc
+chromium switch-button hidden changed out | stop b | tab b back b | ends bc
+chromium switch-button hidden changed back in one task | stop b | tab b back b | ends ad
+chromium switch-button hidden n added first | stop a | tab a back a | ends ac
+chromium switch-button hidden n added first, off | stop a | tab a back a | ends nc
+chromium switch-button hidden a removed and b in one task | stop c | tab c back c | ends cd
+chromium switch-button hidden a, two microtasks later | stop b ends bd
+chromium switch-button hidden rtl, b later keys from a: d d c c a d
+chromium switch-button disabled a d in the markup | stop b | tab b back b | ends ad
+chromium switch-button disabled a d in the markup keys from b: c c c c b c
+chromium switch-button disabled a d in the markup keys from c: b b b b b c
+chromium switch-button disabled a later | stop b | tab b back b | ends ad
+chromium switch-button disabled a later, off again | stop b | tab b back b | ends ad
+chromium switch-button disabled b c later keys from a: d d d d a d
+chromium switch-button disabled b c later | stop d | tab d back d | ends ad
+chromium switch-button disabled the value c later | stop a | tab a back a | ends ad
+chromium switch-button disabled the value c, off again | stop c | tab c back c | ends ad
+chromium switch-button disabled c chosen by focus, later | stop a | tab a back a | ends ad
+chromium switch-button disabled the focused b | active body stop a
+chromium switch-button disabled the focused b then ArrowRight body
+chromium switch-button disabled the focused b then Tab body
+chromium switch-button disabled all | stop - | tab body back body | ends ab
+chromium switch-button disabled all but b | stop b | tab b back b | ends ab
+chromium switch-button disabled built out | stop b | tab b back b | ends ad
+chromium switch-button disabled changed out | stop b | tab b back b | ends ad
+chromium switch-button disabled changed back in one task | stop b | tab b back b | ends ad
+chromium switch-button disabled n added first | stop a | tab a back a | ends nc
+chromium switch-button disabled n added first, off | stop a | tab a back a | ends nc
+chromium switch-button disabled a removed and b in one task | stop c | tab c back c | ends bd
+chromium switch-button disabled a, two microtasks later | stop b ends ad
+chromium switch-button disabled rtl, b later keys from a: d d c c a d
+chromium switch-button until-found a d in the markup | stop a | tab a back a | ends ad
+chromium switch-button until-found a d in the markup keys from b: c c a a a d
+chromium switch-button until-found a d in the markup keys from c: d d b b a d
+chromium switch-button until-found a later | stop a | tab a back a | ends ad
+chromium switch-button until-found a later, off again | stop a | tab a back a | ends ad
+chromium switch-button until-found b c later keys from a: b b d d a d
+chromium switch-button until-found b c later | stop d | tab d back d | ends ad
+chromium switch-button until-found the value c later | stop c | tab c back c | ends ad
+chromium switch-button until-found the value c, off again | stop c | tab c back c | ends ad
+chromium switch-button until-found c chosen by focus, later | stop c | tab c back c | ends ad
+chromium switch-button until-found the focused b | active body stop b
+chromium switch-button until-found the focused b then ArrowRight body
+chromium switch-button until-found the focused b then Tab body
+chromium switch-button until-found all | stop a | tab a back a | ends ab
+chromium switch-button until-found all but b | stop a | tab a back a | ends ab
+chromium switch-button until-found built out | stop a | tab a back a | ends ad
+chromium switch-button until-found changed out | stop a | tab a back a | ends ad
+chromium switch-button until-found changed back in one task | stop a | tab a back a | ends ad
+chromium switch-button until-found n added first | stop n | tab n back n | ends nc
+chromium switch-button until-found n added first, off | stop n | tab n back n | ends nc
+chromium switch-button until-found a removed and b in one task | stop b | tab b back b | ends bd
+chromium switch-button until-found a, two microtasks later | stop a ends ad
+chromium switch-button until-found rtl, b later keys from a: d d b b a d
+chromium switch-button display:none a d in the markup | stop b | tab b back b | ends bc
+chromium switch-button display:none a d in the markup keys from b: c c c c b c
+chromium switch-button display:none a d in the markup keys from c: b b b b b c
+chromium switch-button display:none a later | stop a | tab body back body | ends ad
+chromium switch-button display:none a later, off again | stop a | tab a back a | ends ad
+chromium switch-button display:none b c later keys from a: d d d d a d
+chromium switch-button display:none b c later | stop d | tab d back d | ends ad
+chromium switch-button display:none the value c later | stop c | tab body back body | ends ad
+chromium switch-button display:none the value c, off again | stop c | tab c back c | ends ad
+chromium switch-button display:none c chosen by focus, later | stop c | tab body back body | ends ad
+chromium switch-button display:none the focused b | active body stop b
+chromium switch-button display:none the focused b then ArrowRight body
+chromium switch-button display:none the focused b then Tab body
+chromium switch-button display:none all | stop a | tab side back body | ends ab
+chromium switch-button display:none all but b | stop a | tab side back body | ends ab
+chromium switch-button display:none built out | stop b | tab b back b | ends bc
+chromium switch-button display:none changed out | stop b | tab b back b | ends bc
+chromium switch-button display:none changed back in one task | stop b | tab b back b | ends ad
+chromium switch-button display:none n added first | stop a | tab a back a | ends ac
+chromium switch-button display:none n added first, off | stop a | tab a back a | ends ac
+chromium switch-button display:none a removed and b in one task | stop c | tab c back c | ends cd
+chromium switch-button display:none a, two microtasks later | stop a ends ad
+chromium switch-button display:none rtl, b later keys from a: d d c c a d
+chromium switch-icon-button hidden a d in the markup | stop b | tab b back b | ends bc
+chromium switch-icon-button hidden a d in the markup keys from b: c c c c b c
+chromium switch-icon-button hidden a d in the markup keys from c: b b b b b c
+chromium switch-icon-button hidden a later | stop b | tab b back b | ends bd
+chromium switch-icon-button hidden a later, off again | stop b | tab b back b | ends ad
+chromium switch-icon-button hidden b c later keys from a: d d d d a d
+chromium switch-icon-button hidden b c later | stop d | tab d back d | ends ad
+chromium switch-icon-button hidden the value c later | stop a | tab a back a | ends ad
+chromium switch-icon-button hidden the value c, off again | stop c | tab c back c | ends ad
+chromium switch-icon-button hidden c chosen by focus, later | stop a | tab a back a | ends ad
+chromium switch-icon-button hidden the focused b | active body stop a
+chromium switch-icon-button hidden the focused b then ArrowRight body
+chromium switch-icon-button hidden the focused b then Tab a
+chromium switch-icon-button hidden all | stop - | tab body back side | ends --
+chromium switch-icon-button hidden all but b | stop b | tab b back b | ends bb
+chromium switch-icon-button hidden built out | stop b | tab b back b | ends bc
+chromium switch-icon-button hidden changed out | stop b | tab b back b | ends bc
+chromium switch-icon-button hidden changed back in one task | stop b | tab b back b | ends ad
+chromium switch-icon-button hidden n added first | stop a | tab a back a | ends ac
+chromium switch-icon-button hidden n added first, off | stop a | tab a back a | ends nc
+chromium switch-icon-button hidden a removed and b in one task | stop c | tab c back c | ends cd
+chromium switch-icon-button hidden a, two microtasks later | stop b ends bd
+chromium switch-icon-button hidden rtl, b later keys from a: d d c c a d
+chromium switch-icon-button disabled a d in the markup | stop b | tab b back b | ends ad
+chromium switch-icon-button disabled a d in the markup keys from b: c c c c b c
+chromium switch-icon-button disabled a d in the markup keys from c: b b b b b c
+chromium switch-icon-button disabled a later | stop b | tab b back b | ends ad
+chromium switch-icon-button disabled a later, off again | stop b | tab b back b | ends ad
+chromium switch-icon-button disabled b c later keys from a: d d d d a d
+chromium switch-icon-button disabled b c later | stop d | tab d back d | ends ad
+chromium switch-icon-button disabled the value c later | stop a | tab a back a | ends ad
+chromium switch-icon-button disabled the value c, off again | stop c | tab c back c | ends ad
+chromium switch-icon-button disabled c chosen by focus, later | stop a | tab a back a | ends ad
+chromium switch-icon-button disabled the focused b | active body stop a
+chromium switch-icon-button disabled the focused b then ArrowRight body
+chromium switch-icon-button disabled the focused b then Tab body
+chromium switch-icon-button disabled all | stop - | tab body back body | ends ab
+chromium switch-icon-button disabled all but b | stop b | tab b back b | ends ab
+chromium switch-icon-button disabled built out | stop b | tab b back b | ends ad
+chromium switch-icon-button disabled changed out | stop b | tab b back b | ends ad
+chromium switch-icon-button disabled changed back in one task | stop b | tab b back b | ends ad
+chromium switch-icon-button disabled n added first | stop a | tab a back a | ends nc
+chromium switch-icon-button disabled n added first, off | stop a | tab a back a | ends nc
+chromium switch-icon-button disabled a removed and b in one task | stop c | tab c back c | ends bd
+chromium switch-icon-button disabled a, two microtasks later | stop b ends ad
+chromium switch-icon-button disabled rtl, b later keys from a: d d c c a d
+chromium switch-icon-button until-found a d in the markup | stop a | tab a back a | ends ad
+chromium switch-icon-button until-found a d in the markup keys from b: c c a a a d
+chromium switch-icon-button until-found a d in the markup keys from c: d d b b a d
+chromium switch-icon-button until-found a later | stop a | tab a back a | ends ad
+chromium switch-icon-button until-found a later, off again | stop a | tab a back a | ends ad
+chromium switch-icon-button until-found b c later keys from a: b b d d a d
+chromium switch-icon-button until-found b c later | stop d | tab d back d | ends ad
+chromium switch-icon-button until-found the value c later | stop c | tab c back c | ends ad
+chromium switch-icon-button until-found the value c, off again | stop c | tab c back c | ends ad
+chromium switch-icon-button until-found c chosen by focus, later | stop c | tab c back c | ends ad
+chromium switch-icon-button until-found the focused b | active body stop b
+chromium switch-icon-button until-found the focused b then ArrowRight body
+chromium switch-icon-button until-found the focused b then Tab body
+chromium switch-icon-button until-found all | stop a | tab a back a | ends ab
+chromium switch-icon-button until-found all but b | stop a | tab a back a | ends ab
+chromium switch-icon-button until-found built out | stop a | tab a back a | ends ad
+chromium switch-icon-button until-found changed out | stop a | tab a back a | ends ad
+chromium switch-icon-button until-found changed back in one task | stop a | tab a back a | ends ad
+chromium switch-icon-button until-found n added first | stop n | tab n back n | ends nc
+chromium switch-icon-button until-found n added first, off | stop n | tab n back n | ends nc
+chromium switch-icon-button until-found a removed and b in one task | stop b | tab b back b | ends bd
+chromium switch-icon-button until-found a, two microtasks later | stop a ends ad
+chromium switch-icon-button until-found rtl, b later keys from a: d d b b a d
+chromium switch-icon-button display:none a d in the markup | stop b | tab b back b | ends bc
+chromium switch-icon-button display:none a d in the markup keys from b: c c c c b c
+chromium switch-icon-button display:none a d in the markup keys from c: b b b b b c
+chromium switch-icon-button display:none a later | stop a | tab body back body | ends ad
+chromium switch-icon-button display:none a later, off again | stop a | tab a back a | ends ad
+chromium switch-icon-button display:none b c later keys from a: d d d d a d
+chromium switch-icon-button display:none b c later | stop d | tab d back d | ends ad
+chromium switch-icon-button display:none the value c later | stop c | tab body back body | ends ad
+chromium switch-icon-button display:none the value c, off again | stop c | tab c back c | ends ad
+chromium switch-icon-button display:none c chosen by focus, later | stop c | tab body back body | ends ad
+chromium switch-icon-button display:none the focused b | active body stop b
+chromium switch-icon-button display:none the focused b then ArrowRight body
+chromium switch-icon-button display:none the focused b then Tab body
+chromium switch-icon-button display:none all | stop a | tab body back body | ends ab
+chromium switch-icon-button display:none all but b | stop a | tab body back body | ends ab
+chromium switch-icon-button display:none built out | stop b | tab b back b | ends bc
+chromium switch-icon-button display:none changed out | stop b | tab b back b | ends bc
+chromium switch-icon-button display:none changed back in one task | stop b | tab b back b | ends ad
+chromium switch-icon-button display:none n added first | stop a | tab a back a | ends ac
+chromium switch-icon-button display:none n added first, off | stop a | tab a back a | ends ac
+chromium switch-icon-button display:none a removed and b in one task | stop c | tab c back c | ends cd
+chromium switch-icon-button display:none a, two microtasks later | stop a ends ad
+chromium switch-icon-button display:none rtl, b later keys from a: d d c c a d
+chromium page own display | stop a | tab a back a | ends ad
+chromium page own display keys from b: c c a a a d
+chromium page own display block | stop a | tab a back a | ends ac
+chromium page own display block keys from b: c c a a a c
+chromium page a class | stop a | tab body back body | ends ad
+chromium page a class keys from b: d d d d b d
+chromium page visibility | stop a | tab body back body | ends ad
+chromium page visibility keys from b: b b b b b d
+chromium page narrow | stop a | tab body back body | ends ad
+chromium page wide | stop a | tab a back a | ends ad
+chromium group hidden while a is | stop b | tab b back b | ends bd
+chromium ancestor display none at first | stop b | tab b back b | ends bd
+chromium moved, c chosen by focus | stop c | tab c back c | ends ad
+chromium value a, focus moved to c, b hidden | stop a | tab a back a | ends ad
+chromium template clone | stop b | tab b back b | ends bb
+chromium innerHTML | stop b | tab b back b | ends bb
+chromium members through a nested slot | stop - ends --
+chromium one member: 20px,20px,20px,20px
+chromium 200 groups of 4: median 593 ms
+## head, firefox
+firefox switch-button hidden a d in the markup | stop b | tab b back b | ends bc
+firefox switch-button hidden a d in the markup keys from b: c c c c b c
+firefox switch-button hidden a d in the markup keys from c: b b b b b c
+firefox switch-button hidden a later | stop b | tab b back b | ends bd
+firefox switch-button hidden a later, off again | stop b | tab b back b | ends ad
+firefox switch-button hidden b c later keys from a: d d d d a d
+firefox switch-button hidden b c later | stop d | tab d back d | ends ad
+firefox switch-button hidden the value c later | stop a | tab a back a | ends ad
+firefox switch-button hidden the value c, off again | stop c | tab c back c | ends ad
+firefox switch-button hidden c chosen by focus, later | stop a | tab a back a | ends ad
+firefox switch-button hidden the focused b | active body stop a
+firefox switch-button hidden the focused b then ArrowRight body
+firefox switch-button hidden the focused b then Tab body
+firefox switch-button hidden all | stop - | tab side back body | ends --
+firefox switch-button hidden all but b | stop b | tab b back b | ends bb
+firefox switch-button hidden built out | stop b | tab b back b | ends bc
+firefox switch-button hidden changed out | stop b | tab b back b | ends bc
+firefox switch-button hidden changed back in one task | stop b | tab b back b | ends ad
+firefox switch-button hidden n added first | stop a | tab a back a | ends ac
+firefox switch-button hidden n added first, off | stop a | tab a back a | ends nc
+firefox switch-button hidden a removed and b in one task | stop c | tab c back c | ends cd
+firefox switch-button hidden a, two microtasks later | stop b ends bd
+firefox switch-button hidden rtl, b later keys from a: d d c c a d
+firefox switch-button disabled a d in the markup | stop b | tab b back b | ends ad
+firefox switch-button disabled a d in the markup keys from b: c c c c b c
+firefox switch-button disabled a d in the markup keys from c: b b b b b c
+firefox switch-button disabled a later | stop b | tab b back b | ends ad
+firefox switch-button disabled a later, off again | stop b | tab b back b | ends ad
+firefox switch-button disabled b c later keys from a: d d d d a d
+firefox switch-button disabled b c later | stop d | tab d back d | ends ad
+firefox switch-button disabled the value c later | stop a | tab a back a | ends ad
+firefox switch-button disabled the value c, off again | stop c | tab c back c | ends ad
+firefox switch-button disabled c chosen by focus, later | stop a | tab a back a | ends ad
+firefox switch-button disabled the focused b | active body stop a
+firefox switch-button disabled the focused b then ArrowRight body
+firefox switch-button disabled the focused b then Tab a
+firefox switch-button disabled all | stop - | tab body back body | ends ab
+firefox switch-button disabled all but b | stop b | tab b back b | ends ab
+firefox switch-button disabled built out | stop b | tab b back b | ends ad
+firefox switch-button disabled changed out | stop b | tab b back b | ends ad
+firefox switch-button disabled changed back in one task | stop b | tab b back b | ends ad
+firefox switch-button disabled n added first | stop a | tab a back a | ends nc
+firefox switch-button disabled n added first, off | stop a | tab a back a | ends nc
+firefox switch-button disabled a removed and b in one task | stop c | tab c back c | ends bd
+firefox switch-button disabled a, two microtasks later | stop b ends ad
+firefox switch-button disabled rtl, b later keys from a: d d c c a d
+firefox switch-button until-found a d in the markup | stop a | tab a back a | ends ad
+firefox switch-button until-found a d in the markup keys from b: c c a a a d
+firefox switch-button until-found a d in the markup keys from c: d d b b a d
+firefox switch-button until-found a later | stop a | tab a back a | ends ad
+firefox switch-button until-found a later, off again | stop a | tab a back a | ends ad
+firefox switch-button until-found b c later keys from a: b b d d a d
+firefox switch-button until-found b c later | stop d | tab d back d | ends ad
+firefox switch-button until-found the value c later | stop c | tab c back c | ends ad
+firefox switch-button until-found the value c, off again | stop c | tab c back c | ends ad
+firefox switch-button until-found c chosen by focus, later | stop c | tab c back c | ends ad
+firefox switch-button until-found the focused b | active b stop b
+firefox switch-button until-found the focused b then ArrowRight c
+firefox switch-button until-found the focused b then Tab c
+firefox switch-button until-found all | stop a | tab a back a | ends ab
+firefox switch-button until-found all but b | stop a | tab a back a | ends ab
+firefox switch-button until-found built out | stop a | tab a back a | ends ad
+firefox switch-button until-found changed out | stop a | tab a back a | ends ad
+firefox switch-button until-found changed back in one task | stop a | tab a back a | ends ad
+firefox switch-button until-found n added first | stop n | tab n back n | ends nc
+firefox switch-button until-found n added first, off | stop n | tab n back n | ends nc
+firefox switch-button until-found a removed and b in one task | stop b | tab b back b | ends bd
+firefox switch-button until-found a, two microtasks later | stop a ends ad
+firefox switch-button until-found rtl, b later keys from a: d d b b a d
+firefox switch-button display:none a d in the markup | stop b | tab b back b | ends bc
+firefox switch-button display:none a d in the markup keys from b: c c c c b c
+firefox switch-button display:none a d in the markup keys from c: b b b b b c
+firefox switch-button display:none a later | stop a | tab body back body | ends ad
+firefox switch-button display:none a later, off again | stop a | tab a back a | ends ad
+firefox switch-button display:none b c later keys from a: d d d d a d
+firefox switch-button display:none b c later | stop d | tab d back d | ends ad
+firefox switch-button display:none the value c later | stop c | tab side back body | ends ad
+firefox switch-button display:none the value c, off again | stop c | tab c back c | ends ad
+firefox switch-button display:none c chosen by focus, later | stop c | tab side back body | ends ad
+firefox switch-button display:none the focused b | active body stop b
+firefox switch-button display:none the focused b then ArrowRight body
+firefox switch-button display:none the focused b then Tab body
+firefox switch-button display:none all | stop a | tab body back body | ends ab
+firefox switch-button display:none all but b | stop a | tab side back body | ends ab
+firefox switch-button display:none built out | stop b | tab b back b | ends bc
+firefox switch-button display:none changed out | stop b | tab b back b | ends bc
+firefox switch-button display:none changed back in one task | stop b | tab b back b | ends ad
+firefox switch-button display:none n added first | stop a | tab a back a | ends ac
+firefox switch-button display:none n added first, off | stop a | tab a back a | ends ac
+firefox switch-button display:none a removed and b in one task | stop c | tab c back c | ends cd
+firefox switch-button display:none a, two microtasks later | stop a ends ad
+firefox switch-button display:none rtl, b later keys from a: d d c c a d
+firefox switch-icon-button hidden a d in the markup | stop b | tab b back b | ends bc
+firefox switch-icon-button hidden a d in the markup keys from b: c c c c b c
+firefox switch-icon-button hidden a d in the markup keys from c: b b b b b c
+firefox switch-icon-button hidden a later | stop b | tab b back b | ends bd
+firefox switch-icon-button hidden a later, off again | stop b | tab b back b | ends ad
+firefox switch-icon-button hidden b c later keys from a: d d d d a d
+firefox switch-icon-button hidden b c later | stop d | tab d back d | ends ad
+firefox switch-icon-button hidden the value c later | stop a | tab a back a | ends ad
+firefox switch-icon-button hidden the value c, off again | stop c | tab c back c | ends ad
+firefox switch-icon-button hidden c chosen by focus, later | stop a | tab a back a | ends ad
+firefox switch-icon-button hidden the focused b | active body stop a
+firefox switch-icon-button hidden the focused b then ArrowRight body
+firefox switch-icon-button hidden the focused b then Tab a
+firefox switch-icon-button hidden all | stop - | tab body back body | ends --
+firefox switch-icon-button hidden all but b | stop b | tab b back b | ends bb
+firefox switch-icon-button hidden built out | stop b | tab b back b | ends bc
+firefox switch-icon-button hidden changed out | stop b | tab b back b | ends bc
+firefox switch-icon-button hidden changed back in one task | stop b | tab b back b | ends ad
+firefox switch-icon-button hidden n added first | stop a | tab a back a | ends ac
+firefox switch-icon-button hidden n added first, off | stop a | tab a back a | ends nc
+firefox switch-icon-button hidden a removed and b in one task | stop c | tab c back c | ends cd
+firefox switch-icon-button hidden a, two microtasks later | stop b ends bd
+firefox switch-icon-button hidden rtl, b later keys from a: d d c c a d
+firefox switch-icon-button disabled a d in the markup | stop b | tab b back b | ends ad
+firefox switch-icon-button disabled a d in the markup keys from b: c c c c b c
+firefox switch-icon-button disabled a d in the markup keys from c: b b b b b c
+firefox switch-icon-button disabled a later | stop b | tab b back b | ends ad
+firefox switch-icon-button disabled a later, off again | stop b | tab b back b | ends ad
+firefox switch-icon-button disabled b c later keys from a: d d d d a d
+firefox switch-icon-button disabled b c later | stop d | tab d back d | ends ad
+firefox switch-icon-button disabled the value c later | stop a | tab a back a | ends ad
+firefox switch-icon-button disabled the value c, off again | stop c | tab c back c | ends ad
+firefox switch-icon-button disabled c chosen by focus, later | stop a | tab a back a | ends ad
+firefox switch-icon-button disabled the focused b | active body stop a
+firefox switch-icon-button disabled the focused b then ArrowRight body
+firefox switch-icon-button disabled the focused b then Tab a
+firefox switch-icon-button disabled all | stop - | tab body back body | ends ab
+firefox switch-icon-button disabled all but b | stop b | tab b back b | ends ab
+firefox switch-icon-button disabled built out | stop b | tab b back b | ends ad
+firefox switch-icon-button disabled changed out | stop b | tab b back b | ends ad
+firefox switch-icon-button disabled changed back in one task | stop b | tab b back b | ends ad
+firefox switch-icon-button disabled n added first | stop a | tab a back a | ends nc
+firefox switch-icon-button disabled n added first, off | stop a | tab a back a | ends nc
+firefox switch-icon-button disabled a removed and b in one task | stop c | tab c back c | ends bd
+firefox switch-icon-button disabled a, two microtasks later | stop b ends ad
+firefox switch-icon-button disabled rtl, b later keys from a: d d c c a d
+firefox switch-icon-button until-found a d in the markup | stop a | tab a back a | ends ad
+firefox switch-icon-button until-found a d in the markup keys from b: c c a a a d
+firefox switch-icon-button until-found a d in the markup keys from c: d d b b a d
+firefox switch-icon-button until-found a later | stop a | tab a back a | ends ad
+firefox switch-icon-button until-found a later, off again | stop a | tab a back a | ends ad
+firefox switch-icon-button until-found b c later keys from a: b b d d a d
+firefox switch-icon-button until-found b c later | stop d | tab d back d | ends ad
+firefox switch-icon-button until-found the value c later | stop c | tab c back c | ends ad
+firefox switch-icon-button until-found the value c, off again | stop c | tab c back c | ends ad
+firefox switch-icon-button until-found c chosen by focus, later | stop c | tab c back c | ends ad
+firefox switch-icon-button until-found the focused b | active b stop b
+firefox switch-icon-button until-found the focused b then ArrowRight c
+firefox switch-icon-button until-found the focused b then Tab c
+firefox switch-icon-button until-found all | stop a | tab a back a | ends ab
+firefox switch-icon-button until-found all but b | stop a | tab a back a | ends ab
+firefox switch-icon-button until-found built out | stop a | tab a back a | ends ad
+firefox switch-icon-button until-found changed out | stop a | tab a back a | ends ad
+firefox switch-icon-button until-found changed back in one task | stop a | tab a back a | ends ad
+firefox switch-icon-button until-found n added first | stop n | tab n back n | ends nc
+firefox switch-icon-button until-found n added first, off | stop n | tab n back n | ends nc
+firefox switch-icon-button until-found a removed and b in one task | stop b | tab b back b | ends bd
+firefox switch-icon-button until-found a, two microtasks later | stop a ends ad
+firefox switch-icon-button until-found rtl, b later keys from a: d d b b a d
+firefox switch-icon-button display:none a d in the markup | stop b | tab b back b | ends bc
+firefox switch-icon-button display:none a d in the markup keys from b: c c c c b c
+firefox switch-icon-button display:none a d in the markup keys from c: b b b b b c
+firefox switch-icon-button display:none a later | stop a | tab body back body | ends ad
+firefox switch-icon-button display:none a later, off again | stop a | tab a back a | ends ad
+firefox switch-icon-button display:none b c later keys from a: d d d d a d
+firefox switch-icon-button display:none b c later | stop d | tab d back d | ends ad
+firefox switch-icon-button display:none the value c later | stop c | tab side back body | ends ad
+firefox switch-icon-button display:none the value c, off again | stop c | tab c back c | ends ad
+firefox switch-icon-button display:none c chosen by focus, later | stop c | tab side back body | ends ad
+firefox switch-icon-button display:none the focused b | active body stop b
+firefox switch-icon-button display:none the focused b then ArrowRight body
+firefox switch-icon-button display:none the focused b then Tab body
+firefox switch-icon-button display:none all | stop a | tab body back body | ends ab
+firefox switch-icon-button display:none all but b | stop a | tab side back body | ends ab
+firefox switch-icon-button display:none built out | stop b | tab b back b | ends bc
+firefox switch-icon-button display:none changed out | stop b | tab b back b | ends bc
+firefox switch-icon-button display:none changed back in one task | stop b | tab b back b | ends ad
+firefox switch-icon-button display:none n added first | stop a | tab a back a | ends ac
+firefox switch-icon-button display:none n added first, off | stop a | tab a back a | ends ac
+firefox switch-icon-button display:none a removed and b in one task | stop c | tab c back c | ends cd
+firefox switch-icon-button display:none a, two microtasks later | stop a ends ad
+firefox switch-icon-button display:none rtl, b later keys from a: d d c c a d
+firefox page own display | stop a | tab a back a | ends ad
+firefox page own display keys from b: c c a a a d
+firefox page own display block | stop a | tab a back a | ends ac
+firefox page own display block keys from b: c c a a a c
+firefox page a class | stop a | tab side back body | ends ad
+firefox page a class keys from b: d d d d b d
+firefox page visibility | stop a | tab side back body | ends ad
+firefox page visibility keys from b: b b b b b d
+firefox page narrow | stop a | tab side back body | ends ad
+firefox page wide | stop a | tab a back a | ends ad
+firefox group hidden while a is | stop b | tab b back b | ends bd
+firefox ancestor display none at first | stop b | tab b back b | ends bd
+firefox moved, c chosen by focus | stop c | tab c back c | ends ad
+firefox value a, focus moved to c, b hidden | stop a | tab a back a | ends ad
+firefox template clone | stop b | tab b back b | ends bb
+firefox innerHTML | stop b | tab b back b | ends bb
+firefox members through a nested slot | stop - ends --
+firefox one member: 20px,20px,20px,20px
+firefox 200 groups of 4: median 562 ms
+## head, webkit
+webkit switch-button hidden a d in the markup | stop b | tab b back b | ends bc
+webkit switch-button hidden a d in the markup keys from b: c c c c b c
+webkit switch-button hidden a d in the markup keys from c: b b b b b c
+webkit switch-button hidden a later | stop b | tab b back b | ends bd
+webkit switch-button hidden a later, off again | stop b | tab b back b | ends ad
+webkit switch-button hidden b c later keys from a: d d d d a d
+webkit switch-button hidden b c later | stop d | tab d back d | ends ad
+webkit switch-button hidden the value c later | stop a | tab a back a | ends ad
+webkit switch-button hidden the value c, off again | stop c | tab c back c | ends ad
+webkit switch-button hidden c chosen by focus, later | stop a | tab a back a | ends ad
+webkit switch-button hidden the focused b | active body stop a
+webkit switch-button hidden the focused b then ArrowRight body
+webkit switch-button hidden the focused b then Tab a
+webkit switch-button hidden all | stop - | tab body back body | ends --
+webkit switch-button hidden all but b | stop b | tab b back b | ends bb
+webkit switch-button hidden built out | stop b | tab b back b | ends bc
+webkit switch-button hidden changed out | stop b | tab b back b | ends bc
+webkit switch-button hidden changed back in one task | stop b | tab b back b | ends ad
+webkit switch-button hidden n added first | stop a | tab a back a | ends ac
+webkit switch-button hidden n added first, off | stop a | tab a back a | ends nc
+webkit switch-button hidden a removed and b in one task | stop c | tab c back c | ends cd
+webkit switch-button hidden a, two microtasks later | stop b ends bd
+webkit switch-button hidden rtl, b later keys from a: d d c c a d
+webkit switch-button disabled a d in the markup | stop b | tab b back b | ends ad
+webkit switch-button disabled a d in the markup keys from b: c c c c b c
+webkit switch-button disabled a d in the markup keys from c: b b b b b c
+webkit switch-button disabled a later | stop b | tab b back b | ends ad
+webkit switch-button disabled a later, off again | stop b | tab b back b | ends ad
+webkit switch-button disabled b c later keys from a: d d d d a d
+webkit switch-button disabled b c later | stop d | tab d back d | ends ad
+webkit switch-button disabled the value c later | stop a | tab a back a | ends ad
+webkit switch-button disabled the value c, off again | stop c | tab c back c | ends ad
+webkit switch-button disabled c chosen by focus, later | stop a | tab a back a | ends ad
+webkit switch-button disabled the focused b | active body stop a
+webkit switch-button disabled the focused b then ArrowRight body
+webkit switch-button disabled the focused b then Tab a
+webkit switch-button disabled all | stop - | tab body back body | ends ab
+webkit switch-button disabled all but b | stop b | tab b back b | ends ab
+webkit switch-button disabled built out | stop b | tab b back b | ends ad
+webkit switch-button disabled changed out | stop b | tab b back b | ends ad
+webkit switch-button disabled changed back in one task | stop b | tab b back b | ends ad
+webkit switch-button disabled n added first | stop a | tab a back a | ends nc
+webkit switch-button disabled n added first, off | stop a | tab a back a | ends nc
+webkit switch-button disabled a removed and b in one task | stop c | tab c back c | ends bd
+webkit switch-button disabled a, two microtasks later | stop b ends ad
+webkit switch-button disabled rtl, b later keys from a: d d c c a d
+webkit switch-button until-found a d in the markup | stop a | tab a back a | ends ad
+webkit switch-button until-found a d in the markup keys from b: c c a a a d
+webkit switch-button until-found a d in the markup keys from c: d d b b a d
+webkit switch-button until-found a later | stop a | tab a back a | ends ad
+webkit switch-button until-found a later, off again | stop a | tab a back a | ends ad
+webkit switch-button until-found b c later keys from a: b b d d a d
+webkit switch-button until-found b c later | stop d | tab d back d | ends ad
+webkit switch-button until-found the value c later | stop c | tab c back c | ends ad
+webkit switch-button until-found the value c, off again | stop c | tab c back c | ends ad
+webkit switch-button until-found c chosen by focus, later | stop c | tab c back c | ends ad
+webkit switch-button until-found the focused b | active b stop b
+webkit switch-button until-found the focused b then ArrowRight c
+webkit switch-button until-found the focused b then Tab body
+webkit switch-button until-found all | stop a | tab a back a | ends ab
+webkit switch-button until-found all but b | stop a | tab a back a | ends ab
+webkit switch-button until-found built out | stop a | tab a back a | ends ad
+webkit switch-button until-found changed out | stop a | tab a back a | ends ad
+webkit switch-button until-found changed back in one task | stop a | tab a back a | ends ad
+webkit switch-button until-found n added first | stop n | tab n back n | ends nc
+webkit switch-button until-found n added first, off | stop n | tab n back n | ends nc
+webkit switch-button until-found a removed and b in one task | stop b | tab b back b | ends bd
+webkit switch-button until-found a, two microtasks later | stop a ends ad
+webkit switch-button until-found rtl, b later keys from a: d d b b a d
+webkit switch-button display:none a d in the markup | stop b | tab b back b | ends bc
+webkit switch-button display:none a d in the markup keys from b: c c c c b c
+webkit switch-button display:none a d in the markup keys from c: b b b b b c
+webkit switch-button display:none a later | stop a | tab body back body | ends ad
+webkit switch-button display:none a later, off again | stop a | tab a back a | ends ad
+webkit switch-button display:none b c later keys from a: d d d d a d
+webkit switch-button display:none b c later | stop d | tab d back d | ends ad
+webkit switch-button display:none the value c later | stop c | tab body back body | ends ad
+webkit switch-button display:none the value c, off again | stop c | tab c back c | ends ad
+webkit switch-button display:none c chosen by focus, later | stop c | tab body back body | ends ad
+webkit switch-button display:none the focused b | active body stop b
+webkit switch-button display:none the focused b then ArrowRight body
+webkit switch-button display:none the focused b then Tab body
+webkit switch-button display:none all | stop a | tab body back body | ends ab
+webkit switch-button display:none all but b | stop a | tab body back body | ends ab
+webkit switch-button display:none built out | stop b | tab b back b | ends bc
+webkit switch-button display:none changed out | stop b | tab b back b | ends bc
+webkit switch-button display:none changed back in one task | stop b | tab b back b | ends ad
+webkit switch-button display:none n added first | stop a | tab a back a | ends ac
+webkit switch-button display:none n added first, off | stop a | tab a back a | ends ac
+webkit switch-button display:none a removed and b in one task | stop c | tab c back c | ends cd
+webkit switch-button display:none a, two microtasks later | stop a ends ad
+webkit switch-button display:none rtl, b later keys from a: d d c c a d
+webkit switch-icon-button hidden a d in the markup | stop b | tab b back b | ends bc
+webkit switch-icon-button hidden a d in the markup keys from b: c c c c b c
+webkit switch-icon-button hidden a d in the markup keys from c: b b b b b c
+webkit switch-icon-button hidden a later | stop b | tab b back b | ends bd
+webkit switch-icon-button hidden a later, off again | stop b | tab b back b | ends ad
+webkit switch-icon-button hidden b c later keys from a: d d d d a d
+webkit switch-icon-button hidden b c later | stop d | tab d back d | ends ad
+webkit switch-icon-button hidden the value c later | stop a | tab a back a | ends ad
+webkit switch-icon-button hidden the value c, off again | stop c | tab c back c | ends ad
+webkit switch-icon-button hidden c chosen by focus, later | stop a | tab a back a | ends ad
+webkit switch-icon-button hidden the focused b | active body stop a
+webkit switch-icon-button hidden the focused b then ArrowRight body
+webkit switch-icon-button hidden the focused b then Tab a
+webkit switch-icon-button hidden all | stop - | tab body back body | ends --
+webkit switch-icon-button hidden all but b | stop b | tab b back b | ends bb
+webkit switch-icon-button hidden built out | stop b | tab b back b | ends bc
+webkit switch-icon-button hidden changed out | stop b | tab b back b | ends bc
+webkit switch-icon-button hidden changed back in one task | stop b | tab b back b | ends ad
+webkit switch-icon-button hidden n added first | stop a | tab a back a | ends ac
+webkit switch-icon-button hidden n added first, off | stop a | tab a back a | ends nc
+webkit switch-icon-button hidden a removed and b in one task | stop c | tab c back c | ends cd
+webkit switch-icon-button hidden a, two microtasks later | stop b ends bd
+webkit switch-icon-button hidden rtl, b later keys from a: d d c c a d
+webkit switch-icon-button disabled a d in the markup | stop b | tab b back b | ends ad
+webkit switch-icon-button disabled a d in the markup keys from b: c c c c b c
+webkit switch-icon-button disabled a d in the markup keys from c: b b b b b c
+webkit switch-icon-button disabled a later | stop b | tab b back b | ends ad
+webkit switch-icon-button disabled a later, off again | stop b | tab b back b | ends ad
+webkit switch-icon-button disabled b c later keys from a: d d d d a d
+webkit switch-icon-button disabled b c later | stop d | tab d back d | ends ad
+webkit switch-icon-button disabled the value c later | stop a | tab a back a | ends ad
+webkit switch-icon-button disabled the value c, off again | stop c | tab c back c | ends ad
+webkit switch-icon-button disabled c chosen by focus, later | stop a | tab a back a | ends ad
+webkit switch-icon-button disabled the focused b | active body stop a
+webkit switch-icon-button disabled the focused b then ArrowRight body
+webkit switch-icon-button disabled the focused b then Tab a
+webkit switch-icon-button disabled all | stop - | tab body back body | ends ab
+webkit switch-icon-button disabled all but b | stop b | tab b back b | ends ab
+webkit switch-icon-button disabled built out | stop b | tab b back b | ends ad
+webkit switch-icon-button disabled changed out | stop b | tab b back b | ends ad
+webkit switch-icon-button disabled changed back in one task | stop b | tab b back b | ends ad
+webkit switch-icon-button disabled n added first | stop a | tab a back a | ends nc
+webkit switch-icon-button disabled n added first, off | stop a | tab a back a | ends nc
+webkit switch-icon-button disabled a removed and b in one task | stop c | tab c back c | ends bd
+webkit switch-icon-button disabled a, two microtasks later | stop b ends ad
+webkit switch-icon-button disabled rtl, b later keys from a: d d c c a d
+webkit switch-icon-button until-found a d in the markup | stop a | tab a back a | ends ad
+webkit switch-icon-button until-found a d in the markup keys from b: c c a a a d
+webkit switch-icon-button until-found a d in the markup keys from c: d d b b a d
+webkit switch-icon-button until-found a later | stop a | tab a back a | ends ad
+webkit switch-icon-button until-found a later, off again | stop a | tab a back a | ends ad
+webkit switch-icon-button until-found b c later keys from a: b b d d a d
+webkit switch-icon-button until-found b c later | stop d | tab d back d | ends ad
+webkit switch-icon-button until-found the value c later | stop c | tab c back c | ends ad
+webkit switch-icon-button until-found the value c, off again | stop c | tab c back c | ends ad
+webkit switch-icon-button until-found c chosen by focus, later | stop c | tab c back c | ends ad
+webkit switch-icon-button until-found the focused b | active b stop b
+webkit switch-icon-button until-found the focused b then ArrowRight c
+webkit switch-icon-button until-found the focused b then Tab body
+webkit switch-icon-button until-found all | stop a | tab a back a | ends ab
+webkit switch-icon-button until-found all but b | stop a | tab a back a | ends ab
+webkit switch-icon-button until-found built out | stop a | tab a back a | ends ad
+webkit switch-icon-button until-found changed out | stop a | tab a back a | ends ad
+webkit switch-icon-button until-found changed back in one task | stop a | tab a back a | ends ad
+webkit switch-icon-button until-found n added first | stop n | tab n back n | ends nc
+webkit switch-icon-button until-found n added first, off | stop n | tab n back n | ends nc
+webkit switch-icon-button until-found a removed and b in one task | stop b | tab b back b | ends bd
+webkit switch-icon-button until-found a, two microtasks later | stop a ends ad
+webkit switch-icon-button until-found rtl, b later keys from a: d d b b a d
+webkit switch-icon-button display:none a d in the markup | stop b | tab b back b | ends bc
+webkit switch-icon-button display:none a d in the markup keys from b: c c c c b c
+webkit switch-icon-button display:none a d in the markup keys from c: b b b b b c
+webkit switch-icon-button display:none a later | stop a | tab body back body | ends ad
+webkit switch-icon-button display:none a later, off again | stop a | tab a back a | ends ad
+webkit switch-icon-button display:none b c later keys from a: d d d d a d
+webkit switch-icon-button display:none b c later | stop d | tab d back d | ends ad
+webkit switch-icon-button display:none the value c later | stop c | tab body back body | ends ad
+webkit switch-icon-button display:none the value c, off again | stop c | tab c back c | ends ad
+webkit switch-icon-button display:none c chosen by focus, later | stop c | tab body back body | ends ad
+webkit switch-icon-button display:none the focused b | active body stop b
+webkit switch-icon-button display:none the focused b then ArrowRight body
+webkit switch-icon-button display:none the focused b then Tab body
+webkit switch-icon-button display:none all | stop a | tab body back body | ends ab
+webkit switch-icon-button display:none all but b | stop a | tab body back body | ends ab
+webkit switch-icon-button display:none built out | stop b | tab b back b | ends bc
+webkit switch-icon-button display:none changed out | stop b | tab b back b | ends bc
+webkit switch-icon-button display:none changed back in one task | stop b | tab b back b | ends ad
+webkit switch-icon-button display:none n added first | stop a | tab a back a | ends ac
+webkit switch-icon-button display:none n added first, off | stop a | tab a back a | ends ac
+webkit switch-icon-button display:none a removed and b in one task | stop c | tab c back c | ends cd
+webkit switch-icon-button display:none a, two microtasks later | stop a ends ad
+webkit switch-icon-button display:none rtl, b later keys from a: d d c c a d
+webkit page own display | stop a | tab a back a | ends ad
+webkit page own display keys from b: c c a a a d
+webkit page own display block | stop a | tab a back a | ends ac
+webkit page own display block keys from b: c c a a a c
+webkit page a class | stop a | tab body back body | ends ad
+webkit page a class keys from b: d d d d b d
+webkit page visibility | stop a | tab body back body | ends ad
+webkit page visibility keys from b: b b b b b d
+webkit page narrow | stop a | tab body back body | ends ad
+webkit page wide | stop a | tab a back a | ends ad
+webkit group hidden while a is | stop a | tab body back body | ends bd
+webkit ancestor display none at first | stop b | tab b back b | ends bd
+webkit moved, c chosen by focus | stop c | tab c back c | ends ad
+webkit value a, focus moved to c, b hidden | stop a | tab a back a | ends ad
+webkit template clone | stop b | tab b back b | ends bb
+webkit innerHTML | stop b | tab b back b | ends bb
+webkit members through a nested slot | stop - ends --
+webkit one member: 20px,20px,20px,20px
+webkit 200 groups of 4: median 1089 ms
+## main's sources (2485fb2df), chromium
+chromium switch-button hidden a d in the markup | stop a | tab body back side | ends ad
+chromium switch-button hidden a d in the markup keys from b: c c b b b b
+chromium switch-button hidden a d in the markup keys from c: c c b b c c
+chromium switch-button hidden a later | stop a | tab body back side | ends ad
+chromium switch-button hidden a later, off again | stop a | tab a back a | ends ad
+chromium switch-button hidden b c later keys from a: a a d d a d
+chromium switch-button hidden b c later | stop d | tab d back d | ends ad
+chromium switch-button hidden the value c later | stop c | tab body back side | ends ad
+chromium switch-button hidden the value c, off again | stop c | tab c back c | ends ad
+chromium switch-button hidden c chosen by focus, later | stop c | tab body back side | ends ad
+chromium switch-button hidden the focused b | active body stop b
+chromium switch-button hidden the focused b then ArrowRight body
+chromium switch-button hidden the focused b then Tab body
+chromium switch-button hidden all | stop a | tab body back body | ends ab
+chromium switch-button hidden all but b | stop a | tab body back body | ends ab
+chromium switch-button hidden built out | stop a | tab body back body | ends ad
+chromium switch-button hidden changed out | stop a | tab body back body | ends ad
+chromium switch-button hidden changed back in one task | stop a | tab a back a | ends ad
+chromium switch-button hidden n added first | stop n | tab body back body | ends nc
+chromium switch-button hidden n added first, off | stop n | tab n back n | ends nc
+chromium switch-button hidden a removed and b in one task | stop b | tab body back body | ends bd
+chromium switch-button hidden a, two microtasks later | stop a ends ad
+chromium switch-button hidden rtl, b later keys from a: d d a a a d
+chromium switch-button disabled a d in the markup | stop b | tab b back b | ends ad
+chromium switch-button disabled a d in the markup keys from b: c c c c b c
+chromium switch-button disabled a d in the markup keys from c: b b b b b c
+chromium switch-button disabled a later | stop a | tab body back body | ends ad
+chromium switch-button disabled a later, off again | stop a | tab a back a | ends ad
+chromium switch-button disabled b c later keys from a: d d d d a d
+chromium switch-button disabled b c later | stop d | tab d back d | ends ad
+chromium switch-button disabled the value c later | stop c | tab body back body | ends ad
+chromium switch-button disabled the value c, off again | stop c | tab c back c | ends ad
+chromium switch-button disabled c chosen by focus, later | stop c | tab body back body | ends ad
+chromium switch-button disabled the focused b | active body stop b
+chromium switch-button disabled the focused b then ArrowRight body
+chromium switch-button disabled the focused b then Tab body
+chromium switch-button disabled all | stop a | tab body back body | ends ab
+chromium switch-button disabled all but b | stop a | tab body back body | ends ab
+chromium switch-button disabled built out | stop b | tab b back b | ends ad
+chromium switch-button disabled changed out | stop a | tab body back body | ends ad
+chromium switch-button disabled changed back in one task | stop a | tab a back a | ends ad
+chromium switch-button disabled n added first | stop a | tab a back a | ends nc
+chromium switch-button disabled n added first, off | stop a | tab a back a | ends nc
+chromium switch-button disabled a removed and b in one task | stop c | tab c back c | ends bd
+chromium switch-button disabled a, two microtasks later | stop a ends ad
+chromium switch-button disabled rtl, b later keys from a: d d c c a d
+chromium switch-button until-found a d in the markup | stop a | tab a back a | ends ad
+chromium switch-button until-found a d in the markup keys from b: c c a a a d
+chromium switch-button until-found a d in the markup keys from c: d d b b a d
+chromium switch-button until-found a later | stop a | tab a back a | ends ad
+chromium switch-button until-found a later, off again | stop a | tab a back a | ends ad
+chromium switch-button until-found b c later keys from a: b b d d a d
+chromium switch-button until-found b c later | stop d | tab d back d | ends ad
+chromium switch-button until-found the value c later | stop c | tab c back c | ends ad
+chromium switch-button until-found the value c, off again | stop c | tab c back c | ends ad
+chromium switch-button until-found c chosen by focus, later | stop c | tab c back c | ends ad
+chromium switch-button until-found the focused b | active body stop b
+chromium switch-button until-found the focused b then ArrowRight body
+chromium switch-button until-found the focused b then Tab body
+chromium switch-button until-found all | stop a | tab a back a | ends ab
+chromium switch-button until-found all but b | stop a | tab a back a | ends ab
+chromium switch-button until-found built out | stop a | tab a back a | ends ad
+chromium switch-button until-found changed out | stop a | tab a back a | ends ad
+chromium switch-button until-found changed back in one task | stop a | tab a back a | ends ad
+chromium switch-button until-found n added first | stop n | tab n back n | ends nc
+chromium switch-button until-found n added first, off | stop n | tab n back n | ends nc
+chromium switch-button until-found a removed and b in one task | stop b | tab b back b | ends bd
+chromium switch-button until-found a, two microtasks later | stop a ends ad
+chromium switch-button until-found rtl, b later keys from a: d d b b a d
+chromium switch-button display:none a d in the markup | stop a | tab body back body | ends ad
+chromium switch-button display:none a d in the markup keys from b: c c b b b b
+chromium switch-button display:none a d in the markup keys from c: c c b b c c
+chromium switch-button display:none a later | stop a | tab body back body | ends ad
+chromium switch-button display:none a later, off again | stop a | tab a back a | ends ad
+chromium switch-button display:none b c later keys from a: a a d d a d
+chromium switch-button display:none b c later | stop d | tab d back d | ends ad
+chromium switch-button display:none the value c later | stop c | tab body back body | ends ad
+chromium switch-button display:none the value c, off again | stop c | tab c back c | ends ad
+chromium switch-button display:none c chosen by focus, later | stop c | tab body back body | ends ad
+chromium switch-button display:none the focused b | active body stop b
+chromium switch-button display:none the focused b then ArrowRight body
+chromium switch-button display:none the focused b then Tab body
+chromium switch-button display:none all | stop a | tab side back body | ends ab
+chromium switch-button display:none all but b | stop a | tab side back body | ends ab
+chromium switch-button display:none built out | stop a | tab side back body | ends ad
+chromium switch-button display:none changed out | stop a | tab side back body | ends ad
+chromium switch-button display:none changed back in one task | stop a | tab a back a | ends ad
+chromium switch-button display:none n added first | stop n | tab side back body | ends nc
+chromium switch-button display:none n added first, off | stop n | tab n back n | ends nc
+chromium switch-button display:none a removed and b in one task | stop b | tab side back body | ends bd
+chromium switch-button display:none a, two microtasks later | stop a ends ad
+chromium switch-button display:none rtl, b later keys from a: d d a a a d
+chromium switch-icon-button hidden a d in the markup | stop a | tab side back body | ends ad
+chromium switch-icon-button hidden a d in the markup keys from b: c c b b b b
+chromium switch-icon-button hidden a d in the markup keys from c: c c b b c c
+chromium switch-icon-button hidden a later | stop a | tab side back body | ends ad
+chromium switch-icon-button hidden a later, off again | stop a | tab a back a | ends ad
+chromium switch-icon-button hidden b c later keys from a: a a d d a d
+chromium switch-icon-button hidden b c later | stop d | tab d back d | ends ad
+chromium switch-icon-button hidden the value c later | stop c | tab side back body | ends ad
+chromium switch-icon-button hidden the value c, off again | stop c | tab c back c | ends ad
+chromium switch-icon-button hidden c chosen by focus, later | stop c | tab side back body | ends ad
+chromium switch-icon-button hidden the focused b | active body stop b
+chromium switch-icon-button hidden the focused b then ArrowRight body
+chromium switch-icon-button hidden the focused b then Tab body
+chromium switch-icon-button hidden all | stop a | tab body back side | ends ab
+chromium switch-icon-button hidden all but b | stop a | tab body back side | ends ab
+chromium switch-icon-button hidden built out | stop a | tab body back side | ends ad
+chromium switch-icon-button hidden changed out | stop a | tab body back side | ends ad
+chromium switch-icon-button hidden changed back in one task | stop a | tab a back a | ends ad
+chromium switch-icon-button hidden n added first | stop n | tab body back side | ends nc
+chromium switch-icon-button hidden n added first, off | stop n | tab n back n | ends nc
+chromium switch-icon-button hidden a removed and b in one task | stop b | tab body back side | ends bd
+chromium switch-icon-button hidden a, two microtasks later | stop a ends ad
+chromium switch-icon-button hidden rtl, b later keys from a: d d a a a d
+chromium switch-icon-button disabled a d in the markup | stop b | tab b back b | ends ad
+chromium switch-icon-button disabled a d in the markup keys from b: c c c c b c
+chromium switch-icon-button disabled a d in the markup keys from c: b b b b b c
+chromium switch-icon-button disabled a later | stop a | tab body back side | ends ad
+chromium switch-icon-button disabled a later, off again | stop a | tab a back a | ends ad
+chromium switch-icon-button disabled b c later keys from a: d d d d a d
+chromium switch-icon-button disabled b c later | stop d | tab d back d | ends ad
+chromium switch-icon-button disabled the value c later | stop c | tab body back side | ends ad
+chromium switch-icon-button disabled the value c, off again | stop c | tab c back c | ends ad
+chromium switch-icon-button disabled c chosen by focus, later | stop c | tab body back side | ends ad
+chromium switch-icon-button disabled the focused b | active body stop b
+chromium switch-icon-button disabled the focused b then ArrowRight body
+chromium switch-icon-button disabled the focused b then Tab body
+chromium switch-icon-button disabled all | stop a | tab body back body | ends ab
+chromium switch-icon-button disabled all but b | stop a | tab body back body | ends ab
+chromium switch-icon-button disabled built out | stop b | tab b back b | ends ad
+chromium switch-icon-button disabled changed out | stop a | tab body back body | ends ad
+chromium switch-icon-button disabled changed back in one task | stop a | tab a back a | ends ad
+chromium switch-icon-button disabled n added first | stop a | tab a back a | ends nc
+chromium switch-icon-button disabled n added first, off | stop a | tab a back a | ends nc
+chromium switch-icon-button disabled a removed and b in one task | stop c | tab c back c | ends bd
+chromium switch-icon-button disabled a, two microtasks later | stop a ends ad
+chromium switch-icon-button disabled rtl, b later keys from a: d d c c a d
+chromium switch-icon-button until-found a d in the markup | stop a | tab a back a | ends ad
+chromium switch-icon-button until-found a d in the markup keys from b: c c a a a d
+chromium switch-icon-button until-found a d in the markup keys from c: d d b b a d
+chromium switch-icon-button until-found a later | stop a | tab a back a | ends ad
+chromium switch-icon-button until-found a later, off again | stop a | tab a back a | ends ad
+chromium switch-icon-button until-found b c later keys from a: b b d d a d
+chromium switch-icon-button until-found b c later | stop d | tab d back d | ends ad
+chromium switch-icon-button until-found the value c later | stop c | tab c back c | ends ad
+chromium switch-icon-button until-found the value c, off again | stop c | tab c back c | ends ad
+chromium switch-icon-button until-found c chosen by focus, later | stop c | tab c back c | ends ad
+chromium switch-icon-button until-found the focused b | active body stop b
+chromium switch-icon-button until-found the focused b then ArrowRight body
+chromium switch-icon-button until-found the focused b then Tab body
+chromium switch-icon-button until-found all | stop a | tab a back a | ends ab
+chromium switch-icon-button until-found all but b | stop a | tab a back a | ends ab
+chromium switch-icon-button until-found built out | stop a | tab a back a | ends ad
+chromium switch-icon-button until-found changed out | stop a | tab a back a | ends ad
+chromium switch-icon-button until-found changed back in one task | stop a | tab a back a | ends ad
+chromium switch-icon-button until-found n added first | stop n | tab n back n | ends nc
+chromium switch-icon-button until-found n added first, off | stop n | tab n back n | ends nc
+chromium switch-icon-button until-found a removed and b in one task | stop b | tab b back b | ends bd
+chromium switch-icon-button until-found a, two microtasks later | stop a ends ad
+chromium switch-icon-button until-found rtl, b later keys from a: d d b b a d
+chromium switch-icon-button display:none a d in the markup | stop a | tab body back body | ends ad
+chromium switch-icon-button display:none a d in the markup keys from b: c c b b b b
+chromium switch-icon-button display:none a d in the markup keys from c: c c b b c c
+chromium switch-icon-button display:none a later | stop a | tab body back body | ends ad
+chromium switch-icon-button display:none a later, off again | stop a | tab a back a | ends ad
+chromium switch-icon-button display:none b c later keys from a: a a d d a d
+chromium switch-icon-button display:none b c later | stop d | tab d back d | ends ad
+chromium switch-icon-button display:none the value c later | stop c | tab body back body | ends ad
+chromium switch-icon-button display:none the value c, off again | stop c | tab c back c | ends ad
+chromium switch-icon-button display:none c chosen by focus, later | stop c | tab body back body | ends ad
+chromium switch-icon-button display:none the focused b | active body stop b
+chromium switch-icon-button display:none the focused b then ArrowRight body
+chromium switch-icon-button display:none the focused b then Tab body
+chromium switch-icon-button display:none all | stop a | tab body back body | ends ab
+chromium switch-icon-button display:none all but b | stop a | tab body back body | ends ab
+chromium switch-icon-button display:none built out | stop a | tab body back body | ends ad
+chromium switch-icon-button display:none changed out | stop a | tab body back body | ends ad
+chromium switch-icon-button display:none changed back in one task | stop a | tab a back a | ends ad
+chromium switch-icon-button display:none n added first | stop n | tab body back body | ends nc
+chromium switch-icon-button display:none n added first, off | stop n | tab n back n | ends nc
+chromium switch-icon-button display:none a removed and b in one task | stop b | tab body back body | ends bd
+chromium switch-icon-button display:none a, two microtasks later | stop a ends ad
+chromium switch-icon-button display:none rtl, b later keys from a: d d a a a d
+chromium page own display | stop a | tab a back a | ends ad
+chromium page own display keys from b: c c a a a d
+chromium page own display block | stop a | tab a back a | ends ad
+chromium page own display block keys from b: c c a a a b
+chromium page a class | stop a | tab body back body | ends ad
+chromium page a class keys from b: b b b b b d
+chromium page visibility | stop a | tab body back body | ends ad
+chromium page visibility keys from b: b b b b b d
+chromium page narrow | stop a | tab body back body | ends ad
+chromium page wide | stop a | tab a back a | ends ad
+chromium group hidden while a is | stop a | tab body back body | ends ad
+chromium ancestor display none at first | stop a | tab body back body | ends ad
+chromium moved, c chosen by focus | stop c | tab c back c | ends ad
+chromium value a, focus moved to c, b hidden | stop c | tab c back c | ends ad
+chromium template clone | stop a | tab body back body | ends ac
+chromium innerHTML | stop a | tab body back body | ends ac
+chromium members through a nested slot | stop - ends --
+chromium one member: 8px,20px,20px,8px
+chromium 200 groups of 4: median 86 ms
+## main's sources (2485fb2df), firefox
+firefox switch-button hidden a d in the markup | stop a | tab body back body | ends ad
+firefox switch-button hidden a d in the markup keys from b: c c b b b b
+firefox switch-button hidden a d in the markup keys from c: c c b b c c
+firefox switch-button hidden a later | stop a | tab side back body | ends ad
+firefox switch-button hidden a later, off again | stop a | tab a back a | ends ad
+firefox switch-button hidden b c later keys from a: a a d d a d
+firefox switch-button hidden b c later | stop d | tab d back d | ends ad
+firefox switch-button hidden the value c later | stop c | tab side back body | ends ad
+firefox switch-button hidden the value c, off again | stop c | tab c back c | ends ad
+firefox switch-button hidden c chosen by focus, later | stop c | tab side back body | ends ad
+firefox switch-button hidden the focused b | active body stop b
+firefox switch-button hidden the focused b then ArrowRight body
+firefox switch-button hidden the focused b then Tab body
+firefox switch-button hidden all | stop a | tab body back body | ends ab
+firefox switch-button hidden all but b | stop a | tab side back body | ends ab
+firefox switch-button hidden built out | stop a | tab side back body | ends ad
+firefox switch-button hidden changed out | stop a | tab side back body | ends ad
+firefox switch-button hidden changed back in one task | stop a | tab a back a | ends ad
+firefox switch-button hidden n added first | stop n | tab side back body | ends nc
+firefox switch-button hidden n added first, off | stop n | tab n back n | ends nc
+firefox switch-button hidden a removed and b in one task | stop b | tab side back body | ends bd
+firefox switch-button hidden a, two microtasks later | stop a ends ad
+firefox switch-button hidden rtl, b later keys from a: d d a a a d
+firefox switch-button disabled a d in the markup | stop b | tab b back b | ends ad
+firefox switch-button disabled a d in the markup keys from b: c c c c b c
+firefox switch-button disabled a d in the markup keys from c: b b b b b c
+firefox switch-button disabled a later | stop a | tab side back body | ends ad
+firefox switch-button disabled a later, off again | stop a | tab a back a | ends ad
+firefox switch-button disabled b c later keys from a: d d d d a d
+firefox switch-button disabled b c later | stop d | tab d back d | ends ad
+firefox switch-button disabled the value c later | stop c | tab side back body | ends ad
+firefox switch-button disabled the value c, off again | stop c | tab c back c | ends ad
+firefox switch-button disabled c chosen by focus, later | stop c | tab side back body | ends ad
+firefox switch-button disabled the focused b | active body stop b
+firefox switch-button disabled the focused b then ArrowRight body
+firefox switch-button disabled the focused b then Tab body
+firefox switch-button disabled all | stop a | tab body back body | ends ab
+firefox switch-button disabled all but b | stop a | tab side back body | ends ab
+firefox switch-button disabled built out | stop b | tab b back b | ends ad
+firefox switch-button disabled changed out | stop a | tab side back body | ends ad
+firefox switch-button disabled changed back in one task | stop a | tab a back a | ends ad
+firefox switch-button disabled n added first | stop a | tab a back a | ends nc
+firefox switch-button disabled n added first, off | stop a | tab a back a | ends nc
+firefox switch-button disabled a removed and b in one task | stop c | tab c back c | ends bd
+firefox switch-button disabled a, two microtasks later | stop a ends ad
+firefox switch-button disabled rtl, b later keys from a: d d c c a d
+firefox switch-button until-found a d in the markup | stop a | tab a back a | ends ad
+firefox switch-button until-found a d in the markup keys from b: c c a a a d
+firefox switch-button until-found a d in the markup keys from c: d d b b a d
+firefox switch-button until-found a later | stop a | tab a back a | ends ad
+firefox switch-button until-found a later, off again | stop a | tab a back a | ends ad
+firefox switch-button until-found b c later keys from a: b b d d a d
+firefox switch-button until-found b c later | stop d | tab d back d | ends ad
+firefox switch-button until-found the value c later | stop c | tab c back c | ends ad
+firefox switch-button until-found the value c, off again | stop c | tab c back c | ends ad
+firefox switch-button until-found c chosen by focus, later | stop c | tab c back c | ends ad
+firefox switch-button until-found the focused b | active b stop b
+firefox switch-button until-found the focused b then ArrowRight c
+firefox switch-button until-found the focused b then Tab c
+firefox switch-button until-found all | stop a | tab a back a | ends ab
+firefox switch-button until-found all but b | stop a | tab a back a | ends ab
+firefox switch-button until-found built out | stop a | tab a back a | ends ad
+firefox switch-button until-found changed out | stop a | tab a back a | ends ad
+firefox switch-button until-found changed back in one task | stop a | tab a back a | ends ad
+firefox switch-button until-found n added first | stop n | tab n back n | ends nc
+firefox switch-button until-found n added first, off | stop n | tab n back n | ends nc
+firefox switch-button until-found a removed and b in one task | stop b | tab b back b | ends bd
+firefox switch-button until-found a, two microtasks later | stop a ends ad
+firefox switch-button until-found rtl, b later keys from a: d d b b a d
+firefox switch-button display:none a d in the markup | stop a | tab body back body | ends ad
+firefox switch-button display:none a d in the markup keys from b: c c b b b b
+firefox switch-button display:none a d in the markup keys from c: c c b b c c
+firefox switch-button display:none a later | stop a | tab side back body | ends ad
+firefox switch-button display:none a later, off again | stop a | tab a back a | ends ad
+firefox switch-button display:none b c later keys from a: a a d d a d
+firefox switch-button display:none b c later | stop d | tab d back d | ends ad
+firefox switch-button display:none the value c later | stop c | tab side back body | ends ad
+firefox switch-button display:none the value c, off again | stop c | tab c back c | ends ad
+firefox switch-button display:none c chosen by focus, later | stop c | tab side back body | ends ad
+firefox switch-button display:none the focused b | active body stop b
+firefox switch-button display:none the focused b then ArrowRight body
+firefox switch-button display:none the focused b then Tab body
+firefox switch-button display:none all | stop a | tab body back body | ends ab
+firefox switch-button display:none all but b | stop a | tab side back body | ends ab
+firefox switch-button display:none built out | stop a | tab side back body | ends ad
+firefox switch-button display:none changed out | stop a | tab side back body | ends ad
+firefox switch-button display:none changed back in one task | stop a | tab a back a | ends ad
+firefox switch-button display:none n added first | stop n | tab side back body | ends nc
+firefox switch-button display:none n added first, off | stop n | tab n back n | ends nc
+firefox switch-button display:none a removed and b in one task | stop b | tab side back body | ends bd
+firefox switch-button display:none a, two microtasks later | stop a ends ad
+firefox switch-button display:none rtl, b later keys from a: d d a a a d
+firefox switch-icon-button hidden a d in the markup | stop a | tab side back body | ends ad
+firefox switch-icon-button hidden a d in the markup keys from b: c c b b b b
+firefox switch-icon-button hidden a d in the markup keys from c: c c b b c c
+firefox switch-icon-button hidden a later | stop a | tab side back body | ends ad
+firefox switch-icon-button hidden a later, off again | stop a | tab a back a | ends ad
+firefox switch-icon-button hidden b c later keys from a: a a d d a d
+firefox switch-icon-button hidden b c later | stop d | tab d back d | ends ad
+firefox switch-icon-button hidden the value c later | stop c | tab side back body | ends ad
+firefox switch-icon-button hidden the value c, off again | stop c | tab c back c | ends ad
+firefox switch-icon-button hidden c chosen by focus, later | stop c | tab side back body | ends ad
+firefox switch-icon-button hidden the focused b | active body stop b
+firefox switch-icon-button hidden the focused b then ArrowRight body
+firefox switch-icon-button hidden the focused b then Tab body
+firefox switch-icon-button hidden all | stop a | tab body back body | ends ab
+firefox switch-icon-button hidden all but b | stop a | tab side back body | ends ab
+firefox switch-icon-button hidden built out | stop a | tab side back body | ends ad
+firefox switch-icon-button hidden changed out | stop a | tab side back body | ends ad
+firefox switch-icon-button hidden changed back in one task | stop a | tab a back a | ends ad
+firefox switch-icon-button hidden n added first | stop n | tab side back body | ends nc
+firefox switch-icon-button hidden n added first, off | stop n | tab n back n | ends nc
+firefox switch-icon-button hidden a removed and b in one task | stop b | tab side back body | ends bd
+firefox switch-icon-button hidden a, two microtasks later | stop a ends ad
+firefox switch-icon-button hidden rtl, b later keys from a: d d a a a d
+firefox switch-icon-button disabled a d in the markup | stop b | tab b back b | ends ad
+firefox switch-icon-button disabled a d in the markup keys from b: c c c c b c
+firefox switch-icon-button disabled a d in the markup keys from c: b b b b b c
+firefox switch-icon-button disabled a later | stop a | tab side back body | ends ad
+firefox switch-icon-button disabled a later, off again | stop a | tab a back a | ends ad
+firefox switch-icon-button disabled b c later keys from a: d d d d a d
+firefox switch-icon-button disabled b c later | stop d | tab d back d | ends ad
+firefox switch-icon-button disabled the value c later | stop c | tab side back body | ends ad
+firefox switch-icon-button disabled the value c, off again | stop c | tab c back c | ends ad
+firefox switch-icon-button disabled c chosen by focus, later | stop c | tab side back body | ends ad
+firefox switch-icon-button disabled the focused b | active body stop b
+firefox switch-icon-button disabled the focused b then ArrowRight body
+firefox switch-icon-button disabled the focused b then Tab body
+firefox switch-icon-button disabled all | stop a | tab body back body | ends ab
+firefox switch-icon-button disabled all but b | stop a | tab side back body | ends ab
+firefox switch-icon-button disabled built out | stop b | tab b back b | ends ad
+firefox switch-icon-button disabled changed out | stop a | tab side back body | ends ad
+firefox switch-icon-button disabled changed back in one task | stop a | tab a back a | ends ad
+firefox switch-icon-button disabled n added first | stop a | tab a back a | ends nc
+firefox switch-icon-button disabled n added first, off | stop a | tab a back a | ends nc
+firefox switch-icon-button disabled a removed and b in one task | stop c | tab c back c | ends bd
+firefox switch-icon-button disabled a, two microtasks later | stop a ends ad
+firefox switch-icon-button disabled rtl, b later keys from a: d d c c a d
+firefox switch-icon-button until-found a d in the markup | stop a | tab a back a | ends ad
+firefox switch-icon-button until-found a d in the markup keys from b: c c a a a d
+firefox switch-icon-button until-found a d in the markup keys from c: d d b b a d
+firefox switch-icon-button until-found a later | stop a | tab a back a | ends ad
+firefox switch-icon-button until-found a later, off again | stop a | tab a back a | ends ad
+firefox switch-icon-button until-found b c later keys from a: b b d d a d
+firefox switch-icon-button until-found b c later | stop d | tab d back d | ends ad
+firefox switch-icon-button until-found the value c later | stop c | tab c back c | ends ad
+firefox switch-icon-button until-found the value c, off again | stop c | tab c back c | ends ad
+firefox switch-icon-button until-found c chosen by focus, later | stop c | tab c back c | ends ad
+firefox switch-icon-button until-found the focused b | active b stop b
+firefox switch-icon-button until-found the focused b then ArrowRight c
+firefox switch-icon-button until-found the focused b then Tab c
+firefox switch-icon-button until-found all | stop a | tab a back a | ends ab
+firefox switch-icon-button until-found all but b | stop a | tab a back a | ends ab
+firefox switch-icon-button until-found built out | stop a | tab a back a | ends ad
+firefox switch-icon-button until-found changed out | stop a | tab a back a | ends ad
+firefox switch-icon-button until-found changed back in one task | stop a | tab a back a | ends ad
+firefox switch-icon-button until-found n added first | stop n | tab n back n | ends nc
+firefox switch-icon-button until-found n added first, off | stop n | tab n back n | ends nc
+firefox switch-icon-button until-found a removed and b in one task | stop b | tab b back b | ends bd
+firefox switch-icon-button until-found a, two microtasks later | stop a ends ad
+firefox switch-icon-button until-found rtl, b later keys from a: d d b b a d
+firefox switch-icon-button display:none a d in the markup | stop a | tab body back body | ends ad
+firefox switch-icon-button display:none a d in the markup keys from b: c c b b b b
+firefox switch-icon-button display:none a d in the markup keys from c: c c b b c c
+firefox switch-icon-button display:none a later | stop a | tab side back body | ends ad
+firefox switch-icon-button display:none a later, off again | stop a | tab a back a | ends ad
+firefox switch-icon-button display:none b c later keys from a: a a d d a d
+firefox switch-icon-button display:none b c later | stop d | tab d back d | ends ad
+firefox switch-icon-button display:none the value c later | stop c | tab side back body | ends ad
+firefox switch-icon-button display:none the value c, off again | stop c | tab c back c | ends ad
+firefox switch-icon-button display:none c chosen by focus, later | stop c | tab side back body | ends ad
+firefox switch-icon-button display:none the focused b | active body stop b
+firefox switch-icon-button display:none the focused b then ArrowRight body
+firefox switch-icon-button display:none the focused b then Tab body
+firefox switch-icon-button display:none all | stop a | tab body back body | ends ab
+firefox switch-icon-button display:none all but b | stop a | tab side back body | ends ab
+firefox switch-icon-button display:none built out | stop a | tab side back body | ends ad
+firefox switch-icon-button display:none changed out | stop a | tab side back body | ends ad
+firefox switch-icon-button display:none changed back in one task | stop a | tab a back a | ends ad
+firefox switch-icon-button display:none n added first | stop n | tab side back body | ends nc
+firefox switch-icon-button display:none n added first, off | stop n | tab n back n | ends nc
+firefox switch-icon-button display:none a removed and b in one task | stop b | tab side back body | ends bd
+firefox switch-icon-button display:none a, two microtasks later | stop a ends ad
+firefox switch-icon-button display:none rtl, b later keys from a: d d a a a d
+firefox page own display | stop a | tab a back a | ends ad
+firefox page own display keys from b: c c a a a d
+firefox page own display block | stop a | tab a back a | ends ad
+firefox page own display block keys from b: c c a a a b
+firefox page a class | stop a | tab side back body | ends ad
+firefox page a class keys from b: b b b b b d
+firefox page visibility | stop a | tab side back body | ends ad
+firefox page visibility keys from b: b b b b b d
+firefox page narrow | stop a | tab side back body | ends ad
+firefox page wide | stop a | tab a back a | ends ad
+firefox group hidden while a is | stop a | tab side back body | ends ad
+firefox ancestor display none at first | stop a | tab side back body | ends ad
+firefox moved, c chosen by focus | stop c | tab c back c | ends ad
+firefox value a, focus moved to c, b hidden | stop c | tab c back c | ends ad
+firefox template clone | stop a | tab side back body | ends ac
+firefox innerHTML | stop a | tab side back body | ends ac
+firefox members through a nested slot | stop - ends --
+firefox one member: 8px,20px,20px,8px
+firefox 200 groups of 4: median 286 ms
+## main's sources (2485fb2df), webkit
+webkit switch-button hidden a d in the markup | stop a | tab body back body | ends ad
+webkit switch-button hidden a d in the markup keys from b: c c b b b b
+webkit switch-button hidden a d in the markup keys from c: c c b b c c
+webkit switch-button hidden a later | stop a | tab body back body | ends ad
+webkit switch-button hidden a later, off again | stop a | tab a back a | ends ad
+webkit switch-button hidden b c later keys from a: a a d d a d
+webkit switch-button hidden b c later | stop d | tab d back d | ends ad
+webkit switch-button hidden the value c later | stop c | tab body back body | ends ad
+webkit switch-button hidden the value c, off again | stop c | tab c back c | ends ad
+webkit switch-button hidden c chosen by focus, later | stop c | tab body back body | ends ad
+webkit switch-button hidden the focused b | active body stop b
+webkit switch-button hidden the focused b then ArrowRight body
+webkit switch-button hidden the focused b then Tab body
+webkit switch-button hidden all | stop a | tab body back body | ends ab
+webkit switch-button hidden all but b | stop a | tab body back body | ends ab
+webkit switch-button hidden built out | stop a | tab body back body | ends ad
+webkit switch-button hidden changed out | stop a | tab body back body | ends ad
+webkit switch-button hidden changed back in one task | stop a | tab a back a | ends ad
+webkit switch-button hidden n added first | stop n | tab body back body | ends nc
+webkit switch-button hidden n added first, off | stop n | tab n back n | ends nc
+webkit switch-button hidden a removed and b in one task | stop b | tab body back body | ends bd
+webkit switch-button hidden a, two microtasks later | stop a ends ad
+webkit switch-button hidden rtl, b later keys from a: d d a a a d
+webkit switch-button disabled a d in the markup | stop b | tab b back b | ends ad
+webkit switch-button disabled a d in the markup keys from b: c c c c b c
+webkit switch-button disabled a d in the markup keys from c: b b b b b c
+webkit switch-button disabled a later | stop a | tab body back body | ends ad
+webkit switch-button disabled a later, off again | stop a | tab a back a | ends ad
+webkit switch-button disabled b c later keys from a: d d d d a d
+webkit switch-button disabled b c later | stop d | tab d back d | ends ad
+webkit switch-button disabled the value c later | stop c | tab body back body | ends ad
+webkit switch-button disabled the value c, off again | stop c | tab c back c | ends ad
+webkit switch-button disabled c chosen by focus, later | stop c | tab body back body | ends ad
+webkit switch-button disabled the focused b | active body stop b
+webkit switch-button disabled the focused b then ArrowRight body
+webkit switch-button disabled the focused b then Tab body
+webkit switch-button disabled all | stop a | tab body back body | ends ab
+webkit switch-button disabled all but b | stop a | tab body back body | ends ab
+webkit switch-button disabled built out | stop b | tab b back b | ends ad
+webkit switch-button disabled changed out | stop a | tab body back body | ends ad
+webkit switch-button disabled changed back in one task | stop a | tab a back a | ends ad
+webkit switch-button disabled n added first | stop a | tab a back a | ends nc
+webkit switch-button disabled n added first, off | stop a | tab a back a | ends nc
+webkit switch-button disabled a removed and b in one task | stop c | tab c back c | ends bd
+webkit switch-button disabled a, two microtasks later | stop a ends ad
+webkit switch-button disabled rtl, b later keys from a: d d c c a d
+webkit switch-button until-found a d in the markup | stop a | tab a back a | ends ad
+webkit switch-button until-found a d in the markup keys from b: c c a a a d
+webkit switch-button until-found a d in the markup keys from c: d d b b a d
+webkit switch-button until-found a later | stop a | tab a back a | ends ad
+webkit switch-button until-found a later, off again | stop a | tab a back a | ends ad
+webkit switch-button until-found b c later keys from a: b b d d a d
+webkit switch-button until-found b c later | stop d | tab d back d | ends ad
+webkit switch-button until-found the value c later | stop c | tab c back c | ends ad
+webkit switch-button until-found the value c, off again | stop c | tab c back c | ends ad
+webkit switch-button until-found c chosen by focus, later | stop c | tab c back c | ends ad
+webkit switch-button until-found the focused b | active b stop b
+webkit switch-button until-found the focused b then ArrowRight c
+webkit switch-button until-found the focused b then Tab body
+webkit switch-button until-found all | stop a | tab a back a | ends ab
+webkit switch-button until-found all but b | stop a | tab a back a | ends ab
+webkit switch-button until-found built out | stop a | tab a back a | ends ad
+webkit switch-button until-found changed out | stop a | tab a back a | ends ad
+webkit switch-button until-found changed back in one task | stop a | tab a back a | ends ad
+webkit switch-button until-found n added first | stop n | tab n back n | ends nc
+webkit switch-button until-found n added first, off | stop n | tab n back n | ends nc
+webkit switch-button until-found a removed and b in one task | stop b | tab b back b | ends bd
+webkit switch-button until-found a, two microtasks later | stop a ends ad
+webkit switch-button until-found rtl, b later keys from a: d d b b a d
+webkit switch-button display:none a d in the markup | stop a | tab body back body | ends ad
+webkit switch-button display:none a d in the markup keys from b: c c b b b b
+webkit switch-button display:none a d in the markup keys from c: c c b b c c
+webkit switch-button display:none a later | stop a | tab body back body | ends ad
+webkit switch-button display:none a later, off again | stop a | tab a back a | ends ad
+webkit switch-button display:none b c later keys from a: a a d d a d
+webkit switch-button display:none b c later | stop d | tab d back d | ends ad
+webkit switch-button display:none the value c later | stop c | tab body back body | ends ad
+webkit switch-button display:none the value c, off again | stop c | tab c back c | ends ad
+webkit switch-button display:none c chosen by focus, later | stop c | tab body back body | ends ad
+webkit switch-button display:none the focused b | active body stop b
+webkit switch-button display:none the focused b then ArrowRight body
+webkit switch-button display:none the focused b then Tab body
+webkit switch-button display:none all | stop a | tab body back body | ends ab
+webkit switch-button display:none all but b | stop a | tab body back body | ends ab
+webkit switch-button display:none built out | stop a | tab body back body | ends ad
+webkit switch-button display:none changed out | stop a | tab body back body | ends ad
+webkit switch-button display:none changed back in one task | stop a | tab a back a | ends ad
+webkit switch-button display:none n added first | stop n | tab body back body | ends nc
+webkit switch-button display:none n added first, off | stop n | tab n back n | ends nc
+webkit switch-button display:none a removed and b in one task | stop b | tab body back body | ends bd
+webkit switch-button display:none a, two microtasks later | stop a ends ad
+webkit switch-button display:none rtl, b later keys from a: d d a a a d
+webkit switch-icon-button hidden a d in the markup | stop a | tab body back body | ends ad
+webkit switch-icon-button hidden a d in the markup keys from b: c c b b b b
+webkit switch-icon-button hidden a d in the markup keys from c: c c b b c c
+webkit switch-icon-button hidden a later | stop a | tab body back body | ends ad
+webkit switch-icon-button hidden a later, off again | stop a | tab a back a | ends ad
+webkit switch-icon-button hidden b c later keys from a: a a d d a d
+webkit switch-icon-button hidden b c later | stop d | tab d back d | ends ad
+webkit switch-icon-button hidden the value c later | stop c | tab body back body | ends ad
+webkit switch-icon-button hidden the value c, off again | stop c | tab c back c | ends ad
+webkit switch-icon-button hidden c chosen by focus, later | stop c | tab body back body | ends ad
+webkit switch-icon-button hidden the focused b | active body stop b
+webkit switch-icon-button hidden the focused b then ArrowRight body
+webkit switch-icon-button hidden the focused b then Tab body
+webkit switch-icon-button hidden all | stop a | tab body back body | ends ab
+webkit switch-icon-button hidden all but b | stop a | tab body back body | ends ab
+webkit switch-icon-button hidden built out | stop a | tab body back body | ends ad
+webkit switch-icon-button hidden changed out | stop a | tab body back body | ends ad
+webkit switch-icon-button hidden changed back in one task | stop a | tab a back a | ends ad
+webkit switch-icon-button hidden n added first | stop n | tab body back body | ends nc
+webkit switch-icon-button hidden n added first, off | stop n | tab n back n | ends nc
+webkit switch-icon-button hidden a removed and b in one task | stop b | tab body back body | ends bd
+webkit switch-icon-button hidden a, two microtasks later | stop a ends ad
+webkit switch-icon-button hidden rtl, b later keys from a: d d a a a d
+webkit switch-icon-button disabled a d in the markup | stop b | tab b back b | ends ad
+webkit switch-icon-button disabled a d in the markup keys from b: c c c c b c
+webkit switch-icon-button disabled a d in the markup keys from c: b b b b b c
+webkit switch-icon-button disabled a later | stop a | tab body back body | ends ad
+webkit switch-icon-button disabled a later, off again | stop a | tab a back a | ends ad
+webkit switch-icon-button disabled b c later keys from a: d d d d a d
+webkit switch-icon-button disabled b c later | stop d | tab d back d | ends ad
+webkit switch-icon-button disabled the value c later | stop c | tab body back body | ends ad
+webkit switch-icon-button disabled the value c, off again | stop c | tab c back c | ends ad
+webkit switch-icon-button disabled c chosen by focus, later | stop c | tab body back body | ends ad
+webkit switch-icon-button disabled the focused b | active body stop b
+webkit switch-icon-button disabled the focused b then ArrowRight body
+webkit switch-icon-button disabled the focused b then Tab body
+webkit switch-icon-button disabled all | stop a | tab body back body | ends ab
+webkit switch-icon-button disabled all but b | stop a | tab body back body | ends ab
+webkit switch-icon-button disabled built out | stop b | tab b back b | ends ad
+webkit switch-icon-button disabled changed out | stop a | tab body back body | ends ad
+webkit switch-icon-button disabled changed back in one task | stop a | tab a back a | ends ad
+webkit switch-icon-button disabled n added first | stop a | tab a back a | ends nc
+webkit switch-icon-button disabled n added first, off | stop a | tab a back a | ends nc
+webkit switch-icon-button disabled a removed and b in one task | stop c | tab c back c | ends bd
+webkit switch-icon-button disabled a, two microtasks later | stop a ends ad
+webkit switch-icon-button disabled rtl, b later keys from a: d d c c a d
+webkit switch-icon-button until-found a d in the markup | stop a | tab a back a | ends ad
+webkit switch-icon-button until-found a d in the markup keys from b: c c a a a d
+webkit switch-icon-button until-found a d in the markup keys from c: d d b b a d
+webkit switch-icon-button until-found a later | stop a | tab a back a | ends ad
+webkit switch-icon-button until-found a later, off again | stop a | tab a back a | ends ad
+webkit switch-icon-button until-found b c later keys from a: b b d d a d
+webkit switch-icon-button until-found b c later | stop d | tab d back d | ends ad
+webkit switch-icon-button until-found the value c later | stop c | tab c back c | ends ad
+webkit switch-icon-button until-found the value c, off again | stop c | tab c back c | ends ad
+webkit switch-icon-button until-found c chosen by focus, later | stop c | tab c back c | ends ad
+webkit switch-icon-button until-found the focused b | active b stop b
+webkit switch-icon-button until-found the focused b then ArrowRight c
+webkit switch-icon-button until-found the focused b then Tab body
+webkit switch-icon-button until-found all | stop a | tab a back a | ends ab
+webkit switch-icon-button until-found all but b | stop a | tab a back a | ends ab
+webkit switch-icon-button until-found built out | stop a | tab a back a | ends ad
+webkit switch-icon-button until-found changed out | stop a | tab a back a | ends ad
+webkit switch-icon-button until-found changed back in one task | stop a | tab a back a | ends ad
+webkit switch-icon-button until-found n added first | stop n | tab n back n | ends nc
+webkit switch-icon-button until-found n added first, off | stop n | tab n back n | ends nc
+webkit switch-icon-button until-found a removed and b in one task | stop b | tab b back b | ends bd
+webkit switch-icon-button until-found a, two microtasks later | stop a ends ad
+webkit switch-icon-button until-found rtl, b later keys from a: d d b b a d
+webkit switch-icon-button display:none a d in the markup | stop a | tab body back body | ends ad
+webkit switch-icon-button display:none a d in the markup keys from b: c c b b b b
+webkit switch-icon-button display:none a d in the markup keys from c: c c b b c c
+webkit switch-icon-button display:none a later | stop a | tab body back body | ends ad
+webkit switch-icon-button display:none a later, off again | stop a | tab a back a | ends ad
+webkit switch-icon-button display:none b c later keys from a: a a d d a d
+webkit switch-icon-button display:none b c later | stop d | tab d back d | ends ad
+webkit switch-icon-button display:none the value c later | stop c | tab body back body | ends ad
+webkit switch-icon-button display:none the value c, off again | stop c | tab c back c | ends ad
+webkit switch-icon-button display:none c chosen by focus, later | stop c | tab body back body | ends ad
+webkit switch-icon-button display:none the focused b | active body stop b
+webkit switch-icon-button display:none the focused b then ArrowRight body
+webkit switch-icon-button display:none the focused b then Tab body
+webkit switch-icon-button display:none all | stop a | tab body back body | ends ab
+webkit switch-icon-button display:none all but b | stop a | tab body back body | ends ab
+webkit switch-icon-button display:none built out | stop a | tab body back body | ends ad
+webkit switch-icon-button display:none changed out | stop a | tab body back body | ends ad
+webkit switch-icon-button display:none changed back in one task | stop a | tab a back a | ends ad
+webkit switch-icon-button display:none n added first | stop n | tab body back body | ends nc
+webkit switch-icon-button display:none n added first, off | stop n | tab n back n | ends nc
+webkit switch-icon-button display:none a removed and b in one task | stop b | tab body back body | ends bd
+webkit switch-icon-button display:none a, two microtasks later | stop a ends ad
+webkit switch-icon-button display:none rtl, b later keys from a: d d a a a d
+webkit page own display | stop a | tab a back a | ends ad
+webkit page own display keys from b: c c a a a d
+webkit page own display block | stop a | tab a back a | ends ad
+webkit page own display block keys from b: c c a a a b
+webkit page a class | stop a | tab body back body | ends ad
+webkit page a class keys from b: b b b b b d
+webkit page visibility | stop a | tab body back body | ends ad
+webkit page visibility keys from b: b b b b b d
+webkit page narrow | stop a | tab body back body | ends ad
+webkit page wide | stop a | tab a back a | ends ad
+webkit group hidden while a is | stop a | tab body back body | ends ad
+webkit ancestor display none at first | stop a | tab body back body | ends ad
+webkit moved, c chosen by focus | stop c | tab c back c | ends ad
+webkit value a, focus moved to c, b hidden | stop c | tab c back c | ends ad
+webkit template clone | stop a | tab body back body | ends ac
+webkit innerHTML | stop a | tab body back body | ends ac
+webkit members through a nested slot | stop - ends --
+webkit one member: 8px,20px,20px,8px
+webkit 200 groups of 4: median 230 ms

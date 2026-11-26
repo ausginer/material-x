@@ -1,0 +1,17 @@
+// The group is defined before its members, with a page's rule for elements that aren't defined.
+import { afterAll, it } from 'vitest';
+import { server } from 'vitest/browser';
+import '../../src/button-group/connected-button-group.ts';
+import { nextFrame } from '../browser.ts';
+const OUT: string[] = [];
+afterAll(() => { throw new Error(`\nPROOF\n${OUT.join('\n')}\nEND`); });
+it('late', async () => {
+  const before = customElements.get('mx-switch-button') === undefined && customElements.get('mx-button') === undefined;
+  document.body.innerHTML = `<style>.f :not(:defined){display:none}</style>
+<div class="f"><mx-connected-button-group id="g1"><mx-switch-button id="a" value="a">a</mx-switch-button><mx-switch-button id="b" value="b">b</mx-switch-button></mx-connected-button-group></div>
+<mx-connected-button-group id="g2"><mx-switch-button id="c" value="a">a</mx-switch-button><mx-switch-button id="d" value="b">b</mx-switch-button></mx-connected-button-group>`;
+  await nextFrame(); await nextFrame();
+  await import('../../src/button/switch-button.ts'); await nextFrame(); await nextFrame();
+  for (const id of ['g1', 'g2']) { const g = document.querySelector(`#${id}`)!;
+    OUT.push(`${server.browser} undefined at first ${before} | ${id === 'g1' ? ':not(:defined){display:none}' : 'no rule'} | ${[...g.children].map((e: any) => `${e.id} tab ${e.getAttribute('tabindex')} first ${'first' in e.dataset} last ${'last' in e.dataset} corners ${((s) => [s.borderTopLeftRadius, s.borderTopRightRadius])(getComputedStyle(e.shadowRoot.querySelector('.host')))}`).join(' | ')}`); }
+});
