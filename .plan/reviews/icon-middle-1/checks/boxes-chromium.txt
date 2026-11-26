@@ -1,0 +1,50 @@
+# chromium 158.0.8127.18. main -> fix: rects, and pixels at rest. control: fix -> fix2 pixels.
+mx-list-item-lead-span-text: rects same; pixels same; control same
+mx-list-item-lead-mx-icon: rects same; pixels same; control same
+mx-list-item-lead-span-mx-icon: rects same; pixels same; control same
+mx-list-item-lead-mx-icon-button: rects same; pixels same; control same
+mx-list-item-lead-button-text: rects same; pixels same; control same
+mx-list-item-lead-button-mx-icon: rects same; pixels same; control same
+mx-list-item-trail-span-text: rects same; pixels same; control same
+mx-list-item-trail-mx-icon: rects same; pixels same; control same
+mx-list-item-trail-span-mx-icon: rects same; pixels same; control same
+mx-list-item-trail-mx-icon-button: rects same; pixels same; control same
+mx-list-item-trail-button-text: rects same; pixels same; control same
+mx-list-item-trail-button-mx-icon: rects same; pixels same; control same
+mx-list-button-item-lead-span-text: rects same; pixels same; control same
+mx-list-button-item-lead-mx-icon: rects same; pixels same; control same
+mx-list-button-item-lead-span-mx-icon: rects same; pixels same; control same
+mx-list-button-item-lead-mx-icon-button: rects same; pixels same; control same
+mx-list-button-item-lead-button-text: rects same; pixels same; control same
+mx-list-button-item-lead-button-mx-icon: rects same; pixels same; control same
+mx-list-button-item-trail-span-text: rects same; pixels same; control same
+mx-list-button-item-trail-mx-icon: rects same; pixels same; control same
+mx-list-button-item-trail-span-mx-icon: rects same; pixels same; control same
+mx-list-button-item-trail-mx-icon-button: rects same; pixels same; control same
+mx-list-button-item-trail-button-text: rects same; pixels same; control same
+mx-list-button-item-trail-button-mx-icon: rects same; pixels same; control same
+icon-alone: rects main {"target":[20,20,50.72,30],"handle":null,"icons":[[33.36,20,24,24]]}
+    fix  {"target":[20,20,50.72,28],"handle":null,"icons":[[33.36,23.66,24,24]]}; pixels size 66x46 -> 66x44; control same
+button-icon: rects same; pixels same; control same
+icon-button: rects same; pixels same; control same
+fab: rects same; pixels same; control same
+fab-extended: rects same; pixels same; control same
+mx-list-item-icons: rects same; pixels same; control same
+mx-list-button-item-icons: rects same; pixels same; control same
+mx-list-item-lead-page-span-mx-icon: rects same; pixels same; control same
+mx-list-item-trail-page-span-mx-icon: rects main {"target":[20,20,300,56],"handle":null,"icons":[[293,41,11,11]]}
+    fix  {"target":[20,20,300,56],"handle":null,"icons":[[293,43.97,11,11]]}; pixels 44 differ; control same
+mx-list-button-item-lead-page-span-mx-icon: rects same; pixels same; control same
+mx-list-button-item-trail-page-span-mx-icon: rects main {"target":[20,20,300,56],"handle":null,"icons":[[293,41,11,11]]}
+    fix  {"target":[20,20,300,56],"handle":null,"icons":[[293,43.97,11,11]]}; pixels 44 differ; control same
+text-field-icons: rects same; pixels same; control same
+checkbox: rects same; pixels same; control same
+checkbox-checked: rects same; pixels same; control same
+checkbox-in-text: rects same; pixels 27 differ; control 27 differ
+radio: rects same; pixels same; control same
+radio-checked: rects same; pixels same; control same
+split-button: rects same; pixels same; control same
+switch-button: rects same; pixels same; control same
+link-button: rects same; pixels same; control same
+top-app-bar-icons: rects same; pixels same; control same
+top-app-bar-icon-buttons: rects same; pixels same; control same

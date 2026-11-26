@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# One mutation of icon.ctr.css's vertical-align at a time, in one engine; restores the file after each.
+set -u
+P=/workspaces/worktrees/h/packages/material-x
+F=src/icon/styles/icon.ctr.css
+OUT=${1:?out}
+ENGINE=${2:?engine}
+cd "${P:?}"
+run() {
+  echo "## ${ENGINE}: $1" >> "$OUT"
+  MX_TEST_ENGINES=$ENGINE aube exec just test tests/icon/icon.browser.test.ts 2>&1 \
+    | grep -E '^ *(FAIL|×|Tests |Test Files)|AssertionError' | sed 's/\x1b\[[0-9;]*m//g' >> "$OUT"
+  git checkout -q -- "$F"
+}
+run 'unmutated'
+for m in 'DELETE' '  vertical-align: -0.125em;' '  vertical-align: -0.25em;' '  vertical-align: -0.2em;' '  vertical-align: text-bottom;'; do
+  if [ "$m" = DELETE ]; then sed -i '/^  vertical-align: middle;$/d' "$F"; else sed -i "s/^  vertical-align: middle;\$/$m/" "$F"; fi
+  grep -n 'vertical-align' "$F" >> "$OUT" || echo "(no vertical-align)" >> "$OUT"
+  run "$m"
+done
+git diff --quiet -- "$F" && echo "restored" >> "$OUT"
