@@ -24,7 +24,7 @@ Put the summary before the next task prompt so the owner can spot an unwanted di
 
 ## Route one bounded task
 
-Route architectural, contract, parity and public-surface choices to `architect`, settled implementation to `implementer`, feature proof to `reviewer`, and an acceptance round to `consolidator`. The role definitions under [.claude/agents/](../../.claude/agents/) decide their exact authority and review cadence. Prepare one compact English prompt naming the input revision, governing records and completion boundary. The owner launches or resumes the session; do not launch or automatically resume top-level role sessions yourself.
+Route architectural, contract, parity and public-surface choices to `architect`, settled implementation to `implementer`, feature proof to `reviewer`, and an acceptance round to `consolidator`. The role definitions under [.claude/agents/](../../.claude/agents/) decide their exact authority and review cadence. Prepare one compact English prompt naming the input revision, governing records and completion boundary. The owner launches or resumes the session; do not launch or automatically resume top-level role sessions yourself. Check `verify` on the unit's head: route a failure to the implementer, and propose no acceptance or merge before it passes.
 
 For an authorized prototype in an isolated worktree, require committed runnable source there, as [Architecture prototypes](agent-workflow.md#architecture-prototypes) specifies. Keep the main checkout and adopted decisions unchanged; do not require the prototype branch's source to stay unchanged, which would leave the owner with only patches or scratch copies to inspect.
 
