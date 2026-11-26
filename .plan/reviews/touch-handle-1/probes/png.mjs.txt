@@ -1,0 +1,11 @@
+// png.mjs a b: the inflated image data of two PNGs, and how many bytes differ
+import { readFileSync } from 'node:fs';
+import { inflateSync } from 'node:zlib';
+const raw = (p) => { const b = readFileSync(p); let o = 8; const idat = []; let w, h;
+  while (o < b.length) { const n = b.readUInt32BE(o); const t = b.toString('ascii', o + 4, o + 8);
+    if (t === 'IHDR') { w = b.readUInt32BE(o + 8); h = b.readUInt32BE(o + 12); }
+    if (t === 'IDAT') idat.push(b.subarray(o + 8, o + 8 + n)); o += 12 + n; }
+  return { w, h, d: inflateSync(Buffer.concat(idat)) }; };
+const a = raw(process.argv[2]), b = raw(process.argv[3]);
+let diff = 0; for (let i = 0; i < Math.min(a.d.length, b.d.length); i++) if (a.d[i] !== b.d[i]) diff++;
+console.log(`${a.w}x${a.h} vs ${b.w}x${b.h}, ${a.d.length} vs ${b.d.length} bytes, ${diff} differ`);
