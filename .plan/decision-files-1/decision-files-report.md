@@ -121,6 +121,8 @@ The bytes differ by one per entry from the plan's probe, which counts a line bre
 
 **Checks:** `entry.ts` and its tests: `oxfmt`, `oxlint`, ESLint and `tsc -p tsconfig.json`. The `repo` Vitest project: 173 rows. `entry.sh --duplicates` passes. The Markdown: `oxfmt`, `git diff --check`, and every changed link's target and fragment checked by a scratch script.
 
+**Dated 2026-11-26 by the implementer: rule 6 as amended, on a merge of `main`** ([reading](checks/main-rerun.txt)), requested by the coordinator. It is the reading of a rerun with an index's entry present that the [amendment](decision-files-plan.md#rulings-on-the-feature-proof) asks for, in place of [`fixes-rerun.txt`](checks/fixes-rerun.txt). `main` at `5d867401f` (#303) merged into `4f8e6fc36` as `df607d3b8` with no conflict, and `--duplicates` failed there on `RD-67` at `.plan/00-index.md:17`. The script's output, `RD-67.md` and two links of the session-context plan, is `eab14d703`. Step 2 applied cleanly and changed nothing, so it has no commit: the rerun doesn't write `RD-64.md`, because `main`'s index has no `RD-64`. Between `4f8e6fc36` and `eab14d703`, the two `decisions/` directories and the two indexes differ only by `main`'s changes: `RD-67.md`, and in the index `RF-148` to `RF-150` and the closing of `RF-132`. `--duplicates` passes.
+
 ## Open
 
 - The reviewer's feature proof, by the plan's [work list](decision-files-plan.md#work-list).
