@@ -2473,6 +2473,28 @@ describe('mx-sortable-list handle box', () => {
     );
   });
 
+  it("should center the text of a bare mx-icon handle in lead in the icon's box", async () => {
+    const [, [a]] = await createList(['A']);
+    const icon = document.createElement('mx-icon');
+    icon.textContent = 'check';
+    icon.dataset['handle'] = '';
+    icon.slot = 'lead';
+    a!.prepend(icon);
+    await whenFontsReady();
+    await nextFrame();
+    const range = document.createRange();
+    range.selectNodeContents(icon);
+    const text = range.getBoundingClientRect();
+    const box = icon.getBoundingClientRect();
+    const above = text.top - box.top;
+    const below = box.bottom - text.bottom;
+
+    expect(
+      Math.abs(above - below),
+      `${above} above, ${below} below`,
+    ).toBeLessThanOrEqual(1);
+  });
+
   it('should center the mx-icon of a span handle that the page sizes', async () => {
     const handle = await createIconHandle('span', 'lead');
     handle.style.inlineSize = '48px';

@@ -7399,6 +7399,12 @@ Tier A, **open**, **ready**, pre-existing. Registered on 2026-11-25 by the archi
 - **Observation 1, nothing is owed.** Under two mutations that don't remove property 4's mechanism, the text row fails in Firefox alone, because that engine's inline box is 1 px short of the text above and below. The row reads property 4 correctly in each engine, and each of the two mutations is caught in every engine by other rows. By `RD-62` property 5, a mutation that one engine's rows catch and another's don't is a finding. Here every engine catches each mutation, so the difference is in which row, and the row needn't say why.
 - **A recheck isn't owed.** The coordinator reads the witness in the implementer's report, and `verify` on the new head.
 
+**Dated 2026-11-26 by the implementer, on `material-x/touch-handle-1`: the row is in.** Requested by the coordinator. Chromium alone (`RD-62`).
+
+- **Row,** in `sortable-list.browser.test.ts`, every engine, beside property 3's: _should center the text of a bare mx-icon handle in lead in the icon's box_. It reads the text's range in the icon, and its distances from the icon's top and bottom differ by 1 px at most.
+- **Witness** ([reading](touch-handle-1/checks/bare-icon-witness.txt)): unmutated, the file passes 184 of 184. With `.lead::slotted([data-handle])` in place of `[data-handle]:not(mx-icon)`, the row fails at 0 above and −4 below, and the other 183, property 3's and 4's among them, pass.
+- No other text or code changes.
+
 #### RF-146 — By touch, an item without a handle isn't reordered
 
 Tier A, **open**, **ready, with `RF-145`'s unit** (the last note), pre-existing. Until that note: waiting on the owner (Q1). Registered on 2026-11-25 by the architect, on `material-x/disabled-item-1`, from the same check by the owner, relayed by the coordinator: _"Без ручки: вообще ничего не происходит, браузер пытается текст выделить вместо перетаскивания"_ ("Without a handle: nothing happens at all, the browser tries to select text instead of dragging"). Read in Chromium 158, by CDP touch, on the built elements of `754e2089f` ([reading](inline-handle-1/checks/no-handle.txt), [probe](inline-handle-1/probes/no-handle.mjs)).
