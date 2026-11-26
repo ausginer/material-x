@@ -168,7 +168,7 @@ Development runs in Chromium, a review runs in the three engines, and CI runs th
 - **An implementer runs Chromium:** rows, suites, witnesses and probes. CI runs every row in Chromium, Firefox and WebKit.
 - **The exception is a row that can't show its property in Chromium,** because the defect or the code path exists only in another engine, or the row has an engine condition. That row and its witness run in the engines that show it, that file only. Reproducing a CI failure is the same.
 - **The implementer doesn't wait for CI.** The report names the head, and says that `verify` is pending or gives its result. A failure returns to the implementer. Nothing is accepted or proposed for merging until `verify` passes on its head, and a reduced run counts (`repo:RD-15`). A unit whose subject is CI, the harness or an engine's configuration reads CI before it reports.
-- **A feature proof runs Chromium, Firefox and WebKit,** one engine at a time with nothing else running: the test files that the unit adds or changes, the files that test the source it changes, the reviewer's own probes, and the mutations below. It doesn't repeat the whole suite: it cites `verify`'s run on the reviewed head, or on the last commit before it that changed more than records, or says that there is none. Visual stays CI's.
+- **A feature proof runs Chromium, Firefox and WebKit,** one engine at a time with nothing else running: the test files that the unit adds or changes, the files that test the source it changes, the reviewer's own probes, and the mutations below. It doesn't repeat the whole suite: it cites `verify`'s run on the reviewed head, or on the last commit before it that changed more than records, or says that there is none. These local runs are the review's evidence. Visual stays CI's.
 - **The mutations that a feature proof repeats in the three engines:**
   - for each required property, the one that removes its mechanism;
   - each whose mechanism engines implement differently, such as focus and Tab, selectors with a fallback, the accessibility tree, forms and restoration, pointer and touch, top layer and popover, scrolling, layout rounding, animation and timers, custom element and slot timing;
@@ -178,10 +178,10 @@ Development runs in Chromium, a review runs in the three engines, and CI runs th
 
 - **A recheck** does the same for what the remediation changed.
 - **A unit with no feature proof** has CI's three engines for its rows and Chromium for its witnesses, and its record says so. A contract that changes source, with a property whose mechanism engines implement differently, asks for a feature proof.
-- **A contract** says _Rows_ and _Witness_ with no engine, and names one only where one engine alone shows the property. In a contract that already says _in the three engines_, that is the review's for witnesses and affected files, and CI's for rows.
+- **A contract** says _Rows_ and _Witness_ with no engine, and names one only where one engine alone shows the property. In a contract that already says _in the three engines_, that is the review's for witnesses and affected files, and CI's for rows. A closing condition is met the same way. Runs already made stand.
 - **A reading whose question is about engines** runs in those engines, whoever makes it.
 
-To run one file in another engine: `MX_TEST_ENGINES=firefox aube exec just test <file>` in the package, or `webkit`.
+To run one file in another engine: `MX_TEST_ENGINES=firefox aube exec just test <file>` in the package, or `webkit`. The devcontainer installs Playwright's Chromium and WebKit, and not Firefox ([#285](https://github.com/ausginer/material-x/issues/285)): until it does, install it in the container with `aube exec playwright install firefox`.
 
 ## Implementation roadmap
 

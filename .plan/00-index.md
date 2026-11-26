@@ -609,7 +609,7 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 - **Two jobs,** because the labeled trigger runs code that the person who adds the label hasn't read in full: the branch's dependencies, its tests and the tools they start. The job that holds the write token runs none of it, and takes from it only image files at baseline paths. **This doesn't protect against the branch's author.** A pull request's run uses the workflow file of the branch's own merge commit, so an author with write access can change the workflow itself. Before adding the label, the person who adds it reads the branch's changes under `.github/`. Property 3's _What `propose` writes_ keeps that reading sufficient: without it, a symbolic link at a baseline path also reached the token (`RF-38`). (**Amended 2026-11-16, `RF-38`.** This reason said: _"because the labeled trigger runs a branch's code. The job that holds a write token runs none of it, so a branch can't use the token for anything except the proposal."_)
 - **One force-pushed branch per target,** so there is one open proposal per target, and the latest recording replaces the earlier one.
 - **`workflow_dispatch` for `main` only.** Only `main` has a rule that needs a check on the proposal. Into any other branch, the owner's merge already runs the target's own gate on the merged result, which is the run that matters.
-- **Local runs without visual or other engines,** on the owner's direction. CI is the authority for them, and a local result that can't match CI would only be noise.
+- **Local runs without visual,** on the owner's direction. CI is the authority for it, and a local visual result that can't match CI would only be noise. Which engines a unit and a review run locally is `RD-62`'s. (**Amended 2026-11-26 by `RD-62`.** This reason said: _"**Local runs without visual or other engines,** on the owner's direction. CI is the authority for them, and a local result that can't match CI would only be noise."_)
 
 **Not adopted.**
 
@@ -2748,7 +2748,7 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 **Cost.** A row that passes without its mechanism in Firefox or WebKit is found at the review, or not at all for a mutation that nobody repeats there. A review is longer than it was when it read the implementer's runs.
 
-**What this amends.** `RD-13` properties 7 and 8 and `RD-12` property 8, in place with what they said. `drag:DRO-18` and the texts below, by a note or in place. `RD-13`'s reason that a local result which can't match CI is noise stands for visual. The performance plan of drag already says Chromium, in its §3, and two of its lines ask for the three-engine suite, which property 8 reads.
+**What this amends.** `RD-13` properties 7 and 8 and `RD-12` property 8, in place with what they said. `drag:DRO-18` and the texts below, by a note or in place. `RD-13`'s last reason, that a local result which can't match CI is noise, stands for visual, and is amended in place. The performance plan of drag already says Chromium, in its §3, and two of its lines ask for the three-engine suite, which property 8 reads: the whole suite in each engine is CI's `verify`, and a feature proof runs the three engines on the files that the unit changes or tests.
 
 - `.agents/docs/test-architecture.md` §CI policy said: _"Local runs are Chromium only by default, without the visual suite; Firefox, WebKit and visual results are read in CI, and a change that only Safari can see starts the Safari workflow on its branch (`repo:RD-13` property 8)."_ It gained the section.
 - `.agents/docs/handoff.md`, `.agents/docs/coordinator.md` and `.claude/agents/`'s `implementer.md`, `reviewer.md` and `architect.md` gained a sentence or two and lost none.
@@ -2756,6 +2756,18 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 **Not in this unit:** no devcontainer script installs Firefox, so a new container or a `playwright` update leaves a reviewer without it. That is [#285](https://github.com/ausginer/material-x/issues/285), in a pull request of its own.
 
 **Independent read: one, short, before the owner merges,** by a fresh `integrity` session, and not a feature proof, because no code changes. It checks that the six texts and the ten properties agree, that no other document still says otherwise, and that the replaced text is quoted as it was.
+
+**Dated 2026-11-26 by the architect: the integrity read of `f6c1e9bce` is triaged,** requested by the coordinator, who verified each finding at its cited line. No property's substance changes, so nothing is the owner's.
+
+- **`integrity-1`, accepted.** `RD-13`'s last reason is amended in place, with what it said, and _What this amends_ says so.
+- **`integrity-2`, accepted.** The gate of property 3 is in `handoff.md`'s list of what a finalized handoff identifies. Every role reads `handoff.md` before it commits (`AGENTS.md`), and `architect.md` and `consolidator.md` name it, so no role definition changes.
+- **`integrity-3`, accepted.** `test-architecture.md` has property 4's _"These local runs are the review's evidence"_ and property 8's _"A closing condition is met the same way. Runs already made stand."_
+- **`integrity-4`, accepted.** _What this amends_ says how property 8 reads the drag plan's _three-engine suite_: the whole suite in each engine is CI's, and a feature proof runs the three on the files that the unit changes or tests. The plan isn't edited, by property 8.
+- **`integrity-5`, accepted.** `test-architecture.md` says that the devcontainer doesn't install Firefox until #285, and how to install it in the container. `reviewer.md` reaches it through its link to the section.
+- **`integrity-6`, accepted,** by the same sentence as `integrity-2`: a handoff names the head and `verify`'s state there.
+- **`integrity-7`, rejected.** _Rows and witnesses name no engine_ binds a contract, which the architect writes. A test's author follows the contract, and an implementer's engines are in `implementer.md`. The `test-component` skill says how a row is written, and nothing in it names an engine to contradict this.
+
+**Checks:** Markdown only, so no build or test applies. Root format check; the changed links and anchors resolved by a scratch script; `git diff --check`. Lint doesn't apply to Markdown. `aube exec playwright install --dry-run firefox` resolves Playwright's Firefox 159.0.
 
 ## Findings
 
