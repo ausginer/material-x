@@ -1,0 +1,7 @@
+main | button-group/connected-button-group 4042 | button/split-button 7766 | complete 25869
+hook only | button-group/connected-button-group 4117 | button/split-button 7825 | complete 25948
+group only (TS) | button-group/connected-button-group 4127 | button/split-button 7841 | complete 26004
+sheet only | button-group/connected-button-group 4048 | button/split-button 7753 | complete 25918
+head | button-group/connected-button-group 4187 | button/split-button 7887 | complete 26035
+head without the group's MutationObserver | button-group/connected-button-group 4145 | button/split-button 7836 | complete 25960
+head without the hook's MutationObserver | button-group/connected-button-group 4166 | button/split-button 7867 | complete 25954

@@ -221,7 +221,7 @@ export const Media = (): JSX.Element => (
       </span>
       Morgan Lee
       <span slot="support">Leading avatar treatment</span>
-      <mx-icon-button color="standard" slot="trail">
+      <mx-icon-button aria-label="Chat" color="standard" slot="trail">
         <mx-icon>chat</mx-icon>
       </mx-icon-button>
     </mx-list-item>

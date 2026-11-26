@@ -1,0 +1,11 @@
+#!/bin/bash
+# The recheck's copy of .plan/roving-hidden-1/probes/cost-ends.sh, with the engine as E.
+#   S=<dir with head's three sources> E=<engine> ORDER="head main" cost.sh
+cd /workspaces/worktrees/g || exit 1
+F="packages/core/src/controllers/useRovingTabindex.ts packages/material-x/src/button-group/connected-button-group.ts packages/material-x/src/button-group/styles/connected/main.styles.css"
+swap() { if [ $1 = main ]; then for f in $F; do git show 2485fb2df:$f > $f; done; else for f in $F; do cp $S/head/$f $f; done; fi; (cd packages/core && aube exec just build >/dev/null 2>&1) || exit 1; }
+for k in 1 2 3; do for v in $ORDER; do swap $v
+  out=$(cd packages/material-x && MX_TEST_ENGINES=$E NO_COLOR=1 timeout 300 aube exec -- vitest run -c vitest.config.ts tests/button-group/proof-cost.browser.test.ts 2>&1 | grep -E "^$E (groups|split)" | sed "s/^$E //" | tr '\n' ';')
+  echo "$k $v load $(cut -d' ' -f1 /proc/loadavg) | $out"
+done; done
+swap head

@@ -1,0 +1,45 @@
+// Draft rows of the slot's hiding, beside the tree's rows. Copied to
+// packages/material-x/tests/icon/probe-hide.browser.test.ts.
+import { expect, it } from 'vitest';
+import Icon from '../../src/icon/icon.ts';
+
+const slotOf = (element: Element) => element.shadowRoot!.querySelector('slot')!;
+
+it('should hide its slot', () => {
+  expect(slotOf(document.createElement('mx-icon'))).toHaveAttribute(
+    'aria-hidden',
+    'true',
+  );
+});
+
+it('should give its slot a box', () => {
+  const element = document.createElement('mx-icon');
+  document.body.append(element);
+  expect(getComputedStyle(slotOf(element)).display).toBe('inline');
+});
+
+it('should hide its slot after the slot is in the shadow tree', () => {
+  const observer = new MutationObserver(() => {});
+
+  class ObservedIcon extends Icon {
+    override attachShadow(init: ShadowRootInit): ShadowRoot {
+      const root = super.attachShadow(init);
+      observer.observe(root, {
+        attributeFilter: ['aria-hidden'],
+        attributeOldValue: true,
+        childList: true,
+        subtree: true,
+      });
+      return root;
+    }
+  }
+
+  const tag = 'x-observed-icon';
+  document.body.innerHTML = `<${tag}>edit</${tag}>`;
+  customElements.define(tag, ObservedIcon);
+
+  expect(observer.takeRecords().map(({ type, oldValue }) => [type, oldValue])).toEqual([
+    ['childList', null],
+    ['attributes', null],
+  ]);
+});

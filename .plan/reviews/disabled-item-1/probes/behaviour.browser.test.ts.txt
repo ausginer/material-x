@@ -1,0 +1,745 @@
+// RF-142's feature proof: a disabled item of mx-sortable-list. Copy to packages/material-x/tests/list/zz-proof.browser.test.ts and
+// run one engine at a time, with MX_TEST_ENGINES, --reporter=json --outputFile=<file>. Each test leaves its lines in its meta and
+// asserts nothing. A line starts with `ok` or `DIFF` against the expectation of RD-61, or with `read` if RD-61 says nothing.
+import { afterEach, beforeEach, it } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+import '../../src/button/icon-button.ts';
+import '../../src/list/list-button-item.ts';
+import '../../src/list/list-item.ts';
+import '../../src/list/list-link-item.ts';
+import '../../src/list/list.ts';
+import type { ReorderEvent } from '../../src/list/sortable-list.ts';
+import '../../src/list/sortable-list.ts';
+import { TAB } from '../focus-indicator.ts';
+
+type Any = any;
+const lines: string[] = [];
+const str = (v: unknown) => JSON.stringify(v);
+const is = (name: string, got: unknown, want: unknown) =>
+  lines.push(
+    str(got) === str(want)
+      ? `ok   ${name} | ${str(got)}`
+      : `DIFF ${name} | got ${str(got)} | want ${str(want)}`,
+  );
+const read = (name: string, got: unknown) =>
+  lines.push(`read ${name} | ${str(got)}`);
+const wait = async (ms: number) =>
+  await new Promise((r) => setTimeout(r, ms));
+const errors: string[] = [];
+addEventListener('error', (e) => errors.push(e.message));
+
+const NAMES = [
+  'tabindex',
+  'role',
+  'aria-label',
+  'aria-description',
+  'aria-disabled',
+];
+const sem = (h: Any) =>
+  `${NAMES.map((n) => String(h.getAttribute(n))).join(' ')} /${h.style.touchAction}`;
+const ON = '0 button Reorder Use the arrow keys to move null /none';
+const OFF = '-1 button Reorder null true /';
+const PLAIN = 'null null null null null /';
+const box = (e: Any) => {
+  const b = (e.shadowRoot?.querySelector('.host') ?? e).getBoundingClientRect();
+  return [b.x + b.width / 2, b.y + b.height / 2] as const;
+};
+const ctl = (e: Any) => e.shadowRoot.querySelector('.host');
+
+function makeHandle(kind: string, slot = 'lead'): Any {
+  const h = document.createElement(kind);
+  h.dataset['handle'] = '';
+  h.slot = slot;
+  h.textContent = '=';
+  return h;
+}
+async function create(
+  tag: string,
+  kind: string,
+  { disabled = [0], commit = true, slot = 'lead' }: Any = {},
+) {
+  const list: Any = document.createElement('mx-sortable-list');
+  list.style.setProperty('--_drag-duration', '0s');
+  list.log = [];
+  list.addEventListener('reorder', (event: Event) => {
+    const { item, next, from, to } = event as ReorderEvent;
+    list.log.push(`${item.id}:${from}>${to}`);
+    list.onmove?.(item);
+    if (commit) list.insertBefore(item, next);
+  });
+  const items = ['a', 'b', 'c'].map((name, i) => {
+    const item: Any = document.createElement(tag);
+    item.id = name;
+    if (tag === 'mx-list-link-item') item.setAttribute('href', '#x');
+    if (kind !== 'none') item.append(makeHandle(kind, slot));
+    item.append(`Item ${name}`);
+    if (disabled.includes(i)) item.toggleAttribute('disabled', true);
+    return item;
+  });
+  const before: Any = document.createElement('button');
+  before.id = 'before';
+  list.append(...items);
+  const after: Any = document.createElement('button');
+  after.id = 'after';
+  document.body.append(before, list, after);
+  await wait(60);
+  return {
+    list,
+    items,
+    before,
+    after,
+    handle: items[0].querySelector('[data-handle]') as Any,
+  };
+}
+const active = () => {
+  const e: Any = document.activeElement;
+  return e === document.body
+    ? 'body'
+    : e.dataset.handle === ''
+      ? `h(${e.parentElement.id})`
+      : e.id || e.localName;
+};
+const ids = (list: Any) =>
+  [...list.children]
+    .filter((c: Any) => !c.hasAttribute('data-drag-placeholder'))
+    .map((c: Any) => c.id)
+    .join('');
+const rest = (list: Any) =>
+  ![...list.children].some(
+    (c: Any) =>
+      c.hasAttribute('data-drag-placeholder') ||
+      c.matches(':state(drag)') ||
+      c.hasAttribute('popover'),
+  );
+let keys: string[] = [];
+addEventListener('keydown', (e) => {
+  keys.push(`${e.key}:${e.defaultPrevented}`);
+});
+async function press(key: string) {
+  keys = [];
+  await userEvent.keyboard(`{${key}}`);
+  await wait(60);
+  return keys[0];
+}
+async function drag(from: Any, dy: number, hook?: () => unknown) {
+  from.scrollIntoView({ block: 'center' });
+  const [x, y] = box(from);
+  await commands.pointerPress(x, y);
+  await commands.pointerMove(x, y + 12, 3);
+  await hook?.();
+  await commands.pointerMove(x, y + dy, 8);
+  await wait(40);
+  const during = document.querySelector('mx-sortable-list > :state(drag)')?.id;
+  await commands.pointerRelease();
+  await wait(120);
+  return during ?? null;
+}
+async function tabs(from: Any, n: number, key = TAB) {
+  from.focus();
+  const out: string[] = [];
+  for (let i = 0; i < n; i += 1) {
+    await userEvent.keyboard(key);
+    out.push(active());
+  }
+  return out;
+}
+
+beforeEach(() => {
+  errors.length = 0;
+});
+afterEach(async ({ task }) => {
+  await commands.pointerRelease().catch(() => {});
+  if (errors.length) lines.push(`DIFF errors ${str(errors)}`);
+  document.body.replaceChildren();
+  (task.meta as Any).lines = lines.splice(0);
+});
+
+const TAGS = ['mx-list-button-item', 'mx-list-link-item'];
+const KINDS = ['none', 'span', 'button', 'mx-icon-button'];
+
+for (const tag of TAGS)
+  for (const kind of KINDS) {
+    it(`P1 ${tag} ${kind}`, async () => {
+      const at = `P1 ${tag} ${kind}`;
+      for (const key of ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight']) {
+        const r = await create(tag, kind, { disabled: [1] });
+        const target = r.items[1].querySelector('[data-handle]') ?? r.items[1];
+        target.focus();
+        const focus = active();
+        const got = await press(key);
+        is(
+          `${at} ${key} from ${focus}`,
+          [r.list.log, got, rest(r.list)],
+          [[], `${key}:false`, true],
+        );
+        document.body.replaceChildren();
+      }
+      // Native meaning: the arrow key scrolls the page.
+      {
+        const r = await create(tag, kind);
+        const tall = document.createElement('div');
+        tall.style.height = '4000px';
+        document.body.append(tall);
+        scrollTo(0, 0);
+        (r.handle ?? r.items[0]).focus({ preventScroll: true });
+        await userEvent.keyboard('{ArrowDown}');
+        await wait(400);
+        is(`${at} ArrowDown scrolls`, scrollY > 0, true);
+        scrollTo(0, 0);
+        document.body.replaceChildren();
+      }
+      for (const slot of ['lead', 'trail']) {
+        if (kind === 'none' && slot === 'trail') continue;
+        const r = await create(tag, kind, { slot });
+        const during = await drag(r.handle ?? r.items[0], 90);
+        is(
+          `${at} pointer by ${kind === 'none' ? 'the surface' : slot}`,
+          [during, r.list.log, rest(r.list)],
+          [null, [], true],
+        );
+        document.body.replaceChildren();
+      }
+      // From another child of the item.
+      {
+        const r = await create(tag, kind);
+        const other: Any = document.createElement('button');
+        other.id = 'other';
+        other.slot = 'trail';
+        other.textContent = 'o';
+        let clicks = 0;
+        other.addEventListener('click', () => (clicks += 1));
+        r.items[0].append(other);
+        await wait(40);
+        other.focus();
+        const got = await press('ArrowDown');
+        const during = await drag(other, 90);
+        const [x, y] = box(other);
+        await commands.pointerPress(x, y);
+        await commands.pointerRelease();
+        await wait(40);
+        is(
+          `${at} the page's button: key, pointer, click, disabled`,
+          [r.list.log, got, during, clicks, other.matches(':disabled')],
+          [[], 'ArrowDown:false', null, 1, false],
+        );
+        document.body.replaceChildren();
+      }
+      // It stays in the collection.
+      for (const [i, key, want] of [
+        [1, 'ArrowUp', 'bac'],
+        [1, 'ArrowDown', 'acb'],
+      ] as const) {
+        const r = await create(tag, kind, {
+          disabled: [key === 'ArrowUp' ? 0 : 2],
+        });
+        (r.items[i].querySelector('[data-handle]') ?? r.items[i]).focus();
+        await press(key);
+        await wait(80);
+        is(`${at} an enabled one past it, ${key}`, [ids(r.list), rest(r.list)], [
+          want,
+          true,
+        ]);
+        document.body.replaceChildren();
+      }
+      {
+        const r = await create(tag, kind, { disabled: [0, 1] });
+        // Drag c over b and a, both disabled; a link item is dragged by its handle.
+        if (kind !== 'none' || tag === 'mx-list-button-item') {
+          let shift = 0;
+          const c = r.items[2];
+          const before = r.items[0].getBoundingClientRect().y;
+          const [x, y] = box(c.querySelector('[data-handle]') ?? c);
+          const [, top] = box(r.items[0]);
+          c.addEventListener('dragstart', (e: Event) => e.preventDefault());
+          await commands.pointerPress(x, y);
+          await commands.pointerMove(x, y - 12, 3);
+          await commands.pointerMove(x, top - 10, 12);
+          await wait(400);
+          shift = r.items[0].getBoundingClientRect().y - before;
+          await commands.pointerRelease();
+          await wait(120);
+          is(
+            `${at} an enabled one dragged past two`,
+            [ids(r.list), shift > 10, rest(r.list)],
+            ['cab', true, true],
+          );
+        }
+        // The page's own change of a disabled item.
+        r.list.append(r.items[0]);
+        await wait(60);
+        is(
+          `${at} the page moves it`,
+          [ids(r.list).at(-1), r.handle ? sem(r.handle) : null],
+          ['a', r.handle ? OFF : null],
+        );
+      }
+    });
+
+    it(`P2 P3 P4 P6 ${tag} ${kind}`, async () => {
+      const at = `P2 ${tag} ${kind}`;
+      const r = await create(tag, kind);
+      const want =
+        kind === 'none' ? ['b', 'c', 'after'] : ['b', 'h(b)', 'c', 'h(c)', 'after'];
+      is(`${at} Tab`, await tabs(r.before, want.length), want);
+      is(
+        `${at} Shift+Tab`,
+        await tabs(r.after, want.length, '{Shift>}{Tab}{/Shift}'),
+        [...want.slice(0, -1).toReversed(), 'before'],
+      );
+      const described = () => ctl(r.items[0]).getAttribute('aria-description');
+      if (kind === 'none') {
+        is(`${at} P4`, described(), null);
+        r.items[0].disabled = false;
+        await wait(40);
+        is(`${at} P4 enabled`, described(), 'Use the arrow keys to move');
+        r.items[0].disabled = true;
+        await wait(40);
+        is(`${at} P4 disabled again`, described(), null);
+        r.list.remove();
+        r.items[0].disabled = false;
+        document.body.append(r.list);
+        await wait(60);
+        is(`${at} P4 enabled while disconnected`, described(), 'Use the arrow keys to move');
+      } else {
+        const h = r.handle;
+        is(`${at} from the start`, [sem(h), described()], [OFF, null]);
+        const inner = ctl0(h);
+        if (inner)
+          read(
+            `${at} the inner button`,
+            NAMES.map((n) => inner.getAttribute(n)),
+          );
+        for (let i = 0; i < 2; i += 1) {
+          r.items[0].disabled = false;
+          await wait(40);
+          is(`${at} enabled`, [sem(h), described()], [ON, null]);
+          if (inner)
+            is(
+              `${at} the inner button, enabled`,
+              [inner.getAttribute('aria-disabled'), inner.getAttribute('aria-description')],
+              [null, 'Use the arrow keys to move'],
+            );
+          r.items[0].disabled = true;
+          await wait(40);
+          is(`${at} disabled`, [sem(h), described()], [OFF, null]);
+          if (inner)
+            is(
+              `${at} the inner button, disabled`,
+              [inner.getAttribute('aria-disabled'), inner.getAttribute('aria-description'), inner.disabled],
+              ['true', null, false],
+            );
+        }
+        // P6: the handle's own click, not natively disabled; a press focuses it (P3's cost).
+        let clicks = 0;
+        h.addEventListener('click', () => (clicks += 1));
+        r.before.focus();
+        const [x, y] = box(h);
+        await commands.pointerPress(x, y);
+        await commands.pointerRelease();
+        await wait(40);
+        is(`${at} P6 click`, [clicks, h.matches(':disabled')], [1, false]);
+        read(`${at} P3 focus after a press`, active());
+        r.before.focus();
+        h.focus();
+        is(`${at} P3 focus()`, active(), 'h(a)');
+        // P3: disabled with focus, for this kind, and enabled.
+        r.items[0].disabled = false;
+        await wait(40);
+        r.before.focus();
+        await tabs(r.before, 2);
+        is(`${at} P3 Tab reaches it`, active(), 'h(a)');
+        r.items[0].disabled = true;
+        await wait(200);
+        const during = [active(), h.matches(':focus'), await press('ArrowDown'), r.list.log.length];
+        is(`${at} P3 disabled with focus`, during, ['h(a)', true, 'ArrowDown:false', 0]);
+        r.items[0].disabled = false;
+        await wait(60);
+        const focus = active();
+        await press('ArrowDown');
+        await wait(80);
+        is(`${at} P3 enabled`, [focus, r.list.log, active()], ['h(a)', ['a:0>1'], 'h(a)']);
+      }
+      if (server.browser === 'chromium') {
+        document.body.replaceChildren();
+        const q = await create(tag, kind);
+        const flat = (n: Any): Any[] => [
+          [n.role, n.name, n.description, n.properties.disabled ?? false, n.properties.focusable ?? false].join(','),
+          ...n.children.flatMap(flat),
+        ];
+        read(`${at} AX disabled`, flat(await (commands as Any).readAccessibilityTree('#a')));
+        read(`${at} AX enabled`, flat(await (commands as Any).readAccessibilityTree('#b')));
+        void q;
+      }
+    });
+
+    it(`P5 ${tag} ${kind}`, async () => {
+      const at = `P5 ${tag} ${kind}`;
+      const go = async (name: string, when: string) => {
+        const r = await create(tag, kind, { disabled: [] });
+        r.list.addEventListener('dragstart', (e: Event) => e.preventDefault(), true);
+        const off = () => r.items[0].toggleAttribute('disabled', true);
+        const from = r.handle ?? r.items[0];
+        from.scrollIntoView({ block: 'center' });
+        const [x, y] = box(from);
+        await commands.pointerPress(x, y);
+        if (when === 'press') off();
+        await wait(40);
+        await commands.pointerMove(x, y + 12, 3);
+        const lifted = r.items[0].matches(':state(drag)');
+        if (when === 'drag') off();
+        await wait(60);
+        await commands.pointerMove(x, y + 90, 8);
+        await wait(40);
+        await commands.pointerRelease();
+        await wait(150);
+        is(
+          `${at} ${name}`,
+          [lifted, r.list.log.length, ids(r.list)[0], rest(r.list), r.handle ? sem(r.handle) : null],
+          [true, 1, 'b', true, r.handle ? OFF : null],
+        );
+        document.body.replaceChildren();
+      };
+      await go('disabled between the press and the lift', 'press');
+      await go('disabled during the drag', 'drag');
+      // Escape of a drag whose item is disabled.
+      {
+        const r = await create(tag, kind, { disabled: [] });
+        r.list.addEventListener('dragstart', (e: Event) => e.preventDefault(), true);
+        await drag(r.handle ?? r.items[0], 60, async () => {
+          r.items[0].disabled = true;
+          await wait(40);
+          await userEvent.keyboard('{Escape}');
+        });
+        is(`${at} Escape`, [r.list.log.length, ids(r.list), rest(r.list)], [0, 'abc', true]);
+        document.body.replaceChildren();
+      }
+      // A pending commit, by key and by drop: disabled in the handler, committed 100 ms later, enabled after that.
+      for (const how of ['key', 'drop']) {
+        const r = await create(tag, kind, { disabled: [], commit: false });
+        r.list.addEventListener('dragstart', (e: Event) => e.preventDefault(), true);
+        r.list.onmove = (item: Any) => {
+          item.disabled = true;
+          setTimeout(() => r.list.insertBefore(item, r.items[2]), 100);
+        };
+        const from = r.handle ?? r.items[0];
+        if (how === 'key') {
+          from.focus();
+          await userEvent.keyboard('{ArrowDown}');
+        } else {
+          const [x, y] = box(from);
+          const [, over] = box(r.items[1]);
+          await commands.pointerPress(x, y);
+          await commands.pointerMove(x, y + 12, 3);
+          await commands.pointerMove(x, over + 10, 8);
+          await commands.pointerRelease();
+        }
+        await wait(250);
+        const focus = active();
+        const said = r.list.shadowRoot.querySelector('[aria-live]')?.textContent;
+        is(
+          `${at} pending commit by ${how}`,
+          [r.list.log, ids(r.list), rest(r.list)],
+          [['a:0>1'], 'bac', true],
+        );
+        read(`${at} pending commit by ${how}: announced, focus`, [said, focus]);
+        // Disabled now: refused. Enabled: works again.
+        from.focus();
+        await press('ArrowUp');
+        const refused = r.list.log.length;
+        r.items[0].disabled = false;
+        await wait(60);
+        from.focus();
+        await press('ArrowUp');
+        is(`${at} after the ${how}, disabled and then enabled`, [refused, r.list.log.length], [1, 2]);
+        document.body.replaceChildren();
+        await wait(50);
+      }
+    });
+  }
+
+function ctl0(h: Any): Any {
+  return h.shadowRoot?.querySelector('.host');
+}
+
+it('P2 the page\'s values', async () => {
+  const VALUES = {
+    tabindex: '3',
+    role: 'link',
+    'aria-label': 'Own',
+    'aria-description': 'Own',
+    'aria-disabled': 'false',
+  };
+  // Each value alone, set before the claim, while enabled, while disabled, and in the same task as the change.
+  for (const kind of ['span', 'button'])
+    for (const [name, value] of [...Object.entries(VALUES), ['touch-action', 'pan-x'] as const]) {
+      const put = (h: Any) =>
+        name === 'touch-action' ? (h.style.touchAction = value) : h.setAttribute(name, value);
+      const get = (h: Any) => (name === 'touch-action' ? h.style.touchAction : h.getAttribute(name));
+      const at = `P2 ${kind} ${name}`;
+      const run = async (when: string) => {
+        const r = await create('mx-list-button-item', 'none', { disabled: [] });
+        const [a] = r.items;
+        const h = makeHandle(kind);
+        if (when === 'before') put(h);
+        a.append(h);
+        await wait(40);
+        if (when === 'enabled') put(h);
+        await wait(40);
+        if (when === 'task, before') put(h);
+        a.disabled = true;
+        if (when === 'task, after') put(h);
+        await wait(40);
+        if (when === 'disabled') put(h);
+        await wait(40);
+        const one = get(h);
+        a.disabled = false;
+        if (when === 'task, after enabling') put(h);
+        await wait(40);
+        const two = get(h);
+        h.remove();
+        await wait(40);
+        const left = get(h);
+        is(
+          `${at} set ${when}`,
+          when === 'task, after enabling' ? [two, left] : [one, two, left],
+          when === 'task, after enabling' ? [value, value] : [value, value, value],
+        );
+        document.body.replaceChildren();
+      };
+      for (const when of ['before', 'enabled', 'task, before', 'task, after', 'disabled', 'task, after enabling'])
+        await run(when);
+    }
+  // An attribute that the page removed.
+  for (const name of NAMES.slice(0, 4)) {
+    const r = await create('mx-list-button-item', 'span', { disabled: [] });
+    r.handle.removeAttribute(name);
+    await wait(40);
+    const before = sem(r.handle);
+    r.items[0].disabled = true;
+    await wait(40);
+    r.items[0].disabled = false;
+    await wait(40);
+    // The same removal and a slot change, as on main.
+    const q = await create('mx-list-button-item', 'span', { disabled: [] });
+    q.handle.removeAttribute(name);
+    await wait(40);
+    const extra = document.createElement('i');
+    extra.slot = 'trail';
+    q.items[0].append(extra);
+    await wait(40);
+    read(`P2 the page removed ${name}, then a slot change`, sem(q.handle));
+    read(`P2 the page removed ${name}: before, after disabled and enabled`, [before, sem(r.handle)]);
+    document.body.replaceChildren();
+  }
+  // A host's aria-description of an item without a handle.
+  const r = await create('mx-list-button-item', 'none', { disabled: [] });
+  const [a] = r.items;
+  a.setAttribute('aria-description', 'Mine');
+  await wait(40);
+  a.disabled = true;
+  await wait(40);
+  const off = ctl(a).getAttribute('aria-description');
+  a.disabled = false;
+  await wait(40);
+  is('P4 the host\'s description', [off, ctl(a).getAttribute('aria-description')], ['Mine', 'Mine']);
+});
+
+it('P2 life of the item', async () => {
+  const r = await create('mx-list-button-item', 'span');
+  const [a, b] = r.items;
+  const h = r.handle;
+  // Handles swapped.
+  const h2 = makeHandle('span', 'trail');
+  h.remove();
+  await wait(40);
+  is('no handle, disabled', [sem(h), ctl(a).getAttribute('aria-description')], [PLAIN, null]);
+  a.append(h2);
+  await wait(40);
+  is('another handle, disabled', sem(h2), OFF);
+  // Out of the list and disabled or enabled there.
+  const plain = document.createElement('mx-list');
+  document.body.append(plain);
+  plain.append(a);
+  await wait(60);
+  is('in mx-list, disabled', sem(h2), PLAIN);
+  a.disabled = false;
+  await wait(60);
+  is('in mx-list, enabled', [sem(h2), ctl(a).getAttribute('aria-description')], [PLAIN, null]);
+  a.disabled = true;
+  await wait(60);
+  is('in mx-list, disabled again', sem(h2), PLAIN);
+  r.list.append(a);
+  await wait(60);
+  is('back, disabled', sem(h2), OFF);
+  a.remove();
+  a.disabled = false;
+  r.list.prepend(a);
+  await wait(60);
+  is('back, enabled while out', sem(h2), ON);
+  // Disabled in the task of its removal.
+  a.disabled = true;
+  a.remove();
+  await wait(60);
+  is('disabled and removed in one task', sem(h2), PLAIN);
+  r.list.prepend(a);
+  await wait(60);
+  is('and back', sem(h2), OFF);
+  a.disabled = false;
+  a.disabled = true;
+  a.disabled = false;
+  await wait(40);
+  is('toggled in one task', sem(h2), ON);
+  a.setAttribute('disabled', '');
+  a.setAttribute('disabled', 'false');
+  await wait(40);
+  is('another value of the attribute', sem(h2), OFF);
+  // Into a second sortable list, with focus kept by nothing: an enabled neighbour is untouched.
+  is('neighbour', sem(b.querySelector('[data-handle]')), ON);
+  // From HTML.
+  document.body.insertAdjacentHTML(
+    'beforeend',
+    `<mx-sortable-list id="html"><mx-list-link-item disabled href="#x" id="l"><span data-handle slot="lead">=</span>L</mx-list-link-item><mx-list-button-item disabled id="m"><span data-handle slot="trail">=</span>M</mx-list-button-item><mx-list-button-item disabled id="n">N</mx-list-button-item></mx-sortable-list>`,
+  );
+  await wait(60);
+  is(
+    'from HTML',
+    ['l', 'm'].map((i) => sem(document.querySelector(`#${i} [data-handle]`))),
+    [OFF, OFF],
+  );
+  is('from HTML, without a handle', ctl(document.querySelector('#n')).getAttribute('aria-description'), null);
+});
+
+it('P8 mx-list-item', async () => {
+  for (const kind of ['none', 'span']) {
+    const r = await create('mx-list-item', kind, { disabled: [] });
+    const [a] = r.items;
+    const target = r.handle ?? a;
+    const before = sem(target);
+    a.setAttribute('disabled', '');
+    await wait(40);
+    is(`P8 ${kind} attributes`, sem(target), before);
+    is(`P8 ${kind} Tab`, (await tabs(r.before, 1))[0], r.handle ? 'h(a)' : 'a');
+    target.focus();
+    await press('ArrowDown');
+    await wait(80);
+    const during = await drag(target, -60);
+    is(`P8 ${kind} key, pointer`, [r.list.log, during], [['a:0>1', 'a:1>0'], 'a']);
+    document.body.replaceChildren();
+  }
+  const r = await create('mx-list-item', 'none', { disabled: [] });
+  r.items[0].removeAttribute('tabindex');
+  await wait(40);
+  const before = r.items[0].hasAttribute('tabindex');
+  r.items[0].setAttribute('disabled', '');
+  await wait(40);
+  is('P8 the page removed tabindex, then set the attribute', [before, r.items[0].hasAttribute('tabindex')], [false, false]);
+});
+
+it('P1 link item: focus() on its disabled link', async () => {
+  const r = await create('mx-list-link-item', 'none');
+  ctl(r.items[0]).focus();
+  read('focus', [active(), ctl(r.items[0]).matches(':focus')]);
+  is('key', [await press('ArrowDown'), r.list.log], ['ArrowDown:false', []]);
+});
+
+it('nested', async () => {
+  // A sortable list in an item, without a handle, of a sortable list.
+  for (const disabled of [false, true])
+    for (const kind of ['none', 'span']) {
+      const outer = await create('mx-list-item', 'none', { disabled: [] });
+      const inner = await create('mx-list-button-item', kind, { disabled: disabled ? [1] : [] });
+      inner.items.forEach((e: Any, i: number) => (e.id = `i${i}`));
+      const holder = document.createElement('div');
+      holder.slot = 'support';
+      holder.append(inner.list);
+      outer.items[1].append(holder);
+      await wait(80);
+      const target = inner.items[1].querySelector('[data-handle]') ?? inner.items[1];
+      let name = 'nothing focusable';
+      if (target !== inner.items[1] || !disabled) {
+        target.focus();
+        name = (await press('ArrowDown')) ?? 'no key';
+      }
+      const logs = [[...outer.list.log], [...inner.list.log]];
+      const during = await drag(target, -70);
+      read(
+        `nested, inner ${kind}${disabled ? ' disabled' : ''}: key ${name}, outer and inner moves; then a drag`,
+        [...logs, during, outer.list.log, inner.list.log],
+      );
+      document.body.replaceChildren();
+    }
+});
+
+it('nested, the edge of an enabled inner list', async () => {
+  const outer = await create('mx-list-item', 'none', { disabled: [] });
+  const inner = await create('mx-list-button-item', 'span', { disabled: [] });
+  inner.items.forEach((e: Any, i: number) => (e.id = `i${i}`));
+  const holder = document.createElement('div');
+  holder.slot = 'support';
+  holder.append(inner.list);
+  outer.items[1].append(holder);
+  await wait(80);
+  inner.items[0].querySelector('[data-handle]').focus();
+  await press('ArrowUp');
+  read('nested, ArrowUp on the first inner handle: outer and inner moves', [outer.list.log, inner.list.log]);
+});
+
+it('the native drag of a link item', async () => {
+  for (const [name, disabled, href] of [
+    ['enabled, with href', [], true],
+    ['enabled, without href', [], false],
+    ['disabled', [0], true],
+  ] as Any) {
+    const r = await create('mx-list-link-item', 'none', { disabled });
+    if (!href) r.items[0].removeAttribute('href');
+    await wait(40);
+    const log: string[] = [];
+    for (const type of ['dragstart', 'pointercancel'])
+      r.list.addEventListener(type, () => log.push(type), true);
+    const during = await drag(r.items[0], 90);
+    read(`link item ${name}: href of the anchor, events, lifted, moves`, [
+      ctl(r.items[0]).getAttribute('href'),
+      log,
+      during,
+      r.list.log,
+    ]);
+    document.body.replaceChildren();
+    await wait(60);
+  }
+});
+
+if (server.browser === 'chromium')
+  it('touch', async () => {
+    for (const kind of ['span', 'button']) for (const when of ['enabled', 'disabled', 'disabled after the touch', 'disabled during the drag']) {
+      const r = await create('mx-list-button-item', kind, { disabled: when === 'disabled' ? [0] : [] });
+      const tall = document.createElement('div');
+      tall.style.height = '4000px';
+      document.body.append(tall);
+      scrollTo(0, 0);
+      const log: string[] = [];
+      r.list.addEventListener('pointercancel', () => log.push('pointercancel'), true);
+      const off = () => (r.items[0].disabled = true);
+      const [x, y] = box(r.handle);
+      const touch = (commands as Any).touch;
+      await touch('touchStart', [x, y]);
+      if (when === 'disabled after the touch') off();
+      await wait(40);
+      for (let i = 1; i <= 3; i += 1) await touch('touchMove', [x, y + i * 8]);
+      await wait(40);
+      const lifted = r.items[0].matches(':state(drag)');
+      if (when === 'disabled during the drag') off();
+      await wait(40);
+      for (let i = 1; i <= 6; i += 1) await touch('touchMove', [x, y + 24 + i * 12]);
+      await wait(40);
+      await touch('touchEnd');
+      await wait(200);
+      is(
+        `touch ${kind} (${getComputedStyle(r.handle).display}) ${when}: lifted, moves, rest, canceled`,
+        [lifted, r.list.log.length, rest(r.list), log.length > 0],
+        when === 'disabled' ? [false, 0, true, true] : [true, 1, true, false],
+      );
+      scrollTo(0, 0);
+      document.body.replaceChildren();
+      await wait(60);
+    }
+  });

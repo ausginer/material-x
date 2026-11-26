@@ -1,0 +1,46 @@
+# The affected files at 9b36f075e, in the three browser projects together (the source, consumer and shipped), one engine at a time. Rows passed/failed/skipped by file: displacement.browser.test.ts is 140 in the source project and 140 in the consumer project.
+## chromium
+total 540 passed, 0 failed, 0 skipped, of 540
+callbacks.browser.test.ts 20/0/0
+destruction.browser.test.ts 46/0/0
+displacement-sink.browser.test.ts 7/0/0
+displacement.browser.test.ts 280/0/0
+hot-path.browser.test.ts 9/0/0
+layout-animation.browser.test.ts 32/0/0
+sortable.browser.test.ts 112/0/0
+stories.browser.test.ts 8/0/0
+y-geometry.browser.test.ts 26/0/0
+## firefox
+total 534 passed, 0 failed, 6 skipped, of 540
+callbacks.browser.test.ts 20/0/0
+destruction.browser.test.ts 42/0/4
+displacement-sink.browser.test.ts 7/0/0
+displacement.browser.test.ts 280/0/0
+hot-path.browser.test.ts 7/0/2
+layout-animation.browser.test.ts 32/0/0
+sortable.browser.test.ts 112/0/0
+stories.browser.test.ts 8/0/0
+y-geometry.browser.test.ts 26/0/0
+   skipped: drag:DRI-17 hot path should allocate per sample only the CSS string a lifted write needs
+   skipped: drag:DRI-17 hot path drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+   skipped: drag:DRI-10 destruction should retain no drag view or state after a custom behavior is destroyed
+   skipped: drag:DRI-10 destruction should retain no item, callback or behavior instance after 3 operations and destruction
+   skipped: drag:DRI-10 destruction should retain no drag view or state after a custom behavior is destroyed
+   skipped: drag:DRI-10 destruction should retain no item, callback or behavior instance after 3 operations and destruction
+## webkit
+total 534 passed, 0 failed, 6 skipped, of 540
+callbacks.browser.test.ts 20/0/0
+destruction.browser.test.ts 42/0/4
+displacement-sink.browser.test.ts 7/0/0
+displacement.browser.test.ts 280/0/0
+hot-path.browser.test.ts 7/0/2
+layout-animation.browser.test.ts 32/0/0
+sortable.browser.test.ts 112/0/0
+stories.browser.test.ts 8/0/0
+y-geometry.browser.test.ts 26/0/0
+   skipped: drag:DRI-17 hot path should allocate per sample only the CSS string a lifted write needs
+   skipped: drag:DRI-17 hot path drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+   skipped: drag:DRI-10 destruction should retain no drag view or state after a custom behavior is destroyed
+   skipped: drag:DRI-10 destruction should retain no item, callback or behavior instance after 3 operations and destruction
+   skipped: drag:DRI-10 destruction should retain no drag view or state after a custom behavior is destroyed
+   skipped: drag:DRI-10 destruction should retain no item, callback or behavior instance after 3 operations and destruction

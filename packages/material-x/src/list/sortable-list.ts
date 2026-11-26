@@ -24,7 +24,7 @@ import type { EmptyObject } from 'type-fest';
 import { useAriaNotifyPolyfill } from '../core/polyfills/aria-notify/aria-notify.ts';
 import { identity, parseMs } from '../core/utils/fns.ts';
 import { type ListCoreCSSProperties, useListCore } from './ListCore.ts';
-import { handleOf, sortItem } from './sortable-item.ts';
+import { handleOf, isDisabled, sortItem } from './sortable-item.ts';
 import { SORTABLE_LIST_CTX } from './sortable-list-context.ts';
 import sortableStyles from './styles/sortable/main.css.ts' with { type: 'css' };
 
@@ -103,6 +103,11 @@ const SortableListConstructor: Composed<
  *   `.grip:focus-visible`, replaces it. A handle that is a custom element with
  *   an indicator of its own needs such a rule, because the list's rule outranks
  *   the element's `:host` rule.
+ * - **Disabled items.** The user can't reorder an item with `disabled`, by
+ *   pointer or by keyboard, and other items move past it. Its handle isn't a tab
+ *   stop and has `aria-disabled`. Disabling an item doesn't end a move that has
+ *   begun. Other controls in the item stay enabled, dimmed with the item, and
+ *   are the page's to disable.
  * - **Static items.** An `mx-list-item` without a handle is a tab stop while it
  *   is in this list, and stops being one when it gets a handle or leaves the
  *   list. A `tabindex` the consumer set on it stands. The other items keep
@@ -182,7 +187,7 @@ export default class SortableList extends SortableListConstructor {
     const config: SortableConfig = {
       items: () => items,
       axis: y(),
-      handle: (item) => handleOf(item) ?? item,
+      handle: (item) => (isDisabled(item) ? null : (handleOf(item) ?? item)),
       landing: {
         ...landing(),
         timing: useCSSProps(this, CSS_PROPS),

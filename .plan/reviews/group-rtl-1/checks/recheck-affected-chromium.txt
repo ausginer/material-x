@@ -1,0 +1,21 @@
+## tests/button-group tests/button/split-button | chromium | unmutated, at 6bde42160
+275 passed, 0 failed, 0 skipped
+   tests/button/split-button.browser.test.ts: 59 passed
+   tests/button-group/button-group-late-switch.browser.test.ts: 2 passed
+   tests/button-group/button-group-order.browser.test.ts: 2 passed
+   tests/button-group/button-group-rtl.browser.test.ts: 6 passed
+   tests/button-group/button-group-switch-order.browser.test.ts: 1 passed
+   tests/button-group/button-group.browser.test.ts: 30 passed
+   tests/button-group/button-group-focus.spec.browser.test.ts: 50 passed
+   tests/button-group/button-group-rtl.spec.browser.test.ts: 68 passed
+   tests/button-group/button-group.spec.browser.test.ts: 57 passed
+## the rows of a member at neither end or at both (RF-134), and of hidden members (RF-143)
+   passed: connected group corners of a member at neither end or at both should have four inner corners on the middle member of an RTL group
+   passed: connected group corners of a member at neither end or at both should have the same corners on the only member in RTL as in LTR
+   passed: mx-connected-button-group corners with hidden members should be outer on the first and the last shown member in the markup
+   passed: mx-connected-button-group corners with hidden members should move to the next members when the ends are hidden
+   passed: mx-connected-button-group corners with hidden members should move back when the ends are shown again
+   passed: mx-connected-button-group corners with hidden members should be right in a group that was built while out
+   passed: mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+   passed: mx-connected-button-group corners with hidden members should all be outer on the only shown member
+   passed: mx-connected-button-group corners with hidden members should pass over a hidden member that a page's display shows

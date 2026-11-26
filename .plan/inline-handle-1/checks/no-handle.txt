@@ -1,0 +1,49 @@
+# chromium 158.0.8127.18
+built | mx-list-item | touch swipe | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+built | mx-list-item | touch held 800 ms, then moved | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+built | mx-list-item | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+built | mx-list-button-item | touch swipe | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+built | mx-list-button-item | touch held 800 ms, then moved | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+built | mx-list-button-item | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+built | mx-list-link-item, href | touch swipe | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+built | mx-list-link-item, href | touch held 800 ms, then moved | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+built | mx-list-link-item, href | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+built | mx-list-link-item, draggable=false | touch swipe | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+built | mx-list-link-item, draggable=false | touch held 800 ms, then moved | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+built | mx-list-link-item, draggable=false | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+touch-action: none on the item | mx-list-item | touch swipe | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+touch-action: none on the item | mx-list-item | touch held 800 ms, then moved | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+touch-action: none on the item | mx-list-item | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+touch-action: none on the item | mx-list-button-item | touch swipe | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+touch-action: none on the item | mx-list-button-item | touch held 800 ms, then moved | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+touch-action: none on the item | mx-list-button-item | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+touch-action: none on the item | mx-list-link-item, href | touch swipe | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+touch-action: none on the item | mx-list-link-item, href | touch held 800 ms, then moved | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+touch-action: none on the item | mx-list-link-item, href | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+touch-action: none on the item | mx-list-link-item, draggable=false | touch swipe | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+touch-action: none on the item | mx-list-link-item, draggable=false | touch held 800 ms, then moved | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+touch-action: none on the item | mx-list-link-item, draggable=false | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+user-select: none on the item | mx-list-item | touch swipe | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+user-select: none on the item | mx-list-item | touch held 800 ms, then moved | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+user-select: none on the item | mx-list-item | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+user-select: none on the item | mx-list-button-item | touch swipe | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+user-select: none on the item | mx-list-button-item | touch held 800 ms, then moved | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+user-select: none on the item | mx-list-button-item | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+user-select: none on the item | mx-list-link-item, href | touch swipe | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+user-select: none on the item | mx-list-link-item, href | touch held 800 ms, then moved | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+user-select: none on the item | mx-list-link-item, href | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+user-select: none on the item | mx-list-link-item, draggable=false | touch swipe | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+user-select: none on the item | mx-list-link-item, draggable=false | touch held 800 ms, then moved | lifted true, canceled true, proposed false, selection "", contextmenu false, scrollY 0
+user-select: none on the item | mx-list-link-item, draggable=false | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+both | mx-list-item | touch swipe | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+both | mx-list-item | touch held 800 ms, then moved | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+both | mx-list-item | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+both | mx-list-button-item | touch swipe | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+both | mx-list-button-item | touch held 800 ms, then moved | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+both | mx-list-button-item | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+both | mx-list-link-item, href | touch swipe | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+both | mx-list-link-item, href | touch held 800 ms, then moved | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+both | mx-list-link-item, href | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+both | mx-list-link-item, draggable=false | touch swipe | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+both | mx-list-link-item, draggable=false | touch held 800 ms, then moved | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0
+both | mx-list-link-item, draggable=false | mouse | lifted true, canceled false, proposed true, selection "", contextmenu false, scrollY 0

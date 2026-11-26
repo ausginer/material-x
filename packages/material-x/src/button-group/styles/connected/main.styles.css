@@ -38,6 +38,28 @@
     --_border-radius: var(--_inner-corner) var(--_outer-corner)
       var(--_outer-corner) var(--_inner-corner);
   }
+
+  /* The only member that isn't hidden. */
+  ::slotted([data-first][data-last]) {
+    --_border-radius: var(--_outer-corner);
+  }
+}
+
+/*
+ * The corners of `border-radius` are physical. The group's direction decides
+ * where its ends are, so a member's own `dir` doesn't move the member's
+ * corners, as logical corner properties on the member would.
+ */
+:host(:dir(rtl)) {
+  ::slotted([data-first]:not([data-last])) {
+    --_border-radius: var(--_inner-corner) var(--_outer-corner)
+      var(--_outer-corner) var(--_inner-corner);
+  }
+
+  ::slotted([data-last]:not([data-first])) {
+    --_border-radius: var(--_outer-corner) var(--_inner-corner)
+      var(--_inner-corner) var(--_outer-corner);
+  }
 }
 
 /*

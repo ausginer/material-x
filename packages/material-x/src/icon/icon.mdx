@@ -62,8 +62,9 @@ export const usageSnippet = '<mx-icon>search</mx-icon>';
 
 ## Accessibility
 
-- **Decorative icons:** Mark with `aria-hidden="true"` when purely decorative.
-- **Informative icons:** Provide nearby text or ARIA labeling context.
+- **Content:** Hidden from assistive technology, whether it is a glyph name, a text or an SVG. Don't set `aria-hidden` yourself.
+- **An icon with a meaning:** Set `role="img"` and `aria-label` on it. In a control, the label is then part of the control's accessible name.
+- **An icon-only control:** Set `aria-label` on the control, or give its icon a meaning. Without either, the control has no name.
 - **Consistency:** Keep icon semantics stable across screens and components.
 
 ## Content guidelines

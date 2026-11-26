@@ -56,6 +56,11 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
    * home reads it, so no cancel, verdict or release reads the consumer's array.
    */
   #home: Insertion;
+  /**
+   * The collection without the item, with a displacement only: a return measures
+   * the rows after the consumer's array may have changed.
+   */
+  #rows: readonly HTMLElement[] | null = null;
   /** `null` until the drop: a cancel before it has none. */
   #request: ReorderRequest | null = null;
   /** Recorded at `settle` and reported at `end`. */
@@ -86,6 +91,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
       pointerX: 0,
       pointerY: 0,
     };
+    this.#collect(snapshot);
   }
 
   start(): void {
@@ -105,6 +111,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
 
   drop(): VerdictAwaiter<ReorderResolution> | null {
     const isPointerOperation = this.#direction === null;
+    let resolved: Insertion | null = null;
 
     this.#frame.cancel();
 
@@ -112,9 +119,8 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
       this.#behavior.axis.confirm(this.#query, this.#context);
       this.#query.pointerX = this.#drag.x;
       this.#query.pointerY = this.#drag.y;
-      this.#query.insertion =
-        this.#behavior.axis.resolve(this.#query, this.#context) ??
-        this.#query.insertion;
+      resolved = this.#behavior.axis.resolve(this.#query, this.#context);
+      this.#query.insertion = resolved ?? this.#query.insertion;
     }
 
     const request = buildReorderRequest(
@@ -124,7 +130,13 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
     );
 
     this.#request = request;
-    movePlaceholder(this.#context.placeholder, this.#query.insertion);
+
+    // The axis measured what a resolution of its own moves.
+    if (resolved && this.#rows) {
+      this.#follow(resolved);
+    } else {
+      this.#relocate(this.#query.insertion);
+    }
 
     if (isPointerOperation) {
       this.#lift.translate(
@@ -142,6 +154,10 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   settle(outcome: Outcome<ReorderResolution>): void {
     const recovery = this.#recordResult(outcome);
 
+    if (this.#rows) {
+      this.#returnPlaceholder(recovery);
+    }
+
     if (this.#behavior.landing && recovery !== RECOVERY_IMMEDIATE) {
       // Called once: it moves the placeholder and then reads layout.
       const { left, top } = this.#landingTarget(recovery);
@@ -158,6 +174,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   rebase(next: CollectionSnapshot): void {
     this.#query.snapshot = next;
     this.#home = homeInsertion(next, this.#drag.item);
+    this.#collect(next);
 
     if (next.items.includes(this.#drag.item)) {
       const insertion = reconcileCollection(
@@ -185,26 +202,72 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
 
     const resolved = this.#behavior.axis.resolve(this.#query, this.#context);
 
-    if (resolved === null) {
-      return;
+    if (resolved) {
+      this.#query.insertion = resolved;
+      this.#follow(resolved);
     }
+  }
 
-    this.#query.insertion = resolved;
+  #collect(snapshot: CollectionSnapshot): void {
+    if (this.#context.displacement) {
+      this.#rows = snapshot.items.filter((row) => row !== this.#query.item);
+    }
+  }
 
-    if (placeholderAt(this.#context.placeholder, resolved)) {
+  /** Moves the placeholder to the gap that the axis resolved, and tells the axis. */
+  #follow(insertion: Insertion): void {
+    if (placeholderAt(this.#context.placeholder, insertion)) {
       return;
     }
 
     let stale = true;
 
     try {
-      movePlaceholder(this.#context.placeholder, resolved);
+      movePlaceholder(this.#context.placeholder, insertion);
       this.#behavior.axis.moved(this.#query, this.#context);
       stale = false;
     } finally {
       if (stale) {
         this.#behavior.axis.invalidate();
       }
+    }
+  }
+
+  /** Moves the placeholder to a gap that no resolution measured. */
+  #relocate(insertion: Insertion, request: ReorderRequest | null = null): void {
+    if (this.#rows) {
+      this.#context.displacement!.relocate(
+        this.#rows,
+        this.#behavior.axis.isLinear,
+        insertion,
+        this.#context,
+        request,
+      );
+    } else {
+      movePlaceholder(this.#context.placeholder, insertion);
+    }
+  }
+
+  /**
+   * Only with a displacement: moves the placeholder to where the item goes, so
+   * that its release moves no row. A place that the consumer's own changes took
+   * away is no place to go, and reports nothing.
+   */
+  #returnPlaceholder(recovery: Recovery): void {
+    const { item } = this.#query;
+    const { placeholder } = this.#context;
+    // An item that left the collection has no home gap, and its own place is
+    // where it stands.
+    const target =
+      recovery === RECOVERY_DESTINATION || this.#home.index < 0
+        ? { index: 0, before: null, after: item }
+        : this.#home;
+
+    if (
+      placeholder.parentNode === item.parentNode &&
+      (target.after ?? target.before)?.parentNode === placeholder.parentNode
+    ) {
+      this.#relocate(target, this.#request);
     }
   }
 

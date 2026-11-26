@@ -1,0 +1,14 @@
+## webkit
+webkit ArrowUp pending P:0,0 90x40 | r0:90,0 60x40 | r1:0,40 90x0 | r2:0,40 70x40 | r3:70,40 60x40 | r4:130,40 80x40 | r5:0,80 50x40
+webkit ArrowUp placeholder before the item, as the return puts it: r0:0,0 60x40 | P:60,0 90x40 | r1:0,40 90x0 | r2:0,40 70x40 | r3:70,40 60x40 | r4:130,40 80x40 | r5:0,80 50x40
+webkit ArrowUp the same, relaid: r0:0,0 60x40 | P:60,0 90x40 | r1:150,0 0x0 | r2:150,0 70x40 | r3:0,40 60x40 | r4:60,40 80x40 | r5:140,40 50x40
+webkit ArrowDown pending r0:0,0 60x40 | r1:60,0 90x0 | r2:60,0 70x40 | P:130,0 90x40 | r3:0,40 60x40 | r4:60,40 80x40 | r5:140,40 50x40
+webkit ArrowDown placeholder before the item, as the return puts it: r0:0,0 60x40 | P:60,0 90x40 | r1:0,40 90x0 | r2:0,40 70x40 | r3:70,40 60x40 | r4:130,40 80x40 | r5:0,80 50x40
+webkit ArrowDown the same, relaid: r0:0,0 60x40 | P:60,0 90x40 | r1:150,0 0x0 | r2:150,0 70x40 | r3:0,40 60x40 | r4:60,40 80x40 | r5:140,40 50x40
+## chromium
+chromium ArrowUp pending P:0,0 90x40 | r0:90,0 60x40 | r1:150,0 0x0 | r2:150,0 70x40 | r3:0,40 60x40 | r4:60,40 80x40 | r5:140,40 50x40
+chromium ArrowUp placeholder before the item, as the return puts it: r0:0,0 60x40 | P:60,0 90x40 | r1:150,0 0x0 | r2:150,0 70x40 | r3:0,40 60x40 | r4:60,40 80x40 | r5:140,40 50x40
+chromium ArrowUp the same, relaid: r0:0,0 60x40 | P:60,0 90x40 | r1:150,0 0x0 | r2:150,0 70x40 | r3:0,40 60x40 | r4:60,40 80x40 | r5:140,40 50x40
+chromium ArrowDown pending r0:0,0 60x40 | r1:60,0 0x0 | r2:60,0 70x40 | P:130,0 90x40 | r3:0,40 60x40 | r4:60,40 80x40 | r5:140,40 50x40
+chromium ArrowDown placeholder before the item, as the return puts it: r0:0,0 60x40 | P:60,0 90x40 | r1:150,0 0x0 | r2:150,0 70x40 | r3:0,40 60x40 | r4:60,40 80x40 | r5:140,40 50x40
+chromium ArrowDown the same, relaid: r0:0,0 60x40 | P:60,0 90x40 | r1:150,0 0x0 | r2:150,0 70x40 | r3:0,40 60x40 | r4:60,40 80x40 | r5:140,40 50x40

@@ -1,0 +1,11 @@
+# aube exec just size at 9b36f075e (builds first). Brotli of main ee0afea12, from .plan/displacement-1/checks/remediation-sizes.txt: sortable + y 6538, sortable + xy 6506, complete 7156.
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+draggable + lift                11677 min   4362 gz   3932 br  9 modules
+example: resize handle           9496 min   3607 gz   3265 br  9 modules
+example: drop zone              13287 min   5058 gz   4570 br  11 modules
+example: canvas group            9487 min   3573 gz   3261 br  9 modules
+freeDrag                        15271 min   5526 gz   4984 br  15 modules
+freeDrag + bounds + landing     16629 min   6041 gz   5465 br  17 modules
+sortable + y                    21479 min   7407 gz   6698 br  20 modules
+sortable + xy                   21170 min   7366 gz   6651 br  19 modules
+complete                        24000 min   8369 gz   7554 br  22 modules
