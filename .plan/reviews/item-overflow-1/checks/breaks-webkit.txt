@@ -1,0 +1,61 @@
+# webkit 27.2, part breaks
+mx-list-item input | main: item 300x56 content 125 trail 131 kids [131x22] tops [17] lines [0] past 0
+mx-list-item input | now: item 300x56 content 125 trail 131 kids [131x22] tops [17] lines [0] past 0
+mx-list-item select | main: item 300x56 content 93 trail 163 kids [163x25] tops [16] lines [0] past 0
+mx-list-item select | now: item 300x56 content 93 trail 163 kids [163x25] tops [16] lines [0] past 0
+mx-list-item slider | main: item 300x64 content 256 trail 0 kids [0x44] tops [10] lines [0] past 0
+mx-list-item slider | now: item 300x64 content 256 trail 0 kids [0x44] tops [10] lines [0] past 0
+mx-list-item text field | main: item 300x76 content 224 trail 32 kids [32x56] tops [10] lines [0] past 0
+mx-list-item text field | now: item 300x76 content 223 trail 33 kids [33x56] tops [10] lines [0] past 0
+mx-list-item img 200 | main: item 300x56 content 56 trail 200 kids [200x20] tops [18] lines [0] past 0
+mx-list-item img 200 | now: item 300x56 content 56 trail 200 kids [200x20] tops [18] lines [0] past 0
+mx-list-item img 100% | main: item 300x56 content 256 trail 0 kids [0x20] tops [18] lines [0] past 0
+mx-list-item img 100% | now: item 300x56 content 256 trail 0 kids [0x20] tops [18] lines [0] past 0
+mx-list-item block, 100% | main: item 300x56 content 256 trail 0 kids [0x20] tops [18] lines [0] past 0
+mx-list-item block, 100% | now: item 300x56 content 256 trail 0 kids [0x20] tops [18] lines [0] past 0
+mx-list-item native button | main: item 300x56 content 107.9 trail 148.1 kids [148.1x25] tops [16] lines [1] past 0
+mx-list-item native button | now: item 300x56 content 107.9 trail 148.1 kids [148.1x25] tops [16] lines [1] past 0
+mx-list-item link | main: item 300x56 content 41.2 trail 284.2 kids [284.2x13] tops [22] lines [1] past 53.3
+mx-list-item link | now: item 300x56 content 106 trail 150 kids [144.1x29] tops [14] lines [2] past 0
+mx-list-item nested nowrap | main: item 300x56 content 41.2 trail 216.6 kids [216.6x13] tops [22] lines [1] past 0
+mx-list-item nested nowrap | now: item 300x56 content 39.4 trail 216.6 kids [216.6x13] tops [22] lines [1] past 0
+mx-list-item page nowrap | main: item 300x56 content 41.2 trail 240.2 kids [240.2x13] tops [22] lines [1] past 9.4
+mx-list-item page nowrap | now: item 300x56 content 15.8 trail 240.2 kids [240.2x13] tops [22] lines [1] past 0
+mx-list-item block text | main: item 300x56 content 41.2 trail 291.8 kids [291.8x16] tops [20] lines [1] past 61
+mx-list-item block text | now: item 300x56 content 106 trail 150 kids [150x32] tops [12] lines [2] past 0
+mx-list-item flex text | main: item 300x56 content 41.2 trail 291.8 kids [291.8x16] tops [20] lines [1] past 61
+mx-list-item flex text | now: item 300x56 content 106 trail 150 kids [150x32] tops [12] lines [2] past 0
+mx-list-item one-word button by video | main: item 300x76 content 49 trail 95 kids [95x40] tops [18] lines [1] past 0
+mx-list-item one-word button by video | now: item 300x76 content 49 trail 95 kids [95x40] tops [18] lines [1] past 0
+mx-list-item one long word button by large video | main: item 300x88 content 51.2 trail 111.3 kids [111.3x40] tops [24] lines [1] past 16.5
+mx-list-item one long word button by large video | now: item 300x88 content 45 trail 85 kids [85x40] tops [24] lines [2] past 0
+mx-list-button-item input | main: item 300x56 content 125 trail 131 kids [131x22] tops [17] lines [0] past 0
+mx-list-button-item input | now: item 300x56 content 125 trail 131 kids [131x22] tops [17] lines [0] past 0
+mx-list-button-item select | main: item 300x56 content 93 trail 163 kids [163x25] tops [16] lines [0] past 0
+mx-list-button-item select | now: item 300x56 content 93 trail 163 kids [163x25] tops [16] lines [0] past 0
+mx-list-button-item slider | main: item 300x64 content 256 trail 0 kids [0x44] tops [10] lines [0] past 0
+mx-list-button-item slider | now: item 300x64 content 256 trail 0 kids [0x44] tops [10] lines [0] past 0
+mx-list-button-item text field | main: item 300x76 content 224 trail 32 kids [32x56] tops [10] lines [0] past 0
+mx-list-button-item text field | now: item 300x76 content 223 trail 33 kids [33x56] tops [10] lines [0] past 0
+mx-list-button-item img 200 | main: item 300x56 content 56 trail 200 kids [200x20] tops [18] lines [0] past 0
+mx-list-button-item img 200 | now: item 300x56 content 56 trail 200 kids [200x20] tops [18] lines [0] past 0
+mx-list-button-item img 100% | main: item 300x56 content 256 trail 0 kids [0x20] tops [18] lines [0] past 0
+mx-list-button-item img 100% | now: item 300x56 content 256 trail 0 kids [0x20] tops [18] lines [0] past 0
+mx-list-button-item block, 100% | main: item 300x56 content 256 trail 0 kids [0x20] tops [18] lines [0] past 0
+mx-list-button-item block, 100% | now: item 300x56 content 256 trail 0 kids [0x20] tops [18] lines [0] past 0
+mx-list-button-item native button | main: item 300x56 content 107.9 trail 148.1 kids [148.1x25] tops [16] lines [1] past 0
+mx-list-button-item native button | now: item 300x61 content 122 trail 134 kids [134x41] tops [10] lines [2] past 0
+mx-list-button-item link | main: item 300x56 content 41.2 trail 284.2 kids [284.2x13] tops [22] lines [1] past 53.3
+mx-list-button-item link | now: item 300x68 content 122 trail 134 kids [133.4x45] tops [12] lines [3] past 0
+mx-list-button-item nested nowrap | main: item 300x56 content 41.2 trail 216.6 kids [216.6x13] tops [22] lines [1] past 0
+mx-list-button-item nested nowrap | now: item 300x56 content 39.4 trail 216.6 kids [216.6x13] tops [22] lines [1] past 0
+mx-list-button-item page nowrap | main: item 300x56 content 41.2 trail 240.2 kids [240.2x13] tops [22] lines [1] past 9.4
+mx-list-button-item page nowrap | now: item 300x56 content 15.8 trail 240.2 kids [240.2x13] tops [22] lines [1] past 0
+mx-list-button-item block text | main: item 300x56 content 41.2 trail 291.8 kids [291.8x16] tops [20] lines [1] past 61
+mx-list-button-item block text | now: item 300x68 content 122 trail 134 kids [134x48] tops [10] lines [3] past 0
+mx-list-button-item flex text | main: item 300x56 content 41.2 trail 291.8 kids [291.8x16] tops [20] lines [1] past 61
+mx-list-button-item flex text | now: item 300x68 content 122 trail 134 kids [134x48] tops [10] lines [3] past 0
+mx-list-button-item one-word button by video | main: item 300x76 content 49 trail 95 kids [95x40] tops [18] lines [1] past 0
+mx-list-button-item one-word button by video | now: item 300x76 content 49 trail 95 kids [95x40] tops [18] lines [1] past 0
+mx-list-button-item one long word button by large video | main: item 300x88 content 51.2 trail 111.3 kids [111.3x40] tops [24] lines [1] past 16.5
+mx-list-button-item one long word button by large video | now: item 300x88 content 40.2 trail 89.8 kids [89.8x40] tops [24] lines [2] past 0

@@ -1,0 +1,846 @@
+#### list width 300
+# chromium 158.0.8127.18
+## built: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 76x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 39x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 268x12, lead 100x56, content 39x24, txt 39, trail 268x16, item 76, past 147, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 49x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 39x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 39x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 268x12, lead 114x64, content 46x60, txt 39, trail 268x16, item 88, past 168, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 46x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 46x60, txt 39, trail 120x24, item 88, past 20, scroll 0
+video, word: overlap 0, child 360x12, lead 100x56, content 39x24, txt 39, trail 360x16, item 76, past 239, scroll 0
+video, email: overlap 0, child 168x12, lead 100x56, content 39x24, txt 39, trail 168x16, item 76, past 47, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 116x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 268x12, lead 100x56, content 510x24, txt 510, trail 268x16, item 76, past 618, scroll 238
+video, several words: overlap 0, child 268x12, lead 100x56, content 49x120, txt 49, trail 268x16, item 140, past 157, scroll 0
+image, long trail: overlap 0, child 268x12, lead 0x0, content 39x24, txt 39, trail 268x16, item 56, past 47, scroll 0
+short, long: overlap 0, child 268x12, lead 0x0, content 39x24, txt 39, trail 268x16, item 56, past 35, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 161x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 216x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 216x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## built: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 76x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 39x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 268x12, lead 100x56, content 39x24, txt 39, trail 268x16, item 76, past 147, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 49x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 39x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 39x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 268x12, lead 114x64, content 46x60, txt 39, trail 268x16, item 88, past 168, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 46x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 46x60, txt 39, trail 120x24, item 88, past 20, scroll 0
+video, word: overlap 0, child 360x12, lead 100x56, content 39x24, txt 39, trail 360x16, item 76, past 239, scroll 0
+video, email: overlap 0, child 168x12, lead 100x56, content 39x24, txt 39, trail 168x16, item 76, past 47, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 116x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 268x12, lead 100x56, content 510x24, txt 510, trail 268x16, item 76, past 618, scroll 238
+video, several words: overlap 0, child 268x12, lead 100x56, content 49x120, txt 49, trail 268x16, item 140, past 157, scroll 0
+image, long trail: overlap 0, child 268x12, lead 0x0, content 39x24, txt 39, trail 268x16, item 56, past 47, scroll 0
+short, long: overlap 0, child 268x12, lead 0x0, content 39x24, txt 39, trail 268x16, item 56, past 35, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 161x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 216x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 216x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## bound: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 76x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 36x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 133x28, lead 100x56, content 0x24, txt 39, trail 144x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 49x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 34x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 24x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 128x44, lead 114x64, content 0x60, txt 39, trail 130x48, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 35x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 10x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 144x44, lead 100x56, content 0x24, txt 39, trail 144x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 139x28, lead 100x56, content 0x24, txt 39, trail 144x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 116x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 133x28, lead 100x56, content 0x24, txt 510, trail 144x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 133x28, lead 100x56, content 0x120, txt 49, trail 144x32, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 94x24, txt 39, trail 150x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 106x24, txt 39, trail 150x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 161x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 216x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 216x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## bound: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 76x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 36x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 133x28, lead 100x56, content 10x24, txt 39, trail 134x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 49x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 34x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 24x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 128x44, lead 114x64, content 0x60, txt 39, trail 130x48, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 35x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 10x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 132x44, lead 100x56, content 10x24, txt 39, trail 134x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 130x28, lead 100x56, content 10x24, txt 39, trail 134x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 116x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 133x28, lead 100x56, content 10x24, txt 510, trail 134x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 133x28, lead 100x56, content 10x120, txt 49, trail 134x32, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 110x24, txt 39, trail 134x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 122x24, txt 39, trail 134x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 161x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 216x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 216x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## lead: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 18, child -, lead 150x56, content 106x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 18, child 28x12, lead 150x56, content 66x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 133x28, lead 100x56, content 0x24, txt 39, trail 144x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 49x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 34x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 24x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 128x44, lead 114x64, content 0x60, txt 39, trail 130x48, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 35x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 10x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 144x44, lead 100x56, content 0x24, txt 39, trail 144x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 139x28, lead 100x56, content 0x24, txt 39, trail 144x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 116x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 133x28, lead 100x56, content 0x24, txt 510, trail 144x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 133x28, lead 100x56, content 0x120, txt 49, trail 144x32, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 94x24, txt 39, trail 150x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 106x24, txt 39, trail 150x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 161x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 216x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 216x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## lead: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 34, child -, lead 134x56, content 122x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 34, child 28x12, lead 134x56, content 82x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 133x28, lead 100x56, content 10x24, txt 39, trail 134x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 49x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 34x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 24x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 128x44, lead 114x64, content 0x60, txt 39, trail 130x48, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 35x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 10x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 132x44, lead 100x56, content 10x24, txt 39, trail 134x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 130x28, lead 100x56, content 10x24, txt 39, trail 134x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 116x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 133x28, lead 100x56, content 10x24, txt 510, trail 134x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 133x28, lead 100x56, content 10x120, txt 49, trail 134x32, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 110x24, txt 39, trail 134x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 122x24, txt 39, trail 134x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 161x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 216x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 216x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## min15: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 18, child -, lead 150x56, content 106x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 18, child 28x12, lead 150x56, content 66x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 97x44, lead 100x56, content 45x24, txt 39, trail 99x48, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 49x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 99x40, lead 100x56, content 45x24, txt 39, trail 99x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 45x24, txt 39, trail 120x24, item 76, past 5, scroll 0
+large video, long trail: overlap 0, child 73x60, lead 114x64, content 45x60, txt 39, trail 85x64, item 88, past 0, scroll 0
+large video, button: overlap 0, child 85x40, lead 114x64, content 45x60, txt 39, trail 85x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 45x60, txt 39, trail 120x24, item 88, past 19, scroll 0
+video, word: overlap 0, child 96x60, lead 100x56, content 45x24, txt 39, trail 99x64, item 84, past 0, scroll 0
+video, email: overlap 0, child 93x28, lead 100x56, content 45x24, txt 39, trail 99x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 116x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 97x44, lead 100x56, content 45x24, txt 510, trail 99x48, item 76, past 0, scroll 0
+video, several words: overlap 0, child 97x44, lead 100x56, content 45x120, txt 49, trail 99x48, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 94x24, txt 39, trail 150x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 106x24, txt 39, trail 150x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 161x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 216x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 216x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## min15: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 34, child -, lead 134x56, content 122x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 34, child 28x12, lead 134x56, content 82x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 103x44, lead 100x56, content 40x24, txt 39, trail 104x48, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 49x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 104x40, lead 100x56, content 40x24, txt 39, trail 104x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 40x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 73x60, lead 114x64, content 40x60, txt 39, trail 90x64, item 88, past 0, scroll 0
+large video, button: overlap 0, child 90x40, lead 114x64, content 40x60, txt 39, trail 90x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 40x60, txt 39, trail 120x24, item 88, past 14, scroll 0
+video, word: overlap 0, child 102x60, lead 100x56, content 40x24, txt 39, trail 104x64, item 84, past 0, scroll 0
+video, email: overlap 0, child 93x28, lead 100x56, content 40x24, txt 39, trail 104x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 116x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 103x44, lead 100x56, content 40x24, txt 510, trail 104x48, item 76, past 0, scroll 0
+video, several words: overlap 0, child 103x44, lead 100x56, content 40x120, txt 49, trail 104x48, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 110x24, txt 39, trail 134x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 122x24, txt 39, trail 134x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 161x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 216x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 216x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## nolead15: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 76x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 16x28, lead 180x56, content 45x24, txt 39, trail 19x32, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 97x44, lead 100x56, content 45x24, txt 39, trail 99x48, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 49x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 99x40, lead 100x56, content 45x24, txt 39, trail 99x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 45x24, txt 39, trail 120x24, item 76, past 5, scroll 0
+large video, long trail: overlap 0, child 73x60, lead 114x64, content 45x60, txt 39, trail 85x64, item 88, past 0, scroll 0
+large video, button: overlap 0, child 85x40, lead 114x64, content 45x60, txt 39, trail 85x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 45x60, txt 39, trail 120x24, item 88, past 19, scroll 0
+video, word: overlap 0, child 96x60, lead 100x56, content 45x24, txt 39, trail 99x64, item 84, past 0, scroll 0
+video, email: overlap 0, child 93x28, lead 100x56, content 45x24, txt 39, trail 99x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 116x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 97x44, lead 100x56, content 45x24, txt 510, trail 99x48, item 76, past 0, scroll 0
+video, several words: overlap 0, child 97x44, lead 100x56, content 45x120, txt 49, trail 99x48, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 94x24, txt 39, trail 150x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 106x24, txt 39, trail 150x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 161x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 216x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 216x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## nolead15: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 76x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 22x28, lead 180x56, content 40x24, txt 39, trail 24x32, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 103x44, lead 100x56, content 40x24, txt 39, trail 104x48, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 49x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 104x40, lead 100x56, content 40x24, txt 39, trail 104x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 40x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 73x60, lead 114x64, content 40x60, txt 39, trail 90x64, item 88, past 0, scroll 0
+large video, button: overlap 0, child 90x40, lead 114x64, content 40x60, txt 39, trail 90x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 40x60, txt 39, trail 120x24, item 88, past 14, scroll 0
+video, word: overlap 0, child 102x60, lead 100x56, content 40x24, txt 39, trail 104x64, item 84, past 0, scroll 0
+video, email: overlap 0, child 93x28, lead 100x56, content 40x24, txt 39, trail 104x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 116x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 103x44, lead 100x56, content 40x24, txt 510, trail 104x48, item 76, past 0, scroll 0
+video, several words: overlap 0, child 103x44, lead 100x56, content 40x120, txt 49, trail 104x48, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 110x24, txt 39, trail 134x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 122x24, txt 39, trail 134x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 161x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 216x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 216x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## yield15: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 76x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 16x28, lead 180x56, content 45x24, txt 39, trail 19x32, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 97x44, lead 100x56, content 45x24, txt 39, trail 99x48, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 49x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 99x40, lead 100x56, content 45x24, txt 39, trail 99x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 24x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 73x60, lead 114x64, content 45x60, txt 39, trail 85x64, item 88, past 0, scroll 0
+large video, button: overlap 0, child 85x40, lead 114x64, content 45x60, txt 39, trail 85x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 10x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 96x60, lead 100x56, content 45x24, txt 39, trail 99x64, item 84, past 0, scroll 0
+video, email: overlap 0, child 93x28, lead 100x56, content 45x24, txt 39, trail 99x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 116x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 97x44, lead 100x56, content 45x24, txt 510, trail 99x48, item 76, past 0, scroll 0
+video, several words: overlap 0, child 97x44, lead 100x56, content 45x120, txt 49, trail 99x48, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 94x24, txt 39, trail 150x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 106x24, txt 39, trail 150x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 161x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 216x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 216x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## yield15: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 76x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 22x28, lead 180x56, content 40x24, txt 39, trail 24x32, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 103x44, lead 100x56, content 40x24, txt 39, trail 104x48, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 49x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 104x40, lead 100x56, content 40x24, txt 39, trail 104x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 24x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 73x60, lead 114x64, content 40x60, txt 39, trail 90x64, item 88, past 0, scroll 0
+large video, button: overlap 0, child 90x40, lead 114x64, content 40x60, txt 39, trail 90x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 10x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 102x60, lead 100x56, content 40x24, txt 39, trail 104x64, item 84, past 0, scroll 0
+video, email: overlap 0, child 93x28, lead 100x56, content 40x24, txt 39, trail 104x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 116x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 103x44, lead 100x56, content 40x24, txt 510, trail 104x48, item 76, past 0, scroll 0
+video, several words: overlap 0, child 103x44, lead 100x56, content 40x120, txt 49, trail 104x48, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 110x24, txt 39, trail 134x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 122x24, txt 39, trail 134x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 161x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 216x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 216x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## words15: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 76x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 36x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 97x44, lead 100x56, content 45x24, txt 39, trail 99x48, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 49x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 99x40, lead 100x56, content 45x24, txt 39, trail 99x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 24x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 73x60, lead 114x64, content 45x60, txt 39, trail 85x64, item 88, past 0, scroll 0
+large video, button: overlap 0, child 85x40, lead 114x64, content 45x60, txt 39, trail 85x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 10x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 150x44, lead 100x56, content 0x24, txt 39, trail 150x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 148x28, lead 100x56, content 0x24, txt 39, trail 150x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 116x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 97x44, lead 100x56, content 45x24, txt 510, trail 99x48, item 76, past 0, scroll 0
+video, several words: overlap 0, child 97x44, lead 100x56, content 45x120, txt 49, trail 99x48, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 94x24, txt 39, trail 150x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 106x24, txt 39, trail 150x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 161x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 216x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 216x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## words15: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 76x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 36x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 103x44, lead 100x56, content 40x24, txt 39, trail 104x48, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 49x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 104x40, lead 100x56, content 40x24, txt 39, trail 104x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 24x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 73x60, lead 114x64, content 40x60, txt 39, trail 90x64, item 88, past 0, scroll 0
+large video, button: overlap 0, child 90x40, lead 114x64, content 40x60, txt 39, trail 90x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 10x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 132x44, lead 100x56, content 10x24, txt 39, trail 134x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 130x28, lead 100x56, content 10x24, txt 39, trail 134x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 116x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 103x44, lead 100x56, content 40x24, txt 510, trail 104x48, item 76, past 0, scroll 0
+video, several words: overlap 0, child 103x44, lead 100x56, content 40x120, txt 49, trail 104x48, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 110x24, txt 39, trail 134x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 122x24, txt 39, trail 134x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 161x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 216x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 216x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+#### list width 240
+# chromium 158.0.8127.18
+## built: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 39x24, txt 39, trail 0x0, item 76, past 7, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 39x24, txt 39, trail 28x16, item 76, past 46, scroll 0
+video, long trail: overlap 0, child 268x12, lead 100x56, content 39x24, txt 39, trail 268x16, item 76, past 207, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 39x24, txt 39, trail 95x40, item 76, past 34, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 39x24, txt 39, trail 110x40, item 76, past 49, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 39x24, txt 39, trail 120x24, item 76, past 59, scroll 0
+large video, long trail: overlap 0, child 268x12, lead 114x64, content 46x60, txt 39, trail 268x16, item 88, past 228, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 46x60, txt 39, trail 95x40, item 88, past 55, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 46x60, txt 39, trail 120x24, item 88, past 80, scroll 0
+video, word: overlap 0, child 360x12, lead 100x56, content 39x24, txt 39, trail 360x16, item 76, past 299, scroll 0
+video, email: overlap 0, child 168x12, lead 100x56, content 39x24, txt 39, trail 168x16, item 76, past 107, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 56x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 268x12, lead 100x56, content 510x24, txt 510, trail 268x16, item 76, past 678, scroll 238
+video, several words: overlap 0, child 268x12, lead 100x56, content 49x120, txt 49, trail 268x16, item 140, past 217, scroll 0
+image, long trail: overlap 0, child 268x12, lead 0x0, content 39x24, txt 39, trail 268x16, item 56, past 107, scroll 0
+short, long: overlap 0, child 268x12, lead 0x0, content 39x24, txt 39, trail 268x16, item 56, past 95, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 101x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 156x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 156x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## built: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 39x24, txt 39, trail 0x0, item 76, past 7, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 39x24, txt 39, trail 28x16, item 76, past 46, scroll 0
+video, long trail: overlap 0, child 268x12, lead 100x56, content 39x24, txt 39, trail 268x16, item 76, past 207, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 39x24, txt 39, trail 95x40, item 76, past 34, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 39x24, txt 39, trail 110x40, item 76, past 49, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 39x24, txt 39, trail 120x24, item 76, past 59, scroll 0
+large video, long trail: overlap 0, child 268x12, lead 114x64, content 46x60, txt 39, trail 268x16, item 88, past 228, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 46x60, txt 39, trail 95x40, item 88, past 55, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 46x60, txt 39, trail 120x24, item 88, past 80, scroll 0
+video, word: overlap 0, child 360x12, lead 100x56, content 39x24, txt 39, trail 360x16, item 76, past 299, scroll 0
+video, email: overlap 0, child 168x12, lead 100x56, content 39x24, txt 39, trail 168x16, item 76, past 107, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 56x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 268x12, lead 100x56, content 510x24, txt 510, trail 268x16, item 76, past 678, scroll 238
+video, several words: overlap 0, child 268x12, lead 100x56, content 49x120, txt 49, trail 268x16, item 140, past 217, scroll 0
+image, long trail: overlap 0, child 268x12, lead 0x0, content 39x24, txt 39, trail 268x16, item 56, past 107, scroll 0
+short, long: overlap 0, child 268x12, lead 0x0, content 39x24, txt 39, trail 268x16, item 56, past 95, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 101x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 156x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 156x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## bound: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 16x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 6x76, lead 180x56, content 0x24, txt 39, trail 6x80, item 100, past 0, scroll 0
+video, long trail: overlap 0, child 73x60, lead 100x56, content 0x24, txt 39, trail 84x64, item 84, past 0, scroll 0
+video, button: overlap 0, child 84x40, lead 100x56, content 0x24, txt 39, trail 84x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 84x40, lead 100x56, content 0x24, txt 39, trail 84x41, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 0x24, txt 39, trail 120x24, item 76, past 20, scroll 0
+large video, long trail: overlap 0, child 69x76, lead 114x64, content 0x60, txt 39, trail 70x80, item 100, past 0, scroll 0
+large video, button: overlap 0, child 70x40, lead 114x64, content 0x60, txt 39, trail 70x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 0x60, txt 39, trail 120x24, item 88, past 34, scroll 0
+video, word: overlap 0, child 84x76, lead 100x56, content 0x24, txt 39, trail 84x80, item 100, past 0, scroll 0
+video, email: overlap 0, child 80x44, lead 100x56, content 0x24, txt 39, trail 84x48, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 56x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 73x60, lead 100x56, content 0x24, txt 510, trail 84x64, item 84, past 0, scroll 0
+video, several words: overlap 0, child 73x60, lead 100x56, content 0x120, txt 49, trail 84x64, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 103x44, lead 0x0, content 64x24, txt 39, trail 120x48, item 68, past 0, scroll 0
+short, long: overlap 0, child 103x44, lead 0x0, content 76x24, txt 39, trail 120x48, item 68, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 101x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 156x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 156x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## bound: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 16x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 6x76, lead 180x56, content 0x24, txt 39, trail 6x80, item 100, past 0, scroll 0
+video, long trail: overlap 0, child 73x60, lead 100x56, content 0x24, txt 39, trail 84x64, item 84, past 0, scroll 0
+video, button: overlap 0, child 84x40, lead 100x56, content 0x24, txt 39, trail 84x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 84x40, lead 100x56, content 0x24, txt 39, trail 84x41, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 0x24, txt 39, trail 120x24, item 76, past 20, scroll 0
+large video, long trail: overlap 0, child 69x76, lead 114x64, content 0x60, txt 39, trail 70x80, item 100, past 0, scroll 0
+large video, button: overlap 0, child 70x40, lead 114x64, content 0x60, txt 39, trail 70x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 0x60, txt 39, trail 120x24, item 88, past 34, scroll 0
+video, word: overlap 0, child 84x76, lead 100x56, content 0x24, txt 39, trail 84x80, item 100, past 0, scroll 0
+video, email: overlap 0, child 80x44, lead 100x56, content 0x24, txt 39, trail 84x48, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 56x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 73x60, lead 100x56, content 0x24, txt 510, trail 84x64, item 84, past 0, scroll 0
+video, several words: overlap 0, child 73x60, lead 100x56, content 0x120, txt 49, trail 84x64, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 103x44, lead 0x0, content 80x24, txt 39, trail 104x48, item 68, past 0, scroll 0
+short, long: overlap 0, child 103x44, lead 0x0, content 92x24, txt 39, trail 104x48, item 68, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 101x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 156x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 156x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## lead: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 48, child -, lead 120x56, content 76x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 48, child 28x12, lead 120x56, content 36x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 73x60, lead 100x56, content 0x24, txt 39, trail 84x64, item 84, past 0, scroll 0
+video, button: overlap 0, child 84x40, lead 100x56, content 0x24, txt 39, trail 84x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 84x40, lead 100x56, content 0x24, txt 39, trail 84x41, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 0x24, txt 39, trail 120x24, item 76, past 20, scroll 0
+large video, long trail: overlap 0, child 69x76, lead 114x64, content 0x60, txt 39, trail 70x80, item 100, past 0, scroll 0
+large video, button: overlap 0, child 70x40, lead 114x64, content 0x60, txt 39, trail 70x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 0x60, txt 39, trail 120x24, item 88, past 34, scroll 0
+video, word: overlap 0, child 84x76, lead 100x56, content 0x24, txt 39, trail 84x80, item 100, past 0, scroll 0
+video, email: overlap 0, child 80x44, lead 100x56, content 0x24, txt 39, trail 84x48, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 56x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 73x60, lead 100x56, content 0x24, txt 510, trail 84x64, item 84, past 0, scroll 0
+video, several words: overlap 0, child 73x60, lead 100x56, content 0x120, txt 49, trail 84x64, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 103x44, lead 0x0, content 64x24, txt 39, trail 120x48, item 68, past 0, scroll 0
+short, long: overlap 0, child 103x44, lead 0x0, content 76x24, txt 39, trail 120x48, item 68, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 101x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 156x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 156x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## lead: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 54, child -, lead 114x56, content 82x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 54, child 28x12, lead 114x56, content 42x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 73x60, lead 100x56, content 0x24, txt 39, trail 84x64, item 84, past 0, scroll 0
+video, button: overlap 0, child 84x40, lead 100x56, content 0x24, txt 39, trail 84x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 84x40, lead 100x56, content 0x24, txt 39, trail 84x41, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 0x24, txt 39, trail 120x24, item 76, past 20, scroll 0
+large video, long trail: overlap 0, child 69x76, lead 114x64, content 0x60, txt 39, trail 70x80, item 100, past 0, scroll 0
+large video, button: overlap 0, child 70x40, lead 114x64, content 0x60, txt 39, trail 70x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 0x60, txt 39, trail 120x24, item 88, past 34, scroll 0
+video, word: overlap 0, child 84x76, lead 100x56, content 0x24, txt 39, trail 84x80, item 100, past 0, scroll 0
+video, email: overlap 0, child 80x44, lead 100x56, content 0x24, txt 39, trail 84x48, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 56x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 73x60, lead 100x56, content 0x24, txt 510, trail 84x64, item 84, past 0, scroll 0
+video, several words: overlap 0, child 73x60, lead 100x56, content 0x120, txt 49, trail 84x64, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 103x44, lead 0x0, content 80x24, txt 39, trail 104x48, item 68, past 0, scroll 0
+short, long: overlap 0, child 103x44, lead 0x0, content 92x24, txt 39, trail 104x48, item 68, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 101x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 156x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 156x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## min15: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 48, child -, lead 120x56, content 76x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 48, child 28x12, lead 120x56, content 36x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 47x108, lead 100x56, content 36x24, txt 39, trail 48x112, item 132, past 0, scroll 0
+video, button: overlap 0, child 48x40, lead 100x56, content 36x24, txt 39, trail 48x71, item 91, past 0, scroll 0
+video, half-wide button: overlap 0, child 48x40, lead 100x56, content 36x24, txt 39, trail 48x71, item 91, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 36x24, txt 39, trail 120x24, item 76, past 56, scroll 0
+large video, long trail: overlap 0, child 32x156, lead 114x64, content 36x60, txt 39, trail 34x160, item 180, past 0, scroll 0
+large video, button: overlap 0, child 42x40, lead 114x64, content 36x60, txt 39, trail 42x91, item 111, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 36x60, txt 39, trail 120x24, item 88, past 70, scroll 0
+video, word: overlap 0, child 48x124, lead 100x56, content 36x24, txt 39, trail 48x128, item 148, past 0, scroll 0
+video, email: overlap 0, child 47x60, lead 100x56, content 36x24, txt 39, trail 48x64, item 84, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 56x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 47x108, lead 100x56, content 36x24, txt 510, trail 48x112, item 132, past 0, scroll 0
+video, several words: overlap 0, child 47x108, lead 100x56, content 36x120, txt 49, trail 48x112, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 103x44, lead 0x0, content 64x24, txt 39, trail 120x48, item 68, past 0, scroll 0
+short, long: overlap 0, child 103x44, lead 0x0, content 76x24, txt 39, trail 120x48, item 68, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 101x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 156x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 156x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## min15: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 54, child -, lead 114x56, content 82x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 54, child 28x12, lead 114x56, content 42x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 52x108, lead 100x56, content 31x24, txt 39, trail 53x112, item 132, past 0, scroll 0
+video, button: overlap 0, child 53x40, lead 100x56, content 31x24, txt 39, trail 53x51, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 53x40, lead 100x56, content 31x24, txt 39, trail 53x71, item 91, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 31x24, txt 39, trail 120x24, item 76, past 51, scroll 0
+large video, long trail: overlap 0, child 36x156, lead 114x64, content 31x60, txt 39, trail 39x160, item 180, past 0, scroll 0
+large video, button: overlap 0, child 42x40, lead 114x64, content 31x60, txt 39, trail 42x91, item 111, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 31x60, txt 39, trail 120x24, item 88, past 65, scroll 0
+video, word: overlap 0, child 48x124, lead 100x56, content 31x24, txt 39, trail 53x128, item 148, past 0, scroll 0
+video, email: overlap 0, child 51x60, lead 100x56, content 31x24, txt 39, trail 53x64, item 84, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 56x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 52x108, lead 100x56, content 31x24, txt 510, trail 53x112, item 132, past 0, scroll 0
+video, several words: overlap 0, child 52x108, lead 100x56, content 31x120, txt 49, trail 53x112, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 103x44, lead 0x0, content 80x24, txt 39, trail 104x48, item 68, past 0, scroll 0
+short, long: overlap 0, child 103x44, lead 0x0, content 92x24, txt 39, trail 104x48, item 68, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 101x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 156x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 156x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## nolead15: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 36x24, txt 39, trail 0x0, item 76, past 4, scroll 0
+photo 180, short trail: overlap 0, child 6x76, lead 180x56, content 36x24, txt 39, trail 6x80, item 100, past 22, scroll 0
+video, long trail: overlap 0, child 47x108, lead 100x56, content 36x24, txt 39, trail 48x112, item 132, past 0, scroll 0
+video, button: overlap 0, child 48x40, lead 100x56, content 36x24, txt 39, trail 48x71, item 91, past 0, scroll 0
+video, half-wide button: overlap 0, child 48x40, lead 100x56, content 36x24, txt 39, trail 48x71, item 91, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 36x24, txt 39, trail 120x24, item 76, past 56, scroll 0
+large video, long trail: overlap 0, child 32x156, lead 114x64, content 36x60, txt 39, trail 34x160, item 180, past 0, scroll 0
+large video, button: overlap 0, child 42x40, lead 114x64, content 36x60, txt 39, trail 42x91, item 111, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 36x60, txt 39, trail 120x24, item 88, past 70, scroll 0
+video, word: overlap 0, child 48x124, lead 100x56, content 36x24, txt 39, trail 48x128, item 148, past 0, scroll 0
+video, email: overlap 0, child 47x60, lead 100x56, content 36x24, txt 39, trail 48x64, item 84, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 56x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 47x108, lead 100x56, content 36x24, txt 510, trail 48x112, item 132, past 0, scroll 0
+video, several words: overlap 0, child 47x108, lead 100x56, content 36x120, txt 49, trail 48x112, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 103x44, lead 0x0, content 64x24, txt 39, trail 120x48, item 68, past 0, scroll 0
+short, long: overlap 0, child 103x44, lead 0x0, content 76x24, txt 39, trail 120x48, item 68, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 101x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 156x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 156x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## nolead15: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 31x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 6x76, lead 180x56, content 31x24, txt 39, trail 6x80, item 100, past 17, scroll 0
+video, long trail: overlap 0, child 52x108, lead 100x56, content 31x24, txt 39, trail 53x112, item 132, past 0, scroll 0
+video, button: overlap 0, child 53x40, lead 100x56, content 31x24, txt 39, trail 53x51, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 53x40, lead 100x56, content 31x24, txt 39, trail 53x71, item 91, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 31x24, txt 39, trail 120x24, item 76, past 51, scroll 0
+large video, long trail: overlap 0, child 36x156, lead 114x64, content 31x60, txt 39, trail 39x160, item 180, past 0, scroll 0
+large video, button: overlap 0, child 42x40, lead 114x64, content 31x60, txt 39, trail 42x91, item 111, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 31x60, txt 39, trail 120x24, item 88, past 65, scroll 0
+video, word: overlap 0, child 48x124, lead 100x56, content 31x24, txt 39, trail 53x128, item 148, past 0, scroll 0
+video, email: overlap 0, child 51x60, lead 100x56, content 31x24, txt 39, trail 53x64, item 84, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 56x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 52x108, lead 100x56, content 31x24, txt 510, trail 53x112, item 132, past 0, scroll 0
+video, several words: overlap 0, child 52x108, lead 100x56, content 31x120, txt 49, trail 53x112, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 103x44, lead 0x0, content 80x24, txt 39, trail 104x48, item 68, past 0, scroll 0
+short, long: overlap 0, child 103x44, lead 0x0, content 92x24, txt 39, trail 104x48, item 68, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 101x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 156x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 156x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## yield15: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 16x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 6x76, lead 180x56, content 0x24, txt 39, trail 6x80, item 100, past 0, scroll 0
+video, long trail: overlap 0, child 47x108, lead 100x56, content 36x24, txt 39, trail 48x112, item 132, past 0, scroll 0
+video, button: overlap 0, child 48x40, lead 100x56, content 36x24, txt 39, trail 48x71, item 91, past 0, scroll 0
+video, half-wide button: overlap 0, child 48x40, lead 100x56, content 36x24, txt 39, trail 48x71, item 91, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 0x24, txt 39, trail 120x24, item 76, past 20, scroll 0
+large video, long trail: overlap 0, child 32x156, lead 114x64, content 36x60, txt 39, trail 34x160, item 180, past 0, scroll 0
+large video, button: overlap 0, child 42x40, lead 114x64, content 28x60, txt 39, trail 42x91, item 111, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 0x60, txt 39, trail 120x24, item 88, past 34, scroll 0
+video, word: overlap 0, child 48x124, lead 100x56, content 36x24, txt 39, trail 48x128, item 148, past 0, scroll 0
+video, email: overlap 0, child 47x60, lead 100x56, content 36x24, txt 39, trail 48x64, item 84, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 56x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 47x108, lead 100x56, content 36x24, txt 510, trail 48x112, item 132, past 0, scroll 0
+video, several words: overlap 0, child 47x108, lead 100x56, content 36x120, txt 49, trail 48x112, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 103x44, lead 0x0, content 64x24, txt 39, trail 120x48, item 68, past 0, scroll 0
+short, long: overlap 0, child 103x44, lead 0x0, content 76x24, txt 39, trail 120x48, item 68, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 101x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 156x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 156x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## yield15: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 16x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 6x76, lead 180x56, content 0x24, txt 39, trail 6x80, item 100, past 0, scroll 0
+video, long trail: overlap 0, child 52x108, lead 100x56, content 31x24, txt 39, trail 53x112, item 132, past 0, scroll 0
+video, button: overlap 0, child 53x40, lead 100x56, content 31x24, txt 39, trail 53x51, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 53x40, lead 100x56, content 31x24, txt 39, trail 53x71, item 91, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 0x24, txt 39, trail 120x24, item 76, past 20, scroll 0
+large video, long trail: overlap 0, child 36x156, lead 114x64, content 31x60, txt 39, trail 39x160, item 180, past 0, scroll 0
+large video, button: overlap 0, child 42x40, lead 114x64, content 28x60, txt 39, trail 42x91, item 111, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 0x60, txt 39, trail 120x24, item 88, past 34, scroll 0
+video, word: overlap 0, child 48x124, lead 100x56, content 31x24, txt 39, trail 53x128, item 148, past 0, scroll 0
+video, email: overlap 0, child 51x60, lead 100x56, content 31x24, txt 39, trail 53x64, item 84, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 56x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 52x108, lead 100x56, content 31x24, txt 510, trail 53x112, item 132, past 0, scroll 0
+video, several words: overlap 0, child 52x108, lead 100x56, content 31x120, txt 49, trail 53x112, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 103x44, lead 0x0, content 80x24, txt 39, trail 104x48, item 68, past 0, scroll 0
+short, long: overlap 0, child 103x44, lead 0x0, content 92x24, txt 39, trail 104x48, item 68, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 101x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 156x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 156x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## words15: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 16x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 0x24, txt 39, trail 28x16, item 76, past 8, scroll 0
+video, long trail: overlap 0, child 47x108, lead 100x56, content 36x24, txt 39, trail 48x112, item 132, past 0, scroll 0
+video, button: overlap 0, child 67x40, lead 100x56, content 17x24, txt 39, trail 67x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 72x40, lead 100x56, content 12x24, txt 39, trail 72x41, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 0x24, txt 39, trail 120x24, item 76, past 20, scroll 0
+large video, long trail: overlap 0, child 36x156, lead 114x64, content 34x60, txt 39, trail 36x160, item 180, past 0, scroll 0
+large video, button: overlap 0, child 67x40, lead 114x64, content 3x60, txt 39, trail 67x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 0x60, txt 39, trail 120x24, item 88, past 34, scroll 0
+video, word: overlap 0, child 120x44, lead 100x56, content 0x24, txt 39, trail 120x48, item 76, past 20, scroll 0
+video, email: overlap 0, child 115x28, lead 100x56, content 0x24, txt 39, trail 120x32, item 76, past 15, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 56x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 47x108, lead 100x56, content 36x24, txt 510, trail 48x112, item 132, past 0, scroll 0
+video, several words: overlap 0, child 47x108, lead 100x56, content 36x120, txt 49, trail 48x112, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 103x44, lead 0x0, content 64x24, txt 39, trail 120x48, item 68, past 0, scroll 0
+short, long: overlap 0, child 103x44, lead 0x0, content 76x24, txt 39, trail 120x48, item 68, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 101x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 156x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 156x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## words15: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 16x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 0x24, txt 39, trail 28x16, item 76, past 8, scroll 0
+video, long trail: overlap 0, child 52x108, lead 100x56, content 31x24, txt 39, trail 53x112, item 132, past 0, scroll 0
+video, button: overlap 0, child 67x40, lead 100x56, content 17x24, txt 39, trail 67x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 72x40, lead 100x56, content 12x24, txt 39, trail 72x41, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 0x24, txt 39, trail 104x24, item 76, past 20, scroll 0
+large video, long trail: overlap 0, child 36x156, lead 114x64, content 31x60, txt 39, trail 39x160, item 180, past 0, scroll 0
+large video, button: overlap 0, child 67x40, lead 114x64, content 3x60, txt 39, trail 67x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 0x60, txt 39, trail 104x24, item 88, past 34, scroll 0
+video, word: overlap 0, child 102x60, lead 100x56, content 0x24, txt 39, trail 104x64, item 84, past 2, scroll 0
+video, email: overlap 0, child 104x28, lead 100x56, content 0x24, txt 39, trail 104x32, item 76, past 4, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 56x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 52x108, lead 100x56, content 31x24, txt 510, trail 53x112, item 132, past 0, scroll 0
+video, several words: overlap 0, child 52x108, lead 100x56, content 31x120, txt 49, trail 53x112, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 103x44, lead 0x0, content 80x24, txt 39, trail 104x48, item 68, past 0, scroll 0
+short, long: overlap 0, child 103x44, lead 0x0, content 92x24, txt 39, trail 104x48, item 68, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 101x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 156x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 156x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+#### list width 360
+# chromium 158.0.8127.18
+## built: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 136x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 96x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 268x12, lead 100x56, content 39x24, txt 39, trail 268x16, item 76, past 87, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 109x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 94x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 84x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 268x12, lead 114x64, content 46x60, txt 39, trail 268x16, item 88, past 108, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 95x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 70x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 360x12, lead 100x56, content 39x24, txt 39, trail 360x16, item 76, past 179, scroll 0
+video, email: overlap 0, child 168x12, lead 100x56, content 39x24, txt 39, trail 168x16, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 176x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 268x12, lead 100x56, content 510x24, txt 510, trail 268x16, item 76, past 558, scroll 238
+video, several words: overlap 0, child 268x12, lead 100x56, content 49x120, txt 49, trail 268x16, item 140, past 97, scroll 0
+image, long trail: overlap 0, child 268x12, lead 0x0, content 39x24, txt 39, trail 268x16, item 56, past 0, scroll 0
+short, long: overlap 0, child 268x12, lead 0x0, content 48x24, txt 39, trail 268x16, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 221x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 276x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 276x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## built: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 136x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 96x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 268x12, lead 100x56, content 39x24, txt 39, trail 268x16, item 76, past 87, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 109x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 94x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 84x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 268x12, lead 114x64, content 46x60, txt 39, trail 268x16, item 88, past 108, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 95x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 70x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 360x12, lead 100x56, content 39x24, txt 39, trail 360x16, item 76, past 179, scroll 0
+video, email: overlap 0, child 168x12, lead 100x56, content 39x24, txt 39, trail 168x16, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 176x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 268x12, lead 100x56, content 510x24, txt 510, trail 268x16, item 76, past 558, scroll 238
+video, several words: overlap 0, child 268x12, lead 100x56, content 49x120, txt 49, trail 268x16, item 140, past 97, scroll 0
+image, long trail: overlap 0, child 268x12, lead 0x0, content 39x24, txt 39, trail 268x16, item 56, past 0, scroll 0
+short, long: overlap 0, child 268x12, lead 0x0, content 48x24, txt 39, trail 268x16, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 221x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 276x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 276x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## bound: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 136x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 96x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 166x28, lead 100x56, content 24x24, txt 39, trail 180x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 109x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 94x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 84x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 166x28, lead 114x64, content 10x60, txt 39, trail 180x32, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 95x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 70x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 180x28, lead 100x56, content 24x24, txt 39, trail 180x32, item 76, past 0, scroll 0
+video, email: overlap 0, child 168x12, lead 100x56, content 36x24, txt 39, trail 168x16, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 176x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 166x28, lead 100x56, content 24x24, txt 510, trail 180x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 166x28, lead 100x56, content 24x120, txt 49, trail 180x32, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 166x28, lead 0x0, content 124x24, txt 39, trail 180x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 166x28, lead 0x0, content 136x24, txt 39, trail 180x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 221x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 276x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 276x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## bound: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 136x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 96x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 133x28, lead 100x56, content 40x24, txt 39, trail 164x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 109x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 94x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 84x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 133x28, lead 114x64, content 26x60, txt 39, trail 164x32, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 95x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 70x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 162x44, lead 100x56, content 40x24, txt 39, trail 164x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 159x28, lead 100x56, content 40x24, txt 39, trail 164x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 176x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 133x28, lead 100x56, content 40x24, txt 510, trail 164x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 133x28, lead 100x56, content 40x120, txt 49, trail 164x32, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 140x24, txt 39, trail 164x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 152x24, txt 39, trail 164x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 221x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 276x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 276x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## lead: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 136x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 96x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 166x28, lead 100x56, content 24x24, txt 39, trail 180x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 109x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 94x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 84x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 166x28, lead 114x64, content 10x60, txt 39, trail 180x32, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 95x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 70x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 180x28, lead 100x56, content 24x24, txt 39, trail 180x32, item 76, past 0, scroll 0
+video, email: overlap 0, child 168x12, lead 100x56, content 36x24, txt 39, trail 168x16, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 176x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 166x28, lead 100x56, content 24x24, txt 510, trail 180x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 166x28, lead 100x56, content 24x120, txt 49, trail 180x32, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 166x28, lead 0x0, content 124x24, txt 39, trail 180x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 166x28, lead 0x0, content 136x24, txt 39, trail 180x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 221x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 276x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 276x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## lead: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 4, child -, lead 164x56, content 152x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 4, child 28x12, lead 164x56, content 112x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 133x28, lead 100x56, content 40x24, txt 39, trail 164x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 109x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 94x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 84x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 133x28, lead 114x64, content 26x60, txt 39, trail 164x32, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 95x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 70x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 162x44, lead 100x56, content 40x24, txt 39, trail 164x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 159x28, lead 100x56, content 40x24, txt 39, trail 164x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 176x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 133x28, lead 100x56, content 40x24, txt 510, trail 164x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 133x28, lead 100x56, content 40x120, txt 49, trail 164x32, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 140x24, txt 39, trail 164x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 152x24, txt 39, trail 164x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 221x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 276x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 276x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## min15: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 136x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 96x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 133x28, lead 100x56, content 54x24, txt 39, trail 150x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 109x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 94x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 84x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 133x28, lead 114x64, content 54x60, txt 39, trail 136x32, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 95x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 70x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 150x44, lead 100x56, content 54x24, txt 39, trail 150x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 148x28, lead 100x56, content 54x24, txt 39, trail 150x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 176x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 133x28, lead 100x56, content 54x24, txt 510, trail 150x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 133x28, lead 100x56, content 54x96, txt 49, trail 150x32, item 116, past 0, scroll 0
+image, long trail: overlap 0, child 166x28, lead 0x0, content 124x24, txt 39, trail 180x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 166x28, lead 0x0, content 136x24, txt 39, trail 180x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 221x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 276x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 276x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## min15: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 4, child -, lead 164x56, content 152x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 4, child 28x12, lead 164x56, content 112x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 133x28, lead 100x56, content 49x24, txt 39, trail 155x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 109x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 94x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 84x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 133x28, lead 114x64, content 49x60, txt 39, trail 141x32, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 95x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 70x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 150x44, lead 100x56, content 49x24, txt 39, trail 155x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 153x28, lead 100x56, content 49x24, txt 39, trail 155x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 176x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 133x28, lead 100x56, content 49x24, txt 510, trail 155x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 133x28, lead 100x56, content 49x120, txt 49, trail 155x32, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 140x24, txt 39, trail 164x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 152x24, txt 39, trail 164x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 221x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 276x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 276x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## nolead15: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 136x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 96x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 133x28, lead 100x56, content 54x24, txt 39, trail 150x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 109x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 94x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 84x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 133x28, lead 114x64, content 54x60, txt 39, trail 136x32, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 95x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 70x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 150x44, lead 100x56, content 54x24, txt 39, trail 150x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 148x28, lead 100x56, content 54x24, txt 39, trail 150x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 176x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 133x28, lead 100x56, content 54x24, txt 510, trail 150x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 133x28, lead 100x56, content 54x96, txt 49, trail 150x32, item 116, past 0, scroll 0
+image, long trail: overlap 0, child 166x28, lead 0x0, content 124x24, txt 39, trail 180x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 166x28, lead 0x0, content 136x24, txt 39, trail 180x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 221x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 276x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 276x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## nolead15: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 136x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 96x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 133x28, lead 100x56, content 49x24, txt 39, trail 155x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 109x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 94x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 84x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 133x28, lead 114x64, content 49x60, txt 39, trail 141x32, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 95x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 70x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 150x44, lead 100x56, content 49x24, txt 39, trail 155x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 153x28, lead 100x56, content 49x24, txt 39, trail 155x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 176x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 133x28, lead 100x56, content 49x24, txt 510, trail 155x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 133x28, lead 100x56, content 49x120, txt 49, trail 155x32, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 140x24, txt 39, trail 164x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 152x24, txt 39, trail 164x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 221x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 276x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 276x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## yield15: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 136x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 96x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 133x28, lead 100x56, content 54x24, txt 39, trail 150x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 109x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 94x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 84x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 133x28, lead 114x64, content 54x60, txt 39, trail 136x32, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 95x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 70x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 150x44, lead 100x56, content 54x24, txt 39, trail 150x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 148x28, lead 100x56, content 54x24, txt 39, trail 150x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 176x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 133x28, lead 100x56, content 54x24, txt 510, trail 150x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 133x28, lead 100x56, content 54x96, txt 49, trail 150x32, item 116, past 0, scroll 0
+image, long trail: overlap 0, child 166x28, lead 0x0, content 124x24, txt 39, trail 180x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 166x28, lead 0x0, content 136x24, txt 39, trail 180x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 221x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 276x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 276x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## yield15: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 136x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 96x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 133x28, lead 100x56, content 49x24, txt 39, trail 155x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 109x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 94x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 84x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 133x28, lead 114x64, content 49x60, txt 39, trail 141x32, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 95x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 70x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 150x44, lead 100x56, content 49x24, txt 39, trail 155x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 153x28, lead 100x56, content 49x24, txt 39, trail 155x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 176x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 133x28, lead 100x56, content 49x24, txt 510, trail 155x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 133x28, lead 100x56, content 49x120, txt 49, trail 155x32, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 140x24, txt 39, trail 164x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 152x24, txt 39, trail 164x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 221x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 276x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 276x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## words15: mx-list > mx-list-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 136x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 96x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 133x28, lead 100x56, content 54x24, txt 39, trail 150x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 109x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 94x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 84x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 133x28, lead 114x64, content 54x60, txt 39, trail 136x32, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 95x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 70x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 180x28, lead 100x56, content 24x24, txt 39, trail 180x32, item 76, past 0, scroll 0
+video, email: overlap 0, child 168x12, lead 100x56, content 36x24, txt 39, trail 168x16, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 176x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 133x28, lead 100x56, content 54x24, txt 510, trail 150x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 133x28, lead 100x56, content 54x96, txt 49, trail 150x32, item 116, past 0, scroll 0
+image, long trail: overlap 0, child 166x28, lead 0x0, content 124x24, txt 39, trail 180x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 166x28, lead 0x0, content 136x24, txt 39, trail 180x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 221x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 276x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 276x24, txt 39, trail 0x0, item 60, past 0, scroll 0
+## words15: mx-list > mx-list-button-item, ltr, 100% text
+photo 180, label: overlap 0, child -, lead 180x56, content 136x24, txt 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: overlap 0, child 28x12, lead 180x56, content 96x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: overlap 0, child 133x28, lead 100x56, content 49x24, txt 39, trail 155x32, item 76, past 0, scroll 0
+video, button: overlap 0, child 95x40, lead 100x56, content 109x24, txt 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: overlap 0, child 110x40, lead 100x56, content 94x24, txt 39, trail 110x40, item 76, past 0, scroll 0
+video, fixed 120: overlap 0, child 120x24, lead 100x56, content 84x24, txt 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: overlap 0, child 133x28, lead 114x64, content 49x60, txt 39, trail 141x32, item 88, past 0, scroll 0
+large video, button: overlap 0, child 95x40, lead 114x64, content 95x60, txt 39, trail 95x40, item 88, past 0, scroll 0
+large video, fixed 120: overlap 0, child 120x24, lead 114x64, content 70x60, txt 39, trail 120x24, item 88, past 0, scroll 0
+video, word: overlap 0, child 162x44, lead 100x56, content 40x24, txt 39, trail 164x48, item 76, past 0, scroll 0
+video, email: overlap 0, child 159x28, lead 100x56, content 40x24, txt 39, trail 164x32, item 76, past 0, scroll 0
+video, short trail: overlap 0, child 28x12, lead 100x56, content 176x24, txt 39, trail 28x16, item 76, past 0, scroll 0
+video, word in label: overlap 0, child 133x28, lead 100x56, content 49x24, txt 510, trail 155x32, item 76, past 0, scroll 0
+video, several words: overlap 0, child 133x28, lead 100x56, content 49x120, txt 49, trail 155x32, item 140, past 0, scroll 0
+image, long trail: overlap 0, child 133x28, lead 0x0, content 140x24, txt 39, trail 164x32, item 56, past 0, scroll 0
+short, long: overlap 0, child 133x28, lead 0x0, content 152x24, txt 39, trail 164x32, item 56, past 0, scroll 0
+a button: overlap 0, child 95x40, lead 0x0, content 221x24, txt 39, trail 95x40, item 60, past 0, scroll 0
+a checkbox: overlap 0, child 40x40, lead 0x0, content 276x24, txt 39, trail 40x40, item 60, past 0, scroll 0
+handle and avatar in lead: overlap 0, child -, lead 40x40, content 276x24, txt 39, trail 0x0, item 60, past 0, scroll 0
