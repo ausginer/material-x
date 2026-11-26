@@ -1,0 +1,7 @@
+# just size (size-limit, Brotli bytes), packages/material-x, on the merge with main (6aa5330e3), with the item's styles of main, of f529f3264 (inline-block) and of the remedy. Rows that move:
+row: main / f529f3264 / remedy
+list/list-item: 2803 / 2816 / 2832
+list/list-button-item: 4968 / 4954 / 4978
+list/list-link-item: 5146 / 5164 / 5188
+complete: 26158 / 26096 / 26131
+Every other row of 23 is the same in the three. No row has a limit.

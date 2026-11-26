@@ -1,0 +1,106 @@
+# Boxes, main (d20c47bda) against the branch, by probes/boxes.mjs and probes/compare.mjs
+# 158.0.8127.18 / 158.0.8127.18
+rects mx-list-item-lead-span-text: before {"target":[20,20,300,56],"handle":[36,39,9.34,17],"handleDisplay":"inline","icons":[]}
+  after {"target":[20,20,300,56],"handle":[36,48,9.34,0],"handleDisplay":"inline-block","icons":[]}
+rects mx-list-item-lead-mx-icon: same
+rects mx-list-item-lead-span-mx-icon: before {"target":[20,20,300,56],"handle":[36,42,16,17],"handleDisplay":"inline","icons":[[36,40,16,16]]}
+  after {"target":[20,20,300,56],"handle":[36,40,16,16],"handleDisplay":"inline-block","icons":[[36,40,16,16]]}
+rects mx-list-item-lead-mx-icon-button: before {"target":[20,20,300,60],"handle":[36,30,40,40],"handleDisplay":"contents","icons":[[44,38,24,24]]}
+  after {"target":[20,20,300,60],"handle":[36,30,40,40],"handleDisplay":"inline-block","icons":[[44,38,24,24]]}
+rects mx-list-item-lead-button-text: same
+rects mx-list-item-lead-button-mx-icon: same
+rects mx-list-item-trail-span-text: before {"target":[20,20,300,56],"handle":[297.28,42,6.72,12],"handleDisplay":"inline","icons":[]}
+  after {"target":[20,20,300,56],"handle":[297.28,40,6.72,16],"handleDisplay":"inline-block","icons":[]}
+rects mx-list-item-trail-mx-icon: same
+rects mx-list-item-trail-span-mx-icon: before {"target":[20,20,300,56],"handle":[293,42,11,12],"handleDisplay":"inline","icons":[[293,41,11,11]]}
+  after {"target":[20,20,300,56],"handle":[293,40,11,16],"handleDisplay":"inline-block","icons":[[293,41,11,11]]}
+rects mx-list-item-trail-mx-icon-button: before {"target":[20,20,300,60],"handle":[264,30,40,40],"handleDisplay":"contents","icons":[[272,38,24,24]]}
+  after {"target":[20,20,300,60],"handle":[264,30,40,40],"handleDisplay":"inline-block","icons":[[272,38,24,24]]}
+rects mx-list-item-trail-button-text: same
+rects mx-list-item-trail-button-mx-icon: same
+rects mx-list-button-item-lead-span-text: before {"target":[20,20,300,56],"handle":[36,39,9.34,17],"handleDisplay":"inline","icons":[]}
+  after {"target":[20,20,300,56],"handle":[36,48,9.34,0],"handleDisplay":"inline-block","icons":[]}
+rects mx-list-button-item-lead-mx-icon: same
+rects mx-list-button-item-lead-span-mx-icon: before {"target":[20,20,300,56],"handle":[36,42,16,17],"handleDisplay":"inline","icons":[[36,40,16,16]]}
+  after {"target":[20,20,300,56],"handle":[36,40,16,16],"handleDisplay":"inline-block","icons":[[36,40,16,16]]}
+rects mx-list-button-item-lead-mx-icon-button: before {"target":[20,20,300,60],"handle":[36,30,40,40],"handleDisplay":"contents","icons":[[44,38,24,24]]}
+  after {"target":[20,20,300,60],"handle":[36,30,40,40],"handleDisplay":"inline-block","icons":[[44,38,24,24]]}
+rects mx-list-button-item-lead-button-text: same
+rects mx-list-button-item-lead-button-mx-icon: same
+rects mx-list-button-item-trail-span-text: before {"target":[20,20,300,56],"handle":[297.28,42,6.72,12],"handleDisplay":"inline","icons":[]}
+  after {"target":[20,20,300,56],"handle":[297.28,40,6.72,16],"handleDisplay":"inline-block","icons":[]}
+rects mx-list-button-item-trail-mx-icon: same
+rects mx-list-button-item-trail-span-mx-icon: before {"target":[20,20,300,56],"handle":[293,42,11,12],"handleDisplay":"inline","icons":[[293,41,11,11]]}
+  after {"target":[20,20,300,56],"handle":[293,40,11,16],"handleDisplay":"inline-block","icons":[[293,41,11,11]]}
+rects mx-list-button-item-trail-mx-icon-button: before {"target":[20,20,300,60],"handle":[264,30,40,40],"handleDisplay":"contents","icons":[[272,38,24,24]]}
+  after {"target":[20,20,300,60],"handle":[264,30,40,40],"handleDisplay":"inline-block","icons":[[272,38,24,24]]}
+rects mx-list-button-item-trail-button-text: same
+rects mx-list-button-item-trail-button-mx-icon: same
+rects icon-alone: same
+rects button-icon: same
+rects icon-button: same
+rects fab: same
+pixels button-icon.png: same
+pixels fab.png: same
+pixels icon-alone.png: same
+pixels icon-button.png: same
+pixels mx-list-button-item-lead-button-mx-icon-focus.png: 9 differ
+pixels mx-list-button-item-lead-button-mx-icon.png: same
+pixels mx-list-button-item-lead-button-text-focus.png: 8 differ
+pixels mx-list-button-item-lead-button-text.png: same
+pixels mx-list-button-item-lead-mx-icon-button-focus.png: 118 differ
+pixels mx-list-button-item-lead-mx-icon-button.png: same
+pixels mx-list-button-item-lead-mx-icon-focus.png: same
+pixels mx-list-button-item-lead-mx-icon.png: same
+pixels mx-list-button-item-lead-span-mx-icon-focus.png: 147 differ
+pixels mx-list-button-item-lead-span-mx-icon.png: same
+pixels mx-list-button-item-lead-span-text-focus.png: 267 differ
+pixels mx-list-button-item-lead-span-text.png: same
+pixels mx-list-button-item-trail-button-mx-icon-focus.png: same
+pixels mx-list-button-item-trail-button-mx-icon.png: same
+pixels mx-list-button-item-trail-button-text-focus.png: same
+pixels mx-list-button-item-trail-button-text.png: same
+pixels mx-list-button-item-trail-mx-icon-button-focus.png: 3 differ
+pixels mx-list-button-item-trail-mx-icon-button.png: same
+pixels mx-list-button-item-trail-mx-icon-focus.png: same
+pixels mx-list-button-item-trail-mx-icon.png: same
+pixels mx-list-button-item-trail-span-mx-icon-focus.png: 108 differ
+pixels mx-list-button-item-trail-span-mx-icon.png: same
+pixels mx-list-button-item-trail-span-text-focus.png: 127 differ
+pixels mx-list-button-item-trail-span-text.png: same
+pixels mx-list-item-lead-button-mx-icon-focus.png: same
+pixels mx-list-item-lead-button-mx-icon.png: same
+pixels mx-list-item-lead-button-text-focus.png: same
+pixels mx-list-item-lead-button-text.png: same
+pixels mx-list-item-lead-mx-icon-button-focus.png: same
+pixels mx-list-item-lead-mx-icon-button.png: same
+pixels mx-list-item-lead-mx-icon-focus.png: same
+pixels mx-list-item-lead-mx-icon.png: same
+pixels mx-list-item-lead-span-mx-icon-focus.png: 138 differ
+pixels mx-list-item-lead-span-mx-icon.png: same
+pixels mx-list-item-lead-span-text-focus.png: 258 differ
+pixels mx-list-item-lead-span-text.png: same
+pixels mx-list-item-trail-button-mx-icon-focus.png: same
+pixels mx-list-item-trail-button-mx-icon.png: same
+pixels mx-list-item-trail-button-text-focus.png: same
+pixels mx-list-item-trail-button-text.png: same
+pixels mx-list-item-trail-mx-icon-button-focus.png: same
+pixels mx-list-item-trail-mx-icon-button.png: same
+pixels mx-list-item-trail-mx-icon-focus.png: same
+pixels mx-list-item-trail-mx-icon.png: same
+pixels mx-list-item-trail-span-mx-icon-focus.png: 108 differ
+pixels mx-list-item-trail-span-mx-icon.png: same
+pixels mx-list-item-trail-span-text-focus.png: 112 differ
+pixels mx-list-item-trail-span-text.png: same
+
+# Noise: two runs of the branch
+# 158.0.8127.18 / 158.0.8127.18
+pixels mx-list-button-item-lead-button-text-focus.png: 8 differ
+pixels mx-list-button-item-lead-mx-icon-button-focus.png: 118 differ
+pixels mx-list-button-item-lead-span-mx-icon-focus.png: 15 differ
+pixels mx-list-button-item-lead-span-text-focus.png: 9 differ
+pixels mx-list-button-item-trail-button-mx-icon-focus.png: 8 differ
+pixels mx-list-button-item-trail-button-text-focus.png: 8 differ
+pixels mx-list-button-item-trail-mx-icon-button-focus.png: 8 differ
+pixels mx-list-button-item-trail-span-mx-icon-focus.png: 8 differ
+pixels mx-list-button-item-trail-span-text-focus.png: 9 differ

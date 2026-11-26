@@ -1,0 +1,59 @@
+# The visual project (MX_TEST_VISUAL=1, Chromium, 32 rows), at df577d7df and with main's two style files. Each row's status and differing pixels against its stored baseline:
+button-group visual regression should match the standard size matrix | head failed 2136 | main failed 2136
+button-group visual regression should match the connected size matrix | head failed 1891 | main failed 1891
+button-group visual regression should match a connected group with a selected button | head failed 375 | main failed 375
+button-group visual regression should match a disabled standard group | head failed 284 | main failed 284
+checkbox visual regression should match the selection state matrix | head failed 14 | main failed 14
+checkbox visual regression should match the disabled state matrix | head failed 11 | main failed 11
+checkbox visual regression should match the hovered checkbox | head failed 12 | main failed 12
+checkbox visual regression should match the keyboard-focused checkbox | head passed | main passed
+mx-card visual regression should match the variant matrix | head failed 2042 | main failed 2042
+mx-button visual regression should match the color variant matrix | head failed 1196 | main failed 1196
+mx-button visual regression should match the size and shape matrix | head failed 2519 | main failed 2519
+mx-button visual regression should match buttons composed with a leading icon | head failed 1241 | main failed 1241
+mx-button visual regression should match the switch variant matrix | head failed 1836 | main failed 1836
+mx-button visual regression should match enabled and disabled buttons | head failed 445 | main failed 445
+mx-button visual regression should match the hovered elevated button | head failed 251 | main failed 251
+mx-button visual regression should match the keyboard-focused button | head failed 247 | main failed 247
+radio visual regression should match the selection state matrix | head failed 87 | main failed 87
+radio visual regression should match the disabled state matrix | head failed 94 | main failed 94
+radio visual regression should match the hovered radio | head failed 64 | main failed 64
+radio visual regression should match the keyboard-focused radio | head failed 24 | main failed 24
+slider visual regression should match the xsmall slider at three values | head passed | main passed
+slider visual regression should match the small slider at three values | head passed | main passed
+slider visual regression should match the medium slider at three values | head passed | main passed
+slider visual regression should match the large slider at three values | head passed | main passed
+slider visual regression should match the xlarge slider at three values | head passed | main passed
+slider visual regression should match the disabled slider | head passed | main passed
+slider visual regression should match the slider in RTL | head passed | main passed
+slider visual regression should match the held slider with its value indicator | head failed 65 | main failed 65
+slider visual regression should match the keyboard-focused slider | head failed 67 | main failed 67
+slider visual regression should match the sliders in forced colors | head passed | main passed
+mx-top-app-bar visual regression should match the bar at rest | head failed 411 | main failed 411
+mx-top-app-bar visual regression should match the scrolled bar | head failed 411 | main failed 411
+# The actual screenshots of the failing rows, head against main, by SHA-256:
+same button-group/button-group.visual.browser.test.ts/button-group-connected-selected-actual-chromium-linux.png
+different button-group/button-group.visual.browser.test.ts/button-group-connected-sizes-actual-chromium-linux.png
+same button-group/button-group.visual.browser.test.ts/button-group-standard-disabled-actual-chromium-linux.png
+same button-group/button-group.visual.browser.test.ts/button-group-standard-sizes-actual-chromium-linux.png
+same button/button.visual.browser.test.ts/button-color-variants-actual-chromium-linux.png
+same button/button.visual.browser.test.ts/button-enabled-and-disabled-actual-chromium-linux.png
+same button/button.visual.browser.test.ts/button-focused-actual-chromium-linux.png
+same button/button.visual.browser.test.ts/button-hovered-actual-chromium-linux.png
+same button/button.visual.browser.test.ts/button-icon-composition-actual-chromium-linux.png
+same button/button.visual.browser.test.ts/button-sizes-and-shapes-actual-chromium-linux.png
+same button/button.visual.browser.test.ts/button-switch-variants-actual-chromium-linux.png
+same card/card.visual.browser.test.ts/card-variants-actual-chromium-linux.png
+same checkbox/checkbox.visual.browser.test.ts/checkbox-disabled-actual-chromium-linux.png
+same checkbox/checkbox.visual.browser.test.ts/checkbox-hovered-actual-chromium-linux.png
+same checkbox/checkbox.visual.browser.test.ts/checkbox-states-actual-chromium-linux.png
+same radio/radio.visual.browser.test.ts/radio-disabled-actual-chromium-linux.png
+same radio/radio.visual.browser.test.ts/radio-focused-actual-chromium-linux.png
+same radio/radio.visual.browser.test.ts/radio-hovered-actual-chromium-linux.png
+same radio/radio.visual.browser.test.ts/radio-states-actual-chromium-linux.png
+same slider/slider.visual.browser.test.ts/slider-focused-actual-chromium-linux.png
+same slider/slider.visual.browser.test.ts/slider-held-actual-chromium-linux.png
+same top-app-bar/top-app-bar.visual.browser.test.ts/top-app-bar-rest-actual-chromium-linux.png
+same top-app-bar/top-app-bar.visual.browser.test.ts/top-app-bar-scrolled-actual-chromium-linux.png
+# The one that differs, its inflated image data (probes/png.mjs.txt):
+1232x280 vs 1232x280, 1035160 vs 1035160 bytes, 9 differ

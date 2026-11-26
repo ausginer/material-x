@@ -1,0 +1,7 @@
+#!/bin/bash
+# run.sh <engine> <out> [vitest args]: the probe in material-x's browser project
+T=/tmp/claude-1000/-workspaces-worktrees-b/e64c54e5-c6df-4cae-91a9-3ec47d1d631e/scratchpad/t
+cd /workspaces/worktrees/d/packages/material-x || exit 1
+e=$1; o=$2; shift 2
+MX_TEST_ENGINES=$e NO_COLOR=1 timeout 600 aube exec -- vitest run -c vitest.config.ts --project 'browser*' tests/list/proof-touch.browser.test.ts "$@" > "$o" 2>&1
+sed -n '/^PROOF/,/^END/p' "$o" | awk '/^PROOF/{n++} n==1' | grep -E "^$e " | awk '!s[$0]++' > "$o.u"; wc -l < "$o.u"

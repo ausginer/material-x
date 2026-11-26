@@ -1,0 +1,7 @@
+# The affected files unmutated, Chromium 158.0.8127.18, at 4cc69c603: tests/list in the browser and spec projects (chains.sh.txt). The recheck's probe ran with them and is not counted: its afterAll throws by design to print its reading.
+tests/list/list-item.browser.test.ts 19 passed 0 failed 0 skipped
+tests/list/list-roles.browser.test.ts 45 passed 0 failed 0 skipped
+tests/list/sortable-list.browser.test.ts 183 passed 0 failed 0 skipped
+tests/list/list-item.spec.browser.test.ts 134 passed 0 failed 0 skipped
+tests/list/sortable-list.spec.browser.test.ts 36 passed 0 failed 0 skipped
+total 417 passed, 0 failed
