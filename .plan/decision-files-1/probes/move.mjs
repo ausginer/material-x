@@ -37,6 +37,8 @@ const MOVED_ID =
   /(?<![A-Za-z0-9-])(?:[a-z][a-z0-9-]*:)?((?:RD|DRD|DRO)-\d+)\b/gu;
 const FINDING = /(?<![A-Za-z0-9-])(?:[a-z][a-z0-9-]*:)?(?:RF|DRF|RQ)-\d+\b/u;
 const ENTRY_FRAGMENT = /^(rd|drd|dro)-(\d+)(?:-|$)/u;
+const TEXT_ID =
+  /(?<![A-Za-z0-9-])(?:([a-z][a-z0-9-]*):)?((?:RD|DRD|DRO)-\d+)\b/gu;
 
 const classifiedPath = process.argv.includes('--classified')
   ? process.argv[process.argv.indexOf('--classified') + 1]
@@ -49,7 +51,14 @@ const counts = {
   insideRelative: 0,
   insideRewritten: 0,
   insideAbsolute: 0,
-  elsewhere: { fragMoved: 0, fragOther: 0, toFile: 0, toDir: 0, unchanged: 0 },
+  elsewhere: {
+    fragMoved: 0,
+    fragOther: 0,
+    textFile: 0,
+    toFile: 0,
+    toDir: 0,
+    unchanged: 0,
+  },
   elsewhereFiles: new Set(),
   sameIndexFragments: 0,
   filesWritten: 0,
@@ -106,6 +115,40 @@ const idsOf = (line) =>
     [...line.matchAll(MOVED_ID)].map((m) => m[1]).filter((id) => moved.has(id)),
   );
 
+/** The text of the link whose `](` is at `index` of `line`, from its matching `[`. */
+function textOf(line, index) {
+  let depth = 0;
+
+  for (let at = index; at >= 0; at -= 1) {
+    if (line[at] === ']') {
+      depth += 1;
+    } else if (line[at] === '[') {
+      depth -= 1;
+
+      if (depth === 0) {
+        return line.slice(at + 1, index);
+      }
+    }
+  }
+
+  return '';
+}
+
+/**
+ * The moved identifiers of `scope` that a link's text names, qualified by the scope's name or
+ * unqualified, each once.
+ */
+const textIdsOf = (text, scope) =>
+  new Set(
+    [...text.matchAll(TEXT_ID)]
+      .filter(
+        ([, qualifier, id]) =>
+          moved.get(id)?.scope === scope &&
+          (qualifier === undefined || qualifier === scope.name),
+      )
+      .map(([, , id]) => id),
+  );
+
 /** Whether the match at `index` of `line` is inside an inline code span. */
 const inCode = (line, index) =>
   (line.slice(0, index).match(/`/gu)?.length ?? 0) % 2 === 1;
@@ -114,7 +157,7 @@ const inCode = (line, index) =>
  * Rule 5: where a link into `index` goes, by its fragment and the line it is on. `from` is the
  * directory the rewritten link is relative to. Returns the new target, or `undefined` to keep it.
  */
-function intoIndex(index, fragment, line, from, where) {
+function intoIndex(index, fragment, text, line, from, where) {
   const scope = SCOPES.find((s) => s.index === index);
   const decisions = join(dirname(index), 'decisions');
   let row;
@@ -139,8 +182,13 @@ function intoIndex(index, fragment, line, from, where) {
   } else {
     const ids = idsOf(line);
     const other = [...ids].filter((id) => moved.get(id).scope !== scope);
+    const own = textIdsOf(text, scope);
 
-    if (FINDING.test(line) || ids.size === 0) {
+    if (own.size === 1 && !FINDING.test(text)) {
+      // The third row: the link's own text decides before the line does.
+      row = 'textFile';
+      target = relativeLink(from, moved.get([...own][0]).file);
+    } else if (FINDING.test(line) || ids.size === 0) {
       row = 'unchanged';
     } else if (other.length > 0) {
       person.push(
@@ -216,6 +264,7 @@ function rewrite(lines, source, to, file, firstLine, inside) {
         const { row, target } = intoIndex(
           posix(pointsAt),
           fragment,
+          textOf(line, index),
           line,
           to,
           where,
