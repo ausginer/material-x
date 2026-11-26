@@ -156,6 +156,17 @@ const ROWS: Readonly<Record<string, readonly Row[]>> = {
       state: 'disabled',
       html: `<mx-split-button ${ARROW_STYLE} disabled secondarylabel="More options">Go</mx-split-button>`,
     },
+    {
+      state: 'without secondarylabel',
+      html: `<mx-split-button ${ARROW_STYLE}>Go</mx-split-button>`,
+      violations: [
+        {
+          rule: 'button-name',
+          target: 'mx-split-button > mx-icon-button > button',
+          owner: 'repo:RD-58',
+        },
+      ],
+    },
   ],
   'mx-button-group': [
     {

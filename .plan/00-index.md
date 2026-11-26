@@ -2739,7 +2739,9 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 2. **A row in `tests/axe.browser.test.ts`:** `mx-split-button` without `secondarylabel`, whose listed violation is `button-name` at its trailing button, owned by `repo:RD-58`. **Witness:** without item 1, the row fails, because the listed violation is gone.
 3. **`RD-57`'s witness 2,** on the tree with item 1: it fails all 11 control rows, the split button's three among them. The implementer's reading of 8 above is then replaced by a new one, committed.
 4. **Unchanged, and run:** the split button's own rows, among them _should expose no name of the trailing button without a label_, and `RF-137`'s icon rows. The size gate, for one attribute.
-5. **A bounded recheck is owed,** as `RD-62` property 6 says, of what this changes: the new row and its witness, and the split button's rows in the three engines. `mx-icon` hides its content from assistive technology
+5. **A bounded recheck is owed,** as `RD-62` property 6 says, of what this changes: the new row and its witness, and the split button's rows in the three engines.
+
+#### RD-59 — `mx-icon` hides its content from assistive technology
 
 **Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer of 2026-11-24 to `RF-137`'s Q2, (a). In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). The contract is in `RF-137`.
 
