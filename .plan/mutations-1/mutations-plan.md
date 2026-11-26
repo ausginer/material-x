@@ -1,6 +1,6 @@
 # A review's mutations as data, one runner, and a CI workflow that runs them in each engine
 
-**Status: proposed, for the owner.** Written by the architect on `repo/mutations-1`, from `origin/main` at `6aa5330e3`, on the coordinator's task of 2026-11-26. The labels `MU-1` to `MU-12` are local to this plan. The main architect mints them as one `RD` (see [Identifiers](#identifiers)).
+**Status: answered by the owner on 2026-11-26** ([answers](#the-owners-answers-2026-11-26)), for the main architect to mint. Written by the architect on `repo/mutations-1`, from `origin/main` at `6aa5330e3`, on the coordinator's task of 2026-11-26. The labels `MU-1` to `MU-12` are local to this plan. The main architect mints them as one `RD` (see [Identifiers](#identifiers)).
 
 **Where it comes from:**
 
@@ -38,7 +38,7 @@ The differences are small:
 
 ### MU-1 — A private workspace package, with no material-x in it
 
-The runner is a new workspace package under `packages/`, with a CLI. It is **private** (`"private": true`) until the owner decides to publish it (Q1).
+The runner is a new workspace package, `@ydinjs/mutator` in `packages/mutator/`, with the CLI `mutator` (Q2). It is **private** (`"private": true`) until the owner decides to publish it (Q1).
 
 - **Nothing in it names material-x, `MX_TEST_ENGINES` or this repository's recipes.** What a repository needs is in a config file that the repository owns (MU-3).
 - **It runs Vitest.** `vitest` is a peer dependency, at the majors the workspace tests against (CONTRIBUTING, _Dependencies of a published package_). A mutation tool that runs Vitest's browser mode in several engines, and mutates CSS and templates as well as code, is the gap that Stryker leaves (MU-12).
@@ -145,7 +145,7 @@ A per-engine expectation with its reason (MU-5) accounts for the difference, and
 
 ### MU-8 — The same CLI runs locally
 
-`mutate run <file> [--ref <commit>] [--engine <name>…] [--only <mutation>…] [--config <path>]`:
+`mutator run <file> [--ref <commit>] [--engine <name>…] [--only <mutation>…] [--config <path>]`:
 
 - `--ref` is `HEAD` by default.
 - Locally the file is read from the working tree, so an uncommitted file runs. In CI it is read from `ref`.
@@ -198,8 +198,8 @@ Source: <https://stryker-mutator.io/docs/stryker-js/vitest-runner/>, read on 202
   - pending: the verdict for those mutations waits;
   - a leg that failed for a reason outside the tests: run it again;
   - an outcome other than _as expected_, or a _differs_ flag: the reviewer's to judge, as property 5 says.
-- **Property 1, if the owner agrees (Q3):** an implementer writes the unit's mutations as a mutation file and runs it locally in Chromium. The review can then run them in the three engines without copying them out of a script.
-- **Texts:** `test-architecture.md`'s _Engines in development and in review_, `reviewer.md`, and with Q3 `implementer.md`; `handoff.md` if its clause on a feature proof names local mutation runs.
+- **Property 1, by Q3:** an implementer writes the unit's mutations as a mutation file and runs it locally in Chromium. The review can then run them in the three engines without copying them out of a script.
+- **Texts:** `test-architecture.md`'s _Engines in development and in review_, `reviewer.md` and `implementer.md`; `handoff.md` if its clause on a feature proof names local mutation runs.
 
 Q1's interim (a) ends when that unit merges.
 
@@ -224,3 +224,11 @@ For the main architect to mint:
    - (c) A script in `.scripts/`, which has no scaffolding and moves when you want a package.
 2. **Its name.** Proposed: `@ydinjs/mutate`, with the CLI `mutate`. Other names are fine. The scope matters only if it's published.
 3. **Do implementers write their mutations as data too? Recommended: yes.** Their mutations are then rerunnable in the three engines with no copying, and the review's report lists both groups from files. This amends `RD-62` property 1 and `implementer.md` in unit 2. If not, only reviews use the format, and an implementer's runner stays free-form.
+
+### The owner's answers, 2026-11-26
+
+**Dated 2026-11-26 by the architect,** relayed by the coordinator: _"1) (a) 2) может, `@ydinjs/mutator`? 🤔 Как будто бы `mutate` не очень отражает суть 🤔 3) да"_ ("1) (a) 2) maybe `@ydinjs/mutator`? It feels like `mutate` doesn't quite say what it is 3) yes").
+
+- **Q1: (a).** A private workspace package now, published when its format has held through a few reviews. MU-1 says so.
+- **Q2: `@ydinjs/mutator`,** in `packages/mutator/`, and its CLI is `mutator`. Nothing stands against the name. `@ydinjs/mutator` isn't on npm (the registry answers 404). The unscoped `mutator` is a different package from 2014 with no `bin`, so it can't clash with the CLI. No workspace binary has the name. MU-1 and MU-8 use it, and the question's `@ydinjs/mutate` and `mutate` are kept above as they were asked.
+- **Q3: yes.** An implementer writes the unit's mutations as a mutation file and runs it in Chromium. Unit 2 amends `RD-62` property 1 and `implementer.md` with properties 4 and 5.
