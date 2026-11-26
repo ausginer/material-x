@@ -2680,6 +2680,11 @@ Tier C, **open**. Registered on 2026-11-23 by the architect, on `repo/register-o
 - **Ready.**
 - **Size:** _small_.
 
+**Dated 2026-11-26 by the architect: re-read at `d6f6cf60b`, and it holds unchanged,** on `material-x/use-sortable-1`, requested by the coordinator. The owner approved the order on the same day: _"Ага, подтверждаю"_ ("Yes, I confirm"). After #314 (`RF-151`) merges, an implementer does this entry and then `RF-118`, on this branch.
+
+- **No file that this entry reads has changed since `04047237e`:** core's `utils/DOM.ts`, its `README.md` and `tests/utils/DOM.browser.test.ts`, and material-x's `core/utils/events.ts`. The five calls and the seven dispatches are the ones listed above. Each of the six files has a row that reads `composed`. `ReorderEvent` still passes `DEFAULT_EVENT_INIT`. The registry still answers 404 for both packages. `CONTRIBUTING.md` still has no bullet of `RD-52`, so property 5 is still owed.
+- **`core/utils/events.ts` keeps `useClickActivation` and `useFormActivation`.** Moving `useClickActivation` to core is a later item that the owner approved, and not this entry's.
+
 #### RF-118 — `mx-sortable-list`'s constructor mixes the state of four lifetimes, and retains removed items
 
 Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-8`, from Mx Architect Explainer, relayed by the coordinator. `RF-117` is the entry before this one, so this is the next free number. Read at `04047237e`.
@@ -2708,6 +2713,32 @@ Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **Depends on `RF-117`,** for `ReorderEvent`.
 - **Ready,** after `RF-117`.
 - **Size:** _medium_: one new hook module, one event module, the proposal object, and readings of the size, the manifest and the typings.
+
+**Dated 2026-11-26 by the architect: re-read at `d6f6cf60b`, with properties 1 and 2 and the registration order amended,** on `material-x/use-sortable-1`, requested by the coordinator, from Mx Architect Explainer's reading at the same commit. The owner approved the order on the same day (`RF-117`'s note). The finding, the retention and properties 3 to 7 hold as written. _Read at `04047237e`_ is now `d6f6cf60b`.
+
+- **What changed in `sortable-list.ts` since `04047237e`:** `RF-127` (#235) gives `onStart` the operation's kind, and the host's `command` state. `RF-129` (#261) has `useListCore` take the sortable sheet. `RF-128` and `RF-135` (#267) change the handles. `RF-142` (#278) gives no handle to a disabled item. `RF-145` and `RF-146` (#296) change the handle rule's touch path. `RD-60` (#310) adds the displacement, with its own `useCSSProps` call. The disconnect also clears the dragged item's `drag` state, and the provider reads the slot again for an item that upgrades after the last slot change.
+- **Property 1 is now:** _"The constructor is `super(); useListCore(this, [sortableStyles]); useSortable(this);`"_ It replaces _"`super(); useListCore(this); useSortable(this);`"_. The sheet's import stays in `sortable-list.ts`, as the element's styles, and the hook takes no sheet.
+- **Property 2 also gives the hook these, which `04047237e` didn't have:**
+  - `onStart`'s toggle of the host's `command` state (`RF-127`);
+  - the handle rule, `isDisabled(item) ? null : (handleOf(item) ?? item)` (`RF-142`);
+  - `displacement: layoutAnimation({ timing: useCSSProps(this, LAYOUT_CSS_PROPS) })` (`RD-60`);
+  - the two description constants, `DRAG_CSS_PROPS` and `LAYOUT_CSS_PROPS`, and `COMMIT_TIMEOUT`;
+  - the disconnect's clearing of the item's `drag` state.
+- **The registration order, which replaces the first bullet of _"No behavior change"_.** The controllers that register a lifecycle callback keep their order:
+  1. `useCSSProps(LAYOUT_CSS_PROPS)`, the displacement's;
+  2. `useCSSProps(DRAG_CSS_PROPS)`, the landing's;
+  3. `useProvider`, through `useEvents`;
+  4. the connection's `use(this, …)`.
+
+  `useCSSProps` registers through `useConnected` and clears its values at each connect. The displacement's call comes first because `displacement` comes before `landing` in the config's literal. The Explainer's reading had them the other way, and the code decides. `useListCore`, `useAriaNotifyPolyfill` and `useSlot` register no lifecycle callback. They write the shadow root, or add the slot's `slotchange` listener, in the constructor, and they keep their order too.
+
+- **The neighbors, at `d6f6cf60b`:**
+  - **`drag:DRF-55`** is still open, and what this entry says of it holds.
+  - **The open pull requests don't touch `sortable-list.ts`.** #314 (`RF-151`) adds a rule to the sortable sheet. #315 (`RF-152`) changes `parseMs`, which the hook imports, and not its signature. #316 (`RF-153`) changes the node tests' build. Each of them may merge before this unit or after it. #314 and #315 edit `sortable-list.browser.test.ts`, which this unit doesn't edit, except an import path.
+  - **`RF-103`, `RF-105` and `RF-109`** hold as this entry reads them. The displacement's timing is the result of `useCSSProps`, passed with no wrapper, as the landing's is.
+  - **The later items that the owner approved,** among them moving `parseMs` to core, change the hook's imports when they come. They aren't this unit's.
+- **Size:** `list/sortable-list` is 9.94 kB after `RD-60`. The acceptance's size reading is against the base of this unit.
+- **Ready,** after `RF-117` and on its branch. The two entries are one pull request, which closes #207 and #208.
 
 #### RF-119 — A control in a disabled fieldset isn't disabled
 
