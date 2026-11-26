@@ -1,0 +1,69 @@
+# The recheck's readings, by the reviewer on 2026-11-26, at 19e9ff12f, in a scratch clone of the local repository
+# (not a worktree), node_modules linked from slot f. One change at a time to .scripts/entry.ts, restored after each run.
+
+## Rows at 19e9ff12f
+aube exec vitest run --project repo .scripts/entry.node.test.ts
+      Tests  26 passed (26)
+.scripts/entry.sh --duplicates: no duplicated address in drag, repo (exit 0)
+.scripts/entry.sh --duplicates b197acdd3: no duplicated address in drag, repo (exit 0)
+
+## Witness A: no family checked ("? (scope.decisionFamilies ?? [])" -> "? []")
+ FAIL :466 should refuse a decision heading in an index once a decisions file exists
+ FAIL :496 should refuse only drag's decision families outside its decisions files
+      Tests  2 failed | 24 passed (26)
+
+## Witness B: no directory condition (families = scope.decisionFamilies ?? [] in every scope)
+ FAIL :292 should pass when a sub-clause or a mention repeats an id
+ FAIL :304 should read the documents at a commit when one is given
+ FAIL :353 should name the duplicates that the merge 1cf222c32 left
+ FAIL :433 should read the index alone at a commit without the directory
+ FAIL :466 should refuse a decision heading in an index once a decisions file exists
+ FAIL :496 should refuse only drag's decision families outside its decisions files
+ FAIL :510 should read the index alone in a working tree without the directory
+      Tests  7 failed | 19 passed (26)
+
+## Witness C: decisions files not exempt (decisionFile = false)
+ FAIL :466 should refuse a decision heading in an index once a decisions file exists
+ FAIL :496 should refuse only drag's decision families outside its decisions files
+      Tests  2 failed | 24 passed (26)
+
+## Witness D (reviewer-5): no ENOENT condition in workingTree
+ FAIL :180 :265 :279 :292 :304 :353 :416 :433 :466 :496 :510
+      Tests  11 failed | 15 passed (26)
+# :433 is row 3, which passed under the same change at 6b7ed6263.
+
+## 19e9ff12f merged with each open pull request's head (package-lock.json conflicts resolved to either side)
+08b72380c (#301): no index conflict; --duplicates exit 1
+  decisions outside .plan/decisions/: a decision is a file of its own there
+  repo:RD-65
+    .plan/00-index.md:17
+  repo:RD-66
+    .plan/00-index.md:51
+ed9e5a6eb (#303's head that the implementer read): no conflict; --duplicates exit 1, repo:RD-67 at .plan/00-index.md:17
+421c6459b (#303's head on 2026-11-26 at this recheck): no conflict; --duplicates exit 1, repo:RD-67 at .plan/00-index.md:17
+7ef948b2e (#307): no conflict; --duplicates exit 0
+
+## The ruling's remake on each merged branch: node .plan/decision-files-1/probes/move.mjs, then git status
+08b72380c: ?? .plan/decisions/RD-65.md, ?? .plan/decisions/RD-66.md; M .plan/00-index.md,
+           M .plan/mutations-1/mutations-plan.md, M .plan/reviews/mutations-1/feature-proof-claude.md; no M under decisions/
+           --duplicates passes; the script again on the committed result changes 0 files
+421c6459b: ?? .plan/decisions/RD-67.md; M .plan/00-index.md, M .plan/session-context-1/session-context-plan.md;
+           no M under decisions/; --duplicates passes; a second run changes 0 files
+
+## Rule 6 on 19e9ff12f, with the indexes as main's side gives them
+# 1. Both indexes restored from b197acdd3 (main at e457ed209 merged, the unit's preambles), the script run:
+  157 files written, 3 changed: .plan/00-index.md, packages/drag/.plan/00-index.md (back to the head's),
+  and .plan/decisions/RD-64.md, which loses property 7's amendment (b3f6f7c41) and the two dated notes
+  (c99a8c7db, b3f6f7c41). Every link that the fixes re-pointed is unchanged.
+# 2. Both indexes taken whole from e457ed209 (git checkout of main's file), the script run:
+  .plan/decisions/RD-64.md as in 1, and both indexes' preambles revert to main's (the "Each decision is a file
+  of its own" sentences, and the awk examples back to RD-1 and DRD-1).
+# 3. A main-like commit from e457ed209 that adds a dated note to RD-10 in the index; 19e9ff12f merges it with
+  -X theirs (each conflicting hunk takes main's side; the preambles keep the branch's); the script run:
+  .plan/decisions/RD-10.md gains main's note, the index is emptied again, the preamble keeps its sentence,
+  and .plan/decisions/RD-64.md loses the same text as in 1. --duplicates passes.
+
+## Links at 19e9ff12f (probes/links.mjs <clone> 19e9ff12f)
+ "files": 682, "links": 7319, "broken": 37, the same 37 file-and-target pairs as at e94ab0e9b
+ fragments into the indexes and decisions files that name no heading: 1, unit-layout-exploration.md:182, as before
+ # The nine re-pointed fragments each match a heading under GitHub's slug rule.
