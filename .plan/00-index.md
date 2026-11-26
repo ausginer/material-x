@@ -4981,6 +4981,16 @@ Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi
 - **Required property:** `parseMs` returns milliseconds for a `<time>` in either unit: `0.25s` and `250ms` both give 250. It throws on a value that has no number, as today. **Witness:** a row that gives a private duration in `ms` fails at `5448c4fd6`.
 - **Plan needed:** no. **Size:** _small_.
 
+#### RF-153 — material-x's node tests build with a private-property list that may be stale
+
+Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from observation 1 of #310's [feature proof](reviews/sortable-displacement-1/feature-proof-claude.md#observations), relayed by the coordinator. `RF-152` is the entry before this one. Read at `c2ea0dcbe`.
+
+- **What happens:** the node project's global setup, `packages/material-x/tests/support/build-package.node.ts`, runs `tsdown` alone, which is `just build-lib`. Mangling reads `node_modules/.cache/css/css-private-props.json`, which only `just build-prepare` (`.scripts/css/collect-props.ts`) writes. In a tree whose sheets have a private property that the list lacks, the build fails with _"Property `--_layout-animation-duration` is not collected"_. Every file of the project then fails, as the proof saw in its slot before it ran `build-prepare`. A tree whose sheets changed without a new name builds with the old list's short names, which differ from what a fresh list gives.
+- **Why it is a problem:** a local run of the node rows, which implementers and proofs make, can fail for a reason that isn't the code, and nothing in the error names `build-prepare`. Or the rows can read a build that `just build` and CI wouldn't make from the same tree. CI isn't affected, because it builds first.
+- **Required property:** the build that the node project reads is made from a property list collected from the tree under test, so that a local run of the project gives the result that CI gives on the same tree. **Witness:** with a stale list, after a private property is added to a sheet, the project's rows pass, and they fail at `c2ea0dcbe`.
+- **Not read:** whether `build-prepare`'s run time matters to the project's setup, and the other packages' node setups, whose builds don't mangle these names.
+- **Plan needed:** no. **Size:** _small_.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
