@@ -95,7 +95,7 @@ Several units may be open at once, one in each session slot ([coordinator-setup.
 - **Who runs where.** The coordinator runs in the main slot. **Only the main slot's architect mints, amends, supersedes or renumbers a record identifier.** An architect in another slot, such as a challenge, proposes and doesn't record. Any other role may run in any slot, the consolidator and its passes included. A slot's role definitions are those of its branch.
 - **One unit per slot, and one open task per session.**
 - **No new slot or scratch worktree** without the owner's word: a unit reuses one of the existing slots ([coordinator-setup.md](coordinator-setup.md#slots)).
-- **The record stays one file.** `.plan/00-index.md` and each package's index aren't split. The single minter prevents two units from minting one identifier. Two units that amend one entry depend on each other, and the stack order expresses that. The coordinator counts index conflicts that neither prevents.
+- **A decision is a file.** Each decision of a record is its own file in the scope's `.plan/decisions/`, named by its identifier, and the index keeps the findings, the questions and the rest. Two units conflict only when they change one decision, and the stack order expresses that. Two units that mint one number add one file, which git reports as a conflict. The single minter prevents it.
 
 ### Stacks
 
@@ -120,7 +120,7 @@ Record owner constraints that govern subsequent work in the owning document. Fol
 
 Use the repository's qualified addresses, such as `drag:DRD-13` and `repo:RD-1`. The [record rules](../../CONTRIBUTING.md#reading-one-entry-of-a-record) require one canonical definition per identifier, claimed at `####`; headings that merely discuss an entry do not claim its ID. Link the owning document rather than inventing a heading fragment for a retitled entry.
 
-The [repository index](../../.plan/00-index.md) owns `RD-`/`RF-`/`RQ-`/`RI-`. The bare `D-`/`F-`/`Q-`/`I-` series were drag2's and are retired with it: no other scope allocates them, so a `drag2:` citation stays unambiguous (`repo:RD-1`, `repo:RD-5`). Other packages retain their own registered vocabulary. Allocation and local-to-canonical proposals follow `review-findings.md`.
+The repository's record owns `RD-`/`RF-`/`RQ-`/`RI-`: its decisions are files in `.plan/decisions/`, and the rest is in its [index](../../.plan/00-index.md). The bare `D-`/`F-`/`Q-`/`I-` series were drag2's and are retired with it: no other scope allocates them, so a `drag2:` citation stays unambiguous (`repo:RD-1`, `repo:RD-5`). Other packages retain their own registered vocabulary. Allocation and local-to-canonical proposals follow `review-findings.md`.
 
 Use SHAs and ranges to pin prompts and reviewed trees. Review artifacts record the commit actually read, as the review convention requires; an ID identifies an entry and does not replace that provenance. Preserve published evidence. Before authorized integration, ensure active handoffs remain understandable without relying solely on transient history. This grants no history-rewriting authority.
 

@@ -1,9 +1,9 @@
 # `@ydinjs/drag` record: decisions
 
-The register for scope `drag`, under `repo:RD-1`: decisions are `DRD-n`, invariants `DRI-n`, owner decisions `DRO-n`. Numbering starts at 1. drag2's bare `D-` series is separate. To read one entry:
+The register for scope `drag`, under `repo:RD-1`: decisions are `DRD-n`, invariants `DRI-n`, owner decisions `DRO-n`. Numbering starts at 1. drag2's bare `D-` series is separate. **Each decision, `DRD-n` and `DRO-n`, is a file of its own** in `decisions/`, named by its identifier, such as `decisions/DRD-1.md`. The invariants are in [`contract.md`](contract.md). This index keeps the findings, the dispositions and the status paragraphs. To read one entry of this index:
 
 ```sh
-awk -v re="^#### DRD-1( —|$)" \
+awk -v re="^#### DRF-1( —|$)" \
   '$0 ~ re {f=1;print;next} f && /^#{1,4} /{exit} f' \
   packages/drag/.plan/00-index.md
 ```

@@ -2,10 +2,10 @@
 
 The register for records whose subject is **the repository** rather than one package. `packages/*/.plan/` holds a package's record; this holds the repository's, and the work directories beside it — `test-execution-1/`, `harness-guard-2/`, `ci-verification-1/`, `findings-1/`, `reviews/` — are its material.
 
-**Scope `repo`.** Addresses are qualified as everywhere else (`CONTRIBUTING.md` §Reading one entry of a record): `repo:RD-1`. Entries are `####` headings that open with their identifier, so one extracts standalone:
+**Scope `repo`.** Addresses are qualified as everywhere else (`CONTRIBUTING.md` §Reading one entry of a record): `repo:RD-1`. **Each decision is a file of its own** in `decisions/`, named by its identifier, such as `decisions/RD-1.md`. This index keeps the findings, the questions and the rest. Entries are `####` headings that open with their identifier, so one entry of this index extracts standalone:
 
 ```sh
-awk -v re="^#### RD-1( —|$)" \
+awk -v re="^#### RF-1( —|$)" \
   '$0 ~ re {f=1;print;next} f && /^#{1,4} /{exit} f' \
   .plan/00-index.md
 ```

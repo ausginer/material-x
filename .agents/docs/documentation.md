@@ -193,7 +193,7 @@ A convention with no instrument is a convention that decays, and the classes abo
 | `.claude/agents/` | Operation — the role definitions, and the store of `role → chunk` edges |
 | `.claude/skills/` | Operation — task-scoped procedure |
 | `packages/*/.plan/` | Record — that package's |
-| `.plan/` | Record — the repository's, registered in `.plan/00-index.md` under the `repo` scope (`repo:RD-1`) |
+| `.plan/` | Record — the repository's, under the `repo` scope (`repo:RD-1`). Each decision is a file in `.plan/decisions/`, and the findings and questions are in `.plan/00-index.md` |
 | `packages/*/README.md` | Consumer documentation for that package |
 
 This document is itself governed by the model it describes: §§1–8 state the rules in force, and §9 alone carries what the document used to say.
@@ -217,3 +217,4 @@ What this document used to say, and what changed it. Section numbers are permane
 | 2026-11-15 | §7 | **Removed:** the row for citations in drag2's normative tree, whose instrument was deleted with drag2. Its withdrawal is stated in the record, not here. Links into drag2 in this table name its paths at `0870abd75`. Record: `repo:RD-5` |
 | 2026-11-18 | §8 | **Added:** `work-queue.md`, and GitHub Issues with the `Work queue` board as the work queue, outside the four kinds of document. Record: `repo:RD-22` |
 | 2026-11-24 | §8 | **Added:** `findings.md`, and an issue with a `tier:` label as a finding whose body is its contract. Record: `repo:RD-56` |
+| 2026-11-26 | §8 | **Changed:** the `.plan/` row says that each decision is a file in `.plan/decisions/`. It used to say that the record is registered in `.plan/00-index.md`, which held every decision. Record: `repo:RD-64` |

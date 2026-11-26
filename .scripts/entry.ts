@@ -56,10 +56,17 @@ const SCOPES: ReadonlyMap<string, Scope> = new Map([
     'drag',
     {
       root: 'packages/drag',
-      currentState: ['.plan/00-index.md', '.plan/contract.md'],
+      currentState: [
+        '.plan/00-index.md',
+        '.plan/contract.md',
+        '.plan/decisions',
+      ],
     },
   ],
-  ['repo', { root: '.', currentState: ['.plan/00-index.md'] }],
+  [
+    'repo',
+    { root: '.', currentState: ['.plan/00-index.md', '.plan/decisions'] },
+  ],
   [
     'drag2',
     {
@@ -107,7 +114,11 @@ const fail = (message: string): never => {
 
 type Document = Readonly<{ path: string; source: string }>;
 
-/** The scope's current-state documents from the working tree, in path order. */
+/**
+ * The scope's current-state documents from the working tree, in path order. A
+ * path that doesn't exist holds no documents, as `ls-tree` lists nothing for it
+ * at a commit.
+ */
 async function workingTree({
   root,
   currentState,
@@ -115,8 +126,19 @@ async function workingTree({
   const paths = await Promise.all(
     currentState.map(async (entry) => {
       const path = join(REPOSITORY, root, entry);
+      let directory: boolean;
 
-      if (!(await stat(path)).isDirectory()) {
+      try {
+        directory = (await stat(path)).isDirectory();
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+          return [];
+        }
+
+        throw error;
+      }
+
+      if (!directory) {
         return [path];
       }
 
