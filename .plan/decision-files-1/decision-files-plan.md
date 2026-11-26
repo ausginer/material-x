@@ -25,13 +25,14 @@ Read at `6aa5330e3` ([reading](checks/links.txt), [probe](probes/links.mjs)):
 1. **A file is what `.scripts/entry.sh` prints for its address,** from the heading to the next heading of level 1 to 4, with the text unchanged except for the two kinds below. The file is `.plan/decisions/<id>.md` under the scope's root. It begins with its `####` heading, which keeps the resolver's claim rule.
 2. **Drag's _Decision status_ row of an entry** becomes the paragraph after its heading, as `**Status:** <the row's text>`. The table and its section go.
 3. **A section of an index that loses its entries** keeps its heading and gets one sentence: its decisions are in `decisions/`, one file each, named by the identifier. _Owner decisions_ keeps its preamble too.
-4. **A relative link inside a moved entry** is made relative to the new directory, and resolves to the same file. A link to the index, or to a fragment of the index, follows rule 5.
-5. **A link elsewhere into an index**, by the line it is on:
+4. **A relative link inside a moved entry,** its status paragraph of rule 2 included, is made relative to the new directory, and resolves to the same file. A link to the index, or to a fragment of the index, follows rule 5; a fragment in the same file is a fragment of the index.
+5. **A link elsewhere into an index**, an index's own fragment links included, by the link's text and the line it is on, the first row that applies:
 
    | The link | It becomes | Count at `6aa5330e3` |
    | --- | --- | --: |
    | A fragment of a moved entry, such as `#rd-26--…` | That entry's file, with no fragment | 4 |
    | Another fragment, such as `#rf-72--…` or `#owner-decisions` | Unchanged | 4 |
+   | No fragment, and the link's own text names one moved identifier of the scope it links to and no finding | That identifier's file | — |
    | No fragment, and the line names one moved identifier and no `RF-`, `DRF-` or `RQ-` | That identifier's file | 61 |
    | No fragment, and the line names several moved identifiers and no finding | The scope's `decisions/` directory | 75 |
    | Anything else: a line that names a finding, or no identifier | Unchanged. The index still exists, and its preamble says where the decisions are | 209 |
@@ -43,17 +44,26 @@ Read at `6aa5330e3` ([reading](checks/links.txt), [probe](probes/links.mjs)):
 
 **Absolute links** inside the moved entries (18) and links on GitHub to an index, such as an issue's, don't change.
 
+**Dated 2026-11-26 by Mx Architect B, on the dry run's report** ([report](decision-files-report.md), at `536e129cd`), requested by the coordinator. An architect other than the main one amends this plan on the owner's word, and mints nothing.
+
+- **The link's text decides before the line does.** Rule 5 gains its third row. A link whose text names one decision goes to that decision's file, even on a line that names others, because the text is the author's own statement of the target. It decides the three links that the dry run left to a person: `.plan/list-sortable-1/list-sortable-plan.md:9` (`repo:RD-31` and `drag:DRD-70`) and `packages/drag/.plan/displacement-1/displacement-plan.md:3` (`DRD-72`). The identifier counts only if it belongs to the linked index's scope, qualified or by its prefix, so `drag:DRD-70` in a link to the repository's index isn't this row's. The row also applies to links that the dry run sent to a directory or left unchanged, and its count is the next dry run's. Rule 5's lead said: _"**A link elsewhere into an index**, by the line it is on:"_
+- **A status row's links are rewritten by rule 4: confirmed.** After rule 2, the row is the file's paragraph, and a link in it is a link inside the moved entry. Kept as written, the 121 links would break, which `RD-64` property 6 forbids. Rule 4 said: _"**A relative link inside a moved entry** is made relative to the new directory, and resolves to the same file. A link to the index, or to a fragment of the index, follows rule 5."_
+- **An index's own link to a moved entry's fragment is rule 5's first row: confirmed.** The index's link to `#rd-31--…` becomes `decisions/RD-31.md`, because the fragment no longer exists in the index after the move. The same reading covers a same-file fragment inside a moved entry: `#rf-136--…` in `RD-59` becomes `../00-index.md#rf-136--…`. The plan's counts, read at `6aa5330e3` by `probes/links.mjs`, which skips same-file links, stay as they were read. The report's counts replace them.
+- **The report's other choices are confirmed:** a link in a fenced block or an inline code span isn't read, and a link to a directory keeps its trailing `/`.
+- **The resolver, adopted from the ruling relayed earlier the same day:** a current-state path that doesn't exist in the working tree reads as no documents, with a fourth row and its witness. The section said: _"Nothing else in it changes."_, with three rows, and the work list's item 2 said _"the three rows of its tests"_.
+
 ## The resolver
 
-`.scripts/entry.ts`: the rows of `drag` and `repo` add `.plan/decisions`. It already reads a directory as its Markdown documents in path order, at a commit with `ls-tree` too. A commit before the move has no such directory, and `ls-tree` lists nothing for it, so `--duplicates <commit>` still reads an old commit. Nothing else in it changes.
+`.scripts/entry.ts`: the rows of `drag` and `repo` add `.plan/decisions`. It already reads a directory as its Markdown documents in path order, at a commit with `ls-tree` too. A commit before the move has no such directory, and `ls-tree` lists nothing for it, so `--duplicates <commit>` still reads an old commit. One other change: in the working tree, a current-state path that doesn't exist reads as no documents, as `ls-tree` lists nothing for it at a commit. Any other error of `stat` still throws. Nothing else in it changes.
 
 **Rows,** in `.scripts/entry.node.test.ts`, with its fixtures:
 
 - an entry in `.plan/decisions/RD-1.md` resolves as `repo:RD-1`, and one in `packages/drag/.plan/decisions/DRD-1.md` as `drag:DRD-1`;
 - an identifier in both an index and a decisions file is a duplicate, for the lookup and for `--duplicates`, naming both places;
-- `--duplicates <commit>` at a commit without the directory reads the index alone.
+- `--duplicates <commit>` at a commit without the directory reads the index alone;
+- in a working tree without the directory, a lookup of an index entry resolves, and `--duplicates` passes and reads the index alone.
 
-**Witness:** without the directory in the two rows, the first two rows fail. CI's `verify` runs `entry.sh --duplicates`, so a branch that keeps an index's moved section after merging `main` fails there: that is `RD-64` property 7's guard, and the second row is its witness.
+**Witness:** without the directory in the two rows, the first two rows fail. CI's `verify` runs `entry.sh --duplicates`, so a branch that keeps an index's moved section after merging `main` fails there: that is `RD-64` property 7's guard, and the second row is its witness. Without the condition on a path that doesn't exist, the fourth row fails with `ENOENT`.
 
 ## The documents
 
@@ -94,7 +104,7 @@ Read at `6aa5330e3` ([reading](checks/open-branches.txt)).
 **Implementer,** on this branch:
 
 1. **The script,** `probes/move.mjs`, from rules 1 to 7. It prints, for each run, the counts of the [table](#the-move) and the lines that rule 5 leaves to a person.
-2. **The resolver's two rows and the three rows of its tests,** with the witness.
+2. **The resolver's two rows and the four rows of its tests,** with the witness.
 3. **The documents** of [the documents](#the-documents), in [technical English](../../.agents/docs/technical-english.md).
 4. **A dry run** on a scratch copy of the tree, not committed: the counts, the lines left to a person, and property 2's witness below. Report anything that a rule doesn't cover, and stop on it.
 5. **After #297, #293, #295 and #298 are on `main`, by Q1 (a):** merge `main`, run the script, and commit its output alone.

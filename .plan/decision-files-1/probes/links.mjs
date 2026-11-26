@@ -38,8 +38,7 @@ const c = {
   toIndexInside: 0,
   elseToIndex: 0,
   elseToIndexFrag: 0,
-  
-  
+
   elseFiles: new Set(),
 };
 for (const f of files) {
