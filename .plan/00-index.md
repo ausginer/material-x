@@ -2706,6 +2706,8 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 **Costs.** An icon-only control that relies on its ligature loses its name. An SVG or a text with a meaning inside an `mx-icon` is hidden too. Each icon has one more element, whose speed wasn't measured.
 
+**Dated 2026-11-25 by the architect:** the slot itself is hidden, so no icon has one more element (`RF-137`'s last note). Properties 1 to 3 don't change. A new cost: an inline SVG with a size of its own moves by a few pixels in an icon that a page makes a flex or grid container.
+
 #### RD-60 — `mx-sortable-list` moves its neighbors smoothly, by drag's `layoutAnimation` with Material's timing
 
 **Decided 2026-11-25 by the architect, on `drag/displacement-1`,** from Mx Architect Explainer's message, whose sending the owner approved, relayed by the coordinator. For #266, which isn't a tier finding. **Unimplemented. It follows `drag:DRD-72` (#265), and waits for it on `main`.** Before it, the list would have the same keyboard defect in its own elements. `RD-58` and `RD-59` are on `material-x/split-button-names-1`, so this is the next free number. The owner's observation is in `DRD-72`. His answer about the timing: _"Скорее, он должен задаваться извне, с неким дефолтом. В mx-sortable-list это будет M3"_ ("Rather, it should be given from outside, with some default. In `mx-sortable-list` it will be M3").
@@ -6715,7 +6717,7 @@ Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: 
 
 #### RF-137 — An `mx-icon`'s ligature text is part of the name of the control that it is in
 
-Tier A, **open**, **ready** after `RF-136` (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from the reading that `RF-136` asked for. `RF-136` is the entry before this one. Read as `RF-136`, with the same probe.
+Tier A, **open**, **ready** (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from the reading that `RF-136` asked for. `RF-136` is the entry before this one. Read as `RF-136`, with the same probe.
 
 - **What happens:** with `<mx-icon>edit</mx-icon>` and the label _Save_, in Chromium, Firefox and WebKit:
 
@@ -6755,6 +6757,80 @@ Tier A, **open**, **ready** after `RF-136` (the last note), pre-existing. Regist
 5. **Rows.** In Chromium through `readAccessibilityTree`: the table's rows, where the name is the label alone; an icon-only control with a host `aria-label`; one without, which has no name; `role="img"` with a label on the icon of a button, whose name then has it; an icon alone and one in a static list item, with no text. In the three engines: the slot is inside the hidden span, and the host has no `aria-hidden`. **Witness:** each tree row fails on `main`, apart from the one with a host `aria-label`. The trees of Firefox and WebKit are read by [`names.ts`](records-batch-1/probes/names.ts) on the built change, for the same contents.
 6. **Pixels:** no visual baseline changes. **Sizes** by the gate. **Stop** and return if a baseline changes, or if a row of another element that queries by name needs more than a label on its fixture.
 7. **The description** has `Closes #259`. A feature proof is owed. **Costs** are `RD-59`'s.
+
+**Dated 2026-11-25 by the implementer: the list is implemented on `material-x/icon-name-1`, from `main` at `2485fb2df`, and it stops: the required property doesn't hold in Firefox.** Requested by the coordinator, for #259. No pull request is open.
+
+- **What fails** ([control](icon-name-1/checks/firefox-upgrade.txt), [probe](icon-name-1/probes/firefox-upgrade.ts)): in Firefox 159, when the markup is parsed and the element is defined after, with the accessibility service on, the icon's text stays in Firefox's tree as a text leaf. The control has plain custom elements and nothing of material-x. Defined 500 ms after the markup, 3 of 3 runs; at once, 1 of 3. In a native button, the button's name is still `edit`. Defined before the markup is inserted, 0 of 3. `aria-hidden` on the slot, and a span of `display: block`, are the same as the span. `aria-hidden="true"` on the host by the page is clean.
+- **On the built change,** the same: [`names.ts`](split-button-names-1/probes/names.ts) (the copy that has all of `records-batch-1`'s contents) gives every **name** of the contract in the three engines ([Chromium](icon-name-1/checks/names-chromium.txt), [Firefox](icon-name-1/checks/names-firefox.txt), [WebKit](icon-name-1/checks/names-webkit.txt)). Firefox's tree still has 10 text leaves `edit`, in the mode that reads the elements as they are. `main` has 28.
+- **Why the earlier reading had none:** its `wrap` mode moves the slot into the span, and sets `aria-hidden`, after the upgrade. A page doesn't.
+- **What is inferred:** Firefox makes the leaf before the upgrade and doesn't remove it when the text moves into a subtree that is hidden from the start. Gecko's source wasn't read.
+- **A candidate, read in the control only, 3 runs each:** the template has a plain span, and `aria-hidden` is set on it in a microtask, in the next frame, two frames or 300 ms after the constructor. Each is clean. It wasn't run in `icon.ts`, and nothing of it is implemented. Not read: whether a page that slots text later keeps it clean, Chromium and WebKit, and its cost.
+- **Is any of it worth having without it?** Nothing gets worse than `main`, where the text is exposed in all cases. That judgment is the architect's.
+
+**Implemented,** and unchanged whatever is decided: the two templates; the documentation of item 3; the labels of item 4; the rows.
+
+- **Labels gained** (item 4): `icon-button.stories.tsx` 15, `switch-icon-button.stories.tsx` 15, `fab.stories.tsx` 13, `button-group.stories.tsx` 4, `connected-button-group.stories.tsx` 4, `list.stories.tsx` 1 (the `chat` button), and the usage snippets of `icon-button.mdx`, `switch-icon-button.mdx`, `fab.mdx` and `connected-button-group.mdx` (two buttons, which had no content at all). The top app bar's had theirs.
+- **Rows,** `tests/icon/icon.browser.test.ts`: 19 in Chromium and 2 in Firefox and WebKit. Each tree row also reads that the icon's text isn't anywhere in the tree.
+- **Witnesses** ([reading](icon-name-1/checks/witnesses.txt), [script](icon-name-1/probes/mutate.mjs)), with the split button's rows beside, by engine (Chromium, Firefox, WebKit): `main` 18, 1 and 1; no `aria-hidden` on the span 20, 1 and 1; `aria-hidden` on the slot 1, 1 and 1; the internals' `ariaHidden` 2, 1 and 1; `aria-hidden` on the host too 2, 1 and 1; the icon's text as its own name 18, 0 and 0. Unmutated, none. Every tree row fails on `main`, also those with a host `aria-label`, because of the reading of the whole tree. The row of the host's attribute passes there, and the mutation of the host fails it.
+- **The split button's template without `aria-hidden`** is held by its own two Chromium rows.
+- **Checks:** material-x without the visual project, before `main`'s #270 was merged: Chromium 1908 passed and 2 expected failures, Firefox 1799, 3 and 98 skipped, WebKit 1810, 2 and 98 skipped. After it, the rows of the icon, the split button and `hidden`: 223, 202 and 202 passed. Lint on the changed files, typecheck, the root format check and the size gate pass.
+- **Size, Brotli, local, against `2485fb2df`:** `icon/icon` 667 to 682 (+15), `checkbox/checkbox`, `radio/radio` and `button/split-button` +9 each, `text-field/text-field` 8618 to 8592 (-26), `complete` 25869 to 25953 (+84). No other row of 23 moves.
+- **Documentation that is its own pull request:** `architecture.md`'s invariant says that `mx-icon` renders its children through one `<slot>` alone, and the slot is now in a span. The template has no `.host` and takes no focus, so it stays in the case _only a slot_.
+- **Not run:** the visual project, so item 6's _no baseline changes_ is unread; Safari; screen readers; `docs-build`. An `mx-icon` with a `display` of a page or the list's avatar, whose item is now the span, wasn't read either.
+
+**Dated 2026-11-25 by the architect, on the implementer's stop, requested by the coordinator: the required property stands, and the form changes.** Read at `6ac64bce1`. Local labels, for Mx Architect to mint where one is wanted: `IN-1` to `IN-5`. Nothing is the owner's.
+
+- **`IN-1`: it is a defect of Gecko, and not a limit of the property.** It is cheap to avoid, and a page whose elements upgrade after its markup is a common one: module scripts are deferred, and server-rendered markup always is.
+  - **The cause, read in Gecko's source** (`DocAccessible.cpp`, the head of `main` of 2026-11-25, which isn't the version that was run): `PruneOrInsertSubtree` removes an accessible that has lost its frame, and doesn't ask whether its new ancestors are `aria-hidden`. So a leaf made before the upgrade stays when its text moves into a subtree that is hidden from the start. `AttributeChanged` calls `ContentRemoved` on the element when its `aria-hidden` becomes true. That removes the leaves, through the slot's assigned nodes. So the attribute has to change after the slot has its nodes, and it doesn't have to be later than that.
+  - **It is wider than the stop says: names fail too.** In the control, with the button defined 400 ms before the icon, `x-button` is `edit Save` with the template's `aria-hidden`, 3 of 3. A native button with the icon is `edit` in each late order.
+- **`IN-2`: the slot itself is hidden, by the constructor, and there is no span.** The template is `<slot></slot>`, as on `main`. The style gives the slot `display: inline`. The constructor sets `aria-hidden="true"` on it after the template is in the shadow tree, synchronously. `RD-59` holds, and its cost of one more element goes.
+  - **Why the slot can be it:** WebKit ignores `aria-hidden` on an element of `display: contents`, whether a slot or a span (read for both), and takes it from a slot that has a box. That is the reason for the earlier candidate's failure in WebKit. `main`'s slot has no box.
+  - **Why synchronously:** a microtask, the next frame and the connect are clean in the control as well, but then the attribute isn't there when the constructor returns. The element needs no second step.
+  - **Not enough:** `aria-hidden` in the template, with the constructor setting the same value (read, `same`: the leaves stay); `aria-hidden` in the template only, on a slot or a span; the span with `display: contents` ([WebKit exposes every text](icon-name-1/checks/span-contents-webkit.txt)).
+- **`IN-3`: `architecture.md` doesn't change, and no pull request is owed for it.** Its sentence, that `mx-icon` renders its children through one `<slot>`, is true again. The implementer's remark was right for the span.
+- **`IN-4`: the two untested cases.** Both were read ([reading](icon-name-1/checks/layout.txt), [probe](icon-name-1/probes/layout.mjs)), with nine forms against `main`, 70 cases, in the three engines, by boxes and pixels. The slot of `IN-2` and the span differ from `main` in the same cases: 9 in Chromium, 8 in Firefox and WebKit. **No ligature, and no SVG of `100%`, differs in any case.**
+  - What differs is an SVG that is inline and has a size of its own, smaller than the icon, in an icon that a page or the avatar makes `flex`, `grid` or `contents` (`flex`, `inline-flex`, `grid`, `inline-grid`, and the avatar): it lies on the baseline of the slot's line, by up to 6px. As the list's avatar it is 3.5px above the center (3.25px in Firefox). In a page's `inline-flex` icon the box of the icon moves by 1 to 6px too, also for a block SVG.
+  - **Accepted as a limit, undocumented.** The avatar is for the page's `<div>` (the stories'), not for an icon, and no story, page or snippet has such an icon. `display: block` on the SVG gives `main`'s place in every case but `inline-flex`, which the span has as well. Six other displays of the box were read, and each differs in more cases. Only `contents` is `main`'s, and WebKit excludes it.
+- **`IN-5`: what the rows can hold.** Firefox's tree isn't readable from a row: its accessibility service is read by Marionette in a process of its own, and Playwright's protocol for Firefox has no accessibility domain (read in its bundle). So the rows hold the mechanism, in each engine, and the evidence for Firefox is `names.ts`, `firefox-hide.ts` and this note. The proof of Firefox is not repeated by the gate.
+
+**Read with the candidate** ([diff](icon-name-1/probes/hide-candidate.diff), applied with `git apply --unidiff-zero`):
+
+| What | Chromium 158 | Firefox 159 | WebKit 27.2 |
+| --- | --- | --- | --- |
+| `names.ts`, built elements, markup then upgrade ([reading](icon-name-1/checks/hide-names.txt)) | the names of the span | the names of the span, no leaf `edit` (10 with the span) | the names of the span |
+| A named icon, `role="img"` with a label | in the name | in the name | in the name |
+| The orders of definition, the text replaced, moved in and moved, an icon moved ([built elements](icon-name-1/checks/hide-orders.txt), [probe](icon-name-1/probes/orders.mjs)) | clean | [the control](icon-name-1/checks/firefox-hide.txt) ([probe](icon-name-1/probes/firefox-hide.ts)), with plain elements: clean, 33 of 33 | clean |
+
+- **In Firefox's control,** eight forms, eleven orders, 3 runs each. Set by the constructor on a span or a slot, in a microtask, and at the connect: clean in all. In the template, or there and set to the same value: 5 of the 11 orders aren't, 3 of 3 each. `At once` had 1 of 3 in the implementer's run and 0 of 3 here.
+- **Sizes** ([reading](icon-name-1/checks/hide-sizes.txt)), Brotli, `just size`, one reading, against `main`'s two icon files and split button's template on this branch: `icon/icon` 667 to 726, `checkbox/checkbox` +30, `radio/radio` +31, `button/split-button` +24, `text-field/text-field` +5, `complete` 25869 to 25926, which is 27 less than the span's. Speed isn't read: one `setAttribute` for each icon.
+
+**The implementer's list,** on `material-x/icon-name-1`. The candidate is a direction, and its form is free. **Unchanged:** the split button's template, the documentation of item 3, the labels of item 4, the 17 tree rows and the row of the host's attribute.
+
+1. **`icon.tpl.html`** is `main`'s. **`icon.ts`:** `IN-2`, with a comment that gives the reason: _Firefox keeps the text of an icon that upgrades after its markup in its tree, if the slot is hidden in the template._ **`icon.ctr.css`:** the slot's `display: inline`, with: _WebKit ignores `aria-hidden` on an element without a box._ The JSDoc of the class, and `icon.mdx`, don't change.
+2. **Rows,** `icon.browser.test.ts`, in each engine. The row of the hidden parent becomes the first of these. A [draft](icon-name-1/probes/hide-rows.browser.test.ts.txt) is there:
+   - the slot has `aria-hidden="true"` when the constructor returns;
+   - the slot's computed `display` is `inline`;
+   - with the element defined after its markup, the slot gets its nodes and then the attribute, whose old value is `null`: a subclass whose `attachShadow` observes the root, defined after the fixture.
+3. **Witnesses,** one engine at a time, each saved. Read on the draft, with the same failing rows in each engine but for the tree's ([reading](icon-name-1/checks/hide-mutations.txt)): the attribute in the template only (the third row), in the template and set to the same value (the third, by its old value), nothing hidden (the first and the third, and the 17 tree rows and the split button's two in Chromium), in a microtask (the first and the third), no `display` (the second), on the host (all three, and the named icon's; the element isn't made by `createElement` then).
+4. **Trees and checks:** `names.ts` on the built change, in the three engines; the checks of the implementer's note, with `main` merged, `docs-build` and `docs-smoke`; the visual project is the runner's, and **no visual baseline changes** is what it is to show. Sizes by the gate.
+5. **Not to change:** checkbox's and radio's own `aria-hidden` on their icons, which is in their templates and isn't a text that a page has written.
+6. **Stop** and return if a tree has the icon's text, a baseline changes, or a mutation fails no row.
+
+- **A feature proof is owed,** as before.
+- **The notes above about the span are replaced by this one,** and the records of `RD-59` and of this entry keep it as the history.
+- **Not read:** Safari, screen readers, Firefox below 159, the built elements in Firefox beyond `names.ts`'s order, speed, the suites with the candidate beyond the icon's and the split button's.
+- **`.agents/docs/accessibility.md`** isn't changed by this unit, and doesn't name the icon's content.
+
+**Dated 2026-11-25 by the implementer: the list above is implemented on `material-x/icon-name-1`, with `main` at `ee0afea12` merged.** By the owner's rule of the same day, relayed by the coordinator, an implementer runs Chromium and the reviewer the three engines.
+
+- **Source:** `IN-2`. The slot is read by `querySelector('slot')`. `icon.tpl.html` is `main`'s.
+- **Rows:** the three of item 2 in `icon.browser.test.ts`, in place of the hidden parent's. The tree's and the host attribute's don't change.
+- **Witnesses,** Chromium ([reading](icon-name-1/checks/slot-witnesses.txt), [program](icon-name-1/probes/mutate-slot.mjs)), of 80 rows with the split button's, failed: in the template only 1, in the template and set to the same value 1 (both the third row), nothing hidden 21, in a microtask 2, no `display` 1, on the host 4; beside the six, `main`'s sources 20, and the host too in a microtask 2; none without a mutation. `main` is the icon's three files and the split button's template, whose own `aria-hidden` there holds the two split button rows that _nothing hidden_ fails.
+- **Trees,** by `names.ts` on the built change. [Chromium](icon-name-1/checks/slot-names-chromium.txt): the same output as the span's, line by line. [Firefox](icon-name-1/checks/slot-names-firefox.txt): no node of the tree has `edit`, in any mode, and each name is the contract's. Firefox is run because the property that stopped the span can be shown there alone. **WebKit's is the reviewer's,** and it is the one engine where `display: inline` matters.
+- **Checks,** Chromium: material-x without the visual project 2063 passed and 2 expected failures. The root format check, typecheck, lint, size gate, publint, `docs-build` and `docs-smoke` (129 of 129) pass.
+- **Sizes,** Brotli, one reading each, `main`'s four sources on this branch, then the head's: `icon/icon` 667 to 707, `checkbox/checkbox` 4290 to 4313, `radio/radio` 3841 to 3866, `button/split-button` 7766 to 7764, `text-field/text-field` 8618 to 8615, `complete` 25924 to 25952. The other 30 rows are the same, and none of the six has a limit.
+- **Not run:** WebKit, Firefox's rows and witnesses, the visual project, so _no visual baseline changes_ is the runner's, Safari, a screen reader, the declarations' typecheck, speed.
+- **Next:** the feature proof.
 
 #### RF-138 — A disabled split button isn't disabled
 

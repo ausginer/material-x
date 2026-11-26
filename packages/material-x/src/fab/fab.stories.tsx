@@ -57,6 +57,7 @@ export const Playground: StoryObj<PlaygroundArgs> = {
   render({ color, size, tonal, icon, disabled }) {
     return (
       <mx-fab
+        aria-label="Confirm"
         color={color === 'tertiary' ? undefined : color}
         size={size === 'medium' ? undefined : size}
         tonal={tonal}
@@ -70,16 +71,16 @@ export const Playground: StoryObj<PlaygroundArgs> = {
 
 export const States = (): JSX.Element => (
   <>
-    <mx-fab color="primary">
+    <mx-fab aria-label="Confirm" color="primary">
       <mx-icon slot="icon">check</mx-icon>
     </mx-fab>
-    <mx-fab color="primary" data-force="hovered">
+    <mx-fab aria-label="Confirm" color="primary" data-force="hovered">
       <mx-icon slot="icon">check</mx-icon>
     </mx-fab>
-    <mx-fab color="primary" data-force="focused">
+    <mx-fab aria-label="Confirm" color="primary" data-force="focused">
       <mx-icon slot="icon">check</mx-icon>
     </mx-fab>
-    <mx-fab color="primary" data-force="pressed">
+    <mx-fab aria-label="Confirm" color="primary" data-force="pressed">
       <mx-icon slot="icon">check</mx-icon>
     </mx-fab>
   </>
@@ -87,13 +88,13 @@ export const States = (): JSX.Element => (
 
 export const Colors = (): JSX.Element => (
   <>
-    <mx-fab>
+    <mx-fab aria-label="Confirm">
       <mx-icon slot="icon">check</mx-icon>
     </mx-fab>
-    <mx-fab color="primary">
+    <mx-fab aria-label="Confirm" color="primary">
       <mx-icon slot="icon">check</mx-icon>
     </mx-fab>
-    <mx-fab color="secondary">
+    <mx-fab aria-label="Confirm" color="secondary">
       <mx-icon slot="icon">check</mx-icon>
     </mx-fab>
   </>
@@ -101,13 +102,13 @@ export const Colors = (): JSX.Element => (
 
 export const TonalColors = (): JSX.Element => (
   <>
-    <mx-fab tonal>
+    <mx-fab aria-label="Confirm" tonal>
       <mx-icon slot="icon">check</mx-icon>
     </mx-fab>
-    <mx-fab tonal color="primary">
+    <mx-fab aria-label="Confirm" tonal color="primary">
       <mx-icon slot="icon">check</mx-icon>
     </mx-fab>
-    <mx-fab tonal color="secondary">
+    <mx-fab aria-label="Confirm" tonal color="secondary">
       <mx-icon slot="icon">check</mx-icon>
     </mx-fab>
   </>
@@ -115,10 +116,10 @@ export const TonalColors = (): JSX.Element => (
 
 export const Sizes = (): JSX.Element => (
   <>
-    <mx-fab size="medium">
+    <mx-fab aria-label="Confirm" size="medium">
       <mx-icon slot="icon">check</mx-icon>
     </mx-fab>
-    <mx-fab size="large">
+    <mx-fab aria-label="Confirm" size="large">
       <mx-icon slot="icon">check</mx-icon>
     </mx-fab>
   </>
