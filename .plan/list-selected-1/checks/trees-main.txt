@@ -1,0 +1,115 @@
+## chromium 158.0.8127.18
+# the control's attributes
+plain -
+was aria-selected="false"
+sel aria-selected="true"
+dis aria-selected="true" disabled=""
+off aria-selected="true" aria-current="false"
+page aria-selected="true" aria-current="page"
+press aria-selected="true" aria-pressed="true"
+press0 aria-pressed="false"
+pressoff aria-selected="true" aria-pressed="true" aria-current="false"
+link aria-current="page"
+# the engine's tree
+cdp button "plain" invalid=false
+cdp button "was selected" invalid=false
+cdp button "selected" invalid=false
+cdp button "selected disabled" disabled=true invalid=false
+cdp button "current false" invalid=false
+cdp button "current page" invalid=false
+cdp button "pressed" invalid=false pressed=true
+cdp button "not pressed" invalid=false pressed=false
+cdp button "pressed current false" invalid=false pressed=true
+cdp link "link selected" 
+internal button  name='plain'
+internal button  name='was selected'
+internal button  name='selected'
+internal button  name='selected disabled' restriction=disabled
+internal button  name='current false' ariaCurrentState=false
+internal button  name='current page' ariaCurrentState=page
+internal toggleButton  name='pressed' checkedState=true
+internal toggleButton  name='not pressed' checkedState=false
+internal toggleButton  name='pressed current false' ariaCurrentState=false checkedState=true
+internal link  name='link selected' ariaCurrentState=page
+# axe-core
+4.14.1
+violation aria-allowed-attr critical [["#was","button"]] ARIA attribute is not allowed: aria-selected="false"
+violation aria-allowed-attr critical [["#sel","button"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#dis","button"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#off","button[aria-current=\"false\"]"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#page","button[aria-current=\"page\"]"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#press","button"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#pressoff","button[aria-current=\"false\"]"]] ARIA attribute is not allowed: aria-selected="true"
+needs review aria-allowed-attr critical ["#press"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="true"
+needs review aria-allowed-attr critical ["#press0"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="false"
+needs review aria-allowed-attr critical ["#pressoff"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="true"
+## firefox 159.0
+# the control's attributes
+plain -
+was aria-selected="false"
+sel aria-selected="true"
+dis aria-selected="true" disabled=""
+off aria-selected="true" aria-current="false"
+page aria-selected="true" aria-current="page"
+press aria-selected="true" aria-pressed="true"
+press0 aria-pressed="false"
+pressoff aria-selected="true" aria-pressed="true" aria-current="false"
+link aria-current="page"
+# the engine's tree
+pushbutton "plain" [] states: 
+pushbutton "was selected" [] states: selectable text enabled
+pushbutton "selected" [] states: selectable text enabled
+pushbutton "selected disabled" [] states: unavailable selectable text
+pushbutton "current false" [] states: selectable text enabled
+pushbutton "current page" [current=page] states: selectable text enabled current
+toggle button "pressed" [pressed=true] states: pressed selectable text enabled
+toggle button "not pressed" [pressed=false] states: selectable text enabled
+toggle button "pressed current false" [pressed=true] states: pressed selectable text enabled
+link "link selected" [current=page] states: selectable text enabled current
+# axe-core
+4.14.1
+violation aria-allowed-attr critical [["#was","button"]] ARIA attribute is not allowed: aria-selected="false"
+violation aria-allowed-attr critical [["#sel","button"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#dis","button"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#off","button[aria-current=\"false\"]"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#page","button[aria-current=\"page\"]"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#press","button"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#pressoff","button[aria-current=\"false\"]"]] ARIA attribute is not allowed: aria-selected="true"
+needs review aria-allowed-attr critical ["#press"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="true"
+needs review aria-allowed-attr critical ["#press0"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="false"
+needs review aria-allowed-attr critical ["#pressoff"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="true"
+## webkit 27.2
+# the control's attributes
+plain -
+was aria-selected="false"
+sel aria-selected="true"
+dis aria-selected="true" disabled=""
+off aria-selected="true" aria-current="false"
+page aria-selected="true" aria-current="page"
+press aria-selected="true" aria-pressed="true"
+press0 aria-pressed="false"
+pressoff aria-selected="true" aria-pressed="true" aria-current="false"
+link aria-current="page"
+# the engine's tree
+plain {"label":"plain","role":"button"}
+was {"label":"was selected","role":"button"}
+sel {"label":"selected","role":"button","selected":true}
+dis {"label":"selected disabled","role":"button","disabled":true,"selected":true}
+off {"label":"current false","role":"button","selected":true}
+page {"label":"current page","role":"button","current":"page","selected":true}
+press {"label":"pressed","role":"button","pressed":true,"selected":true}
+press0 {"label":"not pressed","role":"button","pressed":false}
+pressoff {"label":"pressed current false","role":"button","pressed":true,"selected":true}
+link {"label":"link selected","role":"link","current":"page"}
+# axe-core
+4.14.1
+violation aria-allowed-attr critical [["#was","button"]] ARIA attribute is not allowed: aria-selected="false"
+violation aria-allowed-attr critical [["#sel","button"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#dis","button"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#off","button[aria-current=\"false\"]"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#page","button[aria-current=\"page\"]"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#press","button"]] ARIA attribute is not allowed: aria-selected="true"
+violation aria-allowed-attr critical [["#pressoff","button[aria-current=\"false\"]"]] ARIA attribute is not allowed: aria-selected="true"
+needs review aria-allowed-attr critical ["#press"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="true"
+needs review aria-allowed-attr critical ["#press0"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="false"
+needs review aria-allowed-attr critical ["#pressoff"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="true"
