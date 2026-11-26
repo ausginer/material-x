@@ -232,3 +232,12 @@ For the main architect to mint:
 - **Q1: (a).** A private workspace package now, published when its format has held through a few reviews. MU-1 says so.
 - **Q2: `@ydinjs/mutator`,** in `packages/mutator/`, and its CLI is `mutator`. Nothing stands against the name. `@ydinjs/mutator` isn't on npm (the registry answers 404). The unscoped `mutator` is a different package from 2014 with no `bin`, so it can't clash with the CLI. No workspace binary has the name. MU-1 and MU-8 use it, and the question's `@ydinjs/mutate` and `mutate` are kept above as they were asked.
 - **Q3: yes.** An implementer writes the unit's mutations as a mutation file and runs it in Chromium. Unit 2 amends `RD-62` property 1 and `implementer.md` with properties 4 and 5.
+
+## After the feature proof, 2026-11-26
+
+**Dated 2026-11-26 by the architect: `RD-66` supersedes parts of MU-4 to MU-8 and MU-10,** on #301's [feature proof](../reviews/mutations-1/feature-proof-claude.md), findings `reviewer-1`, `reviewer-3` and `reviewer-4`. The sections above stay as they were written, and `RD-66` in [the index](../00-index.md) states what is in force:
+
+- **MU-7:** a dispatched run reads the file from the ref that it is dispatched on, with the runner and the config, and `ref` is only the code under test.
+- **MU-4 and MU-8:** `run` has no `--workdir`, and every run applies its mutations in a worktree that it creates, in CI too.
+- **MU-5 and MU-6:** a row that ran unmutated and doesn't run with the mutation has no verdict, and _void_ covers it. The comparison counts only rows that have a verdict in each engine.
+- **MU-10 step 3:** the dispatch runs on `main` with `ref: 9173a25a1`.
