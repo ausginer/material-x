@@ -2429,6 +2429,13 @@ describe('mx-sortable-list handle box', () => {
 
     expect(getComputedStyle(handleOf(a!)).display).toBe('none');
   });
+
+  it('should keep the inline-block box of a handle hidden until found', async () => {
+    const [, [a]] = await createList(['A'], { handles: true });
+    handleOf(a!).setAttribute('hidden', 'until-found');
+
+    expect(getComputedStyle(handleOf(a!)).display).toBe('inline-block');
+  });
 });
 
 describe.runIf(server.browser === 'chromium')('mx-sortable-list touch', () => {
