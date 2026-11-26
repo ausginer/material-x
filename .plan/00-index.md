@@ -4936,13 +4936,18 @@ Tier A, **open**, **ruling owed** (Q1), pre-existing. Registered on 2026-11-26 b
 
 #### RF-149 — No row reads a selected list item that is also disabled
 
-Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `repo/register-observations-9`, from observation 2 of #288's [feature proof](reviews/list-selected-1/feature-proof-claude.md#observations), requested by the coordinator. `RF-148` is the entry before this one. Read at `e457ed209`.
+Tier B, **closed 2026-11-26** by #308, on `material-x/selected-disabled-1`, at its merge (the last note). Before closure: open, ready. Pre-existing. Registered on 2026-11-26 by the architect, on `repo/register-observations-9`, from observation 2 of #288's [feature proof](reviews/list-selected-1/feature-proof-claude.md#observations), requested by the coordinator. `RF-148` is the entry before this one. Read at `e457ed209`.
 
 - **What happens:** `RF-132`'s `LS-1` makes a selected `mx-list-button-item` give its button `aria-current="true"`, whether or not the item is disabled, and the link item's link `aria-current="page"`. The three engines' trees read _current_ for an item that is selected and disabled. No row reads one: in `tests/list/list-item-selected.browser.test.ts` no item is disabled. The proof's mutation _"a disabled item says nothing"_, which drops `aria-current` from a disabled item, fails none of 426 rows in WebKit ([reading](reviews/list-selected-1/checks/mutations.txt), [program](reviews/list-selected-1/probes/own.mjs.txt)), nor in Chromium and Firefox.
 - **Why it is a problem:** the rows that the repository relies on for `LS-1` miss a regression in which a disabled item stops saying that it is selected, which is all its users hear of the selection.
 - **Required property:** for each of the button and link items, a row asserts that a selected, disabled item's control has its `aria-current`, selected before the connect and after it, and no `aria-selected`. **Witness:** the proof's mutation fails each row.
 - **With `RF-142`** (#271): its repair changes what a disabled item's controls do, and not its selection. The rows can go with that unit, or with any unit that edits these tests.
 - **Plan needed:** no. **Size:** _small_.
+
+**Dated 2026-11-26 by the architect, on `material-x/selected-disabled-1`: closed by #308, at its merge.** Requested by the coordinator. #308 says `Closes #305`, and this record change goes with it, as [`work-queue.md`](../.agents/docs/work-queue.md#closing) asks. The [feature proof](reviews/selected-disabled-1/feature-proof-claude.md) of `85a1a1989` accepts the unit with no finding. Four rows in `tests/list/list-item-selected.browser.test.ts`, for both items and both orders, assert the required property. #288's mutation _"a disabled item says nothing"_ fails each of them in Chromium, Firefox and WebKit, and `verify` run 45864331547 passes. The status above said _"Tier B, **open**, **ready**, pre-existing."_
+
+- **The proof's observation 1 is accepted:** the rows assert `aria-current` and the absence of `aria-selected`, and not the whole set of `aria-*`, because a disabled link item's control also has `aria-disabled`. That is what the required property asks for.
+- **Its observation 2** is this note.
 
 #### RF-150 — A sortable-list row about the drop zone's paint failed in WebKit under load, and its cause isn't established
 
