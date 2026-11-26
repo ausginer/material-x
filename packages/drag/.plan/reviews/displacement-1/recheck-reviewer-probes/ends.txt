@@ -1,0 +1,220 @@
+# proof-ends at 9b36f075e, the plain item on y() and xy(), with a landing and without. One line a case; 'jump' is the greatest change of a row's drawn center between two frames, with row animations of an hour.
+## chromium
+ok   chromium y none item :: key down from the next to last, every row appended | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 36.0
+ok   chromium y none item :: key up from the second, every row appended | jump 0.00  | moved 60.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 40.0
+ok   chromium y none item :: key down to the last, every row appended at 50 ms | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 36.0
+ok   chromium y none item :: key down to the last, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   chromium y none item :: key up to the first, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   chromium y none item :: drop on the last, every row appended | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 15.3
+ok   chromium y none item :: drop on the first, every row appended | jump 0.00  | moved 0.0 | anims 0 | r3r0r1r2r4r5 | start,accepted |  | shell 3.6
+ok   chromium y none item :: drop on the last, old order appended, rejected | jump 0.00  | moved 60.0 | anims 4 | r0r1r2r3r4r5 | start,rejected |  | shell 171.0
+ok   chromium y none item :: drop on the last, the item put last but one | jump 0.00  | moved 60.0 | anims 1 | r0r2r3r4r1r5 | start,accepted |  | shell 51.1
+ok   chromium y none item :: drop mid, the item put last | jump 0.00  | moved 60.0 | anims 2 | r0r2r3r4r5r1 | start,accepted |  | shell 68.1
+ok   chromium y none item :: drop on the last, the item put first | jump 0.00  | moved 30.0 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 226.0
+ok   chromium y none item :: drop on the last, commit by append of the item | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 15.3
+ok   chromium y none item :: drop on the last, after(previous) | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 15.3
+ok   chromium y none item :: key down to the last, after(previous) | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 36.0
+ok   chromium y none item :: key down, neighbors moved | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   chromium y none item :: key up to the first, neighbors moved | jump 0.00  | moved 60.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 40.0
+ok   chromium y none item :: drop on the last, all rows prepended in order | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 15.3
+ok   chromium y none item :: flick to the last, every row appended | jump 0.00  | moved 60.0 | anims 4 | r0r2r3r4r5r1 | start,accepted |  | shell 171.0
+ok   chromium y none item landing :: key down from the next to last, every row appended | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 14.1
+ok   chromium y none item landing :: key up from the second, every row appended | jump 0.00  | moved 60.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 15.6
+ok   chromium y none item landing :: key down to the last, every row appended at 50 ms | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 14.1
+ok   chromium y none item landing :: key down to the last, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   chromium y none item landing :: key up to the first, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   chromium y none item landing :: drop on the last, every row appended | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 6.0
+ok   chromium y none item landing :: drop on the first, every row appended | jump 0.00  | moved 0.0 | anims 0 | r3r0r1r2r4r5 | start,accepted |  | shell 1.4
+ok   chromium y none item landing :: drop on the last, old order appended, rejected | jump 0.00  | moved 60.0 | anims 4 | r0r1r2r3r4r5 | start,rejected |  | shell 66.7
+ok   chromium y none item landing :: drop on the last, the item put last but one | jump 0.00  | moved 60.0 | anims 1 | r0r2r3r4r1r5 | start,accepted |  | shell 19.8
+ok   chromium y none item landing :: drop mid, the item put last | jump 0.00  | moved 60.0 | anims 2 | r0r2r3r4r5r1 | start,accepted |  | shell 26.7
+ok   chromium y none item landing :: drop on the last, the item put first | jump 0.00  | moved 30.0 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 88.8
+ok   chromium y none item landing :: drop on the last, commit by append of the item | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 6.0
+ok   chromium y none item landing :: drop on the last, after(previous) | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 6.0
+ok   chromium y none item landing :: key down to the last, after(previous) | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 14.1
+ok   chromium y none item landing :: key down, neighbors moved | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 11.7
+ok   chromium y none item landing :: key up to the first, neighbors moved | jump 0.00  | moved 60.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 15.7
+ok   chromium y none item landing :: drop on the last, all rows prepended in order | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 6.0
+ok   chromium y none item landing :: flick to the last, every row appended | jump 0.00  | moved 60.0 | anims 4 | r0r2r3r4r5r1 | start,accepted |  | shell 171.0
+ok   chromium xy none item :: key down from the next to last, every row appended | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 50.0
+ok   chromium xy none item :: key up from the second, every row appended | jump 0.00  | moved 90.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 60.0
+ok   chromium xy none item :: key down to the last, every row appended at 50 ms | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 50.0
+ok   chromium xy none item :: key down to the last, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   chromium xy none item :: key up to the first, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   chromium xy none item :: drop on the last, every row appended | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 7.6
+ok   chromium xy none item :: drop on the first, every row appended | jump 0.00  | moved 0.0 | anims 0 | r3r0r1r2r4r5 | start,accepted |  | shell 4.2
+ok   chromium xy none item :: drop on the last, old order appended, rejected | jump 0.00  | moved 136.0 | anims 4 | r0r1r2r3r4r5 | start,rejected |  | shell 76.3
+ok   chromium xy none item :: drop on the last, the item put last but one | jump 0.00  | moved 90.0 | anims 1 | r0r2r3r4r1r5 | start,accepted |  | shell 43.1
+ok   chromium xy none item :: drop mid, the item put last | jump 0.00  | moved 90.0 | anims 2 | r0r2r3r4r5r1 | start,accepted |  | shell 142.0
+ok   chromium xy none item :: drop on the last, the item put first | jump 0.00  | moved 155.2 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 139.8
+ok   chromium xy none item :: drop on the last, commit by append of the item | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 7.6
+ok   chromium xy none item :: drop on the last, after(previous) | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 7.6
+ok   chromium xy none item :: key down to the last, after(previous) | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 50.0
+ok   chromium xy none item :: key down, neighbors moved | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   chromium xy none item :: key up to the first, neighbors moved | jump 0.00  | moved 90.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 60.0
+ok   chromium xy none item :: drop on the last, all rows prepended in order | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 7.6
+ok   chromium xy none item :: flick to the last, every row appended | jump 0.00  | moved 136.0 | anims 4 | r0r2r3r4r5r1 | start,accepted |  | shell 76.3
+ok   chromium xy none item landing :: key down from the next to last, every row appended | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 19.6
+ok   chromium xy none item landing :: key up from the second, every row appended | jump 0.00  | moved 90.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 23.5
+ok   chromium xy none item landing :: key down to the last, every row appended at 50 ms | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 19.6
+ok   chromium xy none item landing :: key down to the last, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   chromium xy none item landing :: key up to the first, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   chromium xy none item landing :: drop on the last, every row appended | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 3.0
+ok   chromium xy none item landing :: drop on the first, every row appended | jump 0.00  | moved 0.0 | anims 0 | r3r0r1r2r4r5 | start,accepted |  | shell 1.7
+ok   chromium xy none item landing :: drop on the last, old order appended, rejected | jump 0.00  | moved 136.0 | anims 4 | r0r1r2r3r4r5 | start,rejected |  | shell 29.7
+ok   chromium xy none item landing :: drop on the last, the item put last but one | jump 0.00  | moved 90.0 | anims 1 | r0r2r3r4r1r5 | start,accepted |  | shell 17.0
+ok   chromium xy none item landing :: drop mid, the item put last | jump 0.00  | moved 90.0 | anims 2 | r0r2r3r4r5r1 | start,accepted |  | shell 55.8
+ok   chromium xy none item landing :: drop on the last, the item put first | jump 0.00  | moved 155.2 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 54.7
+ok   chromium xy none item landing :: drop on the last, commit by append of the item | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 3.0
+ok   chromium xy none item landing :: drop on the last, after(previous) | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 3.0
+ok   chromium xy none item landing :: key down to the last, after(previous) | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 19.7
+ok   chromium xy none item landing :: key down, neighbors moved | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 27.4
+ok   chromium xy none item landing :: key up to the first, neighbors moved | jump 0.00  | moved 90.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 23.4
+ok   chromium xy none item landing :: drop on the last, all rows prepended in order | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 3.0
+ok   chromium xy none item landing :: flick to the last, every row appended | jump 0.00  | moved 136.0 | anims 4 | r0r2r3r4r5r1 | start,accepted |  | shell 76.3
+## firefox
+ok   firefox y none item :: key down from the next to last, every row appended | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 36.0
+ok   firefox y none item :: key up from the second, every row appended | jump 0.00  | moved 60.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 40.0
+ok   firefox y none item :: key down to the last, every row appended at 50 ms | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 36.0
+ok   firefox y none item :: key down to the last, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   firefox y none item :: key up to the first, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   firefox y none item :: drop on the last, every row appended | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 15.3
+ok   firefox y none item :: drop on the first, every row appended | jump 0.00  | moved 0.0 | anims 0 | r3r0r1r2r4r5 | start,accepted |  | shell 3.6
+ok   firefox y none item :: drop on the last, old order appended, rejected | jump 0.00  | moved 60.0 | anims 4 | r0r1r2r3r4r5 | start,rejected |  | shell 171.0
+ok   firefox y none item :: drop on the last, the item put last but one | jump 0.00  | moved 60.0 | anims 1 | r0r2r3r4r1r5 | start,accepted |  | shell 51.1
+ok   firefox y none item :: drop mid, the item put last | jump 0.00  | moved 60.0 | anims 2 | r0r2r3r4r5r1 | start,accepted |  | shell 68.1
+ok   firefox y none item :: drop on the last, the item put first | jump 0.00  | moved 30.0 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 226.0
+ok   firefox y none item :: drop on the last, commit by append of the item | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 15.3
+ok   firefox y none item :: drop on the last, after(previous) | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 15.3
+ok   firefox y none item :: key down to the last, after(previous) | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 36.0
+ok   firefox y none item :: key down, neighbors moved | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   firefox y none item :: key up to the first, neighbors moved | jump 0.00  | moved 60.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 40.0
+ok   firefox y none item :: drop on the last, all rows prepended in order | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 15.3
+ok   firefox y none item :: flick to the last, every row appended | jump 0.00  | moved 60.0 | anims 4 | r0r2r3r4r5r1 | start,accepted |  | shell 171.0
+ok   firefox y none item landing :: key down from the next to last, every row appended | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 14.6
+ok   firefox y none item landing :: key up from the second, every row appended | jump 0.00  | moved 60.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 15.6
+ok   firefox y none item landing :: key down to the last, every row appended at 50 ms | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 14.6
+ok   firefox y none item landing :: key down to the last, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   firefox y none item landing :: key up to the first, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   firefox y none item landing :: drop on the last, every row appended | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 5.8
+ok   firefox y none item landing :: drop on the first, every row appended | jump 0.00  | moved 0.0 | anims 0 | r3r0r1r2r4r5 | start,accepted |  | shell 1.4
+ok   firefox y none item landing :: drop on the last, old order appended, rejected | jump 0.00  | moved 60.0 | anims 4 | r0r1r2r3r4r5 | start,rejected |  | shell 69.1
+ok   firefox y none item landing :: drop on the last, the item put last but one | jump 0.00  | moved 60.0 | anims 1 | r0r2r3r4r1r5 | start,accepted |  | shell 19.3
+ok   firefox y none item landing :: drop mid, the item put last | jump 0.00  | moved 60.0 | anims 2 | r0r2r3r4r5r1 | start,accepted |  | shell 27.6
+ok   firefox y none item landing :: drop on the last, the item put first | jump 0.00  | moved 30.0 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 91.5
+ok   firefox y none item landing :: drop on the last, commit by append of the item | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 6.0
+ok   firefox y none item landing :: drop on the last, after(previous) | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 6.2
+ok   firefox y none item landing :: key down to the last, after(previous) | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 14.6
+ok   firefox y none item landing :: key down, neighbors moved | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 11.3
+ok   firefox y none item landing :: key up to the first, neighbors moved | jump 0.00  | moved 60.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 15.6
+ok   firefox y none item landing :: drop on the last, all rows prepended in order | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 5.8
+ok   firefox y none item landing :: flick to the last, every row appended | jump 0.00  | moved 60.0 | anims 4 | r0r2r3r4r5r1 | start,accepted |  | shell 171.0
+ok   firefox xy none item :: key down from the next to last, every row appended | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 50.0
+ok   firefox xy none item :: key up from the second, every row appended | jump 0.00  | moved 90.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 60.0
+ok   firefox xy none item :: key down to the last, every row appended at 50 ms | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 50.0
+ok   firefox xy none item :: key down to the last, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   firefox xy none item :: key up to the first, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   firefox xy none item :: drop on the last, every row appended | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 7.6
+ok   firefox xy none item :: drop on the first, every row appended | jump 0.00  | moved 0.0 | anims 0 | r3r0r1r2r4r5 | start,accepted |  | shell 4.2
+ok   firefox xy none item :: drop on the last, old order appended, rejected | jump 0.00  | moved 136.0 | anims 4 | r0r1r2r3r4r5 | start,rejected |  | shell 76.3
+ok   firefox xy none item :: drop on the last, the item put last but one | jump 0.00  | moved 90.0 | anims 1 | r0r2r3r4r1r5 | start,accepted |  | shell 43.1
+ok   firefox xy none item :: drop mid, the item put last | jump 0.00  | moved 90.0 | anims 2 | r0r2r3r4r5r1 | start,accepted |  | shell 142.0
+ok   firefox xy none item :: drop on the last, the item put first | jump 0.00  | moved 155.2 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 139.8
+ok   firefox xy none item :: drop on the last, commit by append of the item | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 7.6
+ok   firefox xy none item :: drop on the last, after(previous) | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 7.6
+ok   firefox xy none item :: key down to the last, after(previous) | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 50.0
+ok   firefox xy none item :: key down, neighbors moved | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   firefox xy none item :: key up to the first, neighbors moved | jump 0.00  | moved 90.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 60.0
+ok   firefox xy none item :: drop on the last, all rows prepended in order | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 7.6
+ok   firefox xy none item :: flick to the last, every row appended | jump 0.00  | moved 136.0 | anims 4 | r0r2r3r4r5r1 | start,accepted |  | shell 76.3
+ok   firefox xy none item landing :: key down from the next to last, every row appended | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 20.3
+ok   firefox xy none item landing :: key up from the second, every row appended | jump 0.00  | moved 90.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 24.3
+ok   firefox xy none item landing :: key down to the last, every row appended at 50 ms | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 19.6
+ok   firefox xy none item landing :: key down to the last, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   firefox xy none item landing :: key up to the first, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   firefox xy none item landing :: drop on the last, every row appended | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 2.9
+ok   firefox xy none item landing :: drop on the first, every row appended | jump 0.00  | moved 0.0 | anims 0 | r3r0r1r2r4r5 | start,accepted |  | shell 1.6
+ok   firefox xy none item landing :: drop on the last, old order appended, rejected | jump 0.00  | moved 136.0 | anims 4 | r0r1r2r3r4r5 | start,rejected |  | shell 31.5
+ok   firefox xy none item landing :: drop on the last, the item put last but one | jump 0.00  | moved 90.0 | anims 1 | r0r2r3r4r1r5 | start,accepted |  | shell 17.5
+ok   firefox xy none item landing :: drop mid, the item put last | jump 0.00  | moved 90.0 | anims 2 | r0r2r3r4r5r1 | start,accepted |  | shell 53.5
+ok   firefox xy none item landing :: drop on the last, the item put first | jump 0.00  | moved 155.2 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 52.7
+ok   firefox xy none item landing :: drop on the last, commit by append of the item | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 2.9
+ok   firefox xy none item landing :: drop on the last, after(previous) | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 2.9
+ok   firefox xy none item landing :: key down to the last, after(previous) | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 19.7
+ok   firefox xy none item landing :: key down, neighbors moved | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 27.5
+ok   firefox xy none item landing :: key up to the first, neighbors moved | jump 0.00  | moved 90.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 23.5
+ok   firefox xy none item landing :: drop on the last, all rows prepended in order | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 3.1
+ok   firefox xy none item landing :: flick to the last, every row appended | jump 0.00  | moved 136.0 | anims 4 | r0r2r3r4r5r1 | start,accepted |  | shell 76.3
+## webkit
+ok   webkit y none item :: key down from the next to last, every row appended | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 36.0
+ok   webkit y none item :: key up from the second, every row appended | jump 0.00  | moved 60.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 40.0
+ok   webkit y none item :: key down to the last, every row appended at 50 ms | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 36.0
+ok   webkit y none item :: key down to the last, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   webkit y none item :: key up to the first, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   webkit y none item :: drop on the last, every row appended | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 15.3
+ok   webkit y none item :: drop on the first, every row appended | jump 0.00  | moved 0.0 | anims 0 | r3r0r1r2r4r5 | start,accepted |  | shell 3.6
+ok   webkit y none item :: drop on the last, old order appended, rejected | jump 0.00  | moved 60.0 | anims 4 | r0r1r2r3r4r5 | start,rejected |  | shell 171.0
+ok   webkit y none item :: drop on the last, the item put last but one | jump 0.00  | moved 60.0 | anims 1 | r0r2r3r4r1r5 | start,accepted |  | shell 51.1
+ok   webkit y none item :: drop mid, the item put last | jump 0.00  | moved 60.0 | anims 2 | r0r2r3r4r5r1 | start,accepted |  | shell 68.1
+ok   webkit y none item :: drop on the last, the item put first | jump 0.00  | moved 30.0 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 226.0
+ok   webkit y none item :: drop on the last, commit by append of the item | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 15.3
+ok   webkit y none item :: drop on the last, after(previous) | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 15.3
+ok   webkit y none item :: key down to the last, after(previous) | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 36.0
+ok   webkit y none item :: key down, neighbors moved | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 30.0
+ok   webkit y none item :: key up to the first, neighbors moved | jump 0.00  | moved 60.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 40.0
+ok   webkit y none item :: drop on the last, all rows prepended in order | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 15.3
+ok   webkit y none item :: flick to the last, every row appended | jump 0.00  | moved 60.0 | anims 4 | r0r2r3r4r5r1 | start,accepted |  | shell 156.0
+ok   webkit y none item landing :: key down from the next to last, every row appended | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 16.0
+ok   webkit y none item landing :: key up from the second, every row appended | jump 0.00  | moved 60.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 19.5
+ok   webkit y none item landing :: key down to the last, every row appended at 50 ms | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 20.2
+ok   webkit y none item landing :: key down to the last, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   webkit y none item landing :: key up to the first, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   webkit y none item landing :: drop on the last, every row appended | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 5.9
+ok   webkit y none item landing :: drop on the first, every row appended | jump 0.00  | moved 0.0 | anims 0 | r3r0r1r2r4r5 | start,accepted |  | shell 1.4
+ok   webkit y none item landing :: drop on the last, old order appended, rejected | jump 0.00  | moved 60.0 | anims 4 | r0r1r2r3r4r5 | start,rejected |  | shell 74.8
+ok   webkit y none item landing :: drop on the last, the item put last but one | jump 0.00  | moved 60.0 | anims 1 | r0r2r3r4r1r5 | start,accepted |  | shell 24.9
+ok   webkit y none item landing :: drop mid, the item put last | jump 0.00  | moved 60.0 | anims 2 | r0r2r3r4r5r1 | start,accepted |  | shell 27.5
+ok   webkit y none item landing :: drop on the last, the item put first | jump 0.00  | moved 30.0 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 87.5
+ok   webkit y none item landing :: drop on the last, commit by append of the item | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 10.2
+ok   webkit y none item landing :: drop on the last, after(previous) | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 7.5
+ok   webkit y none item landing :: key down to the last, after(previous) | jump 0.00  | moved 40.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 15.2
+ok   webkit y none item landing :: key down, neighbors moved | jump 0.00  | moved 60.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 11.6
+ok   webkit y none item landing :: key up to the first, neighbors moved | jump 0.00  | moved 60.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 15.5
+ok   webkit y none item landing :: drop on the last, all rows prepended in order | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 6.2
+ok   webkit y none item landing :: flick to the last, every row appended | jump 0.00  | moved 60.0 | anims 4 | r0r2r3r4r5r1 | start,accepted |  | shell 171.0
+ok   webkit xy none item :: key down from the next to last, every row appended | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 50.0
+ok   webkit xy none item :: key up from the second, every row appended | jump 0.00  | moved 90.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 60.0
+ok   webkit xy none item :: key down to the last, every row appended at 50 ms | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 50.0
+ok   webkit xy none item :: key down to the last, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   webkit xy none item :: key up to the first, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   webkit xy none item :: drop on the last, every row appended | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 7.6
+ok   webkit xy none item :: drop on the first, every row appended | jump 0.00  | moved 0.0 | anims 0 | r3r0r1r2r4r5 | start,accepted |  | shell 4.2
+ok   webkit xy none item :: drop on the last, old order appended, rejected | jump 0.00  | moved 136.0 | anims 4 | r0r1r2r3r4r5 | start,rejected |  | shell 76.3
+ok   webkit xy none item :: drop on the last, the item put last but one | jump 0.00  | moved 90.0 | anims 1 | r0r2r3r4r1r5 | start,accepted |  | shell 43.1
+ok   webkit xy none item :: drop mid, the item put last | jump 0.00  | moved 90.0 | anims 2 | r0r2r3r4r5r1 | start,accepted |  | shell 142.0
+ok   webkit xy none item :: drop on the last, the item put first | jump 0.00  | moved 155.2 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 139.8
+ok   webkit xy none item :: drop on the last, commit by append of the item | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 7.6
+ok   webkit xy none item :: drop on the last, after(previous) | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 7.6
+ok   webkit xy none item :: key down to the last, after(previous) | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 50.0
+ok   webkit xy none item :: key down, neighbors moved | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 70.0
+ok   webkit xy none item :: key up to the first, neighbors moved | jump 0.00  | moved 90.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 60.0
+ok   webkit xy none item :: drop on the last, all rows prepended in order | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 7.6
+ok   webkit xy none item :: flick to the last, every row appended | jump 0.01  | moved 136.0 | anims 4 | r0r2r3r4r5r1 | start,accepted |  | shell 76.3
+ok   webkit xy none item landing :: key down from the next to last, every row appended | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 46.2
+ok   webkit xy none item landing :: key up from the second, every row appended | jump 0.00  | moved 90.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 24.8
+ok   webkit xy none item landing :: key down to the last, every row appended at 50 ms | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 19.9
+ok   webkit xy none item landing :: key down to the last, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   webkit xy none item landing :: key up to the first, old order appended, rejected | jump 0.00  | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,rejected |  | shell 0.0
+ok   webkit xy none item landing :: drop on the last, every row appended | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 3.1
+ok   webkit xy none item landing :: drop on the first, every row appended | jump 0.00  | moved 0.0 | anims 0 | r3r0r1r2r4r5 | start,accepted |  | shell 1.6
+ok   webkit xy none item landing :: drop on the last, old order appended, rejected | jump 0.00  | moved 136.0 | anims 4 | r0r1r2r3r4r5 | start,rejected |  | shell 30.9
+ok   webkit xy none item landing :: drop on the last, the item put last but one | jump 0.00  | moved 90.0 | anims 1 | r0r2r3r4r1r5 | start,accepted |  | shell 16.2
+ok   webkit xy none item landing :: drop mid, the item put last | jump 0.00  | moved 90.0 | anims 2 | r0r2r3r4r5r1 | start,accepted |  | shell 114.0
+ok   webkit xy none item landing :: drop on the last, the item put first | jump 0.00  | moved 155.2 | anims 5 | r2r0r1r3r4r5 | start,accepted |  | shell 77.3
+ok   webkit xy none item landing :: drop on the last, commit by append of the item | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 2.9
+ok   webkit xy none item landing :: drop on the last, after(previous) | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 5.6
+ok   webkit xy none item landing :: key down to the last, after(previous) | jump 0.00  | moved 80.0 | anims 1 | r0r1r2r3r5r4 | start,accepted |  | shell 19.9
+ok   webkit xy none item landing :: key down, neighbors moved | jump 0.00  | moved 90.0 | anims 1 | r0r2r1r3r4r5 | start,accepted |  | shell 29.4
+ok   webkit xy none item landing :: key up to the first, neighbors moved | jump 0.00  | moved 90.0 | anims 1 | r1r0r2r3r4r5 | start,accepted |  | shell 33.6
+ok   webkit xy none item landing :: drop on the last, all rows prepended in order | jump 0.00  | moved 0.0 | anims 0 | r0r2r3r4r5r1 | start,accepted |  | shell 2.9
+ok   webkit xy none item landing :: flick to the last, every row appended | jump 0.00  | moved 136.0 | anims 4 | r0r2r3r4r5r1 | start,accepted |  | shell 76.3

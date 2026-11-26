@@ -92,6 +92,7 @@ export const Playground: StoryObj<PlaygroundArgs> = {
 
     return (
       <mx-switch-icon-button
+        aria-label="Wi-Fi"
         color={color === 'filled' ? undefined : color}
         size={size === 'small' ? undefined : size}
         shape={shape === 'round' ? undefined : shape}
@@ -110,19 +111,19 @@ export const Playground: StoryObj<PlaygroundArgs> = {
 
 export const Sizes = (): JSX.Element => (
   <>
-    <ControlledSwitchIconButton size="xsmall">
+    <ControlledSwitchIconButton aria-label="Wi-Fi" size="xsmall">
       <mx-icon>wifi</mx-icon>
     </ControlledSwitchIconButton>
-    <ControlledSwitchIconButton>
+    <ControlledSwitchIconButton aria-label="Bluetooth">
       <mx-icon>bluetooth</mx-icon>
     </ControlledSwitchIconButton>
-    <ControlledSwitchIconButton size="medium">
+    <ControlledSwitchIconButton aria-label="Alarm" size="medium">
       <mx-icon>alarm</mx-icon>
     </ControlledSwitchIconButton>
-    <ControlledSwitchIconButton size="large">
+    <ControlledSwitchIconButton aria-label="Search" size="large">
       <mx-icon>search</mx-icon>
     </ControlledSwitchIconButton>
-    <ControlledSwitchIconButton size="xlarge">
+    <ControlledSwitchIconButton aria-label="Favorite" size="xlarge">
       <mx-icon>favorite</mx-icon>
     </ControlledSwitchIconButton>
   </>
@@ -130,10 +131,10 @@ export const Sizes = (): JSX.Element => (
 
 export const Shape = (): JSX.Element => (
   <>
-    <ControlledSwitchIconButton>
+    <ControlledSwitchIconButton aria-label="Favorite">
       <mx-icon>favorite</mx-icon>
     </ControlledSwitchIconButton>
-    <ControlledSwitchIconButton shape="square">
+    <ControlledSwitchIconButton aria-label="Search" shape="square">
       <mx-icon>search</mx-icon>
     </ControlledSwitchIconButton>
   </>
@@ -141,19 +142,19 @@ export const Shape = (): JSX.Element => (
 
 export const Color = (): JSX.Element => (
   <>
-    <ControlledSwitchIconButton>
+    <ControlledSwitchIconButton aria-label="Wi-Fi">
       <mx-icon>wifi</mx-icon>
     </ControlledSwitchIconButton>
-    <ControlledSwitchIconButton color="elevated">
+    <ControlledSwitchIconButton aria-label="Bluetooth" color="elevated">
       <mx-icon>bluetooth</mx-icon>
     </ControlledSwitchIconButton>
-    <ControlledSwitchIconButton color="tonal">
+    <ControlledSwitchIconButton aria-label="Alarm" color="tonal">
       <mx-icon>alarm</mx-icon>
     </ControlledSwitchIconButton>
-    <ControlledSwitchIconButton color="outlined">
+    <ControlledSwitchIconButton aria-label="Search" color="outlined">
       <mx-icon>search</mx-icon>
     </ControlledSwitchIconButton>
-    <ControlledSwitchIconButton color="standard">
+    <ControlledSwitchIconButton aria-label="Favorite" color="standard">
       <mx-icon>favorite</mx-icon>
     </ControlledSwitchIconButton>
   </>
@@ -161,10 +162,10 @@ export const Color = (): JSX.Element => (
 
 export const Width = (): JSX.Element => (
   <>
-    <ControlledSwitchIconButton width="wide">
+    <ControlledSwitchIconButton aria-label="Favorite" width="wide">
       <mx-icon>favorite</mx-icon>
     </ControlledSwitchIconButton>
-    <ControlledSwitchIconButton width="narrow">
+    <ControlledSwitchIconButton aria-label="Search" width="narrow">
       <mx-icon>search</mx-icon>
     </ControlledSwitchIconButton>
   </>

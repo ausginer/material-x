@@ -21,7 +21,7 @@ export const summary = declaration?.summary?.trim();
 export const importSnippet =
   "import '@ydinjs/material-x/button/icon-button.js';";
 export const usageSnippet =
-  '<mx-icon-button><mx-icon>favorite</mx-icon></mx-icon-button>';
+  '<mx-icon-button aria-label="Favorite"><mx-icon>favorite</mx-icon></mx-icon-button>';
 
 <Meta of={Stories} />
 
@@ -85,7 +85,7 @@ Use the live example below to inspect interaction states:
 
 ## Accessibility
 
-- **Name:** Provide an accessible label with `aria-label` when there is no visible text.
+- **Name:** Always set `aria-label`. The icon's content isn't part of the name, so without it the button has no name.
 - **Keyboard:** Focusable with `Tab`; activatable with keyboard via native button behavior.
 - **Focus indicator:** Uses shared focus visuals through the internal button implementation.
 - **Disabled:** `disabled` blocks interaction and form participation.

@@ -1,0 +1,61 @@
+import { describe, it } from 'vitest';
+import { landing } from '../src/sortable/landing.ts';
+import { layoutAnimation } from '../src/sortable/layout-animation.ts';
+import { ReorderResolution } from '../src/sortable.ts';
+import { basicSortable, commands, frames, log, makeList, order, row, rowsOf, faultMessages } from './support/harness.ts';
+
+const opts = (DISP: string): any => DISP === 'new' ? { timing: () => ({ duration: 3_600_000, easing: 'linear' }) } : { duration: 3_600_000, easing: 'linear' };
+const MODE = 'MODE_PLACEHOLDER';
+const OUT: string[] = [];
+import { afterAll } from 'vitest';
+afterAll(() => { throw new Error('\n' + OUT.join('\n')); });
+const tops = (): string => rowsOf(document.querySelector('#list')!).map((r) => `${r.id}:${Math.round(r.getBoundingClientRect().top)}`).join(' ');
+const finish = (): void => { for (const r of rowsOf(document.querySelector('#list')!)) for (const a of r.getAnimations()) if (a.effect!.getTiming().duration === 3_600_000) a.finish(); };
+function make(config: any): any {
+  const list = makeList(5, document.body, 'position:absolute;top:0;left:0;');
+  for (const e of rowsOf(list)) { e.style.width = '100px'; e.style.height = '40px'; e.tabIndex = 0; e.textContent=''; }
+  return { list, c: basicSortable(list, config) };
+}
+async function drag(id: string, dy: number): Promise<void> {
+  const b = row(id).getBoundingClientRect();
+  await commands.pointerMove(b.left + 20, b.top + 10); await commands.pointerDown();
+  await commands.pointerMove(b.left + 20, b.top + 22, 2); await frames();
+  await commands.pointerMove(b.left + 20, b.top + dy, 2); await frames(3); finish();
+}
+async function seq(tag: string, n = 4): Promise<void> { for (let i = 0; i < n; i++) { OUT.push(`PROBE ${MODE} ${tag} frame${i} ${tops()}`); await frames(1); } }
+for (const lands of [false, true]) for (const disp of [true, false]) describe(`landing ${lands} displacement ${disp}`, () => {
+  const extra = { ...(disp ? { displacement: layoutAnimation(opts(MODE)) } : {}), ...(lands ? { landing: landing({ duration: 100 }) } : {}) };
+  const t = `landing=${lands} disp=${disp}`;
+  for (const id of ['r1', 'r3']) it(`absent ${id}`, async () => {
+    let has = true;
+    const { c } = make({ ...extra, items: () => rowsOf(document.querySelector('#list')!).filter((e) => has || e.id !== id) });
+    await drag(id, id === 'r1' ? 100 : -60);
+    OUT.push(`PROBE ${MODE} absent ${id} ${t} before ${tops()}`);
+    has = false; c.invalidate();
+    await seq(`absent ${id} ${t}`); finish();
+    OUT.push(`PROBE ${MODE} absent ${id} ${t} settled ${tops()} ${log} faults ${faultMessages()}`);
+  });
+  it('late commit in onEnd', async () => {
+    const { list } = make({ ...extra, onReorder: () => ReorderResolution.accept(), onEnd: (r: any) => { if (r.type === 'accepted') list.insertBefore(r.request.item, r.request.next); } });
+    await drag('r1', 100);
+    OUT.push(`PROBE ${MODE} late ${t} before ${tops()}`);
+    await commands.pointerUp();
+    await seq(`late ${t}`); finish();
+    OUT.push(`PROBE ${MODE} late ${t} settled ${tops()} ${order(list)}`);
+  });
+  it('late commit 1 frame after', async () => {
+    const { list } = make({ ...extra, onReorder: () => ReorderResolution.accept(), onEnd: (r: any) => { if (r.type === 'accepted') requestAnimationFrame(() => list.insertBefore(r.request.item, r.request.next)); } });
+    await drag('r1', 100);
+    OUT.push(`PROBE ${MODE} raf ${t} before ${tops()}`);
+    await commands.pointerUp();
+    await seq(`raf ${t}`); finish();
+    OUT.push(`PROBE ${MODE} raf ${t} settled ${tops()} ${order(list)}`);
+  });
+  it('key absent: commit in onEnd', async () => {
+    const { list } = make({ ...extra, onReorder: () => ReorderResolution.accept(), onEnd: (r: any) => { if (r.type === 'accepted') list.insertBefore(r.request.item, r.request.next); } });
+    row('r1').focus(); OUT.push(`PROBE ${MODE} keylate ${t} before ${tops()}`);
+    await commands.keyPress('ArrowDown');
+    await seq(`keylate ${t}`); finish();
+    OUT.push(`PROBE ${MODE} keylate ${t} settled ${tops()} ${order(list)}`);
+  });
+});

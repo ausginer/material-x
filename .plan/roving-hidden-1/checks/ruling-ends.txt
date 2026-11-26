@@ -1,0 +1,39 @@
+# ruling-ends.mjs, the three engines, one at a time. Each member: its id, then 1 when it matches the first end, then 1 when it matches the last.
+## chromium 158.0.8127.18
+plain a10 b00 c00 d01
+first and last hidden a00 b10 c01 d00
+only c shown a00 b00 c11 d00
+rtl, b c shown a00 b20 c01 d00
+a hidden while the panel is hidden, then shown a00 b10 c00 d01 | a display none
+undefined members a10 b00 c00 d01
+defined later a10 b00 c00 d01
+## firefox 159.0
+plain a10 b00 c00 d01
+first and last hidden a00 b10 c01 d00
+only c shown a00 b00 c11 d00
+rtl, b c shown a00 b20 c01 d00
+a hidden while the panel is hidden, then shown a00 b10 c00 d01 | a display none
+undefined members a10 b00 c00 d01
+defined later a10 b00 c00 d01
+## webkit 27.2
+plain a10 b00 c00 d01
+first and last hidden a00 b00 c00 d00
+only c shown a00 b00 c00 d00
+rtl, b c shown a00 b20 c01 d00
+a hidden while the panel is hidden, then shown a00 b10 c00 d01 | a display none
+undefined members a10 b00 c00 d01
+defined later a10 b00 c00 d01
+
+# ruling-ends-frames.mjs, WebKit
+## webkit 27.2
+plain a10 b00 c00 d01
+first and last hidden, at once a00 b00 c00 d00
+two frames later a00 b00 c00 d00
+a shown again, two frames later a10 b00 c00 d00
+a hidden again a00 b00 c00 d00
+after a style write on a a00 b00 c00 d00
+only c shown a00 b00 c00 d00
+rtl, b c shown a00 b20 c01 d00
+a hidden while the panel is hidden, then shown a00 b10 c00 d01 | a display none
+undefined members a10 b00 c00 d01
+defined later a10 b00 c00 d01

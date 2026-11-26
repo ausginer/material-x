@@ -1,0 +1,70 @@
+# proof-cost, the median of seven, ms. Chromium, the head and main's sources in turn
+## run 1, head
+chromium groups 20: 83.7 ms
+chromium groups 100: 234.3 ms
+chromium groups 300: 612.9 ms
+chromium split 20: 61.3 ms
+chromium split 100: 439.4 ms
+chromium split 300: 1353.7 ms
+## run 1, main
+chromium groups 20: 11.5 ms
+chromium groups 100: 53.3 ms
+chromium groups 300: 184.4 ms
+chromium split 20: 22.9 ms
+chromium split 100: 80.2 ms
+chromium split 300: 189.4 ms
+## run 2, head
+chromium groups 20: 38.1 ms
+chromium groups 100: 193.4 ms
+chromium groups 300: 605.2 ms
+chromium split 20: 41.3 ms
+chromium split 100: 288.7 ms
+chromium split 300: 1413.0 ms
+## run 2, main
+chromium groups 20: 10.6 ms
+chromium groups 100: 48.2 ms
+chromium groups 300: 149.7 ms
+chromium split 20: 12.3 ms
+chromium split 100: 59.4 ms
+chromium split 300: 154.0 ms
+## run 3, head
+chromium groups 20: 39.1 ms
+chromium groups 100: 195.8 ms
+chromium groups 300: 742.6 ms
+chromium split 20: 117.8 ms
+chromium split 100: 314.3 ms
+chromium split 300: 1269.8 ms
+## run 3, main
+chromium groups 20: 10.2 ms
+chromium groups 100: 39.6 ms
+chromium groups 300: 120.1 ms
+chromium split 20: 12.1 ms
+chromium split 100: 38.8 ms
+chromium split 300: 96.5 ms
+## attribution, from the terminal (attr.sh)
+1 hook of main, group of the head | groups 20: 27.9; 100: 147.5; 300: 473.3; split 20: 42.6; 100: 197.6; 300: 612.4
+1 hook of the head, group of main | groups 20: 11.3; 100: 46.9; 300: 144.8; split 20: 10.9; 100: 52.4; 300: 125.8
+2 hook of main, group of the head | groups 20: 34.3; 100: 154.4; 300: 383.1; split 20: 25.9; 100: 262.2; 300: 1111.0
+2 hook of the head, group of main | groups 20: 15.1; 100: 60.6; 300: 149.1; split 20: 10.5; 100: 61.0; 300: 119.5
+## firefox, head, not in turn, load 25 to 33
+firefox groups 25: 104.0 ms
+firefox groups 50: 145.0 ms
+firefox groups 100: 286.0 ms
+firefox groups 200: 761.0 ms
+firefox groups 400: 1850.0 ms
+firefox split 25: 281.0 ms
+firefox split 50: 278.0 ms
+firefox split 100: 527.0 ms
+firefox split 200: 1357.0 ms
+firefox split 400: 3526.0 ms
+## firefox, main, not in turn, load 25 to 33
+firefox groups 25: 59.0 ms
+firefox groups 50: 102.0 ms
+firefox groups 100: 157.0 ms
+firefox groups 200: 282.0 ms
+firefox groups 400: 610.0 ms
+firefox split 25: 51.0 ms
+firefox split 50: 99.0 ms
+firefox split 100: 140.0 ms
+firefox split 200: 372.0 ms
+firefox split 400: 617.0 ms

@@ -1,0 +1,7 @@
+# just size, Brotli bytes, one reading each: main's icon and split button template on this branch, the span at 6ac64bce1, the candidate. The rows that differ, of 23.
+button/split-button main 7766 span 7775 slot 7790
+checkbox/checkbox main 4290 span 4299 slot 4320
+icon/icon main 667 span 682 slot 726
+radio/radio main 3841 span 3850 slot 3872
+text-field/text-field main 8618 span 8592 slot 8623
+complete main 25869 span 25953 slot 25926

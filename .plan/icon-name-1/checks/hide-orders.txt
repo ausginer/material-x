@@ -1,0 +1,44 @@
+# chromium 158.0.8127.18
+icon then button
+  before: button "edit", StaticText "edit", StaticText "Save", StaticText "edit", StaticText "edit", StaticText "moved"
+  after:  button "", button "Save", StaticText "moved", StaticText "Save"
+button then icon
+  before: button "edit", StaticText "edit", StaticText "Save", StaticText "edit", StaticText "edit", StaticText "moved"
+  after:  button "", button "Save", StaticText "moved", StaticText "Save"
+defined, then inserted
+  before: 
+  after:  button "", button "Save", StaticText "moved", StaticText "Save"
+then the text is replaced
+  before: button "edit", StaticText "edit", StaticText "Save", StaticText "edit", StaticText "edit", StaticText "moved"
+  after:  button "", button "Save", StaticText "moved", StaticText "Save"
+then text from the page moves in
+  before: button "", StaticText "Save", StaticText "moved"
+  after:  button "", button "Save", StaticText "Save"
+then each icon moves
+  before: button "edit", StaticText "edit", StaticText "Save", StaticText "edit", StaticText "edit", StaticText "moved"
+  after:  button "", button "Save", StaticText "moved", StaticText "Save"
+a named icon
+  before: button "Draft", image "Draft", StaticText "Save", image "Draft", image "Draft", StaticText "moved", StaticText "edit", StaticText "edit", StaticText "edit"
+  after:  button "Draft", button "Draft Save", image "Draft", image "Draft", StaticText "moved", image "Draft", StaticText "Save"
+# webkit 27.2
+icon then button
+  before: #text "edit" ignored, #text "edit" ignored, #text "edit" ignored, <button id=" button "edit"
+  after:  #text "edit" ignored hidden, #text "edit" ignored hidden, #text "edit" ignored hidden, <button clas button "Save", <button id=" button ""
+button then icon
+  before: #text "edit" ignored, #text "edit" ignored, #text "edit" ignored, <button id=" button "edit"
+  after:  #text "edit" ignored hidden, #text "edit" ignored hidden, #text "edit" ignored hidden, <button clas button "Save", <button id=" button ""
+defined, then inserted
+  before: 
+  after:  #text "edit" ignored hidden, #text "edit" ignored hidden, #text "edit" ignored hidden, <button clas button "Save", <button id=" button ""
+then the text is replaced
+  before: #text "edit" ignored, #text "edit" ignored, #text "edit" ignored, <button id=" button "edit"
+  after:  #text "late" ignored hidden, #text "late" ignored hidden, #text "late" ignored hidden, <button clas button "Save", <button id=" button ""
+then text from the page moves in
+  before: <button id=" button ""
+  after:  <b> ignored hidden, <button clas button "Save", <button id=" button ""
+then each icon moves
+  before: #text "edit" ignored, #text "edit" ignored, #text "edit" ignored, <button id=" button "edit"
+  after:  #text "edit" ignored hidden, #text "edit" ignored hidden, #text "edit" ignored hidden, <button clas button "Save", <button id=" button ""
+a named icon
+  before: #text "edit" ignored, #text "edit" ignored, #text "edit" ignored, <button id=" button "Draft"
+  after:  #text "edit" ignored hidden, #text "edit" ignored hidden, #text "edit" ignored hidden, <button clas button "Draft Save", <button id=" button "Draft"

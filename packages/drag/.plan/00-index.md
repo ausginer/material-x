@@ -3304,6 +3304,163 @@ Every other row reads 0. The argument is additive, so drag's release (#57) doesn
 - **`verify` passes on `2e2c80ca0`.** This commit adds records, and the contract's one sentence.
 - **Not run:** Safari, a touch device, assistive technology, and the bench's readings.
 
+#### DRD-72 — With `displacement`, every row move that the library makes is reported, and `layoutAnimation` takes a `timing` and honors reduced motion
+
+**Decided on 2026-11-25 by the architect, on `drag/displacement-1`. Implemented at `fcbd26a4d`, with properties 1, 2, 3, 4 and 8 amended the same day, and 1, 2, 3 and 10 again after the feature proof, which returned the unit to the implementer. The recheck of the remediation is accepted, and one clause of the README is owed before the acceptance for closure (the last note).** For [#265](https://github.com/ausginer/material-x/issues/265), which is the trial finding of `repo:RD-56` and has no `DRF-` number. Its body is the finding's contract, and this entry has the decisions of it that change a public surface or a package's contract. From Mx Architect Explainer's message, whose sending the owner approved, relayed by the coordinator, with the owner's observation of the neighbors, in chat: _"Если мы в sortable делаем сортировку через мышку/палец, всё красиво анимируется. Однако если мы это делаем через клавиатуру - анимируется только сам переносимый элемент, а его сосед перемещается на место переносимого элемента резко, без анимаций"_ ("If we sort in sortable by mouse or finger, everything animates nicely. But if we do it by keyboard, only the moved element itself animates, and its neighbor moves abruptly to the moved element's place, without animation"). The [plan](displacement-1/displacement-plan.md) has the readings, the design and the work list. `DRD-71` is the highest `DRD-` on any branch on `origin`.
+
+**Properties.**
+
+1. **Each row that a placeholder write of the library displaces is reported once,** apart from a write that the release undoes in the same task, with the distance that the write moved it, in viewport units, whatever made the write: a resolution, a pointer drop's last resolution, a command, or a return. It holds for `y()` and `xy()`. **What the lift, the consumer's commit and the release move by themselves isn't a write of the placeholder, and isn't reported** (`DRF-57`).
+2. **A return is animated with or without `landing`.** A return is home for a cancel, a rejection and a fault. It is the item's own place for an accepted item that isn't beside the placeholder, as when the consumer never commits, and for an item that left the collection and stays in the list. With `displacement`, the operation moves the placeholder there at `settle`. **It moves it from the gap of the drop:** when the consumer's commit moved the rows around the placeholder, the placeholder is back at that gap before the rows are read, and that write isn't reported, because with the commit it leaves the rows where they were drawn. A gap whose anchor left the container is left as it is. The visual's path doesn't change.
+3. **What isn't reported:** a destruction, and a return with no place to go: an anchor that left the container, or a placeholder or an item that the consumer moved out of it or removed. **A commit that comes after its verdict accepted** is a move of the consumer's own: the rows may jump and slide, and it isn't a case of these properties. The rows then carry nothing of the operation, and no frame draws a row further from its place than the frame before. **So is a commit that moves the rows around the placeholder and is drawn before its verdict comes.** Such a return adds no fault that the same composition without `displacement` doesn't report.
+4. **The sink measures** what no resolution measured: it reads the displaced rows before the write and after it, in one task, and reports the difference. With `y()`, for a command and a return home, it reads only the rows that the write crosses. With `xy()` it reads every row. **A composition without `displacement` reads, copies and measures nothing more than at `e57c9f074`.**
+5. **The array isn't read after the drop.** With `displacement`, the operation keeps its own list of the rows, from the activation's pull and each rebase. `DRI-14` says it.
+6. **The order:** in a drop, after the request is built and before the verdict is asked. In a return, at `settle`, before the landing's target is read.
+7. **An item lifted while its own row animation runs stays where it is drawn,** and the animation ends there, as `DRI-13` has it for a landing.
+8. **The sink's lifetime doesn't change:** its animations outlive the operation, a press that is declined cancels none, and destruction cancels them. An activation that faults may end the item's.
+9. **`layoutAnimation` honors `prefers-reduced-motion: reduce`.** The preference is read at each report. With it, the row starts no animation, and a running one ends. Present behavior is the implementer's choice of `implementation-report.md`'s decision 5, which no decision recorded. The owner, relayed by the coordinator: _"Хмм, а почему намеренно?"_ ("Hm, and why on purpose?"), and he approved the proposal.
+10. **`layoutAnimation`'s options are `timing` alone,** `LayoutAnimationOptions = Readonly<{ timing?: () => Readonly<{ duration: number; easing: string }> }>`. It is called with no argument when a row's animation starts, and not under the preference, its values are copied, and a throw is a fault (`DRI-7`), after which the operation's rows may jump and slide. Without it the values are 160 ms and `ease-out`, as today. `duration` and `easing` go. The owner, relayed by the coordinator: _"Скорее, он должен задаваться извне, с неким дефолтом. В mx-sortable-list это будет M3"_ ("Rather, it should be given from outside, with some default. In `mx-sortable-list` it will be M3").
+
+**Why.**
+
+- **One rule for every write,** because a reader of _"every push is animated"_ can't know which of the library's writes is which. `layout-animation.ts` already says it.
+- **`timing`, in the shape that `Landing.timing` returns,** because a consumer such as `mx-sortable-list` reads its values from CSS at the moment of the start, through `useCSSProps`, which already returns this shape. Two ways to say one thing are one too many, and drag isn't released, so the old one goes. `LandingOptions` isn't changed: its `duration` function takes a distance, and a redesign of `Landing` is the owner's separate question (`DRO-20`).
+- **The sink measures, not the axis:** the plan has both candidates and their readings. A composition without `displacement` then carries less of it (`DRI-18`).
+
+**Cost,** on a candidate that isn't final code ([readings](displacement-1/checks/sizes.txt)): Brotli +235 in _sortable + y_, +209 in _sortable + xy_ and +360 in _complete_; the other seven rows 0. _sortable + y_ and _sortable + xy_ are compositions without `displacement`, so a consumer who doesn't compose it carries about 0.2 kB. A key move with it forces two more layouts, and reads two rows with `y()` and every row twice with `xy()`.
+
+**Amends:** `DRI-14` (the rows that the operation keeps), `DRI-17` (a command and a return measure rows when a displacement is composed) and the public surface. A new `DRI-22` states properties 1 to 8. `DRD-39` doesn't change: the two installer types stay private.
+
+**Not adopted:**
+
+- **The axis measures:** above, and in the plan.
+- **Animating the release of the placeholder,** without moving it first: the rows would be read on both sides of the lift's release, where the visual's own styles change too.
+- **A zero-duration animation under the preference,** as `landing()` has it: a row's animation has no end that anyone waits for, so starting none is the same to see and does less.
+- **`duration` and `easing` as functions, each:** two calls for one reading, and the pair can disagree.
+
+**Owner's question:** Q1 below, answered. **Ready** for an implementer, on `drag/displacement-1`, with #265 at `r2`.
+
+**Q1, for the owner — is the cost accepted?**
+
+- **(a) Yes. Recommended.** The rows' ceilings move to the unit's readings (`DRO-20`), and a consumer without `displacement` carries about 0.2 kB more. The cost is mostly the operation's part, which has to know when it writes.
+- (b) Only a pointer drop and a command, with no return home. It is cheaper by a part that wasn't measured, and a canceled drag and a refused key still jump.
+- (c) No. The defect stays as it is, and the README says so.
+
+**Answered by the owner on 2026-11-25,** in chat, relayed by the coordinator: _"Q1 (a)"_. Recorded in #265 as Amendment 2. The ceilings move to the unit's readings, and a reading well above the candidate's comes back to the owner with the table.
+
+**Dated 2026-11-25 by the implementer: implemented on `drag/displacement-1` at `fcbd26a4d`, for #265 at `r2`, with `main` at `ca6918376` merged.** Requested by the coordinator. Properties 1 to 10 hold in the rows, and no stop was met.
+
+- **The form** isn't the candidate's. The sink has one member that moves the placeholder and reads the rows around its own write, so a throw leaves nothing behind. With `y()` it takes the crossed rows from the DOM and not from a kept gap index, which a rebase leaves stale. It doesn't settle its two reads: they are in one task, so what an animation draws is the same in both and leaves the difference. A mutation that removed the settling failed no row.
+- **Property 8's press that activates nothing:** the item's animation ends after the activation's last decline, so a press that is declined there ends none. The candidate ended it before.
+- **Beyond the text, for the architect:** an item that left the collection and stays in the list has no home gap (its index is −1, so `home` names the first row). Its return is its own place. The same condition makes a removed item's return none, beside the anchor's and the placeholder's. `DRI-22` says both. A report of the return home alone failed a row of its own.
+- **Seen, and not changed:** a consumer that commits after it accepted, in `onEnd` or in a later render, is by property 2 an accepted item that isn't beside the placeholder, so its rows are sent home, and its late commit then moves them. By reading only. `sortable` documents that `onReorder` commits.
+- **Rows:** 85 in `displacement.browser.test.ts`, in the source and the consumer project of each engine. **Witnesses,** the same counts in Chromium, Firefox and WebKit ([reading](displacement-1/checks/witnesses.txt), [probe](displacement-1/probes/mutate.mjs)):
+
+  | Change | Rows that fail, of 85 |
+  | --- | --- |
+  | The report of `drop()` removed | 40 |
+  | A pointer drop's report removed | 2 |
+  | A command's report removed | 38 |
+  | The report of the return removed | 36 |
+  | The return only with a landing | 18 |
+  | The fault's return removed | 4 |
+  | An accepted item's return removed | 4 |
+  | The row's release at the activation removed | 1 |
+  | The row's release before the activation can decline | 1 |
+  | The preference not read, or read once | 5 each |
+  | `timing` called under the preference | 1 |
+  | The array read after the drop | 4 |
+  | The rows not kept at a rebase | 1 |
+  | An absent item returned home | 1 |
+  | A lost anchor, or a lost item, not checked | 1 each |
+  | `y()` reads every row | 2 |
+
+- **An unsteady state of the rows, and its repair:** with animations of 60 s, two rows of `y()` without landing, _Escape_ and _requestCancel_, failed once in Chromium under a mutation that doesn't reach them. The message wasn't saved, and the cause isn't established. A 60 s animation moves a row 1 px in 1.5 s, which is the rows' limit, so they are an hour now. They passed four runs beside 16 busy processes.
+- **The plan's probe on the head** reads as the candidate in each case ([reading](displacement-1/checks/head.txt)): the differences are of the dragged item and of when it was sampled. Firefox's row in a return during a scroll is still 18 px short.
+- **Existing rows:** changed where they pass `duration`, and one private test double has the sink's two new members.
+- **Size, Brotli** ([all](displacement-1/checks/sizes-head.txt)): _sortable + y_ 6538 to 6689 (+151, where the candidate is +235), _sortable + xy_ 6506 to 6641 (+135, +209), _complete_ 7156 to 7489 (+333, +360). Every other row reads 0. The three ceilings are those readings (`DRO-20`).
+- **Checks:** drag's source and consumer projects in each engine (537 and 502, with 9 skipped in Firefox and WebKit), the `shipped` project in each, the node projects (76), root typecheck, the declarations' typecheck, lint, the size gate, `docs-build`, `docs-smoke` and the root format check. No file that begins with a key press failed in WebKit.
+- **Not here:** `accessibility.md`'s two lines, which the coordinator takes.
+
+**Dated 2026-11-25 by the architect: the implementation's departures, ruled, and properties 1, 2, 3, 4 and 8 amended.** Requested by the coordinator. Read: the diff of the source and of the rows at `60caca966`, the note above, and a [probe](displacement-1/probes/late-commit.browser.test.ts.txt) of my own in Chromium, at the head and with `main`'s source ([reading](displacement-1/checks/late-commit.txt)). Firefox and WebKit weren't probed. Nothing else was repeated.
+
+1. **An absent item: accepted.** An item that left the collection and stays in the list has no gap in it, so its place is where it stands. `home` names the first row for it, and a return there would show the rows a move that isn't so. In the probe the rows hold, with a landing and without. A removed item's return is none: with it gone, its place has no meaning, and a return home would animate a move that the release then undoes. Property 2 and property 3 say it.
+   - **Found here, and not this unit's:** with a landing, the visual of an absent item is drawn 40 px (`r1`) or 120 px (`r3`) from where it was released, and then flies to its place, on `main` also and without `displacement`. The landing measures `home`, which is the first row. The placeholder's write there isn't reported, and the release undoes it in the same task, so no frame shows it. `DRF-56`, and property 2's _"The visual's path doesn't change"_ stands.
+2. **A declined press ends no row animation: accepted, and it is what property 8 says.** The candidate ended it earlier, which was the candidate's defect. An activation that faults after the release, as by a placeholder factory that throws, isn't a decline, and may end it. Property 8 says it.
+3. **The rows from the DOM, and no settling: accepted.** Both reads are in one task, so each row's animation contributes the same to both, and the difference is the flow's. The order of the DOM is the order of the rows (`DRI-14`), and a kept gap index is stale after a rebase. Property 4's _"settled"_ goes.
+4. **A commit after the acceptance: the rows follow the rule, and it is a limit that has to be said. Accepted.** The reading, for a pointer drag without a landing: with the commit in `onEnd` or a frame later, the rows are drawn 40 px, one slot, beyond where they were, and they glide back. On `main` they stood still in both. It is a change from `main`, and the note called it by reading. It stays, because:
+   - `onReorder` commits and then resolves (its JSDoc, the README's example), and `accept()` says that the DOM has the new order. A consumer that commits later has accepted an order that isn't there. With a landing, `main` is already broken for it: the visual is drawn 80 px away in both.
+   - a return for an accepted item is property 2's, and the operation can't tell a late commit from none. The alternative, an end that reports only after `onEnd`, needs the kernel, because the placeholder's release precedes `end`.
+   - A key move commits the same way and shows no difference, because the two reports cancel.
+   - `mx-sortable-list` isn't in it: it accepts when its DOM has the order, or after its own bound.
+   - So the JSDoc of `onReorder` and the README say that the DOM has the new order when the verdict accepts, and what a later commit shows. `DRI-22` says it as a limit.
+5. **The two rows that failed once: accepted for now, and the cause isn't established.** An hour in place of a minute is sound by arithmetic, and four loaded runs is not evidence about a failure in one of many. A failure of either is a finding, not a rerun. The proof reads them (below).
+
+**The sizes: the limit wasn't reached.** The plan returns a row that grows by over 100 B of Brotli more than the candidate's reading. The head is below the candidate in each, by 84, 74 and 27 B. So nothing comes back to the owner, and the three ceilings stay at the readings (`DRO-20`). His Q1 was answered on +235, +209 and +360.
+
+**What is owed before the feature proof,** by the implementer:
+
+1. The JSDoc of `onReorder` (`behavior.ts`) and one sentence in the README, as in 4. It says that the DOM has the new order by the time the verdict accepts, and that rows displaced by `layoutAnimation` jump and slide for a later commit. `DRI-22` is written here.
+2. The absent item's row is run with a landing as well as without, with the rows held. It is a property of #265, and only `y()` without a landing has it.
+3. The full drag suite of the changed files in Chromium, after 1 and 2. No mutation is owed again. The size gate is run once, and no row should move.
+
+**What the proof reads besides the properties:** the two rows of 5 (`y()` without landing, _Escape_ and _requestCancel_) twenty times beside busy processes in Chromium, with each failure's message saved; a visual that isn't the item, and a transformed ancestor, for a command and a return. Not read by anybody: Safari, touch and a pen.
+
+#265 is `r3`, for this note.
+
+**Dated 2026-11-25 by the architect: the feature proof ruled, and properties 1, 2, 3 and 10 amended. The unit returns to the implementer.** Requested by the coordinator. Read: the [proof](reviews/displacement-1/proof-reviewer.md) at `7afeebd11`, its probes and the source. A [probe](displacement-1/probes/commit-around.browser.test.ts.txt), which is the proof's with thirteen more cases, and a candidate, in the three engines ([reading](displacement-1/checks/commit-around.txt)). The proof's other probes weren't repeated.
+
+1. **`reviewer-1`: confirmed, and it is repaired.** The commit moves the rows around the placeholder, the return moves the placeholder to the item, and only the second is reported. It is new for a pointer drop, and a list that appends every row is an ordinary commit. With the candidate, which puts the placeholder back at the gap of the drop before the return reads the rows, each of the proof's cases is still, in the three engines: 64 of 76 lines are, and 12 at the head. It also holds for a rejection after the page put the old order back, an `onReorder` that did so and throws, and a page that put the item in another place. **The 12 lines that still jump** are three commits that a frame draws before the verdict: the jump is there from the commit on, on both. With the verdict the rows go to their places at once, where the head slid them back. Property 3 names that, because the operation can't see that a frame was drawn.
+   - **The candidate isn't final code.** It costs +65, +72 and +60 Brotli against the head, so +216 in _sortable + y_, +207 in _sortable + xy_ and +393 in _complete_ against `main`. The owner's Q1 was answered on +235, +209 and +360, and the plan returns a row at 100 B above its candidate reading. So Q1 isn't reopened. **Put it where a composition without `displacement` pays least,** such as in the sink.
+   - **Three traps that the candidate met.** An operation that hasn't dropped, such as a key that is canceled in `onStart`, has a gap where the placeholder never was. A commit that puts the item between the placeholder and the gap's anchor, as the README's does, hasn't moved anything around the placeholder, and a write there makes `xy()` read every row twice more (two rows fail: 18 reads for 10 and 10 for 2). And a gap's anchor that left the container makes `movePlaceholder` throw.
+2. **`reviewer-2`: confirmed as behavior. #265 property 1 and property 1 here are limited, and the cause is `DRF-57`.** The distance reported is right for the write. The rows jump because the placeholder doesn't stand for everything that the item took with it, so the lift, the commit and the release move rows, in a pointer drag on `main` also. Reading the rows before the lift would take a layout before each key move and leave the same jump at the release, at the commit and in every pointer drag. The release isn't animated, for the reason under _Not adopted_. So it is a limit, with its lists named: rows with margins that the placeholder hasn't, where `[data-drag-placeholder]` with the same margin holds all 46 cases of the proof, and a visual that isn't the item, in an item with a footprint of its own, for which no style was found.
+   - **The case that is worse than `main`, 162.5 px for 80.9, is accepted with it.** It needs a wrapping list, a child visual, padding, `box` as the item, and a key to the last place. The placeholder is then wider than the place that the visual left, which moves the row to another line at the lift. The row then slides to its place.
+3. **`reviewer-3`: confirmed, and not repaired.** Only a `timing` that throws meets it, the throw is a fault, and nothing is left when the operation ended. The implementation note's _"a throw leaves nothing behind"_ is true of the sink's state and not of what the rows show. Property 10 and #265 property 2 say it. No row is owed.
+4. **Which text governs: the finding's body.** `findings.md` says that the body alone is the contract and that a ruling on a public surface or a contract is a decision, which the body names. A decision that the body names gives the form. It doesn't narrow what the body requires. An implementer who finds a difference stops, a reviewer judges by the body and reports it, as this one did, and the architect amends the wrong text. #265 says so now, in its own body. Here the decision's _"the distance that the write moved it"_ was written as the means of the body's _"from where it was drawn"_, and nobody read them as two requirements. It is the architect's fault, and `repo:RD-56`'s note carries it to stage 4.
+5. **Departure 5:** the proof met no failure, in 40 of 40 twice and twenty runs of 85. The one earlier failure stays unexplained. Nothing is owed. A failure of either row is a finding.
+6. **The proof's surviving mutations.** _The last gap takes no anchor_ is equivalent. The other three are read by the whole drag suite first (below).
+7. **The observations.** A collection emptied with the item in it isn't of the operation. `timing` called as a method of the sink has no type to say it is. WebKit's item that keeps its width isn't this unit's and is so without drag's displacement, so nothing is registered. The item's own remaining box in a key move is in `DRF-57`.
+
+**What is owed by the implementer,** against #265 at `r4`, in Chromium (the owner's rule of 2026-11-25):
+
+1. **The repair of `reviewer-1`,** with properties 1 to 3 as they are now.
+2. **Rows,** in `displacement.browser.test.ts`, for `y()` and `xy()`, with a landing and without, with the first frames still or continuous: every row appended in its new order, in a key move in both directions, a resolved drop in both directions, and a flick; the same after an asynchronous verdict with the commit and the acceptance in one task; every row put back in the old order and a rejection, in a key move and in a drop; the item put elsewhere than asked, the first place included; a cancel in `onStart` of a key move. The rects' rows stay as they are. **Witnesses:** without the put-back the append rows fail; with the put-back in an operation that hasn't dropped, the last one fails; with the put-back wherever the item stands between, the rects' rows fail.
+3. **The surviving mutations,** _the vector is not local_, _home kept at a rebase_ and _the placeholder's parent is not compared_, each once against drag's whole suite in Chromium. One that nothing fails gets a row: for the first, a return in a transformed ancestor; for the second, a rebase that changes the home's neighbors and then a cancel; for the third, an item that the consumer moved to another container, then a cancel, with no fault. A mutation that changes nothing that a user sees is said to be equivalent, with why.
+4. **The pass owed before the proof,** which hasn't been done: the JSDoc of `onReorder`, the README's sentence, and the absent item's row with a landing.
+5. **Documentation:** the README says that the placeholder stands for the item's size and not its margins, that a list with margins gives `[data-drag-placeholder]` the same, and that rows may jump in a list where the visual isn't the item and the item has a footprint of its own. The JSDoc of `onReorder` in 4 says also that a commit that a frame draws before its verdict may make the rows jump. No claim more than `DRI-22`, which is written here.
+6. **The checks:** drag's suite of the changed files in Chromium, the size gate with the ceilings at the readings (`DRO-20`), typecheck, lint, the root format check, and the pull request's description, which has `r4`. A row more than 100 B above the candidate's reading comes back.
+
+**The recheck,** by the reviewer of this proof or a fresh one, in Chromium, Firefox and WebKit, one at a time: `proof-append` and `commit-around`, the 47 cases of `proof-cases` for the plain item on `y()` and `xy()`, the rows of 2 and 3, and the first two witnesses of 2. `proof-props`' reads of the array and the counts without `displacement`, in Chromium. Not again: the load runs, the scroll, the size of an item in WebKit, the lists of `DRF-57`.
+
+**What the trial took for this ruling:** one amendment (the fourth), no refusal of the tool in two runs (`r3` before, `r4` after), and no correction of an amendment. The body was written by a script from the body of `r3`.
+
+**Dated 2026-11-25 by the implementer: the list is done on `drag/displacement-1`, against #265 at `r4`, with `main` at `ee0afea12` merged.** Requested by the coordinator. No stop was met. Chromium alone, by the owner's rule; the recheck reads the three engines.
+
+- **The repair** is in the sink: `relocate` takes the operation's request, and puts the placeholder back at the request's gap before it reads the rows. Without a displacement the operation only passes a `null`. The three traps: an operation that hasn't dropped has no request, the item between the placeholder and the gap's anchor is skipped, and an anchor that left the container writes nothing. The architect's probe reads 64 of 76 lines still, and the 12 others are the three commits that a frame draws before the verdict ([reading](displacement-1/checks/remediation-commit-around.txt)).
+- **Rows:** 140 in `displacement.browser.test.ts`, 55 more: the list's 13 cases for each axis, with a landing and without; the absent item with a landing; an item moved to another container; and the drop's anchor that left the container, which the list doesn't ask for.
+- **Witnesses** of the new rows, of 140 ([reading](displacement-1/checks/remediation-witnesses.txt), [probe](displacement-1/probes/mutate.mjs)): the rows not read from the gap 48, all but the four of the `onStart` cancel; the gap of an operation that hasn't dropped 4; the gap restored wherever the item stands 2, the rects' of `xy()`; the gap's lost anchor not checked 1. The former mutations were run too, and each fails a row.
+- **The surviving mutations, once against drag's suite,** 537 rows, before the new ones ([reading](displacement-1/checks/remediation-suite.txt)): _the vector is not local_ fails 4 and _home kept at a rebase_ fails 1, so neither gets a row. _The placeholder's parent is not compared_ failed none, and its new row fails with it.
+- **Texts:** the JSDoc of `onReorder`, the README's sentence, and its limit.
+- **Sizes, Brotli** ([reading](displacement-1/checks/remediation-sizes.txt)), over `main`: _sortable + y_ 6698 (+160), _sortable + xy_ 6651 (+145), _complete_ 7554 (+398). Against `7afeebd11`'s source, +9, +10 and +65. Against what the owner accepts, -56, -62 and +5. The three ceilings are these readings (`DRO-20`).
+- **Checks:** drag's projects in Chromium (1234 rows), `tests/list` of material-x (370), both size gates, root format check, typecheck and lint. **Not run:** Firefox, WebKit, `docs-build`.
+- **A mutation run was ended by its own time limit** with a mutation in the source. The line was put back by hand, and the diff read again. The rows and the checks above are of the restored source.
+- **The trial:** one run of the tool at `r4`, no refusal. The body governed, and DRD-72's list named the rows. Where the list asks more than the body's witnesses, the list is what the rows follow.
+
+**Dated 2026-11-26 by the architect: the recheck is accepted. One clause of the README is owed, and then the acceptance for closure.** Requested by the coordinator. Read: the [recheck](reviews/displacement-1/recheck-reviewer.md) of `9b36f075e`, committed in `69eb4ee56`, and #265 at `r4` by one run of the tool, with no other comment on the issue. Nothing was probed again. The status line said _"which returns the unit to the implementer (the last note)"_.
+
+- **The recheck's results are accepted as it reads them,** in the three engines: `proof-append` 24 of 24 still, `commit-around` 64 of 76, whose 12 are property 8's commits that a frame draws before their verdict, `proof-cases` 184 of 188, whose 4 are the emptied array that the last ruling's item 7 left outside, and the new `proof-ends` 72 of 72. Each witness fails its row.
+- **Observation 1: accepted.** _complete_ is +398 B, 5 B over +393, the reading of a candidate that the ruling said wasn't final code. The ruling's rule is that a row returns to the owner at 100 B over that reading, so Q1 isn't reopened. The ceilings are the implementer's readings, +160, +145 and +398 (`DRO-20`).
+- **Observation 2: the clause is owed.** The body governs, and its property 1 says that the rows _"may jump by what those moves add, also to another line with `xy()`, and the documentation says so"_. "So" is the whole sentence. Item 5 of the last ruling left the line out, and where it differs from the body the body applies. The line also tells a reader of a wrapping field something that "jump" doesn't: the row changes lines. **Owed:** the README's limit says that with `xy()` such a jump may take a row to another line. Nothing beyond `DRI-22`. It changes no source, so no recheck is owed; the architect reads the sentence before the acceptance.
+- **The acceptance for closure** follows on #265 at the head that carries the sentence, at `r4`, unless an amendment comes first.
+- **The trial** (`repo:RD-56`), at this step: one run of the tool, no amendment, no refusal and no correction. The recheck's notes, for stage 4:
+  - the body's Q1 names the first candidate's cost (+235, +209, +360), and the accepted ceiling is in this decision alone, so the body has no number to read a head against;
+  - _Evidence_ begins with one "Read at" for readings of three commits;
+  - property 3's "put every row back so" reads as the new order or the old one, and the rows and `DRI-22` read the old one;
+  - property 1's "the documentation says so" doesn't say which words are owed, which observation 2 is;
+  - two of the recheck's witnesses are in this decision's list and not in the body.
+
+  The texts disagreed on numbers and witnesses, and not on behavior. Amendment 4 carried the last ruling's properties into the body, and not its numbers or witnesses, so this decision was their only source.
+
 ## Disposition of the 2026-11-07 reviews
 
 Each finding and question of the [review round](reviews/production/production-summary.md) and the [architecture challenge](reviews/architecture/production-design-challenge.md), both read at `d7e7b0d3a`. "Handoff" means [`remediation-handoff.md`](remediation-handoff.md).
@@ -5358,6 +5515,37 @@ Tier A, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `m
 - **Ready** for an implementer, in its own pull request. It doesn't block #197.
 - **Size:** _small_.
 
+#### DRF-56 — With a landing, an item that left the collection but stays in its list is landed from the wrong place
+
+Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `drag/displacement-1`, from the rulings on #265's implementation (`DRD-72`'s last note). `DRF-55` is the highest `DRF-` on any branch on `origin`, so this is the next free number. Read in Chromium at `60caca966` and with `main`'s source at `ca6918376` ([reading](displacement-1/checks/late-commit.txt), [probe](displacement-1/probes/late-commit.browser.test.ts.txt)). It is the same with `displacement` and without.
+
+- **What happens:** during a drag the consumer drops the item from `items()` but leaves it in the list, and calls `invalidate()`. The drag is canceled (`sortable:item-removed`), and with a `landing` the visual jumps to another place and flies from there to its own. `r1`, released at 130 px, is drawn at 170 in the first frame. `r3`, released at 50, is drawn at 170.
+- **Why, by reading:** `homeInsertion` gives an absent item `from = -1`, and so the gap before the first row. `rebase` keeps it as the home, and `#landingTarget` moves the placeholder there and measures it. The offset of the flight is then from the first row's place, and the visual's own place is elsewhere.
+- **Why it is a finding:** `README.md` says that a removed item cancels the drag, and nothing asks that the node be removed with it. A filtered list does this.
+- **Decided direction:** the place of an item that left the collection is where it stands, as `DRD-72` has it for the rows.
+- **Required properties:**
+  1. The landing of an item that isn't in the collection at the last pull and is in its list lands at the item's own place, from where the visual was drawn, in the three engines, for `y()` and `xy()`, with `displacement` and without.
+  2. Nothing changes for an item that is in the collection, or that left its list (`DRF-55`).
+- **Rows:** one for each property-1 case, reading the first drawn frame after the cancel. **Witness:** each fails at `60caca966`.
+- **Not read:** Firefox, WebKit and Safari.
+- **Ready** for an implementer, in its own pull request, after #275. It doesn't block it.
+- **Size:** _small_.
+
+#### DRF-57 — Rows jump where the placeholder doesn't replace the item's whole footprint
+
+Tier A, **open**, pre-existing, **not ready: the form isn't decided.** Registered on 2026-11-25 by the architect, on `drag/displacement-1`, from `reviewer-2` of #265's [feature proof](reviews/displacement-1/proof-reviewer.md) at `7afeebd11`. `DRF-56` is the highest `DRF-` on any branch on `origin`, so this is the next free number. The proof read it in the three engines for the `y()` lists and in Chromium for the `xy()` ones, and `main`'s source in Chromium ([cases](reviews/displacement-1/proof-reviewer-probes/cases.txt), [probe](reviews/displacement-1/proof-reviewer-probes/proof-cases.browser.test.ts.txt)).
+
+- **What happens:** the placeholder has the size that the lifted visual had, and nothing more. The rows jump by what else the item took with it, or leaves, when it is lifted, committed or released:
+  - **rows with margins that the placeholder hasn't,** such as `margin-bottom: 8px` with `y()`: 8 px;
+  - **a visual that isn't the item, in an item with a footprint of its own,** such as 6 px of padding: 12 px in `y()`, 12 to 24 px in `xy()`, and a row goes to another line where that footprint and the placeholder together don't fit, 151 to 163 px.
+- **On `main`:** a resolved pointer drop jumps by the same 8, 12 or 20 px. In a key move the jump is a part of the row's own jump there. With `DRD-72` the row slides from a place that is wrong by that much. In one case, named in `DRD-72`'s last note, the first frame is further away than on `main`.
+- **Seen with it:** the item's own remaining box, where it draws one, jumps in a key move by up to 72 px in these lists.
+- **Why it is a finding:** `DRI-14` says that margins on one side of each item meet `y()`'s term, and nothing told an integrator that the rows jump there. With #275 the README and `DRI-22` do, as a limit.
+- **What limits it:** `[data-drag-placeholder]` with the rows' margin, for the first. No style was found for the second.
+- **Required property:** with the placeholder that the library creates, a lift, a commit and a release draw each other row where the frame before drew it, for the two kinds of list, or the contract says which it doesn't hold for and why. The library writes the placeholder no style but its size today (`createPlaceholder`), so mirroring margins is a decision.
+- **Not read:** whether mirrored margins collapse as the item's did, margins and padding in a grid, a pointer drag's first frame after the lift with a visual that isn't the item, and the three engines for `xy()`.
+- **Size:** _large_, because a decision comes first.
+
 ## Owner decisions
 
 None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DRO-9` and `DRO-10` are approved, and `DRO-7`, `DRO-8` and `DRO-12` are accepted. **What remains the owner's before merge** is in [`combined-review-assessment.md`](combined-review-assessment.md) §7: `DRO-10`'s excess, the reported costs that no approval covers, and whether to merge with the known failures that unchanged budgets leave.
@@ -5857,3 +6045,4 @@ No timing was taken.
 | DRD-69 | active, decided on 2026-11-15 by the architect on the owner's commit `988643dc9` and direction `DRO-21`. Adopts the commit. No member carries a guarantee about its receiver, and no built-in declares `this` for a receiver check. Amended the contract's public surface in its record commit. Supersedes `DRD-20`'s bullet on controller methods and `this`, `DRD-35` property 7's `this` requirement, `DRD-37` property 4 and `DRD-63` property 2. **When decided, unimplemented:** [`size-acceptance-cleanup-handoff.md`](size-acceptance-cleanup-handoff.md) items 7 to 9 implement it. **Implemented at `a3423c793`** apart from `SortableBehavior.invalidate`'s `this`. **Property 4 amended on 2026-11-15 at `7f963e54a`** to name that member, which its rule covered and its list left out. [`size-acceptance-follow-up-handoff.md`](size-acceptance-follow-up-handoff.md) item 1 implements it. **Implemented in full at `7763a67a1`,** and accepted at `db76672a3` (§Disposition of the size acceptance follow-up report) |
 | DRD-70 | proposed on 2026-11-20 and deferred by the owner the same day. Not in force |
 | DRD-71 | active, decided on 2026-11-24 by the architect and accepted by the owner the same day (Q1 (a)). Amended the contract's public surface in the implementing commit. Implemented at `ec2fd5ec2` on `drag/command-signal-1` (#235), and accepted by the architect on 2026-11-24. `repo:RF-127` uses it, and `repo:RF-129` will |
+| DRD-72 | decided on 2026-11-25 by the architect, on `drag/displacement-1`, for #265. Implemented at `fcbd26a4d` (#275), and not accepted yet. Amended the same day by the architect, in properties 1, 2, 3, 4 and 8. The owner answered Q1 the same day, (a): the cost is accepted. Amended `DRI-14`, `DRI-17` and the public surface in the implementing commit |

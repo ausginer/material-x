@@ -838,6 +838,271 @@ describe('useRovingTabindex', () => {
     });
   });
 
+  describe('items that cannot take focus', () => {
+    const WAYS = [
+      { attribute: 'hidden', way: 'hidden' },
+      { attribute: 'disabled', way: 'disabled' },
+    ] as const;
+
+    async function mountThree(hostValue?: string) {
+      const host = createHost({ dir: 'ltr' });
+      const items = ['first', 'second', 'third'].map((value) =>
+        createItem({ value }),
+      );
+
+      if (hostValue) {
+        host.value = hostValue;
+      }
+
+      await mountHost(host, ...items);
+
+      return [host, items as [TestItem, TestItem, TestItem]] as const;
+    }
+
+    describe.each(WAYS)('$way', ({ attribute }) => {
+      it('should move the tab stop off the item that has it', async () => {
+        const [, items] = await mountThree();
+
+        items[0][attribute] = true;
+        await nextFrame();
+
+        expectTabStop(items, items[1]);
+      });
+
+      it('should move the tab stop off the item of the host value', async () => {
+        const [, items] = await mountThree('second');
+
+        items[1][attribute] = true;
+        await nextFrame();
+
+        expectTabStop(items, items[0]);
+      });
+
+      it('should give the tab stop back to the first item', async () => {
+        const [, items] = await mountThree();
+
+        items[0][attribute] = true;
+        await nextFrame();
+        items[0][attribute] = false;
+        await nextFrame();
+
+        expectTabStop(items, items[0]);
+      });
+
+      it('should give the tab stop back to the item that focus chose', async () => {
+        const [, items] = await mountThree();
+
+        items[1].focus();
+        items[1].blur();
+        items[1][attribute] = true;
+        await nextFrame();
+        const between = items.map((item) => item.tabIndex);
+        items[1][attribute] = false;
+        await nextFrame();
+
+        expect(between).toEqual([0, -1, -1]);
+        expectTabStop(items, items[1]);
+      });
+
+      it('should keep the tab stop that focus chose when the first item is available again', async () => {
+        const [, items] = await mountThree();
+
+        items[0][attribute] = true;
+        await nextFrame();
+        items[2].focus();
+        items[0][attribute] = false;
+        await nextFrame();
+
+        expectTabStop(items, items[2]);
+      });
+
+      it('should choose the tab stop again for an item added later', async () => {
+        const [host, items] = await mountThree();
+        const added = createItem({ value: 'added' });
+        host.prepend(added);
+        await nextFrame();
+
+        added[attribute] = true;
+        await nextFrame();
+
+        expectTabStop([added, ...items], items[0]);
+      });
+
+      it('should ignore an item that left the slot', async () => {
+        const [, items] = await mountThree('second');
+        const [left] = items;
+        left.remove();
+        await nextFrame();
+        items[2].focus();
+
+        left[attribute] = true;
+        await nextFrame();
+
+        // Another choice would give it back to the item of the host value.
+        expectTabStop(items.slice(1), items[2]);
+      });
+
+      it('should have no tab stop when no item can take focus', async () => {
+        const [, items] = await mountThree();
+
+        for (const item of items) {
+          item[attribute] = true;
+        }
+
+        await nextFrame();
+
+        expectTabStop(items);
+      });
+
+      it('should choose the tab stop in a host that was built while out', async () => {
+        const host = createHost();
+        const first = createItem({ value: 'first' });
+        const second = createItem({ value: 'second' });
+        first[attribute] = true;
+        host.append(first, second);
+        await nextFrame();
+
+        document.body.append(host);
+        await nextFrame();
+
+        expectTabStop([first, second], second);
+      });
+
+      it('should choose the tab stop in a host that was changed while out', async () => {
+        const [host, items] = await mountThree();
+        host.remove();
+        await nextFrame();
+        items[0][attribute] = true;
+        await nextFrame();
+
+        document.body.append(host);
+        await nextFrame();
+
+        expectTabStop(items, items[1]);
+      });
+    });
+
+    it('should not give the tab stop to an item hidden in the markup', async () => {
+      const host = createHost();
+      const first = createItem({ value: 'first' });
+      const second = createItem({ value: 'second' });
+      first.hidden = true;
+
+      await mountHost(host, first, second);
+
+      expectTabStop([first, second], second);
+    });
+
+    it('should not give the tab stop to a hidden item of a later definition', async () => {
+      const tag = nameCE();
+      const host = createHost();
+      const late = document.createElement(tag);
+      const second = createItem({ value: 'second' });
+      late.hidden = true;
+      await mountHost(host, late, second);
+
+      defineCE(tag, class extends TestItem {});
+      await nextFrame();
+
+      expectTabStop([late, second], second);
+    });
+
+    it.each([
+      { from: 0, key: '{ArrowRight}', off: 1, to: 2 },
+      { from: 2, key: '{ArrowLeft}', off: 1, to: 0 },
+      { from: 2, key: '{ArrowRight}', off: 0, to: 1 },
+      { from: 2, key: '{Home}', off: 0, to: 1 },
+      { from: 0, key: '{End}', off: 2, to: 1 },
+    ])(
+      'should skip a hidden item $off on $key from item $from',
+      async ({ from, key, off, to }) => {
+        const [, items] = await mountThree();
+        items[off]!.hidden = true;
+        await nextFrame();
+
+        items[from]!.focus();
+        await userEvent.setup().keyboard(key);
+
+        expect(document.activeElement).toBe(items[to]);
+        expectTabStop(items, items[to]);
+      },
+    );
+
+    it('should skip an item on an arrow key that a style alone hides', async () => {
+      const [, items] = await mountThree();
+
+      items[0].focus();
+      items[1].style.display = 'none';
+      await userEvent.setup().keyboard('{ArrowRight}');
+
+      expect(document.activeElement).toBe(items[2]);
+    });
+
+    describe("hidden and shown by a page's display", () => {
+      it('should not give the tab stop to the item', async () => {
+        const [, items] = await mountThree();
+
+        items[0].style.display = 'block';
+        items[0].hidden = true;
+        await nextFrame();
+
+        expectTabStop(items, items[1]);
+      });
+
+      it('should pass the item on an arrow key', async () => {
+        const [, items] = await mountThree();
+
+        items[1].style.display = 'block';
+        items[1].hidden = true;
+        await nextFrame();
+        items[0].focus();
+        await userEvent.setup().keyboard('{ArrowRight}');
+
+        expect(document.activeElement).toBe(items[2]);
+      });
+    });
+
+    describe.each(['ancestor', 'host'] as const)(
+      'hidden while the %s is hidden',
+      (where) => {
+        it('should give the tab stop to the next item once the host is shown', async () => {
+          // A `display: contents` host, as a component whose own element is
+          // the box. In a subtree that isn't rendered, an engine can keep its
+          // former computed `display` after `hidden` is set.
+          class ContentsItem extends TestItem {
+            constructor() {
+              super();
+              this.attachShadow({ mode: 'open' }).innerHTML =
+                '<style>:host { display: contents; } :host([hidden]) { display: none; }</style>';
+            }
+          }
+          defineCE(nameCE(), ContentsItem);
+          const ancestor = document.createElement('div');
+          const host = createHost();
+          const items = ['first', 'second', 'third'].map((value) => {
+            const item = new ContentsItem();
+            item.value = value;
+            return item;
+          });
+          document.body.append(ancestor);
+          ancestor.append(host);
+          host.append(...items);
+          await nextFrame();
+          const hiding = where === 'host' ? host : ancestor;
+
+          hiding.hidden = true;
+          await nextFrame();
+          items[0]!.hidden = true;
+          await nextFrame();
+          hiding.hidden = false;
+          await nextFrame();
+
+          expectTabStop(items, items[1]);
+        });
+      },
+    );
+  });
+
   describe('keyboard navigation', () => {
     it('should focus the first enabled item on Home', async () => {
       const host = createHost();

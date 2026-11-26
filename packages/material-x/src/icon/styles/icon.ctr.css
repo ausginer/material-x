@@ -20,3 +20,8 @@
   text-rendering: optimizelegibility;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* WebKit ignores `aria-hidden` on an element without a box. */
+slot {
+  display: inline;
+}

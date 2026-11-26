@@ -1,0 +1,163 @@
+# The architect's probe, Chromium, 2026-11-25: probes/late-commit.browser.test.ts.txt, at 60caca966 (new) and with packages/drag/src of ca6918376 (old). 'old' needs MODE 'old', 'new' needs 'new'. Tops of the rows in px, frames 0 and 1 after the end, then with the row animations finished. r3 and r1 are the pressed item of 'absent'; r1 of the rest. The landing is 100 ms.
+
+new absent r1 landing=false disp=true before r0:0 r1:130 r2:40 r3:80 r4:160
+new absent r1 landing=false disp=true frame0 r0:0 r1:40 r2:40 r3:80 r4:160
+new absent r1 landing=false disp=true frame1 r0:0 r1:40 r2:40 r3:80 r4:160
+new absent r1 landing=false disp=true settled r0:0 r1:40 r2:80 r3:120 r4:160 start,end:canceled faults 
+new absent r3 landing=false disp=true before r0:0 r1:80 r2:120 r3:50 r4:160
+new absent r3 landing=false disp=true frame0 r0:0 r1:80 r2:120 r3:120 r4:160
+new absent r3 landing=false disp=true frame1 r0:0 r1:80 r2:120 r3:120 r4:160
+new absent r3 landing=false disp=true settled r0:0 r1:40 r2:80 r3:120 r4:160 start,end:canceled faults 
+new late landing=false disp=true before r0:0 r1:130 r2:40 r3:80 r4:160
+new late landing=false disp=true frame0 r0:0 r2:0 r3:40 r1:120 r4:160
+new late landing=false disp=true frame1 r0:0 r2:0 r3:40 r1:120 r4:160
+new late landing=false disp=true settled r0:0 r2:40 r3:80 r1:120 r4:160 r0,r2,r3,r1,r4
+new raf landing=false disp=true before r0:0 r1:130 r2:40 r3:80 r4:160
+new raf landing=false disp=true frame0 r0:0 r2:0 r3:40 r1:120 r4:160
+new raf landing=false disp=true frame1 r0:0 r2:0 r3:40 r1:120 r4:160
+new raf landing=false disp=true settled r0:0 r2:40 r3:80 r1:120 r4:160 r0,r2,r3,r1,r4
+new keylate landing=false disp=true before r0:0 r1:40 r2:80 r3:120 r4:160
+new keylate landing=false disp=true frame0 r0:0 r2:40 r1:80 r3:120 r4:160
+new keylate landing=false disp=true frame1 r0:0 r2:40 r1:80 r3:120 r4:160
+new keylate landing=false disp=true settled r0:0 r2:40 r1:80 r3:120 r4:160 r0,r2,r1,r3,r4
+new absent r1 landing=false disp=false before r0:0 r1:130 r2:40 r3:80 r4:160
+new absent r1 landing=false disp=false frame0 r0:0 r1:40 r2:80 r3:120 r4:160
+new absent r1 landing=false disp=false frame1 r0:0 r1:40 r2:80 r3:120 r4:160
+new absent r1 landing=false disp=false settled r0:0 r1:40 r2:80 r3:120 r4:160 start,end:canceled faults 
+new absent r3 landing=false disp=false before r0:0 r1:80 r2:120 r3:50 r4:160
+new absent r3 landing=false disp=false frame0 r0:0 r1:40 r2:80 r3:120 r4:160
+new absent r3 landing=false disp=false frame1 r0:0 r1:40 r2:80 r3:120 r4:160
+new absent r3 landing=false disp=false settled r0:0 r1:40 r2:80 r3:120 r4:160 start,end:canceled faults 
+new late landing=false disp=false before r0:0 r1:130 r2:40 r3:80 r4:160
+new late landing=false disp=false frame0 r0:0 r2:40 r3:80 r1:120 r4:160
+new late landing=false disp=false frame1 r0:0 r2:40 r3:80 r1:120 r4:160
+new late landing=false disp=false settled r0:0 r2:40 r3:80 r1:120 r4:160 r0,r2,r3,r1,r4
+new raf landing=false disp=false before r0:0 r1:130 r2:40 r3:80 r4:160
+new raf landing=false disp=false frame0 r0:0 r2:40 r3:80 r1:120 r4:160
+new raf landing=false disp=false frame1 r0:0 r2:40 r3:80 r1:120 r4:160
+new raf landing=false disp=false settled r0:0 r2:40 r3:80 r1:120 r4:160 r0,r2,r3,r1,r4
+new keylate landing=false disp=false before r0:0 r1:40 r2:80 r3:120 r4:160
+new keylate landing=false disp=false frame0 r0:0 r2:40 r1:80 r3:120 r4:160
+new keylate landing=false disp=false frame1 r0:0 r2:40 r1:80 r3:120 r4:160
+new keylate landing=false disp=false settled r0:0 r2:40 r1:80 r3:120 r4:160 r0,r2,r1,r3,r4
+new absent r1 landing=true disp=true before r0:0 r1:130 r2:40 r3:80 r4:160
+new absent r1 landing=true disp=true frame0 r0:0 r1:170 r2:40 r3:80 r4:160
+new absent r1 landing=true disp=true frame1 r0:0 r1:141 r2:40 r3:80 r4:160
+new absent r1 landing=true disp=true settled r0:0 r1:50 r2:80 r3:120 r4:160 start,end:canceled faults 
+new absent r3 landing=true disp=true before r0:0 r1:80 r2:120 r3:50 r4:160
+new absent r3 landing=true disp=true frame0 r0:0 r1:80 r2:120 r3:170 r4:160
+new absent r3 landing=true disp=true frame1 r0:0 r1:80 r2:120 r3:159 r4:160
+new absent r3 landing=true disp=true settled r0:0 r1:40 r2:80 r3:124 r4:160 start,end:canceled faults 
+new late landing=true disp=true before r0:0 r1:130 r2:40 r3:80 r4:160
+new late landing=true disp=true frame0 r0:0 r2:0 r3:40 r1:210 r4:160
+new late landing=true disp=true frame1 r0:0 r2:0 r3:40 r1:190 r4:160
+new late landing=true disp=true settled r0:0 r2:40 r3:80 r1:127 r4:160 r0,r2,r3,r1,r4
+new raf landing=true disp=true before r0:0 r1:130 r2:40 r3:80 r4:160
+new raf landing=true disp=true frame0 r0:0 r2:0 r3:40 r1:210 r4:160
+new raf landing=true disp=true frame1 r0:0 r2:0 r3:40 r1:190 r4:160
+new raf landing=true disp=true settled r0:0 r2:40 r3:80 r1:127 r4:160 r0,r2,r3,r1,r4
+new keylate landing=true disp=true before r0:0 r1:40 r2:80 r3:120 r4:160
+new keylate landing=true disp=true frame0 r0:0 r2:40 r1:80 r3:120 r4:160
+new keylate landing=true disp=true frame1 r0:0 r2:40 r1:80 r3:120 r4:160
+new keylate landing=true disp=true settled r0:0 r2:40 r1:80 r3:120 r4:160 r0,r2,r1,r3,r4
+new absent r1 landing=true disp=false before r0:0 r1:130 r2:40 r3:80 r4:160
+new absent r1 landing=true disp=false frame0 r0:0 r1:170 r2:80 r3:120 r4:160
+new absent r1 landing=true disp=false frame1 r0:0 r1:141 r2:80 r3:120 r4:160
+new absent r1 landing=true disp=false settled r0:0 r1:50 r2:80 r3:120 r4:160 start,end:canceled faults 
+new absent r3 landing=true disp=false before r0:0 r1:80 r2:120 r3:50 r4:160
+new absent r3 landing=true disp=false frame0 r0:0 r1:40 r2:80 r3:170 r4:160
+new absent r3 landing=true disp=false frame1 r0:0 r1:40 r2:80 r3:159 r4:160
+new absent r3 landing=true disp=false settled r0:0 r1:40 r2:80 r3:124 r4:160 start,end:canceled faults 
+new late landing=true disp=false before r0:0 r1:130 r2:40 r3:80 r4:160
+new late landing=true disp=false frame0 r0:0 r2:40 r3:80 r1:210 r4:160
+new late landing=true disp=false frame1 r0:0 r2:40 r3:80 r1:190 r4:160
+new late landing=true disp=false settled r0:0 r2:40 r3:80 r1:127 r4:160 r0,r2,r3,r1,r4
+new raf landing=true disp=false before r0:0 r1:130 r2:40 r3:80 r4:160
+new raf landing=true disp=false frame0 r0:0 r2:40 r3:80 r1:210 r4:160
+new raf landing=true disp=false frame1 r0:0 r2:40 r3:80 r1:190 r4:160
+new raf landing=true disp=false settled r0:0 r2:40 r3:80 r1:127 r4:160 r0,r2,r3,r1,r4
+new keylate landing=true disp=false before r0:0 r1:40 r2:80 r3:120 r4:160
+new keylate landing=true disp=false frame0 r0:0 r2:40 r1:80 r3:120 r4:160
+new keylate landing=true disp=false frame1 r0:0 r2:40 r1:80 r3:120 r4:160
+new keylate landing=true disp=false settled r0:0 r2:40 r1:80 r3:120 r4:160 r0,r2,r1,r3,r4
+
+old absent r1 landing=false disp=true before r0:0 r1:130 r2:40 r3:80 r4:160
+old absent r1 landing=false disp=true frame0 r0:0 r1:40 r2:80 r3:120 r4:160
+old absent r1 landing=false disp=true frame1 r0:0 r1:40 r2:80 r3:120 r4:160
+old absent r1 landing=false disp=true settled r0:0 r1:40 r2:80 r3:120 r4:160 start,end:canceled faults 
+old absent r3 landing=false disp=true before r0:0 r1:80 r2:120 r3:50 r4:160
+old absent r3 landing=false disp=true frame0 r0:0 r1:40 r2:80 r3:120 r4:160
+old absent r3 landing=false disp=true frame1 r0:0 r1:40 r2:80 r3:120 r4:160
+old absent r3 landing=false disp=true settled r0:0 r1:40 r2:80 r3:120 r4:160 start,end:canceled faults 
+old late landing=false disp=true before r0:0 r1:130 r2:40 r3:80 r4:160
+old late landing=false disp=true frame0 r0:0 r2:40 r3:80 r1:120 r4:160
+old late landing=false disp=true frame1 r0:0 r2:40 r3:80 r1:120 r4:160
+old late landing=false disp=true settled r0:0 r2:40 r3:80 r1:120 r4:160 r0,r2,r3,r1,r4
+old raf landing=false disp=true before r0:0 r1:130 r2:40 r3:80 r4:160
+old raf landing=false disp=true frame0 r0:0 r2:40 r3:80 r1:120 r4:160
+old raf landing=false disp=true frame1 r0:0 r2:40 r3:80 r1:120 r4:160
+old raf landing=false disp=true settled r0:0 r2:40 r3:80 r1:120 r4:160 r0,r2,r3,r1,r4
+old keylate landing=false disp=true before r0:0 r1:40 r2:80 r3:120 r4:160
+old keylate landing=false disp=true frame0 r0:0 r2:40 r1:80 r3:120 r4:160
+old keylate landing=false disp=true frame1 r0:0 r2:40 r1:80 r3:120 r4:160
+old keylate landing=false disp=true settled r0:0 r2:40 r1:80 r3:120 r4:160 r0,r2,r1,r3,r4
+old absent r1 landing=false disp=false before r0:0 r1:130 r2:40 r3:80 r4:160
+old absent r1 landing=false disp=false frame0 r0:0 r1:40 r2:80 r3:120 r4:160
+old absent r1 landing=false disp=false frame1 r0:0 r1:40 r2:80 r3:120 r4:160
+old absent r1 landing=false disp=false settled r0:0 r1:40 r2:80 r3:120 r4:160 start,end:canceled faults 
+old absent r3 landing=false disp=false before r0:0 r1:80 r2:120 r3:50 r4:160
+old absent r3 landing=false disp=false frame0 r0:0 r1:40 r2:80 r3:120 r4:160
+old absent r3 landing=false disp=false frame1 r0:0 r1:40 r2:80 r3:120 r4:160
+old absent r3 landing=false disp=false settled r0:0 r1:40 r2:80 r3:120 r4:160 start,end:canceled faults 
+old late landing=false disp=false before r0:0 r1:130 r2:40 r3:80 r4:160
+old late landing=false disp=false frame0 r0:0 r2:40 r3:80 r1:120 r4:160
+old late landing=false disp=false frame1 r0:0 r2:40 r3:80 r1:120 r4:160
+old late landing=false disp=false settled r0:0 r2:40 r3:80 r1:120 r4:160 r0,r2,r3,r1,r4
+old raf landing=false disp=false before r0:0 r1:130 r2:40 r3:80 r4:160
+old raf landing=false disp=false frame0 r0:0 r2:40 r3:80 r1:120 r4:160
+old raf landing=false disp=false frame1 r0:0 r2:40 r3:80 r1:120 r4:160
+old raf landing=false disp=false settled r0:0 r2:40 r3:80 r1:120 r4:160 r0,r2,r3,r1,r4
+old keylate landing=false disp=false before r0:0 r1:40 r2:80 r3:120 r4:160
+old keylate landing=false disp=false frame0 r0:0 r2:40 r1:80 r3:120 r4:160
+old keylate landing=false disp=false frame1 r0:0 r2:40 r1:80 r3:120 r4:160
+old keylate landing=false disp=false settled r0:0 r2:40 r1:80 r3:120 r4:160 r0,r2,r1,r3,r4
+old absent r1 landing=true disp=true before r0:0 r1:130 r2:40 r3:80 r4:160
+old absent r1 landing=true disp=true frame0 r0:0 r1:170 r2:80 r3:120 r4:160
+old absent r1 landing=true disp=true frame1 r0:0 r1:142 r2:80 r3:120 r4:160
+old absent r1 landing=true disp=true settled r0:0 r1:50 r2:80 r3:120 r4:160 start,end:canceled faults 
+old absent r3 landing=true disp=true before r0:0 r1:80 r2:120 r3:50 r4:160
+old absent r3 landing=true disp=true frame0 r0:0 r1:40 r2:80 r3:170 r4:160
+old absent r3 landing=true disp=true frame1 r0:0 r1:40 r2:80 r3:159 r4:160
+old absent r3 landing=true disp=true settled r0:0 r1:40 r2:80 r3:124 r4:160 start,end:canceled faults 
+old late landing=true disp=true before r0:0 r1:130 r2:40 r3:80 r4:160
+old late landing=true disp=true frame0 r0:0 r2:40 r3:80 r1:210 r4:160
+old late landing=true disp=true frame1 r0:0 r2:40 r3:80 r1:190 r4:160
+old late landing=true disp=true settled r0:0 r2:40 r3:80 r1:127 r4:160 r0,r2,r3,r1,r4
+old raf landing=true disp=true before r0:0 r1:130 r2:40 r3:80 r4:160
+old raf landing=true disp=true frame0 r0:0 r2:40 r3:80 r1:210 r4:160
+old raf landing=true disp=true frame1 r0:0 r2:40 r3:80 r1:190 r4:160
+old raf landing=true disp=true settled r0:0 r2:40 r3:80 r1:127 r4:160 r0,r2,r3,r1,r4
+old keylate landing=true disp=true before r0:0 r1:40 r2:80 r3:120 r4:160
+old keylate landing=true disp=true frame0 r0:0 r2:40 r1:80 r3:120 r4:160
+old keylate landing=true disp=true frame1 r0:0 r2:40 r1:80 r3:120 r4:160
+old keylate landing=true disp=true settled r0:0 r2:40 r1:80 r3:120 r4:160 r0,r2,r1,r3,r4
+old absent r1 landing=true disp=false before r0:0 r1:130 r2:40 r3:80 r4:160
+old absent r1 landing=true disp=false frame0 r0:0 r1:170 r2:80 r3:120 r4:160
+old absent r1 landing=true disp=false frame1 r0:0 r1:142 r2:80 r3:120 r4:160
+old absent r1 landing=true disp=false settled r0:0 r1:50 r2:80 r3:120 r4:160 start,end:canceled faults 
+old absent r3 landing=true disp=false before r0:0 r1:80 r2:120 r3:50 r4:160
+old absent r3 landing=true disp=false frame0 r0:0 r1:40 r2:80 r3:170 r4:160
+old absent r3 landing=true disp=false frame1 r0:0 r1:40 r2:80 r3:159 r4:160
+old absent r3 landing=true disp=false settled r0:0 r1:40 r2:80 r3:124 r4:160 start,end:canceled faults 
+old late landing=true disp=false before r0:0 r1:130 r2:40 r3:80 r4:160
+old late landing=true disp=false frame0 r0:0 r2:40 r3:80 r1:210 r4:160
+old late landing=true disp=false frame1 r0:0 r2:40 r3:80 r1:190 r4:160
+old late landing=true disp=false settled r0:0 r2:40 r3:80 r1:127 r4:160 r0,r2,r3,r1,r4
+old raf landing=true disp=false before r0:0 r1:130 r2:40 r3:80 r4:160
+old raf landing=true disp=false frame0 r0:0 r2:40 r3:80 r1:210 r4:160
+old raf landing=true disp=false frame1 r0:0 r2:40 r3:80 r1:190 r4:160
+old raf landing=true disp=false settled r0:0 r2:40 r3:80 r1:127 r4:160 r0,r2,r3,r1,r4
+old keylate landing=true disp=false before r0:0 r1:40 r2:80 r3:120 r4:160
+old keylate landing=true disp=false frame0 r0:0 r2:40 r1:80 r3:120 r4:160
+old keylate landing=true disp=false frame1 r0:0 r2:40 r1:80 r3:120 r4:160
+old keylate landing=true disp=false settled r0:0 r2:40 r1:80 r3:120 r4:160 r0,r2,r1,r3,r4

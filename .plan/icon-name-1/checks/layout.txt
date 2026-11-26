@@ -1,0 +1,323 @@
+# chromium 158.0.8127.18
+slotblock differs | inline ligature | host 0,-2,96,28 content 0,-2,96,28 -> host 0,0,320,24 content 0,-2,96,28 | pixels the same
+spanblock differs | inline ligature | host 0,-2,96,28 content 0,-2,96,28 -> host 0,0,320,24 content 0,-2,96,28 | pixels the same
+spangrid differs | inline ligature | host 0,-2,96,28 content 0,-2,96,28 -> host 0,0,320,24 content 0,-2,96,28 | pixels the same
+spanflex differs | inline ligature | host 0,-2,96,28 content 0,-2,96,28 -> host 0,0,320,24 content 0,-2,96,28 | pixels the same
+spangrid differs | own svg18 | host 0,0,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spanflex differs | own svg18 | host 0,0,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spangrid differs | block svg18 | host 0,0,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spanflex differs | block svg18 | host 0,0,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+span differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+slotinline differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+slotblock differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spanblock differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineblock differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+span differs | inlineflex svg18 | host 0,4,24,24 content 0,4,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+slotinline differs | inlineflex svg18 | host 0,4,24,24 content 0,4,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+slotblock differs | inlineflex svg18 | host 0,4,24,24 content 0,4,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spanblock differs | inlineflex svg18 | host 0,4,24,24 content 0,4,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineblock differs | inlineflex svg18 | host 0,4,24,24 content 0,4,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+span differs | flexcenter svg18 | host 0,1,24,24 content 3,4,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels differ
+slotinline differs | flexcenter svg18 | host 0,1,24,24 content 3,4,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels differ
+slotblock differs | flexcenter svg18 | host 0,1,24,24 content 3,4,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels differ
+spanblock differs | flexcenter svg18 | host 0,1,24,24 content 3,4,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels differ
+spaninlineblock differs | flexcenter svg18 | host 0,1,24,24 content 3,4,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels differ
+span differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotinline differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotblock differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+spanblock differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+spaninlineblock differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+span differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+slotinline differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+slotblock differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spanblock differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineblock differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+span differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotinline differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotblock differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+spanblock differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+spaninlineblock differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotblock differs | inline svg18 | host 0,-2,18,28 content 0,6,18,18 -> host 0,0,320,24 content 0,6,18,18 | pixels the same
+spanblock differs | inline svg18 | host 0,-2,18,28 content 0,6,18,18 -> host 0,0,320,24 content 0,6,18,18 | pixels the same
+spangrid differs | inline svg18 | host 0,-2,18,28 content 0,6,18,18 -> host 0,0,320,18 content 0,0,18,18 | pixels differ
+spanflex differs | inline svg18 | host 0,-2,18,28 content 0,6,18,18 -> host 0,0,320,18 content 0,0,18,18 | pixels differ
+span differs | contents svg18 | host - content 0,4,18,18 -> host - content 0,6,18,18 | pixels differ
+slotinline differs | contents svg18 | host - content 0,4,18,18 -> host - content 0,6,18,18 | pixels differ
+slotblock differs | contents svg18 | host - content 0,4,18,18 -> host - content 0,6,18,18 | pixels differ
+spanblock differs | contents svg18 | host - content 0,4,18,18 -> host - content 0,6,18,18 | pixels differ
+spaninlineblock differs | contents svg18 | host - content 0,4,18,18 -> host - content 0,6,18,18 | pixels differ
+spangrid differs | contents svg18 | host - content 0,4,18,18 -> host - content 0,0,18,18 | pixels differ
+spanflex differs | contents svg18 | host - content 0,4,18,18 -> host - content 0,0,18,18 | pixels differ
+span differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.5,18,18 | pixels differ
+slotinline differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.5,18,18 | pixels differ
+slotblock differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.5,18,18 | pixels differ
+spanblock differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.5,18,18 | pixels differ
+spaninlineblock differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.5,18,18 | pixels differ
+spangrid differs | icon-button svg18 | host 8,8,24,24 content 11,14,18,18 -> host 8,8,24,24 content 8,8,18,18 | pixels differ
+spanflex differs | icon-button svg18 | host 8,8,24,24 content 11,14,18,18 -> host 8,8,24,24 content 8,8,18,18 | pixels differ
+spangrid differs | button svg18 | host 16,10,20,20 content 17,12,18,18 -> host 16,10,20,20 content 16,10,18,18 | pixels differ
+spanflex differs | button svg18 | host 16,10,20,20 content 17,12,18,18 -> host 16,10,20,20 content 16,10,18,18 | pixels differ
+spangrid differs | fab svg18 | host 16,16,24,24 content 16,22,18,18 -> host 16,16,24,24 content 16,16,18,18 | pixels differ
+spanflex differs | fab svg18 | host 16,16,24,24 content 16,22,18,18 -> host 16,16,24,24 content 16,16,18,18 | pixels differ
+spaninlineblock differs | own svg18block | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineflex differs | own svg18block | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineblock differs | block svg18block | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineflex differs | block svg18block | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+span differs | inlineflex svg18block | host 0,4,24,24 content 0,4,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+slotinline differs | inlineflex svg18block | host 0,4,24,24 content 0,4,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+slotblock differs | inlineflex svg18block | host 0,4,24,24 content 0,4,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spanblock differs | inlineflex svg18block | host 0,4,24,24 content 0,4,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spaninlineblock differs | inlineflex svg18block | host 0,4,24,24 content 0,4,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spaninlineblock differs | inline svg18block | host 0,0,320,18 content 0,0,18,18 -> host 0,-2,18,28 content 0,6,18,18 | pixels differ
+spaninlineflex differs | inline svg18block | host 0,0,320,18 content 0,0,18,18 -> host 0,-2,18,28 content 0,6,18,18 | pixels differ
+spaninlineblock differs | contents svg18block | host - content 0,0,18,18 -> host - content 0,4,18,18 | pixels differ
+spaninlineflex differs | contents svg18block | host - content 0,0,18,18 -> host - content 0,4,18,18 | pixels differ
+spaninlineblock differs | icon-button svg18block | host 8,8,24,24 content 8,8,18,18 -> host 8,8,24,24 content 11,14,18,18 | pixels differ
+spaninlineflex differs | icon-button svg18block | host 8,8,24,24 content 8,8,18,18 -> host 8,8,24,24 content 11,14,18,18 | pixels differ
+spaninlineblock differs | button svg18block | host 16,10,20,20 content 16,10,18,18 -> host 16,10,20,20 content 17,12,18,18 | pixels differ
+spaninlineflex differs | button svg18block | host 16,10,20,20 content 16,10,18,18 -> host 16,10,20,20 content 17,12,18,18 | pixels differ
+spaninlineblock differs | fab svg18block | host 16,16,24,24 content 16,16,18,18 -> host 16,16,24,24 content 16,22,18,18 | pixels differ
+spaninlineflex differs | fab svg18block | host 16,16,24,24 content 16,16,18,18 -> host 16,16,24,24 content 16,22,18,18 | pixels differ
+slotblock differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spanblock differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spaninlineblock differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,274,300,28 content 0,0,300,300 | pixels differ
+spangrid differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spanflex differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spaninlineflex differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,274,300,28 content 0,0,300,300 | pixels differ
+slotblock differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spanblock differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spaninlineblock differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,300,300 | pixels differ
+spangrid differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spanflex differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spaninlineflex differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,300,300 | pixels differ
+slotblock differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spanblock differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spaninlineblock differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,274,300,28 content 0,0,300,300 | pixels differ
+spangrid differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spanflex differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spaninlineflex differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,274,300,28 content 0,0,300,300 | pixels differ
+slotblock differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spanblock differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spaninlineblock differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,300,300 | pixels differ
+spangrid differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spanflex differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spaninlineflex differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,300,300 | pixels differ
+70 cases; differ from main: {"span":9,"contents":0,"slotinline":9,"slotblock":15,"spanblock":15,"spaninlineblock":20,"spangrid":12,"spanflex":12,"spaninlineflex":11}
+# firefox 159.0
+slotblock differs | inline ligature | host 0,-2,96,28 content 0,-2,96,28 -> host 0,0,320,24 content 0,-2,96,28 | pixels the same
+spanblock differs | inline ligature | host 0,-2,96,28 content 0,-2,96,28 -> host 0,0,320,24 content 0,-2,96,28 | pixels the same
+spangrid differs | inline ligature | host 0,-2,96,28 content 0,-2,96,28 -> host 0,0,320,24 content 0,-2,96,28 | pixels the same
+spanflex differs | inline ligature | host 0,-2,96,28 content 0,-2,96,28 -> host 0,0,320,24 content 0,-2,96,28 | pixels the same
+spangrid differs | own svg18 | host 0,0,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spanflex differs | own svg18 | host 0,0,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spangrid differs | block svg18 | host 0,0,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spanflex differs | block svg18 | host 0,0,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+span differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+slotinline differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+slotblock differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spanblock differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineblock differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+span differs | inlineflex svg18 | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels the same
+slotinline differs | inlineflex svg18 | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels the same
+slotblock differs | inlineflex svg18 | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels the same
+spanblock differs | inlineflex svg18 | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels the same
+spaninlineblock differs | inlineflex svg18 | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels the same
+span differs | flexcenter svg18 | host 0,3,24,24 content 3,6,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels the same
+slotinline differs | flexcenter svg18 | host 0,3,24,24 content 3,6,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels the same
+slotblock differs | flexcenter svg18 | host 0,3,24,24 content 3,6,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels the same
+spanblock differs | flexcenter svg18 | host 0,3,24,24 content 3,6,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels the same
+spaninlineblock differs | flexcenter svg18 | host 0,3,24,24 content 3,6,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels the same
+span differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotinline differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotblock differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+spanblock differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+spaninlineblock differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+span differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+slotinline differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+slotblock differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spanblock differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineblock differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+span differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotinline differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotblock differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+spanblock differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+spaninlineblock differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotblock differs | inline svg18 | host 0,-2,18,28 content 0,6,18,18 -> host 0,0,320,24 content 0,6,18,18 | pixels the same
+spanblock differs | inline svg18 | host 0,-2,18,28 content 0,6,18,18 -> host 0,0,320,24 content 0,6,18,18 | pixels the same
+spangrid differs | inline svg18 | host 0,-2,18,28 content 0,6,18,18 -> host 0,0,320,18 content 0,0,18,18 | pixels differ
+spanflex differs | inline svg18 | host 0,-2,18,28 content 0,6,18,18 -> host 0,0,320,18 content 0,0,18,18 | pixels differ
+spangrid differs | contents svg18 | host - content 0,6,18,18 -> host - content 0,0,18,18 | pixels differ
+spanflex differs | contents svg18 | host - content 0,6,18,18 -> host - content 0,0,18,18 | pixels differ
+span differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.75,18,18 | pixels differ
+slotinline differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.75,18,18 | pixels differ
+slotblock differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.75,18,18 | pixels differ
+spanblock differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.75,18,18 | pixels differ
+spaninlineblock differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.75,18,18 | pixels differ
+spangrid differs | icon-button svg18 | host 8,8,24,24 content 11,14,18,18 -> host 8,8,24,24 content 8,8,18,18 | pixels differ
+spanflex differs | icon-button svg18 | host 8,8,24,24 content 11,14,18,18 -> host 8,8,24,24 content 8,8,18,18 | pixels differ
+spangrid differs | button svg18 | host 16,10,20,20 content 17,12,18,18 -> host 16,10,20,20 content 16,10,18,18 | pixels differ
+spanflex differs | button svg18 | host 16,10,20,20 content 17,12,18,18 -> host 16,10,20,20 content 16,10,18,18 | pixels differ
+spangrid differs | fab svg18 | host 16,16,24,24 content 16,22,18,18 -> host 16,16,24,24 content 16,16,18,18 | pixels differ
+spanflex differs | fab svg18 | host 16,16,24,24 content 16,22,18,18 -> host 16,16,24,24 content 16,16,18,18 | pixels differ
+spaninlineblock differs | own svg18block | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineflex differs | own svg18block | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineblock differs | block svg18block | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineflex differs | block svg18block | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+span differs | inlineflex svg18block | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+slotinline differs | inlineflex svg18block | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+slotblock differs | inlineflex svg18block | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spanblock differs | inlineflex svg18block | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spaninlineblock differs | inlineflex svg18block | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+slotblock differs | inline svg18block | host 0,0,18,18 content 0,0,18,18 -> host 0,0,320,18 content 0,0,18,18 | pixels the same
+spanblock differs | inline svg18block | host 0,0,18,18 content 0,0,18,18 -> host 0,0,320,18 content 0,0,18,18 | pixels the same
+spaninlineblock differs | inline svg18block | host 0,0,18,18 content 0,0,18,18 -> host 0,-2,18,28 content 0,6,18,18 | pixels differ
+spangrid differs | inline svg18block | host 0,0,18,18 content 0,0,18,18 -> host 0,0,320,18 content 0,0,18,18 | pixels the same
+spanflex differs | inline svg18block | host 0,0,18,18 content 0,0,18,18 -> host 0,0,320,18 content 0,0,18,18 | pixels the same
+spaninlineflex differs | inline svg18block | host 0,0,18,18 content 0,0,18,18 -> host 0,-2,18,28 content 0,6,18,18 | pixels differ
+spaninlineblock differs | contents svg18block | host - content 0,0,18,18 -> host - content 0,6,18,18 | pixels differ
+spaninlineflex differs | contents svg18block | host - content 0,0,18,18 -> host - content 0,6,18,18 | pixels differ
+spaninlineblock differs | icon-button svg18block | host 8,8,24,24 content 8,8,18,18 -> host 8,8,24,24 content 11,14,18,18 | pixels differ
+spaninlineflex differs | icon-button svg18block | host 8,8,24,24 content 8,8,18,18 -> host 8,8,24,24 content 11,14,18,18 | pixels differ
+spaninlineblock differs | button svg18block | host 16,10,20,20 content 16,10,18,18 -> host 16,10,20,20 content 17,12,18,18 | pixels differ
+spaninlineflex differs | button svg18block | host 16,10,20,20 content 16,10,18,18 -> host 16,10,20,20 content 17,12,18,18 | pixels differ
+spaninlineblock differs | fab svg18block | host 16,16,24,24 content 16,16,18,18 -> host 16,16,24,24 content 16,22,18,18 | pixels differ
+spaninlineflex differs | fab svg18block | host 16,16,24,24 content 16,16,18,18 -> host 16,16,24,24 content 16,22,18,18 | pixels differ
+spangrid differs | flexcenter svg100 | host 0,0,24,24 content 0,0,24,24 -> host 0,12,24,24 content 12,24,0,0 | pixels differ
+spangrid differs | sized svg100 | host 0,0,40,40 content 0,0,40,40 -> host 0,0,40,40 content 20,20,0,0 | pixels differ
+spangrid differs | gridcenter svg100 | host 0,0,40,40 content 0,0,40,40 -> host 0,4,40,40 content 20,24,0,0 | pixels differ
+slotblock differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spanblock differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spaninlineblock differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,274,300,28 content 0,0,300,300 | pixels differ
+spangrid differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spanflex differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spaninlineflex differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,274,300,28 content 0,0,300,300 | pixels differ
+slotblock differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spanblock differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spaninlineblock differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,300,300 | pixels differ
+spangrid differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spanflex differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spaninlineflex differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,300,300 | pixels differ
+spangrid differs | avatar svg100 | host 16,10,40,40 content 16,10,40,40 -> host 16,10,40,40 content 36,30,0,0 | pixels differ
+spangrid differs | flexcenter svgfill | host 0,0,24,24 content 0,0,24,24 -> host 0,12,24,24 content 12,24,0,0 | pixels differ
+spangrid differs | sized svgfill | host 0,0,40,40 content 0,0,40,40 -> host 0,0,40,40 content 20,20,0,0 | pixels differ
+spangrid differs | gridcenter svgfill | host 0,0,40,40 content 0,0,40,40 -> host 0,4,40,40 content 20,24,0,0 | pixels differ
+slotblock differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spanblock differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spaninlineblock differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,274,300,28 content 0,0,300,300 | pixels differ
+spangrid differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spanflex differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spaninlineflex differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,274,300,28 content 0,0,300,300 | pixels differ
+slotblock differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spanblock differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spaninlineblock differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,300,300 | pixels differ
+spangrid differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spanflex differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spaninlineflex differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,300,300 | pixels differ
+spangrid differs | avatar svgfill | host 16,10,40,40 content 16,10,40,40 -> host 16,10,40,40 content 36,30,0,0 | pixels differ
+70 cases; differ from main: {"span":8,"contents":0,"slotinline":8,"slotblock":15,"spanblock":15,"spaninlineblock":19,"spangrid":21,"spanflex":13,"spaninlineflex":11}
+# webkit 27.2
+slotblock differs | inline ligature | host 0,-2,96,28 content 0,-2,96,28 -> host 0,0,320,24 content 0,-2,96,28 | pixels the same
+spanblock differs | inline ligature | host 0,-2,96,28 content 0,-2,96,28 -> host 0,0,320,24 content 0,-2,96,28 | pixels the same
+spaninlineblock differs | inline ligature | host 0,-2,96,28 content 0,-2,96,28 -> host 0,-2,96.02,28 content 0,-2,96,28 | pixels the same
+spangrid differs | inline ligature | host 0,-2,96,28 content 0,-2,96,28 -> host 0,0,320,24 content 0,-2,96,28 | pixels the same
+spanflex differs | inline ligature | host 0,-2,96,28 content 0,-2,96,28 -> host 0,0,320,24 content 0,-2,96,28 | pixels the same
+spaninlineflex differs | inline ligature | host 0,-2,96,28 content 0,-2,96,28 -> host 0,-2,96.02,28 content 0,-2,96,28 | pixels the same
+spaninlineblock differs | icon-button ligature | host 8,8,24,24 content 8,6,96,28 -> host 8,8,24,24 content 8.01,6,96,28 | pixels the same
+spangrid differs | icon-button ligature | host 8,8,24,24 content 8,6,96,28 -> host 8,8,24,24 content 8.01,6,96,28 | pixels the same
+spanflex differs | icon-button ligature | host 8,8,24,24 content 8,6,96,28 -> host 8,8,24,24 content 8.01,6,96,28 | pixels the same
+spaninlineflex differs | icon-button ligature | host 8,8,24,24 content 8,6,96,28 -> host 8,8,24,24 content 8.01,6,96,28 | pixels the same
+spangrid differs | own svg18 | host 0,0,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spanflex differs | own svg18 | host 0,0,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spangrid differs | block svg18 | host 0,0,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spanflex differs | block svg18 | host 0,0,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+span differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+slotinline differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+slotblock differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spanblock differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineblock differs | flex svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+span differs | inlineflex svg18 | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels the same
+slotinline differs | inlineflex svg18 | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels the same
+slotblock differs | inlineflex svg18 | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels the same
+spanblock differs | inlineflex svg18 | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels the same
+spaninlineblock differs | inlineflex svg18 | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels the same
+span differs | flexcenter svg18 | host 0,3,24,24 content 3,6,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels the same
+slotinline differs | flexcenter svg18 | host 0,3,24,24 content 3,6,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels the same
+slotblock differs | flexcenter svg18 | host 0,3,24,24 content 3,6,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels the same
+spanblock differs | flexcenter svg18 | host 0,3,24,24 content 3,6,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels the same
+spaninlineblock differs | flexcenter svg18 | host 0,3,24,24 content 3,6,18,18 -> host 0,0,24,24 content 3,6,18,18 | pixels the same
+span differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotinline differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotblock differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+spanblock differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+spaninlineblock differs | sized svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+span differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+slotinline differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+slotblock differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spanblock differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineblock differs | grid svg18 | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+span differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotinline differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotblock differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+spanblock differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+spaninlineblock differs | gridcenter svg18 | host 0,0,40,40 content 11,11,18,18 -> host 0,0,40,40 content 11,14,18,18 | pixels differ
+slotblock differs | inline svg18 | host 0,-2,18,28 content 0,6,18,18 -> host 0,0,320,24 content 0,6,18,18 | pixels the same
+spanblock differs | inline svg18 | host 0,-2,18,28 content 0,6,18,18 -> host 0,0,320,24 content 0,6,18,18 | pixels the same
+spangrid differs | inline svg18 | host 0,-2,18,28 content 0,6,18,18 -> host 0,0,320,18 content 0,0,18,18 | pixels differ
+spanflex differs | inline svg18 | host 0,-2,18,28 content 0,6,18,18 -> host 0,0,320,18 content 0,0,18,18 | pixels differ
+spangrid differs | contents svg18 | host - content 0,6,18,18 -> host - content 0,0,18,18 | pixels differ
+spanflex differs | contents svg18 | host - content 0,6,18,18 -> host - content 0,0,18,18 | pixels differ
+span differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.5,18,18 | pixels differ
+slotinline differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.5,18,18 | pixels differ
+slotblock differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.5,18,18 | pixels differ
+spanblock differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.5,18,18 | pixels differ
+spaninlineblock differs | avatar svg18 | host 16,10,40,40 content 27,21,18,18 -> host 16,10,40,40 content 27,17.5,18,18 | pixels differ
+spangrid differs | icon-button svg18 | host 8,8,24,24 content 11,14,18,18 -> host 8,8,24,24 content 8,8,18,18 | pixels differ
+spanflex differs | icon-button svg18 | host 8,8,24,24 content 11,14,18,18 -> host 8,8,24,24 content 8,8,18,18 | pixels differ
+spangrid differs | button svg18 | host 16,10,20,20 content 17,12,18,18 -> host 16,10,20,20 content 16,10,18,18 | pixels differ
+spanflex differs | button svg18 | host 16,10,20,20 content 17,12,18,18 -> host 16,10,20,20 content 16,10,18,18 | pixels differ
+spangrid differs | fab svg18 | host 16,16,24,24 content 16,22,18,18 -> host 16,16,24,24 content 16,16,18,18 | pixels differ
+spanflex differs | fab svg18 | host 16,16,24,24 content 16,22,18,18 -> host 16,16,24,24 content 16,16,18,18 | pixels differ
+spaninlineblock differs | own svg18block | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineflex differs | own svg18block | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineblock differs | block svg18block | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+spaninlineflex differs | block svg18block | host 0,0,24,24 content 0,0,18,18 -> host 0,0,24,24 content 0,6,18,18 | pixels differ
+span differs | inlineflex svg18block | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+slotinline differs | inlineflex svg18block | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+slotblock differs | inlineflex svg18block | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spanblock differs | inlineflex svg18block | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spaninlineblock differs | inlineflex svg18block | host 0,6,24,24 content 0,6,18,18 -> host 0,0,24,24 content 0,0,18,18 | pixels differ
+spaninlineblock differs | inline svg18block | host 0,0,320,18 content 0,0,18,18 -> host 0,-2,18,28 content 0,6,18,18 | pixels differ
+spaninlineflex differs | inline svg18block | host 0,0,320,18 content 0,0,18,18 -> host 0,-2,18,28 content 0,6,18,18 | pixels differ
+spaninlineblock differs | contents svg18block | host - content 0,0,18,18 -> host - content 0,6,18,18 | pixels differ
+spaninlineflex differs | contents svg18block | host - content 0,0,18,18 -> host - content 0,6,18,18 | pixels differ
+spaninlineblock differs | icon-button svg18block | host 8,8,24,24 content 8,8,18,18 -> host 8,8,24,24 content 11,14,18,18 | pixels differ
+spaninlineflex differs | icon-button svg18block | host 8,8,24,24 content 8,8,18,18 -> host 8,8,24,24 content 11,14,18,18 | pixels differ
+spaninlineblock differs | button svg18block | host 16,10,20,20 content 16,10,18,18 -> host 16,10,20,20 content 17,12,18,18 | pixels differ
+spaninlineflex differs | button svg18block | host 16,10,20,20 content 16,10,18,18 -> host 16,10,20,20 content 17,12,18,18 | pixels differ
+spaninlineblock differs | fab svg18block | host 16,16,24,24 content 16,16,18,18 -> host 16,16,24,24 content 16,22,18,18 | pixels differ
+spaninlineflex differs | fab svg18block | host 16,16,24,24 content 16,16,18,18 -> host 16,16,24,24 content 16,22,18,18 | pixels differ
+slotblock differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spanblock differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spaninlineblock differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,274,300,28 content 0,0,300,300 | pixels differ
+spangrid differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spanflex differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spaninlineflex differs | inline svg100 | host 0,46,320,28 content 0,0,320,72 -> host 0,274,300,28 content 0,0,300,300 | pixels differ
+slotblock differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spanblock differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spaninlineblock differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,300,300 | pixels differ
+spangrid differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spanflex differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spaninlineflex differs | contents svg100 | host - content 0,0,320,72 -> host - content 0,0,300,300 | pixels differ
+slotblock differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spanblock differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spaninlineblock differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,274,300,28 content 0,0,300,300 | pixels differ
+spangrid differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spanflex differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,0,320,320 content 0,0,320,320 | pixels differ
+spaninlineflex differs | inline svgfill | host 0,0,320,72 content 0,0,320,72 -> host 0,274,300,28 content 0,0,300,300 | pixels differ
+slotblock differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spanblock differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spaninlineblock differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,300,300 | pixels differ
+spangrid differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spanflex differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,320,320 | pixels differ
+spaninlineflex differs | contents svgfill | host - content 0,0,320,72 -> host - content 0,0,300,300 | pixels differ
+70 cases; differ from main: {"span":8,"contents":0,"slotinline":8,"slotblock":14,"spanblock":14,"spaninlineblock":21,"spangrid":13,"spanflex":13,"spaninlineflex":13}
