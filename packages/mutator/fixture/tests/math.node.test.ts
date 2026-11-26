@@ -3,7 +3,7 @@ import { add, clamp, greet } from '../src/math.ts';
 
 // Built by `build.ts`, so a rebuild is what a mutation of `built/` reaches.
 const { value } = (await import(
-  new URL('../dist/value.js', import.meta.url).href
+  new URL('../dist/value.ts', import.meta.url).href
 )) as Readonly<{ value: number }>;
 
 const engine = process.env['FIXTURE_ENGINE'] ?? 'a';

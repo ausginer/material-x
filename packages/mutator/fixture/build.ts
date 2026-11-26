@@ -1,10 +1,10 @@
-// Copies `built/value.js` to `dist/`, which a test reads, and appends a line to
+// Copies `built/value.ts` to `dist/`, which a test reads, and appends a line to
 // the file that `FIXTURE_LOG` names, so a test counts the builds.
 import { appendFileSync, copyFileSync, mkdirSync } from 'node:fs';
 import process from 'node:process';
 
 mkdirSync('dist', { recursive: true });
-copyFileSync('built/value.js', 'dist/value.js');
+copyFileSync('built/value.ts', 'dist/value.ts');
 
 if (process.env['FIXTURE_LOG']) {
   appendFileSync(process.env['FIXTURE_LOG'], 'build\n');

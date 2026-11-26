@@ -89,6 +89,7 @@ async function mutate(
   args: readonly string[] = [],
   rebuildCommand: readonly string[] = ['node', 'build.ts'],
   prepare?: (repo: string, temp: string) => Promise<void>,
+  lateArgs: () => readonly string[] = () => [],
 ): Promise<Result> {
   const root = await mkdtemp(join(tmpdir(), 'mutator-test-'));
   roots.push(root);
@@ -146,6 +147,7 @@ async function mutate(
         '--report',
         report,
         ...args,
+        ...lateArgs(),
       ],
       { cwd: repo, env: cleanEnv({ TMPDIR: temp, FIXTURE_LOG: log }) },
       (error, _stdout, err) => {
@@ -245,7 +247,7 @@ describe('mutator run, refusals', () => {
           {
             name: 'built value',
             group: 'other',
-            edits: [{ file: 'built/value.js', text: '2', replacement: '3' }],
+            edits: [{ file: 'built/value.ts', text: '2', replacement: '3' }],
             expect: { fails: [{ file: TEST_FILE, row: 'should not exist' }] },
           },
         ]),
@@ -284,7 +286,7 @@ describe('mutator run, the invoking checkout', () => {
           {
             ...CLAMP,
             name: 'built value',
-            edits: [{ file: 'built/value.js', text: '2', replacement: '3' }],
+            edits: [{ file: 'built/value.ts', text: '2', replacement: '3' }],
           },
         ]),
         [],
@@ -296,6 +298,33 @@ describe('mutator run, the invoking checkout', () => {
         'unchanged',
         [],
       ]);
+    },
+    TIMEOUT,
+  );
+});
+
+describe('mutator run, an existing checkout', () => {
+  it(
+    'should run in the checkout that --workdir names and make no worktree',
+    async () => {
+      let workdir = '';
+      const result = await mutate(
+        fileOf([CLAMP]),
+        [],
+        undefined,
+        async (repo, temp) => {
+          workdir = join(temp, 'workdir');
+          await git(temp, ['clone', '--quiet', repo, workdir]);
+        },
+        () => ['--workdir', workdir],
+      );
+
+      expect([result.code, outcomes(result), result.state]).toEqual([
+        0,
+        [['a', 'as expected']],
+        'unchanged',
+      ]);
+      expect(result.leftovers).toEqual(['workdir']);
     },
     TIMEOUT,
   );
@@ -584,7 +613,7 @@ describe('mutator run, rebuilds', () => {
           {
             name: 'the built value changes',
             group: 'other',
-            edits: [{ file: 'built/value.js', text: '2', replacement: '3' }],
+            edits: [{ file: 'built/value.ts', text: '2', replacement: '3' }],
             expect: {
               fails: [{ file: TEST_FILE, row: 'should read the built value' }],
             },
