@@ -200,7 +200,9 @@ describe('drag:DRI-14 y() proposes the gap a full measurement gives', () => {
         'display:block;padding-top:0.3px',
         heights([43, 43, 43, 43, 43]),
         {
-          displacement: layoutAnimation({ duration: 160, easing: 'linear' }),
+          displacement: layoutAnimation({
+            timing: () => ({ duration: 160, easing: 'linear' }),
+          }),
         },
         undefined,
         true,

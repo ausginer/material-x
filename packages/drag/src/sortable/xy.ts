@@ -49,6 +49,7 @@ function refresh(
 }
 
 class XYAxisGeometry implements InsertionGeometry {
+  readonly isLinear = false;
   readonly #index = new RetainingRectIndex();
   #last = -1;
 

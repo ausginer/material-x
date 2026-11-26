@@ -325,7 +325,9 @@ describe('drag:DRI-10 destruction', () => {
     const list = makeList(4);
     const controller = basicSortable(list, {
       landing: landing({ duration: 5000 }),
-      displacement: layoutAnimation({ duration: 5000 }),
+      displacement: layoutAnimation({
+        timing: () => ({ duration: 5000, easing: 'ease-out' }),
+      }),
       onReorder: () => ReorderResolution.reject('no'),
     });
     const count = (): number =>
@@ -406,7 +408,9 @@ describe('drag:DRI-10 destruction', () => {
           items,
           axis: y(),
           landing: landing({ duration: 1 }),
-          displacement: layoutAnimation({ duration: 1 }),
+          displacement: layoutAnimation({
+            timing: () => ({ duration: 1, easing: 'ease-out' }),
+          }),
           onReorder({ item, next }) {
             list.insertBefore(item, next);
             return ReorderResolution.accept();
