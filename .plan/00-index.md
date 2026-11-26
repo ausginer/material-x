@@ -2951,6 +2951,8 @@ The unit of #266 quotes and amends both, on its own branch.
 
 **Costs:** a package's scaffolding and its tests; a workflow's minutes, which share the concurrency limit with `verify`; and a format that changes while it is private. **Not adopted:** a script in `.scripts/` (Q1 (c)), a mutation applied in memory by Vite, which misses what a test reads built, and a run of mutation files on each push. The plan has each.
 
+**Dated 2026-11-26 by the architect: property 4's local worktree is allowed by the owner,** relayed by the coordinator, on Mx Implementer B's question whether `agent-workflow.md`'s _"No new slot or scratch worktree without the owner's word"_ asks for a clone instead: _"Я бы сделал detached worktree, (b). Не вижу особого смысла делать отдельный клон, если worktree прекрасно работает 🤔"_ ("I'd make a detached worktree, (b). I don't see much point in a separate clone if a worktree works fine"). The word covers the worktree that `mutator run` makes for one run, in a temporary directory, which it removes when the run ends, also after a failure, and nothing else: a slot or any other scratch worktree still needs his word. `agent-workflow.md` and `coordinator-setup.md` say so in unit 2. No property changes.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.

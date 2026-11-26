@@ -189,6 +189,7 @@ type WorkspaceTestConfigOptions = Readonly<{
   dragRoot: URL;
   tprocRoot: URL;
   viteTraitsPluginRoot: URL;
+  mutatorRoot: URL;
 }>;
 
 type Engine = 'chromium' | 'firefox' | 'webkit' | 'safari';
@@ -695,6 +696,24 @@ function createViteTraitsPluginTestProjects(
   ];
 }
 
+function createMutatorTestProjects(root: URL, scope?: string): [UserConfig] {
+  return [
+    createNodeTestProject({
+      name: scopedName('node', scope),
+      root,
+      include: ['tests/**/*.node.test.ts'],
+    }),
+  ];
+}
+
+export function createMutatorTestConfig(root: URL): UserConfig {
+  return {
+    test: {
+      projects: assignGroupOrder(createMutatorTestProjects(root)),
+    },
+  };
+}
+
 export function createMaterialXTestConfig(
   env: ConfigEnv,
   root: URL,
@@ -839,6 +858,7 @@ export function createWorkspaceTestConfig(
           options.viteTraitsPluginRoot,
           'vite-traits-plugin',
         ),
+        ...createMutatorTestProjects(options.mutatorRoot, 'mutator'),
         repoNode,
       ]),
     },
