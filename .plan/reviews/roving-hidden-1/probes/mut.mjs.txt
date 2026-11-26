@@ -1,0 +1,44 @@
+// Run from the repository root: node mut.mjs <engine> [names...]. The proof's run of the mutations.
+import { spawnSync } from 'node:child_process';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
+const HOOK = 'packages/core/src/controllers/useRovingTabindex.ts', GROUP = 'packages/material-x/src/button-group/connected-button-group.ts', SHEET = 'packages/material-x/src/button-group/styles/connected/main.styles.css';
+const O = new Map([HOOK, GROUP, SHEET].map((f) => [f, readFileSync(f, 'utf8')]));
+const s = (f, a, b) => { const t = O.get(f); if (t.split(a).length !== 2) throw new Error('not one: ' + a); return { [f]: t.replace(a, () => b) }; };
+const D = "!item.disabled && getComputedStyle(item).display !== 'none'", H = "attributeFilter: ['hidden', 'disabled']", SH = "getComputedStyle(element).display !== 'none'";
+const M = [
+ ['no mutation', {}],
+ ['no display in the hook', s(HOOK, D, '!item.disabled')],
+ ['no disabled in the hook', s(HOOK, D, "getComputedStyle(item).display !== 'none'")],
+ ['hidden not heard', s(HOOK, H, "attributeFilter: ['disabled']")],
+ ['disabled not heard', s(HOOK, H, "attributeFilter: ['hidden']")],
+ ['no choice at the connect', s(HOOK, '  useConnected(host, select);\n', '')],
+ ['former items still heard', s(HOOK, '    observer.disconnect();\n', '')],
+ ['the ends without display', s(GROUP, SH, 'element !== null')],
+ ['the ends not marked at the connect', s(GROUP, '    useConnected(this, markEnds);\n', '')],
+ ['hidden not heard by the group', s(GROUP, "attributeFilter: ['hidden']", "attributeFilter: ['x']")],
+ ['no rule for the only member', s(SHEET, '[data-first][data-last]', '[data-none]')],
+ // the proof's own
+ ['own: no observer of the items', s(HOOK, '      observer.observe(item, { attributeFilter: [', '      void ({ attributeFilter: [')],
+ ['own: the focused item recorded without eligibility', s(HOOK, 'this.eligible.find((item) => item === focused) ??', 'value.find((item) => item === focused) ??')],
+ ['own: Home and End without eligibility', s(HOOK, "    const { eligible } = this;\n    if (!eligible.length) return undefined;\n\n    const target", "    const eligible = this.#items;\n    if (!eligible.length) return undefined;\n\n    const target")],
+ ['own: the arrows without display', s(HOOK, "    const { eligible } = this;\n    if (!eligible.length) return undefined;\n\n    const { active }", "    const eligible = this.#items.filter((i) => !i.disabled);\n    if (!eligible.length) return undefined;\n\n    const { active }")],
+ ['own: the value item without eligibility', s(HOOK, "      eligible.find((item) => item.value === this.#host.value) ??\n      eligible.find((item) => item === this.#chosen)", "      this.#items.find((item) => item.value === this.#host.value) ??\n      eligible.find((item) => item === this.#chosen)")],
+ ['own: the former marks stay', s(GROUP, "        delete element.dataset['first'];\n        delete element.dataset['last'];\n", '')],
+ ['own: only the last is marked by display', s(GROUP, "shown[0].dataset['first'] = '';", "elements[0]!.dataset['first'] = '';")],
+ ['own: the group hears its own attribute only', s(GROUP, '      subtree: true,\n', '')],
+ ['own: no marks at a slot change', s(GROUP, '    useSlot(this, slot, markEnds);\n', '')],
+];
+const want = process.argv.slice(3); const out = `${process.env.R}/mut-${process.argv[2]}.json`;
+const restore = () => { for (const [f, t] of O) writeFileSync(f, t); };
+const run = (d, a) => spawnSync('aube', ['exec', '--', ...a], { cwd: d, env: { ...process.env, NO_COLOR: '1', MX_TEST_ENGINES: process.argv[2] }, encoding: 'utf8', maxBuffer: 1e8 });
+try { for (const [n, fs] of M) {
+  if (want.length && !want.some((w) => n.startsWith(w))) continue;
+  restore(); for (const [f, t] of Object.entries(fs)) writeFileSync(f, t);
+  if (run('packages/core', ['just', 'build']).status) { console.log(`## ${n} | BUILD FAILED`); continue; }
+  for (const [d, t] of [['packages/core', ['tests/controllers/useRovingTabindex.browser.test.ts']], ['packages/material-x', ['tests/button-group/button-group.browser.test.ts', 'tests/button-group/button-group.spec.browser.test.ts', 'tests/button-group/button-group-late', 'tests/button-group/button-group-order', 'tests/button-group/button-group-switch', 'tests/button-group/button-group-focus']]]) {
+    rmSync(out, { force: true }); run(d, ['vitest', 'run', '-c', 'vitest.config.ts', ...t, '--reporter=json', `--outputFile=${out}`]);
+    let j; try { j = JSON.parse(readFileSync(out, 'utf8')); } catch { console.log(`## ${n} | ${process.argv[2]} | ${d} | NO RESULT`); continue; }
+    console.log(`## ${n} | ${process.argv[2]} | ${d} | ${j.numFailedTests} failed, ${j.numPassedTests} passed`);
+    for (const f of j.testResults) for (const a of f.assertionResults) if (a.status === 'failed') { console.log(`   ${a.fullName.slice(0, 160)}`); if (/pressed/u.test(a.fullName)) console.log('      MESSAGE ' + a.failureMessages.join(' ').replaceAll('\n', ' ').slice(0, 500)); }
+  }
+} } finally { restore(); rmSync(out, { force: true }); run('packages/core', ['just', 'build']); }

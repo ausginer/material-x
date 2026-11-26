@@ -6,10 +6,8 @@ import {
   internals,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
-import type { Checkable } from '@ydinjs/core/traits/checkable.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
-import type { ButtonLike } from '../button/ButtonCore.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {
   type ButtonGroupCoreTraits,
@@ -34,6 +32,10 @@ const ConnectedButtonGroupConstructor: Composed<
  *
  * @summary Connected button groups arrange checkable buttons as a segmented
  * control.
+ *
+ * A member hidden with its `hidden` attribute, or disabled, isn't the group's
+ * tab stop, and no key moves focus to it. The outer corners are on the first
+ * and the last member that isn't hidden.
  *
  * @attr {"outlined"|"elevated"|"text"|"tonal"} color - Shared color variant
  * for child buttons.
@@ -83,25 +85,29 @@ export default class ConnectedButtonGroup extends ConnectedButtonGroupConstructo
       keydown: updateFocusVisible,
     });
 
-    useSlot(this, 'slot', (slot) => {
+    const slot = this.shadowRoot!.querySelector('slot')!;
+    // The ends read no style, so a member that a page's style alone hides or
+    // shows doesn't move them. A mark is written only where it changes.
+    const markEnds = () => {
       // The slot's elements, without the text and comment nodes between them.
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-      const elements = slot.assignedElements() as Array<
-        ButtonLike & Checkable & ControlledElement
-      >;
+      const elements = slot.assignedElements() as HTMLElement[];
+      const shown = elements.filter((element) => !element.hidden);
+      const [first] = shown;
+      const last = shown.at(-1);
 
-      elements.forEach((element) => {
-        delete element.dataset['first'];
-        delete element.dataset['last'];
-      });
-
-      if (elements[0]) {
-        elements[0].dataset['first'] = '';
+      for (const element of elements) {
+        element.toggleAttribute('data-first', element === first);
+        element.toggleAttribute('data-last', element === last);
       }
+    };
 
-      if (elements.at(-1)) {
-        elements.at(-1)!.dataset['last'] = '';
-      }
+    useSlot(this, slot, markEnds);
+    // It observes for the group's whole life, so a member's `hidden` that
+    // changes while the group is out is heard, and the connect reads nothing.
+    new MutationObserver(markEnds).observe(this, {
+      attributeFilter: ['hidden'],
+      subtree: true,
     });
   }
 }

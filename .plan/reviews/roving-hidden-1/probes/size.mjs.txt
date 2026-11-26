@@ -1,0 +1,12 @@
+// Brotli of three rows for the parts of the unit. From the repository root.
+import { execFileSync, spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+const HOOK = 'packages/core/src/controllers/useRovingTabindex.ts', GROUP = 'packages/material-x/src/button-group/connected-button-group.ts', SHEET = 'packages/material-x/src/button-group/styles/connected/main.styles.css';
+const F = [HOOK, GROUP, SHEET]; const O = Object.fromEntries(F.map((f) => [f, readFileSync(f, 'utf8')])); const M = Object.fromEntries(F.map((f) => [f, execFileSync('git', ['show', `2485fb2df:${f}`], { encoding: 'utf8' })]));
+const s = (f, a, b) => { if (O[f].split(a).length !== 2) throw new Error(a); return O[f].replace(a, () => b); };
+const V = { 'main': M, 'hook only': { ...M, [HOOK]: O[HOOK] }, 'group only (TS)': { ...M, [GROUP]: O[GROUP] }, 'sheet only': { ...M, [SHEET]: O[SHEET] }, 'head': O,
+ 'head without the group\'s MutationObserver': { ...O, [GROUP]: s(GROUP, "    useMutationObserver(this, markEnds, {\n      attributeFilter: ['hidden'],\n      subtree: true,\n    });\n", '').replace(/import \{ useMutationObserver.*\n/u, '') },
+ 'head without the hook\'s MutationObserver': { ...O, [HOOK]: s(HOOK, '  const observer = new MutationObserver(select);\n', '').replace(/\n    observer\.disconnect\(\);\n\n    for \(const item of value\) \{\n      observer[^\n]*\n    \}\n/u, '\n') } };
+const run = (d, a) => spawnSync('aube', ['exec', '--', ...a], { cwd: d, env: { ...process.env, NO_COLOR: '1' }, encoding: 'utf8', maxBuffer: 1e8 });
+try { for (const [n, fs] of Object.entries(V)) { for (const f of F) writeFileSync(f, fs[f]); const b = run('packages/core', ['just', 'build']).status; const r = run('packages/material-x', ['just', 'size', '--json']); let j; try { j = JSON.parse(r.stdout.slice(r.stdout.search(/^\[\s*\n?\s*\{/mu))); } catch { console.log(n, 'FAILED', b, r.status, r.stderr.slice(-300), r.stdout.slice(-300)); continue; }
+ console.log(n, '|', ['button-group/connected-button-group', 'button/split-button', 'complete'].map((x) => `${x} ${j.find((e) => e.name === x).size}`).join(' | ')); } } finally { for (const f of F) writeFileSync(f, O[f]); run('packages/core', ['just', 'build']); }
