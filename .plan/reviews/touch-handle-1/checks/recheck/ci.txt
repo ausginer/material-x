@@ -1,0 +1,19 @@
+# CI's verify on the head 4cc69c603 of pull request #296: run 45789723449, conclusion success (https://github.com/ausginer/material-x/actions/runs/45789723449). A full run: 131 test files in each engine. The affected files' lines and the totals, from the logs of the firefox (job 139805780546) and webkit (job 139805780608) jobs, read with gh run view --log.
+
+## firefox
+✓  browser/material-x/firefox (firefox)  tests/list/sortable-list.browser.test.ts (183 tests | 12 skipped) 32922ms
+✓  browser/material-x/firefox (firefox)  tests/list/list-roles.browser.test.ts (45 tests | 2 skipped) 5010ms
+✓  browser/material-x/firefox (firefox)  tests/list/list-item.browser.test.ts (19 tests) 1864ms
+✓  spec/material-x/firefox (firefox)  tests/list/list-item.spec.browser.test.ts (134 tests) 16542ms
+✓  spec/material-x/firefox (firefox)  tests/list/sortable-list.spec.browser.test.ts (26 tests) 5203ms
+Test Files  131 passed (131)
+Tests  3688 passed | 3 expected fail | 130 skipped (3821)
+
+## webkit
+✓  browser/material-x/webkit (webkit)  tests/list/sortable-list.browser.test.ts (183 tests | 12 skipped) 27790ms
+✓  browser/material-x/webkit (webkit)  tests/list/list-roles.browser.test.ts (45 tests | 2 skipped) 4112ms
+✓  browser/material-x/webkit (webkit)  tests/list/list-item.browser.test.ts (19 tests) 1853ms
+✓  spec/material-x/webkit (webkit)  tests/list/list-item.spec.browser.test.ts (134 tests) 16200ms
+✓  spec/material-x/webkit (webkit)  tests/list/sortable-list.spec.browser.test.ts (36 tests) 7500ms
+Test Files  131 passed (131)
+Tests  3699 passed | 2 expected fail | 130 skipped (3831)

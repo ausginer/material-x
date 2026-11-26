@@ -1,0 +1,11 @@
+# just size (size-limit, Brotli bytes), packages/material-x, main (d20c47bda) and the branch's CSS. Rows that move:
+button/split-button: 7766 -> 7777 (+11)
+checkbox/checkbox: 4290 -> 4298 (+8)
+icon/icon: 667 -> 673 (+6)
+list/list-item: 2803 -> 2816 (+13)
+list/list-button-item: 4968 -> 4954 (-14)
+list/list-link-item: 5146 -> 5164 (+18)
+radio/radio: 3841 -> 3852 (+11)
+text-field/text-field: 8618 -> 8635 (+17)
+complete: 25988 -> 26034 (+46)
+Every other row of 23 is unchanged; list/sortable-list is 9203 in both. No row has a limit.

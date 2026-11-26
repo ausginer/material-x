@@ -24,7 +24,41 @@ A Claude `coordinator` session sends prompts to live role sessions with `SendMes
    ```
 
 4. Tell the coordinator which session holds which role.
-5. Clear a session whenever you choose. The coordinator cannot see or reset another session's context and does not wait for a clear. A cleared session keeps accepting the coordinator's prompts, so step 3's message is not sent again.
+5. Clear a session whenever you choose. The coordinator can't clear one, and reads each session's context size from the file that your status line writes ([Context readings](#context-readings)). When a session's part of a unit ends, or a task ends with the session past 300,000 tokens, the coordinator tells you that the session can be cleared. It then holds that session's next task until the file shows the clear or you tell it to send. A cleared session keeps accepting the coordinator's prompts, so step 3's message is not sent again.
+
+## Context readings
+
+The coordinator reads a role session's context size, and its own, from a file that the owner's status line writes. No hook carries the size, and a transcript's format is internal. The readings and the reasons are `repo:RD-67` and its [plan](../../.plan/session-context-1/session-context-plan.md).
+
+- **The file is `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/ctx/<session name>.json`,** with a `/` in the name written as `_`. Each status line run of a named session replaces it. It holds the payload's `session_name`, `session_id`, `transcript_path` and `cwd`, `written_at` in seconds since the epoch, and `context_window`'s `total_input_tokens`, `context_window_size` and `used_percentage`.
+- **The owner's status line script writes it,** with these lines after its `input=$(cat)`. A run that Claude Code cancels leaves the previous file whole, because the lines write a temporary file and rename it:
+
+  ```bash
+  # Session context for the coordinator: one file per session name.
+  ctx_name=$(echo "$input" | jq -r '.session_name // empty' | tr '/' '_')
+  if [ -n "$ctx_name" ]; then
+    ctx_dir=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/ctx
+    mkdir -p "$ctx_dir"
+    ctx_tmp=$(mktemp "$ctx_dir/.tmp.XXXXXX")
+    echo "$input" | jq '{session_name, session_id, transcript_path, cwd,
+        written_at: (now | floor), context_window: (.context_window
+        | {total_input_tokens, context_window_size, used_percentage})}' \
+      > "$ctx_tmp" && mv -f "$ctx_tmp" "$ctx_dir/$ctx_name.json"
+  fi
+  ```
+
+  They are in his script, and not in this repository's `.claude/settings.json`, because a project's `statusLine` replaces the user's in every session of the project, and every clone of this library would write into its user's Claude directory. When he changes the lines, he changes this section.
+
+- **The coordinator reads a file with one command:**
+
+  ```sh
+  jq -r '"\(.session_name): \(.context_window.total_input_tokens) tokens, session \(.session_id[0:8]), written \(now - .written_at | floor) s ago"' \
+    "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/ctx/Mx Implementer B.json"
+  ```
+
+- **A reading is valid when it was written after the coordinator sent the task.** It may be one reply behind the closing message. An older file, or none, is no reading: the session has no name, hasn't run its status line since the lines were added, or runs on another machine.
+- **A clear shows at once.** The status line runs when `/clear` is done, and the file then has a new `session_id` and a `total_input_tokens` of 0. `/clear` keeps the session's name, so the file keeps its name.
+- **Limits.** A Claude Code upgrade that renames a payload field writes `null`, and nothing checks the format. A cancelled run can leave a `.tmp.*` file in `ctx/`, which nothing reads. **The file is keyed by the session's name alone,** across every project that the owner's Claude Code runs: any named session writes one, and a session of another project with the same name replaces an `Mx …` file. Its `cwd` and `session_id` show the replacement.
 
 ## Start a role session
 

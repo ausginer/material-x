@@ -97,8 +97,13 @@ const SortableListConstructor: Composed<
  * - **Handles.** An item with a `[data-handle]` child in its `lead` or `trail`
  *   slot, such as an icon, drags only by its handle, by pointer and by
  *   keyboard. In this list the handle becomes a focusable _Reorder_ button
- *   with `touch-action: none`, keeping the values the consumer set. An item
- *   without a handle drags by its whole surface. A focused handle shows
+ *   with `touch-action: none`, keeping the values the consumer set. Unless a
+ *   page sets its `display`, a handle other than an `mx-icon` is an
+ *   `inline-grid` box that centers its content, because `touch-action`
+ *   doesn't apply to an inline or `display: contents` box. A mouse drags an
+ *   item without a handle by its whole surface, as does a pen that the
+ *   browser doesn't scroll with. A finger on it scrolls instead, so give the
+ *   items of a list that is used by touch a handle. A focused handle shows
  *   Material's focus indicator. A page's own rule on it, such as
  *   `.grip:focus-visible`, replaces it. A handle that is a custom element with
  *   an indicator of its own needs such a rule, because the list's rule outranks

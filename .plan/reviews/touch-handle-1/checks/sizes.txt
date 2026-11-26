@@ -1,0 +1,11 @@
+# just size-reading at df577d7df and with main's two style files (d20c47bda), Brotli. The rows that move:
+material-x button/split-button main 7766 | head 7777 (+11) | limit null
+material-x checkbox/checkbox main 4290 | head 4298 (+8) | limit null
+material-x icon/icon main 667 | head 673 (+6) | limit null
+material-x list/list-item main 2803 | head 2816 (+13) | limit null
+material-x list/list-button-item main 4968 | head 4954 (+-14) | limit null
+material-x list/list-link-item main 5146 | head 5164 (+18) | limit null
+material-x radio/radio main 3841 | head 3852 (+11) | limit null
+material-x text-field/text-field main 8618 | head 8635 (+17) | limit null
+material-x complete main 25988 | head 26034 (+46) | limit null
+36 rows, over a limit at the head: 0

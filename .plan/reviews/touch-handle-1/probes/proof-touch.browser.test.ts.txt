@@ -1,0 +1,369 @@
+// Feature proof of RF-145 and RF-146 (a) at df577d7df. The helpers of sortable-list.browser.test.ts, then
+// one line a reading, printed by a throwing afterAll. Touch is CDP's, in Chromium.
+import { afterAll, afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+import '../../src/button/icon-button.ts';
+import '../../src/icon/icon.ts';
+import '../../src/list/list-button-item.ts';
+import '../../src/list/list-item.ts';
+import '../../src/list/list-link-item.ts';
+import '../../src/list/list.ts';
+import { ReorderEvent } from '../../src/list/sortable-list.ts';
+import { nextFrame } from '../browser.ts';
+import { TAB } from '../focus-indicator.ts';
+
+type ListTag = 'mx-list' | 'mx-sortable-list';
+type ItemTag = 'mx-list-item' | 'mx-list-button-item' | 'mx-list-link-item';
+
+type ListOptions = Readonly<{
+  tag?: ListTag;
+  item?: ItemTag;
+  handles?: boolean;
+  /** Keeps the token's landing duration instead of a zero one. */
+  tokenLanding?: boolean;
+}>;
+
+const DESCRIPTION = 'Use the arrow keys to move';
+
+function createHandle(): HTMLElement {
+  const handle = document.createElement('span');
+  handle.dataset['handle'] = '';
+  handle.slot = 'lead';
+  handle.textContent = '≡';
+  return handle;
+}
+
+function createItem(tag: ItemTag, label: string, handle: boolean): HTMLElement {
+  const item = document.createElement(tag);
+
+  if (tag === 'mx-list-link-item') {
+    item.setAttribute('href', '#target');
+  }
+
+  if (handle) {
+    item.append(createHandle());
+  }
+
+  item.append(label);
+  return item;
+}
+
+async function createList(
+  labels: readonly string[],
+  {
+    tag = 'mx-sortable-list',
+    item = 'mx-list-item',
+    handles = false,
+    tokenLanding = false,
+  }: ListOptions = {},
+): Promise<readonly [HTMLElement, readonly HTMLElement[]]> {
+  const list = document.createElement(tag);
+
+  if (!tokenLanding) {
+    list.style.setProperty('--_drag-duration', '0s');
+  }
+
+  const items = labels.map((label) => createItem(item, label, handles));
+  list.append(...items);
+  document.body.append(list);
+  await nextFrame();
+  return [list, items];
+}
+
+/** The item's box: an interactive item's control, or a static item's host. */
+function visualOf(item: HTMLElement): HTMLElement {
+  return item.shadowRoot!.querySelector<HTMLElement>('.host') ?? item;
+}
+
+function handleOf(item: HTMLElement): HTMLElement {
+  return item.querySelector<HTMLElement>('[data-handle]')!;
+}
+
+/** The handle semantics present on `handle`, as attribute names and `touch-action`. */
+function written(handle: HTMLElement): readonly string[] {
+  return [
+    'tabindex',
+    'role',
+    'aria-label',
+    'aria-description',
+    ...(handle.style.touchAction ? ['touch-action'] : []),
+  ].filter((name) => name === 'touch-action' || handle.hasAttribute(name));
+}
+
+function centerOf(element: HTMLElement): readonly [number, number] {
+  const { left, top, width, height } = element.getBoundingClientRect();
+  return [left + width / 2, top + height / 2];
+}
+
+function isDragged(item: HTMLElement): boolean {
+  return item.matches(':state(drag)');
+}
+
+function placeholderOf(list: HTMLElement): HTMLElement | null {
+  return list.querySelector('[data-drag-placeholder]');
+}
+
+/** Whether the list's placeholder paints its drop zone. */
+function paintsDropZone(list: HTMLElement): boolean {
+  const { visibility, backgroundColor, opacity } = getComputedStyle(
+    placeholderOf(list)!,
+  );
+
+  return (
+    visibility === 'visible' &&
+    backgroundColor !== 'rgba(0, 0, 0, 0)' &&
+    Number(opacity) > 0
+  );
+}
+
+function announcementOf(list: HTMLElement): string {
+  return list.shadowRoot!.querySelector('[aria-live]')!.textContent;
+}
+
+function order(list: HTMLElement): readonly string[] {
+  return [...list.children]
+    .filter((child) => !child.hasAttribute('data-drag-placeholder'))
+    .map((child) => child.textContent.replace('≡', ''));
+}
+
+/** Records every `reorder` event the list dispatches. */
+function recordReorders(list: HTMLElement): ReorderEvent[] {
+  const events: ReorderEvent[] = [];
+  list.addEventListener('reorder', (event) => {
+    events.push(event as ReorderEvent);
+  });
+  return events;
+}
+
+/** Commits each proposed move in the handler, as a synchronous consumer does. */
+function commitOnReorder(list: HTMLElement): void {
+  list.addEventListener('reorder', (event) => {
+    const { item, next } = event as ReorderEvent;
+    list.insertBefore(item, next);
+  });
+}
+
+/** Presses `target`'s center and moves past the drag threshold. */
+async function lift(target: HTMLElement): Promise<readonly [number, number]> {
+  const [x, y] = centerOf(target);
+  await commands.pointerPress(x, y);
+  await commands.pointerMove(x, y + 12, 3);
+  return [x, y];
+}
+
+/** Drags `target` from its center to the center of `over`, offset by `dy`, and releases. */
+async function dragOnto(
+  target: HTMLElement,
+  over: HTMLElement,
+  dy = 10,
+): Promise<void> {
+  const [x] = await lift(target);
+  const [, y] = centerOf(over);
+  await commands.pointerMove(x, y + dy, 8);
+  await commands.pointerRelease();
+}
+
+async function whenSettled(
+  list: HTMLElement,
+  item: HTMLElement,
+): Promise<void> {
+  await expect
+    .poll(() => isDragged(item) || placeholderOf(list) !== null)
+    .toBe(false);
+}
+
+afterEach(async () => {
+  // A row that fails mid-gesture leaves the button down.
+  await commands.pointerRelease().catch(() => {});
+});
+
+
+const OUT: string[] = [];
+const E = server.browser;
+afterAll(() => {
+  throw new Error(`\nPROOF\n${OUT.join('\n')}\nEND`);
+});
+const el = (tag: string, ...content: ReadonlyArray<Node | string>): HTMLElement => {
+  const e = document.createElement(tag);
+  e.append(...content);
+  return e;
+};
+const icon = (): HTMLElement => el('mx-icon', 'check');
+const HANDLES: ReadonlyArray<readonly [string, () => HTMLElement]> = [
+  ['span text', () => el('span', '≡')],
+  ['mx-icon', icon],
+  ['span mx-icon', () => el('span', icon())],
+  ['mx-icon-button', () => el('mx-icon-button', icon())],
+  ['button mx-icon', () => el('button', icon())],
+  ['button text', () => el('button', '≡')],
+];
+async function touchList(
+  create: (() => HTMLElement) | null,
+  slot = 'lead',
+  item: ItemTag = 'mx-list-item',
+  tweak?: (handle: HTMLElement, i: number) => void,
+): Promise<readonly [HTMLElement, readonly HTMLElement[]]> {
+  const [list, items] = await createList(['A', 'B', 'C'], { item });
+  if (create) {
+    items.forEach((element, i) => {
+      const handle = create();
+      handle.dataset['handle'] = '';
+      handle.slot = slot;
+      tweak?.(handle, i);
+      element.prepend(handle);
+    });
+  }
+  const spacer = document.createElement('div');
+  spacer.style.blockSize = '3000px';
+  spacer.dataset['proofSpacer'] = '';
+  document.body.append(spacer);
+  onTestFinished(() => spacer.remove());
+  // Room above, so a swipe up can scroll the page.
+  list.style.marginBlockStart = '200px';
+  await nextFrame();
+  return [list, items];
+}
+const boxOf = (handle: HTMLElement): HTMLElement =>
+  handle.shadowRoot?.querySelector<HTMLElement>('.host') ?? handle;
+/** The painted part: a text's range, or the innermost icon, or the box. */
+function paintOf(handle: HTMLElement): DOMRect {
+  const inner = handle.matches('mx-icon') ? handle : handle.querySelector('mx-icon');
+  if (inner) return inner.getBoundingClientRect();
+  if (handle.firstChild?.nodeType === Node.TEXT_NODE) {
+    const range = document.createRange();
+    range.selectNodeContents(handle);
+    return range.getBoundingClientRect();
+  }
+  return boxOf(handle).getBoundingClientRect();
+}
+const r = (n: number): string => n.toFixed(0);
+/** Touches (x, y), swipes up to 10 px above the center of `over`, and lifts. */
+async function swipeUp(x: number, y: number, over: HTMLElement): Promise<string> {
+  const [, toY] = centerOf(over);
+  const cancels: string[] = [];
+  const onCancel = (): void => void cancels.push('c');
+  window.addEventListener('pointercancel', onCancel, true);
+  const before = window.scrollY;
+  await commands.touch('touchStart', [x, y]);
+  await nextFrame();
+  for (let i = 1; i <= 8; i += 1) {
+    await commands.touch('touchMove', [x, y + ((toY - 10 - y) * i) / 8]);
+    await nextFrame();
+  }
+  await commands.touch('touchEnd');
+  await nextFrame();
+  window.removeEventListener('pointercancel', onCancel, true);
+  return `scrolled ${r(window.scrollY - before)} cancel ${cancels.length}`;
+}
+afterEach(async () => {
+  await commands.touch('touchCancel').catch(() => {});
+  window.scrollTo(0, 0);
+  document.querySelectorAll('style[data-proof]').forEach((s) => s.remove());
+});
+const pageStyle = (css: string): void => {
+  const s = document.createElement('style');
+  s.dataset['proof'] = '';
+  s.textContent = css;
+  document.head.append(s);
+};
+
+describe('boxes', () => {
+  for (const slot of ['lead', 'trail'])
+    for (const [name, create] of HANDLES)
+      it(`${slot} ${name}`, async () => {
+        const [, items] = await touchList(create, slot);
+        const h = handleOf(items[1]!);
+        const b = boxOf(h).getBoundingClientRect();
+        const p = paintOf(h);
+        OUT.push(`${E} box | ${slot} ${name} | display ${getComputedStyle(h).display} | box ${r(b.width)}x${r(b.height)} | paint ${r(p.width)}x${r(p.height)} | touch-action ${getComputedStyle(h).touchAction}`);
+      });
+  it('plain mx-list', async () => {
+    const [, items] = await createList(['A'], { tag: 'mx-list', handles: true });
+    const h = handleOf(items[0]!);
+    OUT.push(`${E} box | a [data-handle] span in a plain mx-list | display ${getComputedStyle(h).display} | box ${r(h.getBoundingClientRect().width)}x${r(h.getBoundingClientRect().height)}`);
+  });
+  it('until-found', async () => {
+    const [, items] = await createList(['A'], { handles: true });
+    const h = handleOf(items[0]!);
+    h.setAttribute('hidden', 'until-found');
+    await nextFrame();
+    const p = paintOf(h);
+    OUT.push(`${E} box | a hidden=until-found span handle | display ${getComputedStyle(h).display} | content-visibility ${getComputedStyle(h).contentVisibility} | paint ${r(p.width)}x${r(p.height)}`);
+  });
+  it('page display inline', async () => {
+    pageStyle('[data-handle] { display: inline; }');
+    const [, items] = await createList(['A'], { handles: true });
+    OUT.push(`${E} box | a page's display: inline on a span handle | display ${getComputedStyle(handleOf(items[0]!)).display}`);
+  });
+});
+
+describe('mouse', () => {
+  for (const slot of ['lead', 'trail'])
+    for (const [name, create] of HANDLES)
+      it(`${slot} ${name}`, async () => {
+        const [list, items] = await touchList(create, slot);
+        const events = recordReorders(list);
+        await dragOnto(boxOf(handleOf(items[1]!)), visualOf(items[0]!), -10);
+        await nextFrame();
+        OUT.push(`${E} mouse | ${slot} ${name} | proposed ${events.map((e) => e.item.textContent.replace(/≡|check/g, '')).join() || 'none'}`);
+      });
+});
+
+describe.runIf(E === 'chromium')('touch', () => {
+  for (const slot of ['lead', 'trail'])
+    for (const [name, create] of HANDLES)
+      it(`${slot} ${name}`, async () => {
+        const points: string[] = [];
+        for (const at of ['box center', 'box top left', 'box bottom right', 'paint center', 'paint top left', 'paint bottom right']) {
+          const [list, items] = await touchList(create, slot);
+          const events = recordReorders(list);
+          const h = handleOf(items[1]!);
+          const p = paintOf(h);
+          const [bx, by] = centerOf(boxOf(h));
+          const b = boxOf(h).getBoundingClientRect();
+          const [x, y] =
+            at === 'box center' ? [bx, by]
+            : at === 'box top left' ? [b.left + 2, b.top + Math.min(2, b.height / 2)]
+            : at === 'box bottom right' ? [b.right - 2, b.bottom - Math.min(2, b.height / 2)]
+            : at === 'paint center' ? [p.left + p.width / 2, p.top + p.height / 2]
+            : at === 'paint top left' ? [p.left + 2, p.top + 2]
+            : [p.right - 2, p.bottom - 2];
+          const hit = document.elementFromPoint(x, y);
+          const s = await swipeUp(x, y, visualOf(items[0]!));
+          points.push(`${at} (hit ${hit === h || h.contains(hit) ? 'handle' : hit?.localName}) ${events.length ? 'proposed' : 'none'} ${s}`);
+          list.remove();
+          document.querySelectorAll('[data-proof-spacer]').forEach((e) => e.remove());
+          window.scrollTo(0, 0);
+          await nextFrame();
+        }
+        OUT.push(`${E} touch | ${slot} ${name} | ${points.join(' ; ')}`);
+      });
+  for (const [name, setup] of [
+    ['disabled button item, span handle', { item: 'mx-list-button-item' as ItemTag, disabled: true, css: '' }],
+    ["a page's touch-action: pan-y inline on a span handle", { item: 'mx-list-item' as ItemTag, inline: 'pan-y', css: '' }],
+    ["a page's display: inline on a span handle", { item: 'mx-list-item' as ItemTag, css: '[data-handle] { display: inline; }' }],
+    ["a page's display: block on a span handle", { item: 'mx-list-item' as ItemTag, css: '[data-handle] { display: block; }' }],
+  ] as const)
+    it(name, async () => {
+      if (setup.css) pageStyle(setup.css);
+      const [list, items] = await touchList(() => el('span', '≡'), 'lead', setup.item, (h) => {
+        if ('inline' in setup) h.style.touchAction = setup.inline;
+      });
+      if ('disabled' in setup) {
+        items[1]!.toggleAttribute('disabled', true);
+        await nextFrame();
+      }
+      const events = recordReorders(list);
+      const [x, y] = centerOf(boxOf(handleOf(items[1]!)));
+      const s = await swipeUp(x, y, visualOf(items[0]!));
+      OUT.push(`${E} touch | ${name} | ${events.length ? 'proposed' : 'none'} ${s} | touch-action ${getComputedStyle(handleOf(items[1]!)).touchAction}`);
+    });
+  for (const tag of ['mx-list-item', 'mx-list-button-item', 'mx-list-link-item'] as const)
+    it(`no handle ${tag}`, async () => {
+      const [list, items] = await touchList(null, 'lead', tag);
+      const events = recordReorders(list);
+      const [x, y] = centerOf(visualOf(items[1]!));
+      const s = await swipeUp(x, y, visualOf(items[0]!));
+      OUT.push(`${E} touch | no handle, ${tag} | ${events.length ? 'proposed' : 'none'} ${s}`);
+    });
+});
