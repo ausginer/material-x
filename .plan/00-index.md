@@ -7801,6 +7801,16 @@ Tier C, **open**, **ready** (the last note), pre-existing. Registered on 2026-11
 - **Stop** and return if an element of the package moves, or the property doesn't hold in an engine.
 - **Feature proof:** owed, in the three engines.
 
+**Dated 2026-11-26 by the implementer: (a) is implemented on `material-x/icon-middle-1`, and the unit stops at its _Stop_ line, for one reading.** From `main` at `e457ed209`, in Chromium (`RD-62`). The record is `.plan/icon-middle-1/`.
+
+- **The change:** `vertical-align: middle` on the host in `icon.ctr.css`, with the comment the candidate asks for.
+- **Rows,** in `tests/icon/icon.browser.test.ts`, at 16 and 24 px: an icon in a `span` of text and in a native button with text, measured against the baseline of an empty `inline-block` and the x-height that a canvas reads. A third row at each size gives the text `font-size-adjust: 0.7`, so its x-height is 0.7 of its size by definition. **Witness:** all six fail on `main`, by 3.5 and 5.5 px, or 2.4 and 3.6 px for the third row. **Mutations** (`checks/mutations.txt`): `-0.125em` fails the first two rows at each size. `-0.25em` passes them, because it is within 1 px of Roboto's half x-height, and fails the third. That is why the third row exists.
+- **Unchanged, and read** (`checks/boxes.txt`, with `probes/boxes.mjs`, `RF-145`'s probe with more cases): `mx-button`, `mx-icon-button`, `mx-fab`, an extended `mx-fab`, `mx-text-field`'s `lead` and `trail`, an `mx-icon` slotted in a list item's `lead` and `trail`, and an `mx-icon` handle. Their rects and pixels are the same.
+- **What moves on `main`:** an `mx-icon` inside a page's `span` or native `button` that is a sortable handle in `lead` or `trail`, by 2.4 to 3 px. **With `#296`'s list CSS** (`th` in the reading), a handle is an `inline-grid` and its icon a grid item, so none of them moves. This unit is to merge after `#296`, and to read it again on `main` once `#296` has merged.
+- **What moves with `#296` too, and is the question:** `lead` and `trail` are `display: block` with `line-height: 0` (`checks/boxes/*-slot-line.json`). In `lead`, an `mx-icon` inside a page's `span` doesn't move. In `trail`, the slot gives the page's `span` the trailing text's font and line height, so its icon now stands on that text's lowercase middle: it moves 2.97 px down, from 1.5 px above the item's center to 1.47 px below it (`checks/shots/`). That is (a) applied to a page's own text, as _Where it shows_ says, and it is also an `mx-icon` that moves in a list item. The unit returns it rather than deciding it.
+- **Visual baselines:** none is expected to change. The only `mx-icon`s in the visual suites are in `mx-top-app-bar`'s `lead` and `trail`, which are flex containers, so the icons are flex items. That is read from the test files and the compiled CSS, not from a run, because visual runs in CI.
+- **Not read:** Firefox and WebKit, which are CI's and the feature proof's; Safari.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

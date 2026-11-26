@@ -1,0 +1,263 @@
+{
+  "chromium": "158.0.8127.18",
+  "mx-list-item-lead-span-text": {
+    "slot": "lead has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 0,
+    "handleMiddle": -0.5,
+    "iconMiddle": null
+  },
+  "mx-list-item-lead-mx-icon": {
+    "slot": "lead has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 20,
+    "handleMiddle": 10,
+    "iconMiddle": 10
+  },
+  "mx-list-item-lead-span-mx-icon": {
+    "slot": "lead has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 16,
+    "handleMiddle": 6.73,
+    "iconMiddle": 8
+  },
+  "mx-list-item-lead-mx-icon-button": {
+    "slot": "lead has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 40,
+    "handleMiddle": -30,
+    "iconMiddle": 20
+  },
+  "mx-list-item-lead-button-text": {
+    "slot": "lead has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 21,
+    "handleMiddle": 10.5,
+    "iconMiddle": null
+  },
+  "mx-list-item-lead-button-mx-icon": {
+    "slot": "lead has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 21.14,
+    "handleMiddle": 10.57,
+    "iconMiddle": 11.48
+  },
+  "mx-list-item-trail-span-text": {
+    "slot": "trail has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 16,
+    "handleMiddle": 8,
+    "iconMiddle": null
+  },
+  "mx-list-item-trail-mx-icon": {
+    "slot": "trail has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 20,
+    "handleMiddle": 10,
+    "iconMiddle": 10
+  },
+  "mx-list-item-trail-span-mx-icon": {
+    "slot": "trail has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 16,
+    "handleMiddle": 8,
+    "iconMiddle": 9.47
+  },
+  "mx-list-item-trail-mx-icon-button": {
+    "slot": "trail has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 40,
+    "handleMiddle": -30,
+    "iconMiddle": 20
+  },
+  "mx-list-item-trail-button-text": {
+    "slot": "trail has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 22,
+    "handleMiddle": 11,
+    "iconMiddle": null
+  },
+  "mx-list-item-trail-button-mx-icon": {
+    "slot": "trail has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 22,
+    "handleMiddle": 11,
+    "iconMiddle": 12.47
+  },
+  "mx-list-button-item-lead-span-text": {
+    "slot": "lead has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 0,
+    "handleMiddle": -0.5,
+    "iconMiddle": null
+  },
+  "mx-list-button-item-lead-mx-icon": {
+    "slot": "lead has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 20,
+    "handleMiddle": 10,
+    "iconMiddle": 10
+  },
+  "mx-list-button-item-lead-span-mx-icon": {
+    "slot": "lead has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 16,
+    "handleMiddle": 6.73,
+    "iconMiddle": 8
+  },
+  "mx-list-button-item-lead-mx-icon-button": {
+    "slot": "lead has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 40,
+    "handleMiddle": -30,
+    "iconMiddle": 20
+  },
+  "mx-list-button-item-lead-button-text": {
+    "slot": "lead has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 21,
+    "handleMiddle": 10.5,
+    "iconMiddle": null
+  },
+  "mx-list-button-item-lead-button-mx-icon": {
+    "slot": "lead has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 21.14,
+    "handleMiddle": 10.57,
+    "iconMiddle": 11.48
+  },
+  "mx-list-button-item-trail-span-text": {
+    "slot": "trail has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 16,
+    "handleMiddle": 8,
+    "iconMiddle": null
+  },
+  "mx-list-button-item-trail-mx-icon": {
+    "slot": "trail has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 20,
+    "handleMiddle": 10,
+    "iconMiddle": 10
+  },
+  "mx-list-button-item-trail-span-mx-icon": {
+    "slot": "trail has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 16,
+    "handleMiddle": 8,
+    "iconMiddle": 9.47
+  },
+  "mx-list-button-item-trail-mx-icon-button": {
+    "slot": "trail has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 40,
+    "handleMiddle": -30,
+    "iconMiddle": 20
+  },
+  "mx-list-button-item-trail-button-text": {
+    "slot": "trail has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 22,
+    "handleMiddle": 11,
+    "iconMiddle": null
+  },
+  "mx-list-button-item-trail-button-mx-icon": {
+    "slot": "trail has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 22,
+    "handleMiddle": 11,
+    "iconMiddle": 12.47
+  },
+  "icon-alone": null,
+  "button-icon": null,
+  "icon-button": null,
+  "fab": null,
+  "fab-extended": null,
+  "mx-list-item-icons": null,
+  "mx-list-button-item-icons": null,
+  "mx-list-item-lead-page-span-mx-icon": {
+    "slot": "lead has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 16,
+    "handleMiddle": 6.73,
+    "iconMiddle": 8
+  },
+  "mx-list-item-trail-page-span-mx-icon": {
+    "slot": "trail has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 16,
+    "handleMiddle": 8,
+    "iconMiddle": 9.47
+  },
+  "mx-list-button-item-lead-page-span-mx-icon": {
+    "slot": "lead has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 16,
+    "handleMiddle": 6.73,
+    "iconMiddle": 8
+  },
+  "mx-list-button-item-trail-page-span-mx-icon": {
+    "slot": "trail has-slotted",
+    "display": "block",
+    "fontSize": "16px",
+    "lineHeight": "0px",
+    "height": 16,
+    "handleMiddle": 8,
+    "iconMiddle": 9.47
+  },
+  "text-field-icons": null
+}
