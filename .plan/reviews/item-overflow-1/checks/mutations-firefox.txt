@@ -1,0 +1,132 @@
+## none | firefox | 0 failed, 450 passed
+## main | firefox | 180 failed, 270 passed
+   6 x with a long text should be inside the item
+   6 x with a long text should add no scroll
+   6 x with a long label and a long text should be inside the item
+   6 x with a long label and a long text should add no scroll
+   6 x with a long word in trail should be inside the item
+   6 x with a long word in trail should add no scroll
+   6 x with a long word in the label should be inside the item
+   6 x with a long word in the label should add no scroll
+   6 x with a long word in overline should be inside the item
+   6 x with a long word in overline should add no scroll
+   6 x with a long word in support should be inside the item
+   6 x with a long word in support should add no scroll
+   6 x with a wide button should be inside the item
+   6 x with a wide button should add no scroll
+   6 x with a video and a long text should be inside the item
+   6 x with a video and a long text should add no scroll
+   6 x with a video and a fixed child should be inside the item
+   6 x with a video and a fixed child should add no scroll
+   6 x with a large video and a long text should be inside the item
+   6 x with a large video and a long text should add no scroll
+   6 x with a large video and a wider button should be inside the item
+   6 x with a large video and a wider button should add no scroll
+   6 x with a large video and a fixed child should be inside the item
+   6 x with a large video and a fixed child should add no scroll
+   2 x should leave the label room for a long text alone
+   2 x should leave the label room for a long text beside a video
+   2 x should leave the label room for a control beside a video
+   6 x should take at most half of the item with a long text
+   6 x should take at most half of the item with a wide button
+   6 x should put two icons side by side
+   6 x should put two icon buttons side by side
+   6 x should put a text and an icon side by side
+## without the 15% | firefox | 26 failed, 424 passed
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   6 x should leave the label room for a control beside a video
+   8 x should leave the label room for a control beside a large video
+## 15% as a minimum | firefox | 16 failed, 434 passed
+   2 x with a video and a fixed child should be inside the item
+   2 x with a video and a fixed child should add no scroll
+   6 x with a large video and a fixed child should be inside the item
+   6 x with a large video and a fixed child should add no scroll
+## a cap on lead | firefox | 12 failed, 438 passed
+   6 x should put a wide image in lead over nothing, beside nothing
+   6 x should put a wide image in lead over nothing, beside a short text
+## label shrinks too | firefox | 24 failed, 426 passed
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   6 x should leave the label room for a control beside a video
+   6 x should leave the label room for a control beside a large video
+## no half | firefox | 12 failed, 438 passed
+   6 x should take at most half of the item with a long text
+   6 x should take at most half of the item with a wide button
+## no word break | firefox | 12 failed, 438 passed
+   6 x with a long word in trail should be inside the item
+   6 x with a long word in trail should add no scroll
+## no wrap | firefox | 104 failed, 346 passed
+   6 x with a long text should be inside the item
+   6 x with a long text should add no scroll
+   6 x with a long label and a long text should be inside the item
+   6 x with a long label and a long text should add no scroll
+   6 x with a long word in trail should be inside the item
+   6 x with a long word in trail should add no scroll
+   6 x with a video and a long text should be inside the item
+   6 x with a video and a long text should add no scroll
+   6 x with a large video and a long text should be inside the item
+   6 x with a large video and a long text should add no scroll
+   6 x should leave the label room for a long text alone
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   6 x should leave the label room for a control beside a video
+   8 x should leave the label room for a control beside a large video
+   6 x should take at most half of the item with a long text
+   6 x should take at most half of the item with a wide button
+## label keeps its longest word | firefox | 60 failed, 390 passed
+   6 x with a long word in the label should be inside the item
+   6 x with a long word in the label should add no scroll
+   6 x with a long word in overline should be inside the item
+   6 x with a long word in overline should add no scroll
+   6 x with a long word in support should be inside the item
+   6 x with a long word in support should add no scroll
+   6 x with a video and a fixed child should be inside the item
+   6 x with a video and a fixed child should add no scroll
+   6 x with a large video and a fixed child should be inside the item
+   6 x with a large video and a fixed child should add no scroll
+## trail starts from min-content | firefox | 24 failed, 426 passed
+   6 x should put two icons side by side
+   6 x should put two icon buttons side by side
+   6 x should put a text and an icon side by side
+   6 x should put two texts side by side
+## break-word | firefox | 12 failed, 438 passed
+   6 x with a long word in trail should be inside the item
+   6 x with a long word in trail should add no scroll
+## trail has no minimum | firefox | 16 failed, 434 passed
+   2 x with a video and a fixed child should be inside the item
+   2 x with a video and a fixed child should add no scroll
+   6 x with a large video and a fixed child should be inside the item
+   6 x with a large video and a fixed child should add no scroll
+## trail min auto | firefox | 0 failed, 450 passed
+## trail does not shrink | firefox | 28 failed, 422 passed
+   2 x with a large video and a long text should add no scroll
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   6 x should leave the label room for a control beside a video
+   8 x should leave the label room for a control beside a large video
+## trail shrinks 10 | firefox | 20 failed, 430 passed
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   2 x should leave the label room for a control beside a video
+   6 x should leave the label room for a control beside a large video
+## trail shrinks 100 | firefox | 0 failed, 450 passed
+## trail grows | firefox | 0 failed, 450 passed
+## content basis auto | firefox | 10 failed, 440 passed
+   2 x should leave the label room for a long text beside a video
+   2 x should leave the label room for a control beside a video
+   6 x should keep the width of a short text beside a long label
+## content does not grow | firefox | 0 failed, 450 passed
+## 14% | firefox | 26 failed, 424 passed
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   6 x should leave the label room for a control beside a video
+   8 x should leave the label room for a control beside a large video
+## 16% | firefox | 0 failed, 450 passed
+## 20% | firefox | 2 failed, 448 passed
+   2 x should keep the width of a button beside a video
+## half is 45% | firefox | 0 failed, 450 passed
+## half is 40% | firefox | 0 failed, 450 passed
+## lead shrinks | firefox | 0 failed, 450 passed
+## lead auto | firefox | 0 failed, 450 passed
+## trail clips | firefox | 0 failed, 450 passed

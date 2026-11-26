@@ -1,0 +1,41 @@
+// Draft rows. Copied to packages/material-x/tests/list/probe-selected.browser.test.ts.
+import { describe, expect, it } from 'vitest';
+import '../../src/list/list-button-item.ts';
+import '../../src/list/list-link-item.ts';
+
+const aria = (item: Element) =>
+  Object.fromEntries(
+    [...item.shadowRoot!.querySelector('.host')!.attributes]
+      .filter(({ name }) => name.startsWith('aria-'))
+      .map(({ name, value }) => [name, value]),
+  );
+
+describe.each([
+  ['mx-list-button-item', 'true'],
+  ['mx-list-link-item', 'page'],
+])('%s', (tag, current) => {
+  it('never selected: no aria', async () => {
+    const item = document.createElement(tag);
+    document.body.append(item);
+    expect(aria(item)).toEqual({});
+  });
+  it('selected: only aria-current', () => {
+    const item = document.createElement(tag);
+    item.toggleAttribute('selected', true);
+    document.body.append(item);
+    expect(aria(item)).toEqual({ 'aria-current': current });
+  });
+  it('selected after the connect', () => {
+    const item = document.createElement(tag);
+    document.body.append(item);
+    item.toggleAttribute('selected', true);
+    expect(aria(item)).toEqual({ 'aria-current': current });
+  });
+  it('deselected: no aria', () => {
+    const item = document.createElement(tag);
+    document.body.append(item);
+    item.toggleAttribute('selected', true);
+    item.toggleAttribute('selected', false);
+    expect(aria(item)).toEqual({});
+  });
+});

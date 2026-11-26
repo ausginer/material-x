@@ -1,0 +1,29 @@
+# RD-57's witness 2 at c7863961e, with RD-58 (a), Chromium 158, 2026-11-26. It replaces merged-witness2.txt's 8 rows.
+# node ../../.plan/axe-checks-1/probes/witnesses.mjs 2.
+## 2. useARIA's call out of ButtonCore
+× |browser (chromium)| tests/axe.browser.test.ts > axe-core > mx-button > should have exactly its listed violations: icon only
+× |browser (chromium)| tests/axe.browser.test.ts > axe-core > mx-icon-button > should have exactly its listed violations: enabled
+× |browser (chromium)| tests/axe.browser.test.ts > axe-core > mx-icon-button > should have exactly its listed violations: disabled
+× |browser (chromium)| tests/axe.browser.test.ts > axe-core > mx-switch-icon-button > should have exactly its listed violations: off
+× |browser (chromium)| tests/axe.browser.test.ts > axe-core > mx-switch-icon-button > should have exactly its listed violations: on
+× |browser (chromium)| tests/axe.browser.test.ts > axe-core > mx-switch-icon-button > should have exactly its listed violations: required with an error
+× |browser (chromium)| tests/axe.browser.test.ts > axe-core > mx-split-button > should have exactly its listed violations: closed
+× |browser (chromium)| tests/axe.browser.test.ts > axe-core > mx-split-button > should have exactly its listed violations: open
+× |browser (chromium)| tests/axe.browser.test.ts > axe-core > mx-split-button > should have exactly its listed violations: disabled
+× |browser (chromium)| tests/axe.browser.test.ts > axe-core > mx-list-button-item > should have exactly its listed violations: with a trailing control
+× |browser (chromium)| tests/axe.browser.test.ts > axe-core > mx-top-app-bar > should have exactly its listed violations: with controls
+Tests  11 failed | 60 passed (71)
+
+AssertionError: Listed: none: expected [ 'button-name at mx-button > button' ] to deeply equal []
++   "button-name at mx-button > button",
+AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
++   "button-name at mx-icon-button > button",
+AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
++   "button-name at mx-switch-icon-button > button",
+AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
++   "button-name at mx-split-button > mx-icon-button > button",
+AssertionError: Listed: nested-interactive at mx-list-button-item > button (repo:RF-144): expected [ …(2) ] to deeply equal [ Array(1) ]
++   "button-name at mx-icon-button > button",
+AssertionError: Listed: none: expected [ …(2) ] to deeply equal []
++   "button-name at mx-icon-button[slot=\"lead\"] > button",
++   "button-name at mx-icon-button[slot=\"trail\"] > button",

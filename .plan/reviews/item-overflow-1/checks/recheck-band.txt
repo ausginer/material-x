@@ -1,0 +1,22 @@
+# RF-139 recheck: the rows' two children of nearly half, in the rows' own font (no Roboto), at c7b7a3e32. own = width at 1000px; of = the content box at 300px. Read through a thrown error, since this config hides console output.
+BAND Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36
+mx-list-item text: own 128.95px of 300.00px = 42.98%; to 41% 5.95px, to 49% 18.05px; at 300 128.95px
+mx-list-item button: own 128.41px of 300.00px = 42.80%; to 41% 5.41px, to 49% 18.59px; at 300 128.41px
+mx-list-button-item text: own 128.95px of 268.00px = 48.12%; to 41% 19.07px, to 49% 2.37px; at 300 128.95px
+mx-list-button-item button: own 128.41px of 268.00px = 47.91%; to 41% 18.53px, to 49% 2.91px; at 300 128.41px
+mx-list-link-item text: own 128.95px of 268.00px = 48.12%; to 41% 19.07px, to 49% 2.37px; at 300 128.95px
+mx-list-link-item button: own 128.41px of 268.00px = 47.91%; to 41% 18.53px, to 49% 2.91px; at 300 128.41px
+BAND Mozilla/5.0 (X11; Linux x86_64; rv:159.0) Gecko/20100101 Firefox/159.0
+mx-list-item text: own 128.95px of 300.00px = 42.98%; to 41% 5.95px, to 49% 18.05px; at 300 128.95px
+mx-list-item button: own 128.45px of 300.00px = 42.82%; to 41% 5.45px, to 49% 18.55px; at 300 128.45px
+mx-list-button-item text: own 128.95px of 268.00px = 48.12%; to 41% 19.07px, to 49% 2.37px; at 300 128.95px
+mx-list-button-item button: own 128.45px of 268.00px = 47.93%; to 41% 18.57px, to 49% 2.87px; at 300 128.45px
+mx-list-link-item text: own 128.95px of 268.00px = 48.12%; to 41% 19.07px, to 49% 2.37px; at 300 128.95px
+mx-list-link-item button: own 128.45px of 268.00px = 47.93%; to 41% 18.57px, to 49% 2.87px; at 300 128.45px
+BAND Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15
+mx-list-item text: own 128.94px of 300.00px = 42.98%; to 41% 5.94px, to 49% 18.06px; at 300 128.94px
+mx-list-item button: own 128.41px of 300.00px = 42.80%; to 41% 5.41px, to 49% 18.59px; at 300 128.41px
+mx-list-button-item text: own 128.94px of 268.00px = 48.11%; to 41% 19.06px, to 49% 2.38px; at 300 128.94px
+mx-list-button-item button: own 128.41px of 268.00px = 47.91%; to 41% 18.53px, to 49% 2.91px; at 300 128.41px
+mx-list-link-item text: own 128.94px of 268.00px = 48.11%; to 41% 19.06px, to 49% 2.38px; at 300 128.94px
+mx-list-link-item button: own 128.41px of 268.00px = 47.91%; to 41% 18.53px, to 49% 2.91px; at 300 128.41px

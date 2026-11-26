@@ -1,0 +1,11 @@
+## tests/button-group tests/button/split-button | firefox | unmutated, at 71b839f4a
+257 passed, 0 failed, 4 skipped
+   tests/button/split-button.browser.test.ts: 55 passed, skipped: mx-split-button accessibility tree should expose the label as the trailing button name; skipped: mx-split-button accessibility tree should expose the trailing button as expanded with open; skipped: mx-split-button accessibility tree should expose no name of the trailing button without a label; skipped: mx-split-button accessibility tree should expose no text of the icon
+   tests/button-group/button-group-late-switch.browser.test.ts: 1 passed
+   tests/button-group/button-group-order.browser.test.ts: 2 passed
+   tests/button-group/button-group-rtl.browser.test.ts: 6 passed
+   tests/button-group/button-group-switch-order.browser.test.ts: 1 passed
+   tests/button-group/button-group.browser.test.ts: 26 passed
+   tests/button-group/button-group-focus.spec.browser.test.ts: 50 passed
+   tests/button-group/button-group-rtl.spec.browser.test.ts: 66 passed
+   tests/button-group/button-group.spec.browser.test.ts: 50 passed

@@ -1,0 +1,114 @@
+## no mutation | webkit | 0 failed, 504 passed
+## main | webkit | 180 failed, 324 passed
+   6 x with a long text should be inside the item
+   6 x with a long text should add no scroll
+   6 x with a long label and a long text should be inside the item
+   6 x with a long label and a long text should add no scroll
+   6 x with a long word in trail should be inside the item
+   6 x with a long word in trail should add no scroll
+   6 x with a long word in the label should be inside the item
+   6 x with a long word in the label should add no scroll
+   6 x with a long word in overline should be inside the item
+   6 x with a long word in overline should add no scroll
+   6 x with a long word in support should be inside the item
+   6 x with a long word in support should add no scroll
+   6 x with a wide button should be inside the item
+   6 x with a wide button should add no scroll
+   6 x with a video and a long text should be inside the item
+   6 x with a video and a long text should add no scroll
+   6 x with a video and a fixed child should be inside the item
+   6 x with a video and a fixed child should add no scroll
+   6 x with a large video and a long text should be inside the item
+   6 x with a large video and a long text should add no scroll
+   6 x with a large video and a wider button should be inside the item
+   6 x with a large video and a wider button should add no scroll
+   6 x with a large video and a fixed child should be inside the item
+   6 x with a large video and a fixed child should add no scroll
+   2 x should leave the label room for a long text alone
+   2 x should leave the label room for a long text beside a video
+   2 x should leave the label room for a control beside a video: <video slot="lead"></video><mx-button slot="trail">A button, 130</mx-button>
+   6 x should take at most half of the item with a long text
+   6 x should take at most half of the item with a wide button
+   6 x should put two icons side by side
+   6 x should put two icon buttons side by side
+   6 x should put a text and an icon side by side
+## without the 15% | webkit | 26 failed, 478 passed
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   6 x should leave the label room for a control beside a video: <video slot="lead"></video><mx-button slot="trail">A button, 130</mx-button>
+   2 x should leave the label room for a control beside a large video: <video slot="lead"></video><span slot="overline">Over</span><span slot="support">Support</span><mx-button slot="trail">Two bits</mx-button>
+   6 x should leave the label room for a control beside a large video: <video slot="lead"></video><span slot="overline">Over</span><span slot="support">Support</span><mx-button slot="trail">A button, 130</mx-button>
+## 15% as a minimum | webkit | 16 failed, 488 passed
+   2 x with a video and a fixed child should be inside the item
+   2 x with a video and a fixed child should add no scroll
+   6 x with a large video and a fixed child should be inside the item
+   6 x with a large video and a fixed child should add no scroll
+## a cap on the leading slot | webkit | 12 failed, 492 passed
+   6 x should put a wide image in lead over nothing, beside nothing
+   6 x should put a wide image in lead over nothing, beside a short text
+## the label shrinks too | webkit | 24 failed, 480 passed
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   6 x should leave the label room for a control beside a video: <video slot="lead"></video><mx-button slot="trail">A button, 130</mx-button>
+   6 x should leave the label room for a control beside a large video: <video slot="lead"></video><span slot="overline">Over</span><span slot="support">Support</span><mx-button slot="trail">A button, 130</mx-button>
+## no half | webkit | 12 failed, 492 passed
+   6 x should take at most half of the item with a long text
+   6 x should take at most half of the item with a wide button
+## no word break | webkit | 12 failed, 492 passed
+   6 x with a long word in trail should be inside the item
+   6 x with a long word in trail should add no scroll
+## no wrap | webkit | 104 failed, 400 passed
+   6 x with a long text should be inside the item
+   6 x with a long text should add no scroll
+   6 x with a long label and a long text should be inside the item
+   6 x with a long label and a long text should add no scroll
+   6 x with a long word in trail should be inside the item
+   6 x with a long word in trail should add no scroll
+   6 x with a video and a long text should be inside the item
+   6 x with a video and a long text should add no scroll
+   6 x with a large video and a long text should be inside the item
+   6 x with a large video and a long text should add no scroll
+   6 x should leave the label room for a long text alone
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   6 x should leave the label room for a control beside a video: <video slot="lead"></video><mx-button slot="trail">A button, 130</mx-button>
+   2 x should leave the label room for a control beside a large video: <video slot="lead"></video><span slot="overline">Over</span><span slot="support">Support</span><mx-button slot="trail">Two bits</mx-button>
+   6 x should leave the label room for a control beside a large video: <video slot="lead"></video><span slot="overline">Over</span><span slot="support">Support</span><mx-button slot="trail">A button, 130</mx-button>
+   6 x should take at most half of the item with a long text
+   6 x should take at most half of the item with a wide button
+## the label keeps its longest word | webkit | 60 failed, 444 passed
+   6 x with a long word in the label should be inside the item
+   6 x with a long word in the label should add no scroll
+   6 x with a long word in overline should be inside the item
+   6 x with a long word in overline should add no scroll
+   6 x with a long word in support should be inside the item
+   6 x with a long word in support should add no scroll
+   6 x with a video and a fixed child should be inside the item
+   6 x with a video and a fixed child should add no scroll
+   6 x with a large video and a fixed child should be inside the item
+   6 x with a large video and a fixed child should add no scroll
+## the trailing slot starts from its narrowest content | webkit | 36 failed, 468 passed
+   6 x should put two icons side by side
+   6 x should put two icon buttons side by side
+   6 x should put a text and an icon side by side
+   6 x should put two texts side by side
+   6 x should keep the width and one line of a text of nearly half of the item
+   6 x should keep the width and one line of a button of nearly half of the item
+## without the button's declaration | webkit | 12 failed, 492 passed
+   4 x control beside a video, 240 px should keep the width and one line of a button of one word
+   4 x control beside a video, 240 px should break a button of two words between them
+   4 x control beside a video, 280 px should keep the width and one line of a button of one word
+## the label doesn't grow | webkit | 6 failed, 498 passed
+   6 x should end a short text at the item's end and give the label the rest
+## the trailing slot grows | webkit | 6 failed, 498 passed
+   6 x should end a short text at the item's end and give the label the rest
+## half is 45% | webkit | 8 failed, 496 passed
+   4 x should keep the width and one line of a text of nearly half of the item
+   4 x should keep the width and one line of a button of nearly half of the item
+## half is 40% | webkit | 12 failed, 492 passed
+   6 x should keep the width and one line of a text of nearly half of the item
+   6 x should keep the width and one line of a button of nearly half of the item
+## the trailing slot's minimum is auto | webkit | 6 failed, 498 passed
+   6 x should keep a fixed child wider than half of the item in it
+## the leading slot shrinks | webkit | 6 failed, 498 passed
+   6 x should keep the large video's width beside a fixed child
