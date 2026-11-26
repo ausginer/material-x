@@ -1,0 +1,20 @@
+# Wall time of each step, from packages/material-x, in a warm tree, on 2026-11-26. collect-props is what `just build-prepare` runs,
+# tsdown what `just build-lib` runs. The node project's runs include its global setup's build.
+# collect-props
+723 ms rc=0
+662 ms rc=0
+751 ms rc=0
+608 ms rc=0
+780 ms rc=0
+# tsdown
+2252 ms rc=0
+2216 ms rc=0
+2425 ms rc=0
+# vitest run --project node, with the fix
+5755 ms rc=0
+6063 ms rc=0
+6026 ms rc=0
+# vitest run --project node, at d6f6cf60b
+5405 ms rc=0
+5679 ms rc=0
+5164 ms rc=0
