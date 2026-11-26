@@ -1951,6 +1951,10 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 
 > drag's `visual` is the item itself, and drag's lift keeps its padding, border, overflow, color and background color.
 
+**Amended a ninth time on 2026-11-25, after implementation,** for `RF-146`, on the owner's answer (a), which that entry quotes. Property 4's (Q3, Q6) item says what touch does on an item without a handle. The code doesn't change. Its replaced text:
+
+> and an item without one drags by its whole surface. There is no
+
 **Dated 2026-11-23 by the architect, not an amendment:** property 4's _"once the slot shows the move"_ and _"each accepted move"_ are read by `RF-103` property 2, with the limit that it states.
 
 **Amended 2026-11-20, before implementation,** for Q1 to Q3: the status, properties 4 and 9, the reasons about the handle and about drag, and the list of what isn't adopted. **Amended again the same day, before implementation,** for Q4 and Q5: the status, property 4's keyboard, handle and announcement items, property 9, the reasons, and the list of what isn't adopted. **Amended a third time on 2026-11-21, before implementation,** for Q6 and its follow-ups: the status, the answers, property 4's handle, Q6 and handle-semantics items, property 7, a reason, and the list of what isn't adopted. It was written from slot b in `745fccb8c`, and the main slot's architect confirmed it the same day and corrected this list of what it changed, which named the keyboard item. **Amended a fourth time on 2026-11-21, before implementation,** for how a static item takes focus, on the implementer's reading [`item-focus.txt`](list-sortable-1/checks/item-focus.txt) and `RF-68`'s [reading](https://github.com/ausginer/material-x/blob/45272694ce5d6792f9c7590f839614aa9dc88289/.plan/list-roles-1/checks/list-roles.txt) on `material-x/list-roles-1`: three sentences of property 4's (Q6) item and a clause of its item on handle semantics. Proposed from slot b in the plan at `9f90572fb`. **Amended a fifth time on 2026-11-21, before implementation,** for the context between the list and its items, on the owner's rule that a parent–child link uses context: three passages of property 4, in the (Q6) item, the item on handle semantics and the last item, and a reason. Proposed from slot b in the plan at `d875ceb25`. **Amended a sixth time on 2026-11-21, before implementation,** for where the items' sortable writes live, on Mx Architect B's ruling on the implementer's size stop at `88801757e` (the plan's [Where the sortable writes live](list-sortable-1/list-sortable-plan.md#where-the-sortable-writes-live)): a passage of property 4's item on handle semantics, property 7's last sentence, and a reason. Proposed from slot b in the plan at `6de14c896`. The main slot's architect registered it with the item on handle semantics reworded, so that it reads with the fifth amendment: the item applies the writes, the (Q6) tab stop included, and the code that writes is in the list's module. **Amended a seventh time on 2026-11-21, after implementation,** for `RF-68`'s fold of `mx-list-item`'s inner element into its host, on `RF-68`'s re-plan: property 4's (Q6) item and its item on handle semantics, a new item of property 4 on drag's `visual`, property 7 and a reason. What each amendment replaced is at the end. The first amendment's new items in the list of what isn't adopted were a grab built in the list and `handle(item, event)`.
@@ -1962,7 +1966,7 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 3. **No runtime entry other than `list/sortable-list` reaches `@ydinjs/drag`,** directly or through other modules, the list items included. A test over the built package checks this, and a temporary drag import in `list.ts` makes the test fail. The published declarations of `list/sortable-list` and `react` name no drag type.
 4. **The sortable list runs drag's `sortable` with `y()` and `landing()`, as drag is today, with the kind that `drag:DRD-71` adds to `onStart`.**
    - Its items are its slotted item elements. It calls `invalidate()` during a drag when they change, and not when only the placeholder moves.
-   - **(Q3, Q6) The handle is optional, and decides per item.** drag's `handle` is the item's `[data-handle]` when it has one, and otherwise the item itself. So an item with a handle drags only by it, by pointer and keyboard, and an item without one drags by its whole surface. There is no `handle-only` attribute: a handle's presence makes its own item handle-only.
+   - **(Q3, Q6) The handle is optional, and decides per item.** drag's `handle` is the item's `[data-handle]` when it has one, and otherwise the item itself. So an item with a handle drags only by it, by pointer and keyboard, and an item without one drags by its whole surface, except by touch: a finger on it does what it does on any item (`RF-146`). There is no `handle-only` attribute: a handle's presence makes its own item handle-only.
    - **(Q4) The keyboard is drag's ordinary model:** an arrow key moves the item one slot at once and proposes the move, inside the same `handle`. So an arrow key moves an item from its focused handle. If the item has no handle, an arrow key also moves it from any focused element inside it, such as an interactive item's own button or link. At the collection's edge the key keeps its meaning.
    - **(Q6) A static item without a handle is a tab stop in a sortable list,** and moves from the keyboard while it has focus. `mx-sortable-list` provides a context, and each item consumes it through core's `useContext`, and is in the list while the provider is its parent element. While it is and has no `[data-handle]`, the item sets `tabindex="0"` and the arrow-key description on its host, where the consumer hasn't set them, and removes what it set when it gains a handle or disconnects. The item resolves the context in whatever order the two are defined (`RF-69`). The host has a box and is the item's `listitem` (`RF-68`), so it takes focus in every engine and has no accessibility node of its own. `mx-list-item` composes neither `FocusForwarding` nor `delegatesFocus`, and shows Material's list focus indicator on its host. A consumer's `tabindex` on its host stands, in either list. Interactive items keep their own control as their only tab stop. In `mx-list`, no item makes itself a tab stop: a static item is one only by a consumer's `tabindex`.
    - **A control inside a handle-less item that uses the arrow keys itself,** such as a text field or a slider, carries `data-drag-ignore`, which drag already honors. Otherwise its arrow keys move the item. The JSDoc says so.
@@ -2702,7 +2706,7 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 #### RD-61 — In `mx-sortable-list`, the user can't reorder a disabled item
 
-**Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer to `RF-142`'s Q1, (c), in the wider form that Mx Architect Explainer proposed and he approved as a whole, relayed by the coordinator. His words: _"почему ручка вообще фокусится, если item disabled? Я бы предположил, что если item disabled, то всё у него внутри тоже disabled. Я верно понимаю a11y?"_ ("why does the handle take focus at all if the item is disabled? I'd expect that if an item is disabled, everything inside it is disabled too. Do I understand a11y right?"), and then, to the readings and the proposal: _"Да, отправляй"_ ("Yes, send it"). The contract is in `RF-142`. `RD-60` is on `drag/displacement-1`, so this is the next free number. **Unimplemented.**
+**Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer to `RF-142`'s Q1, (c), in the wider form that Mx Architect Explainer proposed and he approved as a whole, relayed by the coordinator. His words: _"почему ручка вообще фокусится, если item disabled? Я бы предположил, что если item disabled, то всё у него внутри тоже disabled. Я верно понимаю a11y?"_ ("why does the handle take focus at all if the item is disabled? I'd expect that if an item is disabled, everything inside it is disabled too. Do I understand a11y right?"), and then, to the readings and the proposal: _"Да, отправляй"_ ("Yes, send it"). The contract is in `RF-142`. `RD-60` is on `drag/displacement-1`, so this is the next free number. **Implemented at `754e2089f` (#278), with properties 1, 2 and 8 amended the same day (the last note).**
 
 1. **A `mx-list-button-item` or `mx-list-link-item` with `disabled` isn't picked up by the user,** by pointer or by keyboard, with a handle or without, wherever in the item focus is. An arrow key then keeps its native meaning. It stays in the collection: the other items move past it and displace it. A page's own change of the DOM isn't affected.
 2. **Its handle is a disabled button:** it keeps its role and name, and has `aria-disabled="true"`. It is no tab stop, and it doesn't have the description _Use the arrow keys to move_ or `touch-action: none`. Enabled, it has again what it had. As for the rest of the handle, a value that the page wrote is the page's and stays.
@@ -2720,6 +2724,12 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 **Supersedes** the sentence of `RF-129`'s property 1 _"A disabled item keeps its disabled look: a handle lifts a disabled button item, in the three engines"_, and its row of a disabled button item lifted by its handle. What is left: an item disabled during its drag takes its disabled look, so `:not(:state(disabled))` in `styles/sortable/tokens.ts` stays. `RF-129`'s text in the list's JSDoc, _"an item that isn't disabled takes Material's reorder colors"_, stays true.
 
 **Costs.** A page that disables an item and lets the user reorder it loses the reorder. A disabled item can be neither moved nor announced as movable. The size wasn't measured. The item's observer sees `disabled` in a list that sorts alone, so `mx-list` and the items pay nothing with the candidate read.
+
+**Amended 2026-11-25 by the architect, on the feature proof of #278** ([report](reviews/disabled-item-1/feature-proof-claude.md)), before the merge:
+
+- **Property 1, in nested sortable lists.** What the list refuses is refused by that list. An outer sortable list may then take the press or the key, as drag's _Nested roots_ has it for anything that an inner root declines, so _"an arrow key then keeps its native meaning"_ doesn't hold there. `mx-sortable-list` in an item of another one is not a supported arrangement of its own: no record asks for it, and it has drag's rule and no promise of the package. An `mx-list` in an item is unchanged.
+- **Property 2, _"it has again what it had"_, covers the values that are on the handle.** An attribute that the page _removed_ isn't a value that the page wrote. The list writes an absent one again when the slot or `disabled` changes, as it does on `main` after a slot change. A page that wants no tab stop writes `tabindex="-1"`, which stands.
+- **Property 8 holds as written,** so the item's `disabled` isn't observed on an `mx-list-item`: setting it runs no update.
 
 #### RD-62 — Development runs in Chromium, a review runs in the three engines, and CI runs the whole suite in each
 
@@ -7012,6 +7022,50 @@ Tier A, **open**, **ready** after #267 and #268 (the last note), pre-existing. R
 
 **A feature proof is owed,** because public behavior changes. **`.agents/docs/accessibility.md`,** whose list section states the rule after the unit, is project documentation, so it has its own pull request, which the coordinator takes: a disabled item can't be reordered, its handle is `aria-disabled` and no tab stop, and the page's own controls in it are the page's to disable. Nothing is the owner's to answer.
 
+**Dated 2026-11-25 by the implementer: implemented on `material-x/disabled-item-1` at `754e2089f`, for #271, from `main` at `ca6918376`, and not closed.** Requested by the coordinator. `main` at `8bed561de` (#269, #274) is merged without a conflict. No stop was met: drag, `mx-list`, the items' code and `styles/sortable/tokens.ts` don't change.
+
+- **Source:** the candidate's rule and observer. Its `release` by name isn't used: `claim` takes `null` for a value that the item doesn't have now, and what the item owns is a set and not an array. `isDisabled` is the one rule, for the admission and the semantics.
+- **Texts:** as written, in the three JSDocs and in `list.mdx`.
+- **Rows:** 32 in `sortable-list.browser.test.ts`, and the superseded row of `sortable-list.spec` is replaced. Beyond the list: a pointer drag whose item is disabled goes on, and the semantics of an `mx-list-item` with the attribute. A row of the page's values also covers `aria-disabled`.
+- **Witnesses,** one engine at a time, each with the same rows in Chromium, Firefox and WebKit ([reading](disabled-item-1/checks/witnesses.txt), [probe](disabled-item-1/probes/mutate.mjs)). Unmutated 193, 183 and 193 pass:
+
+  | Change | Rows that fail |
+  | --- | --- |
+  | The admission's rule out | 10: the eight of pointer and key, and the two of the focused handle |
+  | The semantics' rule out | 12: Tab's, the attributes' and the description's |
+  | No observer | 4: the attributes and the description after it is disabled |
+  | The tab index removed instead of `-1` | 11, among them the focus row of a `span` |
+  | The operation ended when its item is disabled | 3: the handler's two, and the drag's |
+  | The attribute read on any item | 2 |
+  | `:not(:state(disabled))` out | 1, the spec row |
+  | A page's value replaced | 4 |
+  | A page's value removed on enabling | 1 |
+
+  With the tab index removed, the Tab row of a `span` passes, because a `span` without one is no tab stop.
+
+- **Firefox's link items:** `RF-76` and the spec file say that a pointer drag doesn't lift one there. With the admission's rule out, the two pointer rows of a link item fail in Firefox as elsewhere, so they aren't blind there. Why wasn't read.
+- **Size, Brotli** ([sizes](disabled-item-1/checks/sizes.txt)): `list/sortable-list` 9092 to 9182 (+90), `complete` 25813 to 25880 (+67). No other row moves.
+- **Checks:** at `754e2089f`'s sources, material-x without the visual project in Chromium (42 files), the declarations' typecheck, publint, `docs-build` and `docs-smoke`. On the merged tree, `tests/list` in Chromium (402), Firefox (390, 2 skipped) and WebKit (400, 2 skipped), typecheck, lint, the size gate and the root format check. No baseline changes.
+- **Not here:** `accessibility.md`, by the list.
+
+**Dated 2026-11-25 by the architect: the feature proof of #278 is ruled on** ([report](reviews/disabled-item-1/feature-proof-claude.md), at `9173a25a1`). Requested by the coordinator. Not repeated: the proof's readings. Read: the source at `380920c2a`, `main`'s `sortable-item.ts`, and drag's contract. `RD-61` has the amendments. Nothing is the owner's.
+
+- **`reviewer-1`: accepted, and the four rows are owed.** The list of rows in the note above is a minimum and not complete, because the properties are the contract. The rows: a press whose item is disabled before the lift is lifted and proposes its move; a page's `aria-disabled` written on a disabled handle stands on enabling; an item that left the list writes nothing on its handle when `disabled` changes; a page's `touch-action` written after the claim stands through disabling and enabling. **Witnesses:** his four mutations, each of which now fails a row.
+- **`reviewer-2`: accepted in part.** On an `mx-list-item`, property 8 is exact and the repair is one condition: the `disabled` observer isn't set on a static item, which has no such state. A row: with its `tabindex` removed by the page, `disabled` set on it writes none. **Witness:** with the observer on any item it fails. On the handle of an interactive item the contract doesn't cover a removal, and `RD-61`'s amended property 2 says so. The comment in `sortable-item.ts`, which says that a value is the item's until anyone removes it, stays true. A removal also comes back after a slot change on `main`, so it isn't this unit's.
+- **The three departures: accepted,** as the proof reads them. `claim` takes `null` and the owned names are a set. The two rows beyond the list stay. The link item's rows in Firefox aren't blind, and the cause is read.
+- **Nested sortable lists:** no finding. `RD-61`'s amended property 1 says what holds.
+- **Touch by an inline handle:** registered as `RF-145`, and wider than the observation. It is pre-existing, and not this unit's.
+- **The row of the semantics after enabling, which needs the one before it:** no act. Together they discriminate.
+- **Owed by the implementer:** the condition, the five rows with their witnesses in the three engines, the size rows if they move, and the note. **A targeted recheck by the same reviewer is owed,** of the delta from `380920c2a`: the condition, the rows and the four mutations with the new one. CI runs on it.
+
+**Dated 2026-11-25 by the implementer: the remediation's list is done on `material-x/disabled-item-1`, for #271, and the entry is not closed.** Requested by the coordinator. `main` at `ee0afea12` (#270, #281) is merged: the index conflicts where both sides append, and both are kept, in the entries' order.
+
+- **The condition:** in `sortItem`, the item's `disabled` is observed only where the control isn't the host, so not on a static item. No other source changes.
+- **Rows:** the five of the ruling, so `sortable-list.browser` and `sortable-list.spec` have 198.
+- **Witnesses: Chromium alone,** on the owner's ruling of 2026-11-25, relayed by the coordinator, that development runs in Chromium and the recheck in the three engines. Each fails its own row and no other, of 198 ([reading](disabled-item-1/checks/remediation-witnesses.txt), [probe](disabled-item-1/probes/mutate.mjs)): a press whose item is disabled before the lift canceled; `aria-disabled` not watched; the state observer never disconnected; a page's `touch-action` removed; the `disabled` attribute of any item observed. _No observer_ fails its 4 rows as before. The other former mutations weren't run again.
+- **Size, Brotli** ([sizes](disabled-item-1/checks/remediation-sizes.txt)): the condition is +5 in `list/sortable-list` and -19 in `complete`. Against `main`, `list/sortable-list` 9117 to 9203 (+86) and `complete` 25924 to 25988 (+64). No other row moves, and the gate passes.
+- **Checks,** on the merged tree, Chromium: material-x without the visual project (2079 rows and 2 expected failures), and the root format check, typecheck, lint and the size gate. **Not run:** Firefox and WebKit, the visual project, publint, the docs build. No baseline file changes.
+
 #### RF-143 — A member that can't take focus keeps a connected group's tab stop
 
 Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `core/hidden-1`, from `reviewer-1` of `RF-121`'s [feature proof](reviews/hidden-1/feature-proof-claude.md), requested by the coordinator. `RF-142` is the highest `RF-` on any branch on `origin`, so this is the next free number. No entry covers it: `RF-141` is about a member that isn't in the order. Read on the head of `RF-121`, built, in Playwright's Chromium, Firefox and WebKit, with the same result ([reading](hidden-1/checks/ruling.txt), [probe](hidden-1/probes/ruling.mjs)).
@@ -7039,6 +7093,76 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 - **Plan needed:** no. **Ready** for an implementer, after #269 and #270, on a branch of its own. Nothing is the owner's to answer.
 - **Size:** _medium_. One hook in core, the connected group, its page and their rows.
 
+#### RF-145 — In Chromium, touch doesn't reorder an item by most handles, `mx-icon` among them
+
+Tier A, **open**, **ready**, pre-existing. Registered on 2026-11-25 by the architect, on `material-x/disabled-item-1`, from an observation of #278's feature proof, requested by the coordinator. `RF-144` is the highest `RF-` on any branch on `origin` (`repo/axe-checks-1`), so this is the next free number. Read in Chromium 158 by CDP touch, on the built elements of `754e2089f`, an enabled item, static and button, in `lead` and `trail` ([reading](inline-handle-1/checks/touch.txt), [probe](inline-handle-1/probes/touch.mjs)), and without the package ([reading](inline-handle-1/checks/slot-text.txt), [probe](inline-handle-1/probes/slot-text.mjs)). `main` wasn't run; its `touch-action` line is the same.
+
+- **What happens:** the item is lifted, and then the finger pans: the browser sends `pointercancel`, which ends the drag. The handle has `touch-action: none` in its inline style in each case.
+
+  | Handle                                          | Touch    |
+  | ----------------------------------------------- | -------- |
+  | `mx-icon`, the handle of the list's own stories | Canceled |
+  | A `span` with text or with an `mx-icon`         | Canceled |
+  | `mx-icon-button`                                | Canceled |
+  | A native button with an `mx-icon`               | Canceled |
+  | A native button with text                       | Works    |
+
+- **Two causes.** `touch-action` doesn't apply to an inline element, nor to a `display: contents` one, which `mx-icon-button`'s host is. And in Chromium, a text slotted into a `display: contents` slot doesn't have the touch action of the host around it: with no package code, a host with `touch-action: none` and a `<slot>` pans from its text, and with a `span` or `div` around the slot too. With `slot { display: block }`, or with an element as the slotted content, it doesn't. The text of `mx-icon` is slotted so.
+- **Why it is a problem:** the JSDoc promises `touch-action: none` for any `[data-handle]` child, and the documented handle is an icon. In Chromium, a touch user can't reorder by it.
+- **Required properties:**
+  1. A touch that starts on a handle of an enabled item, the handle an inline element, an `mx-icon`, an `mx-icon-button` or a native button with any of them in it, lifts the item and isn't canceled by a pan.
+  2. Nothing changes for a mouse, the keyboard, a disabled item (`RD-61` property 2) or a page's own `touch-action`, which stands.
+- **Candidate, read in Chromium:** `display: inline-block` on a slotted `[data-handle]`, and `display: block` on `mx-icon`'s slot. Either alone leaves some of the table canceled, and both together pass all of it. Each changes boxes: the span handle in `lead` was 9x17 and is 9x0 in the reading, and a page's `display` on the handle must still win. Where the rules go is the implementer's.
+- **Interaction:** `RF-137` (`material-x/icon-name-1`) puts `mx-icon`'s slot in a `<span aria-hidden="true">`, which fails in the reading without the package as the plain slot does. So the repair must hold on both, and the second to land reads the other.
+- **Rows,** `browser`, in Chromium, by CDP touch: property 1 for each handle. **Witness:** each fails at `754e2089f`. Screenshots of the handles' boxes don't change, or the owner sees them.
+- **Not read:** Firefox, beyond the owner's check below, WebKit and Safari, and whether the package's other touch surfaces meet the same.
+- **Size:** _medium_.
+
+**Dated 2026-11-25 by the architect: confirmed by the owner on a phone, in Chrome on Android with real touch,** the same day, relayed by the coordinator (the phone and the versions aren't known, nor which handle he tried). His words: _"Ручка: не тащится. Происходит покрас, начинается движение - и тут же сбрасывается"_ ("The handle: it doesn't drag. It is painted, the move starts, and is at once reset"). It is what the emulation shows: a lift, and then a `pointercancel`. Properties, order and size don't change. An item without a handle is `RF-146`.
+
+**Dated 2026-11-25 by the architect: this unit also carries `RF-146`'s (a),** the documentation of an item without a handle and one row, as that entry's last note says. Nothing else of this entry changes.
+
+**Added the same day: Firefox on the same phone,** relayed by the coordinator: _"работает, но «схватиться» за ручку сложнее, чем в хроме"_ ("it works, but it is harder to grab the handle than in Chrome"). It is the handle only: an item without one doesn't move there either (`RF-146`). That it works fits the second cause, which is read in Chromium only, if the handle was the stories' `mx-icon`: that host is `inline-block`, so the first cause doesn't apply to it. **Why it is harder isn't established.** The touch target is small: `mx-icon` in `lead` and in `trail` is 20x20 px in the [reading](inline-handle-1/checks/touch.txt), below the 24x24 of WCAG 2.5.8 without its spacing exception and the 48 dp that Material asks for (both by knowledge, not read here). It is the same in both browsers, so alone it explains that a handle is hard to grab and not the difference. A difference in how each browser moves a touch to a nearby target could, and wasn't read. A larger target isn't a property of this entry: it changes the look or the hit area of every handle, and gets an entry of its own if the owner wants it.
+
+#### RF-146 — By touch, an item without a handle isn't reordered
+
+Tier A, **open**, **ready, with `RF-145`'s unit** (the last note), pre-existing. Until that note: waiting on the owner (Q1). Registered on 2026-11-25 by the architect, on `material-x/disabled-item-1`, from the same check by the owner, relayed by the coordinator: _"Без ручки: вообще ничего не происходит, браузер пытается текст выделить вместо перетаскивания"_ ("Without a handle: nothing happens at all, the browser tries to select text instead of dragging"). Read in Chromium 158, by CDP touch, on the built elements of `754e2089f` ([reading](inline-handle-1/checks/no-handle.txt), [probe](inline-handle-1/probes/no-handle.mjs)).
+
+- **What happens, emulated:** on a static, a button and a link item the finger's move lifts the item, the pan sends `pointercancel`, and nothing is proposed. A press held for 800 ms before the move gives the same. With `touch-action: none` on the item each of them is proposed. The mouse works throughout. Emulation never selected text, which the phone does, and the phone shows no lift.
+- **On the phone, the same in Firefox and in Chrome on Android,** by the owner, relayed by the coordinator on the same day: in Firefox only text is selected, and nothing moves.
+- **What is promised:** `list.mdx` and the JSDoc say that an item without a handle drags _by its whole surface_, and that the user reorders _by pointer_. Neither names touch. drag leaves it to its consumer: _"Give each row `touch-action: none` for touch input and `user-select: none` for text"_, and has no long press. `mx-sortable-list` is that consumer and writes `touch-action` on handles only. `RD-31` (Q3, Q6) decided the whole-surface drag, and no record decided what a finger does there, where a swipe is also how the page scrolls.
+- **So it isn't by contract, and it isn't `RF-145`:** that is a handle that has `touch-action: none` and loses it. Here nothing asks for it, and the repair is a choice.
+- **Q1, for the owner — what does a finger do on an item without a handle?**
+  - **(a) It scrolls, as on any item. A touch user reorders by a handle. Recommended for now.** The documentation says that an item without a handle is reordered by mouse, pen where it doesn't scroll, and keyboard, and that a list used by touch gives its items handles. No code. **Cost:** such a list can't be reordered by touch.
+  - (b) It drags at once: the item has `touch-action: none` and `user-select: none`. A few lines. **Cost:** a finger on an item can't scroll the page or the list, so a list longer than the screen can't be scrolled by its items.
+  - (c) A press held for a moment lifts the item, and a swipe scrolls. It is the usual pattern on phones. **Cost:** drag has to change, which has no long press today: a delay before the activation for touch, a non-passive listener that keeps the browser from scrolling after the lift, and the selection and the menu of a long press suppressed. Not measured or planned. It can follow (a) later.
+- **Why (a):** it keeps scrolling, which everybody needs, and breaks nothing. (b) trades a broken scroll for a drag. (c) is the right behavior if touch matters for these lists, and is a feature with its own decision in drag, so it needs his word.
+- **After the answer:** (a) is the JSDoc and `list.mdx`, _small_. (b) is _small_, with rows by CDP touch. (c) is _large_, with a plan first, in drag and then here.
+- **Order:** it waits for no unit, and `RF-145` doesn't wait for it.
+- **Not read:** Firefox beyond the owner's check, WebKit and Safari, the phone's long press beyond the owner's words, and what Material says.
+
+**Dated 2026-11-25 by the architect: the owner answered Q1 with (a), and wants (c) later.** In chat, relayed by the coordinator: _"Согласен с тобой: (а) сейчас, (с) на потом"_ ("I agree with you: (a) now, (c) for later"). The coordinator had proposed that (c) gets an entry of its own, which is `RQ-3`. He took up no larger handle target (`RF-145`'s last note), so it has no entry. `RD-31` property 4 has the rule.
+
+- **Where: `RF-145`'s unit,** on its branch and in its pull request, which closes both. The text sends a touch user to a handle, and in Chromium most handles don't work by touch until that repair. So (a) doesn't land before it, and isn't added to #278, whose proof is done. Both are ready to be taken, on the base that has #278, which changes the same documents.
+- **Required properties:**
+  1. Each place in the table says what it says now, and that: a mouse drags an item without a handle by its whole surface, and so does a pen where the browser doesn't scroll with it; a finger on it doesn't reorder it and does what it does on any item, such as scroll; and the items of a list that is used by touch need handles.
+  2. No text promises a touch reorder of an item without a handle.
+  3. No code changes for (a). `touch-action` and `user-select` aren't written on an item.
+
+  | Text | Change |
+  | --- | --- |
+  | `sortable-list.ts`, JSDoc, _Handles_: _"An item without a handle drags by its whole surface"_ | Property 1 |
+  | `list.mdx`, _Sortable lists_, the second bullet's first sentence | Property 1 |
+  | `sortable-list.ts`'s `@summary`, and `list.mdx`'s opening: _by pointer and keyboard_ | None: of the list as a whole, and a finger reorders by a handle |
+  | The two texts on an item with a handle and on a disabled item | None: true of each pointer once `RF-145` is repaired |
+  | `list-item.ts`, the button and link items, the stories | None: they promise no pointer drag |
+  | drag: `README.md`, `draggable.ts`'s JSDoc, `contract.md` | None: they tell the consumer to give a row `touch-action: none` for touch, which is so, and promise no drag without it. _"By mouse, touch or pen"_ there defines `onStart`'s kind |
+
+- **Candidate,** for both places: _"A mouse drags an item without a handle by its whole surface, as does a pen that the browser doesn't scroll with. A finger on it scrolls instead, so give the items of a list that is used by touch a handle."_
+- **Row,** `browser`, in Chromium, by CDP touch, beside `RF-145`'s: a swipe that starts on an enabled item without a handle, static and button, proposes nothing. **Witness:** `touch-action: none` on the item fails it, as in the [reading](inline-handle-1/checks/no-handle.txt).
+- **Limit:** the emulated swipe lifts the item before the pan cancels it, and the phone shows no lift. The text doesn't promise that there is none. A lift that a person sees on a device is an observation of its own.
+- **Size:** _small_, with `RF-145`, whose size stays _medium_. `RF-145`'s properties don't change.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
@@ -7058,3 +7182,23 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
   - The disposition rejected reconciling on the switch's own `value`, because that makes the group a second writer that reacts to consumer writes. A reactive value would change that premise. It wouldn't make the group a second writer.
 - **What answers it:** a design unit for reactive values in `@ydinjs/core`, when the owner orders one. The stronger invariant would then be a decision of its own. Until then, the ruling stands.
 - **Routed** to the owner, through the work queue (`RD-22`), as not for now.
+
+#### RQ-3 — How does a press held by touch lift an item without a handle, while a swipe scrolls?
+
+**Opened 2026-11-25 by the architect,** on `material-x/disabled-item-1`, on the owner's answer to `RF-146`'s Q1, _"(с) на потом"_ ("(c) for later"), which that entry quotes whole. `RQ-2` is the highest `RQ-` on any branch on `origin`, so this is the next free number.
+
+- **The behavior:** a touch user can't reorder an item of `mx-sortable-list` that has no handle. By `RF-146`'s (a), that is documented, and the user reorders by a handle.
+- **Why a question, not a finding:** with (a) the code does what the decision and the documentation say. The wish is a feature, and drag rejects it today: _"Activation by time, such as a long press, is not supported"_ (`drag:DRD-17`). `drag:DRO-3` named the case: _"If a touch list that also scrolls can't be dragged there, activation by a long press becomes a feature decision."_ The owner's phone showed that case.
+- **First: a decision in drag, and drag's plan.** The decision is a `DRD-` in drag's register, minted when the unit is ordered. It amends `DRD-17`, and the owner accepts its cost and its public surface. The plan has readings on real phones, because emulation shows neither the selection nor the menu of a long press. material-x follows in a step of its own.
+- **What the decision and the plan must settle:**
+  1. The delay, and the movement that ends the press as a scroll; which pointers it applies to, with pen named; and that the mouse, the keyboard and a handle's immediate drag don't change.
+  2. How the browser is kept from scrolling after the lift, and doesn't cancel the pointer, while a swipe before it scrolls as natively as now. The listener that this takes may make scrolling slower, and it is measured.
+  3. What becomes of the press's other effects: text selection, the context menu, the native drag and menu of a link item, the click after the release, and a control in the item with its own long press.
+  4. How an `Escape`, a second finger, a disabled item, `data-drag-ignore`, a nested root and a list that changes during the delay end or refuse the press.
+  5. Whether it is a feature that a consumer composes, so that a consumer without it pays nothing in bytes or at a press.
+  6. How a user learns of it, and whether the lift gives a sign that it has begun.
+- **Then, in material-x:** `RD-31` property 4's touch sentence, the two texts that `RF-146` (a) changes and its row change with it. Whether `mx-sortable-list` takes it for each item without a handle or on a page's choice is for that step.
+- **Not read:** any engine's behavior beyond `RF-146`'s readings, what Material says, and the sizes.
+- **What answers it:** the decision in drag. Until then, (a) stands.
+- **Size:** _large_.
+- **Routed** to the owner, through the work queue (`RD-22`), as for later.

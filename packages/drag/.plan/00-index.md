@@ -5378,6 +5378,8 @@ None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DR
 
 **Default: Chromium's emulated touch runs in the suite, and physical touch and pen are stated as unverified.** The implementer has no hardware. **Recommendation: try one touch device and one pen before calling the package released.** The case most likely to differ is `pointercancel` from touch scrolling. **If a touch list that also scrolls can't be dragged there, activation by a long press becomes a feature decision.** The package has no activation by time (`DRD-17`).
 
+**Dated 2026-11-25 by the architect: the case was met,** in the owner's check of material-x's sortable list on a phone, in Chrome and Firefox on Android (`repo:RF-146`). An item without `touch-action: none` can't be dragged by a finger there. The owner wants activation by a long press later (_"(с) на потом"_, "(c) for later"), and `repo:RQ-3` carries it, with a decision here as its first step. `DRD-17` stands until then, and this entry's default and recommendation for drag's release don't change.
+
 #### DRO-4 — Costs measured after remediation
 
 **Default: none is accepted until you read it.** The remediation report gives, under the rules fixed in `DRD-22`:

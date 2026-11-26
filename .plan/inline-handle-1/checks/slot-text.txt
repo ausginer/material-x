@@ -1,0 +1,10 @@
+# chromium 158.0.8127.18
+light text: pointercancel false, scrollY 0
+shadow slot (contents) with light text: pointercancel true, scrollY 17
+shadow slot, display: block: pointercancel false, scrollY 0
+shadow slot (contents), touch-action: none on it too: pointercancel true, scrollY 17
+shadow span with a slot: pointercancel true, scrollY 17
+shadow div with a slot: pointercancel true, scrollY 17
+shadow slot with a light span: pointercancel false, scrollY 0
+shadow slot with a light div: pointercancel false, scrollY 0
+shadow text, no slot: pointercancel false, scrollY 0
