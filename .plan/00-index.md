@@ -7874,8 +7874,6 @@ Tier C, **open**, **ready** (the last note), pre-existing. Registered on 2026-11
 - **Visual baselines:** none is expected to change. The only `mx-icon`s in the visual suites are in `mx-top-app-bar`'s `lead` and `trail`, which are flex containers, so the icons are flex items. That is read from the test files and the compiled CSS, not from a run, because visual runs in CI.
 - **Not read:** Firefox and WebKit, which are CI's and the feature proof's; Safari.
 
-## Questions
-
 **Dated 2026-11-26 by the architect, on `material-x/icon-middle-1`: the stop is ruled. The `trail` case is (a), accepted, and the unit goes on.** Requested by the coordinator, on the implementer's note above at `fc54fc942`. Nothing is the owner's: his (a) covers it, and _Where it shows_ names it.
 
 - **A page's `<span slot="trail">` with an `mx-icon` in it is a page's own text, and the icon is inline in it.** By the list's contract a `trail` child that isn't an `mx-icon` or `[data-icon]` is trailing text: the slot gives it the trailing text's font, size and line height, and the icon in it takes the text's size, 11 px. The property places that icon's middle on that text's lowercase middle, and the reading has it there, 2.97 px lower than on `main`. Nothing of the package moves: the item's box is the same (`20, 20, 300, 56` before and after, `checks/boxes.txt`), and so are a slotted `mx-icon`, a `[data-icon]` and a control in `lead` and `trail`. In `lead` the same page `span` doesn't move.
@@ -7883,6 +7881,10 @@ Tier C, **open**, **ready** (the last note), pre-existing. Registered on 2026-11
 - **The handles, case 1, stay a condition.** A handle is a child that the package places, so its icon moving on `main` is the stop. With #296's CSS none moves. **The unit merges after #296,** merges `main` then, and reads `probes/boxes.mjs` again. If a handle's icon moves there, it stops again.
 - **Nothing more is owed** for the `trail` case: no row, because the property's rows already hold an icon inline in a `span` of text, and no line in `list.mdx`, whose `trail` already says that a child other than an icon is text. A trailing icon the page wants centered in the item is slotted itself, as the stories do.
 - **The status above** stays _ready_. The implementer's next step is #296's merge.
+
+**Dated 2026-11-26 by the implementer: the probe is read again after `#296`, and no handle moves.** On `main` at `7ac961122`, merged into the branch, in Chromium. `checks/boxes-after-296.txt` compares `main`'s `icon.ctr.css` with the branch's: the rects of every handle, of each slotted `mx-icon` and of the buttons, FABs and text field are the same. Only the icon inline in a `span` of text and the icon in a page's `trail` span move, as the ruling above accepts. The ruling sat under _Questions_ at `8bfbc7927`, where `entry.sh` doesn't read it as part of this entry, and it is moved here unchanged.
+
+## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
 
