@@ -2712,6 +2712,8 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 - **Witness 2 fails 8 of the 11 control rows.** The split button's three, _closed_, _open_ and _disabled_, pass. Its trailing button's icon is in the split button's own template, `<mx-icon>keyboard_arrow_down</mx-icon>`, and no fixture can hide it. So axe names that button by the ligature, as `reviewer-1` reads of any `mx-icon`. With `aria-hidden="true"` on that icon in a probe edit of the template, reverted after the run, witness 2 fails 11, and the three again report `button-name` at `mx-split-button > mx-icon-button > button`.
 - **Not decided here:** whether the split button's rows stay without the witness (its names are held by `RF-136`'s rows) or the template's icon is hidden. The second changes source outside this file, which the triage excludes. That is the architect's.
 
+**Dated 2026-11-26 by the implementer: item 3 reads 11 rows,** with `RD-58`'s (a) at `c7863961e`, requested by the coordinator. Witness 2, `useARIA`'s call out of `ButtonCore`, fails the 11 control rows and no other, the split button's three among them ([reading](axe-checks-1/checks/witness2-rd58.txt)). It replaces the [reading of 8](axe-checks-1/checks/merged-witness2.txt). The cause and the repair are in `RD-58`'s note.
+
 #### RD-58 — A page names the split button's trailing button with `secondarylabel`, and `open` is its expanded state
 
 **Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer of 2026-11-24 to `RF-136`'s Q1, (a). In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). `RD-57` is the highest `RD-` on any branch on `origin`, so this is the next free number. The [contract](#rf-136--the-split-buttons-trailing-button-is-named-by-its-icons-ligature-cant-be-given-a-name-and-doesnt-expose-open) is in `RF-136`.
@@ -2740,6 +2742,15 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 3. **`RD-57`'s witness 2,** on the tree with item 1: it fails all 11 control rows, the split button's three among them. The implementer's reading of 8 above is then replaced by a new one, committed.
 4. **Unchanged, and run:** the split button's own rows, among them _should expose no name of the trailing button without a label_, and `RF-137`'s icon rows. The size gate, for one attribute.
 5. **A bounded recheck is owed,** as `RD-62` property 6 says, of what this changes: the new row and its witness, and the split button's rows in the three engines.
+
+**Dated 2026-11-26 by the implementer: (a) is implemented on `repo/axe-checks-1`, at `c7863961e`,** requested by the coordinator. Chromium alone (`RD-62`), with `@ydinjs/core` and material-x rebuilt.
+
+- **Item 1:** in `split-button.tpl.html`, the trailing button's `<mx-icon>` has `aria-hidden="true"`, with an HTML comment that gives the reason. The template's minifier drops comments, so the comment ships no bytes.
+- **Item 2:** in `tests/axe.browser.test.ts`, the row _mx-split-button, without secondarylabel_ lists `button-name` at `mx-split-button > mx-icon-button > button`, owned by `repo:RD-58`. **Witness:** without the attribute, that row fails, because axe reports nothing, and no other row does ([reading](axe-checks-1/checks/rd58-witness.txt)).
+- **Item 3:** `RD-57`'s witness 2 fails the 11 control rows ([reading](axe-checks-1/checks/witness2-rd58.txt)), as `RD-57`'s note says.
+- **Item 4:** `tests/axe.browser.test.ts`, `tests/button/split-button.browser.test.ts`, with _should expose no name of the trailing button without a label_, and `tests/icon/icon.browser.test.ts` pass, 151 rows. **Size, Brotli** ([reading](axe-checks-1/checks/rd58-sizes.txt)): `button/split-button` 7858 to 7880 (+22), and `complete` 26158 to 26138 (−20). No other row moves, none has a limit, and `just size` passes.
+- **`RD-59`'s heading is restored,** as Mx Architect authorized, relayed by the coordinator. `75966eb9a` had joined it to the end of item 5 above, so `repo:RD-59` didn't resolve and `repo:RD-58` printed `RD-59`'s text as its own. The heading is the line at `75966eb9a^`, and `RD-59` is identical to its text there. Nothing else of that commit changes.
+- **Checks:** format, lint and the typecheck of material-x. **Not run:** Firefox and WebKit, which the bounded recheck of item 5 runs, and the visual project.
 
 #### RD-59 — `mx-icon` hides its content from assistive technology
 
