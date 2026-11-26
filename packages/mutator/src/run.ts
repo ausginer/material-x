@@ -155,7 +155,7 @@ export type RunOptions = Readonly<{
   config: Config;
   engines?: readonly string[];
   only?: readonly string[];
-  /** The commit of the checkout that the file and the runner came from. */
+  /** The commit that holds the file, the config and the runner as they run. */
   fileCommit?: string;
   /** This leg's shard, from 1, and the count. */
   shard?: readonly [number, number];
@@ -204,6 +204,7 @@ export async function run(options: RunOptions): Promise<Report> {
     const runAll = async (engine: string): Promise<VitestRun> => {
       const rows: Row[] = [];
       const errors: Record<string, readonly string[]> = {};
+      const failure: string[] = [];
 
       for (const target of file.runs) {
         // oxlint-disable-next-line no-await-in-loop -- one Vitest at a time
@@ -215,16 +216,25 @@ export async function run(options: RunOptions): Promise<Report> {
         );
         rows.push(...result.rows);
         Object.assign(errors, result.errors);
+        failure.push(...(result.failure ?? []));
       }
 
-      return { rows, errors };
+      return failure.length > 0 ? { rows, errors, failure } : { rows, errors };
     };
     const baselines = new Map<string, readonly Row[]>();
 
     for (const engine of engines) {
       log(`unmutated, ${engine}`);
       // oxlint-disable-next-line no-await-in-loop -- one engine at a time
-      baselines.set(engine, (await runAll(engine)).rows);
+      const { rows, failure } = await runAll(engine);
+
+      // The engine, not the file, failed: the run is a failure outside the
+      // tests, which a later run may not repeat, and not a refusal.
+      if (failure) {
+        throw new Error(`unmutated, ${engine}: ${failure.join('\n')}`);
+      }
+
+      baselines.set(engine, rows);
     }
 
     checkSelectors(mutations, engines, baselines);

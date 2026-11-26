@@ -4,7 +4,8 @@
  * tool itself in Chromium. The rows are in one file, so each selector names a
  * row of `packages/mutator/tests/mutator.node.test.ts`. The three after RD-66's
  * comment are the feature proof's witnesses, with its predictions, read again
- * against the rows as they are now.
+ * against the rows as they are now. The ones after the recheck's comment are the
+ * witnesses of its findings, three of them the recheck's own mutations.
  */
 import type { MutationFile } from '@ydinjs/mutator';
 
@@ -13,6 +14,8 @@ const RUN = 'packages/mutator/src/run.ts';
 const REPORT = 'packages/mutator/src/report.ts';
 const COPY = 'packages/mutator/src/copy.ts';
 const PROCESS = 'packages/mutator/src/process.ts';
+const CLI = 'packages/mutator/src/cli.ts';
+const VITEST = 'packages/mutator/src/vitest.ts';
 const row = (name: string): Readonly<{ file: string; row: string }> => ({
   file: ROWS,
   row: name,
@@ -429,6 +432,184 @@ const config: MutationFile = {
           row("should read a survivor whose rows don't run as void"),
           row('should restore each mutation before the next one runs'),
         ],
+      },
+    },
+    // The recheck's findings, `recheck-1` to `recheck-4`.
+    {
+      name: 'an engine that fails unmutated runs on',
+      group: 'mechanism',
+      edits: [
+        {
+          file: RUN,
+          text: '      if (failure) {',
+          replacement: '      if (false) {',
+        },
+      ],
+      expect: {
+        fails: [
+          row(
+            "should exit with 3, not refuse the file, when the unmutated run's browser doesn't start",
+          ),
+        ],
+      },
+    },
+    {
+      name: 'an engine that fails unmutated refuses the file',
+      group: 'mechanism',
+      edits: [
+        {
+          file: RUN,
+          text: "throw new Error(`unmutated, ${engine}: ${failure.join('\\n')}`);",
+          replacement: 'throw new Refusal(`unmutated, ${engine}`, failure);',
+        },
+      ],
+      expect: {
+        fails: [
+          row(
+            "should exit with 3, not refuse the file, when the unmutated run's browser doesn't start",
+          ),
+        ],
+      },
+    },
+    {
+      name: "Vitest's failure is not kept",
+      group: 'mechanism',
+      edits: [
+        {
+          file: VITEST,
+          text: 'return result.code === 0 || reported',
+          replacement: 'return true',
+        },
+      ],
+      expect: {
+        fails: [
+          row(
+            "should exit with 3, not refuse the file, when the unmutated run's browser doesn't start",
+          ),
+          row("should read a selected row whose browser doesn't start as void"),
+        ],
+      },
+    },
+    {
+      name: "Vitest's failure is not a row's reason",
+      group: 'mechanism',
+      edits: [
+        {
+          file: REPORT,
+          text: '(errors[file] ?? failure ?? [',
+          replacement: '(errors[file] ?? [',
+        },
+      ],
+      expect: {
+        fails: [
+          row("should read a selected row whose browser doesn't start as void"),
+        ],
+      },
+    },
+    {
+      name: "the file's commit is the code's commit",
+      group: 'mechanism',
+      edits: [
+        {
+          file: CLI,
+          text: '...(fileCommit ? { fileCommit } : {}),',
+          replacement: 'fileCommit: commit,',
+        },
+      ],
+      expect: {
+        fails: [
+          row(
+            'should name the commit that holds the file, the config and the runner',
+          ),
+          row('should name no commit for a file that differs from its commit'),
+          row(
+            "should name no commit for a runner from another checkout than the file's",
+          ),
+        ],
+      },
+    },
+    {
+      name: "a modified file names its checkout's commit",
+      group: 'mechanism',
+      edits: [
+        {
+          file: CLI,
+          text: '  return changed\n    ? undefined',
+          replacement: '  return false\n    ? undefined',
+        },
+      ],
+      expect: {
+        fails: [
+          row('should name no commit for a file that differs from its commit'),
+        ],
+      },
+    },
+    {
+      name: "the runner's checkout is not compared with the file's",
+      group: 'mechanism',
+      edits: [
+        { file: CLI, text: '    import.meta.dirname,\n', replacement: '' },
+      ],
+      expect: {
+        fails: [
+          row(
+            "should name no commit for a runner from another checkout than the file's",
+          ),
+        ],
+      },
+    },
+    {
+      name: "the summary gives no reason for a row that didn't run",
+      group: 'mechanism',
+      edits: [
+        {
+          file: REPORT,
+          text: '? [`  - void, did not run: ${key}`, ...reason(key)]',
+          replacement: '? [`  - void, did not run: ${key}`]',
+        },
+      ],
+      expect: {
+        fails: [
+          row("should read a selected row that doesn't run as void"),
+          row('should read a survivor whose row the mutation skips as void'),
+          row("should read a selected row whose browser doesn't start as void"),
+        ],
+      },
+    },
+    {
+      name: 'a row that the mutation skips has a verdict',
+      group: 'mechanism',
+      edits: [
+        {
+          file: REPORT,
+          text: "} else if (next?.status !== 'passed') {",
+          replacement: '} else if (next === undefined) {',
+        },
+      ],
+      expect: {
+        fails: [
+          row('should read a survivor whose row the mutation skips as void'),
+        ],
+      },
+    },
+    {
+      name: 'options are read outside the failure handling',
+      group: 'mechanism',
+      edits: [
+        {
+          file: CLI,
+          text: 'async function main(): Promise<number> {\n  const { positionals, values } = parseArgs({',
+          replacement: 'const { positionals, values } = parseArgs({',
+        },
+        {
+          file: CLI,
+          text: '  const [command, ...paths] = positionals;\n',
+          replacement:
+            '  const [command, ...paths] = positionals;\nasync function main(): Promise<number> {\n',
+        },
+      ],
+      expect: {
+        fails: [row('should exit with 3 on an unknown option')],
       },
     },
   ],

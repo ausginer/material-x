@@ -28,8 +28,11 @@ const TEST_FILE = 'tests/math.node.test.ts';
 const TIMEOUT = 120_000;
 
 type Result = Readonly<{
+  /** The repository that the run was invoked in. */
+  repo: string;
   code: number;
   stderr: string;
+  summary?: string;
   /** The processes whose working directory is in the row's directory. */
   processes: number;
   report?: Report;
@@ -100,6 +103,14 @@ type MutateOptions = Readonly<{
   prepare?(repo: string, temp: string): Promise<void>;
   /** A signal sent to the tool's process alone when its log has `after`. */
   interrupt?: Readonly<{ signal: NodeJS.Signals; after: string }>;
+  /**
+   * What a second commit adds to the repository, after the fixture's: the file
+   * and the config, and with `'runner'` also a copy of the tool's source, which
+   * then runs. `prepare` runs after it.
+   */
+  commit?: 'file' | 'runner';
+  /** Options added to the command line. */
+  args?: readonly string[];
 }>;
 
 /**
@@ -113,6 +124,8 @@ async function mutate(
     setup,
     prepare,
     interrupt,
+    commit,
+    args = [],
   }: MutateOptions = {},
 ): Promise<Result> {
   const root = await mkdtemp(join(tmpdir(), 'mutator-test-'));
@@ -121,6 +134,9 @@ async function mutate(
   const temp = join(root, 'tmp');
   const log = join(root, 'log');
   const report = join(root, 'report.json');
+  const summary = join(root, 'summary.md');
+  const files = commit ? repo : root;
+  const cli = commit === 'runner' ? join(repo, 'tool/src/cli.ts') : CLI;
 
   await cp(join(PACKAGE, 'fixture'), repo, { recursive: true });
   await mkdir(temp);
@@ -136,7 +152,7 @@ async function mutate(
     'fixture',
   ]);
   await writeFile(
-    join(root, 'mutator.config.ts'),
+    join(files, 'mutator.config.ts'),
     `export default ${JSON.stringify({
       setup: [
         ['ln', '-s', NODE_MODULES, 'node_modules'],
@@ -153,9 +169,28 @@ async function mutate(
     })};\n`,
   );
   await writeFile(
-    join(root, 'mutations.ts'),
+    join(files, 'mutations.ts'),
     `export default ${JSON.stringify(file)};\n`,
   );
+
+  if (commit) {
+    if (commit === 'runner') {
+      await cp(join(PACKAGE, 'src'), join(repo, 'tool/src'), {
+        recursive: true,
+      });
+    }
+
+    await git(repo, ['add', '-A']);
+    await git(repo, [
+      '-c',
+      'user.name=fixture',
+      '-c',
+      'user.email=fixture@example.invalid',
+      'commit',
+      '-qm',
+      'the file',
+    ]);
+  }
 
   await prepare?.(repo, temp);
   const before = await stateOf(repo);
@@ -165,13 +200,16 @@ async function mutate(
     const child = execFile(
       process.execPath,
       [
-        CLI,
+        cli,
         'run',
-        join(root, 'mutations.ts'),
+        join(files, 'mutations.ts'),
         '--config',
-        join(root, 'mutator.config.ts'),
+        join(files, 'mutator.config.ts'),
         '--report',
         report,
+        '--summary',
+        summary,
+        ...args,
       ],
       { cwd: repo, env: cleanEnv({ TMPDIR: temp, FIXTURE_LOG: log }) },
       (error, _stdout, err) => {
@@ -198,10 +236,13 @@ async function mutate(
   const read = async (path: string): Promise<string | undefined> =>
     await readFile(path, 'utf8').catch(() => undefined);
   const reportText = await read(report);
+  const summaryText = await read(summary);
 
   return {
+    repo,
     code,
     stderr,
+    ...(summaryText ? { summary: summaryText } : {}),
     processes: await processesIn(root),
     ...(reportText ? { report: JSON.parse(reportText) as Report } : {}),
     builds: ((await read(log)) ?? '').split('\n').filter(Boolean).length,
@@ -243,6 +284,41 @@ const UNLOADABLE: Mutation['edits'] = [
     replacement: 'export function add(;',
   },
 ];
+
+const LABEL: Mutation = {
+  name: 'a label loses its text',
+  group: 'mechanism',
+  edits: [
+    {
+      file: 'src/dom.ts',
+      text: 'element.textContent = text;',
+      replacement: '',
+    },
+  ],
+  expect: {
+    fails: [{ file: 'tests/dom.browser.test.ts', row: 'should hold its text' }],
+  },
+};
+
+/** Stops the fixture's browser project from starting its browser. */
+const NO_BROWSER = {
+  file: 'vitest.config.ts',
+  text: "launchOptions: { channel: 'chromium' }",
+  replacement: "launchOptions: { executablePath: '/nonexistent/chrome' }",
+} as const;
+
+const browserFile = (mutations: readonly Mutation[]): MutationFile => ({
+  runs: [{ dir: '.', tests: ['tests/dom'] }],
+  engines: ['chromium'],
+  mutations,
+});
+
+/** The summary's lines for a row without a verdict, and its first reason. */
+const unrunLines = (result: Result): string => {
+  const [mutation] = result.report!.legs[0]!.mutations;
+  const [key] = mutation!.voided;
+  return `- void, did not run: ${key}\n    - ${mutation!.unrun[key!]![0]}\n`;
+};
 
 const outcomes = ({
   report,
@@ -303,6 +379,55 @@ describe('mutator run, refusals', () => {
       expect(result.stderr).toContain(
         'built value, a: tests/math.node.test.ts > should not exist covers no row that ran',
       );
+    },
+    TIMEOUT,
+  );
+});
+
+describe('mutator run, failures outside the tests', () => {
+  it(
+    'should exit with 3 on an unknown option',
+    async () => {
+      const result = await mutate(fileOf([CLAMP]), {
+        args: ['--workdir', '.'],
+      });
+
+      expect([result.code, result.report]).toEqual([3, undefined]);
+      expect(result.stderr).toContain("Unknown option '--workdir'");
+    },
+    TIMEOUT,
+  );
+
+  it(
+    "should exit with 3, not refuse the file, when the unmutated run's browser doesn't start",
+    async () => {
+      const result = await mutate(browserFile([LABEL]), {
+        prepare: async (repo) => {
+          const config = join(repo, NO_BROWSER.file);
+          await writeFile(
+            config,
+            (await readFile(config, 'utf8')).replace(
+              NO_BROWSER.text,
+              NO_BROWSER.replacement,
+            ),
+          );
+          await git(repo, [
+            '-c',
+            'user.name=fixture',
+            '-c',
+            'user.email=fixture@example.invalid',
+            'commit',
+            '-qam',
+            'no browser',
+          ]);
+        },
+      });
+
+      expect([result.code, result.report]).toEqual([3, undefined]);
+      expect(result.stderr).toContain(
+        'unmutated, chromium: Vitest exited with 1 and reported no failed row:',
+      );
+      expect(result.stderr).toContain('Failed to launch chromium');
     },
     TIMEOUT,
   );
@@ -553,6 +678,7 @@ describe('mutator run, outcomes', () => {
       expect(mutation!.unrun[mutation!.voided[0]!]!.join('\n')).toContain(
         'src/math.ts',
       );
+      expect(result.summary).toContain(unrunLines(result));
     },
     TIMEOUT,
   );
@@ -573,6 +699,67 @@ describe('mutator run, outcomes', () => {
 
       expect([result.code, outcomes(result)]).toEqual([1, [['a', 'void']]]);
       expect(result.report!.legs[0]!.mutations[0]!.voided).toHaveLength(7);
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'should read a survivor whose row the mutation skips as void',
+    async () => {
+      const result = await mutate(
+        fileOf([
+          {
+            name: 'clamp low is skipped',
+            group: 'other',
+            edits: [
+              {
+                file: TEST_FILE,
+                text: "it('should clamp low'",
+                replacement: "it.skip('should clamp low'",
+              },
+            ],
+            expect: { survives: 'a skipped row reads nothing' },
+          },
+        ]),
+      );
+
+      expect([
+        result.code,
+        outcomes(result),
+        result.report!.legs[0]!.mutations[0]!.unrun,
+      ]).toEqual([
+        1,
+        [['a', 'void']],
+        {
+          'tests/math.node.test.ts > clamp should clamp low': [
+            'the row was skipped',
+          ],
+        },
+      ]);
+      expect(result.summary).toContain(unrunLines(result));
+    },
+    TIMEOUT,
+  );
+
+  it(
+    "should read a selected row whose browser doesn't start as void, with Vitest's output",
+    async () => {
+      const result = await mutate(
+        browserFile([
+          { ...LABEL, name: 'the browser does not start', edits: [NO_BROWSER] },
+        ]),
+      );
+      const [mutation] = result.report!.legs[0]!.mutations;
+
+      expect([result.code, outcomes(result)]).toEqual([
+        1,
+        [['chromium', 'void']],
+      ]);
+      expect(mutation!.unrun[mutation!.voided[0]!]!.slice(0, 2)).toEqual([
+        'Vitest exited with 1 and reported no failed row:',
+        expect.stringContaining('Failed to launch chromium'),
+      ]);
+      expect(result.summary).toContain(unrunLines(result));
     },
     TIMEOUT,
   );
@@ -616,33 +803,9 @@ describe('mutator run, outcomes', () => {
   it(
     'should run in a browser project',
     async () => {
-      const result = await mutate({
-        runs: [{ dir: '.', tests: ['tests/dom'] }],
-        engines: ['chromium'],
-        mutations: [
-          {
-            name: 'a label loses its text',
-            group: 'mechanism',
-            edits: [
-              {
-                file: 'src/dom.ts',
-                text: 'element.textContent = text;',
-                replacement: '',
-              },
-            ],
-            expect: {
-              fails: [
-                {
-                  file: 'tests/dom.browser.test.ts',
-                  row: 'should hold its text',
-                },
-              ],
-            },
-          },
-        ],
-      });
-
-      expect(outcomes(result)).toEqual([['chromium', 'as expected']]);
+      expect(outcomes(await mutate(browserFile([LABEL])))).toEqual([
+        ['chromium', 'as expected'],
+      ]);
     },
     TIMEOUT,
   );
@@ -813,6 +976,60 @@ describe('mutator run, rebuilds', () => {
     "should not rebuild for an edit that doesn't match",
     async () => {
       expect((await mutate(fileOf([CLAMP]))).builds).toBe(1);
+    },
+    TIMEOUT,
+  );
+});
+
+describe('mutator run, the summary', () => {
+  it(
+    'should name the commit that holds the file, the config and the runner, apart from the code',
+    async () => {
+      const result = await mutate(fileOf([CLAMP]), {
+        commit: 'runner',
+        args: ['--ref', 'HEAD~1'],
+      });
+      const [code, file] = (
+        await git(result.repo, ['rev-parse', 'HEAD~1', 'HEAD'])
+      )
+        .trim()
+        .split('\n');
+
+      expect([result.code, result.report!.fileCommit]).toEqual([0, file]);
+      expect(result.summary).toContain(
+        `The code at ${code}, the file and the runner at ${file}, in a.`,
+      );
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'should name no commit for a file that differs from its commit',
+    async () => {
+      const result = await mutate(fileOf([CLAMP]), {
+        commit: 'runner',
+        prepare: async (repo) => {
+          await writeFile(
+            join(repo, 'mutations.ts'),
+            `export default ${JSON.stringify(fileOf([{ ...CLAMP, name: 'changed' }]))};\n`,
+          );
+        },
+      });
+
+      expect([result.code, result.report!.fileCommit]).toEqual([0, undefined]);
+      expect(result.summary).toContain(
+        'the file and the runner at no commit that holds them as they ran,',
+      );
+    },
+    TIMEOUT,
+  );
+
+  it(
+    "should name no commit for a runner from another checkout than the file's",
+    async () => {
+      const result = await mutate(fileOf([CLAMP]), { commit: 'file' });
+
+      expect([result.code, result.report!.fileCommit]).toEqual([0, undefined]);
     },
     TIMEOUT,
   );

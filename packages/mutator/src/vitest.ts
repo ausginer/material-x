@@ -51,7 +51,9 @@ function vitestOf(dir: string): readonly string[] {
 /**
  * Runs Vitest once for `run` in the copy at `root`, with `env`, and reads every
  * row of its JSON report. A test file that fails before its rows run adds no
- * row, and its message is kept as the reason that its rows didn't run.
+ * row, and its message is kept as the reason that its rows didn't run. When
+ * Vitest exits with a failure that neither a row nor a test file reports, its
+ * output is kept as the run's failure.
  */
 export async function runVitest(
   root: string,
@@ -106,7 +108,23 @@ export async function runVitest(
       },
     );
 
-    return { rows, errors };
+    const reported =
+      Object.keys(errors).length > 0 ||
+      rows.some(({ status }) => status === 'failed');
+
+    return result.code === 0 || reported
+      ? { rows, errors }
+      : {
+          rows,
+          errors,
+          failure: [
+            `Vitest exited with ${result.code} and reported no failed row:`,
+            // Without the stack frames, which would fill the lines kept.
+            ...firstLines(
+              (result.stderr || result.stdout).replaceAll(/^\s+at .*$/gmu, ''),
+            ),
+          ],
+        };
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }

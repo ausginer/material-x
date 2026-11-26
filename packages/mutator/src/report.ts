@@ -16,6 +16,12 @@ export type VitestRun = Readonly<{
   rows: readonly Row[];
   /** The first lines of the message of each test file that failed as a whole. */
   errors: Readonly<Record<string, readonly string[]>>;
+  /**
+   * Vitest's exit code and the first lines of its output, when it exited with
+   * a failure that no row and no test file's message reports, as when a
+   * browser didn't start.
+   */
+  failure?: readonly string[];
 }>;
 
 /**
@@ -67,7 +73,10 @@ export type Report = Readonly<{
   file: string;
   /** The commit whose code ran. */
   commit: string;
-  /** The commit of the checkout that the file and the runner came from. */
+  /**
+   * The commit that holds the file, the config and the runner as they ran,
+   * when one checkout's head holds all three.
+   */
   fileCommit?: string;
   legs: readonly Leg[];
 }>;
@@ -93,15 +102,18 @@ type Judgement = Pick<
   'outcome' | 'failed' | 'missed' | 'voided' | 'unrun' | 'messages'
 >;
 
-/** Vitest's reason that a row didn't run, from its test file's message. */
+/**
+ * Vitest's reason that a row didn't run: its test file's message, else the
+ * failure that Vitest exited with.
+ */
 const reasonOf = (
   row: Row | undefined,
-  errors: VitestRun['errors'],
+  { errors, failure }: VitestRun,
   file: string,
 ): readonly string[] =>
   row
     ? ['the row was skipped']
-    : (errors[file] ?? ['Vitest reported no row of its file']);
+    : (errors[file] ?? failure ?? ['Vitest reported no row of its file']);
 
 /**
  * Compares a mutated run with the unmutated one. A row has a verdict when it
@@ -125,7 +137,7 @@ export function judge(
     if (next?.status === 'failed') {
       failedRows.push(next);
     } else if (next?.status !== 'passed') {
-      unrun[key] = reasonOf(next, mutated.errors, row.file);
+      unrun[key] = reasonOf(next, mutated, row.file);
     }
   }
 
@@ -265,7 +277,7 @@ export function summarize(reports: readonly Report[]): Summary {
   const lines = [
     `# Mutations: ${[...new Set(reports.map(({ file }) => file))].join(', ')}`,
     '',
-    `The code at ${[...new Set(reports.map(({ commit }) => commit))].join(', ')}, the file and the runner at ${[...new Set(reports.map(({ fileCommit }) => fileCommit ?? 'no commit'))].join(', ')}, in ${engines.join(', ')}.`,
+    `The code at ${[...new Set(reports.map(({ commit }) => commit))].join(', ')}, the file and the runner at ${[...new Set(reports.map(({ fileCommit }) => fileCommit ?? 'no commit that holds them as they ran'))].join(', ')}, in ${engines.join(', ')}.`,
     '',
     ...engines.map((engine) => {
       const engineRows = rows.get(engine)!;
