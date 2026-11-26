@@ -1,46 +1,44 @@
-# Dry run of probes/move.mjs at e2a0e05eb, in a scratch clone, not committed. Run on 2026-11-26 by the implementer.
+# Dry run of probes/move.mjs at c7b7c0621 (main at 4b7e6e181 merged), in a scratch clone, not committed. Run on 2026-11-26 by the implementer, with rule 5's third row of Mx Architect B's note at 57f3e6cac.
 # node .plan/decision-files-1/probes/move.mjs --classified dry-run-classified.tsv
 
 {
  "entries": {
-  "RD": 62,
+  "RD": 64,
   "DRD": 72,
   "DRO": 21
  },
- "moved": 155,
+ "moved": 157,
  "bytes": {
-  ".plan/00-index.md": 499533,
-  "packages/drag/.plan/00-index.md": 533476
+  ".plan/00-index.md": 519533,
+  "packages/drag/.plan/00-index.md": 533956
  },
  "statusRows": 72,
- "insideRelative": 713,
- "insideRewritten": 713,
+ "insideRelative": 718,
+ "insideRewritten": 718,
  "insideAbsolute": 18,
  "elsewhere": {
   "fragMoved": 5,
   "fragOther": 4,
-  "toFile": 61,
-  "toDir": 72,
-  "unchanged": 212
+  "textFile": 16,
+  "toFile": 55,
+  "toDir": 68,
+  "unchanged": 206
  },
  "elsewhereTotal": 354,
  "elsewhereFiles": 283,
  "sameIndexFragments": 1,
- "filesWritten": 155,
- "filesChanged": 284
+ "filesWritten": 157,
+ "filesChanged": 289
 }
-Left to a person (4):
-  .plan/00-index.md:1373: a link in code, o; kept
-  .plan/list-sortable-1/list-sortable-plan.md:9: a link to .plan/00-index.md on a line that names DRD-70 of another scope; kept
-  .plan/list-sortable-1/list-sortable-plan.md:9: a link to packages/drag/.plan/00-index.md on a line that names RD-31 of another scope; kept
-  packages/drag/.plan/displacement-1/displacement-plan.md:3: a link to packages/drag/.plan/00-index.md on a line that names RD-60 of another scope; kept
+Left to a person (1):
+  .plan/00-index.md:1375: a link in code, o; kept
 
 # The tree after it:
 # .scripts/entry.sh --duplicates
 no duplicated address in drag, repo
-# oxfmt --check on the 284 changed and new Markdown files
+# oxfmt --check on the 289 changed and new Markdown files
 All matched files use the correct format.
-Finished in 113ms on 284 files using 12 threads.
+Finished in 73ms on 289 files using 12 threads.
 # The script again, on its own output, committed: rerun changed: 0 files
  "filesChanged": 0
 No line is left to a person.

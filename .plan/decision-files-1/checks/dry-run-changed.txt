@@ -1,0 +1,25 @@
+# The links whose row or target changed from the dry run at e2a0e05eb (its dry-run-classified.tsv, at 536e129cd) to the dry run at c7b7c0621. Keyed by file and line text, because main's merge moved the index's lines.
+# place	before: row, target	after: row, target
+
+## A new target (11)
+.agents/docs/test-architecture.md:160	toDir, ../../.plan/decisions/	textFile, ../../.plan/decisions/RD-2.md
+.plan/card-1/card-plan.md:3	toDir, ../decisions/	textFile, ../decisions/RD-53.md
+.plan/list-sortable-1/list-sortable-plan.md:3	unchanged, (kept)	textFile, ../decisions/RD-31.md
+.plan/list-sortable-1/list-sortable-plan.md:9	unchanged, (kept)	textFile, ../decisions/RD-31.md
+.plan/list-sortable-1/list-sortable-plan.md:9	unchanged, (kept)	textFile, ../../packages/drag/.plan/decisions/DRD-70.md
+.plan/reviews/card-1/feature-proof-claude.md:3	unchanged, (kept)	textFile, ../../decisions/RD-53.md
+.plan/slider-1/slider-plan.md:3	toDir, ../decisions/	textFile, ../decisions/RD-55.md
+.plan/top-app-bar-1/top-app-bar-plan.md:3	toDir, ../decisions/	textFile, ../decisions/RD-54.md
+.plan/trait-decorators-1/trait-migration-plan.md:5	unchanged, (kept)	textFile, ../decisions/RD-26.md
+.plan/trait-private-fields-1/trait-private-fields-plan.md:7	toDir, ../decisions/	textFile, ../decisions/RD-33.md
+packages/drag/.plan/displacement-1/displacement-plan.md:3	unchanged, (kept)	textFile, ../decisions/DRD-72.md
+
+## The same target, by the third row (5)
+.agents/docs/test-architecture.md:131	toFile, ../../.plan/decisions/RD-3.md	textFile, ../../.plan/decisions/RD-3.md
+.plan/findings-on-github-1/findings-on-github-plan.md:491	toFile, ../decisions/RD-56.md	textFile, ../decisions/RD-56.md
+.plan/list-sortable-1/list-sortable-plan.md:389	toFile, ../decisions/RD-31.md	textFile, ../decisions/RD-31.md
+.plan/trait-decorators-1/trait-decorators-plan.md:32	toFile, ../decisions/RD-26.md	textFile, ../decisions/RD-26.md
+.plan/trait-private-fields-1/trait-private-fields-plan.md:64	toFile, ../decisions/RD-33.md	textFile, ../decisions/RD-33.md
+
+## A line that main's merge changed, with the same outcome (1)
+.plan/findings-on-github-1/findings-on-github-plan.md:3	toFile, ../decisions/RD-56.md	toDir, ../decisions/

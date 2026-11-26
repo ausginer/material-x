@@ -1,22 +1,22 @@
-# Relative links of tracked and new Markdown files that don't resolve, by probes/links-resolve.mjs, at e2a0e05eb and on the dry run's tree
+# Relative links of tracked and new Markdown files that don't resolve, by probes/links-resolve.mjs, at c7b7c0621 and on the dry run's tree. The same 37 targets: the two in RD-3 and RD-4 are in their files after the move, rewritten from there.
 
 ## Before
 {
- "files": 514,
- "links": 7080,
+ "files": 515,
+ "links": 7097,
  "broken": 37
 }
 .plan/00-index.md:63 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
 .plan/00-index.md:79 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
-.plan/00-index.md:2922 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
-.plan/00-index.md:2922 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
-.plan/00-index.md:2928 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
-.plan/00-index.md:2928 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
-.plan/00-index.md:2934 ../packages/drag2/.plan/reviews/fin-review2/verification-restored-recheck-claude.md
-.plan/00-index.md:2934 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
-.plan/00-index.md:2972 ../packages/drag2/.plan/reviews/fin-review2/verification-regressions-recheck-claude.md
-.plan/00-index.md:2972 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
-.plan/00-index.md:6263 handle-focus-1/checks/remediation-witnesses-repeat.txt
+.plan/00-index.md:3035 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:3035 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:3041 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:3041 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:3047 ../packages/drag2/.plan/reviews/fin-review2/verification-restored-recheck-claude.md
+.plan/00-index.md:3047 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:3085 ../packages/drag2/.plan/reviews/fin-review2/verification-regressions-recheck-claude.md
+.plan/00-index.md:3085 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:6376 handle-focus-1/checks/remediation-witnesses-repeat.txt
 .plan/aria-own-value-1/aria-own-value-plan.md:155 .plan/aria-own-value-1/checks/size-noise.txt
 .plan/aube-isolated-1/aube-isolated-report.md:64 aube-isolated-1/aube-isolated-report.md
 .plan/aube-isolated-1/aube-isolated-report.md:64 aube-isolated-1/checks/isolated-reading.txt
@@ -45,8 +45,8 @@ packages/drag/.plan/publish-mangle-report.md:143 ../build/generate-property-name
 packages/drag/.plan/publish-mangle-report.md:153 ../build/rename-properties.ts
 ## After
 {
- "files": 669,
- "links": 7085,
+ "files": 672,
+ "links": 7102,
  "broken": 37
 }
 .plan/decisions/RD-3.md:3 ../../packages/drag2/.plan/reviews/architecture/request-application-claude.md
