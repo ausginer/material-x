@@ -1,0 +1,14 @@
+// Whether each engine reads a time unit in capitals as a <time>: the computed transition-duration it gives.
+import { chromium, firefox, webkit } from 'playwright';
+for (const [name, type] of Object.entries({ chromium, firefox, webkit })) {
+  const browser = await type.launch();
+  const page = await browser.newPage();
+  const out = await page.evaluate(() => ['250MS', '250Ms', '0.25S'].map((v) => {
+    const el = document.createElement('div');
+    document.body.append(el);
+    el.style.transitionDuration = v;
+    return v + ' -> ' + getComputedStyle(el).transitionDuration;
+  }));
+  console.log('== ' + name + ' ' + out.join(', '));
+  await browser.close();
+}

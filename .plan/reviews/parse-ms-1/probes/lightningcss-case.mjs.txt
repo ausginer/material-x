@@ -1,0 +1,6 @@
+import { createRequire } from 'node:module';
+const { transform } = createRequire('<root>/node_modules/lightningcss/')('<root>/node_modules/lightningcss/');
+for (const minify of [false, true]) {
+  const { code } = transform({ filename: 'a.css', minify, code: Buffer.from('.a{--d:250MS;--e:0.25S;--f:250Ms;--g:99MS}') });
+  console.log('minify', minify, String(code).replace(/\s+/g, ' '));
+}
