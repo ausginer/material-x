@@ -458,6 +458,9 @@ describe('entry.sh with a decisions directory', () => {
       'no duplicated address in drag, repo\n',
       1,
     ]);
+    expect(tree.err).toContain(
+      'repo:RD-1\n  .plan/00-index.md:1\n  .plan/decisions/RD-1.md:1',
+    );
   });
 
   it('should read the index alone in a working tree without the directory', async () => {
