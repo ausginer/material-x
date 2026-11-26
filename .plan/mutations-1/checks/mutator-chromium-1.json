@@ -1,0 +1,454 @@
+{
+  "file": ".plan/mutations-1/mutator.mutations.ts",
+  "commit": "ef6a78b93c3d2ced7b95c336dea48803144d0a6d",
+  "legs": [
+    {
+      "engine": "chromium",
+      "shard": [1, 1],
+      "rows": [
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, refusals should refuse each stale edit by name before anything runs",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, refusals should refuse a selector that covers no row before any mutation runs",
+          "status": "failed",
+          "messages": [
+            "AssertionError: expected [ 2, +0 ] to deeply equal [ 2, 1 ]",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:254:44",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the invoking checkout should leave the checkout and the temporary directory as they were after a run",
+          "status": "failed",
+          "messages": [
+            "AssertionError: expected [ 3, 'unchanged', [] ] to deeply equal [ +0, 'unchanged', [] ]",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:269:61",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the invoking checkout should leave them as they were after a run that fails midway",
+          "status": "failed",
+          "messages": [
+            "AssertionError: expected [ 2, 'unchanged', [] ] to deeply equal [ 3, 'unchanged', [] ]",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:294:61",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, a copy that an earlier run left should remove a locked copy whose process no longer runs",
+          "status": "failed",
+          "messages": [
+            "AssertionError: expected [ 3, [] ] to deeply equal [ +0, [] ]",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:335:47",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a mutation that fails every selected row as expected",
+          "status": "failed",
+          "messages": [
+            "TypeError: Cannot read properties of undefined (reading 'legs')",
+            "    at outcomes (/tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:202:11)",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:346:14",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a selected row that passes as missed and fail the run",
+          "status": "failed",
+          "messages": [
+            "TypeError: Cannot read properties of undefined (reading 'legs')",
+            "    at outcomes (/tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:202:11)",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:370:28",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a survivor that fails rows as caught",
+          "status": "failed",
+          "messages": [
+            "TypeError: Cannot read properties of undefined (reading 'legs')",
+            "    at outcomes (/tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:202:11)",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:387:28",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a survivor that fails no row as expected",
+          "status": "failed",
+          "messages": [
+            "TypeError: Cannot read properties of undefined (reading 'legs')",
+            "    at outcomes (/tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:202:11)",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:408:14",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a selected row that fails unmutated as void",
+          "status": "failed",
+          "messages": [
+            "TypeError: Cannot read properties of undefined (reading 'legs')",
+            "    at outcomes (/tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:202:11)",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:433:28",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should judge each engine by its own expectation when it gives one",
+          "status": "failed",
+          "messages": [
+            "TypeError: Cannot read properties of undefined (reading 'legs')",
+            "    at outcomes (/tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:202:11)",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:460:9",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should run in a browser project",
+          "status": "failed",
+          "messages": [
+            "TypeError: Cannot read properties of undefined (reading 'legs')",
+            "    at outcomes (/tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:202:11)",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:503:14",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, engines should flag a mutation that fails other rows in another engine",
+          "status": "failed",
+          "messages": [
+            "TypeError: Cannot destructure property 'legs' of '.for' as it is undefined.",
+            "    at merge (/tmp/mutator-oIAgie/copy/packages/mutator/src/report.ts:145:16)",
+            "    at differing (/tmp/mutator-oIAgie/copy/packages/mutator/src/report.ts:194:29)",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:515:28",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, engines should not flag a row that another engine skips",
+          "status": "failed",
+          "messages": [
+            "TypeError: Cannot read properties of undefined (reading 'legs')",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:543:24",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, restore should restore each mutation before the next one runs",
+          "status": "failed",
+          "messages": [
+            "TypeError: Cannot read properties of undefined (reading 'legs')",
+            "    at outcomes (/tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:202:11)",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:569:14",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, rebuilds should rebuild after a matching edit and after its restore",
+          "status": "failed",
+          "messages": [
+            "TypeError: Cannot read properties of undefined (reading 'legs')",
+            "    at outcomes (/tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:202:11)",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:595:30",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, rebuilds should not rebuild for an edit that doesn't match",
+          "status": "failed",
+          "messages": [
+            "AssertionError: expected +0 to be 1 // Object.is equality",
+            "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:606:54",
+            "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+          ]
+        }
+      ],
+      "mutations": [
+        {
+          "name": "a stale edit runs",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should refuse each stale edit by name"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse each stale edit by name before anything runs"
+          ],
+          "missed": [],
+          "voided": [],
+          "messages": {
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse each stale edit by name before anything runs": [
+              "AssertionError: expected [ 3, +0, undefined ] to deeply equal [ 2, +0, undefined ]",
+              "    at /tmp/mutator-oIAgie/copy/packages/mutator/tests/mutator.node.test.ts:225:59",
+              "    at async file:///tmp/mutator-oIAgie/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ]
+          }
+        },
+        {
+          "name": "a selector that covers no row runs",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should refuse a selector that covers no row"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "void",
+          "failed": [],
+          "missed": [],
+          "voided": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a selector that covers no row before any mutation runs"
+          ],
+          "messages": {}
+        },
+        {
+          "name": "the copy stays after a run",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should leave the checkout and the temporary directory as they were after a run"
+              },
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should leave them as they were after a run that fails midway"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "void",
+          "failed": [],
+          "missed": [],
+          "voided": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, the invoking checkout should leave the checkout and the temporary directory as they were after a run",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, the invoking checkout should leave them as they were after a run that fails midway"
+          ],
+          "messages": {}
+        },
+        {
+          "name": "a mutation is not restored",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should restore each mutation before the next one runs"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "void",
+          "failed": [],
+          "missed": [],
+          "voided": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, restore should restore each mutation before the next one runs"
+          ],
+          "messages": {}
+        },
+        {
+          "name": "a stale copy is kept",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should remove a locked copy whose process no longer runs"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "void",
+          "failed": [],
+          "missed": [],
+          "voided": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, a copy that an earlier run left should remove a locked copy whose process no longer runs"
+          ],
+          "messages": {}
+        },
+        {
+          "name": "a void row is judged",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should read a selected row that fails unmutated as void"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "void",
+          "failed": [],
+          "missed": [],
+          "voided": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a selected row that fails unmutated as void"
+          ],
+          "messages": {}
+        },
+        {
+          "name": "a survivor is never caught",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should read a survivor that fails rows as caught"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "void",
+          "failed": [],
+          "missed": [],
+          "voided": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a survivor that fails rows as caught"
+          ],
+          "messages": {}
+        },
+        {
+          "name": "engines never differ",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should flag a mutation that fails other rows in another engine"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "void",
+          "failed": [],
+          "missed": [],
+          "voided": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, engines should flag a mutation that fails other rows in another engine"
+          ],
+          "messages": {}
+        },
+        {
+          "name": "an engine's own expectation doesn't account for a difference",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should judge each engine by its own expectation"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "void",
+          "failed": [],
+          "missed": [],
+          "voided": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge each engine by its own expectation when it gives one"
+          ],
+          "messages": {}
+        },
+        {
+          "name": "a row that one engine skips counts",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should not flag a row that another engine skips"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "void",
+          "failed": [],
+          "missed": [],
+          "voided": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, engines should not flag a row that another engine skips"
+          ],
+          "messages": {}
+        },
+        {
+          "name": "nothing rebuilds",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should rebuild after a matching edit and after its restore"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "void",
+          "failed": [],
+          "missed": [],
+          "voided": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, rebuilds should rebuild after a matching edit and after its restore"
+          ],
+          "messages": {}
+        },
+        {
+          "name": "every edit rebuilds",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should not rebuild for an edit that doesn't match"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "void",
+          "failed": [],
+          "missed": [],
+          "voided": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, rebuilds should not rebuild for an edit that doesn't match"
+          ],
+          "messages": {}
+        },
+        {
+          "name": "a row that doesn't run counts as passing",
+          "group": "doubted",
+          "expect": {
+            "survives": "No fixture row's test file fails to load with a mutation, so no row sees a row that stops running. A mutation that breaks its file's import is then read as passing."
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [],
+          "missed": [],
+          "voided": [],
+          "messages": {}
+        }
+      ]
+    }
+  ]
+}
