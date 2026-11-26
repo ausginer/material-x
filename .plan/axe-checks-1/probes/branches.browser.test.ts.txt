@@ -1,0 +1,27 @@
+import axe from 'axe-core';
+import { afterAll, it } from 'vitest';
+import { server } from 'vitest/browser';
+import '../src/list/list.ts';
+import '../src/list/list-button-item.ts';
+import '../src/list/list-link-item.ts';
+import '../src/list/list-item.ts';
+import '../src/list/sortable-list.ts';
+import { nextFrame } from './browser.ts';
+const out: string[] = [];
+afterAll(() => { throw new Error(`\n${out.join('\n')}`); });
+for (const [name, html] of [
+  ['selected', '<mx-list><mx-list-button-item selected>A</mx-list-button-item></mx-list>'],
+  ['selected then not', '<mx-list><mx-list-button-item id=x selected>A</mx-list-button-item></mx-list>'],
+  ['link selected', '<mx-list><mx-list-link-item href=#x selected>A</mx-list-link-item></mx-list>'],
+  ['handle in a disabled button item', '<mx-sortable-list><mx-list-button-item disabled><span data-handle slot=lead aria-label="Move A">=</span>A</mx-list-button-item></mx-sortable-list>'],
+  ['handle in a disabled link item', '<mx-sortable-list><mx-list-link-item href=#x disabled><span data-handle slot=lead aria-label="Move A">=</span>A</mx-list-link-item></mx-sortable-list>'],
+] as const) it(name, async () => {
+  const root = document.createElement('div');
+  root.innerHTML = html;
+  document.body.append(root);
+  await nextFrame(); await nextFrame();
+  if (name === 'selected then not') { root.querySelector('#x')!.removeAttribute('selected'); await nextFrame(); }
+  const r = await axe.run(root, { rules: { 'color-contrast': { enabled: false } } });
+  const h = root.querySelector('[data-handle]');
+  out.push(`${server.browser} ${name}: ${r.violations.map((v) => `${v.id}@${JSON.stringify(v.nodes.map((n) => n.target))}`).join(' ') || '-'} | incomplete ${r.incomplete.map((v) => v.id).join(',') || '-'}${h ? ` | handle ${h.outerHTML}` : ''}`);
+});

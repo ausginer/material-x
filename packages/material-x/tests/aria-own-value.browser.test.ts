@@ -88,11 +88,11 @@ const PAIRS: readonly Pair[] = [
   },
   {
     tag: 'mx-list-button-item',
-    aria: 'aria-selected',
+    aria: 'aria-current',
     source: 'selected',
-    given: 'true',
+    given: 'step',
     on: 'true',
-    off: 'false',
+    off: null,
   },
 ];
 

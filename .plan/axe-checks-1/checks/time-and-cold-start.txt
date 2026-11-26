@@ -1,0 +1,7 @@
+# Durations that vitest reports for one file, on 12 cores at a load of about 5 to 20 from other sessions, at 8bed561de. "empty" imports axe and every element and has one row; "73 rows" runs axe once for each fixture. Two runs, or one where one is given.
+Chromium: empty 3.4, 3.5 s; 73 rows 10.0, 9.8 s; axe.run 0.68, 0.73 s in all
+Firefox: empty 5.4, 6.0 s; 73 rows 14.5, 17.3 s; axe.run 1.7, 1.7 s
+WebKit: empty 5.1, 4.5 s; 73 rows 11.1 s; axe.run 0.8 s
+# Cold Vite cache (node_modules/.vite removed), no optimizeDeps entry for axe-core: "dependency optimized: axe-core ... reloading". Chromium 73 rows passed after the reload, as the second run; Firefox: no tests, the tester's iframe didn't become ready in 60000 ms; WebKit: no tests, "Vitest failed to find the runner".
+# Cold, with optimizeDeps.include: ['axe-core'] in the material-x browser project: no reload, 1 of 1 row passed in Chromium, Firefox and WebKit.
+# The lockfile with "axe-core": "4.14.1" in packages/material-x devDependencies, added by aube add -D: +11 lines (one package, MPL-2.0, no dependencies); hoisted to the root node_modules, and eslint-plugin-jsx-a11y keeps 4.11.1 nested. After the add the workspace links were gone (RF-48), and aube install --frozen-lockfile --force restored them.

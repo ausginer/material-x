@@ -1,0 +1,21 @@
+## trail min auto | chromium | 0 failed, 820 passed
+## trail shrinks 100 | chromium | 0 failed, 820 passed
+## trail grows | chromium | 0 failed, 820 passed
+## content does not grow | chromium | 0 failed, 820 passed
+## half is 45% | chromium | 0 failed, 820 passed
+## half is 40% | chromium | 0 failed, 820 passed
+## lead shrinks | chromium | 0 failed, 820 passed
+## lead auto | chromium | 0 failed, 820 passed
+## trail clips | chromium | 12 failed, 808 passed
+   1 x whole focus indicator of mx-icon-button in mx-list-item should paint its left edge in the trail slot as in the lead slot
+   1 x whole focus indicator of mx-icon-button in mx-list-item should paint its right edge in the trail slot as in the lead slot
+   1 x whole focus indicator of mx-icon-button in mx-list-item should paint its bottom edge in the trail slot as in the lead slot
+   1 x whole focus indicator of mx-icon-button in mx-list-button-item should paint its left edge in the trail slot as in the lead slot
+   1 x whole focus indicator of mx-icon-button in mx-list-button-item should paint its right edge in the trail slot as in the lead slot
+   1 x whole focus indicator of mx-icon-button in mx-list-button-item should paint its bottom edge in the trail slot as in the lead slot
+   1 x whole focus indicator of mx-icon-button in mx-list-link-item should paint its left edge in the trail slot as in the lead slot
+   1 x whole focus indicator of mx-icon-button in mx-list-link-item should paint its right edge in the trail slot as in the lead slot
+   1 x whole focus indicator of mx-icon-button in mx-list-link-item should paint its bottom edge in the trail slot as in the lead slot
+   1 x whole focus indicator of mx-icon handle in mx-list-item of a sor… should paint its left edge in the trail slot as in the lead slot
+   1 x whole focus indicator of mx-icon handle in mx-list-item of a sor… should paint its right edge in the trail slot as in the lead slot
+   1 x whole focus indicator of mx-icon handle in mx-list-item of a sor… should paint its bottom edge in the trail slot as in the lead slot

@@ -1,0 +1,14 @@
+## this branch's icon
+  icon button, icon only | axe: none | Chromium's tree: button "check"
+  icon button, icon aria-hidden | axe: button-name | Chromium's tree: button ""
+  span role=button, icon only | axe: none | Chromium's tree: button "check"
+  split button, no secondarylabel | axe: button-name | Chromium's tree: button "Go", ""
+  mx-icon role=button | axe: none | Chromium's tree: button "check"
+  sortable handle, mx-icon, no aria-label | axe: none | Chromium's tree: button "Reorder"
+## RF-137's icon
+  icon button, icon only | axe: none | Chromium's tree: button ""
+  icon button, icon aria-hidden | axe: button-name | Chromium's tree: button ""
+  span role=button, icon only | axe: none | Chromium's tree: button ""
+  split button, no secondarylabel | axe: none | Chromium's tree: button "Go", ""
+  mx-icon role=button | axe: none | Chromium's tree: button ""
+  sortable handle, mx-icon, no aria-label | axe: none | Chromium's tree: button "Reorder"

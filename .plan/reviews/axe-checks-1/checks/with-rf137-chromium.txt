@@ -1,0 +1,6 @@
+## RF-137's icon | chromium
+0 failed, 70 passed
+## RF-137's icon, and the sortable list doesn't name a handle | chromium
+1 failed, 69 passed
+   axe-core mx-sortable-list should have exactly its listed violations: with a handle that the component names
+     AssertionError: Listed: none: expected [ 'aria-command-name at span' ] to deeply equal []

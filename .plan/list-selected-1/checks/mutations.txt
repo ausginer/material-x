@@ -1,0 +1,216 @@
+candidate, chromium:      Tests  57 passed (57)
+candidate, firefox:      Tests  57 passed (57)
+candidate, webkit:      Tests  57 passed (57)
+main's sources, chromium:      Tests  7 failed | 50 passed (57)
+   mx-list-button-item > deselected: no aria
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+main's sources, firefox:      Tests  7 failed | 50 passed (57)
+   mx-list-button-item > deselected: no aria
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+main's sources, webkit:      Tests  7 failed | 50 passed (57)
+   mx-list-button-item > deselected: no aria
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+not selected writes false, chromium:      Tests  4 failed | 53 passed (57)
+   mx-list-button-item > deselected: no aria
+   mx-list-button-item aria-current, with "step" on the host > should be the component's without the source, after the source and the host's are set and lost
+   mx-list-link-item > deselected: no aria
+   mx-list-link-item aria-current, with "step" on the host > should be the component's without the source, after the source and the host's are set and lost
+not selected writes false, firefox:      Tests  4 failed | 53 passed (57)
+   mx-list-button-item > deselected: no aria
+   mx-list-button-item aria-current, with "step" on the host > should be the component's without the source, after the source and the host's are set and lost
+   mx-list-link-item > deselected: no aria
+   mx-list-link-item aria-current, with "step" on the host > should be the component's without the source, after the source and the host's are set and lost
+not selected writes false, webkit:      Tests  4 failed | 53 passed (57)
+   mx-list-button-item > deselected: no aria
+   mx-list-button-item aria-current, with "step" on the host > should be the component's without the source, after the source and the host's are set and lost
+   mx-list-link-item > deselected: no aria
+   mx-list-link-item aria-current, with "step" on the host > should be the component's without the source, after the source and the host's are set and lost
+nothing is written, chromium:      Tests  12 failed | 45 passed (57)
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item > selected after the connect
+   mx-list-link-item > selected: only aria-current
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+nothing is written, firefox:      Tests  12 failed | 45 passed (57)
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item > selected after the connect
+   mx-list-link-item > selected: only aria-current
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+nothing is written, webkit:      Tests  12 failed | 45 passed (57)
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item > selected after the connect
+   mx-list-link-item > selected: only aria-current
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+a button item says page, chromium:      Tests  6 failed | 51 passed (57)
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+a button item says page, firefox:      Tests  6 failed | 51 passed (57)
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+a button item says page, webkit:      Tests  6 failed | 51 passed (57)
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+a link item says true, chromium:      Tests  6 failed | 51 passed (57)
+   mx-list-link-item > selected after the connect
+   mx-list-link-item > selected: only aria-current
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+a link item says true, firefox:      Tests  6 failed | 51 passed (57)
+   mx-list-link-item > selected after the connect
+   mx-list-link-item > selected: only aria-current
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+a link item says true, webkit:      Tests  6 failed | 51 passed (57)
+   mx-list-link-item > selected after the connect
+   mx-list-link-item > selected: only aria-current
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+the value is written past the mirror, chromium:      Tests  8 failed | 49 passed (57)
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+the value is written past the mirror, firefox:      Tests  8 failed | 49 passed (57)
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+the value is written past the mirror, webkit:      Tests  8 failed | 49 passed (57)
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+aria-pressed, chromium:      Tests  14 failed | 43 passed (57)
+   mx-list-button-item > deselected: no aria
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item > deselected: no aria
+   mx-list-link-item > selected after the connect
+   mx-list-link-item > selected: only aria-current
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+aria-pressed, firefox:      Tests  14 failed | 43 passed (57)
+   mx-list-button-item > deselected: no aria
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item > deselected: no aria
+   mx-list-link-item > selected after the connect
+   mx-list-link-item > selected: only aria-current
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+aria-pressed, webkit:      Tests  14 failed | 43 passed (57)
+   mx-list-button-item > deselected: no aria
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-button-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+   mx-list-link-item > deselected: no aria
+   mx-list-link-item > selected after the connect
+   mx-list-link-item > selected: only aria-current
+   mx-list-link-item aria-current, with "step" on the host > should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host > should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host > should stay the host's while the source changes, and then be the component's
+aria-selected beside it, chromium:      Tests  6 failed | 51 passed (57)
+   mx-list-button-item > deselected: no aria
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-link-item > deselected: no aria
+   mx-list-link-item > selected after the connect
+   mx-list-link-item > selected: only aria-current
+aria-selected beside it, firefox:      Tests  6 failed | 51 passed (57)
+   mx-list-button-item > deselected: no aria
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-link-item > deselected: no aria
+   mx-list-link-item > selected after the connect
+   mx-list-link-item > selected: only aria-current
+aria-selected beside it, webkit:      Tests  6 failed | 51 passed (57)
+   mx-list-button-item > deselected: no aria
+   mx-list-button-item > selected after the connect
+   mx-list-button-item > selected: only aria-current
+   mx-list-link-item > deselected: no aria
+   mx-list-link-item > selected after the connect
+   mx-list-link-item > selected: only aria-current

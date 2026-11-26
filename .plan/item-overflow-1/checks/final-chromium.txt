@@ -1,0 +1,801 @@
+# chromium 158.0.8127.18
+
+## built: mx-list > mx-list-item, ltr, 100% text
+short, short: lead 0x0, content 228x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+short, long: lead 0x0, content 106x24, label text 39, trail 150x32, item 56, past 0, scroll 0
+long, short: lead 0x0, content 228x72, label text 220, trail 28x16, item 92, past 0, scroll 0
+long, long: lead 0x0, content 106x144, label text 95, trail 150x32, item 164, past 0, scroll 0
+word in label: lead 0x0, content 228x24, label text 510, trail 28x16, item 56, past 0, scroll 0
+word in trail: lead 0x0, content 106x24, label text 39, trail 150x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x40, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in support: lead 0x0, content 228x44, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in lead: lead 420x0, content 0x24, label text 39, trail 6x80, item 100, past 166, scroll 86
+word in lead, long trail: lead 420x0, content 0x24, label text 39, trail 9x592, item 612, past 169, scroll 89
+word in every slot: lead 420x0, content 0x60, label text 510, trail 6x960, item 980, past 166, scroll 86
+short lead text: lead 37x0, content 179x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+two lead icons: lead 20x40, content 196x24, label text 39, trail 28x16, item 60, past 0, scroll 0
+image, short trail: lead 0x0, content 216x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+image, long trail: lead 0x0, content 94x24, label text 39, trail 150x32, item 56, past 0, scroll 0
+video, short trail: lead 100x56, content 116x24, label text 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 45x24, label text 39, trail 99x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x24, label text 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 45x24, label text 39, trail 99x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 74x24, label text 39, trail 150x32, item 60, past 0, scroll 0
+two texts: lead 0x0, content 209x24, label text 39, trail 47x16, item 56, past 0, scroll 0
+two icons: lead 0x0, content 216x24, label text 39, trail 40x20, item 56, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x24, label text 39, trail 80x40, item 60, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x24, label text 39, trail 48x24, item 56, past 0, scroll 0
+a checkbox: lead 0x0, content 216x24, label text 39, trail 40x40, item 60, past 0, scroll 0
+a button: lead 0x0, content 161x24, label text 39, trail 95x40, item 60, past 0, scroll 0
+a wide button: lead 0x0, content 106x24, label text 39, trail 150x41, item 61, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x24, label text 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 45x24, label text 39, trail 19x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x24, label text 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 45x60, label text 39, trail 85x64, item 88, past 0, scroll 0
+large video, button: lead 114x64, content 45x60, label text 39, trail 85x40, item 88, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x60, label text 39, trail 120x24, item 88, past 0, scroll 0
+video, word: lead 100x56, content 45x24, label text 39, trail 99x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 45x24, label text 39, trail 99x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 45x24, label text 510, trail 99x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 45x120, label text 49, trail 99x48, item 140, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x24, label text 39, trail 0x0, item 60, past 0, scroll 0
+
+## built: mx-list > mx-list-button-item, ltr, 100% text
+short, short: lead 0x0, content 228x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+short, long: lead 0x0, content 122x24, label text 39, trail 134x32, item 56, past 0, scroll 0
+long, short: lead 0x0, content 228x72, label text 220, trail 28x16, item 92, past 0, scroll 0
+long, long: lead 0x0, content 122x120, label text 121, trail 134x32, item 140, past 0, scroll 0
+word in label: lead 0x0, content 228x24, label text 510, trail 28x16, item 56, past 0, scroll 0
+word in trail: lead 0x0, content 122x24, label text 39, trail 134x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x40, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in support: lead 0x0, content 228x44, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in lead: lead 420x0, content 0x24, label text 39, trail 6x80, item 100, past 166, scroll 86
+word in lead, long trail: lead 420x0, content 0x24, label text 39, trail 9x592, item 612, past 169, scroll 89
+word in every slot: lead 420x0, content 0x60, label text 510, trail 6x960, item 980, past 166, scroll 86
+short lead text: lead 37x0, content 179x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+two lead icons: lead 20x40, content 196x24, label text 39, trail 28x16, item 60, past 0, scroll 0
+image, short trail: lead 0x0, content 216x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+image, long trail: lead 0x0, content 110x24, label text 39, trail 134x32, item 56, past 0, scroll 0
+video, short trail: lead 100x56, content 116x24, label text 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 40x24, label text 39, trail 104x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x24, label text 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 40x24, label text 39, trail 104x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 90x24, label text 39, trail 134x32, item 60, past 0, scroll 0
+two texts: lead 0x0, content 209x24, label text 39, trail 47x16, item 56, past 0, scroll 0
+two icons: lead 0x0, content 216x24, label text 39, trail 40x20, item 56, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x24, label text 39, trail 80x40, item 60, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x24, label text 39, trail 48x24, item 56, past 0, scroll 0
+a checkbox: lead 0x0, content 216x24, label text 39, trail 40x40, item 60, past 0, scroll 0
+a button: lead 0x0, content 161x24, label text 39, trail 95x40, item 60, past 0, scroll 0
+a wide button: lead 0x0, content 122x24, label text 39, trail 134x41, item 61, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x24, label text 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 40x24, label text 39, trail 24x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x24, label text 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 40x60, label text 39, trail 90x64, item 88, past 0, scroll 0
+large video, button: lead 114x64, content 40x60, label text 39, trail 90x40, item 88, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x60, label text 39, trail 120x24, item 88, past 0, scroll 0
+video, word: lead 100x56, content 40x24, label text 39, trail 104x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 40x24, label text 39, trail 104x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 40x24, label text 510, trail 104x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 40x120, label text 49, trail 104x48, item 140, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x24, label text 39, trail 0x0, item 60, past 0, scroll 0
+
+## built: mx-list > mx-list-link-item, ltr, 100% text
+short, short: lead 0x0, content 228x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+short, long: lead 0x0, content 122x24, label text 39, trail 134x32, item 56, past 0, scroll 0
+long, short: lead 0x0, content 228x72, label text 220, trail 28x16, item 92, past 0, scroll 0
+long, long: lead 0x0, content 122x120, label text 121, trail 134x32, item 140, past 0, scroll 0
+word in label: lead 0x0, content 228x24, label text 510, trail 28x16, item 56, past 0, scroll 0
+word in trail: lead 0x0, content 122x24, label text 39, trail 134x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x40, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in support: lead 0x0, content 228x44, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in lead: lead 420x0, content 0x24, label text 39, trail 6x80, item 100, past 166, scroll 86
+word in lead, long trail: lead 420x0, content 0x24, label text 39, trail 9x592, item 612, past 169, scroll 89
+word in every slot: lead 420x0, content 0x60, label text 510, trail 6x960, item 980, past 166, scroll 86
+short lead text: lead 37x0, content 179x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+two lead icons: lead 20x40, content 196x24, label text 39, trail 28x16, item 60, past 0, scroll 0
+image, short trail: lead 0x0, content 216x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+image, long trail: lead 0x0, content 110x24, label text 39, trail 134x32, item 56, past 0, scroll 0
+video, short trail: lead 100x56, content 116x24, label text 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 40x24, label text 39, trail 104x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x24, label text 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 40x24, label text 39, trail 104x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 90x24, label text 39, trail 134x32, item 60, past 0, scroll 0
+two texts: lead 0x0, content 209x24, label text 39, trail 47x16, item 56, past 0, scroll 0
+two icons: lead 0x0, content 216x24, label text 39, trail 40x20, item 56, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x24, label text 39, trail 80x40, item 60, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x24, label text 39, trail 48x24, item 56, past 0, scroll 0
+a checkbox: lead 0x0, content 216x24, label text 39, trail 40x40, item 60, past 0, scroll 0
+a button: lead 0x0, content 161x24, label text 39, trail 95x40, item 60, past 0, scroll 0
+a wide button: lead 0x0, content 122x24, label text 39, trail 134x41, item 61, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x24, label text 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 40x24, label text 39, trail 24x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x24, label text 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 40x60, label text 39, trail 90x64, item 88, past 0, scroll 0
+large video, button: lead 114x64, content 40x60, label text 39, trail 90x40, item 88, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x60, label text 39, trail 120x24, item 88, past 0, scroll 0
+video, word: lead 100x56, content 40x24, label text 39, trail 104x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 40x24, label text 39, trail 104x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 40x24, label text 510, trail 104x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 40x120, label text 49, trail 104x48, item 140, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x24, label text 39, trail 0x0, item 60, past 0, scroll 0
+
+## built: mx-sortable-list > mx-list-item, ltr, 100% text
+short, short: lead 0x0, content 228x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+short, long: lead 0x0, content 106x24, label text 39, trail 150x32, item 56, past 0, scroll 0
+long, short: lead 0x0, content 228x72, label text 220, trail 28x16, item 92, past 0, scroll 0
+long, long: lead 0x0, content 106x144, label text 95, trail 150x32, item 164, past 0, scroll 0
+word in label: lead 0x0, content 228x24, label text 510, trail 28x16, item 56, past 0, scroll 0
+word in trail: lead 0x0, content 106x24, label text 39, trail 150x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x40, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in support: lead 0x0, content 228x44, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in lead: lead 420x0, content 0x24, label text 39, trail 6x80, item 100, past 166, scroll 86
+word in lead, long trail: lead 420x0, content 0x24, label text 39, trail 9x592, item 612, past 169, scroll 89
+word in every slot: lead 420x0, content 0x60, label text 510, trail 6x960, item 980, past 166, scroll 86
+short lead text: lead 37x0, content 179x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+two lead icons: lead 20x40, content 196x24, label text 39, trail 28x16, item 60, past 0, scroll 0
+image, short trail: lead 0x0, content 216x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+image, long trail: lead 0x0, content 94x24, label text 39, trail 150x32, item 56, past 0, scroll 0
+video, short trail: lead 100x56, content 116x24, label text 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 45x24, label text 39, trail 99x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x24, label text 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 45x24, label text 39, trail 99x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 74x24, label text 39, trail 150x32, item 60, past 0, scroll 0
+two texts: lead 0x0, content 209x24, label text 39, trail 47x16, item 56, past 0, scroll 0
+two icons: lead 0x0, content 216x24, label text 39, trail 40x20, item 56, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x24, label text 39, trail 80x40, item 60, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x24, label text 39, trail 48x24, item 56, past 0, scroll 0
+a checkbox: lead 0x0, content 216x24, label text 39, trail 40x40, item 60, past 0, scroll 0
+a button: lead 0x0, content 161x24, label text 39, trail 95x40, item 60, past 0, scroll 0
+a wide button: lead 0x0, content 106x24, label text 39, trail 150x41, item 61, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x24, label text 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 45x24, label text 39, trail 19x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x24, label text 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 45x60, label text 39, trail 85x64, item 88, past 0, scroll 0
+large video, button: lead 114x64, content 45x60, label text 39, trail 85x40, item 88, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x60, label text 39, trail 120x24, item 88, past 0, scroll 0
+video, word: lead 100x56, content 45x24, label text 39, trail 99x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 45x24, label text 39, trail 99x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 45x24, label text 510, trail 99x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 45x120, label text 49, trail 99x48, item 140, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x24, label text 39, trail 0x0, item 60, past 0, scroll 0
+
+## built: mx-sortable-list > mx-list-button-item, ltr, 100% text
+short, short: lead 0x0, content 228x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+short, long: lead 0x0, content 122x24, label text 39, trail 134x32, item 56, past 0, scroll 0
+long, short: lead 0x0, content 228x72, label text 220, trail 28x16, item 92, past 0, scroll 0
+long, long: lead 0x0, content 122x120, label text 121, trail 134x32, item 140, past 0, scroll 0
+word in label: lead 0x0, content 228x24, label text 510, trail 28x16, item 56, past 0, scroll 0
+word in trail: lead 0x0, content 122x24, label text 39, trail 134x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x40, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in support: lead 0x0, content 228x44, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in lead: lead 420x0, content 0x24, label text 39, trail 6x80, item 100, past 166, scroll 86
+word in lead, long trail: lead 420x0, content 0x24, label text 39, trail 9x592, item 612, past 169, scroll 89
+word in every slot: lead 420x0, content 0x60, label text 510, trail 6x960, item 980, past 166, scroll 86
+short lead text: lead 37x0, content 179x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+two lead icons: lead 20x40, content 196x24, label text 39, trail 28x16, item 60, past 0, scroll 0
+image, short trail: lead 0x0, content 216x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+image, long trail: lead 0x0, content 110x24, label text 39, trail 134x32, item 56, past 0, scroll 0
+video, short trail: lead 100x56, content 116x24, label text 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 40x24, label text 39, trail 104x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x24, label text 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 40x24, label text 39, trail 104x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 90x24, label text 39, trail 134x32, item 60, past 0, scroll 0
+two texts: lead 0x0, content 209x24, label text 39, trail 47x16, item 56, past 0, scroll 0
+two icons: lead 0x0, content 216x24, label text 39, trail 40x20, item 56, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x24, label text 39, trail 80x40, item 60, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x24, label text 39, trail 48x24, item 56, past 0, scroll 0
+a checkbox: lead 0x0, content 216x24, label text 39, trail 40x40, item 60, past 0, scroll 0
+a button: lead 0x0, content 161x24, label text 39, trail 95x40, item 60, past 0, scroll 0
+a wide button: lead 0x0, content 122x24, label text 39, trail 134x41, item 61, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x24, label text 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 40x24, label text 39, trail 24x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x24, label text 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 40x60, label text 39, trail 90x64, item 88, past 0, scroll 0
+large video, button: lead 114x64, content 40x60, label text 39, trail 90x40, item 88, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x60, label text 39, trail 120x24, item 88, past 0, scroll 0
+video, word: lead 100x56, content 40x24, label text 39, trail 104x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 40x24, label text 39, trail 104x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 40x24, label text 510, trail 104x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 40x120, label text 49, trail 104x48, item 140, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x24, label text 39, trail 0x0, item 60, past 0, scroll 0
+
+## built: mx-list > mx-list-item, ltr, 200% text
+short, short: lead 0x0, content 228x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+short, long: lead 0x0, content 106x48, label text 75, trail 150x32, item 68, past 0, scroll 0
+long, short: lead 0x0, content 228x240, label text 219, trail 28x16, item 260, past 0, scroll 0
+long, long: lead 0x0, content 106x576, label text 95, trail 150x32, item 596, past 0, scroll 0
+word in label: lead 0x0, content 228x48, label text 990, trail 28x16, item 68, past 0, scroll 0
+word in trail: lead 0x0, content 106x48, label text 75, trail 150x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x68, label text 75, trail 28x16, item 88, past 0, scroll 0
+word in support: lead 0x0, content 228x88, label text 75, trail 28x16, item 108, past 0, scroll 0
+word in lead: lead 420x0, content 0x48, label text 75, trail 6x80, item 100, past 166, scroll 86
+word in lead, long trail: lead 420x0, content 0x48, label text 75, trail 9x592, item 612, past 169, scroll 89
+word in every slot: lead 420x0, content 0x108, label text 990, trail 6x960, item 980, past 166, scroll 86
+short lead text: lead 37x0, content 179x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+two lead icons: lead 20x40, content 196x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, short trail: lead 0x0, content 216x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, long trail: lead 0x0, content 94x48, label text 75, trail 150x32, item 68, past 0, scroll 0
+video, short trail: lead 100x56, content 116x48, label text 75, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 45x48, label text 75, trail 99x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x48, label text 75, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 45x48, label text 75, trail 99x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 74x48, label text 75, trail 150x32, item 68, past 0, scroll 0
+two texts: lead 0x0, content 209x48, label text 75, trail 47x16, item 68, past 0, scroll 0
+two icons: lead 0x0, content 216x48, label text 75, trail 40x20, item 68, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x48, label text 75, trail 80x40, item 68, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x48, label text 75, trail 48x24, item 68, past 0, scroll 0
+a checkbox: lead 0x0, content 216x48, label text 75, trail 40x40, item 68, past 0, scroll 0
+a button: lead 0x0, content 161x48, label text 75, trail 95x40, item 68, past 0, scroll 0
+a wide button: lead 0x0, content 106x48, label text 75, trail 150x41, item 68, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x48, label text 75, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 45x48, label text 75, trail 19x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x48, label text 75, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 45x108, label text 75, trail 85x64, item 128, past 0, scroll 0
+large video, button: lead 114x64, content 45x108, label text 75, trail 85x40, item 128, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x108, label text 75, trail 120x24, item 128, past 0, scroll 0
+video, word: lead 100x56, content 45x48, label text 75, trail 99x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 45x48, label text 75, trail 99x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 45x48, label text 990, trail 99x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 45x240, label text 94, trail 99x48, item 260, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x48, label text 75, trail 0x0, item 68, past 0, scroll 0
+
+## built: mx-list > mx-list-button-item, ltr, 200% text
+short, short: lead 0x0, content 228x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+short, long: lead 0x0, content 122x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+long, short: lead 0x0, content 228x240, label text 219, trail 28x16, item 260, past 0, scroll 0
+long, long: lead 0x0, content 122x480, label text 109, trail 134x32, item 500, past 0, scroll 0
+word in label: lead 0x0, content 228x48, label text 990, trail 28x16, item 68, past 0, scroll 0
+word in trail: lead 0x0, content 122x48, label text 75, trail 134x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x68, label text 75, trail 28x16, item 88, past 0, scroll 0
+word in support: lead 0x0, content 228x88, label text 75, trail 28x16, item 108, past 0, scroll 0
+word in lead: lead 420x0, content 0x48, label text 75, trail 6x80, item 100, past 166, scroll 86
+word in lead, long trail: lead 420x0, content 0x48, label text 75, trail 9x592, item 612, past 169, scroll 89
+word in every slot: lead 420x0, content 0x108, label text 990, trail 6x960, item 980, past 166, scroll 86
+short lead text: lead 37x0, content 179x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+two lead icons: lead 20x40, content 196x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, short trail: lead 0x0, content 216x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, long trail: lead 0x0, content 110x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+video, short trail: lead 100x56, content 116x48, label text 75, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 40x48, label text 75, trail 104x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x48, label text 75, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 40x48, label text 75, trail 104x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 90x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+two texts: lead 0x0, content 209x48, label text 75, trail 47x16, item 68, past 0, scroll 0
+two icons: lead 0x0, content 216x48, label text 75, trail 40x20, item 68, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x48, label text 75, trail 80x40, item 68, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x48, label text 75, trail 48x24, item 68, past 0, scroll 0
+a checkbox: lead 0x0, content 216x48, label text 75, trail 40x40, item 68, past 0, scroll 0
+a button: lead 0x0, content 161x48, label text 75, trail 95x40, item 68, past 0, scroll 0
+a wide button: lead 0x0, content 122x48, label text 75, trail 134x41, item 68, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x48, label text 75, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 40x48, label text 75, trail 24x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x48, label text 75, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 40x108, label text 75, trail 90x64, item 128, past 0, scroll 0
+large video, button: lead 114x64, content 40x108, label text 75, trail 90x40, item 128, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x108, label text 75, trail 120x24, item 128, past 0, scroll 0
+video, word: lead 100x56, content 40x48, label text 75, trail 104x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 40x48, label text 75, trail 104x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 40x48, label text 990, trail 104x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 40x240, label text 94, trail 104x48, item 260, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x48, label text 75, trail 0x0, item 68, past 0, scroll 0
+
+## built: mx-list > mx-list-link-item, ltr, 200% text
+short, short: lead 0x0, content 228x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+short, long: lead 0x0, content 122x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+long, short: lead 0x0, content 228x240, label text 219, trail 28x16, item 260, past 0, scroll 0
+long, long: lead 0x0, content 122x480, label text 109, trail 134x32, item 500, past 0, scroll 0
+word in label: lead 0x0, content 228x48, label text 990, trail 28x16, item 68, past 0, scroll 0
+word in trail: lead 0x0, content 122x48, label text 75, trail 134x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x68, label text 75, trail 28x16, item 88, past 0, scroll 0
+word in support: lead 0x0, content 228x88, label text 75, trail 28x16, item 108, past 0, scroll 0
+word in lead: lead 420x0, content 0x48, label text 75, trail 6x80, item 100, past 166, scroll 86
+word in lead, long trail: lead 420x0, content 0x48, label text 75, trail 9x592, item 612, past 169, scroll 89
+word in every slot: lead 420x0, content 0x108, label text 990, trail 6x960, item 980, past 166, scroll 86
+short lead text: lead 37x0, content 179x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+two lead icons: lead 20x40, content 196x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, short trail: lead 0x0, content 216x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, long trail: lead 0x0, content 110x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+video, short trail: lead 100x56, content 116x48, label text 75, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 40x48, label text 75, trail 104x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x48, label text 75, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 40x48, label text 75, trail 104x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 90x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+two texts: lead 0x0, content 209x48, label text 75, trail 47x16, item 68, past 0, scroll 0
+two icons: lead 0x0, content 216x48, label text 75, trail 40x20, item 68, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x48, label text 75, trail 80x40, item 68, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x48, label text 75, trail 48x24, item 68, past 0, scroll 0
+a checkbox: lead 0x0, content 216x48, label text 75, trail 40x40, item 68, past 0, scroll 0
+a button: lead 0x0, content 161x48, label text 75, trail 95x40, item 68, past 0, scroll 0
+a wide button: lead 0x0, content 122x48, label text 75, trail 134x41, item 68, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x48, label text 75, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 40x48, label text 75, trail 24x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x48, label text 75, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 40x108, label text 75, trail 90x64, item 128, past 0, scroll 0
+large video, button: lead 114x64, content 40x108, label text 75, trail 90x40, item 128, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x108, label text 75, trail 120x24, item 128, past 0, scroll 0
+video, word: lead 100x56, content 40x48, label text 75, trail 104x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 40x48, label text 75, trail 104x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 40x48, label text 990, trail 104x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 40x240, label text 94, trail 104x48, item 260, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x48, label text 75, trail 0x0, item 68, past 0, scroll 0
+
+## built: mx-sortable-list > mx-list-item, ltr, 200% text
+short, short: lead 0x0, content 228x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+short, long: lead 0x0, content 106x48, label text 75, trail 150x32, item 68, past 0, scroll 0
+long, short: lead 0x0, content 228x240, label text 219, trail 28x16, item 260, past 0, scroll 0
+long, long: lead 0x0, content 106x576, label text 95, trail 150x32, item 596, past 0, scroll 0
+word in label: lead 0x0, content 228x48, label text 990, trail 28x16, item 68, past 0, scroll 0
+word in trail: lead 0x0, content 106x48, label text 75, trail 150x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x68, label text 75, trail 28x16, item 88, past 0, scroll 0
+word in support: lead 0x0, content 228x88, label text 75, trail 28x16, item 108, past 0, scroll 0
+word in lead: lead 420x0, content 0x48, label text 75, trail 6x80, item 100, past 166, scroll 86
+word in lead, long trail: lead 420x0, content 0x48, label text 75, trail 9x592, item 612, past 169, scroll 89
+word in every slot: lead 420x0, content 0x108, label text 990, trail 6x960, item 980, past 166, scroll 86
+short lead text: lead 37x0, content 179x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+two lead icons: lead 20x40, content 196x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, short trail: lead 0x0, content 216x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, long trail: lead 0x0, content 94x48, label text 75, trail 150x32, item 68, past 0, scroll 0
+video, short trail: lead 100x56, content 116x48, label text 75, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 45x48, label text 75, trail 99x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x48, label text 75, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 45x48, label text 75, trail 99x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 74x48, label text 75, trail 150x32, item 68, past 0, scroll 0
+two texts: lead 0x0, content 209x48, label text 75, trail 47x16, item 68, past 0, scroll 0
+two icons: lead 0x0, content 216x48, label text 75, trail 40x20, item 68, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x48, label text 75, trail 80x40, item 68, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x48, label text 75, trail 48x24, item 68, past 0, scroll 0
+a checkbox: lead 0x0, content 216x48, label text 75, trail 40x40, item 68, past 0, scroll 0
+a button: lead 0x0, content 161x48, label text 75, trail 95x40, item 68, past 0, scroll 0
+a wide button: lead 0x0, content 106x48, label text 75, trail 150x41, item 68, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x48, label text 75, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 45x48, label text 75, trail 19x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x48, label text 75, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 45x108, label text 75, trail 85x64, item 128, past 0, scroll 0
+large video, button: lead 114x64, content 45x108, label text 75, trail 85x40, item 128, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x108, label text 75, trail 120x24, item 128, past 0, scroll 0
+video, word: lead 100x56, content 45x48, label text 75, trail 99x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 45x48, label text 75, trail 99x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 45x48, label text 990, trail 99x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 45x240, label text 94, trail 99x48, item 260, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x48, label text 75, trail 0x0, item 68, past 0, scroll 0
+
+## built: mx-sortable-list > mx-list-button-item, ltr, 200% text
+short, short: lead 0x0, content 228x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+short, long: lead 0x0, content 122x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+long, short: lead 0x0, content 228x240, label text 219, trail 28x16, item 260, past 0, scroll 0
+long, long: lead 0x0, content 122x480, label text 109, trail 134x32, item 500, past 0, scroll 0
+word in label: lead 0x0, content 228x48, label text 990, trail 28x16, item 68, past 0, scroll 0
+word in trail: lead 0x0, content 122x48, label text 75, trail 134x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x68, label text 75, trail 28x16, item 88, past 0, scroll 0
+word in support: lead 0x0, content 228x88, label text 75, trail 28x16, item 108, past 0, scroll 0
+word in lead: lead 420x0, content 0x48, label text 75, trail 6x80, item 100, past 166, scroll 86
+word in lead, long trail: lead 420x0, content 0x48, label text 75, trail 9x592, item 612, past 169, scroll 89
+word in every slot: lead 420x0, content 0x108, label text 990, trail 6x960, item 980, past 166, scroll 86
+short lead text: lead 37x0, content 179x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+two lead icons: lead 20x40, content 196x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, short trail: lead 0x0, content 216x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, long trail: lead 0x0, content 110x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+video, short trail: lead 100x56, content 116x48, label text 75, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 40x48, label text 75, trail 104x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x48, label text 75, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 40x48, label text 75, trail 104x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 90x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+two texts: lead 0x0, content 209x48, label text 75, trail 47x16, item 68, past 0, scroll 0
+two icons: lead 0x0, content 216x48, label text 75, trail 40x20, item 68, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x48, label text 75, trail 80x40, item 68, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x48, label text 75, trail 48x24, item 68, past 0, scroll 0
+a checkbox: lead 0x0, content 216x48, label text 75, trail 40x40, item 68, past 0, scroll 0
+a button: lead 0x0, content 161x48, label text 75, trail 95x40, item 68, past 0, scroll 0
+a wide button: lead 0x0, content 122x48, label text 75, trail 134x41, item 68, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x48, label text 75, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 40x48, label text 75, trail 24x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x48, label text 75, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 40x108, label text 75, trail 90x64, item 128, past 0, scroll 0
+large video, button: lead 114x64, content 40x108, label text 75, trail 90x40, item 128, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x108, label text 75, trail 120x24, item 128, past 0, scroll 0
+video, word: lead 100x56, content 40x48, label text 75, trail 104x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 40x48, label text 75, trail 104x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 40x48, label text 990, trail 104x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 40x240, label text 94, trail 104x48, item 260, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x48, label text 75, trail 0x0, item 68, past 0, scroll 0
+
+## built: mx-list > mx-list-item, rtl, 100% text
+short, short: lead 0x0, content 228x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+short, long: lead 0x0, content 106x24, label text 39, trail 150x32, item 56, past 0, scroll 0
+long, short: lead 0x0, content 228x72, label text 220, trail 28x16, item 92, past 0, scroll 0
+long, long: lead 0x0, content 106x144, label text 95, trail 150x32, item 164, past 0, scroll 0
+word in label: lead 0x0, content 228x24, label text 510, trail 28x16, item 56, past 0, scroll 0
+word in trail: lead 0x0, content 106x24, label text 39, trail 150x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x40, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in support: lead 0x0, content 228x44, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in lead: lead 420x0, content 0x24, label text 39, trail 6x80, item 100, past 166, scroll 0
+word in lead, long trail: lead 420x0, content 0x24, label text 39, trail 9x592, item 612, past 169, scroll 0
+word in every slot: lead 420x0, content 0x60, label text 510, trail 6x960, item 980, past 166, scroll 0
+short lead text: lead 37x0, content 179x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+two lead icons: lead 20x40, content 196x24, label text 39, trail 28x16, item 60, past 0, scroll 0
+image, short trail: lead 0x0, content 216x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+image, long trail: lead 0x0, content 94x24, label text 39, trail 150x32, item 56, past 0, scroll 0
+video, short trail: lead 100x56, content 116x24, label text 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 45x24, label text 39, trail 99x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x24, label text 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 45x24, label text 39, trail 99x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 74x24, label text 39, trail 150x32, item 60, past 0, scroll 0
+two texts: lead 0x0, content 209x24, label text 39, trail 47x16, item 56, past 0, scroll 0
+two icons: lead 0x0, content 216x24, label text 39, trail 40x20, item 56, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x24, label text 39, trail 80x40, item 60, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x24, label text 39, trail 48x24, item 56, past 0, scroll 0
+a checkbox: lead 0x0, content 216x24, label text 39, trail 40x40, item 60, past 0, scroll 0
+a button: lead 0x0, content 161x24, label text 39, trail 95x40, item 60, past 0, scroll 0
+a wide button: lead 0x0, content 106x24, label text 39, trail 150x41, item 61, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x24, label text 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 45x24, label text 39, trail 19x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x24, label text 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 45x60, label text 39, trail 85x64, item 88, past 0, scroll 0
+large video, button: lead 114x64, content 45x60, label text 39, trail 85x40, item 88, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x60, label text 39, trail 120x24, item 88, past 0, scroll 0
+video, word: lead 100x56, content 45x24, label text 39, trail 99x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 45x24, label text 39, trail 99x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 45x24, label text 510, trail 99x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 45x120, label text 49, trail 99x48, item 140, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x24, label text 39, trail 0x0, item 60, past 0, scroll 0
+
+## built: mx-list > mx-list-button-item, rtl, 100% text
+short, short: lead 0x0, content 228x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+short, long: lead 0x0, content 122x24, label text 39, trail 134x32, item 56, past 0, scroll 0
+long, short: lead 0x0, content 228x72, label text 220, trail 28x16, item 92, past 0, scroll 0
+long, long: lead 0x0, content 122x120, label text 121, trail 134x32, item 140, past 0, scroll 0
+word in label: lead 0x0, content 228x24, label text 510, trail 28x16, item 56, past 0, scroll 0
+word in trail: lead 0x0, content 122x24, label text 39, trail 134x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x40, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in support: lead 0x0, content 228x44, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in lead: lead 420x0, content 0x24, label text 39, trail 6x80, item 100, past 166, scroll 0
+word in lead, long trail: lead 420x0, content 0x24, label text 39, trail 9x592, item 612, past 169, scroll 0
+word in every slot: lead 420x0, content 0x60, label text 510, trail 6x960, item 980, past 166, scroll 0
+short lead text: lead 37x0, content 179x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+two lead icons: lead 20x40, content 196x24, label text 39, trail 28x16, item 60, past 0, scroll 0
+image, short trail: lead 0x0, content 216x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+image, long trail: lead 0x0, content 110x24, label text 39, trail 134x32, item 56, past 0, scroll 0
+video, short trail: lead 100x56, content 116x24, label text 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 40x24, label text 39, trail 104x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x24, label text 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 40x24, label text 39, trail 104x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 90x24, label text 39, trail 134x32, item 60, past 0, scroll 0
+two texts: lead 0x0, content 209x24, label text 39, trail 47x16, item 56, past 0, scroll 0
+two icons: lead 0x0, content 216x24, label text 39, trail 40x20, item 56, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x24, label text 39, trail 80x40, item 60, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x24, label text 39, trail 48x24, item 56, past 0, scroll 0
+a checkbox: lead 0x0, content 216x24, label text 39, trail 40x40, item 60, past 0, scroll 0
+a button: lead 0x0, content 161x24, label text 39, trail 95x40, item 60, past 0, scroll 0
+a wide button: lead 0x0, content 122x24, label text 39, trail 134x41, item 61, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x24, label text 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 40x24, label text 39, trail 24x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x24, label text 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 40x60, label text 39, trail 90x64, item 88, past 0, scroll 0
+large video, button: lead 114x64, content 40x60, label text 39, trail 90x40, item 88, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x60, label text 39, trail 120x24, item 88, past 0, scroll 0
+video, word: lead 100x56, content 40x24, label text 39, trail 104x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 40x24, label text 39, trail 104x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 40x24, label text 510, trail 104x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 40x120, label text 49, trail 104x48, item 140, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x24, label text 39, trail 0x0, item 60, past 0, scroll 0
+
+## built: mx-list > mx-list-link-item, rtl, 100% text
+short, short: lead 0x0, content 228x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+short, long: lead 0x0, content 122x24, label text 39, trail 134x32, item 56, past 0, scroll 0
+long, short: lead 0x0, content 228x72, label text 220, trail 28x16, item 92, past 0, scroll 0
+long, long: lead 0x0, content 122x120, label text 121, trail 134x32, item 140, past 0, scroll 0
+word in label: lead 0x0, content 228x24, label text 510, trail 28x16, item 56, past 0, scroll 0
+word in trail: lead 0x0, content 122x24, label text 39, trail 134x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x40, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in support: lead 0x0, content 228x44, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in lead: lead 420x0, content 0x24, label text 39, trail 6x80, item 100, past 166, scroll 0
+word in lead, long trail: lead 420x0, content 0x24, label text 39, trail 9x592, item 612, past 169, scroll 0
+word in every slot: lead 420x0, content 0x60, label text 510, trail 6x960, item 980, past 166, scroll 0
+short lead text: lead 37x0, content 179x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+two lead icons: lead 20x40, content 196x24, label text 39, trail 28x16, item 60, past 0, scroll 0
+image, short trail: lead 0x0, content 216x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+image, long trail: lead 0x0, content 110x24, label text 39, trail 134x32, item 56, past 0, scroll 0
+video, short trail: lead 100x56, content 116x24, label text 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 40x24, label text 39, trail 104x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x24, label text 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 40x24, label text 39, trail 104x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 90x24, label text 39, trail 134x32, item 60, past 0, scroll 0
+two texts: lead 0x0, content 209x24, label text 39, trail 47x16, item 56, past 0, scroll 0
+two icons: lead 0x0, content 216x24, label text 39, trail 40x20, item 56, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x24, label text 39, trail 80x40, item 60, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x24, label text 39, trail 48x24, item 56, past 0, scroll 0
+a checkbox: lead 0x0, content 216x24, label text 39, trail 40x40, item 60, past 0, scroll 0
+a button: lead 0x0, content 161x24, label text 39, trail 95x40, item 60, past 0, scroll 0
+a wide button: lead 0x0, content 122x24, label text 39, trail 134x41, item 61, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x24, label text 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 40x24, label text 39, trail 24x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x24, label text 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 40x60, label text 39, trail 90x64, item 88, past 0, scroll 0
+large video, button: lead 114x64, content 40x60, label text 39, trail 90x40, item 88, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x60, label text 39, trail 120x24, item 88, past 0, scroll 0
+video, word: lead 100x56, content 40x24, label text 39, trail 104x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 40x24, label text 39, trail 104x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 40x24, label text 510, trail 104x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 40x120, label text 49, trail 104x48, item 140, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x24, label text 39, trail 0x0, item 60, past 0, scroll 0
+
+## built: mx-sortable-list > mx-list-item, rtl, 100% text
+short, short: lead 0x0, content 228x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+short, long: lead 0x0, content 106x24, label text 39, trail 150x32, item 56, past 0, scroll 0
+long, short: lead 0x0, content 228x72, label text 220, trail 28x16, item 92, past 0, scroll 0
+long, long: lead 0x0, content 106x144, label text 95, trail 150x32, item 164, past 0, scroll 0
+word in label: lead 0x0, content 228x24, label text 510, trail 28x16, item 56, past 0, scroll 0
+word in trail: lead 0x0, content 106x24, label text 39, trail 150x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x40, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in support: lead 0x0, content 228x44, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in lead: lead 420x0, content 0x24, label text 39, trail 6x80, item 100, past 166, scroll 0
+word in lead, long trail: lead 420x0, content 0x24, label text 39, trail 9x592, item 612, past 169, scroll 0
+word in every slot: lead 420x0, content 0x60, label text 510, trail 6x960, item 980, past 166, scroll 0
+short lead text: lead 37x0, content 179x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+two lead icons: lead 20x40, content 196x24, label text 39, trail 28x16, item 60, past 0, scroll 0
+image, short trail: lead 0x0, content 216x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+image, long trail: lead 0x0, content 94x24, label text 39, trail 150x32, item 56, past 0, scroll 0
+video, short trail: lead 100x56, content 116x24, label text 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 45x24, label text 39, trail 99x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x24, label text 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 45x24, label text 39, trail 99x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 74x24, label text 39, trail 150x32, item 60, past 0, scroll 0
+two texts: lead 0x0, content 209x24, label text 39, trail 47x16, item 56, past 0, scroll 0
+two icons: lead 0x0, content 216x24, label text 39, trail 40x20, item 56, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x24, label text 39, trail 80x40, item 60, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x24, label text 39, trail 48x24, item 56, past 0, scroll 0
+a checkbox: lead 0x0, content 216x24, label text 39, trail 40x40, item 60, past 0, scroll 0
+a button: lead 0x0, content 161x24, label text 39, trail 95x40, item 60, past 0, scroll 0
+a wide button: lead 0x0, content 106x24, label text 39, trail 150x41, item 61, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x24, label text 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 45x24, label text 39, trail 19x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x24, label text 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 45x60, label text 39, trail 85x64, item 88, past 0, scroll 0
+large video, button: lead 114x64, content 45x60, label text 39, trail 85x40, item 88, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x60, label text 39, trail 120x24, item 88, past 0, scroll 0
+video, word: lead 100x56, content 45x24, label text 39, trail 99x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 45x24, label text 39, trail 99x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 45x24, label text 510, trail 99x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 45x120, label text 49, trail 99x48, item 140, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x24, label text 39, trail 0x0, item 60, past 0, scroll 0
+
+## built: mx-sortable-list > mx-list-button-item, rtl, 100% text
+short, short: lead 0x0, content 228x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+short, long: lead 0x0, content 122x24, label text 39, trail 134x32, item 56, past 0, scroll 0
+long, short: lead 0x0, content 228x72, label text 220, trail 28x16, item 92, past 0, scroll 0
+long, long: lead 0x0, content 122x120, label text 121, trail 134x32, item 140, past 0, scroll 0
+word in label: lead 0x0, content 228x24, label text 510, trail 28x16, item 56, past 0, scroll 0
+word in trail: lead 0x0, content 122x24, label text 39, trail 134x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x40, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in support: lead 0x0, content 228x44, label text 39, trail 28x16, item 72, past 0, scroll 0
+word in lead: lead 420x0, content 0x24, label text 39, trail 6x80, item 100, past 166, scroll 0
+word in lead, long trail: lead 420x0, content 0x24, label text 39, trail 9x592, item 612, past 169, scroll 0
+word in every slot: lead 420x0, content 0x60, label text 510, trail 6x960, item 980, past 166, scroll 0
+short lead text: lead 37x0, content 179x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+two lead icons: lead 20x40, content 196x24, label text 39, trail 28x16, item 60, past 0, scroll 0
+image, short trail: lead 0x0, content 216x24, label text 39, trail 28x16, item 56, past 0, scroll 0
+image, long trail: lead 0x0, content 110x24, label text 39, trail 134x32, item 56, past 0, scroll 0
+video, short trail: lead 100x56, content 116x24, label text 39, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 40x24, label text 39, trail 104x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x24, label text 39, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 40x24, label text 39, trail 104x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 90x24, label text 39, trail 134x32, item 60, past 0, scroll 0
+two texts: lead 0x0, content 209x24, label text 39, trail 47x16, item 56, past 0, scroll 0
+two icons: lead 0x0, content 216x24, label text 39, trail 40x20, item 56, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x24, label text 39, trail 80x40, item 60, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x24, label text 39, trail 48x24, item 56, past 0, scroll 0
+a checkbox: lead 0x0, content 216x24, label text 39, trail 40x40, item 60, past 0, scroll 0
+a button: lead 0x0, content 161x24, label text 39, trail 95x40, item 60, past 0, scroll 0
+a wide button: lead 0x0, content 122x24, label text 39, trail 134x41, item 61, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x24, label text 39, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 40x24, label text 39, trail 24x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x24, label text 39, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 40x60, label text 39, trail 90x64, item 88, past 0, scroll 0
+large video, button: lead 114x64, content 40x60, label text 39, trail 90x40, item 88, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x60, label text 39, trail 120x24, item 88, past 0, scroll 0
+video, word: lead 100x56, content 40x24, label text 39, trail 104x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 40x24, label text 39, trail 104x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 40x24, label text 510, trail 104x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 40x120, label text 49, trail 104x48, item 140, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x24, label text 39, trail 0x0, item 60, past 0, scroll 0
+
+## built: mx-list > mx-list-item, rtl, 200% text
+short, short: lead 0x0, content 228x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+short, long: lead 0x0, content 106x48, label text 75, trail 150x32, item 68, past 0, scroll 0
+long, short: lead 0x0, content 228x240, label text 219, trail 28x16, item 260, past 0, scroll 0
+long, long: lead 0x0, content 106x576, label text 95, trail 150x32, item 596, past 0, scroll 0
+word in label: lead 0x0, content 228x48, label text 990, trail 28x16, item 68, past 0, scroll 0
+word in trail: lead 0x0, content 106x48, label text 75, trail 150x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x68, label text 75, trail 28x16, item 88, past 0, scroll 0
+word in support: lead 0x0, content 228x88, label text 75, trail 28x16, item 108, past 0, scroll 0
+word in lead: lead 420x0, content 0x48, label text 75, trail 6x80, item 100, past 166, scroll 0
+word in lead, long trail: lead 420x0, content 0x48, label text 75, trail 9x592, item 612, past 169, scroll 0
+word in every slot: lead 420x0, content 0x108, label text 990, trail 6x960, item 980, past 166, scroll 0
+short lead text: lead 37x0, content 179x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+two lead icons: lead 20x40, content 196x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, short trail: lead 0x0, content 216x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, long trail: lead 0x0, content 94x48, label text 75, trail 150x32, item 68, past 0, scroll 0
+video, short trail: lead 100x56, content 116x48, label text 75, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 45x48, label text 75, trail 99x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x48, label text 75, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 45x48, label text 75, trail 99x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 74x48, label text 75, trail 150x32, item 68, past 0, scroll 0
+two texts: lead 0x0, content 209x48, label text 75, trail 47x16, item 68, past 0, scroll 0
+two icons: lead 0x0, content 216x48, label text 75, trail 40x20, item 68, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x48, label text 75, trail 80x40, item 68, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x48, label text 75, trail 48x24, item 68, past 0, scroll 0
+a checkbox: lead 0x0, content 216x48, label text 75, trail 40x40, item 68, past 0, scroll 0
+a button: lead 0x0, content 161x48, label text 75, trail 95x40, item 68, past 0, scroll 0
+a wide button: lead 0x0, content 106x48, label text 75, trail 150x41, item 68, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x48, label text 75, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 45x48, label text 75, trail 19x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x48, label text 75, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 45x108, label text 75, trail 85x64, item 128, past 0, scroll 0
+large video, button: lead 114x64, content 45x108, label text 75, trail 85x40, item 128, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x108, label text 75, trail 120x24, item 128, past 0, scroll 0
+video, word: lead 100x56, content 45x48, label text 75, trail 99x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 45x48, label text 75, trail 99x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 45x48, label text 990, trail 99x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 45x240, label text 94, trail 99x48, item 260, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x48, label text 75, trail 0x0, item 68, past 0, scroll 0
+
+## built: mx-list > mx-list-button-item, rtl, 200% text
+short, short: lead 0x0, content 228x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+short, long: lead 0x0, content 122x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+long, short: lead 0x0, content 228x240, label text 219, trail 28x16, item 260, past 0, scroll 0
+long, long: lead 0x0, content 122x480, label text 109, trail 134x32, item 500, past 0, scroll 0
+word in label: lead 0x0, content 228x48, label text 990, trail 28x16, item 68, past 0, scroll 0
+word in trail: lead 0x0, content 122x48, label text 75, trail 134x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x68, label text 75, trail 28x16, item 88, past 0, scroll 0
+word in support: lead 0x0, content 228x88, label text 75, trail 28x16, item 108, past 0, scroll 0
+word in lead: lead 420x0, content 0x48, label text 75, trail 6x80, item 100, past 166, scroll 0
+word in lead, long trail: lead 420x0, content 0x48, label text 75, trail 9x592, item 612, past 169, scroll 0
+word in every slot: lead 420x0, content 0x108, label text 990, trail 6x960, item 980, past 166, scroll 0
+short lead text: lead 37x0, content 179x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+two lead icons: lead 20x40, content 196x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, short trail: lead 0x0, content 216x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, long trail: lead 0x0, content 110x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+video, short trail: lead 100x56, content 116x48, label text 75, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 40x48, label text 75, trail 104x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x48, label text 75, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 40x48, label text 75, trail 104x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 90x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+two texts: lead 0x0, content 209x48, label text 75, trail 47x16, item 68, past 0, scroll 0
+two icons: lead 0x0, content 216x48, label text 75, trail 40x20, item 68, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x48, label text 75, trail 80x40, item 68, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x48, label text 75, trail 48x24, item 68, past 0, scroll 0
+a checkbox: lead 0x0, content 216x48, label text 75, trail 40x40, item 68, past 0, scroll 0
+a button: lead 0x0, content 161x48, label text 75, trail 95x40, item 68, past 0, scroll 0
+a wide button: lead 0x0, content 122x48, label text 75, trail 134x41, item 68, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x48, label text 75, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 40x48, label text 75, trail 24x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x48, label text 75, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 40x108, label text 75, trail 90x64, item 128, past 0, scroll 0
+large video, button: lead 114x64, content 40x108, label text 75, trail 90x40, item 128, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x108, label text 75, trail 120x24, item 128, past 0, scroll 0
+video, word: lead 100x56, content 40x48, label text 75, trail 104x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 40x48, label text 75, trail 104x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 40x48, label text 990, trail 104x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 40x240, label text 94, trail 104x48, item 260, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x48, label text 75, trail 0x0, item 68, past 0, scroll 0
+
+## built: mx-list > mx-list-link-item, rtl, 200% text
+short, short: lead 0x0, content 228x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+short, long: lead 0x0, content 122x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+long, short: lead 0x0, content 228x240, label text 219, trail 28x16, item 260, past 0, scroll 0
+long, long: lead 0x0, content 122x480, label text 109, trail 134x32, item 500, past 0, scroll 0
+word in label: lead 0x0, content 228x48, label text 990, trail 28x16, item 68, past 0, scroll 0
+word in trail: lead 0x0, content 122x48, label text 75, trail 134x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x68, label text 75, trail 28x16, item 88, past 0, scroll 0
+word in support: lead 0x0, content 228x88, label text 75, trail 28x16, item 108, past 0, scroll 0
+word in lead: lead 420x0, content 0x48, label text 75, trail 6x80, item 100, past 166, scroll 0
+word in lead, long trail: lead 420x0, content 0x48, label text 75, trail 9x592, item 612, past 169, scroll 0
+word in every slot: lead 420x0, content 0x108, label text 990, trail 6x960, item 980, past 166, scroll 0
+short lead text: lead 37x0, content 179x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+two lead icons: lead 20x40, content 196x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, short trail: lead 0x0, content 216x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, long trail: lead 0x0, content 110x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+video, short trail: lead 100x56, content 116x48, label text 75, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 40x48, label text 75, trail 104x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x48, label text 75, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 40x48, label text 75, trail 104x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 90x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+two texts: lead 0x0, content 209x48, label text 75, trail 47x16, item 68, past 0, scroll 0
+two icons: lead 0x0, content 216x48, label text 75, trail 40x20, item 68, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x48, label text 75, trail 80x40, item 68, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x48, label text 75, trail 48x24, item 68, past 0, scroll 0
+a checkbox: lead 0x0, content 216x48, label text 75, trail 40x40, item 68, past 0, scroll 0
+a button: lead 0x0, content 161x48, label text 75, trail 95x40, item 68, past 0, scroll 0
+a wide button: lead 0x0, content 122x48, label text 75, trail 134x41, item 68, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x48, label text 75, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 40x48, label text 75, trail 24x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x48, label text 75, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 40x108, label text 75, trail 90x64, item 128, past 0, scroll 0
+large video, button: lead 114x64, content 40x108, label text 75, trail 90x40, item 128, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x108, label text 75, trail 120x24, item 128, past 0, scroll 0
+video, word: lead 100x56, content 40x48, label text 75, trail 104x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 40x48, label text 75, trail 104x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 40x48, label text 990, trail 104x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 40x240, label text 94, trail 104x48, item 260, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x48, label text 75, trail 0x0, item 68, past 0, scroll 0
+
+## built: mx-sortable-list > mx-list-item, rtl, 200% text
+short, short: lead 0x0, content 228x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+short, long: lead 0x0, content 106x48, label text 75, trail 150x32, item 68, past 0, scroll 0
+long, short: lead 0x0, content 228x240, label text 219, trail 28x16, item 260, past 0, scroll 0
+long, long: lead 0x0, content 106x576, label text 95, trail 150x32, item 596, past 0, scroll 0
+word in label: lead 0x0, content 228x48, label text 990, trail 28x16, item 68, past 0, scroll 0
+word in trail: lead 0x0, content 106x48, label text 75, trail 150x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x68, label text 75, trail 28x16, item 88, past 0, scroll 0
+word in support: lead 0x0, content 228x88, label text 75, trail 28x16, item 108, past 0, scroll 0
+word in lead: lead 420x0, content 0x48, label text 75, trail 6x80, item 100, past 166, scroll 0
+word in lead, long trail: lead 420x0, content 0x48, label text 75, trail 9x592, item 612, past 169, scroll 0
+word in every slot: lead 420x0, content 0x108, label text 990, trail 6x960, item 980, past 166, scroll 0
+short lead text: lead 37x0, content 179x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+two lead icons: lead 20x40, content 196x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, short trail: lead 0x0, content 216x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, long trail: lead 0x0, content 94x48, label text 75, trail 150x32, item 68, past 0, scroll 0
+video, short trail: lead 100x56, content 116x48, label text 75, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 45x48, label text 75, trail 99x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x48, label text 75, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 45x48, label text 75, trail 99x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 74x48, label text 75, trail 150x32, item 68, past 0, scroll 0
+two texts: lead 0x0, content 209x48, label text 75, trail 47x16, item 68, past 0, scroll 0
+two icons: lead 0x0, content 216x48, label text 75, trail 40x20, item 68, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x48, label text 75, trail 80x40, item 68, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x48, label text 75, trail 48x24, item 68, past 0, scroll 0
+a checkbox: lead 0x0, content 216x48, label text 75, trail 40x40, item 68, past 0, scroll 0
+a button: lead 0x0, content 161x48, label text 75, trail 95x40, item 68, past 0, scroll 0
+a wide button: lead 0x0, content 106x48, label text 75, trail 150x41, item 68, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x48, label text 75, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 45x48, label text 75, trail 19x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x48, label text 75, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 45x108, label text 75, trail 85x64, item 128, past 0, scroll 0
+large video, button: lead 114x64, content 45x108, label text 75, trail 85x40, item 128, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x108, label text 75, trail 120x24, item 128, past 0, scroll 0
+video, word: lead 100x56, content 45x48, label text 75, trail 99x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 45x48, label text 75, trail 99x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 45x48, label text 990, trail 99x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 45x240, label text 94, trail 99x48, item 260, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x48, label text 75, trail 0x0, item 68, past 0, scroll 0
+
+## built: mx-sortable-list > mx-list-button-item, rtl, 200% text
+short, short: lead 0x0, content 228x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+short, long: lead 0x0, content 122x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+long, short: lead 0x0, content 228x240, label text 219, trail 28x16, item 260, past 0, scroll 0
+long, long: lead 0x0, content 122x480, label text 109, trail 134x32, item 500, past 0, scroll 0
+word in label: lead 0x0, content 228x48, label text 990, trail 28x16, item 68, past 0, scroll 0
+word in trail: lead 0x0, content 122x48, label text 75, trail 134x48, item 68, past 0, scroll 0
+word in overline: lead 0x0, content 228x68, label text 75, trail 28x16, item 88, past 0, scroll 0
+word in support: lead 0x0, content 228x88, label text 75, trail 28x16, item 108, past 0, scroll 0
+word in lead: lead 420x0, content 0x48, label text 75, trail 6x80, item 100, past 166, scroll 0
+word in lead, long trail: lead 420x0, content 0x48, label text 75, trail 9x592, item 612, past 169, scroll 0
+word in every slot: lead 420x0, content 0x108, label text 990, trail 6x960, item 980, past 166, scroll 0
+short lead text: lead 37x0, content 179x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+two lead icons: lead 20x40, content 196x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, short trail: lead 0x0, content 216x48, label text 75, trail 28x16, item 68, past 0, scroll 0
+image, long trail: lead 0x0, content 110x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+video, short trail: lead 100x56, content 116x48, label text 75, trail 28x16, item 76, past 0, scroll 0
+video, long trail: lead 100x56, content 40x48, label text 75, trail 104x48, item 76, past 0, scroll 0
+video, button: lead 100x56, content 49x48, label text 75, trail 95x40, item 76, past 0, scroll 0
+video, half-wide button: lead 100x56, content 40x48, label text 75, trail 104x40, item 76, past 0, scroll 0
+two lead icons, long trail: lead 20x40, content 90x48, label text 75, trail 134x32, item 68, past 0, scroll 0
+two texts: lead 0x0, content 209x48, label text 75, trail 47x16, item 68, past 0, scroll 0
+two icons: lead 0x0, content 216x48, label text 75, trail 40x20, item 68, past 0, scroll 0
+two icon buttons: lead 0x0, content 176x48, label text 75, trail 80x40, item 68, past 0, scroll 0
+a text and an icon: lead 0x0, content 208x48, label text 75, trail 48x24, item 68, past 0, scroll 0
+a checkbox: lead 0x0, content 216x48, label text 75, trail 40x40, item 68, past 0, scroll 0
+a button: lead 0x0, content 161x48, label text 75, trail 95x40, item 68, past 0, scroll 0
+a wide button: lead 0x0, content 122x48, label text 75, trail 134x41, item 68, past 0, scroll 0
+photo 180, label: lead 180x56, content 76x48, label text 75, trail 0x0, item 76, past 0, scroll 0
+photo 180, short trail: lead 180x56, content 40x48, label text 75, trail 24x32, item 76, past 0, scroll 0
+video, fixed 120: lead 100x56, content 24x48, label text 75, trail 120x24, item 76, past 0, scroll 0
+large video, long trail: lead 114x64, content 40x108, label text 75, trail 90x64, item 128, past 0, scroll 0
+large video, button: lead 114x64, content 40x108, label text 75, trail 90x40, item 128, past 0, scroll 0
+large video, fixed 120: lead 114x64, content 10x108, label text 75, trail 120x24, item 128, past 0, scroll 0
+video, word: lead 100x56, content 40x48, label text 75, trail 104x64, item 84, past 0, scroll 0
+video, email: lead 100x56, content 40x48, label text 75, trail 104x32, item 76, past 0, scroll 0
+video, word in label: lead 100x56, content 40x48, label text 990, trail 104x48, item 76, past 0, scroll 0
+video, several words: lead 100x56, content 40x240, label text 94, trail 104x48, item 260, past 0, scroll 0
+handle and avatar in lead: lead 40x40, content 216x48, label text 75, trail 0x0, item 68, past 0, scroll 0

@@ -1,0 +1,36 @@
+import axe from 'axe-core';
+import { afterAll, expect, it } from 'vitest';
+const m = new WeakMap<object, ElementInternals>();
+const a = HTMLElement.prototype.attachInternals;
+HTMLElement.prototype.attachInternals = function attachInternals(): ElementInternals { const i = a.call(this); m.set(this, i); return i; };
+Object.assign(globalThis, { _elementInternals: m });
+for (const t of ['button/split-button', 'button/icon-button', 'list/list', 'list/list-item', 'icon/icon', 'list/list-button-item', 'list/sortable-list', 'list/list-link-item', 'button-group/button-group']) await import(`../src/${t}.ts`).catch(() => import(/* @vite-ignore */ `/src/${t}.ts`));
+const out: string[] = [];
+afterAll(() => { throw new Error(out.join('\n')); });
+async function read(label: string, html: string): Promise<void> {
+  const root = document.createElement('div');
+  root.innerHTML = html;
+  document.body.append(root);
+  await new Promise(requestAnimationFrame); await new Promise(requestAnimationFrame);
+  axe.setup(root as never);
+  const roles = [...root.querySelectorAll('*')].filter((e) => e.localName.includes('-')).map((e) => `${e.localName}:${String((axe as never as { commons: { aria: { getRole(v: unknown): unknown } } }).commons.aria.getRole((axe as never as { utils: { getNodeFromTree(e: Element): unknown } }).utils.getNodeFromTree(e)))}`).join(' ');
+  axe.teardown();
+  const r = await axe.run(root);
+  out.push(`${label} | ${roles} | V ${r.violations.map((v) => `${v.id}@${JSON.stringify(v.nodes.map((n) => n.target))}`).join(' ')} | I ${r.incomplete.map((v) => v.id + JSON.stringify(v.nodes.map((n) => n.target))).join(' ')}`);
+  root.remove();
+}
+const FONT = 'data:font/ttf;base64,(the subset with keyboard_arrow_down, from Google Fonts' icon_names)';
+it('probe', async () => {
+  const html = '<mx-split-button secondarylabel="More options">Go</mx-split-button>';
+  await read('split, subset without the glyph', html);
+  const face = new FontFace('Material Symbols Outlined', `url(${FONT})`);
+  document.fonts.add(await face.load());
+  await read('split, a subset with the glyph', html);
+  await read('list', '<mx-list><mx-list-item>A</mx-list-item><mx-list-button-item aria-label=B>B</mx-list-button-item></mx-list>');
+  await read('list without an item', '<mx-list></mx-list>');
+  await read('list with a div', '<mx-list><div>A</div></mx-list>');
+  await read('orphan item', '<mx-list-item>A</mx-list-item>');
+  await read('group', '<mx-button-group aria-label=V></mx-button-group>');
+  await read('host aria-label', '<mx-icon-button aria-label=V>x</mx-icon-button>');
+  expect(1).toBe(1);
+});

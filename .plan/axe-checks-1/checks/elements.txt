@@ -1,0 +1,296 @@
+# elements.browser.test.ts.txt: axe-core 4.14.1 over 73 fixtures on main at 8bed561de, Chromium. First column: ms of axe.run; second: the same with color-contrast off. The roles from ElementInternals are given to axe (globalThis._elementInternals); the result without them is the same file. Firefox 73/73 and WebKit 73/73 gave the same lines, apart from the times. violations, incomplete (axe can't decide) and passes are axe's.
+
+Error: AXE 4.14.1
+  67   16 mx-button
+      violations: -
+      incomplete: color-contrast@[["mx-button","button"]]
+      passes: button-name,nested-interactive
+  17   17 mx-button disabled
+      violations: -
+      incomplete: -
+      passes: button-name,nested-interactive
+  28   18 mx-button icon-only named
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,label-content-name-mismatch,nested-interactive
+  15    9 mx-link-button
+      violations: -
+      incomplete: color-contrast@[["mx-link-button","a"]]
+      passes: link-name
+  15   10 mx-link-button disabled
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,tabindex
+  16   21 mx-icon-button
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,label-content-name-mismatch,nested-interactive
+  16   10 mx-icon-button disabled
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,label-content-name-mismatch,nested-interactive
+  13    6 mx-switch-button off
+      violations: -
+      incomplete: color-contrast@[["mx-switch-button","button"]]
+      passes: aria-allowed-attr,aria-allowed-role,aria-conditional-attr,aria-deprecated-role,aria-prohibited-attr,aria-required-attr,aria-roles,aria-valid-attr-value,aria-valid-attr,button-name,nested-interactive
+  12    6 mx-switch-button on
+      violations: -
+      incomplete: color-contrast@[["mx-switch-button","button"]]
+      passes: aria-allowed-attr,aria-allowed-role,aria-conditional-attr,aria-deprecated-role,aria-prohibited-attr,aria-required-attr,aria-roles,aria-valid-attr-value,aria-valid-attr,button-name,nested-interactive
+  16   11 mx-switch-button disabled
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-allowed-role,aria-conditional-attr,aria-deprecated-role,aria-prohibited-attr,aria-required-attr,aria-roles,aria-valid-attr-value,aria-valid-attr,button-name,nested-interactive
+  12    9 mx-switch-button error required
+      violations: -
+      incomplete: color-contrast@[["mx-switch-button","button"]]
+      passes: aria-allowed-attr,aria-allowed-role,aria-conditional-attr,aria-deprecated-role,aria-prohibited-attr,aria-required-attr,aria-roles,aria-valid-attr-value,aria-valid-attr,button-name,nested-interactive
+  13   19 mx-switch-icon-button off
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-allowed-role,aria-conditional-attr,aria-deprecated-role,aria-prohibited-attr,aria-required-attr,aria-roles,aria-valid-attr-value,aria-valid-attr,button-name,label-content-name-mismatch,nested-interactive
+  12   12 mx-switch-icon-button on
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-allowed-role,aria-conditional-attr,aria-deprecated-role,aria-prohibited-attr,aria-required-attr,aria-roles,aria-valid-attr-value,aria-valid-attr,button-name,label-content-name-mismatch,nested-interactive
+   7    7 mx-switch-icon-button error required
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-allowed-role,aria-conditional-attr,aria-deprecated-role,aria-prohibited-attr,aria-required-attr,aria-roles,aria-valid-attr-value,aria-valid-attr,button-name,label-content-name-mismatch,nested-interactive
+  26   14 mx-split-button
+      violations: label-content-name-mismatch@[["mx-split-button","mx-icon-button","button"]]
+      incomplete: aria-allowed-attr@[["mx-split-button","mx-icon-button"]] color-contrast@[["mx-split-button","mx-button","button"]] color-contrast@[["mx-split-button","mx-icon"]]
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,nested-interactive,label-content-name-mismatch
+  36   19 mx-split-button open
+      violations: label-content-name-mismatch@[["mx-split-button","mx-icon-button","button"]]
+      incomplete: aria-allowed-attr@[["mx-split-button","mx-icon-button"]] color-contrast@[["mx-split-button","mx-button","button"]]
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,color-contrast,nested-interactive,label-content-name-mismatch
+   9    5 mx-split-button disabled
+      violations: label-content-name-mismatch@[["mx-split-button","mx-icon-button","button"]]
+      incomplete: aria-allowed-attr@[["mx-split-button","mx-icon-button"]]
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,nested-interactive,label-content-name-mismatch
+  19    9 mx-split-button unnamed secondary
+      violations: button-name@[["mx-split-button","mx-icon-button","button"]]
+      incomplete: aria-allowed-attr@[["mx-split-button","mx-icon-button"]] color-contrast@[["mx-split-button","mx-button","button"]] color-contrast@[["mx-split-button","mx-icon"]]
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,nested-interactive,button-name
+  12    9 mx-button-group
+      violations: -
+      incomplete: color-contrast@[["mx-button:nth-child(1)","button"]] color-contrast@[["mx-button:nth-child(2)","button"]]
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,nested-interactive
+  13    7 mx-connected-button-group
+      violations: -
+      incomplete: color-contrast@[["mx-switch-button[value=\"a\"]","button"]] color-contrast@[["mx-switch-button[value=\"b\"]","button"]]
+      passes: aria-allowed-attr,aria-allowed-role,aria-conditional-attr,aria-deprecated-role,aria-prohibited-attr,aria-required-attr,aria-roles,aria-valid-attr-value,aria-valid-attr,button-name,nested-interactive,tabindex
+   8    5 mx-card
+      violations: -
+      incomplete: -
+      passes: color-contrast
+  15    6 mx-checkbox
+      violations: label@[["mx-checkbox","#input"]]
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,form-field-multiple-labels,label-title-only,nested-interactive,label
+  13    8 mx-checkbox checked
+      violations: label@[["mx-checkbox","#input"]]
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,form-field-multiple-labels,label-title-only,nested-interactive,label
+   9    4 mx-checkbox indeterminate
+      violations: label@[["mx-checkbox","#input"]]
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,form-field-multiple-labels,label-title-only,nested-interactive,label
+  11    9 mx-checkbox disabled
+      violations: label@[["mx-checkbox","#input"]]
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,form-field-multiple-labels,label-title-only,nested-interactive,label
+  14   10 mx-checkbox error required
+      violations: label@[["mx-checkbox","#input"]]
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,form-field-multiple-labels,label-title-only,nested-interactive,label
+  11    6 mx-checkbox label for
+      violations: label@[["#c","#input"]]
+      incomplete: -
+      passes: aria-hidden-focus,color-contrast,duplicate-id-aria,form-field-multiple-labels,label-title-only,nested-interactive,label
+   9    8 mx-radio
+      violations: label@[["mx-radio","#input"]]
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,form-field-multiple-labels,label-title-only,nested-interactive,label
+  12    9 mx-radio checked
+      violations: label@[["mx-radio","#input"]]
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,form-field-multiple-labels,label-title-only,nested-interactive,label
+   8    6 mx-radio disabled
+      violations: label@[["mx-radio","#input"]]
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,form-field-multiple-labels,label-title-only,nested-interactive,label
+   9    4 mx-radio error required
+      violations: label@[["mx-radio","#input"]]
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,form-field-multiple-labels,label-title-only,nested-interactive,label
+  12   10 mx-fab
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,label-content-name-mismatch,nested-interactive
+  11    5 mx-fab extended open
+      violations: -
+      incomplete: color-contrast@[["mx-fab","button"]]
+      passes: button-name,nested-interactive
+  19   11 mx-fab extended closed
+      violations: -
+      incomplete: color-contrast@[["mx-fab","button"]]
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,label-content-name-mismatch,nested-interactive
+  12    6 mx-fab disabled
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,label-content-name-mismatch,nested-interactive
+   9    7 mx-icon
+      violations: -
+      incomplete: -
+      passes: 
+  13    8 mx-icon aria-hidden
+      violations: -
+      incomplete: -
+      passes: aria-hidden-focus
+  14    5 mx-list items
+      violations: -
+      incomplete: color-contrast@[["mx-list-item",".content"]]
+      passes: 
+  10    5 mx-list-button-item
+      violations: -
+      incomplete: color-contrast@[["mx-list-button-item",".content"]]
+      passes: button-name,nested-interactive
+  16   10 mx-list-button-item selected
+      violations: aria-allowed-attr@[["mx-list-button-item","button"]]
+      incomplete: color-contrast@[["mx-list-button-item",".content"]]
+      passes: aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,nested-interactive,aria-allowed-attr
+   9   11 mx-list-button-item disabled
+      violations: -
+      incomplete: -
+      passes: button-name,nested-interactive
+  16   10 mx-list-link-item
+      violations: -
+      incomplete: color-contrast@[["mx-list-link-item",".content"]]
+      passes: link-name
+  30   20 mx-list-link-item selected
+      violations: -
+      incomplete: color-contrast@[["mx-list-link-item",".content"]]
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,link-name
+  13    7 mx-list-link-item disabled
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,tabindex
+  15    8 mx-sortable-list item
+      violations: -
+      incomplete: color-contrast@[["mx-list-item:nth-child(1)",".content"]] color-contrast@[["mx-list-item:nth-child(2)",".content"]]
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,tabindex
+  19    9 mx-sortable-list handle
+      violations: label-content-name-mismatch@["mx-icon"]
+      incomplete: color-contrast@[["mx-list-item",".content"]]
+      passes: aria-allowed-attr,aria-allowed-role,aria-command-name,aria-conditional-attr,aria-deprecated-role,aria-prohibited-attr,aria-required-attr,aria-roles,aria-valid-attr-value,aria-valid-attr,avoid-inline-spacing,color-contrast,nested-interactive,tabindex,label-content-name-mismatch
+  10    6 mx-sortable-list handle unnamed
+      violations: label-content-name-mismatch@["span"]
+      incomplete: color-contrast@[["mx-list-item",".content"]]
+      passes: aria-allowed-attr,aria-allowed-role,aria-command-name,aria-conditional-attr,aria-deprecated-role,aria-hidden-focus,aria-prohibited-attr,aria-required-attr,aria-roles,aria-valid-attr-value,aria-valid-attr,avoid-inline-spacing,color-contrast,nested-interactive,tabindex,label-content-name-mismatch
+  16    9 mx-sortable-list button item
+      violations: -
+      incomplete: color-contrast@[["mx-list-button-item:nth-child(1)",".content"]]
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,nested-interactive
+  11   10 mx-sortable-list handle in disabled button item
+      violations: nested-interactive@[["mx-list-button-item","button"]]
+      incomplete: label-content-name-mismatch@["span"]
+      passes: aria-allowed-attr,aria-allowed-role,aria-command-name,aria-conditional-attr,aria-deprecated-role,aria-prohibited-attr,aria-required-attr,aria-roles,aria-valid-attr-value,aria-valid-attr,avoid-inline-spacing,button-name,nested-interactive,tabindex,nested-interactive
+   8    5 mx-sortable-list handle in button item
+      violations: nested-interactive@[["mx-list-button-item","button"]]
+      incomplete: color-contrast@[["mx-list-button-item",".content"]] label-content-name-mismatch@["span"]
+      passes: aria-allowed-attr,aria-allowed-role,aria-command-name,aria-conditional-attr,aria-deprecated-role,aria-prohibited-attr,aria-required-attr,aria-roles,aria-valid-attr-value,aria-valid-attr,avoid-inline-spacing,button-name,nested-interactive,tabindex,nested-interactive
+   9    5 mx-sortable-list handle named by the component
+      violations: -
+      incomplete: color-contrast@[["mx-list-item",".content"]]
+      passes: aria-allowed-attr,aria-allowed-role,aria-command-name,aria-conditional-attr,aria-deprecated-role,aria-prohibited-attr,aria-required-attr,aria-roles,aria-valid-attr-value,aria-valid-attr,avoid-inline-spacing,label-content-name-mismatch,nested-interactive,tabindex
+   9    4 mx-list-item in a ul-less div
+      violations: -
+      incomplete: color-contrast@[["mx-list-item",".content"]]
+      passes: 
+   9    5 mx-list empty
+      violations: -
+      incomplete: -
+      passes: 
+  11    4 mx-list with a page div child
+      violations: -
+      incomplete: -
+      passes: color-contrast
+  14    8 mx-slider
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,color-contrast,duplicate-id-aria,form-field-multiple-labels,label-title-only,label,nested-interactive
+   7    7 mx-slider aria-label
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,duplicate-id-aria,form-field-multiple-labels,label-title-only,label,nested-interactive
+  10    7 mx-slider valuetext
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,color-contrast,duplicate-id-aria,form-field-multiple-labels,label-title-only,label,nested-interactive
+   6    6 mx-slider disabled
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,duplicate-id-aria,form-field-multiple-labels,label-title-only,label,nested-interactive
+   9    6 mx-slider error
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-hidden-focus,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,color-contrast,duplicate-id-aria,form-field-multiple-labels,label-title-only,label,nested-interactive
+  15   10 mx-text-field
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,color-contrast,duplicate-id-aria,form-field-multiple-labels,label-title-only,label
+  10    6 mx-text-field aria-label
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,color-contrast,duplicate-id-aria,form-field-multiple-labels,label-title-only,label
+  14    7 mx-text-field outlined
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,color-contrast,duplicate-id-aria,form-field-multiple-labels,label-title-only,label
+  26    9 mx-text-field error required support counter
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,color-contrast,duplicate-id-aria,form-field-multiple-labels,label-title-only,label
+   8    7 mx-text-field disabled
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,duplicate-id-aria,form-field-multiple-labels,label-title-only,label
+  12    7 mx-text-field readonly
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,color-contrast,duplicate-id-aria,form-field-multiple-labels,label-title-only,label
+   9    8 mx-multiline-text-field
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,color-contrast,duplicate-id-aria,form-field-multiple-labels,label-title-only,label
+   9    4 mx-multiline-text-field error required support
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,color-contrast,duplicate-id-aria,form-field-multiple-labels,label-title-only,label
+   7    4 mx-multiline-text-field disabled
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,duplicate-id-aria,form-field-multiple-labels,label-title-only,label
+  22    9 mx-top-app-bar
+      violations: -
+      incomplete: -
+      passes: aria-allowed-attr,aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,color-contrast,empty-heading,heading-order,label-content-name-mismatch,nested-interactive
+   7    6 witness: unnamed mx-icon-button
+      violations: button-name@[["mx-icon-button","button"]]
+      incomplete: -
+      passes: nested-interactive,button-name
+  14    9 witness: unnamed mx-text-field
+      violations: label@[["mx-text-field","#field"]]
+      incomplete: -
+      passes: color-contrast,duplicate-id-aria,form-field-multiple-labels,label-title-only,label
+   9    7 witness: bad aria on host
+      violations: aria-allowed-attr@[["mx-button","button"]]
+      incomplete: aria-allowed-attr@["mx-button"] color-contrast@[["mx-button","button"]]
+      passes: aria-conditional-attr,aria-prohibited-attr,aria-valid-attr-value,aria-valid-attr,button-name,nested-interactive,aria-allowed-attr
+   8    6 witness: unnamed mx-link-button
+      violations: link-name@[["mx-link-button","a"]]
+      incomplete: -
+      passes: link-name
+TOTAL axe.run ms 1008 in 73 cases

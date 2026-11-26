@@ -1,0 +1,143 @@
+## none | chromium | 0 failed, 504 passed
+## main | chromium | 180 failed, 324 passed
+   6 x with a long text should be inside the item
+   6 x with a long text should add no scroll
+   6 x with a long label and a long text should be inside the item
+   6 x with a long label and a long text should add no scroll
+   6 x with a long word in trail should be inside the item
+   6 x with a long word in trail should add no scroll
+   6 x with a long word in the label should be inside the item
+   6 x with a long word in the label should add no scroll
+   6 x with a long word in overline should be inside the item
+   6 x with a long word in overline should add no scroll
+   6 x with a long word in support should be inside the item
+   6 x with a long word in support should add no scroll
+   6 x with a wide button should be inside the item
+   6 x with a wide button should add no scroll
+   6 x with a video and a long text should be inside the item
+   6 x with a video and a long text should add no scroll
+   6 x with a video and a fixed child should be inside the item
+   6 x with a video and a fixed child should add no scroll
+   6 x with a large video and a long text should be inside the item
+   6 x with a large video and a long text should add no scroll
+   6 x with a large video and a wider button should be inside the item
+   6 x with a large video and a wider button should add no scroll
+   6 x with a large video and a fixed child should be inside the item
+   6 x with a large video and a fixed child should add no scroll
+   2 x should leave the label room for a long text alone
+   2 x should leave the label room for a long text beside a video
+   2 x should leave the label room for a control beside a video
+   6 x should take at most half of the item with a long text
+   6 x should take at most half of the item with a wide button
+   6 x should put two icons side by side
+   6 x should put two icon buttons side by side
+   6 x should put a text and an icon side by side
+## without the 15% | chromium | 26 failed, 478 passed
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   6 x should leave the label room for a control beside a video
+   8 x should leave the label room for a control beside a large video
+## 15% as a minimum | chromium | 16 failed, 488 passed
+   2 x with a video and a fixed child should be inside the item
+   2 x with a video and a fixed child should add no scroll
+   6 x with a large video and a fixed child should be inside the item
+   6 x with a large video and a fixed child should add no scroll
+## a cap on lead | chromium | 12 failed, 492 passed
+   6 x should put a wide image in lead over nothing, beside nothing
+   6 x should put a wide image in lead over nothing, beside a short text
+## label shrinks too | chromium | 24 failed, 480 passed
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   6 x should leave the label room for a control beside a video
+   6 x should leave the label room for a control beside a large video
+## no half | chromium | 12 failed, 492 passed
+   6 x should take at most half of the item with a long text
+   6 x should take at most half of the item with a wide button
+## no word break | chromium | 12 failed, 492 passed
+   6 x with a long word in trail should be inside the item
+   6 x with a long word in trail should add no scroll
+## no wrap | chromium | 104 failed, 400 passed
+   6 x with a long text should be inside the item
+   6 x with a long text should add no scroll
+   6 x with a long label and a long text should be inside the item
+   6 x with a long label and a long text should add no scroll
+   6 x with a long word in trail should be inside the item
+   6 x with a long word in trail should add no scroll
+   6 x with a video and a long text should be inside the item
+   6 x with a video and a long text should add no scroll
+   6 x with a large video and a long text should be inside the item
+   6 x with a large video and a long text should add no scroll
+   6 x should leave the label room for a long text alone
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   6 x should leave the label room for a control beside a video
+   8 x should leave the label room for a control beside a large video
+   6 x should take at most half of the item with a long text
+   6 x should take at most half of the item with a wide button
+## label keeps its longest word | chromium | 60 failed, 444 passed
+   6 x with a long word in the label should be inside the item
+   6 x with a long word in the label should add no scroll
+   6 x with a long word in overline should be inside the item
+   6 x with a long word in overline should add no scroll
+   6 x with a long word in support should be inside the item
+   6 x with a long word in support should add no scroll
+   6 x with a video and a fixed child should be inside the item
+   6 x with a video and a fixed child should add no scroll
+   6 x with a large video and a fixed child should be inside the item
+   6 x with a large video and a fixed child should add no scroll
+## trail starts from min-content | chromium | 36 failed, 468 passed
+   6 x should put two icons side by side
+   6 x should put two icon buttons side by side
+   6 x should put a text and an icon side by side
+   6 x should put two texts side by side
+   6 x should keep the width and one line of a text of nearly half of the item
+   6 x should keep the width and one line of a button of nearly half of the item
+## break-word | chromium | 12 failed, 492 passed
+   6 x with a long word in trail should be inside the item
+   6 x with a long word in trail should add no scroll
+## trail has no minimum | chromium | 22 failed, 482 passed
+   2 x with a video and a fixed child should be inside the item
+   2 x with a video and a fixed child should add no scroll
+   6 x with a large video and a fixed child should be inside the item
+   6 x with a large video and a fixed child should add no scroll
+   6 x should keep a fixed child wider than half of the item in it
+## trail min auto | chromium | 6 failed, 498 passed
+   6 x should keep a fixed child wider than half of the item in it
+## trail does not shrink | chromium | 28 failed, 476 passed
+   2 x with a large video and a long text should add no scroll
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   6 x should leave the label room for a control beside a video
+   8 x should leave the label room for a control beside a large video
+## trail shrinks 10 | chromium | 20 failed, 484 passed
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   2 x should leave the label room for a control beside a video
+   6 x should leave the label room for a control beside a large video
+## trail shrinks 100 | chromium | 0 failed, 504 passed
+## trail grows | chromium | 6 failed, 498 passed
+   6 x should end a short text at the item's end and give the label the rest
+## content basis auto | chromium | 10 failed, 494 passed
+   2 x should leave the label room for a long text beside a video
+   2 x should leave the label room for a control beside a video
+   6 x should keep the width of a short text beside a long label
+## content does not grow | chromium | 6 failed, 498 passed
+   6 x should end a short text at the item's end and give the label the rest
+## 14% | chromium | 26 failed, 478 passed
+   6 x should leave the label room for a long text beside a video
+   6 x should leave the label room for a long text beside a large video
+   6 x should leave the label room for a control beside a video
+   8 x should leave the label room for a control beside a large video
+## 16% | chromium | 0 failed, 504 passed
+## 20% | chromium | 2 failed, 502 passed
+   2 x should keep the width of a button beside a video
+## half is 45% | chromium | 8 failed, 496 passed
+   4 x should keep the width and one line of a text of nearly half of the item
+   4 x should keep the width and one line of a button of nearly half of the item
+## half is 40% | chromium | 12 failed, 492 passed
+   6 x should keep the width and one line of a text of nearly half of the item
+   6 x should keep the width and one line of a button of nearly half of the item
+## lead shrinks | chromium | 6 failed, 498 passed
+   6 x should keep the large video's width beside a fixed child
+## lead auto | chromium | 0 failed, 504 passed
+## trail clips | chromium | 0 failed, 504 passed

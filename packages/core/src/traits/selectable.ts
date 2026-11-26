@@ -1,7 +1,4 @@
 import { Bool, type ConverterOf } from '../attribute.ts';
-import { setOwnARIA } from '../controllers/useARIA.ts';
-import { useAttributes } from '../controllers/useAttributes.ts';
-import type { ControlledElement } from '../element.ts';
 import { AnyElement, attributes, type Props } from './attribute-traits.ts';
 import { trait } from './composition.ts';
 
@@ -22,17 +19,3 @@ export class Selectable extends AnyElement {
  * Framework-facing props derived from {@link Selectable}.
  */
 export type SelectableProps = Props<typeof Selectable>;
-
-/**
- * Sets the component's own `aria-selected` of `target` from the `selected`
- * attribute of `host`.
- */
-export function useSelectable(
-  host: Selectable & ControlledElement,
-  target: HTMLElement,
-): void {
-  useAttributes(host, {
-    selected: (_, value) =>
-      setOwnARIA(target, 'aria-selected', String(value != null)),
-  });
-}

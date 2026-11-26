@@ -1,0 +1,43 @@
+// RD-57's feature proof. Copied to packages/material-x/tests/zz-review-icon-names.browser.test.ts
+// by icon-names.sh, with RF-137's icon applied or not. Prints, for each fixture,
+// axe's violations and the name that Chromium's own tree gives the control.
+import { describe, expect, it } from 'vitest';
+import { commands } from 'vitest/browser';
+import '../src/button/icon-button.ts';
+import '../src/button/split-button.ts';
+import '../src/icon/icon.ts';
+import '../src/list/list-item.ts';
+import '../src/list/sortable-list.ts';
+import { nextFrame } from './browser.ts';
+
+const FIXTURES: ReadonlyArray<readonly [string, string]> = [
+  ['icon button, icon only', '<mx-icon-button><mx-icon>check</mx-icon></mx-icon-button>'],
+  ['icon button, icon aria-hidden', '<mx-icon-button><mx-icon aria-hidden="true">check</mx-icon></mx-icon-button>'],
+  ['span role=button, icon only', '<span role="button" tabindex="0"><mx-icon>check</mx-icon></span>'],
+  ['split button, no secondarylabel', '<mx-split-button>Go</mx-split-button>'],
+  ['mx-icon role=button', '<mx-icon role="button" tabindex="0">check</mx-icon>'],
+  [
+    'sortable handle, mx-icon, no aria-label',
+    '<mx-sortable-list><mx-list-item><mx-icon data-handle slot="lead">check</mx-icon>A</mx-list-item></mx-sortable-list>',
+  ],
+];
+
+describe('axe and the icon', () => {
+  it.each(FIXTURES)('%s', async (label, html) => {
+    const fixture = document.createElement('div');
+    fixture.id = 'fixture';
+    fixture.innerHTML = html;
+    document.body.append(fixture);
+    await nextFrame();
+    await nextFrame();
+    const { default: axe } = await import('axe-core');
+    const { violations } = await axe.run(fixture, { rules: { 'color-contrast': { enabled: false } } });
+    const tree = await commands.readAccessibilityTree('#fixture', true);
+    const names = (n: { role: string; name: string; children: readonly unknown[] }): string[] => [
+      ...(['button'].includes(n.role) ? [JSON.stringify(n.name)] : []),
+      ...n.children.flatMap((c) => names(c as typeof n)),
+    ];
+    console.log(`ICON ${label} | axe: ${violations.map((v) => v.id).join(',') || 'none'} | Chromium's tree: button ${names(tree).join(', ')}`);
+    expect(true).toBe(true);
+  });
+});

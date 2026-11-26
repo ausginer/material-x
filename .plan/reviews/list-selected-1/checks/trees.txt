@@ -1,0 +1,95 @@
+# The architect's probe (.plan/list-selected-1/probes/selected.mjs) on the head's built packages, 0d88cace2, core and material-x built from a clean source just before, with axe-core 4.14.1, one engine at a time. Each is the same, line for line, as the candidate's reading (.plan/list-selected-1/checks/trees-candidate.txt).
+## chromium 158.0.8127.18
+# the control's attributes
+plain -
+was -
+sel aria-current="true"
+dis aria-current="true" disabled=""
+off aria-current="false"
+page aria-current="page"
+press aria-current="true" aria-pressed="true"
+press0 aria-pressed="false"
+pressoff aria-current="false" aria-pressed="true"
+link aria-current="page"
+# the engine's tree
+cdp button "plain" invalid=false
+cdp button "was selected" invalid=false
+cdp button "selected" invalid=false
+cdp button "selected disabled" disabled=true invalid=false
+cdp button "current false" invalid=false
+cdp button "current page" invalid=false
+cdp button "pressed" invalid=false pressed=true
+cdp button "not pressed" invalid=false pressed=false
+cdp button "pressed current false" invalid=false pressed=true
+cdp link "link selected"
+internal button  name='plain'
+internal button  name='was selected'
+internal button  name='selected' ariaCurrentState=true
+internal button  name='selected disabled' restriction=disabled ariaCurrentState=true
+internal button  name='current false' ariaCurrentState=false
+internal button  name='current page' ariaCurrentState=page
+internal toggleButton  name='pressed' ariaCurrentState=true checkedState=true
+internal toggleButton  name='not pressed' checkedState=false
+internal toggleButton  name='pressed current false' ariaCurrentState=false checkedState=true
+internal link  name='link selected' ariaCurrentState=page
+# axe-core
+4.14.1
+needs review aria-allowed-attr critical ["#press"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="true"
+needs review aria-allowed-attr critical ["#press0"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="false"
+needs review aria-allowed-attr critical ["#pressoff"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="true"
+## firefox 159.0
+# the control's attributes
+plain -
+was -
+sel aria-current="true"
+dis aria-current="true" disabled=""
+off aria-current="false"
+page aria-current="page"
+press aria-current="true" aria-pressed="true"
+press0 aria-pressed="false"
+pressoff aria-current="false" aria-pressed="true"
+link aria-current="page"
+# the engine's tree
+pushbutton "plain" [] states:
+pushbutton "was selected" [] states: selectable text enabled
+pushbutton "selected" [current=true] states: selectable text enabled current
+pushbutton "selected disabled" [current=true] states: unavailable selectable text current
+pushbutton "current false" [] states: selectable text enabled
+pushbutton "current page" [current=page] states: selectable text enabled current
+toggle button "pressed" [pressed=true,current=true] states: pressed selectable text enabled current
+toggle button "not pressed" [pressed=false] states: selectable text enabled
+toggle button "pressed current false" [pressed=true] states: pressed selectable text enabled
+link "link selected" [current=page] states: selectable text enabled current
+# axe-core
+4.14.1
+needs review aria-allowed-attr critical ["#press"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="true"
+needs review aria-allowed-attr critical ["#press0"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="false"
+needs review aria-allowed-attr critical ["#pressoff"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="true"
+## webkit 27.2
+# the control's attributes
+plain -
+was -
+sel aria-current="true"
+dis aria-current="true" disabled=""
+off aria-current="false"
+page aria-current="page"
+press aria-current="true" aria-pressed="true"
+press0 aria-pressed="false"
+pressoff aria-current="false" aria-pressed="true"
+link aria-current="page"
+# the engine's tree
+plain {"label":"plain","role":"button"}
+was {"label":"was selected","role":"button"}
+sel {"label":"selected","role":"button","current":"true"}
+dis {"label":"selected disabled","role":"button","current":"true","disabled":true}
+off {"label":"current false","role":"button"}
+page {"label":"current page","role":"button","current":"page"}
+press {"label":"pressed","role":"button","current":"true","pressed":true}
+press0 {"label":"not pressed","role":"button","pressed":false}
+pressoff {"label":"pressed current false","role":"button","pressed":true}
+link {"label":"link selected","role":"link","current":"page"}
+# axe-core
+4.14.1
+needs review aria-allowed-attr critical ["#press"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="true"
+needs review aria-allowed-attr critical ["#press0"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="false"
+needs review aria-allowed-attr critical ["#pressoff"] Check that there is no problem if the ARIA attribute is ignored on this element: aria-pressed="true"

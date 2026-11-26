@@ -1,0 +1,37 @@
+# RF-139 recheck: size rows, Brotli, local, Chromium build. base = c7b7a3e32 with the merge base 2485fb2df sheets of the list item and mx-button; head = c7b7a3e32.
+box-quad index | base 1182 | head 1182 | +0 | limit 1182
+core element | base 277 | head 277 | +0 | limit 340
+core emitter | base 198 | head 198 | +0 | limit 210
+material-x button/button | base 4936 | head 4947 | +11 | limit -
+material-x button/icon-button | base 5208 | head 5218 | +10 | limit -
+material-x button/link-button | base 4911 | head 4917 | +6 | limit -
+material-x button/switch-button | base 5537 | head 5549 | +12 | limit -
+material-x button/switch-icon-button | base 5962 | head 5947 | -15 | limit -
+material-x button/split-button | base 7766 | head 7769 | +3 | limit -
+material-x button-group/button-group | base 3097 | head 3102 | +5 | limit -
+material-x button-group/connected-button-group | base 4042 | head 4052 | +10 | limit -
+material-x card/card | base 1350 | head 1350 | +0 | limit -
+material-x checkbox/checkbox | base 4290 | head 4290 | +0 | limit -
+material-x fab/fab | base 4206 | head 4206 | +0 | limit -
+material-x icon/icon | base 667 | head 667 | +0 | limit -
+material-x list/list | base 625 | head 625 | +0 | limit -
+material-x list/list-item | base 2803 | head 2824 | +21 | limit -
+material-x list/list-button-item | base 4968 | head 4982 | +14 | limit -
+material-x list/list-link-item | base 5146 | head 5182 | +36 | limit -
+material-x list/sortable-list | base 9117 | head 9117 | +0 | limit -
+material-x radio/radio | base 3841 | head 3841 | +0 | limit -
+material-x slider/slider | base 4037 | head 4037 | +0 | limit -
+material-x text-field/multiline-text-field | base 4559 | head 4559 | +0 | limit -
+material-x text-field/text-field | base 8618 | head 8616 | -2 | limit -
+material-x top-app-bar/top-app-bar | base 1391 | head 1391 | +0 | limit -
+material-x complete | base 25869 | head 25922 | +53 | limit -
+drag draggable alone | base 2189 | head 2189 | +0 | limit 2189
+drag draggable + lift | base 3932 | head 3932 | +0 | limit 3932
+drag example: resize handle | base 3265 | head 3265 | +0 | limit 3265
+drag example: drop zone | base 4570 | head 4570 | +0 | limit 4570
+drag example: canvas group | base 3261 | head 3261 | +0 | limit 3261
+drag freeDrag | base 4984 | head 4984 | +0 | limit 4984
+drag freeDrag + bounds + landing | base 5465 | head 5465 | +0 | limit 5465
+drag sortable + y | base 6538 | head 6538 | +0 | limit 6538
+drag sortable + xy | base 6506 | head 6506 | +0 | limit 6506
+drag complete | base 7156 | head 7156 | +0 | limit 7156
