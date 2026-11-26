@@ -43,7 +43,13 @@ export type SortableConfig = Readonly<{
    */
   items(): readonly HTMLElement[];
   axis: AxisInstaller;
-  /** Commit the reorder and resolve it, for example `root.insertBefore(item, next)`. */
+  /**
+   * Commit the reorder and then resolve it, for example
+   * `root.insertBefore(item, next)`. The DOM has the new order by the time the
+   * verdict accepts: rows that `layoutAnimation` displaces jump and slide for a
+   * later commit. They may also jump for a commit that moves the rows around the
+   * placeholder and that a frame draws before its verdict.
+   */
   onReorder: OnReorder;
   onStart?(item: HTMLElement, kind: SortableOperationKind): void;
   onEnd?(result: SortableResult): void;
@@ -162,6 +168,10 @@ export class SortableBehavior implements Behavior<
     if (!insertion) {
       return null;
     }
+
+    // The lift measured the item with what its row animation carries, and the
+    // animation would add that again. Only an activation ends it.
+    this.displacement?.release(drag.item);
 
     const placeholder = createPlaceholder(
       this.#window.document,

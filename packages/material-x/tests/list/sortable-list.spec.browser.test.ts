@@ -12,7 +12,6 @@ type ItemOptions = Readonly<{
   tag: ItemTag;
   handle?: boolean;
   selected?: boolean;
-  disabled?: boolean;
 }>;
 
 type Values = Readonly<Record<string, string | number>>;
@@ -76,7 +75,6 @@ async function createList({
   tag,
   handle = false,
   selected = false,
-  disabled = false,
 }: ItemOptions): Promise<readonly [HTMLElement, HTMLElement]> {
   const list = document.createElement('mx-sortable-list');
   list.style.setProperty('--_drag-duration', '0s');
@@ -92,7 +90,6 @@ async function createList({
     createPart('trail', 'text', false),
   );
   item.toggleAttribute('selected', selected);
-  item.toggleAttribute('disabled', disabled);
   if (tag === 'mx-list-link-item') {
     item.setAttribute('href', '#target');
   }
@@ -225,22 +222,26 @@ describe('mx-sortable-list reorder contract', () => {
     ]);
   });
 
-  it('should keep the look of a disabled button item lifted by its handle', async () => {
+  it('should take the disabled look of a button item that is disabled during its drag', async () => {
     const [, item] = await createList({
       tag: 'mx-list-button-item',
       handle: true,
-      disabled: true,
     });
     const read = () => ({
       ...paintedColors(item),
       shape: getComputedStyle(containerOf(item)).borderTopLeftRadius,
       opacity: getComputedStyle(partOf(item, '.label')).opacity,
     });
-    const rest = read();
+    item.toggleAttribute('disabled', true);
+    await nextFrame();
+    const atRest = read();
+    item.toggleAttribute('disabled', false);
+    await nextFrame();
 
     await lift(item);
+    item.toggleAttribute('disabled', true);
 
-    expect(read()).toEqual(rest);
+    await expect.poll(read).toEqual(atRest);
   });
 
   it.each(LIFTED_ITEMS)(

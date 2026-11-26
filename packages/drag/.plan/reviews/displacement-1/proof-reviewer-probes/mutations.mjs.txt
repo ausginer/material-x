@@ -1,0 +1,39 @@
+// Run from packages/drag. The proof's own mutations, Chromium: the suite's rows, and the proof's probe (y and xy, plain).
+import { spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync, rmSync, existsSync } from 'node:fs';
+const S = process.env.S; const OP='src/sortable/operation.ts', SINK='src/sortable/layout-animation.ts', BEH='src/sortable/behavior.ts';
+const RET = '    if (this.#rows) {\n      this.#returnPlaceholder(recovery);\n    }';
+const M = [
+ ['none'],
+ ['drop report removed', OP, /    \/\/ The axis measured what a resolution of its own moves\.[\s\S]*?\n    \}\n\n    if \(isPointer/u, '    movePlaceholder(this.#context.placeholder, this.#query.insertion);\n\n    if (isPointer'],
+ ['return report removed', OP, RET, ''],
+ ['return after every end but a fault', OP, RET, RET.replace('this.#rows', "this.#rows && !(outcome.type === 'canceled' && outcome.origin === 'fault')")],
+ ['release at activation removed', BEH, '    this.displacement?.release(drag.item);\n', ''],
+ ['preference not read', SINK, /const timing = element[\s\S]*?: this\.#timing\(\);/u, 'const timing = this.#timing();'],
+ ['after itself not counted as crossed', SINK, 'row === after || follows', 'follows'],
+ ['the last gap takes no anchor', SINK, 'follows(after ?? before!, row)', '(after !== null && follows(after, row))'],
+ ['no early return where the placeholder stands', SINK, '    if (placeholderAt(placeholder, insertion)) {\n      return;\n    }\n', ''],
+ ['the residual is not folded', SINK, '      sx += previous.dx * remaining;\n      sy += previous.dy * remaining;\n', ''],
+ ['a horizontal difference is not reported', SINK, 'if (dx !== 0 || dy !== 0)', 'if (dy !== 0)'],
+ ['the vector is not local', SINK, '!localDelta(space, sx, sy, this.#local)', 'true'],
+ ['the accepted target is the home', OP, 'recovery === RECOVERY_DESTINATION || this.#home.index < 0', 'this.#home.index < 0'],
+ ['home kept at a rebase', OP, '    this.#home = homeInsertion(next, this.#drag.item);\n', ''],
+ ['the placeholder\'s parent is not compared', OP, 'placeholder.parentNode === item.parentNode &&', 'item.isConnected &&'],
+];
+const only = process.argv[2];
+const run = (file, out, env = {}) => spawnSync('aube', ['exec','--','vitest','run','-c','vitest.config.ts','--project','browser*',file,'--reporter=json',`--outputFile=${out}`], { env: { ...process.env, MX_TEST_ENGINES: 'chromium', ...env }, encoding: 'utf8' });
+for (const [name, file, from, to] of M) {
+  if (only && !name.includes(only)) continue;
+  const src = file && readFileSync(file, 'utf8');
+  try {
+    if (file) { if (src.split(from).length !== 2) throw new Error('not one match: ' + name); writeFileSync(file, src.replace(from, () => to)); }
+    const o = `${S}/m.json`; rmSync(o, { force: true }); run('tests/displacement.browser.test.ts', o);
+    const a = existsSync(o) ? JSON.parse(readFileSync(o, 'utf8')).testResults.flatMap((f) => f.assertionResults) : [];
+    rmSync(o, { force: true }); run('tests/proof-cases.browser.test.ts', o, { VITE_SETS: '[{"axis":"y","env":"none","vis":"item"},{"axis":"xy","env":"rot","vis":"item"}]' });
+    const text = existsSync(o) ? JSON.parse(readFileSync(o, 'utf8')).testResults.map((f) => f.message).join('\n') : '';
+    const lines = text.split('\n').filter((l) => /^(ok  |JUMP) chromium/u.test(l) && !l.includes('array empty'));
+    console.log(`## ${name} | suite ${a.filter((t) => t.status === 'passed').length} passed ${a.filter((t) => t.status === 'failed').length} failed | probe ${lines.filter((l) => l.startsWith('ok')).length} ok ${lines.filter((l) => l.startsWith('JUMP')).length} jump`);
+    for (const t of a.filter((x) => x.status === 'failed').slice(0, 4)) console.log('   suite: ' + t.fullName.slice(0, 150));
+    for (const l of lines.filter((x) => x.startsWith('JUMP')).slice(0, 4)) console.log('   probe: ' + l.slice(0, 110));
+  } finally { if (file) writeFileSync(file, src); }
+}

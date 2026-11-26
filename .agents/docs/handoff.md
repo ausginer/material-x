@@ -34,7 +34,7 @@ aube exec oxlint <changed-files>
 aube exec -- eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts <changed-files>
 ```
 
-Source and tooling changes owe their applicable typechecks and tests. Use the component and visual-contract skills when the changed tests require them. Record a check failure and its scope; do not turn incomplete verification into acceptance.
+Source and tooling changes owe their applicable typechecks and tests. An implementer runs them, witnesses included, in Chromium, and doesn't wait for CI's other engines; a feature proof runs Chromium and reads the other two from CI's run, as the [rule](test-architecture.md#engines-in-development-and-in-review) says. Use the component and visual-contract skills when the changed tests require them. Record a check failure and its scope; do not turn incomplete verification into acceptance.
 
 ### Markdown
 
@@ -55,6 +55,7 @@ A finalized handoff identifies:
 - the input or reviewed revision and governing records;
 - the outcome and scope, with paths to the substantive result;
 - verification, discriminating witnesses or mutations when owed, and limits;
+- for a unit with a pull request, its head and `verify`'s state there, pending or its result. Nothing is accepted or proposed for merging until `verify` passes on its head ([rule](test-architecture.md#engines-in-development-and-in-review));
 - unresolved findings, obligations and pending acceptance;
 - one bounded next task and its recipient, or the stopping boundary.
 

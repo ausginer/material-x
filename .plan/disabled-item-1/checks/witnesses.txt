@@ -1,0 +1,177 @@
+# chromium  16:37:26 up 1 day, 21:21,  0 users,  load average: 3.50, 3.94, 3.79
+## no mutation | chromium | 193 passed, 0 failed
+## the admission's rule out | chromium | 183 passed, 10 failed
+   mx-sortable-list disabled items mx-list-button-item should propose nothing in a pointer drag by its handle
+   mx-sortable-list disabled items mx-list-button-item should propose nothing in a pointer drag without a handle
+   mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on its focused handle
+   mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on a page's control in an item without a handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing in a pointer drag by its handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing in a pointer drag without a handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on its focused handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on a page's control in an item without a handle
+   mx-sortable-list disabled items should keep focus on a span handle that has it, and move with it again once enabled
+   mx-sortable-list disabled items should keep focus on a button handle that has it, and move with it again once enabled
+## the semantics' rule out | chromium | 181 passed, 12 failed
+   mx-sortable-list disabled items mx-list-button-item should have a span handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should have a button handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should have a mx-icon-button handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-button-item should describe the control of an item without a handle only while it is enabled
+   mx-sortable-list disabled items mx-list-link-item should have a span handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should have a button handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should have a mx-icon-button handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should describe the control of an item without a handle only while it is enabled
+## no observer | chromium | 189 passed, 4 failed
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-button-item should describe the control of an item without a handle only while it is enabled
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should describe the control of an item without a handle only while it is enabled
+## the tab index removed instead of -1 | chromium | 182 passed, 11 failed
+   mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on its focused handle
+   mx-sortable-list disabled items mx-list-button-item should have a button handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should have a mx-icon-button handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on its focused handle
+   mx-sortable-list disabled items mx-list-link-item should have a button handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should have a mx-icon-button handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items should keep focus on a span handle that has it, and move with it again once enabled
+## the operation ended when its item is disabled | chromium | 190 passed, 3 failed
+   mx-sortable-list disabled items disabled in its reorder handler should be moved by an arrow key
+   mx-sortable-list disabled items disabled in its reorder handler should be moved by a drop
+   mx-sortable-list disabled items should go on with a pointer drag whose item is disabled
+## the attribute read on any item | chromium | 191 passed, 2 failed
+   mx-sortable-list disabled items should move an mx-list-item with the attribute
+   mx-sortable-list disabled items should write the semantics of an enabled handle on an mx-list-item with the attribute
+## :not(:state(disabled)) out | chromium | 192 passed, 1 failed
+   mx-sortable-list reorder contract should take the disabled look of a button item that is disabled during its drag
+## a page's value replaced | chromium | 189 passed, 4 failed
+   mx-sortable-list static item focus should keep the consumer's tabindex and description on the host
+   mx-sortable-list handle semantics should keep the values the consumer set on the handle
+   mx-sortable-list handle semantics should remove what it wrote and keep the consumer values in mx-list
+   mx-sortable-list disabled items should keep the values that the page set on a handle
+## a page's value removed on enabling | chromium | 192 passed, 1 failed
+   mx-sortable-list disabled items should keep the values that the page set on a handle
+# firefox  16:45:20 up 1 day, 21:29,  0 users,  load average: 4.34, 4.44, 3.96
+## no mutation | firefox | 183 passed, 0 failed
+## the admission's rule out | firefox | 173 passed, 10 failed
+   mx-sortable-list disabled items mx-list-button-item should propose nothing in a pointer drag by its handle
+   mx-sortable-list disabled items mx-list-button-item should propose nothing in a pointer drag without a handle
+   mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on its focused handle
+   mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on a page's control in an item without a handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing in a pointer drag by its handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing in a pointer drag without a handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on its focused handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on a page's control in an item without a handle
+   mx-sortable-list disabled items should keep focus on a span handle that has it, and move with it again once enabled
+   mx-sortable-list disabled items should keep focus on a button handle that has it, and move with it again once enabled
+## the semantics' rule out | firefox | 171 passed, 12 failed
+   mx-sortable-list disabled items mx-list-button-item should have a span handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should have a button handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should have a mx-icon-button handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-button-item should describe the control of an item without a handle only while it is enabled
+   mx-sortable-list disabled items mx-list-link-item should have a span handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should have a button handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should have a mx-icon-button handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should describe the control of an item without a handle only while it is enabled
+## no observer | firefox | 179 passed, 4 failed
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-button-item should describe the control of an item without a handle only while it is enabled
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should describe the control of an item without a handle only while it is enabled
+## the tab index removed instead of -1 | firefox | 172 passed, 11 failed
+   mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on its focused handle
+   mx-sortable-list disabled items mx-list-button-item should have a button handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should have a mx-icon-button handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on its focused handle
+   mx-sortable-list disabled items mx-list-link-item should have a button handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should have a mx-icon-button handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items should keep focus on a span handle that has it, and move with it again once enabled
+## the operation ended when its item is disabled | firefox | 180 passed, 3 failed
+   mx-sortable-list disabled items disabled in its reorder handler should be moved by an arrow key
+   mx-sortable-list disabled items disabled in its reorder handler should be moved by a drop
+   mx-sortable-list disabled items should go on with a pointer drag whose item is disabled
+## the attribute read on any item | firefox | 181 passed, 2 failed
+   mx-sortable-list disabled items should move an mx-list-item with the attribute
+   mx-sortable-list disabled items should write the semantics of an enabled handle on an mx-list-item with the attribute
+## :not(:state(disabled)) out | firefox | 182 passed, 1 failed
+   mx-sortable-list reorder contract should take the disabled look of a button item that is disabled during its drag
+## a page's value replaced | firefox | 179 passed, 4 failed
+   mx-sortable-list static item focus should keep the consumer's tabindex and description on the host
+   mx-sortable-list handle semantics should keep the values the consumer set on the handle
+   mx-sortable-list handle semantics should remove what it wrote and keep the consumer values in mx-list
+   mx-sortable-list disabled items should keep the values that the page set on a handle
+## a page's value removed on enabling | firefox | 182 passed, 1 failed
+   mx-sortable-list disabled items should keep the values that the page set on a handle
+# webkit  16:52:55 up 1 day, 21:36,  0 users,  load average: 6.06, 5.81, 4.91
+## no mutation | webkit | 193 passed, 0 failed
+## the admission's rule out | webkit | 183 passed, 10 failed
+   mx-sortable-list disabled items mx-list-button-item should propose nothing in a pointer drag by its handle
+   mx-sortable-list disabled items mx-list-button-item should propose nothing in a pointer drag without a handle
+   mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on its focused handle
+   mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on a page's control in an item without a handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing in a pointer drag by its handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing in a pointer drag without a handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on its focused handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on a page's control in an item without a handle
+   mx-sortable-list disabled items should keep focus on a span handle that has it, and move with it again once enabled
+   mx-sortable-list disabled items should keep focus on a button handle that has it, and move with it again once enabled
+## the semantics' rule out | webkit | 181 passed, 12 failed
+   mx-sortable-list disabled items mx-list-button-item should have a span handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should have a button handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should have a mx-icon-button handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-button-item should describe the control of an item without a handle only while it is enabled
+   mx-sortable-list disabled items mx-list-link-item should have a span handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should have a button handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should have a mx-icon-button handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should describe the control of an item without a handle only while it is enabled
+## no observer | webkit | 189 passed, 4 failed
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-button-item should describe the control of an item without a handle only while it is enabled
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should describe the control of an item without a handle only while it is enabled
+## the tab index removed instead of -1 | webkit | 182 passed, 11 failed
+   mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on its focused handle
+   mx-sortable-list disabled items mx-list-button-item should have a button handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should have a mx-icon-button handle that Tab skips
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on its focused handle
+   mx-sortable-list disabled items mx-list-link-item should have a button handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should have a mx-icon-button handle that Tab skips
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items should keep focus on a span handle that has it, and move with it again once enabled
+## the operation ended when its item is disabled | webkit | 190 passed, 3 failed
+   mx-sortable-list disabled items disabled in its reorder handler should be moved by an arrow key
+   mx-sortable-list disabled items disabled in its reorder handler should be moved by a drop
+   mx-sortable-list disabled items should go on with a pointer drag whose item is disabled
+## the attribute read on any item | webkit | 191 passed, 2 failed
+   mx-sortable-list disabled items should move an mx-list-item with the attribute
+   mx-sortable-list disabled items should write the semantics of an enabled handle on an mx-list-item with the attribute
+## :not(:state(disabled)) out | webkit | 192 passed, 1 failed
+   mx-sortable-list reorder contract should take the disabled look of a button item that is disabled during its drag
+## a page's value replaced | webkit | 189 passed, 4 failed
+   mx-sortable-list static item focus should keep the consumer's tabindex and description on the host
+   mx-sortable-list handle semantics should keep the values the consumer set on the handle
+   mx-sortable-list handle semantics should remove what it wrote and keep the consumer values in mx-list
+   mx-sortable-list disabled items should keep the values that the page set on a handle
+## a page's value removed on enabling | webkit | 192 passed, 1 failed
+   mx-sortable-list disabled items should keep the values that the page set on a handle

@@ -37,6 +37,7 @@ import { LinearShift } from './linear-shift.ts';
 import { CENTER_Y, PLACEHOLDER, RectIndex, TOP } from './rect-index.ts';
 
 class YAxisGeometry implements InsertionGeometry {
+  readonly isLinear = true;
   readonly #index = new RectIndex(TOP);
   readonly #shift = new LinearShift(this.#index);
 

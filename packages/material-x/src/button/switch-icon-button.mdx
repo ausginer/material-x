@@ -21,7 +21,7 @@ export const summary = declaration?.summary?.trim();
 export const importSnippet =
   "import '@ydinjs/material-x/button/switch-icon-button.js';";
 export const usageSnippet =
-  '<mx-switch-icon-button checked><mx-icon>wifi</mx-icon></mx-switch-icon-button>';
+  '<mx-switch-icon-button checked aria-label="Wi-Fi"><mx-icon>wifi</mx-icon></mx-switch-icon-button>';
 
 <Meta of={Stories} />
 
@@ -108,7 +108,7 @@ field.addEventListener('change', () => {
 
 ## Accessibility
 
-- **Name:** Add `aria-label` because visible text labels are absent.
+- **Name:** Always set `aria-label`. The icon's content isn't part of the name, so without it the switch has no name.
 - **Semantics:** Uses an internal native `<button>` with the `switch` role. Its `aria-checked` follows `checked`, unless the host has an `aria-checked`, which comes first.
 - **Controlled:** Activation fires `click`, then `input`, then `change`, and changes no state. Set `checked` in a `change` handler to toggle the switch.
 - **Keyboard:** `Tab` reaches the switch, and `Space` or `Enter` activates it.

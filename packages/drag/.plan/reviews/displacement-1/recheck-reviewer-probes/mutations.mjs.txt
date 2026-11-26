@@ -1,0 +1,50 @@
+// Recheck of #265 r4: applies each mutation, runs a file in the source project, restores the source.
+// Run from packages/drag: node mut.mjs <engine> <names separated by ;|all> <test file>
+// For a row file it prints the rows that fail; for a probe (tests/proof-*) the JUMP lines.
+import { spawnSync } from 'node:child_process';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+const OP = 'src/sortable/operation.ts';
+const SINK = 'src/sortable/layout-animation.ts';
+const NEW = [
+  ['no mutation'],
+  // The implementer's four, as in .plan/displacement-1/probes/mutate.mjs
+  ['the rows not read from the gap', SINK, 'if (request) {', 'if (!placeholder) {'],
+  ['the rows read from the gap of an operation that has not dropped', OP, 'this.#relocate(target, this.#request);',
+    'this.#relocate(target, this.#request ?? ({ item, previous: this.#query.insertion.before, next: this.#query.insertion.after } as ReorderRequest));'],
+  ['the gap restored wherever the item stands', SINK, '(beside === item ? item[side] : beside) !== placeholder', 'beside !== placeholder'],
+  ["a lost anchor of the drop's gap not checked", SINK, 'anchor?.parentNode === placeholder.parentNode &&', 'anchor &&'],
+  // The reviewer's own
+  ["own: the drop's gap anchored on its next row alone", SINK, 'const anchor = next ?? previous;', 'const anchor = next;'],
+  ['own: the gap restored only in a return home', OP, 'this.#relocate(target, this.#request);', 'this.#relocate(target, recovery === RECOVERY_DESTINATION ? null : this.#request);'],
+  ['own: the gap restored only for an accepted item', OP, 'this.#relocate(target, this.#request);', 'this.#relocate(target, recovery === RECOVERY_DESTINATION ? this.#request : null);'],
+  ['own: the gap restored on the far side of its anchor', SINK, 'before: previous,\n          after: next,', 'before: next,\n          after: previous,'],
+];
+const [engine, names, file] = process.argv.slice(2);
+const source = Object.fromEntries([OP, SINK].map((f) => [f, readFileSync(f, 'utf8')]));
+const restore = () => { for (const [f, t] of Object.entries(source)) writeFileSync(f, t); };
+const out = `${process.env.Q}/mut-${process.pid}.json`;
+try {
+  for (const [name, f, from, to] of NEW) {
+    if (names !== 'all' && !names.split(';').includes(name)) continue;
+    if (f) {
+      if (source[f].split(from).length !== 2) throw new Error(`not one match: ${name}`);
+      writeFileSync(f, source[f].replace(from, () => to));
+    }
+    const r = spawnSync('aube', ['exec', '--', 'vitest', 'run', '-c', 'vitest.config.ts', '--project', 'browser*', file, ...(file.includes('/proof-') ? [] : ['--reporter=json', `--outputFile=${out}`])],
+      { env: { ...process.env, MX_TEST_ENGINES: engine }, encoding: 'utf8', timeout: 900_000 });
+    restore();
+    const json = existsSync(out) ? JSON.parse(readFileSync(out, 'utf8')) : null;
+    rmSync(out, { force: true });
+    if (file.includes('/proof-')) {
+      const text = (r.stdout ?? '') + (r.stderr ?? '');
+      const m = /^PROOF\n([\s\S]*?)\nEND/mu.exec(text);
+      const lines = m ? m[1].split('\n') : [];
+      const jumps = lines.filter((l) => l.startsWith('JUMP'));
+      console.log(`## ${name} | ${engine} | ${file} | ${lines.filter((l) => l.startsWith('ok')).length} ok, ${jumps.length} JUMP`);
+      for (const l of jumps) console.log(`   ${l.replace(/\s+$/u, '')}`);
+    } else {
+      console.log(`## ${name} | ${engine} | ${file} | ${json?.numTotalTests ? `${json.numPassedTests} passed, ${json.numFailedTests} failed` : 'no result'}`);
+      for (const t of json?.testResults.flatMap((x) => x.assertionResults) ?? []) if (t.status === 'failed') console.log(`   ${t.fullName}`);
+    }
+  }
+} finally { restore(); }

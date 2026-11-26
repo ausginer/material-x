@@ -5,6 +5,7 @@ import '../../src/button-group/connected-button-group.ts';
 import '../../src/button/button.ts';
 import '../../src/button/switch-button.ts';
 import { contextResolved, nextFrame } from '../browser.ts';
+import { focusFirst } from '../focus-indicator.ts';
 
 const SIZE_STATE_CASES = [
   { attribute: 'xsmall' },
@@ -356,6 +357,70 @@ describe('mx-connected-button-group roving tabindex', () => {
     await userEvent.keyboard('{End}');
 
     expect(third!.tabIndex).toBe(0);
+  });
+});
+
+describe('mx-connected-button-group with members that cannot take focus', () => {
+  /** The member that Tab reaches. */
+  async function tabInto(group: HTMLElement): Promise<Element | null> {
+    await focusFirst(group);
+
+    return document.activeElement;
+  }
+
+  it.each(['hidden', 'disabled'] as const)(
+    'should be entered at the second member when the first is %s',
+    async (attribute) => {
+      const group = createConnected(['one', 'two', 'three']);
+      await nextFrame();
+
+      (group.children[0] as HTMLElement).toggleAttribute(attribute, true);
+      await nextFrame();
+
+      expect(await tabInto(group)).toBe(group.children[1]);
+    },
+  );
+
+  it('should be entered at the second member when the first is hidden while an ancestor is hidden', async () => {
+    const ancestor = document.createElement('div');
+    document.body.append(ancestor);
+    const group = createConnected(['one', 'two', 'three']);
+    ancestor.append(group);
+    await nextFrame();
+    const members = [...group.children] as HTMLElement[];
+
+    ancestor.hidden = true;
+    await nextFrame();
+    members[0]!.hidden = true;
+    await nextFrame();
+    ancestor.hidden = false;
+    await nextFrame();
+    const ends = members.map((member) => [
+      member.hasAttribute('data-first'),
+      member.hasAttribute('data-last'),
+    ]);
+
+    expect([await tabInto(group), ends]).toEqual([
+      members[1],
+      [
+        [false, false],
+        [true, false],
+        [false, true],
+      ],
+    ]);
+  });
+
+  it('should move past a hidden member with an arrow key', async () => {
+    const group = createConnected(['one', 'two', 'three']);
+    await nextFrame();
+    const [first, second, third] = [...group.children] as HTMLElement[];
+    second!.hidden = true;
+    await nextFrame();
+
+    first!.focus();
+    await userEvent.keyboard('{ArrowRight}');
+
+    expect(document.activeElement).toBe(third);
   });
 });
 

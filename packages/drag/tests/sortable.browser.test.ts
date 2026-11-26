@@ -876,7 +876,9 @@ describe('sortable options', () => {
 
     basicSortable(list, {
       axis: xy(),
-      displacement: layoutAnimation({ duration: 3000 }),
+      displacement: layoutAnimation({
+        timing: () => ({ duration: 3000, easing: 'ease-out' }),
+      }),
     });
 
     const start = centerOf('#r0');
@@ -897,7 +899,9 @@ describe('sortable options', () => {
   it('should keep a row animation past the terminal, until destruction', async () => {
     const list = makeList(4);
     const controller = basicSortable(list, {
-      displacement: layoutAnimation({ duration: 3000 }),
+      displacement: layoutAnimation({
+        timing: () => ({ duration: 3000, easing: 'ease-out' }),
+      }),
     });
     const start = await press('#r0');
 

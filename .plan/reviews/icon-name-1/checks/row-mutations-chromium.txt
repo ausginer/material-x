@@ -1,0 +1,36 @@
+## no mutation | chromium | 0 failed, 80 passed
+## the value is false | chromium | 20 failed, 60 passed
+   mx-split-button accessibility tree should expose no name of the trailing button without a label
+   mx-split-button accessibility tree should expose no text of the icon
+   mx-icon should hide its slot
+   mx-icon accessibility tree should leave the name of mx-button as its label alone
+   mx-icon accessibility tree should leave the name of mx-link-button as its label alone
+   mx-icon accessibility tree should leave the name of mx-switch-button as its label alone
+   mx-icon accessibility tree should leave the name of extended mx-fab as its label alone
+   mx-icon accessibility tree should leave the name of mx-list-button-item as its label alone
+   mx-icon accessibility tree should leave the name of mx-list-link-item as its label alone
+   mx-icon accessibility tree should leave the name of mx-text-field as its label alone
+   mx-icon accessibility tree should leave the name of mx-split-button's leading button as its label alone
+   mx-icon accessibility tree mx-icon-button with the icon alone should take its name from its aria-label
+   mx-icon accessibility tree mx-icon-button with the icon alone should have no name without an aria-label
+   mx-icon accessibility tree mx-switch-icon-button with the icon alone should take its name from its aria-label
+   mx-icon accessibility tree mx-switch-icon-button with the icon alone should have no name without an aria-label
+   mx-icon accessibility tree mx-fab with the icon alone should take its name from its aria-label
+   mx-icon accessibility tree mx-fab with the icon alone should have no name without an aria-label
+   mx-icon accessibility tree should name a control by the label of a named icon
+   mx-icon accessibility tree should expose no text alone
+   mx-icon accessibility tree should expose no text in a static list item
+## at the connect | chromium | 1 failed, 79 passed
+   mx-icon should hide its slot
+## by the reflected property | chromium | 0 failed, 80 passed
+## display: block | chromium | 1 failed, 79 passed
+   mx-icon should give its slot a box
+## display: inline-block | chromium | 1 failed, 79 passed
+   mx-icon should give its slot a box
+## display: contents | chromium | 1 failed, 79 passed
+   mx-icon should give its slot a box
+## display: none | chromium | 1 failed, 79 passed
+   mx-icon should give its slot a box
+## the slot in a span of display: contents, hidden by the constructor | chromium | 1 failed, 79 passed
+   mx-icon should hide its slot
+## the split button's icon hidden again | chromium | 0 failed, 80 passed

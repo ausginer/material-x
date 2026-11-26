@@ -1,0 +1,13 @@
+#!/bin/bash
+# eng.sh <engine>: witnesses (with the rows unmutated first), the proof's readings on the head, then the cost in two series.
+G=/tmp/claude-1000/-workspaces-worktrees-b/e64c54e5-c6df-4cae-91a9-3ec47d1d631e/scratchpad/g2
+e=${1:?}
+cd /workspaces/worktrees/g
+node $G/wit.mjs $e $G/wit-$e.json > $G/wit-$e.txt 2>&1
+cd packages/material-x
+for p in unrendered late; do MX_TEST_ENGINES=$e NO_COLOR=1 timeout 600 aube exec -- vitest run -c vitest.config.ts tests/button-group/proof-$p.browser.test.ts > $G/$p-$e 2>&1
+  sed -n '/PROOF/,/END/p' $G/$p-$e | awk '/^PROOF/{n++} n>=1' | grep -E "^(chromium|firefox|webkit) " | awk '!s[$0]++' > $G/$p-$e.u; done
+cd /workspaces/worktrees/g
+{ echo "## series 1, head first"; S=$G E=$e ORDER="head main" $G/cost.sh; echo "## series 2, main first"; S=$G E=$e ORDER="main head" $G/cost.sh; } > $G/cost-$e.txt 2>&1
+git status --short
+echo done $e

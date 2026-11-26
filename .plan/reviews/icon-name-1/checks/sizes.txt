@@ -1,0 +1,37 @@
+# just size-reading, Brotli, one reading each. base: 6083534cf with ee0afea12's icon.ts, icon.ctr.css, icon.tpl.html and split-button.tpl.html; head: 6083534cf
+box-quad index                             1182   1182  limit 1182
+core element                                277    277  limit 340
+core emitter                                198    198  limit 210
+material-x button/button                   4936   4936  limit null
+material-x button/icon-button              5208   5208  limit null
+material-x button/link-button              4911   4911  limit null
+material-x button/switch-button            5537   5537  limit null
+material-x button/switch-icon-button       5962   5962  limit null
+material-x button/split-button             7766   7764  limit null
+material-x button-group/button-group       3097   3097  limit null
+material-x button-group/connected-button-group   4042   4042  limit null
+material-x card/card                       1354   1354  limit null
+material-x checkbox/checkbox               4290   4313  limit null
+material-x fab/fab                         4206   4206  limit null
+material-x icon/icon                        667    707  limit null
+material-x list/list                        625    625  limit null
+material-x list/list-item                  2803   2803  limit null
+material-x list/list-button-item           4968   4968  limit null
+material-x list/list-link-item             5146   5146  limit null
+material-x list/sortable-list              9117   9117  limit null
+material-x radio/radio                     3841   3866  limit null
+material-x slider/slider                   4037   4037  limit null
+material-x text-field/multiline-text-field   4559   4559  limit null
+material-x text-field/text-field           8618   8615  limit null
+material-x top-app-bar/top-app-bar         1391   1391  limit null
+material-x complete                       25924  25952  limit null
+drag draggable alone                       2189   2189  limit 2189
+drag draggable + lift                      3932   3932  limit 3932
+drag example: resize handle                3265   3265  limit 3265
+drag example: drop zone                    4570   4570  limit 4570
+drag example: canvas group                 3261   3261  limit 3261
+drag freeDrag                              4984   4984  limit 4984
+drag freeDrag + bounds + landing           5465   5465  limit 5465
+drag sortable + y                          6538   6538  limit 6538
+drag sortable + xy                         6506   6506  limit 6506
+drag complete                              7156   7156  limit 7156

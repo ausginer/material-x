@@ -1,0 +1,272 @@
+// Feature proof of #265 r3: the first frames of each case, with row animations of an hour, so that
+// any change of a row's drawn center from one frame to the next is a jump. Prints one line a case.
+import { afterAll, describe, it } from 'vitest';
+import { landing } from '../src/sortable/landing.ts';
+import { layoutAnimation } from '../src/sortable/layout-animation.ts';
+import { xy } from '../src/sortable/xy.ts';
+import { y } from '../src/sortable/y.ts';
+import { ReorderResolution, sortable, type SortableController } from '../src/sortable.ts';
+import { commands, engine, faultMessages, frames, onCleanup, wait } from './support/harness.ts';
+
+const OUT: string[] = [];
+afterAll(() => { throw new Error(`\nPROOF\n${OUT.join('\n')}\nEND`); });
+const HOUR = 3_600_000;
+type Env = 'none' | 'scale' | 'rot' | 'zoom' | 'scroll';
+type Vis = 'item' | 'child' | 'shell' | 'shellbox';
+type Axis = 'y' | 'xy';
+type Opt = { axis: Axis; env: Env; vis: Vis; land: boolean; css?: string; rowCss?: string };
+let log: string[] = [];
+let list: HTMLElement;
+let controller: SortableController;
+const R = (): HTMLElement[] => [...list.children].filter((e) => !e.hasAttribute('data-drag-placeholder')) as HTMLElement[];
+const $ = (id: string): HTMLElement => document.querySelector<HTMLElement>(`#${id}`)!;
+const c = (e: Element): [number, number] => { const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+const rowAnims = (): Animation[] => [...list.children].flatMap((e) => e.getAnimations()).filter((a) => a.effect!.getTiming().duration === HOUR);
+const finish = (): void => { for (const a of rowAnims()) a.finish(); };
+const half = (): void => { for (const a of rowAnims()) a.currentTime = HOUR / 2; };
+const order = (): string => R().map((r) => r.id).join('');
+
+const PH = document.createElement('style'); document.head.append(PH);
+function build(o: Opt, config: any = {}): void {
+  PH.textContent = o.rowCss?.includes('/*ph*/') ? '[data-drag-placeholder]{margin-bottom:8px}' : '';
+  log = [];
+  const outer = document.createElement('div');
+  outer.style.cssText = `position:absolute;top:30px;left:60px;transform-origin:0 0;${
+    o.env === 'scale' ? 'transform:scale(.75,1.25);' : o.env === 'rot' ? 'transform:rotate(15deg) scale(.8);' : o.env === 'zoom' ? 'zoom:1.5;' : ''}`;
+  list = document.createElement('div');
+  list.id = 'list';
+  list.style.cssText = o.axis === 'xy' ? 'display:flex;flex-wrap:wrap;width:220px;align-content:flex-start;' : 'width:120px;';
+  list.style.cssText += o.css ?? '';
+  for (let i = 0; i < 6; i += 1) {
+    const r = document.createElement('div');
+    r.id = `r${i}`; r.tabIndex = 0;
+    r.style.cssText = `touch-action:none;user-select:none;box-sizing:border-box;${o.rowCss ?? ''}`;
+    const w = o.axis === 'xy' ? [60, 90, 70, 60, 80, 50][i] : 100;
+    const h = o.axis === 'xy' ? 40 : [40, 60, 30, 50, 40, 36][i];
+    if (o.vis === 'item') { r.style.width = `${w}px`; r.style.height = `${h}px`; }
+    else { const k = document.createElement('div'); k.className = 'k'; k.style.cssText = `width:${w}px;height:${h}px`; r.append(k); if (o.vis !== 'child') r.style.padding = '6px'; }
+    list.append(r);
+  }
+  outer.append(list); document.body.append(outer);
+  controller = sortable(list, {
+    items: () => R(),
+    axis: o.axis === 'xy' ? xy() : y(),
+    displacement: layoutAnimation({ timing: () => ({ duration: HOUR, easing: 'linear' }) }),
+    ...(o.land ? { landing: landing({ duration: 80 }) } : {}),
+    ...(o.vis === 'item' ? {} : { visual: (i: HTMLElement) => i.firstElementChild as HTMLElement }),
+    ...(o.vis === 'shellbox' ? { box: (i: HTMLElement) => i } : {}),
+    onStart() { log.push('start'); },
+    onReorder({ item, next }) { list.insertBefore(item, next); return ReorderResolution.accept(); },
+    onEnd(r: any) { log.push(r.type); },
+    ...config,
+  } as any);
+  onCleanup(() => controller.requestDestroy());
+}
+
+/** Samples each frame. `jump` is the greatest change of a row between two samples. */
+function trace(item: HTMLElement, withShell = false) {
+  const rows = R().filter((r) => r !== item);
+  const start = new Map(rows.map((r) => [r, c(r)]));
+  let last = new Map(start); let shell = c(item); let shellJump = 0;
+  let jump = 0; let at = ''; let n = 0; let live = true;
+  const sample = (): void => {
+    n += 1;
+    for (const r of rows) {
+      if (!r.isConnected) continue;
+      const p = c(r); const q = last.get(r)!; const d = Math.hypot(p[0] - q[0], p[1] - q[1]);
+      if (d > jump) { jump = d; at = `${r.id}@${n}`; }
+      last.set(r, p);
+    }
+    const s = c(item); shellJump = Math.max(shellJump, Math.hypot(s[0] - shell[0], s[1] - shell[1])); shell = s;
+  };
+  const step = (): void => { if (live) { sample(); requestAnimationFrame(step); } };
+  requestAnimationFrame(step);
+  return {
+    rebase(): void { last = new Map(rows.map((r) => [r, c(r)])); },
+    stop(tag: string): void {
+      sample(); live = false;
+      const left = rowAnims().length;
+      finish();
+      const moved = Math.max(...rows.filter((r) => r.isConnected).map((r) => { const a = start.get(r)!; const b = c(r); return Math.hypot(a[0] - b[0], a[1] - b[1]); }));
+      OUT.push(`${jump < 1 ? 'ok  ' : 'JUMP'} ${engine} ${tag} | jump ${jump.toFixed(2)} ${jump < 1 ? '' : at} | moved ${moved.toFixed(1)} | anims ${left} | ${order()} | ${log.join()} | ${faultMessages().join(';')}${withShell ? ` | shell ${shellJump.toFixed(1)}` : ''}${list.querySelector('[data-drag-placeholder]') ? ' | PLACEHOLDER LEFT' : ''}`);
+    },
+  };
+}
+const key = async (id: string, k: string): Promise<void> => { $(id).focus(); await commands.keyPress(k); };
+async function hold(id: string, to: string, rest = true): Promise<void> {
+  const [sx, sy] = c($(id)); const [tx, ty] = c($(to));
+  await commands.pointerMove(sx, sy); await commands.pointerDown();
+  await commands.pointerMove(sx + 6, sy + 6, 2); await frames();
+  await commands.pointerMove(tx + 3, ty + 3, 3); await frames(3);
+  if (rest) finish();
+}
+const defer = () => { const { promise, resolve, reject } = Promise.withResolvers<any>(); return { fn: () => promise, resolve, reject }; };
+const A = () => ReorderResolution.accept(); const X = () => ReorderResolution.reject();
+const before: any = ({ item, next }: any) => { list.insertBefore(item, next); return A(); };
+const after: any = ({ item, previous }: any) => { if (previous) previous.after(item); else list.prepend(item); return A(); };
+const neighbors: any = ({ item, from, to }: any) => { const r = R(); if (to > from) for (const m of r.slice(from + 1, to + 1)) item.before(m); else item.after(...r.slice(to, from)); return A(); };
+const toEnd: any = ({ item }: any) => { list.append(item); return A(); };
+
+
+const say = (s: string): void => { OUT.push(engine + ' ' + s); };
+const NEW: boolean = true;
+const opts = (d: number, easing: string): any => (NEW ? { timing: () => ({ duration: d, easing }) } : { duration: d, easing });
+const base = (axis: Axis, land = false): Opt => ({ axis, env: 'none', vis: 'item', land });
+
+// ---- 7: what is read and copied
+function counted(): { items(): HTMLElement[]; pulls: () => number; reads: () => number } {
+  let pulls = 0; let reads = 0;
+  return { pulls: () => pulls, reads: () => reads, items: () => { pulls += 1; return new Proxy(R(), { get(target, p, r) { if (p === 'length' || /^[0-9]+$/u.test(String(p)) || typeof target[p as any] === 'function') reads += 1; return Reflect.get(target, p, r); } }); } };
+}
+const P0: any = Element.prototype; const H0: any = HTMLElement.prototype;
+async function census(f: () => Promise<unknown>): Promise<string> {
+  const n = { rect: 0, offset: 0, style: 0, mm: 0, cmp: 0, anim: 0 };
+  const g = P0.getBoundingClientRect; const cs = window.getComputedStyle; const mm = window.matchMedia; const cmp = Node.prototype.compareDocumentPosition; const an = P0.animate;
+  const oh = Object.getOwnPropertyDescriptor(H0, 'offsetHeight')!; const ow = Object.getOwnPropertyDescriptor(H0, 'offsetWidth')!;
+  P0.getBoundingClientRect = function (this: Element) { n.rect += 1; return g.call(this); };
+  window.getComputedStyle = ((...a: any[]) => { n.style += 1; return (cs as any).apply(window, a); }) as any;
+  window.matchMedia = ((q: string) => { n.mm += 1; return mm.call(window, q); }) as any;
+  Node.prototype.compareDocumentPosition = function (this: Node, o: Node) { n.cmp += 1; return cmp.call(this, o); };
+  P0.animate = function (this: Element, ...a: any[]) { n.anim += 1; return an.apply(this, a); };
+  Object.defineProperty(H0, 'offsetHeight', { ...oh, get() { n.offset += 1; return oh.get!.call(this); } });
+  Object.defineProperty(H0, 'offsetWidth', { ...ow, get() { n.offset += 1; return ow.get!.call(this); } });
+  try { await f(); await frames(3); } finally {
+    P0.getBoundingClientRect = g; window.getComputedStyle = cs; window.matchMedia = mm; Node.prototype.compareDocumentPosition = cmp; P0.animate = an;
+    Object.defineProperty(H0, 'offsetHeight', oh); Object.defineProperty(H0, 'offsetWidth', ow);
+  }
+  return JSON.stringify(n);
+}
+describe('7', () => {
+  for (const axis of ['y', 'xy'] as const) for (const land of [false, true]) for (const disp of [false, true]) {
+    const tag = '7 ' + axis + (land ? ' landing' : '') + (disp ? ' DISP' : '');
+    const mk = (cfg: any = {}): ReturnType<typeof counted> => { const k = counted(); build(base(axis, land), { items: k.items, ...(disp ? {} : { displacement: undefined }), ...cfg }); return k; };
+    it(tag + ' key', async () => { const k = mk(); $('r1').focus(); const s = await census(() => commands.keyPress('ArrowDown')); say(tag + ' key ' + s + ' pulls ' + k.pulls() + ' reads ' + k.reads()); });
+    it(tag + ' key rejected later', async () => { const d = defer(); const k = mk({ onReorder: d.fn }); await key('r1', 'ArrowDown'); await frames(2); const p = k.pulls(); const r = k.reads(); const s = await census(async () => { d.resolve(X()); await wait(30); }); say(tag + ' reject after the drop ' + s + ' pulls ' + (k.pulls() - p) + ' reads ' + (k.reads() - r)); });
+    it(tag + ' key never committed', async () => { const d = defer(); const k = mk({ onReorder: d.fn }); await key('r1', 'ArrowDown'); await frames(2); const p = k.pulls(); const r = k.reads(); const s = await census(async () => { d.resolve(A()); await wait(30); }); say(tag + ' accept, no commit, after the drop ' + s + ' pulls ' + (k.pulls() - p) + ' reads ' + (k.reads() - r)); });
+    it(tag + ' drop', async () => { const k = mk(); await hold('r0', 'r3'); await frames(2); const s = await census(() => commands.pointerUp()); say(tag + ' drop ' + s); });
+    it(tag + ' Escape', async () => { const k = mk(); await hold('r0', 'r3'); await frames(2); const p = k.pulls(); const r = k.reads(); const s = await census(() => commands.keyPress('Escape')); say(tag + ' Escape ' + s + ' pulls ' + (k.pulls() - p) + ' reads ' + (k.reads() - r)); });
+    it(tag + ' drop, reject later', async () => { const d = defer(); const k = mk({ onReorder: d.fn }); await hold('r0', 'r3'); await commands.pointerUp(); await frames(2); finish(); const p = k.pulls(); const r = k.reads(); const s = await census(async () => { d.resolve(X()); await wait(30); }); say(tag + ' drop, reject after ' + s + ' pulls ' + (k.pulls() - p) + ' reads ' + (k.reads() - r)); });
+    it(tag + ' hold', async () => { const k = mk(); const s = await census(async () => { await hold('r0', 'r3'); }); say(tag + ' hold(ROUGH) reads ' + k.reads()); });
+  }
+});
+
+// ---- natural timing: no frame draws a row further from its end than the frame before, and no step beats the speed
+const DUR = 500;
+async function natural(tag: string, axis: Axis, cfg: any, prep: () => Promise<void>, act: () => unknown, easing = 'linear', id = 'r1', land = false): Promise<void> {
+  build(base(axis, land), { displacement: layoutAnimation(opts(DUR, easing)), ...cfg });
+  await prep();
+  const rows = R().filter((r) => r.id !== id); const samples: [number, Map<HTMLElement, [number, number]>][] = []; let live = true;
+  const step = (): void => { if (live) { samples.push([performance.now(), new Map(rows.map((r) => [r, c(r)]))]); requestAnimationFrame(step); } };
+  samples.push([performance.now(), new Map(rows.map((r) => [r, c(r)]))]);
+  requestAnimationFrame(step);
+  const mark = (e: KeyboardEvent): void => { if (e.key === 'Escape') { samples.length = 0; samples.push([performance.now(), new Map(rows.map((r) => [r, c(r)]))]); } }; addEventListener('keydown', mark, { capture: true, once: true });
+  await act(); await wait(DUR + 300); live = false; removeEventListener('keydown', mark, { capture: true });
+  let back = 0; let fast = 0; let moved = 0;
+  for (const r of rows) {
+    const end = c(r); let last = Infinity; let prev = samples[0]!;
+    for (const s of samples) { const p = s[1].get(r)!; const dd = Math.hypot(p[0] - end[0], p[1] - end[1]); moved = Math.max(moved, dd); if (dd > last + 0.05) back = Math.max(back, dd - last); last = dd;
+      const q = prev[1].get(r)!; const stepd = Math.hypot(p[0] - q[0], p[1] - q[1]); const dt = s[0] - prev[0]; fast = Math.max(fast, stepd - (dt + 34) * 0.5); prev = s; }
+  }
+  const left = [...list.children].flatMap((e) => e.getAnimations()).length;
+  say((back < 1 && fast < 1 ? 'ok   ' : 'JUMP ') + tag + ' frames ' + samples.length + ' moved ' + moved.toFixed(1) + ' back ' + back.toFixed(2) + ' over speed ' + fast.toFixed(1) + ' left ' + left + ' ' + order() + ' ' + log.join());
+}
+describe('natural', () => {
+  for (const axis of ['y', 'xy'] as const) for (const easing of ['linear', 'ease-out']) {
+    const t = (n: string): string => 'natural ' + axis + ' ' + easing + ' ' + n;
+    const none = async (): Promise<void> => {};
+    it(t('key'), () => natural(t('key'), axis, {}, none, () => key('r1', 'ArrowDown'), easing));
+    it(t('key key'), () => natural(t('key key'), axis, {}, none, async () => { await key('r1', 'ArrowDown'); await wait(120); await key('r1', 'ArrowDown'); }, easing));
+    it(t('reject mid'), () => { const d = defer(); return natural(t('reject mid'), axis, { onReorder: d.fn }, async () => { await key('r1', 'ArrowDown'); await wait(200); }, () => d.resolve(X()), easing); });
+    it(t('Escape mid'), () => natural(t('Escape mid'), axis, {}, async () => { await hold('r1', 'r4', false); await wait(80); }, () => commands.keyPress('Escape'), easing));
+    it(t('Escape landing'), () => natural(t('Escape landing'), axis, {}, async () => { await hold('r1', 'r4', false); await wait(700); }, () => commands.keyPress('Escape'), easing, 'r1', true));
+    it(t('reject at once'), () => natural(t('reject at once'), axis, { onReorder: X }, none, () => key('r1', 'ArrowDown'), easing));
+  }
+});
+
+// ---- timing
+describe.runIf(NEW)('timing', () => {
+  for (const axis of ['y', 'xy'] as const) for (const at of [1, 2]) {
+    if (axis === 'y' && at === 2) continue;
+    it('timing throws once ' + axis + at, async () => {
+      let n = 0;
+      build(base(axis), { displacement: layoutAnimation({ timing: () => { n += 1; if (n === at) throw new Error('once'); return { duration: HOUR, easing: 'linear' }; } }) });
+      const t = trace($('r3'), false); await key('r3', 'ArrowUp'); await frames(4); t.stop('timing throws at call ' + at + ' ' + axis);
+    });
+    it('timing throws on the return ' + axis + at, async () => {
+      let on = false; let n = 0; const d = defer();
+      build(base(axis), { onReorder: d.fn, displacement: layoutAnimation({ timing: () => { if (on) { n += 1; if (n === at) throw new Error('return'); } return { duration: HOUR, easing: 'linear' }; } }) });
+      await key('r3', 'ArrowUp'); await frames(2); finish(); on = true;
+      const t = trace($('r3'), false); d.resolve(X()); await frames(4); t.stop('timing throws in a return, call ' + at + ' ' + axis);
+    });
+  }
+  it('arguments and this', async () => {
+    const seen: string[] = []; const o = { duration: 5, timing(this: any, ...a: any[]) { seen.push(a.length + ':' + (this === undefined ? 'undefined' : this === o ? 'options' : this.constructor?.name)); return { duration: 10, easing: 'linear' }; } };
+    build(base('y'), { displacement: layoutAnimation(o as any) }); await key('r1', 'ArrowDown'); await wait(100);
+    say('timing called with ' + seen.join(' '));
+  });
+  it('destroy in timing', async () => {
+    build(base('xy'), { displacement: layoutAnimation({ timing: () => { controller.requestDestroy(); return { duration: HOUR, easing: 'linear' }; } }) });
+    await key('r3', 'ArrowUp'); await frames(3);
+    say('destroy in timing: row animations left ' + rowAnims().length + ' placeholder ' + !!list.querySelector('[data-drag-placeholder]') + ' ' + faultMessages());
+  });
+  it('destroy while pending', async () => {
+    const d = defer(); build(base('xy'), { onReorder: d.fn }); await key('r3', 'ArrowUp'); await frames(2); const n = rowAnims().length; controller.requestDestroy(); await frames(2);
+    say('destroy while pending: animations ' + n + ' then ' + rowAnims().length + ' placeholder ' + !!list.querySelector('[data-drag-placeholder]') + ' ' + log.join());
+  });
+  it('a late requestDestroy ends what outlived the operation', async () => {
+    build(base('y')); await key('r1', 'ArrowDown'); await wait(80); const n = rowAnims().length; controller.requestDestroy(); say('destroy after the end: animations ' + n + ' then ' + rowAnims().length);
+  });
+});
+
+// ---- 5: reduced motion
+describe.runIf(NEW)('reduced', () => {
+  for (const axis of ['y', 'xy'] as const) {
+    it('return under the preference ' + axis, async () => {
+      onCleanup(() => commands.emulateReducedMotion(false));
+      build(base(axis)); await hold('r0', 'r3', false); const n = rowAnims().length; await commands.emulateReducedMotion(true); const kept = rowAnims().length;
+      await commands.keyPress('Escape'); await frames(2);
+      say('reduced: Escape ' + axis + ' animations ' + n + ', kept by the change itself ' + kept + ', after the return ' + rowAnims().length + ' ' + log.join());
+    });
+    it('flick under the preference ' + axis, async () => {
+      onCleanup(() => commands.emulateReducedMotion(false)); await commands.emulateReducedMotion(true);
+      let calls = 0; build(base(axis), { displacement: layoutAnimation({ timing: () => { calls += 1; return { duration: HOUR, easing: 'linear' }; } }) });
+      await hold('r0', 'r3', false); await commands.pointerUp(); await frames(2);
+      const d = rowAnims().length; await commands.emulateReducedMotion(false); await key('r0', 'ArrowUp'); await frames(2);
+      say('reduced: drag ' + axis + ' animations ' + d + ' timing calls before ' + (calls - rowAnims().length) + ', after the preference is gone ' + rowAnims().length);
+    });
+  }
+});
+
+// ---- scroll
+describe('scroll', () => {
+  for (const kind of ['page', 'box'] as const) for (const which of ['key', 'escape', 'reject'] as const) for (const disp of [true, false]) it('scroll ' + kind + which + disp, async () => {
+    const d = defer();
+    build(base('y'), { ...(disp ? {} : { displacement: undefined }), ...(which === 'reject' ? { onReorder: d.fn } : {}) });
+    const outer = list.parentElement!; outer.style.position = 'static';
+    const pre = document.createElement('div'); pre.style.height = '300px'; list.before(pre);
+    const post = document.createElement('div'); post.style.height = '3000px'; list.after(post);
+    let sc: Element = document.scrollingElement!;
+    if (kind === 'box') { outer.style.cssText += 'height:300px;overflow:auto;'; sc = outer; }
+    sc.scrollTop = 345; await frames(3); // r1 is at the top edge
+    onCleanup(() => scrollTo(0, 0));
+    const s0 = sc.scrollTop;
+    if (which === 'reject') { await key('r1', 'ArrowDown'); await frames(4); finish(); await frames(3); }
+    if (which === 'escape') { await hold('r1', 'r3'); await frames(3); }
+    const s1 = sc.scrollTop;
+    const rows = R().filter((r) => r.id !== 'r1'); const last = new Map(rows.map((r) => [r, c(r)])); let jump = 0; let at = ''; const tr: string[] = [];
+    let live = true; const step = (): void => { if (!live) return; for (const r of rows) { const p = c(r); const q = last.get(r)!; const dd = Math.abs(p[1] - q[1]); if (dd > jump) { jump = dd; at = r.id; } last.set(r, p); } tr.push(String(Math.round(sc.scrollTop))); requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+    if (which === 'key') await key('r1', 'ArrowDown'); else if (which === 'escape') await commands.keyPress('Escape'); else d.resolve(X());
+    await wait(80); await frames(3); live = false;
+    say('scroll ' + kind + ' ' + which + ' disp ' + disp + ' | jump ' + jump.toFixed(1) + ' ' + at + ' | scroll ' + s0 + ' ' + s1 + ' > ' + tr.join(','));
+  });
+});
+
+// ---- 4: lifted in flight
+describe('lifted', () => {
+  for (const axis of ['y', 'xy'] as const) it('press without activation ' + axis, async () => {
+    build(base(axis)); await key('r1', 'ArrowDown'); await wait(80); half(); const a = rowAnims(); const p = c($('r2'));
+    await commands.pointerMove(p[0], p[1]); await commands.pointerDown(); await frames(2); await commands.pointerUp(); await frames(2);
+    say('press and release ' + axis + ' states ' + a.map((x) => x.playState) + ' moved ' + Math.hypot(c($('r2'))[0] - p[0], c($('r2'))[1] - p[1]).toFixed(2));
+  });
+});

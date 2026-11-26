@@ -1,0 +1,399 @@
+## no mutation | chromium | packages/core | 0 failed, 95 passed
+## no mutation | chromium | packages/material-x | 0 failed, 140 passed
+## the hook, the group and the sheet of main | chromium | packages/core | 21 failed, 74 passed
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus hidden should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus hidden should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was built while out
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus disabled should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus disabled should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus should not give the tab stop to an item hidden in the markup
+   useRovingTabindex items that cannot take focus should not give the tab stop to a hidden item of a later definition
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowRight} from item 0
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowLeft} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {ArrowRight} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {Home} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 2 on {End} from item 0
+   useRovingTabindex items that cannot take focus should skip an item on an arrow key that a style alone hides
+## the hook, the group and the sheet of main | chromium | packages/material-x | 8 failed, 132 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is disabled
+   mx-connected-button-group with members that cannot take focus should move past a hidden member with an arrow key
+   mx-connected-button-group corners with hidden members should be outer on the first and the last shown member in the markup
+   mx-connected-button-group corners with hidden members should move to the next members when the ends are hidden
+   mx-connected-button-group corners with hidden members should be right in a group that was built while out
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+   mx-connected-button-group corners with hidden members should all be outer on the only shown member
+## the hook of main | chromium | packages/core | 21 failed, 74 passed
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus hidden should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus hidden should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was built while out
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus disabled should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus disabled should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus should not give the tab stop to an item hidden in the markup
+   useRovingTabindex items that cannot take focus should not give the tab stop to a hidden item of a later definition
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowRight} from item 0
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowLeft} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {ArrowRight} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {Home} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 2 on {End} from item 0
+   useRovingTabindex items that cannot take focus should skip an item on an arrow key that a style alone hides
+## the hook of main | chromium | packages/material-x | 3 failed, 137 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is disabled
+   mx-connected-button-group with members that cannot take focus should move past a hidden member with an arrow key
+## the group of main | chromium | packages/core | 0 failed, 95 passed
+## the group of main | chromium | packages/material-x | 5 failed, 135 passed
+   mx-connected-button-group corners with hidden members should be outer on the first and the last shown member in the markup
+   mx-connected-button-group corners with hidden members should move to the next members when the ends are hidden
+   mx-connected-button-group corners with hidden members should be right in a group that was built while out
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+   mx-connected-button-group corners with hidden members should all be outer on the only shown member
+## item.hidden in place of the computed display | chromium | packages/core | 3 failed, 92 passed
+   useRovingTabindex items that cannot take focus should skip an item on an arrow key that a style alone hides
+   useRovingTabindex items that cannot take focus hidden and shown by a page's display should keep the tab stop
+   useRovingTabindex items that cannot take focus hidden and shown by a page's display should take focus from an arrow key
+## item.hidden in place of the computed display | chromium | packages/material-x | 0 failed, 140 passed
+## no display in the hook | chromium | packages/core | 15 failed, 80 passed
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus hidden should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus hidden should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was built while out
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus should not give the tab stop to an item hidden in the markup
+   useRovingTabindex items that cannot take focus should not give the tab stop to a hidden item of a later definition
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowRight} from item 0
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowLeft} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {ArrowRight} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {Home} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 2 on {End} from item 0
+   useRovingTabindex items that cannot take focus should skip an item on an arrow key that a style alone hides
+## no display in the hook | chromium | packages/material-x | 2 failed, 138 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden
+   mx-connected-button-group with members that cannot take focus should move past a hidden member with an arrow key
+## no disabled in the hook | chromium | packages/core | 12 failed, 83 passed
+   useRovingTabindex slot and tab stop management should fall back to the first enabled item when neither value nor active item is usable
+   useRovingTabindex slot and tab stop management should clear the tab stop when no enabled items are available
+   useRovingTabindex slot and tab stop management with an item focused in the task that adds it should keep the tab stop that focus chose earlier when the added item is disabled
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus disabled should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus disabled should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop in a host that was built while out
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop in a host that was changed while out
+   useRovingTabindex keyboard navigation should skip disabled items during step navigation
+   useRovingTabindex keyboard navigation should not prevent default when there is no enabled navigation target
+## no disabled in the hook | chromium | packages/material-x | 1 failed, 139 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is disabled
+## hidden not heard | chromium | packages/core | 5 failed, 90 passed
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus hidden should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus hidden should have no tab stop when no item can take focus
+## hidden not heard | chromium | packages/material-x | 1 failed, 139 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden
+## disabled not heard | chromium | packages/core | 5 failed, 90 passed
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus disabled should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus disabled should have no tab stop when no item can take focus
+## disabled not heard | chromium | packages/material-x | 1 failed, 139 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is disabled
+## former items still heard | chromium | packages/core | 2 failed, 93 passed
+   useRovingTabindex items that cannot take focus hidden should ignore an item that left the slot
+   useRovingTabindex items that cannot take focus disabled should ignore an item that left the slot
+## former items still heard | chromium | packages/material-x | 1 failed, 139 passed
+   mx-connected-button-group xlarge visual contract should render the pressed inner corners on a selected middle button while pressed
+## the items of a read of more than three not heard | chromium | packages/core | 2 failed, 93 passed
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop again for an item added later
+## the items of a read of more than three not heard | chromium | packages/material-x | 0 failed, 140 passed
+## no choice at the connect | chromium | packages/core | 2 failed, 93 passed
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was built while out
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was changed while out
+## no choice at the connect | chromium | packages/material-x | 0 failed, 140 passed
+## the group's hidden | chromium | packages/core | 0 failed, 95 passed
+## the group's hidden | chromium | packages/material-x | 1 failed, 139 passed
+   mx-connected-button-group corners with hidden members should count a hidden member that a page's display shows
+## the ends without display | chromium | packages/core | 0 failed, 95 passed
+## the ends without display | chromium | packages/material-x | 5 failed, 135 passed
+   mx-connected-button-group corners with hidden members should be outer on the first and the last shown member in the markup
+   mx-connected-button-group corners with hidden members should move to the next members when the ends are hidden
+   mx-connected-button-group corners with hidden members should be right in a group that was built while out
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+   mx-connected-button-group corners with hidden members should all be outer on the only shown member
+## the ends not marked at the connect | chromium | packages/core | 0 failed, 95 passed
+## the ends not marked at the connect | chromium | packages/material-x | 2 failed, 138 passed
+   mx-connected-button-group corners with hidden members should be right in a group that was built while out
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+## hidden not heard by the group | chromium | packages/core | 0 failed, 95 passed
+## hidden not heard by the group | chromium | packages/material-x | 2 failed, 138 passed
+   mx-connected-button-group corners with hidden members should move to the next members when the ends are hidden
+   mx-connected-button-group corners with hidden members should move back when the ends are shown again
+## no rule for the only member | chromium | packages/core | 0 failed, 95 passed
+## no rule for the only member | chromium | packages/material-x | 1 failed, 139 passed
+   mx-connected-button-group corners with hidden members should all be outer on the only shown member
+## no mutation | firefox | packages/core | 0 failed, 95 passed
+## no mutation | firefox | packages/material-x | 0 failed, 140 passed
+## the hook, the group and the sheet of main | firefox | packages/core | 21 failed, 74 passed
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus hidden should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus hidden should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was built while out
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus disabled should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus disabled should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus should not give the tab stop to an item hidden in the markup
+   useRovingTabindex items that cannot take focus should not give the tab stop to a hidden item of a later definition
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowRight} from item 0
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowLeft} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {ArrowRight} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {Home} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 2 on {End} from item 0
+   useRovingTabindex items that cannot take focus should skip an item on an arrow key that a style alone hides
+## the hook, the group and the sheet of main | firefox | packages/material-x | 8 failed, 132 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is disabled
+   mx-connected-button-group with members that cannot take focus should move past a hidden member with an arrow key
+   mx-connected-button-group corners with hidden members should be outer on the first and the last shown member in the markup
+   mx-connected-button-group corners with hidden members should move to the next members when the ends are hidden
+   mx-connected-button-group corners with hidden members should be right in a group that was built while out
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+   mx-connected-button-group corners with hidden members should all be outer on the only shown member
+## the hook of main | firefox | packages/core | 21 failed, 74 passed
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus hidden should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus hidden should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was built while out
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus disabled should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus disabled should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus should not give the tab stop to an item hidden in the markup
+   useRovingTabindex items that cannot take focus should not give the tab stop to a hidden item of a later definition
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowRight} from item 0
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowLeft} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {ArrowRight} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {Home} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 2 on {End} from item 0
+   useRovingTabindex items that cannot take focus should skip an item on an arrow key that a style alone hides
+## the hook of main | firefox | packages/material-x | 4 failed, 136 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is disabled
+   mx-connected-button-group with members that cannot take focus should move past a hidden member with an arrow key
+   mx-connected-button-group large visual contract should render the pressed inner corners on a selected middle button while pressed
+## the group of main | firefox | packages/core | 0 failed, 95 passed
+## the group of main | firefox | packages/material-x | 5 failed, 135 passed
+   mx-connected-button-group corners with hidden members should be outer on the first and the last shown member in the markup
+   mx-connected-button-group corners with hidden members should move to the next members when the ends are hidden
+   mx-connected-button-group corners with hidden members should be right in a group that was built while out
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+   mx-connected-button-group corners with hidden members should all be outer on the only shown member
+## item.hidden in place of the computed display | firefox | packages/core | 3 failed, 92 passed
+   useRovingTabindex items that cannot take focus should skip an item on an arrow key that a style alone hides
+   useRovingTabindex items that cannot take focus hidden and shown by a page's display should keep the tab stop
+   useRovingTabindex items that cannot take focus hidden and shown by a page's display should take focus from an arrow key
+## item.hidden in place of the computed display | firefox | packages/material-x | 0 failed, 140 passed
+## no display in the hook | firefox | packages/core | 15 failed, 80 passed
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus hidden should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus hidden should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was built while out
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus should not give the tab stop to an item hidden in the markup
+   useRovingTabindex items that cannot take focus should not give the tab stop to a hidden item of a later definition
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowRight} from item 0
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowLeft} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {ArrowRight} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {Home} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 2 on {End} from item 0
+   useRovingTabindex items that cannot take focus should skip an item on an arrow key that a style alone hides
+## no display in the hook | firefox | packages/material-x | 3 failed, 137 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden
+   mx-connected-button-group with members that cannot take focus should move past a hidden member with an arrow key
+   mx-connected-button-group xlarge visual contract should render the pressed inner corners on a pressed middle button
+## no disabled in the hook | firefox | packages/core | 12 failed, 83 passed
+   useRovingTabindex slot and tab stop management should fall back to the first enabled item when neither value nor active item is usable
+   useRovingTabindex slot and tab stop management should clear the tab stop when no enabled items are available
+   useRovingTabindex slot and tab stop management with an item focused in the task that adds it should keep the tab stop that focus chose earlier when the added item is disabled
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus disabled should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus disabled should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop in a host that was built while out
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop in a host that was changed while out
+   useRovingTabindex keyboard navigation should skip disabled items during step navigation
+   useRovingTabindex keyboard navigation should not prevent default when there is no enabled navigation target
+## no disabled in the hook | firefox | packages/material-x | 1 failed, 139 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is disabled
+## hidden not heard | firefox | packages/core | 5 failed, 90 passed
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus hidden should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus hidden should have no tab stop when no item can take focus
+## hidden not heard | firefox | packages/material-x | 1 failed, 139 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden
+## disabled not heard | firefox | packages/core | 5 failed, 90 passed
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus disabled should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus disabled should have no tab stop when no item can take focus
+## disabled not heard | firefox | packages/material-x | 1 failed, 139 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is disabled
+## former items still heard | firefox | packages/core | 2 failed, 93 passed
+   useRovingTabindex items that cannot take focus hidden should ignore an item that left the slot
+   useRovingTabindex items that cannot take focus disabled should ignore an item that left the slot
+## former items still heard | firefox | packages/material-x | 0 failed, 140 passed
+## the items of a read of more than three not heard | firefox | packages/core | 2 failed, 93 passed
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop again for an item added later
+## the items of a read of more than three not heard | firefox | packages/material-x | 0 failed, 140 passed
+## no choice at the connect | firefox | packages/core | 2 failed, 93 passed
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was built while out
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was changed while out
+## no choice at the connect | firefox | packages/material-x | 0 failed, 140 passed
+## the group's hidden | firefox | packages/core | 0 failed, 95 passed
+## the group's hidden | firefox | packages/material-x | 1 failed, 139 passed
+   mx-connected-button-group corners with hidden members should count a hidden member that a page's display shows
+## the ends without display | firefox | packages/core | 0 failed, 95 passed
+## the ends without display | firefox | packages/material-x | 5 failed, 135 passed
+   mx-connected-button-group corners with hidden members should be outer on the first and the last shown member in the markup
+   mx-connected-button-group corners with hidden members should move to the next members when the ends are hidden
+   mx-connected-button-group corners with hidden members should be right in a group that was built while out
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+   mx-connected-button-group corners with hidden members should all be outer on the only shown member
+## the ends not marked at the connect | firefox | packages/core | 0 failed, 95 passed
+## the ends not marked at the connect | firefox | packages/material-x | 2 failed, 138 passed
+   mx-connected-button-group corners with hidden members should be right in a group that was built while out
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+## hidden not heard by the group | firefox | packages/core | 0 failed, 95 passed
+## hidden not heard by the group | firefox | packages/material-x | 2 failed, 138 passed
+   mx-connected-button-group corners with hidden members should move to the next members when the ends are hidden
+   mx-connected-button-group corners with hidden members should move back when the ends are shown again
+## no rule for the only member | firefox | packages/core | 0 failed, 95 passed
+## no rule for the only member | firefox | packages/material-x | 1 failed, 139 passed
+   mx-connected-button-group corners with hidden members should all be outer on the only shown member
+## no mutation | webkit | packages/core | 0 failed, 95 passed
+## no mutation | webkit | packages/material-x | 0 failed, 140 passed
+## the hook, the group and the sheet of main | webkit | packages/core | 21 failed, 74 passed
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus hidden should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus hidden should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was built while out
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus disabled should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus disabled should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus should not give the tab stop to an item hidden in the markup
+   useRovingTabindex items that cannot take focus should not give the tab stop to a hidden item of a later definition
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowRight} from item 0
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowLeft} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {ArrowRight} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {Home} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 2 on {End} from item 0
+   useRovingTabindex items that cannot take focus should skip an item on an arrow key that a style alone hides
+## the hook, the group and the sheet of main | webkit | packages/material-x | 8 failed, 132 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is disabled
+   mx-connected-button-group with members that cannot take focus should move past a hidden member with an arrow key
+   mx-connected-button-group corners with hidden members should be outer on the first and the last shown member in the markup
+   mx-connected-button-group corners with hidden members should move to the next members when the ends are hidden
+   mx-connected-button-group corners with hidden members should be right in a group that was built while out
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+   mx-connected-button-group corners with hidden members should all be outer on the only shown member
+## the hook of main | webkit | packages/core | 21 failed, 74 passed
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus hidden should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus hidden should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was built while out
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus disabled should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus disabled should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus disabled should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus disabled should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus should not give the tab stop to an item hidden in the markup
+   useRovingTabindex items that cannot take focus should not give the tab stop to a hidden item of a later definition
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowRight} from item 0
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowLeft} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {ArrowRight} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {Home} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 2 on {End} from item 0
+   useRovingTabindex items that cannot take focus should skip an item on an arrow key that a style alone hides
+## the hook of main | webkit | packages/material-x | 3 failed, 137 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is disabled
+   mx-connected-button-group with members that cannot take focus should move past a hidden member with an arrow key
+## the group of main | webkit | packages/core | 0 failed, 95 passed
+## the group of main | webkit | packages/material-x | 5 failed, 135 passed
+   mx-connected-button-group corners with hidden members should be outer on the first and the last shown member in the markup
+   mx-connected-button-group corners with hidden members should move to the next members when the ends are hidden
+   mx-connected-button-group corners with hidden members should be right in a group that was built while out
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+   mx-connected-button-group corners with hidden members should all be outer on the only shown member
+## item.hidden in place of the computed display | webkit | packages/core | 3 failed, 92 passed
+   useRovingTabindex items that cannot take focus should skip an item on an arrow key that a style alone hides
+   useRovingTabindex items that cannot take focus hidden and shown by a page's display should keep the tab stop
+   useRovingTabindex items that cannot take focus hidden and shown by a page's display should take focus from an arrow key
+## item.hidden in place of the computed display | webkit | packages/material-x | 0 failed, 140 passed
+## no display in the hook | webkit | packages/core | 15 failed, 80 passed
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item that has it
+   useRovingTabindex items that cannot take focus hidden should move the tab stop off the item of the host value
+   useRovingTabindex items that cannot take focus hidden should give the tab stop back to the item that focus chose
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop again for an item added later
+   useRovingTabindex items that cannot take focus hidden should have no tab stop when no item can take focus
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was built while out
+   useRovingTabindex items that cannot take focus hidden should choose the tab stop in a host that was changed while out
+   useRovingTabindex items that cannot take focus should not give the tab stop to an item hidden in the markup
+   useRovingTabindex items that cannot take focus should not give the tab stop to a hidden item of a later definition
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowRight} from item 0
+   useRovingTabindex items that cannot take focus should skip a hidden item 1 on {ArrowLeft} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {ArrowRight} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 0 on {Home} from item 2
+   useRovingTabindex items that cannot take focus should skip a hidden item 2 on {End} from item 0
+   useRovingTabindex items that cannot take focus should skip an item on an arrow key that a style alone hides
+## ended here: WebKit, on the owner's ruling that development runs in Chromium

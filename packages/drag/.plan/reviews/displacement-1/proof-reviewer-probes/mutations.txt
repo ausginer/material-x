@@ -1,0 +1,82 @@
+## none | suite 85 passed 0 failed | probe 184 ok 0 jump
+## drop report removed | suite 45 passed 40 failed | probe 112 ok 72 jump
+   suite: #265 the rows that y() displaces should be drawn where they were after a drop whose last resolution moves the gap
+   suite: #265 the rows that y() displaces with landing should stay where they are after a rejection at once
+   suite: #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   suite: #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed at once
+   probe: JUMP chromium y none item :: key down, insertBefore(next) | jump 60.00 r2@1 | moved 60.0 | anims 0 | r0r2r1r3r
+   probe: JUMP chromium y none item :: key down, previous.after | jump 60.00 r2@1 | moved 60.0 | anims 0 | r0r2r1r3r4r5
+   probe: JUMP chromium y none item :: key down, neighbors moved | jump 60.00 r2@1 | moved 60.0 | anims 0 | r0r2r1r3r4r5
+   probe: JUMP chromium y none item :: key down, commit at 50 ms | jump 60.00 r2@1 | moved 60.0 | anims 0 | r0r2r1r3r4r5
+## return report removed | suite 49 passed 36 failed | probe 60 ok 124 jump
+   suite: #265 the rows that y() displaces with landing should be drawn where they were after Escape
+   suite: #265 the rows that y() displaces with landing should be drawn where they were after requestCancel
+   suite: #265 the rows that y() displaces with landing should be drawn where they were after a cancel right after invalidate
+   suite: #265 the rows that y() displaces with landing should be drawn where they were after a later rejection
+   probe: JUMP chromium y none item :: key down, committed to the end | jump 60.00 r3@2 | moved 60.0 | anims 1 | r0r2r3r
+   probe: JUMP chromium y none item :: key reject at once | jump 60.00 r2@1 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start
+   probe: JUMP chromium y none item :: key reject in a microtask | jump 60.00 r2@2 | moved 0.0 | anims 1 | r0r1r2r3r4r5
+   probe: JUMP chromium y none item :: key onReorder throws | jump 60.00 r2@1 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | sta
+## return after every end but a fault | suite 81 passed 4 failed | probe 172 ok 12 jump
+   suite: #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   suite: #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   suite: #265 the rows that xy() displaces with landing should stay where they are after an onReorder that throws
+   suite: #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+   probe: JUMP chromium y none item :: key onReorder throws | jump 60.00 r2@1 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | sta
+   probe: JUMP chromium y none item :: key verdict throws later, mid | jump 60.00 r2@1 | moved 30.0 | anims 1 | r0r1r2r3
+   probe: JUMP chromium y none item :: drop, onReorder throws | jump 40.00 r1@1 | moved 40.0 | anims 0 | r0r1r2r3r4r5 |
+   probe: JUMP chromium y none item landing :: key onReorder throws | jump 60.00 r2@1 | moved 0.0 | anims 1 | r0r1r2r3r4
+## release at activation removed | suite 84 passed 1 failed | probe 176 ok 8 jump
+   suite: #265 a row lifted while its animation runs should be drawn where it was, with its animation ended
+   probe: JUMP chromium y none item :: lifted in flight by key, pending | visual moved 30.00 | anims before 1 state runn
+   probe: JUMP chromium y none item :: lifted in flight by pointer | visual moved 30.00 | anims before 1 state running s
+   probe: JUMP chromium y none item landing :: lifted in flight by key, pending | visual moved 30.00 | anims before 1 st
+   probe: JUMP chromium y none item landing :: lifted in flight by pointer | visual moved 30.00 | anims before 1 state r
+## preference not read | suite 80 passed 5 failed | probe 184 ok 0 jump
+   suite: #265 prefers-reduced-motion should start no animation in a key move of y()
+   suite: #265 prefers-reduced-motion should start no animation in a key move of xy()
+   suite: #265 prefers-reduced-motion should start no animation in a pointer drag
+   suite: #265 prefers-reduced-motion should not call timing
+## after itself not counted as crossed | suite 63 passed 22 failed | probe 142 ok 42 jump
+   suite: #265 the rows that y() displaces with landing should be drawn where they were after Escape
+   suite: #265 the rows that y() displaces with landing should be drawn where they were after requestCancel
+   suite: #265 the rows that y() displaces with landing should be drawn where they were after a cancel right after invalidate
+   suite: #265 the rows that y() displaces with landing should be drawn where they were after a later rejection
+   probe: JUMP chromium y none item :: key up | jump 50.00 r2@1 | moved 50.0 | anims 0 | r0r1r3r2r4r5 | start,accepted |
+   probe: JUMP chromium y none item :: key up to the first | jump 60.00 r0@1 | moved 60.0 | anims 0 | r1r0r2r3r4r5 | sta
+   probe: JUMP chromium y none item :: key reject at once | jump 60.00 r2@1 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start
+   probe: JUMP chromium y none item :: key reject in a microtask | jump 60.00 r2@1 | moved 0.0 | anims 1 | r0r1r2r3r4r5
+## the last gap takes no anchor | suite 85 passed 0 failed | probe 184 ok 0 jump
+## no early return where the placeholder stands | suite 83 passed 2 failed | probe 184 ok 0 jump
+   suite: #265 the rects that an operation reads xy(), with displacement: true should be as many in a key move
+   suite: #265 the rects that an operation reads xy(), with displacement: true should be as many in a drop after a resolved move
+## the residual is not folded | suite 76 passed 9 failed | probe 116 ok 68 jump
+   suite: #265 the rows that y() displaces with landing should stay where they are after a rejection at once
+   suite: #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   suite: #265 the rows that y() displaces without landing should stay where they are after a rejection at once
+   suite: #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   probe: JUMP chromium y none item :: key reject at once | jump 60.00 r2@1 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start
+   probe: JUMP chromium y none item :: key reject in a microtask | jump 60.00 r2@1 | moved 0.0 | anims 1 | r0r1r2r3r4r5
+   probe: JUMP chromium y none item :: key onReorder throws | jump 60.00 r2@1 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | sta
+   probe: JUMP chromium y none item :: key accept at once, no commit | jump 60.00 r2@1 | moved 0.0 | anims 1 | r0r1r2r3r
+## a horizontal difference is not reported | suite 64 passed 21 failed | probe 184 ok 0 jump
+   suite: #265 the rows that xy() displaces with landing should be drawn where they were after Escape
+   suite: #265 the rows that xy() displaces with landing should be drawn where they were after requestCancel
+   suite: #265 the rows that xy() displaces with landing should be drawn where they were after a cancel right after invalidate
+   suite: #265 the rows that xy() displaces with landing should be drawn where they were after a later rejection
+## the vector is not local | suite 85 passed 0 failed | probe 112 ok 72 jump
+   probe: JUMP chromium xy rot item :: key down, insertBefore(next) | jump 22.14 r2@1 | moved 72.0 | anims 1 | r0r2r1r3r
+   probe: JUMP chromium xy rot item :: key down, previous.after | jump 22.14 r2@1 | moved 72.0 | anims 1 | r0r2r1r3r4r5
+   probe: JUMP chromium xy rot item :: key down, neighbors moved | jump 22.14 r2@1 | moved 72.0 | anims 1 | r0r2r1r3r4r5
+   probe: JUMP chromium xy rot item :: key down, commit at 50 ms | jump 22.14 r2@1 | moved 72.0 | anims 1 | r0r2r1r3r4r5
+## the accepted target is the home | suite 58 passed 27 failed | probe 128 ok 56 jump
+   suite: #265 the rows that y() displaces should be drawn where they were after a drop whose last resolution moves the gap
+   suite: #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed at once
+   suite: #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed after 100 ms
+   suite: #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   probe: JUMP chromium y none item :: key down, insertBefore(next) | jump 60.00 r2@3 | moved 60.0 | anims 1 | r0r2r1r3r
+   probe: JUMP chromium y none item :: key down, previous.after | jump 60.00 r2@2 | moved 60.0 | anims 1 | r0r2r1r3r4r5
+   probe: JUMP chromium y none item :: key down, neighbors moved | jump 60.00 r2@1 | moved 60.0 | anims 1 | r0r2r1r3r4r5
+   probe: JUMP chromium y none item :: key down, commit at 50 ms | jump 60.00 r2@5 | moved 60.0 | anims 1 | r0r2r1r3r4r5
+## home kept at a rebase | suite 85 passed 0 failed | probe 184 ok 0 jump
+## the placeholder's parent is not compared | suite 85 passed 0 failed | probe 184 ok 0 jump
