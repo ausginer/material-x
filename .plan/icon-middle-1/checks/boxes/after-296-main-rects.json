@@ -1,0 +1,228 @@
+{
+  "chromium": "158.0.8127.18",
+  "mx-list-item-lead-span-text": {
+    "target": [20, 20, 300, 56],
+    "handle": [36, 39, 9.34, 18],
+    "handleDisplay": "inline-grid",
+    "icons": []
+  },
+  "mx-list-item-lead-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": [36, 38, 20, 20],
+    "handleDisplay": "inline-block",
+    "icons": [[36, 38, 20, 20]]
+  },
+  "mx-list-item-lead-span-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": [36, 40, 16, 16],
+    "handleDisplay": "inline-grid",
+    "icons": [[36, 40, 16, 16]]
+  },
+  "mx-list-item-lead-mx-icon-button": {
+    "target": [20, 20, 300, 60],
+    "handle": [36, 30, 40, 40],
+    "handleDisplay": "inline-grid",
+    "icons": [[44, 38, 24, 24]]
+  },
+  "mx-list-item-lead-button-text": {
+    "target": [20, 20, 300, 56],
+    "handle": [36, 37.5, 23.78, 21],
+    "handleDisplay": "inline-grid",
+    "icons": []
+  },
+  "mx-list-item-lead-button-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": [36, 38.33, 29.33, 19.33],
+    "handleDisplay": "inline-grid",
+    "icons": [[44, 41.33, 13.33, 13.33]]
+  },
+  "mx-list-item-trail-span-text": {
+    "target": [20, 20, 300, 56],
+    "handle": [297.28, 40, 6.72, 16],
+    "handleDisplay": "inline-grid",
+    "icons": []
+  },
+  "mx-list-item-trail-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": [284, 38, 20, 20],
+    "handleDisplay": "inline-block",
+    "icons": [[284, 38, 20, 20]]
+  },
+  "mx-list-item-trail-span-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": [293, 42.5, 11, 11],
+    "handleDisplay": "inline-grid",
+    "icons": [[293, 42.5, 11, 11]]
+  },
+  "mx-list-item-trail-mx-icon-button": {
+    "target": [20, 20, 300, 60],
+    "handle": [264, 30, 40, 40],
+    "handleDisplay": "inline-grid",
+    "icons": [[272, 38, 24, 24]]
+  },
+  "mx-list-item-trail-button-text": {
+    "target": [20, 20, 300, 56],
+    "handle": [281.28, 37, 22.72, 22],
+    "handleDisplay": "inline-grid",
+    "icons": []
+  },
+  "mx-list-item-trail-button-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": [277, 39.5, 27, 17],
+    "handleDisplay": "inline-grid",
+    "icons": [[285, 42.5, 11, 11]]
+  },
+  "mx-list-button-item-lead-span-text": {
+    "target": [20, 20, 300, 56],
+    "handle": [36, 39, 9.34, 18],
+    "handleDisplay": "inline-grid",
+    "icons": []
+  },
+  "mx-list-button-item-lead-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": [36, 38, 20, 20],
+    "handleDisplay": "inline-block",
+    "icons": [[36, 38, 20, 20]]
+  },
+  "mx-list-button-item-lead-span-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": [36, 40, 16, 16],
+    "handleDisplay": "inline-grid",
+    "icons": [[36, 40, 16, 16]]
+  },
+  "mx-list-button-item-lead-mx-icon-button": {
+    "target": [20, 20, 300, 60],
+    "handle": [36, 30, 40, 40],
+    "handleDisplay": "inline-grid",
+    "icons": [[44, 38, 24, 24]]
+  },
+  "mx-list-button-item-lead-button-text": {
+    "target": [20, 20, 300, 56],
+    "handle": [36, 37.5, 23.78, 21],
+    "handleDisplay": "inline-grid",
+    "icons": []
+  },
+  "mx-list-button-item-lead-button-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": [36, 38.33, 29.33, 19.33],
+    "handleDisplay": "inline-grid",
+    "icons": [[44, 41.33, 13.33, 13.33]]
+  },
+  "mx-list-button-item-trail-span-text": {
+    "target": [20, 20, 300, 56],
+    "handle": [297.28, 40, 6.72, 16],
+    "handleDisplay": "inline-grid",
+    "icons": []
+  },
+  "mx-list-button-item-trail-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": [284, 38, 20, 20],
+    "handleDisplay": "inline-block",
+    "icons": [[284, 38, 20, 20]]
+  },
+  "mx-list-button-item-trail-span-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": [293, 42.5, 11, 11],
+    "handleDisplay": "inline-grid",
+    "icons": [[293, 42.5, 11, 11]]
+  },
+  "mx-list-button-item-trail-mx-icon-button": {
+    "target": [20, 20, 300, 60],
+    "handle": [264, 30, 40, 40],
+    "handleDisplay": "inline-grid",
+    "icons": [[272, 38, 24, 24]]
+  },
+  "mx-list-button-item-trail-button-text": {
+    "target": [20, 20, 300, 56],
+    "handle": [281.28, 37, 22.72, 22],
+    "handleDisplay": "inline-grid",
+    "icons": []
+  },
+  "mx-list-button-item-trail-button-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": [277, 39.5, 27, 17],
+    "handleDisplay": "inline-grid",
+    "icons": [[285, 42.5, 11, 11]]
+  },
+  "icon-alone": {
+    "target": [20, 20, 50.72, 30],
+    "handle": null,
+    "handleDisplay": null,
+    "icons": [[33.36, 20, 24, 24]]
+  },
+  "button-icon": {
+    "target": [20, 20, 92.38, 40],
+    "handle": null,
+    "handleDisplay": null,
+    "icons": [[36, 30, 20, 20]]
+  },
+  "icon-button": {
+    "target": [20, 20, 40, 40],
+    "handle": null,
+    "handleDisplay": null,
+    "icons": [[28, 28, 24, 24]]
+  },
+  "fab": {
+    "target": [20, 20, 48, 48],
+    "handle": null,
+    "handleDisplay": null,
+    "icons": [[36, 36, 16, 16]]
+  },
+  "fab-extended": {
+    "target": [20, 20, 101.17, 56],
+    "handle": null,
+    "handleDisplay": null,
+    "icons": [[36, 36, 24, 24]]
+  },
+  "mx-list-item-icons": {
+    "target": [20, 20, 300, 56],
+    "handle": null,
+    "handleDisplay": null,
+    "icons": [
+      [36, 38, 20, 20],
+      [284, 38, 20, 20]
+    ]
+  },
+  "mx-list-button-item-icons": {
+    "target": [20, 20, 300, 56],
+    "handle": null,
+    "handleDisplay": null,
+    "icons": [
+      [36, 38, 20, 20],
+      [284, 38, 20, 20]
+    ]
+  },
+  "mx-list-item-lead-page-span-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": null,
+    "handleDisplay": null,
+    "icons": [[36, 40, 16, 16]]
+  },
+  "mx-list-item-trail-page-span-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": null,
+    "handleDisplay": null,
+    "icons": [[293, 41, 11, 11]]
+  },
+  "mx-list-button-item-lead-page-span-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": null,
+    "handleDisplay": null,
+    "icons": [[36, 40, 16, 16]]
+  },
+  "mx-list-button-item-trail-page-span-mx-icon": {
+    "target": [20, 20, 300, 56],
+    "handle": null,
+    "handleDisplay": null,
+    "icons": [[293, 41, 11, 11]]
+  },
+  "text-field-icons": {
+    "target": [20, 20, 360, 56],
+    "handle": null,
+    "handleDisplay": null,
+    "icons": [
+      [32, 36, 24, 24],
+      [344, 36, 24, 24]
+    ]
+  }
+}

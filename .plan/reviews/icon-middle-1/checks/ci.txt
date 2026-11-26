@@ -1,0 +1,31 @@
+# CI verify, run 45859654992, on 7ef948b2e: conclusion success. Lines of the affected files and the totals, from each engine job's log.
+
+## chromium
+ ✓  browser/material-x (chromium)  tests/list/sortable-list.browser.test.ts (184 tests)
+ ✓  browser/material-x (chromium)  tests/icon/icon.browser.test.ts (27 tests)
+ ✓  spec/material-x (chromium)  tests/list/list-item.spec.browser.test.ts (134 tests)
+ ✓  spec/material-x (chromium)  tests/top-app-bar/top-app-bar.spec.browser.test.ts (48 tests)
+ ✓  spec/material-x (chromium)  tests/list/list-item-overflow.spec.browser.test.ts (504 tests)
+ ✓  visual/material-x (chromium)  tests/checkbox/checkbox.visual.browser.test.ts (4 tests)
+ ✓  visual/material-x (chromium)  tests/radio/radio.visual.browser.test.ts (4 tests)
+ ✓  visual/material-x (chromium)  tests/top-app-bar/top-app-bar.visual.browser.test.ts (2 tests)
+ Test Files  192 passed (192)
+      Tests  5468 passed | 2 expected fail | 12 skipped (5482)
+
+## firefox
+ ✓  browser/material-x/firefox (firefox)  tests/list/sortable-list.browser.test.ts (184 tests | 12 skipped)
+ ✓  browser/material-x/firefox (firefox)  tests/icon/icon.browser.test.ts (27 tests | 17 skipped)
+ ✓  spec/material-x/firefox (firefox)  tests/list/list-item.spec.browser.test.ts (134 tests)
+ ✓  spec/material-x/firefox (firefox)  tests/list/list-item-overflow.spec.browser.test.ts (504 tests)
+ ✓  spec/material-x/firefox (firefox)  tests/top-app-bar/top-app-bar.spec.browser.test.ts (48 tests)
+ Test Files  136 passed | 1 skipped (137)
+      Tests  4288 passed | 3 expected fail | 201 skipped (4492)
+
+## webkit
+ ✓  browser/material-x/webkit (webkit)  tests/list/sortable-list.browser.test.ts (184 tests | 12 skipped)
+ ✓  browser/material-x/webkit (webkit)  tests/icon/icon.browser.test.ts (27 tests | 17 skipped)
+ ✓  spec/material-x/webkit (webkit)  tests/list/list-item.spec.browser.test.ts (134 tests)
+ ✓  spec/material-x/webkit (webkit)  tests/top-app-bar/top-app-bar.spec.browser.test.ts (48 tests)
+ ✓  spec/material-x/webkit (webkit)  tests/list/list-item-overflow.spec.browser.test.ts (504 tests)
+ Test Files  136 passed | 1 skipped (137)
+      Tests  4299 passed | 2 expected fail | 201 skipped (4502)
