@@ -1,0 +1,101 @@
+# Chromium. boxes.mjs and compare.mjs on main at 7ac961122 (#296 merged), merged into material-x/icon-middle-1: main is main's icon.ctr.css, fix is the branch's.
+# A row reads 'same' when the rects and the pixels match. Screenshots ending in -focus.png differ between two runs of one build (boxes.txt's control), so only rects decide them.
+rects mx-list-item-lead-span-text: same
+rects mx-list-item-lead-mx-icon: same
+rects mx-list-item-lead-span-mx-icon: same
+rects mx-list-item-lead-mx-icon-button: same
+rects mx-list-item-lead-button-text: same
+rects mx-list-item-lead-button-mx-icon: same
+rects mx-list-item-trail-span-text: same
+rects mx-list-item-trail-mx-icon: same
+rects mx-list-item-trail-span-mx-icon: same
+rects mx-list-item-trail-mx-icon-button: same
+rects mx-list-item-trail-button-text: same
+rects mx-list-item-trail-button-mx-icon: same
+rects mx-list-button-item-lead-span-text: same
+rects mx-list-button-item-lead-mx-icon: same
+rects mx-list-button-item-lead-span-mx-icon: same
+rects mx-list-button-item-lead-mx-icon-button: same
+rects mx-list-button-item-lead-button-text: same
+rects mx-list-button-item-lead-button-mx-icon: same
+rects mx-list-button-item-trail-span-text: same
+rects mx-list-button-item-trail-mx-icon: same
+rects mx-list-button-item-trail-span-mx-icon: same
+rects mx-list-button-item-trail-mx-icon-button: same
+rects mx-list-button-item-trail-button-text: same
+rects mx-list-button-item-trail-button-mx-icon: same
+rects icon-alone: before {"target":[20,20,50.72,30],"handle":null,"handleDisplay":null,"icons":[[33.36,20,24,24]]}
+  after {"target":[20,20,50.72,28],"handle":null,"handleDisplay":null,"icons":[[33.36,23.66,24,24]]}
+rects button-icon: same
+rects icon-button: same
+rects fab: same
+rects fab-extended: same
+rects mx-list-item-icons: same
+rects mx-list-button-item-icons: same
+rects mx-list-item-lead-page-span-mx-icon: same
+rects mx-list-item-trail-page-span-mx-icon: before {"target":[20,20,300,56],"handle":null,"handleDisplay":null,"icons":[[293,41,11,11]]}
+  after {"target":[20,20,300,56],"handle":null,"handleDisplay":null,"icons":[[293,43.97,11,11]]}
+rects mx-list-button-item-lead-page-span-mx-icon: same
+rects mx-list-button-item-trail-page-span-mx-icon: before {"target":[20,20,300,56],"handle":null,"handleDisplay":null,"icons":[[293,41,11,11]]}
+  after {"target":[20,20,300,56],"handle":null,"handleDisplay":null,"icons":[[293,43.97,11,11]]}
+rects text-field-icons: same
+pixels button-icon.png: same
+pixels fab-extended.png: same
+pixels fab.png: same
+pixels icon-alone.png: size 66x46 -> 66x44
+pixels icon-button.png: same
+pixels mx-list-button-item-icons.png: same
+pixels mx-list-button-item-lead-button-mx-icon-focus.png: same
+pixels mx-list-button-item-lead-button-mx-icon.png: same
+pixels mx-list-button-item-lead-button-text-focus.png: same
+pixels mx-list-button-item-lead-button-text.png: same
+pixels mx-list-button-item-lead-mx-icon-button-focus.png: 11 differ
+pixels mx-list-button-item-lead-mx-icon-button.png: same
+pixels mx-list-button-item-lead-mx-icon-focus.png: same
+pixels mx-list-button-item-lead-mx-icon.png: same
+pixels mx-list-button-item-lead-page-span-mx-icon.png: same
+pixels mx-list-button-item-lead-span-mx-icon-focus.png: 9 differ
+pixels mx-list-button-item-lead-span-mx-icon.png: same
+pixels mx-list-button-item-lead-span-text-focus.png: same
+pixels mx-list-button-item-lead-span-text.png: same
+pixels mx-list-button-item-trail-button-mx-icon-focus.png: same
+pixels mx-list-button-item-trail-button-mx-icon.png: same
+pixels mx-list-button-item-trail-button-text-focus.png: 9 differ
+pixels mx-list-button-item-trail-button-text.png: same
+pixels mx-list-button-item-trail-mx-icon-button-focus.png: same
+pixels mx-list-button-item-trail-mx-icon-button.png: same
+pixels mx-list-button-item-trail-mx-icon-focus.png: 8 differ
+pixels mx-list-button-item-trail-mx-icon.png: same
+pixels mx-list-button-item-trail-page-span-mx-icon.png: 44 differ
+pixels mx-list-button-item-trail-span-mx-icon-focus.png: same
+pixels mx-list-button-item-trail-span-mx-icon.png: same
+pixels mx-list-button-item-trail-span-text-focus.png: 9 differ
+pixels mx-list-button-item-trail-span-text.png: same
+pixels mx-list-item-icons.png: same
+pixels mx-list-item-lead-button-mx-icon-focus.png: same
+pixels mx-list-item-lead-button-mx-icon.png: same
+pixels mx-list-item-lead-button-text-focus.png: same
+pixels mx-list-item-lead-button-text.png: same
+pixels mx-list-item-lead-mx-icon-button-focus.png: same
+pixels mx-list-item-lead-mx-icon-button.png: same
+pixels mx-list-item-lead-mx-icon-focus.png: same
+pixels mx-list-item-lead-mx-icon.png: same
+pixels mx-list-item-lead-page-span-mx-icon.png: same
+pixels mx-list-item-lead-span-mx-icon-focus.png: same
+pixels mx-list-item-lead-span-mx-icon.png: same
+pixels mx-list-item-lead-span-text-focus.png: same
+pixels mx-list-item-lead-span-text.png: same
+pixels mx-list-item-trail-button-mx-icon-focus.png: same
+pixels mx-list-item-trail-button-mx-icon.png: same
+pixels mx-list-item-trail-button-text-focus.png: same
+pixels mx-list-item-trail-button-text.png: same
+pixels mx-list-item-trail-mx-icon-button-focus.png: same
+pixels mx-list-item-trail-mx-icon-button.png: same
+pixels mx-list-item-trail-mx-icon-focus.png: same
+pixels mx-list-item-trail-mx-icon.png: same
+pixels mx-list-item-trail-page-span-mx-icon.png: 44 differ
+pixels mx-list-item-trail-span-mx-icon-focus.png: same
+pixels mx-list-item-trail-span-mx-icon.png: same
+pixels mx-list-item-trail-span-text-focus.png: same
+pixels mx-list-item-trail-span-text.png: same
+pixels text-field-icons.png: same

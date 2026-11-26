@@ -13,7 +13,7 @@ import '../../src/list/list-item.ts';
 import '../../src/list/list-link-item.ts';
 import '../../src/list/list.ts';
 import '../../src/text-field/text-field.ts';
-import { nextFrame } from '../browser.ts';
+import { nextFrame, whenFontsReady } from '../browser.ts';
 import type { AccessibilityNode } from '../support/accessibility-commands.node.ts';
 
 const LIGATURE = 'archive';
@@ -77,6 +77,82 @@ describe('mx-icon', () => {
     await nextFrame();
 
     expect(element.hasAttribute('aria-hidden')).toBe(false);
+  });
+});
+
+/**
+ * The x-height of the text's font, read by a canvas, so it doesn't come from
+ * CSS's own `middle`.
+ */
+function measureXHeight(text: HTMLElement): number {
+  const context = document.createElement('canvas').getContext('2d')!;
+  context.font = getComputedStyle(text).font;
+
+  return context.measureText('x').actualBoundingBoxAscent;
+}
+
+describe.each([16, 24])('mx-icon inline in %ipx text', (size) => {
+  const MARKER =
+    '<span data-baseline style="display: inline-block; inline-size: 0; block-size: 0"></span>';
+
+  /**
+   * How far the icon's middle is from the text's baseline plus half its
+   * x-height. The baseline is the bottom margin edge of an empty
+   * `inline-block`, which is that box's baseline.
+   */
+  async function readOffset(html: string, xHeight?: number): Promise<number> {
+    document.body.innerHTML = html;
+    await whenFontsReady();
+    await nextFrame();
+
+    const text = document.querySelector<HTMLElement>('[data-text]')!;
+    const baseline = text
+      .querySelector('[data-baseline]')!
+      .getBoundingClientRect().bottom;
+    const { top, height } = text
+      .querySelector('mx-icon')!
+      .getBoundingClientRect();
+
+    return (
+      top + height / 2 - (baseline - (xHeight ?? measureXHeight(text)) / 2)
+    );
+  }
+
+  // Within 1 px: the canvas reads the ink of the font's "x", which the font's
+  // own x-height metric, the one CSS uses, can differ from by a fraction.
+  it('should stand its middle on the middle of the lowercase letters of a span', async () => {
+    expect(
+      Math.abs(
+        await readOffset(
+          `<p><span data-text style="font-size: ${size}px">Save${icon()}${MARKER}xyz</span></p>`,
+        ),
+      ),
+    ).toBeLessThanOrEqual(1);
+  });
+
+  it('should stand its middle on the middle of the lowercase letters of a native button', async () => {
+    expect(
+      Math.abs(
+        await readOffset(
+          `<button data-text style="font: inherit; font-size: ${size}px">${icon()}Save${MARKER}</button>`,
+        ),
+      ),
+    ).toBeLessThanOrEqual(1);
+  });
+
+  // Roboto's half x-height is near 0.25em, so a fixed offset can pass the
+  // rows above. `font-size-adjust` makes the x-height 0.7 of the font size,
+  // which no fixed offset near Roboto's matches, and an em of the icon stays
+  // the font size.
+  it('should follow the x-height of the text', async () => {
+    expect(
+      Math.abs(
+        await readOffset(
+          `<p><span data-text style="font-size: ${size}px; font-size-adjust: 0.7">Save${icon()}${MARKER}xyz</span></p>`,
+          0.7 * size,
+        ),
+      ),
+    ).toBeLessThanOrEqual(1);
   });
 });
 

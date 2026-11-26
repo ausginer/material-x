@@ -1,0 +1,36 @@
+# Chromium. tests/icon/icon.browser.test.ts, one change at a time to icon.ctr.css. "delete the declaration" is the witness: the source of origin/main.
+## the fix
+      Tests  27 passed (27)
+## mutation: 'delete the declaration'
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a span
+AssertionError: expected 3.5 to be less than or equal to 1
+mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a native button
+AssertionError: expected 3.5 to be less than or equal to 1
+mx-icon inline in 16px text > should follow the x-height of the text
+AssertionError: expected 2.3999999999999986 to be less than or equal to 1
+mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a span
+AssertionError: expected 5.5 to be less than or equal to 1
+mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a native button
+AssertionError: expected 5.5 to be less than or equal to 1
+mx-icon inline in 24px text > should follow the x-height of the text
+AssertionError: expected 3.6000000000000014 to be less than or equal to 1
+      Tests  6 failed | 21 passed (27)
+## mutation: '  vertical-align: -0.125em;'
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a span
+AssertionError: expected 1.5 to be less than or equal to 1
+mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a native button
+AssertionError: expected 1.5 to be less than or equal to 1
+mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a span
+AssertionError: expected 2.5 to be less than or equal to 1
+mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a native button
+AssertionError: expected 2.5 to be less than or equal to 1
+      Tests  4 failed | 23 passed (27)
+## mutation: '  vertical-align: -0.25em;'
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+mx-icon inline in 16px text > should follow the x-height of the text
+AssertionError: expected 1.6000000000000014 to be less than or equal to 1
+mx-icon inline in 24px text > should follow the x-height of the text
+AssertionError: expected 2.3999999999999986 to be less than or equal to 1
+      Tests  2 failed | 25 passed (27)
