@@ -64,6 +64,7 @@ export const Playground: StoryObj<PlaygroundArgs> = {
   render({ color, size, shape, width, icon, disabled }) {
     return (
       <mx-icon-button
+        aria-label="Search"
         color={color === 'filled' ? undefined : color}
         size={size === 'small' ? undefined : size}
         shape={shape === 'round' ? undefined : shape}
@@ -78,19 +79,19 @@ export const Playground: StoryObj<PlaygroundArgs> = {
 
 export const Sizes = (): JSX.Element => (
   <>
-    <mx-icon-button size="xsmall">
+    <mx-icon-button aria-label="Wi-Fi" size="xsmall">
       <mx-icon>wifi</mx-icon>
     </mx-icon-button>
-    <mx-icon-button>
+    <mx-icon-button aria-label="Bluetooth">
       <mx-icon>bluetooth</mx-icon>
     </mx-icon-button>
-    <mx-icon-button size="medium">
+    <mx-icon-button aria-label="Alarm" size="medium">
       <mx-icon>alarm</mx-icon>
     </mx-icon-button>
-    <mx-icon-button size="large">
+    <mx-icon-button aria-label="Search" size="large">
       <mx-icon>search</mx-icon>
     </mx-icon-button>
-    <mx-icon-button size="xlarge">
+    <mx-icon-button aria-label="Favorite" size="xlarge">
       <mx-icon>favorite</mx-icon>
     </mx-icon-button>
   </>
@@ -98,10 +99,10 @@ export const Sizes = (): JSX.Element => (
 
 export const Shape = (): JSX.Element => (
   <>
-    <mx-icon-button>
+    <mx-icon-button aria-label="Favorite">
       <mx-icon>favorite</mx-icon>
     </mx-icon-button>
-    <mx-icon-button shape="square">
+    <mx-icon-button aria-label="Search" shape="square">
       <mx-icon>search</mx-icon>
     </mx-icon-button>
   </>
@@ -109,19 +110,19 @@ export const Shape = (): JSX.Element => (
 
 export const Color = (): JSX.Element => (
   <>
-    <mx-icon-button>
+    <mx-icon-button aria-label="Wi-Fi">
       <mx-icon>wifi</mx-icon>
     </mx-icon-button>
-    <mx-icon-button color="elevated">
+    <mx-icon-button aria-label="Bluetooth" color="elevated">
       <mx-icon>bluetooth</mx-icon>
     </mx-icon-button>
-    <mx-icon-button color="tonal">
+    <mx-icon-button aria-label="Alarm" color="tonal">
       <mx-icon>alarm</mx-icon>
     </mx-icon-button>
-    <mx-icon-button color="outlined">
+    <mx-icon-button aria-label="Search" color="outlined">
       <mx-icon>search</mx-icon>
     </mx-icon-button>
-    <mx-icon-button color="standard">
+    <mx-icon-button aria-label="Favorite" color="standard">
       <mx-icon>favorite</mx-icon>
     </mx-icon-button>
   </>
@@ -129,10 +130,10 @@ export const Color = (): JSX.Element => (
 
 export const Width = (): JSX.Element => (
   <>
-    <mx-icon-button width="wide">
+    <mx-icon-button aria-label="Favorite" width="wide">
       <mx-icon>favorite</mx-icon>
     </mx-icon-button>
-    <mx-icon-button width="narrow">
+    <mx-icon-button aria-label="Search" width="narrow">
       <mx-icon>search</mx-icon>
     </mx-icon-button>
   </>

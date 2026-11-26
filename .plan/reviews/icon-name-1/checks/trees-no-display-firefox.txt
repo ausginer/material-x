@@ -1,0 +1,146 @@
+# mutation: no display
+# firefox 159.0
+
+## defined before the markup
+  h2, icon, Title                      heading "Title"
+  mx-button, icon, Save                button "Save"
+  mx-icon-button, no label             button ""
+  mx-icon-button, aria-label Open      button "Open"
+  mx-button, named icon, Save          button "Draft Save"
+  mx-list-item, lead, Item, trail      listitem "Item"
+  native button, icon, Native          button "Native"
+  native link, icon, Link              link "Link"
+  h3, icon display flex                heading "Flex"
+  h3, icon display grid                heading "Grid"
+  h3, icon display contents            heading "Contents"
+  h3, icon with an SVG                 heading "Svg"
+  closed extended mx-fab, Create       button "Create"
+  tokens in the tree: none
+
+## markup, then defined
+  h2, icon, Title                      heading "Title"
+  mx-button, icon, Save                button "Save"
+  mx-icon-button, no label             button ""
+  mx-icon-button, aria-label Open      button "Open"
+  mx-button, named icon, Save          button "Draft Save"
+  mx-list-item, lead, Item, trail      listitem "Item"
+  native button, icon, Native          button "Native"
+  native link, icon, Link              link "Link"
+  h3, icon display flex                heading "Flex"
+  h3, icon display grid                heading "Grid"
+  h3, icon display contents            heading "Contents"
+  h3, icon with an SVG                 heading "Svg"
+  closed extended mx-fab, Create       button "Create"
+  tokens in the tree: none
+
+## the others defined, the icon 400 ms later
+  h2, icon, Title                      heading "Title"
+  mx-button, icon, Save                button "Save"
+  mx-icon-button, no label             button ""
+  mx-icon-button, aria-label Open      button "Open"
+  mx-button, named icon, Save          button "Draft Save"
+  mx-list-item, lead, Item, trail      listitem "Item"
+  native button, icon, Native          button "Native"
+  native link, icon, Link              link "Link"
+  h3, icon display flex                heading "Flex"
+  h3, icon display grid                heading "Grid"
+  h3, icon display contents            heading "Contents"
+  h3, icon with an SVG                 heading "Svg"
+  closed extended mx-fab, Create       button "Create"
+  tokens in the tree: none
+
+## the icon defined, the others 400 ms later
+  h2, icon, Title                      heading "Title"
+  mx-button, icon, Save                button "Save"
+  mx-icon-button, no label             button ""
+  mx-icon-button, aria-label Open      button "Open"
+  mx-button, named icon, Save          button "Draft Save"
+  mx-list-item, lead, Item, trail      listitem "Item"
+  native button, icon, Native          button "Native"
+  native link, icon, Link              link "Link"
+  h3, icon display flex                heading "Flex"
+  h3, icon display grid                heading "Grid"
+  h3, icon display contents            heading "Contents"
+  h3, icon with an SVG                 heading "Svg"
+  closed extended mx-fab, Create       button "Create"
+  tokens in the tree: none
+
+## defined, then inserted
+  h2, icon, Title                      heading "Title"
+  mx-button, icon, Save                button "Save"
+  mx-icon-button, no label             button ""
+  mx-icon-button, aria-label Open      button "Open"
+  mx-button, named icon, Save          button "Draft Save"
+  mx-list-item, lead, Item, trail      listitem "Item"
+  native button, icon, Native          button "Native"
+  native link, icon, Link              link "Link"
+  h3, icon display flex                heading "Flex"
+  h3, icon display grid                heading "Grid"
+  h3, icon display contents            heading "Contents"
+  h3, icon with an SVG                 heading "Svg"
+  closed extended mx-fab, Create       button "Create"
+  tokens in the tree: none
+
+## defined, then the text is replaced
+  h2, icon, Title                      heading "Title"
+  mx-button, icon, Save                button "Save"
+  mx-icon-button, no label             button ""
+  mx-icon-button, aria-label Open      button "Open"
+  mx-button, named icon, Save          button "Draft Save"
+  mx-list-item, lead, Item, trail      listitem "Item"
+  native button, icon, Native          button "Native"
+  native link, icon, Link              link "Link"
+  h3, icon display flex                heading "Flex"
+  h3, icon display grid                heading "Grid"
+  h3, icon display contents            heading "Contents"
+  h3, icon with an SVG                 heading "Svg"
+  closed extended mx-fab, Create       button "Create"
+  tokens in the tree: none
+
+## defined, then page text moves into an icon
+  h2, icon, Title                      heading "Title"
+  mx-button, icon, Save                button "Save"
+  mx-icon-button, no label             button ""
+  mx-icon-button, aria-label Open      button "Open"
+  mx-button, named icon, Save          button "Draft Save"
+  mx-list-item, lead, Item, trail      listitem "Item"
+  native button, icon, Native          button "Native"
+  native link, icon, Link              link "Link"
+  h3, icon display flex                heading "Flex"
+  h3, icon display grid                heading "Grid"
+  h3, icon display contents            heading "Contents"
+  h3, icon with an SVG                 heading "Svg"
+  closed extended mx-fab, Create       button "Create"
+  tokens in the tree: none
+
+## defined, then each icon moves
+  h2, icon, Title                      heading "Title"
+  mx-button, icon, Save                button "Save"
+  mx-icon-button, no label             button ""
+  mx-icon-button, aria-label Open      button "Open"
+  mx-button, named icon, Save          button "Save"
+  mx-list-item, lead, Item, trail      listitem "Item"
+  native button, icon, Native          button "Native"
+  native link, icon, Link              link "Link"
+  h3, icon display flex                heading "Flex"
+  h3, icon display grid                heading "Grid"
+  h3, icon display contents            heading "Contents"
+  h3, icon with an SVG                 heading "Svg"
+  closed extended mx-fab, Create       button "Create"
+  tokens in the tree: none
+
+## defined, then an icon is created and given text
+  h2, icon, Title                      heading "Title"
+  mx-button, icon, Save                button "Save"
+  mx-icon-button, no label             button ""
+  mx-icon-button, aria-label Open      button "Open"
+  mx-button, named icon, Save          button "Draft Save"
+  mx-list-item, lead, Item, trail      listitem "Item"
+  native button, icon, Native          button "Native"
+  native link, icon, Link              link "Link"
+  h3, icon display flex                heading "Flex"
+  h3, icon display grid                heading "Grid"
+  h3, icon display contents            heading "Contents"
+  h3, icon with an SVG                 heading "Svg"
+  closed extended mx-fab, Create       button "Create"
+  tokens in the tree: none

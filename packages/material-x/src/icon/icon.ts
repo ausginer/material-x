@@ -16,6 +16,10 @@ export type IconCSSProperties = Readonly<{
  *
  * @summary Icons display a single symbol from an icon font.
  *
+ * The content is hidden from assistive technology, so it is in no accessible
+ * name, and a page doesn't set `aria-hidden` itself. An icon with a meaning
+ * takes `role="img"` and `aria-label`.
+ *
  * @slot - Icon glyph text/content.
  *
  * @cssprop --md-icon-size - Overrides icon font size.
@@ -25,6 +29,9 @@ export default class Icon extends ControlledElement {
   constructor() {
     super();
     useCore(this, [template], {}, [iconStyles]);
+    // Firefox keeps the text of an icon that upgrades after its markup in its
+    // tree, if the slot is hidden in the template.
+    this.shadowRoot!.querySelector('slot')!.setAttribute('aria-hidden', 'true');
   }
 }
 
