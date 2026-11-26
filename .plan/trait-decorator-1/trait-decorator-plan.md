@@ -1,6 +1,6 @@
 # `@trait`: a trait declares itself with a decorator that the plugin compiles
 
-**The decision,** as `RD-26`'s amendment of 2026-11-20 records it ([register](../00-index.md#rd-26--traits-are-plain-classes-in-two-layers-a-component-names-its-traits-in-a-composed-annotation-and-the-flattener-is-a-required-build-step)). This plan holds the design, the proofs the implementer delivers, the files the migration touches and the open questions. It was written by the architect on `repo/trait-decorator-1`, from `origin/main` at `d69e3ddbc`.
+**The decision,** as `RD-26`'s amendment of 2026-11-20 records it ([register](../decisions/RD-26.md)). This plan holds the design, the proofs the implementer delivers, the files the migration touches and the open questions. It was written by the architect on `repo/trait-decorator-1`, from `origin/main` at `d69e3ddbc`.
 
 **The owner's authorization,** relayed by the coordinator on 2026-11-20: _"Тогда давай сделаем `@trait` и все починки сразу"_ ("Then let's do `@trait` and all the fixes at once"). He had already decided:
 

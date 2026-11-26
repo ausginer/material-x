@@ -2,7 +2,7 @@
 
 **For:** one `implementer` unit on `drag/performance`. **Base:** the commit that carries this handoff. Its `packages/drag/src` and `packages/drag/tests` are `501f60ab7`'s.
 
-**Governing records:** `DRD-50` in [`00-index.md`](00-index.md), with `DRD-49`, `DRD-47`, `DRD-44` property 6 and `DRD-40` properties 4 and 6. The reasons are in [`performance-window-assessment.md`](performance-window-assessment.md) §2 and §3, and the size trade-off in its §5.
+**Governing records:** `DRD-50` in [`00-index.md`](decisions/), with `DRD-49`, `DRD-47`, `DRD-44` property 6 and `DRD-40` properties 4 and 6. The reasons are in [`performance-window-assessment.md`](performance-window-assessment.md) §2 and §3, and the size trade-off in its §5.
 
 **Done on 2026-11-12:** implemented at `8d002529a` and reported at `566d4d29e` ([report](performance-window-correction-report.md), [assessment](performance-window-correction-assessment.md)).
 

@@ -1,6 +1,6 @@
 # Runtime performance plan
 
-**Opened:** 2026-11-10 on `drag/performance` from `a9c323f6a`, the squash merge of #14. **Governing decision:** `DRD-40` in [`00-index.md`](00-index.md), with `DRD-13`, `DRD-22`, `DRD-23` and `DRO-4`. **First unit:** [`performance-instrument-handoff.md`](performance-instrument-handoff.md).
+**Opened:** 2026-11-10 on `drag/performance` from `a9c323f6a`, the squash merge of #14. **Governing decision:** `DRD-40` in [`00-index.md`](decisions/), with `DRD-13`, `DRD-22`, `DRD-23` and `DRO-4`. **First unit:** [`performance-instrument-handoff.md`](performance-instrument-handoff.md).
 
 **Goal:** make `@ydinjs/drag` faster at runtime, then smaller. Each change is shown by a reading that could have shown the opposite. Runtime wins over bytes by CONTRIBUTING §0 and §14. The contract's invariants and the ownership decisions hold through every step (`DRD-40` property 7).
 

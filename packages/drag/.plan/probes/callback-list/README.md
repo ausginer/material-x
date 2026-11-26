@@ -1,6 +1,6 @@
 # The owner's `CallbackList` edit, as read for `DRD-35`
 
-Evidence for `DRD-35` in [`00-index.md`](../../00-index.md). No probe was run, and no figure was measured.
+Evidence for `DRD-35` in [`00-index.md`](../../decisions/DRD-35.md). No probe was run, and no figure was measured.
 
 - [`owner-edit.diff.txt`](owner-edit.diff.txt): `git diff 9f885b9a9 -- packages/drag/src`, read on 2026-11-09. The edit was uncommitted in the `drag/step-queue-model` worktree, and it changes `src/kernel/callback-list.ts`, `src/kernel/drag.ts` and `src/kernel/gesture.ts`. SHA-256 `a5b8feec280f70d3f2cacd149a5f2ff63da8f855f4d355af5afc2e09bee46358`. `git diff 9f885b9a9` for the whole tree gave the same hash, so the edit touches nothing outside `src/`.
 - [`typecheck.txt`](typecheck.txt): `tsc -p tsconfig.json --noEmit` in `packages/drag` with the edit in place. It exits with status 1.

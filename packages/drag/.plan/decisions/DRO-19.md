@@ -1,0 +1,7 @@
+#### DRO-19 — The code the tests run is the code the user receives
+
+**Decided by the owner on 2026-11-15,** relayed by the coordinator to the architect on `drag2/removal` at `02990b9f4`. **The library code that drag's tests run must be the library code that consumers receive.** A `__DEV__` or similar define is acceptable in test tooling, and in a bench build of an earlier revision. A difference between the library code that is tested and the library code that is shipped is not acceptable.
+
+**This is the rationale of `DRD-67`.** That decision removed `__DEV__` from `src`, so the source projects and the published build run one semantics, and moved drag's instruments into test support. The owner confirmed that `DRD-67` property 2, as amended on 2026-11-15, fits this principle: drag's build and test configurations don't define `__DEV__`, and the bench keeps the define only to build earlier revisions.
+
+**What it applies to.** Any later proposal that would make `src` behave differently under test than in the published build, through a define, a condition, a test-only export or a hook, is declined under this entry. Test-side instruments that wrap the shipped classes from outside, as `DRD-67`'s oracles do, don't make such a difference.

@@ -1,6 +1,6 @@
 # Owner class refactor: remediation report
 
-**Unit:** [`owner-class-refactor-handoff.md`](owner-class-refactor-handoff.md) on `drag/class-refactor`, from `976d8b2bc`, by an `implementer`. **Governing records:** `DRD-63` properties 1 to 7 in [`00-index.md`](00-index.md), and what it amends; `DRO-13`; `DRD-60` property 2; `DRD-52`'s development check; the [assessment](owner-class-refactor-assessment.md), with the owner's answer to Q2. Q1 and Q3 had no recorded answer when the unit started, so it builds their defaults. Evidence is under [`measurements/2026-11-14-class-refactor-remediation/`](measurements/2026-11-14-class-refactor-remediation/).
+**Unit:** [`owner-class-refactor-handoff.md`](owner-class-refactor-handoff.md) on `drag/class-refactor`, from `976d8b2bc`, by an `implementer`. **Governing records:** `DRD-63` properties 1 to 7 in [`00-index.md`](decisions/), and what it amends; `DRO-13`; `DRD-60` property 2; `DRD-52`'s development check; the [assessment](owner-class-refactor-assessment.md), with the owner's answer to Q2. Q1 and Q3 had no recorded answer when the unit started, so it builds their defaults. Evidence is under [`measurements/2026-11-14-class-refactor-remediation/`](measurements/2026-11-14-class-refactor-remediation/).
 
 **The commits:**
 

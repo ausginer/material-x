@@ -8,7 +8,7 @@
 
 **Governing records:**
 
-- `DRD-59` in [`00-index.md`](00-index.md), properties 1 to 9, and its reasoning in [`publication-build-proposal.md`](publication-build-proposal.md);
+- `DRD-59` in [`00-index.md`](decisions/DRD-59.md), properties 1 to 9, and its reasoning in [`publication-build-proposal.md`](publication-build-proposal.md);
 - `DRD-56` properties 1 to 3, 8 and 9, and `DRD-57` properties 1 to 3 and 6: the marker and the selection, which don't change;
 - `DRD-55` property 1: one build per Vitest run, through `just build`'s two commands;
 - `DRD-51` properties 1 to 3: readings, and the stopped campaigns;

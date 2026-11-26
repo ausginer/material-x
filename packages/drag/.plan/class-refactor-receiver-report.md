@@ -2,7 +2,7 @@
 
 **Unit:** [`class-refactor-receiver-handoff.md`](class-refactor-receiver-handoff.md) on `drag/class-refactor`, by an `implementer`. **Base:** `c157dffb5`, whose code equals `42f42a164`'s. **The unit's commit:** `c9e728bad`. This report is committed after it.
 
-**Governing records:** `DRD-63` property 2, as revised on 2026-11-14, in [`00-index.md`](00-index.md); `DRD-35` properties 1 and 7, and `DRD-37` property 4, as `DRD-63` amends them; the [recheck assessment](class-refactor-recheck-assessment.md) §2 and §3; `class-refactor-recheck-1`. The owner's answer to Q2 is untouched: no read and no getter changed. Evidence is under [`measurements/2026-11-15-class-refactor-receiver/`](measurements/2026-11-15-class-refactor-receiver/).
+**Governing records:** `DRD-63` property 2, as revised on 2026-11-14, in [`00-index.md`](decisions/); `DRD-35` properties 1 and 7, and `DRD-37` property 4, as `DRD-63` amends them; the [recheck assessment](class-refactor-recheck-assessment.md) §2 and §3; `class-refactor-recheck-1`. The owner's answer to Q2 is untouched: no read and no getter changed. Evidence is under [`measurements/2026-11-15-class-refactor-receiver/`](measurements/2026-11-15-class-refactor-receiver/).
 
 ## The form
 

@@ -16,12 +16,24 @@
   white-space: nowrap;
   word-wrap: normal;
   writing-mode: horizontal-tb;
+  /*
+   * An `inline-block` with `overflow: hidden` has its bottom edge as its
+   * baseline, so in a line of text it would stand above the descenders. Its
+   * middle stands on the middle of the text's lowercase letters instead. A flex
+   * or grid item ignores it.
+   */
+  vertical-align: middle;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizelegibility;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* WebKit ignores `aria-hidden` on an element without a box. */
+/*
+ * The slot has a box for two engines. WebKit ignores `aria-hidden` on an
+ * element without a box. Chromium gives a text in a `display: contents` slot
+ * no touch action of the host, so a touch on it pans even where the host has
+ * `touch-action: none`.
+ */
 slot {
   display: inline;
 }

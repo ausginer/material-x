@@ -1,0 +1,14 @@
+# Chromium 158.0.8127.18. The rows of tests/list/sortable-list.browser.test.ts that match 'handle box', on the branch and with the handle rule's guard changed to :not([hidden]).
+
+## Branch
+✓ |browser (chromium)| mx-sortable-list handle box > should keep a page's display on a handle
+✓ |browser (chromium)| mx-sortable-list handle box > should keep a hidden handle hidden
+✓ |browser (chromium)| mx-sortable-list handle box > should keep the inline-block box of a handle hidden until found
+Tests  3 passed | 174 skipped (177)
+
+## Guard :not([hidden])
+✓ |browser (chromium)| mx-sortable-list handle box > should keep a page's display on a handle
+✓ |browser (chromium)| mx-sortable-list handle box > should keep a hidden handle hidden
+× |browser (chromium)| mx-sortable-list handle box > should keep the inline-block box of a handle hidden until found
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 2 passed | 174 skipped (177)

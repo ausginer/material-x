@@ -1,0 +1,50 @@
+# reviewer-3: the rewritten links of move-classified.tsv (toFile, toDir, textFile) whose line contains §, Disposition, Owner decisions, _Findings_ or _Questions_, case-insensitively: 44.
+# Each is read by hand. A link is re-pointed when its line cites a section that stays in an index; the target is that section's heading fragment, which rule 5's second row keeps on a rerun.
+# Fragments checked against the index headings with GitHub's slug rule. Columns: verdict, path:line, row, target at the move, target now, reason.
+
+kept	.agents/docs/documentation.md:214	toFile	../../.plan/decisions/RD-1.md	../../.plan/decisions/RD-1.md	§8 is the document's own section
+kept	.plan/card-1/card-plan.md:3	textFile	../decisions/RD-53.md	../decisions/RD-53.md	its dispositions are fragments of the plan itself
+kept	.plan/ci-verification-1/ci-verification-design.md:3	toDir	../decisions/	../decisions/	§1 is the design's own section
+kept	.plan/slider-1/slider-plan.md:3	textFile	../decisions/RD-55.md	../decisions/RD-55.md	its dispositions are fragments of the plan itself
+kept	.plan/test-execution-1/architect-test-execution-model-r4.md:13	toFile	../decisions/RD-1.md	../decisions/RD-1.md	"owner disposition" is a verb phrase, and no section is cited; the link's text is reviewer-4's case
+kept	.plan/top-app-bar-1/top-app-bar-plan.md:3	textFile	../decisions/RD-54.md	../decisions/RD-54.md	its dispositions are fragments of the plan itself
+kept	CONTRIBUTING.md:452	toFile	packages/drag/.plan/decisions/DRD-3.md	packages/drag/.plan/decisions/DRD-3.md	§1.1 is the document's own section
+kept	packages/drag/.plan/activation-result-handoff.md:3	toFile	decisions/DRD-30.md	decisions/DRD-30.md	§2 is the assessment's
+kept	packages/drag/.plan/animation-end-layout-probe.md:3	toDir	decisions/	decisions/	§4.3 is the assessment's
+re-pointed	packages/drag/.plan/callback-list-completion-report.md:3	toDir	decisions/	00-index.md#disposition-of-the-callback-list-report	cites §Disposition of the callback list report among its governing records, beside four decisions that entry.sh finds
+kept	packages/drag/.plan/class-refactor-receiver-report.md:5	toDir	decisions/	decisions/	§2 and §3 are the recheck assessment's
+kept	packages/drag/.plan/execution-boundary-report.md:3	toDir	decisions/	decisions/	DRD-32 §Implementation is the decision's own clause; §3, §4 and §7 are the assessment's
+re-pointed	packages/drag/.plan/instrument-repair-handoff.md:3	toFile	decisions/DRD-23.md	00-index.md#disposition-of-the-ownership-report	the proof's; cites §Disposition of the ownership report
+kept	packages/drag/.plan/items-borrowing-handoff.md:3	toFile	decisions/DRD-31.md	decisions/DRD-31.md	§3, §4 and §7 are the assessment's
+kept	packages/drag/.plan/items-borrowing-report.md:3	toDir	decisions/	decisions/	§3, §4 and §7 are the assessment's
+re-pointed	packages/drag/.plan/mangle-rollback-handoff.md:156	toDir	decisions/	00-index.md#disposition-of-the-mangling-rollback-report	the proof's; cites §Disposition of the mangling rollback report
+kept	packages/drag/.plan/mangle-selection-handoff.md:7	toFile	decisions/DRD-57.md	decisions/DRD-57.md	§3 to §5 are the audit's
+kept	packages/drag/.plan/performance-drop-handoff.md:7	toDir	decisions/	decisions/	§ cites performance-plan.md, an assessment or a report, not the index
+kept	packages/drag/.plan/performance-drop-report.md:3	toDir	decisions/	decisions/	§ cites performance-plan.md, an assessment or a report, not the index
+kept	packages/drag/.plan/performance-page-check-handoff.md:7	toDir	decisions/	decisions/	§ cites performance-plan.md, an assessment or a report, not the index
+kept	packages/drag/.plan/performance-resolution-assessment.md:3	toDir	decisions/	decisions/	§ cites performance-plan.md, an assessment or a report, not the index
+kept	packages/drag/.plan/performance-resolution-handoff.md:5	toDir	decisions/	decisions/	§ cites performance-plan.md, an assessment or a report, not the index
+kept	packages/drag/.plan/performance-sensitivity-assessment.md:3	toDir	decisions/	decisions/	§ cites performance-plan.md, an assessment or a report, not the index
+kept	packages/drag/.plan/performance-sensitivity-handoff.md:5	toDir	decisions/	decisions/	§ cites performance-plan.md, an assessment or a report, not the index
+kept	packages/drag/.plan/performance-trace-handoff.md:5	toDir	decisions/	decisions/	§ cites performance-plan.md, an assessment or a report, not the index
+kept	packages/drag/.plan/performance-trace-report.md:3	toDir	decisions/	decisions/	§ cites performance-plan.md, an assessment or a report, not the index
+kept	packages/drag/.plan/performance-window-assessment.md:3	toDir	decisions/	decisions/	§ cites performance-plan.md, an assessment or a report, not the index
+kept	packages/drag/.plan/performance-window-correction-assessment.md:3	toDir	decisions/	decisions/	§ cites performance-plan.md, an assessment or a report, not the index
+kept	packages/drag/.plan/performance-window-correction-handoff.md:5	toDir	decisions/	decisions/	§ cites performance-plan.md, an assessment or a report, not the index
+kept	packages/drag/.plan/performance-window-handoff.md:7	toDir	decisions/	decisions/	§ cites performance-plan.md, an assessment or a report, not the index
+kept	packages/drag/.plan/performance-window-report.md:3	toDir	decisions/	decisions/	§ cites performance-plan.md, an assessment or a report, not the index
+kept	packages/drag/.plan/probes/loop-field-reads/README.md:3	toFile	../../decisions/DRD-69.md	../../decisions/DRD-69.md	DRD-69 §The loop change's cost is the decision's own clause
+re-pointed	packages/drag/.plan/probes/y-geometry-terms-ruling/README.md:3	toDir	../../decisions/	../../00-index.md#disposition-of-the-y-geometry-terms-report	the proof's; cites §Disposition of the `y()` geometry terms report
+re-pointed	packages/drag/.plan/remediation-handoff.md:3	toDir	decisions/	00-index.md#disposition-of-the-2026-11-07-reviews	cites "the index's disposition table", which is §Disposition of the 2026-11-07 reviews, beside DRD-14 to DRD-23, which entry.sh finds
+kept	packages/drag/.plan/reviews/combined-ownership/combined-ownership-summary.md:3	toDir	../../decisions/	../../decisions/	§6 is the assessment's
+kept	packages/drag/.plan/reviews/combined-ownership/proof-reviewer.md:5	toDir	../../decisions/	../../decisions/	§6 is the assessment's
+re-pointed	packages/drag/.plan/reviews/drag2-guarantees/remediation-recheck-reviewer.md:5	toDir	../../decisions/	../../00-index.md#disposition-of-the-guarantee-tests-proof	the proof's; cites §Disposition of the guarantee tests proof
+kept	packages/drag/.plan/reviews/publish-mangle/publish-mangle-summary.md:3	toDir	../../decisions/	../../decisions/	§9 is the assessment's
+re-pointed	packages/drag/.plan/size-acceptance-follow-up-report.md:3	toDir	decisions/	00-index.md#disposition-of-the-size-acceptance-cleanup-report	the ruling's fifth; cites §Disposition of the size acceptance cleanup report beside three decisions
+kept	packages/drag/.plan/size-pass-followup-handoff.md:7	toFile	decisions/DRD-51.md	decisions/DRD-51.md	DRD-51 §First unit is the decision's own clause
+kept	packages/drag/.plan/size-pass-followup-report.md:3	toFile	decisions/DRD-51.md	decisions/DRD-51.md	DRD-51 §First unit is the decision's own clause; §3, §4 are the assessment's, §3 the plan's
+kept	packages/drag/.plan/size-pass-unit-report.md:3	toDir	decisions/	decisions/	DRD-51 §First unit is the decision's own clause
+kept	packages/drag/.plan/xy-held-geometry-proposal.md:3	toDir	decisions/	decisions/	§6 and §2 are the proposal's own
+re-pointed	packages/drag/.plan/y-geometry-terms-follow-up-handoff.md:7	toDir	decisions/	00-index.md#disposition-of-the-y-geometry-terms-report	cites §Disposition of the `y()` geometry terms report, "in 00-index.md, with", beside two decisions that entry.sh finds
+
+# 44 read, 8 re-pointed, 36 kept.

@@ -7,7 +7,7 @@
 - One file, `packages/material-x/tests/axe.browser.test.ts`, in the existing `browser` project. It runs in Chromium only, and its cost there is about 6.5 s locally.
 - `axe-core` 4.14.1, exact, in material-x's `devDependencies`.
 - A row for each element and state. Its expected violations are exactly the listed ones, so a new violation and a repaired one both fail.
-- The list starts with three owners: `RF-94`, `RF-132` and `RF-144`, which this plan's readings found.
+- The list starts with three owners: `RF-94`, `RF-132` and `RF-144`, which this plan's readings found. (**Amended 2026-11-26 by the architect.** `RF-132`'s repair, #288, merged first, and #293, merged at `e457ed209`, lists no violation for its rows. `main`'s list has `RF-94` and `RF-144`.)
 
 ## Readings
 
@@ -16,7 +16,7 @@ On `main` at `8bed561de`, 73 fixtures, one at a time, the same in Chromium, Fire
 | What axe reports | Where | Owner |
 | --- | --- | --- |
 | `label` | `mx-checkbox` and `mx-radio`, in each state, with a host `aria-label` or a `<label for>` (read for the checkbox) | `RF-94` (#148) |
-| `aria-allowed-attr` | a selected `mx-list-button-item`, and one that was selected and no longer is. `RF-132` says nothing of the second | `RF-132` |
+| `aria-allowed-attr` | a selected `mx-list-button-item`, and one that was selected and no longer is. `RF-132` says nothing of the second | `RF-132`, repaired by #288 and no longer listed (amended 2026-11-26) |
 | `nested-interactive` | a control in a slot of `mx-list-button-item` | `RF-144`, registered here |
 | `label-content-name-mismatch` | the split button's trailing button, with `secondarylabel` | none: an artifact of the test font ([reading](checks/glyph-and-internals.txt)) |
 
@@ -59,7 +59,7 @@ Each is a temporary change, reverted, with its failing row saved under `checks/`
 
 ## Interactions
 
-- **`RF-132`** (#238, ruled on now in slot b, `material-x/list-selected-1`): with slot b's working tree (`aria-current`), the violation is gone for a selected and a deselected item ([reading](checks/branches.txt)). Whichever lands second edits the list: the second unit removes the line, or the first doesn't write it. Its ruling decides nothing here.
+- **`RF-132`** (#238, ruled on now in slot b, `material-x/list-selected-1`): with slot b's working tree (`aria-current`), the violation is gone for a selected and a deselected item ([reading](checks/branches.txt)). Whichever lands second edits the list: the second unit removes the line, or the first doesn't write it. Its ruling decides nothing here. (**Amended 2026-11-26 by the architect:** #288 landed first, at `c7718d2ce`, and #293 removed the line, merged at `e457ed209`.)
 - **`RF-94`** (#148): the `label` lines go with its repair, by whatever mechanism. A name by element reference is seen by axe (`RD-57`). If the repair covers only some states, the remaining lines stay, and the rows fail by name otherwise.
 - **`RF-142`** (#278): nothing changes: the five rows read the same on its branch.
 - **`RF-144`:** registered here. Its line is the two rows of a control in a button item.

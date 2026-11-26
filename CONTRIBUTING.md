@@ -16,15 +16,21 @@ A record under `packages/*/.plan/` states each decision, finding, invariant, mea
 
 **The address is qualified** — `<scope>:<local-id>` — and a bare identifier is refused rather than resolved. A convenience form is what every caller ends up written against, and it cannot answer once a second scope exists, so it would break exactly when it was most used. The scope map in `.scripts/entry.ts` lists the scopes this build resolves; a new scope such as `box-quad:BQ-9` is a row there and not a change to the syntax. A retired scope resolves at the commit that its scope row names. Unknown scope, unknown local identifier and a local identifier the record defines twice are three **distinct** failures, because the repairs differ: an address for a package this build cannot see, a citation of something the record never states, and a defect in the record.
 
-The headings themselves stay local, so with no toolchain to hand one entry of one known file extracts standalone:
+**A decision is a file of its own,** `<root>/.plan/decisions/<id>.md`, such as `packages/drag/.plan/decisions/DRD-13.md` for `drag:DRD-13`. The file holds that one entry, so `cat` reads it. To list a scope's decisions by title:
 
 ```sh
-awk -v re="^#### DRD-13( —|$)" \
+grep -h '^#### ' packages/drag/.plan/decisions/*.md | sort -V
+```
+
+The headings themselves stay local, so with no toolchain to hand one entry of an index, such as a finding, extracts standalone:
+
+```sh
+awk -v re="^#### DRF-13( —|$)" \
   '$0 ~ re {f=1;print;next} f && /^#{1,4} /{exit} f' \
   packages/drag/.plan/00-index.md
 ```
 
-Both guards carry weight. `( —|$)` stops `DRD-1` answering for `DRD-13`, and the `#{1,4}` terminator cannot match `#####`, so an entry's own sub-clauses stay inside the extraction. This is an idiom for one file you already know, not a second implementation behind the wrapper: `entry.sh` is what finds the file across the current-state documents and refuses an ambiguous answer.
+Both guards carry weight. `( —|$)` stops `DRF-1` answering for `DRF-13`, and the `#{1,4}` terminator cannot match `#####`, so an entry's own sub-clauses stay inside the extraction. This is an idiom for one file you already know, not a second implementation behind the wrapper: `entry.sh` is what finds the file across the current-state documents and refuses an ambiguous answer.
 
 **Writing one, and the three rules that keep it addressable** (`drag2:D-174`, `drag2:D-175`). A local identifier is `[A-Za-z][A-Za-z0-9]*-\d+` — no letter budget, so `SC-7` and a future `BQ-9` are the same kind of thing.
 
@@ -443,9 +449,9 @@ What this document used to say, and what changed it, so a measurement already ma
 | 2026-09-09 | §18 | **Added:** the boundary test carries a second limb — one identification of the boundary, stated where the obligation is administered. The abandonment limb is necessary and was shown insufficient. Record: `drag2:D-192`, `drag2:F-410` |
 | 2026-09-09 | §18 | **Added:** a withdrawal is stated against what the instrument **asserts** rather than a docblock's motivating case, and guarded in both directions — understated withdrawal is the same failure as overstated residue. Record: `drag2:D-192`, `drag2:F-411` |
 | 2026-11-06 | Part I, Naming and self-documentation; Comments and JSDoc | **Added:** the reusable naming and English guide from the owner-directed terminology pass (`packages/drag2/.plan/terminology-ste-brief.md` at `0870abd75`), with comment reduction and preservation of factual meaning. Applies to new work; existing records are not rewritten |
-| 2026-11-06 | §1.1 | **Changed:** the failure path is named per package, because `@ydinjs/drag` has no `onError`. It used to say _the normal `onError` path_. Record: [`00-index.md`](packages/drag/.plan/00-index.md) DRD-3 |
-| 2026-11-07 | Reading one entry | **Corrected:** the resolvable scopes are named by the script's scope map. The text said _`drag2` is the only scope this build resolves_, which was already false for `repo`. Record: [`00-index.md`](packages/drag/.plan/00-index.md) DRD-23 |
-| 2026-11-08 | Part I, TypeScript | **Added:** the preference for `type-fest`'s utilities over equivalent handwritten types, stated by the owner. It corrects a reading of `DRD-27` that took the removal of `type-fest` from `@ydinjs/drag` as a rule. Record: [`00-index.md`](packages/drag/.plan/00-index.md) DRD-29 |
+| 2026-11-06 | §1.1 | **Changed:** the failure path is named per package, because `@ydinjs/drag` has no `onError`. It used to say _the normal `onError` path_. Record: [`00-index.md`](packages/drag/.plan/decisions/DRD-3.md) DRD-3 |
+| 2026-11-07 | Reading one entry | **Corrected:** the resolvable scopes are named by the script's scope map. The text said _`drag2` is the only scope this build resolves_, which was already false for `repo`. Record: [`00-index.md`](packages/drag/.plan/decisions/DRD-23.md) DRD-23 |
+| 2026-11-08 | Part I, TypeScript | **Added:** the preference for `type-fest`'s utilities over equivalent handwritten types, stated by the owner. It corrects a reading of `DRD-27` that took the removal of `type-fest` from `@ydinjs/drag` as a rule. Record: [`00-index.md`](packages/drag/.plan/decisions/DRD-29.md) DRD-29 |
 | 2026-11-08 | Part I, TypeScript | **Changed:** at the owner's direction, implementation contracts use interfaces, including contracts currently implemented by object literals. This replaces the preference for `type` except where a class already implements it. The blanket `Readonly<>` guidance now distinguishes data records from implementation interfaces; interface data properties remain `readonly` unless mutation is required |
 | 2026-11-08 | Part I, Class encapsulation | **Added:** at the owner's direction, mutable class state is private and public fields are read-only. Read-only interfaces and reference bindings do not permit exposing writable class-owned state |
 | 2026-11-09 | Part I, TypeScript | **Clarified:** interfaces describe intended implementation contracts. Library-created object values remain types even when they contain functions. Method presence and lint behavior do not determine the declaration kind |
@@ -456,3 +462,4 @@ What this document used to say, and what changed it, so a measurement already ma
 | 2026-11-21 | Part I, Shadow tree structure | **Added:** at the owner's direction of 2026-11-21, relayed by the coordinator, a host is `display: contents` only so that a native element with behavior of its own is the box, and a shadow tree has as few elements as CSS allows, within reason for the CSS and JS size. No document stated either before. `accessibility.md`'s list item lines describe the list's current structure, and `repo:RF-68`'s unit revises them. Record: none yet; a `repo:RD-` entry is proposed for the main slot's architect |
 | 2026-11-21 | Part I, Parent and child components | **Added:** at the owner's direction, a parent component and its children are linked through context, not through a registry. A map from an element to its own parts isn't covered. No document stated it before. Record: the owner's direction in [`list-sortable-plan.md`](https://github.com/ausginer/material-x/blob/6214e3b57/.plan/list-sortable-1/list-sortable-plan.md) at `6214e3b57`, and `repo:RF-69` for how a child resolves the context |
 | 2026-11-21 | Part I, Language and platform | **Changed:** on the owner's decisions, the floor and the source rule are current Baseline before a package's 1.0.0, whatever year a feature became Baseline. From 1.0.0, each major version pins the Baseline of an ended year, and source uses only what it includes. Each package whose code runs in a browser states this in its manifest's `browserslist` field by its first release. The rule used to say _Use **Baseline-2025** features_, which forbade `field-sizing` (Baseline since June 2026). The floor used to be _the current stable release of Chromium, Firefox and Safari_ for material-x only, and a browserslist was to replace it. Record: `repo:RD-20`, `repo:RD-27` |
+| 2026-11-26 | Reading one entry of a record | **Changed:** a decision is a file of its own in its scope's `.plan/decisions/`, read with `cat`, and a scope's decisions are listed by title with `grep`. The `awk` idiom reads an entry of an index, such as a finding. It used to read `drag:DRD-13` from drag's index, which held every decision. Record: `repo:RD-64` |

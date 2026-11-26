@@ -1,0 +1,7 @@
+# RD-64 property 2's witness on the dry run: entry.sh at a96dc744b against the dry run's tree (a96dc744b with inCode reading CommonMark code spans), by probes/witness.mjs, every moved identifier.
+{
+ "compared": 157,
+ "linkTargetsChanged": 597,
+ "statusParagraphs": 72,
+ "differ": []
+}

@@ -1,0 +1,266 @@
+# The probe proof-recheck at 4cc69c603 and under three mutations, one engine at a time. box: computed display, box, painted part. touch (Chromium, CDP): six points per handle, swipe up over the item above. gaps: the handle's content in its box, and an mx-icon's text in the icon (the text's range, its content area, not its ink). mouse: the item each drag proposes.
+
+## chromium, unmutated
+chromium box | lead span text | display inline-grid | box 9x19 | paint 9x19 | touch-action none
+chromium box | lead mx-icon | display inline-block | box 20x20 | paint 20x20 | touch-action none
+chromium box | lead span mx-icon | display inline-grid | box 16x16 | paint 16x16 | touch-action none
+chromium box | lead mx-icon-button | display inline-grid | box 40x40 | paint 24x24 | touch-action none
+chromium box | lead button mx-icon | display inline-grid | box 29x19 | paint 13x13 | touch-action none
+chromium box | lead button text | display inline-grid | box 24x21 | paint 8x15 | touch-action none
+chromium box | trail span text | display inline-grid | box 7x16 | paint 7x13 | touch-action none
+chromium box | trail mx-icon | display inline-block | box 20x20 | paint 20x20 | touch-action none
+chromium box | trail span mx-icon | display inline-grid | box 11x11 | paint 11x11 | touch-action none
+chromium box | trail mx-icon-button | display inline-grid | box 40x40 | paint 24x24 | touch-action none
+chromium box | trail button mx-icon | display inline-grid | box 27x17 | paint 11x11 | touch-action none
+chromium box | trail button text | display inline-grid | box 23x22 | paint 7x13 | touch-action none
+chromium box | a [data-handle] span in a plain mx-list | display inline-grid | box 9x19
+chromium box | a hidden=until-found span handle | display inline-grid | content-visibility hidden | paint 9x19
+chromium box | a page's display: inline on a span handle | display inline
+chromium mouse | lead span text | proposed B
+chromium mouse | lead mx-icon | proposed B
+chromium mouse | lead span mx-icon | proposed B
+chromium mouse | lead mx-icon-button | proposed B
+chromium mouse | lead button mx-icon | proposed B
+chromium mouse | lead button text | proposed B
+chromium mouse | trail span text | proposed B
+chromium mouse | trail mx-icon | proposed B
+chromium mouse | trail span mx-icon | proposed B
+chromium mouse | trail mx-icon-button | proposed B
+chromium mouse | trail button mx-icon | proposed B
+chromium mouse | trail button text | proposed B
+chromium touch | lead span text | box center (hit handle) proposed scrolled 0 cancel 0 ; box top left (hit handle) proposed scrolled 0 cancel 0 ; box bottom right (hit handle) proposed scrolled 0 cancel 0 ; paint center (hit handle) proposed scrolled 0 cancel 0 ; paint top left (hit handle) proposed scrolled 0 cancel 0 ; paint bottom right (hit handle) proposed scrolled 0 cancel 0
+chromium touch | lead mx-icon | box center (hit handle) proposed scrolled 0 cancel 0 ; box top left (hit handle) proposed scrolled 0 cancel 0 ; box bottom right (hit handle) proposed scrolled 0 cancel 0 ; paint center (hit handle) proposed scrolled 0 cancel 0 ; paint top left (hit handle) proposed scrolled 0 cancel 0 ; paint bottom right (hit handle) proposed scrolled 0 cancel 0
+chromium touch | lead span mx-icon | box center (hit handle) proposed scrolled 0 cancel 0 ; box top left (hit handle) proposed scrolled 0 cancel 0 ; box bottom right (hit handle) proposed scrolled 0 cancel 0 ; paint center (hit handle) proposed scrolled 0 cancel 0 ; paint top left (hit handle) proposed scrolled 0 cancel 0 ; paint bottom right (hit handle) proposed scrolled 0 cancel 0
+chromium touch | lead mx-icon-button | box center (hit handle) proposed scrolled 0 cancel 0 ; box top left (hit handle) proposed scrolled 0 cancel 0 ; box bottom right (hit handle) proposed scrolled 0 cancel 0 ; paint center (hit handle) proposed scrolled 0 cancel 0 ; paint top left (hit handle) proposed scrolled 0 cancel 0 ; paint bottom right (hit handle) proposed scrolled 0 cancel 0
+chromium touch | lead button mx-icon | box center (hit handle) proposed scrolled 0 cancel 0 ; box top left (hit handle) proposed scrolled 0 cancel 0 ; box bottom right (hit handle) proposed scrolled 0 cancel 0 ; paint center (hit handle) proposed scrolled 0 cancel 0 ; paint top left (hit handle) proposed scrolled 0 cancel 0 ; paint bottom right (hit handle) proposed scrolled 0 cancel 0
+chromium touch | lead button text | box center (hit handle) proposed scrolled 0 cancel 0 ; box top left (hit handle) proposed scrolled 0 cancel 0 ; box bottom right (hit handle) proposed scrolled 0 cancel 0 ; paint center (hit handle) proposed scrolled 0 cancel 0 ; paint top left (hit handle) proposed scrolled 0 cancel 0 ; paint bottom right (hit handle) proposed scrolled 0 cancel 0
+chromium touch | trail span text | box center (hit handle) proposed scrolled 0 cancel 0 ; box top left (hit handle) proposed scrolled 0 cancel 0 ; box bottom right (hit handle) proposed scrolled 0 cancel 0 ; paint center (hit handle) proposed scrolled 0 cancel 0 ; paint top left (hit handle) proposed scrolled 0 cancel 0 ; paint bottom right (hit handle) proposed scrolled 0 cancel 0
+chromium touch | trail mx-icon | box center (hit handle) proposed scrolled 0 cancel 0 ; box top left (hit handle) proposed scrolled 0 cancel 0 ; box bottom right (hit handle) proposed scrolled 0 cancel 0 ; paint center (hit handle) proposed scrolled 0 cancel 0 ; paint top left (hit handle) proposed scrolled 0 cancel 0 ; paint bottom right (hit handle) proposed scrolled 0 cancel 0
+chromium touch | trail span mx-icon | box center (hit handle) proposed scrolled 0 cancel 0 ; box top left (hit handle) proposed scrolled 0 cancel 0 ; box bottom right (hit handle) proposed scrolled 0 cancel 0 ; paint center (hit handle) proposed scrolled 0 cancel 0 ; paint top left (hit handle) proposed scrolled 0 cancel 0 ; paint bottom right (hit handle) proposed scrolled 0 cancel 0
+chromium touch | trail mx-icon-button | box center (hit handle) proposed scrolled 0 cancel 0 ; box top left (hit handle) proposed scrolled 0 cancel 0 ; box bottom right (hit handle) proposed scrolled 0 cancel 0 ; paint center (hit handle) proposed scrolled 0 cancel 0 ; paint top left (hit handle) proposed scrolled 0 cancel 0 ; paint bottom right (hit handle) proposed scrolled 0 cancel 0
+chromium touch | trail button mx-icon | box center (hit handle) proposed scrolled 0 cancel 0 ; box top left (hit handle) proposed scrolled 0 cancel 0 ; box bottom right (hit handle) proposed scrolled 0 cancel 0 ; paint center (hit handle) proposed scrolled 0 cancel 0 ; paint top left (hit handle) proposed scrolled 0 cancel 0 ; paint bottom right (hit handle) proposed scrolled 0 cancel 0
+chromium touch | trail button text | box center (hit handle) proposed scrolled 0 cancel 0 ; box top left (hit handle) proposed scrolled 0 cancel 0 ; box bottom right (hit handle) proposed scrolled 0 cancel 0 ; paint center (hit handle) proposed scrolled 0 cancel 0 ; paint top left (hit handle) proposed scrolled 0 cancel 0 ; paint bottom right (hit handle) proposed scrolled 0 cancel 0
+chromium touch | disabled button item, span handle | none scrolled 53 cancel 1 | touch-action auto
+chromium touch | a page's touch-action: pan-y inline on a span handle | none scrolled 53 cancel 1 | touch-action pan-y
+chromium touch | a page's display: inline on a span handle | none scrolled 53 cancel 1 | touch-action none
+chromium touch | a page's display: block on a span handle | proposed scrolled 0 cancel 0 | touch-action none
+chromium touch | no handle, mx-list-item | none scrolled 53 cancel 1
+chromium touch | no handle, mx-list-button-item | none scrolled 53 cancel 1
+chromium touch | no handle, mx-list-link-item | none scrolled 53 cancel 1
+chromium gaps | lead span text | display inline-grid | box 9.03x19.00 | content in box: above 0.00 below 0.00 left 0.00 right 0.00
+chromium gaps | lead mx-icon | display inline-block | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+chromium gaps | lead span mx-icon | display inline-grid | box 16.00x16.00 | content in box: above 0.00 below 0.00 left 0.00 right 0.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right 0.00
+chromium gaps | lead mx-icon-button | display inline-grid | box 40.00x40.00 | content in box: above 8.00 below 8.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right -0.02
+chromium gaps | lead button mx-icon | display inline-grid | box 29.33x19.33 | content in box: above 3.00 below 3.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -0.67 left 0.00 right 0.00
+chromium gaps | lead button text | display inline-grid | box 23.78x21.00 | content in box: above 3.00 below 3.00 left 8.00 right 8.00
+chromium gaps | trail span text | display inline-grid | box 6.72x16.00 | content in box: above 1.00 below 2.00 left 0.00 right 0.00
+chromium gaps | trail mx-icon | display inline-block | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+chromium gaps | trail span mx-icon | display inline-grid | box 11.00x11.00 | content in box: above 0.00 below 0.00 left 0.00 right 0.00 | glyph in icon: above -1.00 below -1.00 left 0.00 right -0.02
+chromium gaps | trail mx-icon-button | display inline-grid | box 40.00x40.00 | content in box: above 8.00 below 8.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right -0.02
+chromium gaps | trail button mx-icon | display inline-grid | box 27.00x17.00 | content in box: above 3.00 below 3.00 left 8.00 right 8.00 | glyph in icon: above -1.00 below -1.00 left 0.00 right -0.02
+chromium gaps | trail button text | display inline-grid | box 22.72x22.00 | content in box: above 4.00 below 5.00 left 8.00 right 8.00
+
+## chromium, W4-the-rules-on-a-bare-mx-icon-too: the lines that differ from unmutated
+chromium box | lead mx-icon | display inline-grid | box 20x20 | paint 20x20 | touch-action none
+chromium box | trail mx-icon | display inline-grid | box 20x20 | paint 20x20 | touch-action none
+chromium gaps | lead mx-icon | display inline-grid | box 20.00x20.00 | content in box: above 0.00 below -4.00 left 0.00 right 0.00
+chromium gaps | trail mx-icon | display inline-grid | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+
+## chromium, W4a-the-grid-rule-on-a-bare-mx-icon-too: the lines that differ from unmutated
+chromium box | lead mx-icon | display inline-grid | box 20x20 | paint 20x20 | touch-action none
+chromium box | trail mx-icon | display inline-grid | box 20x20 | paint 20x20 | touch-action none
+chromium gaps | lead mx-icon | display inline-grid | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+chromium gaps | trail mx-icon | display inline-grid | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+
+## chromium, W4b-the-lead-line-height-on-a-bare-mx-icon-too: the lines that differ from unmutated
+chromium gaps | lead mx-icon | display inline-block | box 20.00x20.00 | content in box: above 0.00 below -4.00 left 0.00 right 0.00
+
+## chromium, without-the-handle-rule: the lines that differ from unmutated
+chromium box | lead span text | display inline | box 9x19 | paint 9x19 | touch-action none
+chromium box | lead span mx-icon | display inline | box 16x19 | paint 16x16 | touch-action none
+chromium box | lead mx-icon-button | display contents | box 40x40 | paint 24x24 | touch-action none
+chromium box | lead button mx-icon | display inline-block | box 29x22 | paint 13x13 | touch-action none
+chromium box | lead button text | display inline-block | box 24x21 | paint 8x15 | touch-action none
+chromium box | trail span text | display inline | box 7x13 | paint 7x13 | touch-action none
+chromium box | trail span mx-icon | display inline | box 11x13 | paint 11x11 | touch-action none
+chromium box | trail mx-icon-button | display contents | box 40x40 | paint 24x24 | touch-action none
+chromium box | trail button mx-icon | display inline-block | box 27x22 | paint 11x11 | touch-action none
+chromium box | trail button text | display inline-block | box 23x22 | paint 7x13 | touch-action none
+chromium box | a [data-handle] span in a plain mx-list | display inline | box 9x19
+chromium box | a hidden=until-found span handle | display inline | content-visibility hidden | paint 9x19
+chromium touch | lead span text | box center (hit handle) none scrolled 53 cancel 1 ; box top left (hit handle) none scrolled 46 cancel 1 ; box bottom right (hit handle) none scrolled 60 cancel 1 ; paint center (hit handle) none scrolled 53 cancel 1 ; paint top left (hit handle) none scrolled 46 cancel 1 ; paint bottom right (hit handle) none scrolled 60 cancel 1
+chromium touch | lead span mx-icon | box center (hit handle) none scrolled 54 cancel 1 ; box top left (hit handle) none scrolled 46 cancel 1 ; box bottom right (hit handle) none scrolled 61 cancel 1 ; paint center (hit handle) none scrolled 51 cancel 1 ; paint top left (hit handle) none scrolled 45 cancel 1 ; paint bottom right (hit handle) none scrolled 57 cancel 1
+chromium touch | lead mx-icon-button | box center (hit handle) none scrolled 57 cancel 1 ; box top left (hit mx-list-item) none scrolled 39 cancel 1 ; box bottom right (hit mx-list-item) none scrolled 75 cancel 1 ; paint center (hit handle) none scrolled 57 cancel 1 ; paint top left (hit handle) none scrolled 50 cancel 1 ; paint bottom right (hit handle) none scrolled 80 cancel 1
+chromium touch | trail span text | box center (hit handle) none scrolled 53 cancel 1 ; box top left (hit handle) none scrolled 48 cancel 1 ; box bottom right (hit handle) none scrolled 57 cancel 1 ; paint center (hit handle) none scrolled 52 cancel 1 ; paint top left (hit handle) none scrolled 48 cancel 1 ; paint bottom right (hit handle) none scrolled 57 cancel 1
+chromium touch | trail span mx-icon | box center (hit handle) none scrolled 53 cancel 1 ; box top left (hit handle) none scrolled 48 cancel 1 ; box bottom right (hit handle) none scrolled 57 cancel 1 ; paint center (hit handle) none scrolled 50 cancel 1 ; paint top left (hit handle) none scrolled 47 cancel 1 ; paint bottom right (hit handle) none scrolled 54 cancel 1
+chromium touch | trail mx-icon-button | box center (hit handle) none scrolled 57 cancel 1 ; box top left (hit mx-list-item) none scrolled 39 cancel 1 ; box bottom right (hit mx-list-item) none scrolled 75 cancel 1 ; paint center (hit handle) none scrolled 57 cancel 1 ; paint top left (hit handle) none scrolled 50 cancel 1 ; paint bottom right (hit handle) none scrolled 79 cancel 1
+chromium gaps | lead span text | display inline | box 9.03x19.00 | content in box: above 0.00 below 0.00 left 0.00 right 0.00
+chromium gaps | lead span mx-icon | display inline | box 16.00x19.00 | content in box: above -1.00 below 4.00 left 0.00 right 0.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right 0.00
+chromium gaps | lead mx-icon-button | display contents | box 40.00x40.00 | content in box: above 8.00 below 8.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right -0.02
+chromium gaps | lead button mx-icon | display inline-block | box 29.33x22.33 | content in box: above 3.00 below 6.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -0.67 left 0.00 right 0.00
+chromium gaps | lead button text | display inline-block | box 23.78x21.00 | content in box: above 3.00 below 3.00 left 8.00 right 8.00
+chromium gaps | trail span text | display inline | box 6.72x13.00 | content in box: above 0.00 below 0.00 left 0.00 right 0.00
+chromium gaps | trail span mx-icon | display inline | box 11.00x13.00 | content in box: above -1.00 below 3.00 left 0.00 right 0.00 | glyph in icon: above -1.00 below -1.00 left 0.00 right -0.02
+chromium gaps | trail mx-icon-button | display contents | box 40.00x40.00 | content in box: above 8.00 below 8.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right -0.02
+chromium gaps | trail button mx-icon | display inline-block | box 27.00x22.00 | content in box: above 3.00 below 8.00 left 8.00 right 8.00 | glyph in icon: above -1.00 below -1.00 left 0.00 right -0.02
+chromium gaps | trail button text | display inline-block | box 22.72x22.00 | content in box: above 4.00 below 5.00 left 8.00 right 8.00
+
+## firefox, unmutated
+firefox box | lead span text | display inline-grid | box 13x21 | paint 13x21 | touch-action none
+firefox box | lead mx-icon | display inline-block | box 20x20 | paint 20x20 | touch-action none
+firefox box | lead span mx-icon | display inline-grid | box 16x16 | paint 16x16 | touch-action none
+firefox box | lead mx-icon-button | display inline-grid | box 40x40 | paint 24x24 | touch-action none
+firefox box | lead button mx-icon | display inline-grid | box 25x19 | paint 13x13 | touch-action none
+firefox box | lead button text | display inline-grid | box 23x23 | paint 11x17 | touch-action none
+firefox box | trail span text | display inline-grid | box 10x16 | paint 10x15 | touch-action none
+firefox box | trail mx-icon | display inline-block | box 20x20 | paint 20x20 | touch-action none
+firefox box | trail span mx-icon | display inline-grid | box 11x11 | paint 11x11 | touch-action none
+firefox box | trail mx-icon-button | display inline-grid | box 40x40 | paint 24x24 | touch-action none
+firefox box | trail button mx-icon | display inline-grid | box 23x17 | paint 11x11 | touch-action none
+firefox box | trail button text | display inline-grid | box 22x22 | paint 10x15 | touch-action none
+firefox box | a [data-handle] span in a plain mx-list | display inline-grid | box 13x21
+firefox box | a hidden=until-found span handle | display inline-grid | content-visibility hidden | paint 0x0
+firefox box | a page's display: inline on a span handle | display inline
+firefox mouse | lead span text | proposed B
+firefox mouse | lead mx-icon | proposed B
+firefox mouse | lead span mx-icon | proposed B
+firefox mouse | lead mx-icon-button | proposed B
+firefox mouse | lead button mx-icon | proposed B
+firefox mouse | lead button text | proposed B
+firefox mouse | trail span text | proposed B
+firefox mouse | trail mx-icon | proposed B
+firefox mouse | trail span mx-icon | proposed B
+firefox mouse | trail mx-icon-button | proposed B
+firefox mouse | trail button mx-icon | proposed B
+firefox mouse | trail button text | proposed B
+firefox gaps | lead span text | display inline-grid | box 13.32x21.00 | content in box: above 0.00 below 0.00 left 0.00 right 0.00
+firefox gaps | lead mx-icon | display inline-block | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+firefox gaps | lead span mx-icon | display inline-grid | box 16.00x16.00 | content in box: above 0.00 below 0.00 left 0.00 right 0.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right 0.00
+firefox gaps | lead mx-icon-button | display inline-grid | box 40.00x40.00 | content in box: above 8.00 below 8.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right 0.00
+firefox gaps | lead button mx-icon | display inline-grid | box 25.33x19.33 | content in box: above 3.00 below 3.00 left 6.00 right 6.00 | glyph in icon: above -1.33 below -1.33 left 0.00 right 0.00
+firefox gaps | lead button text | display inline-grid | box 23.08x23.00 | content in box: above 3.00 below 3.00 left 6.00 right 6.00
+firefox gaps | trail span text | display inline-grid | box 9.65x16.00 | content in box: above 1.00 below 0.00 left 0.00 right 0.00
+firefox gaps | trail mx-icon | display inline-block | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+firefox gaps | trail span mx-icon | display inline-grid | box 11.00x11.00 | content in box: above 0.00 below 0.00 left 0.00 right 0.00 | glyph in icon: above -1.00 below -1.00 left 0.00 right 0.00
+firefox gaps | trail mx-icon-button | display inline-grid | box 40.00x40.00 | content in box: above 8.00 below 8.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right 0.00
+firefox gaps | trail button mx-icon | display inline-grid | box 23.00x17.00 | content in box: above 3.00 below 3.00 left 6.00 right 6.00 | glyph in icon: above -1.00 below -1.00 left 0.00 right 0.00
+firefox gaps | trail button text | display inline-grid | box 21.65x22.00 | content in box: above 4.00 below 3.00 left 6.00 right 6.00
+
+## firefox, W4-the-rules-on-a-bare-mx-icon-too: the lines that differ from unmutated
+firefox box | lead mx-icon | display inline-grid | box 20x20 | paint 20x20 | touch-action none
+firefox box | trail mx-icon | display inline-grid | box 20x20 | paint 20x20 | touch-action none
+firefox gaps | lead mx-icon | display inline-grid | box 20.00x20.00 | content in box: above 0.00 below -4.00 left 0.00 right 0.00
+firefox gaps | trail mx-icon | display inline-grid | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+
+## firefox, W4a-the-grid-rule-on-a-bare-mx-icon-too: the lines that differ from unmutated
+firefox box | lead mx-icon | display inline-grid | box 20x20 | paint 20x20 | touch-action none
+firefox box | trail mx-icon | display inline-grid | box 20x20 | paint 20x20 | touch-action none
+firefox gaps | lead mx-icon | display inline-grid | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+firefox gaps | trail mx-icon | display inline-grid | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+
+## firefox, W4b-the-lead-line-height-on-a-bare-mx-icon-too: the lines that differ from unmutated
+firefox gaps | lead mx-icon | display inline-block | box 20.00x20.00 | content in box: above 0.00 below -4.00 left 0.00 right 0.00
+
+## firefox, without-the-handle-rule: the lines that differ from unmutated
+firefox box | lead span text | display inline | box 13x19 | paint 13x21 | touch-action none
+firefox box | lead span mx-icon | display inline | box 16x19 | paint 16x16 | touch-action none
+firefox box | lead mx-icon-button | display contents | box 40x40 | paint 24x24 | touch-action none
+firefox box | lead button mx-icon | display inline-block | box 25x23 | paint 13x13 | touch-action none
+firefox box | lead button text | display inline-block | box 23x23 | paint 11x17 | touch-action none
+firefox box | trail span text | display inline | box 10x14 | paint 10x15 | touch-action none
+firefox box | trail span mx-icon | display inline | box 11x14 | paint 11x11 | touch-action none
+firefox box | trail mx-icon-button | display contents | box 40x40 | paint 24x24 | touch-action none
+firefox box | trail button mx-icon | display inline-block | box 23x22 | paint 11x11 | touch-action none
+firefox box | trail button text | display inline-block | box 22x22 | paint 10x15 | touch-action none
+firefox box | a [data-handle] span in a plain mx-list | display inline | box 13x19
+firefox box | a hidden=until-found span handle | display inline | content-visibility hidden | paint 13x21
+firefox gaps | lead span text | display inline | box 13.32x19.00 | content in box: above -1.00 below -1.00 left 0.00 right 0.00
+firefox gaps | lead span mx-icon | display inline | box 16.00x19.00 | content in box: above -1.00 below 4.00 left 0.00 right 0.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right 0.00
+firefox gaps | lead mx-icon-button | display contents | box 40.00x40.00 | content in box: above 8.00 below 8.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right 0.00
+firefox gaps | lead button mx-icon | display inline-block | box 25.33x23.33 | content in box: above 3.00 below 7.00 left 6.00 right 6.00 | glyph in icon: above -1.33 below -1.33 left 0.00 right 0.00
+firefox gaps | lead button text | display inline-block | box 23.08x23.00 | content in box: above 3.00 below 3.00 left 6.00 right 6.00
+firefox gaps | trail span text | display inline | box 9.65x14.00 | content in box: above 0.00 below -1.00 left 0.00 right 0.00
+firefox gaps | trail span mx-icon | display inline | box 11.00x14.00 | content in box: above 0.00 below 3.00 left 0.00 right 0.00 | glyph in icon: above -1.00 below -1.00 left 0.00 right 0.00
+firefox gaps | trail mx-icon-button | display contents | box 40.00x40.00 | content in box: above 8.00 below 8.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right 0.00
+firefox gaps | trail button mx-icon | display inline-block | box 23.00x22.00 | content in box: above 4.00 below 7.00 left 6.00 right 6.00 | glyph in icon: above -1.00 below -1.00 left 0.00 right 0.00
+firefox gaps | trail button text | display inline-block | box 21.65x22.00 | content in box: above 4.00 below 3.00 left 6.00 right 6.00
+
+## webkit, unmutated
+webkit box | lead span text | display inline-grid | box 13x21 | paint 13x19 | touch-action none
+webkit box | lead mx-icon | display inline-block | box 20x20 | paint 20x20 | touch-action none
+webkit box | lead span mx-icon | display inline-grid | box 16x16 | paint 16x16 | touch-action none
+webkit box | lead mx-icon-button | display inline-grid | box 40x40 | paint 24x24 | touch-action none
+webkit box | lead button mx-icon | display inline-grid | box 32x25 | paint 16x16 | touch-action none
+webkit box | lead button text | display inline-grid | box 29x30 | paint 13x20 | touch-action none
+webkit box | trail span text | display inline-grid | box 10x16 | paint 10x13 | touch-action none
+webkit box | trail mx-icon | display inline-block | box 20x20 | paint 20x20 | touch-action none
+webkit box | trail span mx-icon | display inline-grid | box 11x11 | paint 11x11 | touch-action none
+webkit box | trail mx-icon-button | display inline-grid | box 40x40 | paint 24x24 | touch-action none
+webkit box | trail button mx-icon | display inline-grid | box 27x20 | paint 11x11 | touch-action none
+webkit box | trail button text | display inline-grid | box 26x25 | paint 10x13 | touch-action none
+webkit box | a [data-handle] span in a plain mx-list | display inline-grid | box 13x21
+webkit box | a hidden=until-found span handle | display inline-grid | content-visibility hidden | paint 13x19
+webkit box | a page's display: inline on a span handle | display inline
+webkit mouse | lead span text | proposed B
+webkit mouse | lead mx-icon | proposed B
+webkit mouse | lead span mx-icon | proposed B
+webkit mouse | lead mx-icon-button | proposed B
+webkit mouse | lead button mx-icon | proposed B
+webkit mouse | lead button text | proposed B
+webkit mouse | trail span text | proposed B
+webkit mouse | trail mx-icon | proposed B
+webkit mouse | trail span mx-icon | proposed B
+webkit mouse | trail mx-icon-button | proposed B
+webkit mouse | trail button mx-icon | proposed B
+webkit mouse | trail button text | proposed B
+webkit gaps | lead span text | display inline-grid | box 13.31x21.00 | content in box: above 0.50 below 1.50 left 0.00 right 0.00
+webkit gaps | lead mx-icon | display inline-block | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+webkit gaps | lead span mx-icon | display inline-grid | box 16.00x16.00 | content in box: above 0.00 below 0.00 left 0.00 right 0.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right 0.00
+webkit gaps | lead mx-icon-button | display inline-grid | box 40.00x40.00 | content in box: above 8.00 below 8.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right -0.00
+webkit gaps | lead button mx-icon | display inline-grid | box 32.00x25.00 | content in box: above 4.00 below 5.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right 0.00
+webkit gaps | lead button text | display inline-grid | box 29.31x30.00 | content in box: above 4.50 below 5.50 left 8.00 right 8.00
+webkit gaps | trail span text | display inline-grid | box 9.66x16.00 | content in box: above 1.50 below 1.50 left 0.00 right 0.00
+webkit gaps | trail mx-icon | display inline-block | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+webkit gaps | trail span mx-icon | display inline-grid | box 11.00x11.00 | content in box: above 0.00 below 0.00 left 0.00 right 0.00 | glyph in icon: above -1.00 below -1.00 left 0.00 right 0.00
+webkit gaps | trail mx-icon-button | display inline-grid | box 40.00x40.00 | content in box: above 8.00 below 8.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right -0.00
+webkit gaps | trail button mx-icon | display inline-grid | box 27.00x20.00 | content in box: above 4.00 below 5.00 left 8.00 right 8.00 | glyph in icon: above -1.00 below -1.00 left 0.00 right 0.00
+webkit gaps | trail button text | display inline-grid | box 25.66x25.00 | content in box: above 5.50 below 6.50 left 8.00 right 8.00
+
+## webkit, W4-the-rules-on-a-bare-mx-icon-too: the lines that differ from unmutated
+webkit box | lead mx-icon | display inline-grid | box 20x20 | paint 20x20 | touch-action none
+webkit box | trail mx-icon | display inline-grid | box 20x20 | paint 20x20 | touch-action none
+webkit gaps | lead mx-icon | display inline-grid | box 20.00x20.00 | content in box: above 0.00 below -4.00 left 0.00 right 0.00
+webkit gaps | trail mx-icon | display inline-grid | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+
+## webkit, W4a-the-grid-rule-on-a-bare-mx-icon-too: the lines that differ from unmutated
+webkit box | lead mx-icon | display inline-grid | box 20x20 | paint 20x20 | touch-action none
+webkit box | trail mx-icon | display inline-grid | box 20x20 | paint 20x20 | touch-action none
+webkit gaps | lead mx-icon | display inline-grid | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+webkit gaps | trail mx-icon | display inline-grid | box 20.00x20.00 | content in box: above -2.00 below -2.00 left 0.00 right 0.00
+
+## webkit, W4b-the-lead-line-height-on-a-bare-mx-icon-too: the lines that differ from unmutated
+webkit gaps | lead mx-icon | display inline-block | box 20.00x20.00 | content in box: above 0.00 below -4.00 left 0.00 right 0.00
+
+## webkit, without-the-handle-rule: the lines that differ from unmutated
+webkit box | lead span text | display inline | box 13x19 | paint 13x19 | touch-action none
+webkit box | lead span mx-icon | display inline | box 16x19 | paint 16x16 | touch-action none
+webkit box | lead mx-icon-button | display contents | box 40x40 | paint 24x24 | touch-action none
+webkit box | lead button mx-icon | display inline-block | box 32x31 | paint 16x16 | touch-action none
+webkit box | lead button text | display inline-block | box 29x30 | paint 13x20 | touch-action none
+webkit box | trail span text | display inline | box 10x13 | paint 10x13 | touch-action none
+webkit box | trail span mx-icon | display inline | box 11x13 | paint 11x11 | touch-action none
+webkit box | trail mx-icon-button | display contents | box 40x40 | paint 24x24 | touch-action none
+webkit box | trail button mx-icon | display inline-block | box 27x25 | paint 11x11 | touch-action none
+webkit box | trail button text | display inline-block | box 26x25 | paint 10x13 | touch-action none
+webkit box | a [data-handle] span in a plain mx-list | display inline | box 13x19
+webkit box | a hidden=until-found span handle | display inline | content-visibility hidden | paint 13x19
+webkit gaps | lead span text | display inline | box 13.31x19.00 | content in box: above 0.00 below 0.00 left 0.00 right 0.00
+webkit gaps | lead span mx-icon | display inline | box 16.00x19.00 | content in box: above -1.00 below 4.00 left 0.00 right 0.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right 0.00
+webkit gaps | lead mx-icon-button | display contents | box 40.00x40.00 | content in box: above 8.00 below 8.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right -0.00
+webkit gaps | lead button mx-icon | display inline-block | box 32.00x30.50 | content in box: above 4.00 below 10.50 left 8.00 right 8.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right 0.00
+webkit gaps | lead button text | display inline-block | box 29.31x30.00 | content in box: above 4.50 below 5.50 left 8.00 right 8.00
+webkit gaps | trail span text | display inline | box 9.65x13.00 | content in box: above 0.00 below 0.00 left 0.00 right 0.00
+webkit gaps | trail span mx-icon | display inline | box 11.00x13.00 | content in box: above -1.00 below 3.00 left 0.00 right 0.00 | glyph in icon: above -1.00 below -1.00 left 0.00 right 0.00
+webkit gaps | trail mx-icon-button | display contents | box 40.00x40.00 | content in box: above 8.00 below 8.00 left 8.00 right 8.00 | glyph in icon: above -2.00 below -2.00 left 0.00 right -0.00
+webkit gaps | trail button mx-icon | display inline-block | box 27.00x25.00 | content in box: above 4.50 below 9.50 left 8.00 right 8.00 | glyph in icon: above -1.00 below -1.00 left 0.00 right 0.00
+webkit gaps | trail button text | display inline-block | box 25.66x25.00 | content in box: above 5.50 below 6.50 left 8.00 right 8.00

@@ -1,6 +1,6 @@
 # `items()` borrowing report
 
-**Input:** `drag/production` at `7b9d3c874`, which carries [`items-borrowing-handoff.md`](items-borrowing-handoff.md) and the owner's split of both behaviors into `behavior.ts` and `operation.ts`. **Governing records:** `DRD-31`, `DRI-14` and `DRD-30` in [`00-index.md`](00-index.md), and [`items-copy-assessment.md`](items-copy-assessment.md) §3, §4 and §7.
+**Input:** `drag/production` at `7b9d3c874`, which carries [`items-borrowing-handoff.md`](items-borrowing-handoff.md) and the owner's split of both behaviors into `behavior.ts` and `operation.ts`. **Governing records:** `DRD-31`, `DRI-14` and `DRD-30` in [`00-index.md`](decisions/), and [`items-copy-assessment.md`](items-copy-assessment.md) §3, §4 and §7.
 
 **Outcome:** `DRD-31` landed. `sortable` returns the `items()` array from each pull without a copy, and the operation saves the item's home gap at activation and at every rebase. A landing at home reads only that saved gap. W1 to W5 pass in three engines before and after the change, and each mutation makes its witness fail. **No cost is accepted, and no ceiling or control is re-based.** No timing reading was taken, and `compare.ts` was not run.
 

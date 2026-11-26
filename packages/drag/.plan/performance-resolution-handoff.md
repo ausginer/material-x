@@ -2,7 +2,7 @@
 
 **For:** one `implementer` unit on `drag/performance`. **Base:** the commit that carries this handoff. Its `packages/drag/src` is `a9c323f6a`'s.
 
-**Governing records:** `DRD-42`, `DRD-43`, `DRD-40`, `DRD-23`'s last bullet and `DRO-4` in [`00-index.md`](00-index.md), [`performance-plan.md`](performance-plan.md) §2 P1b, and [`performance-instrument-assessment.md`](performance-instrument-assessment.md). The previous unit is [`performance-instrument-handoff.md`](performance-instrument-handoff.md), and its [report](performance-instrument-report.md) holds the readings this unit starts from. Its driver method for the per-sample runs (§Resumed, item 4) applies here.
+**Governing records:** `DRD-42`, `DRD-43`, `DRD-40`, `DRD-23`'s last bullet and `DRO-4` in [`00-index.md`](decisions/), [`performance-plan.md`](performance-plan.md) §2 P1b, and [`performance-instrument-assessment.md`](performance-instrument-assessment.md). The previous unit is [`performance-instrument-handoff.md`](performance-instrument-handoff.md), and its [report](performance-instrument-report.md) holds the readings this unit starts from. Its driver method for the per-sample runs (§Resumed, item 4) applies here.
 
 **Goal:** after this unit, the kernel per-sample test passes or fails by the source and not by how it is launched, with its sensitivity shown under its own warm pass. The move path and the cycle each have a row driven from inside the page, with a floor measured in two runs. The retained flag against the before arms is attributed.
 

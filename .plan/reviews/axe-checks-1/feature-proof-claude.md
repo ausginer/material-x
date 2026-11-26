@@ -2,7 +2,7 @@
 
 **Files were read at:** `d20c356bdd9c4d070350470a2a7c60a4ac5a7ee5`, the head of `repo/axe-checks-1`, in slot `h`, equal to `origin`. **Diff reviewed:** `ee0afea12..d20c356bd`, after the plan at `f36c6e817`. `main` isn't merged. Mutations changed sources and the test file for a run and restored them, and `packages/` is unchanged. Playwright's Chromium 158, Firefox 159 and WebKit 27.2, one engine at a time (`RD-62`).
 
-**Contract:** `repo:RD-57` in [`00-index.md`](../../00-index.md), with its notes, and the unit's [plan](../../axe-checks-1/axe-checks-plan.md) (`AX-1` to `AX-6`, properties 1 to 6, witnesses 1 to 6). Evidence: [`.plan/axe-checks-1/`](../../axe-checks-1/).
+**Contract:** `repo:RD-57` in [`00-index.md`](../../decisions/RD-57.md), with its notes, and the unit's [plan](../../axe-checks-1/axe-checks-plan.md) (`AX-1` to `AX-6`, properties 1 to 6, witnesses 1 to 6). Evidence: [`.plan/axe-checks-1/`](../../axe-checks-1/).
 
 **Verdict: two findings, both Tier B, both for the architect. No Tier A.** The unit does what its plan says, at this head, in each property and in the three engines. The findings are about what axe sees of an `mx-icon`'s hidden text. On this branch that already makes one row blind to the property in its name (`reviewer-2`). Once `RF-137` (#292) lands, it makes the unit's own note about the fixtures' icons wrong, and so the reason that `RD-58` gives (`reviewer-1`).
 

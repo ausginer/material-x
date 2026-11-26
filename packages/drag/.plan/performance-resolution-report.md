@@ -1,6 +1,6 @@
 # Performance resolution report
 
-**Input:** [`performance-resolution-handoff.md`](performance-resolution-handoff.md), carried by `9fb5ff3b2`. The unit started at `2e3697845`, which is `9fb5ff3b2` plus the [campaign runner](campaign-runner-report.md). `src` is `a9c323f6a`'s. **Governing records:** `DRD-42`, `DRD-43`, `DRD-40`, `DRD-23`'s last bullet and `DRO-4` in [`00-index.md`](00-index.md).
+**Input:** [`performance-resolution-handoff.md`](performance-resolution-handoff.md), carried by `9fb5ff3b2`. The unit started at `2e3697845`, which is `9fb5ff3b2` plus the [campaign runner](campaign-runner-report.md). `src` is `a9c323f6a`'s. **Governing records:** `DRD-42`, `DRD-43`, `DRD-40`, `DRD-23`'s last bullet and `DRO-4` in [`00-index.md`](decisions/).
 
 **Outcome: returned to the architect at item 4 step 6.** Items 1 and 2 are committed. Item 1 meets every requirement. Item 2's rows run, every cycle ends, and the dry checks pass. **`--prove` exited 1:** neither new gate injection flagged on its in-page row. That is the handoff's third return condition, so **B3' didn't run** and the new rows have no baseline. F1, F2 and item 3 ran before `--prove` and are recorded below.
 

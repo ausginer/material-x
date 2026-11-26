@@ -5,7 +5,7 @@
 **Governing records:**
 
 - `DRF-23` and `DRD-54` property 2, as amended on 2026-11-13, in [`00-index.md`](00-index.md): part A;
-- `DRD-55` in [`00-index.md`](00-index.md), with required properties 1 to 7: part B. `DRO-15` step 2;
+- `DRD-55` in [`00-index.md`](decisions/), with required properties 1 to 7: part B. `DRO-15` step 2;
 - [`consumer-tests-assessment.md`](consumer-tests-assessment.md) §2 and §4;
 - `DRD-51` properties 1 and 3, as `DRD-55` amends them;
 - [`performance-plan.md`](performance-plan.md) §3, on sequencing runs and waiting for them.

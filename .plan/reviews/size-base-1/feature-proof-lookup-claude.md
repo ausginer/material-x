@@ -2,7 +2,7 @@
 
 **Files were read at:** `d41499005` (`repo/size-base-1`, pull request [#72](https://github.com/ausginer/material-x/pull/72)'s head), in a detached scratch worktree outside the slots. **Diff reviewed:** `895878db4..d41499005`: `.github/workflows/verify.yml`'s _Sizes at the merge base_ and _Report_ steps, `.scripts/size-report.ts` (`BaseReading`, `readBase`, `renderSizeReport`, the command line), its tests, and the plan's implementation note. The record changes in `11017eaac..895878db4` are read as the governing text and aren't reviewed.
 
-**Governing records:** `repo:RD-7` property 5, with the architect's amendment of 2026-11-19 on the [first feature proof](feature-proof-claude.md), and property 4. The [base-reading plan](../../size-base-1/size-base-plan.md)'s property 6 and its amendment of that day ([`00-index.md`](../../00-index.md)).
+**Governing records:** `repo:RD-7` property 5, with the architect's amendment of 2026-11-19 on the [first feature proof](feature-proof-claude.md), and property 4. The [base-reading plan](../../size-base-1/size-base-plan.md)'s property 6 and its amendment of that day ([`00-index.md`](../../decisions/RD-7.md)).
 
 **Lens:** feature proof, narrowed by the coordinator to the two fixes: amended properties 5 and 6 against the code, the implementer's [witness 7](../../size-base-1/checks/witness-7-lookup-paths.txt), the HTTP 403 path, and anything that could make every lookup fail silently. Every claim below is from my own reading or from a run I made. Those runs are saved in [`checks/feature-proof-lookup-cases.txt`](checks/feature-proof-lookup-cases.txt), with the harness. Nothing is repaired, no record is amended, and nothing was written to GitHub.
 

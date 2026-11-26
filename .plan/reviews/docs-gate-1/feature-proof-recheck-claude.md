@@ -5,7 +5,7 @@
 **Governing records:**
 
 - [`docs-gate-handoff.md`](../../docs-gate-1/docs-gate-handoff.md) §Disposition of the feature proof at `81c9fe47e` and §Remediation of the feature proof;
-- `repo:RD-14` property 6 as amended, in [`00-index.md`](../../00-index.md);
+- `repo:RD-14` property 6 as amended, in [`00-index.md`](../../decisions/RD-14.md);
 - `drag:DRF-48`'s dated readings, in [drag's index](../../../packages/drag/.plan/00-index.md);
 - the report's [§Remediation of the feature proof](../../docs-gate-1/docs-gate-report.md#remediation-of-the-feature-proof), with its `checks/remediation-*.txt`;
 - my [feature proof](feature-proof-claude.md).

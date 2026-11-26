@@ -1,6 +1,6 @@
 # `@trait` follow-ups: no silent doc loss, no emptied import
 
-**Planned 2026-11-20 by the architect** on `repo/trait-decorator-2`, from `origin/main` at `645410c12`. PR #85 merged at `3457e3463`. `RD-26`'s fourth amendment of 2026-11-20 in [`00-index.md`](../00-index.md) records the decisions. **Approved by the owner on 2026-11-20,** with question 1 answered yes.
+**Planned 2026-11-20 by the architect** on `repo/trait-decorator-2`, from `origin/main` at `645410c12`. PR #85 merged at `3457e3463`. `RD-26`'s fourth amendment of 2026-11-20 in [`00-index.md`](../decisions/RD-26.md) records the decisions. **Approved by the owner on 2026-11-20,** with question 1 answered yes.
 
 **Inputs:**
 

@@ -1,0 +1,42 @@
+# Dry run of probes/move.mjs at 771c9335f (the plan's quote described, not quoted), in a scratch clone, not committed. Run on 2026-11-26 by Mx Architect B.
+# node .plan/decision-files-1/probes/move.mjs --classified <scratch>/classified.tsv
+
+{
+ "entries": {
+  "RD": 64,
+  "DRD": 72,
+  "DRO": 21
+ },
+ "moved": 157,
+ "bytes": {
+  ".plan/00-index.md": 519533,
+  "packages/drag/.plan/00-index.md": 533956
+ },
+ "statusRows": 72,
+ "insideRelative": 718,
+ "insideRewritten": 718,
+ "insideAbsolute": 18,
+ "elsewhere": {
+  "fragMoved": 6,
+  "fragOther": 4,
+  "textFile": 16,
+  "toFile": 55,
+  "toDir": 68,
+  "unchanged": 206
+ },
+ "elsewhereTotal": 355,
+ "elsewhereFiles": 284,
+ "sameIndexFragments": 1,
+ "filesWritten": 157,
+ "filesChanged": 290
+}
+Left to a person (2):
+  .plan/00-index.md:1375: a link in code, o; kept
+  .plan/decision-files-1/decision-files-report.md:54: a link in code, ../00-index.md; kept
+
+# Against checks/dry-run-classified.tsv (the dry run at cdbf8c757), by row, place and target: one link leaves, one arrives, and the counts above are the same.
+30c30
+< toDir	.plan/decision-files-1/decision-files-plan.md:55	../decisions/
+---
+> toDir	.plan/decision-files-1/decision-files-report.md:55	../decisions/
+# The plan's line 55 leaves: its quote is now a description. The report's line 55, written at 06c735eb8 after that dry run, quotes the old line in a code span that holds backticks; the script's odd-or-even count reads its link as outside code.

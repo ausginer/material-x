@@ -1,0 +1,32 @@
+# The entries that each open pull request's branch changes in an index or drag's contract, from its merge base with origin/main (6aa5330e3), 2026-11-26, by the architect
+# Read with git diff -U0 <merge-base> <head>, each hunk mapped to the ## section and #### entry around it in the head
+
+#298 repo/devcontainer-firefox-1 at 62733e871
+  .plan/00-index.md: ## Decisions | #### RD-13 — Baselines are recorded on GitHub's runner by 
+
+#297 repo/findings-rules-1 at 494b12db4
+  .plan/00-index.md: ## Decisions | #### RD-17 — Units run in parallel in long-lived session s
+  .plan/00-index.md: ## Decisions | #### RD-56 — A finding lives in one GitHub issue, whose bo
+  .plan/00-index.md: ## Decisions | #### RD-63 — A finding's body names its decisions' propert
+  .plan/00-index.md: ## Decisions | #### RD-64 — A decision is a file of its own, named by its
+
+#295 repo/engines-2 at 86a99581e
+  .plan/00-index.md: ## Decisions | #### RD-62 — Development runs in Chromium, a review runs i
+  packages/drag/.plan/00-index.md: ## Owner decisions | #### DRO-18 — WebKit runs in CI, not in local development
+
+#293 repo/axe-checks-1 at dc4f7b8c3
+  .plan/00-index.md: ## Decisions | #### RD-57 — axe-core checks material-x's elements in the 
+  .plan/00-index.md: ## Findings | #### RF-144 — A control in a slot of `mx-list-button-item`
+
+#296 material-x/touch-handle-1 at b203e154e
+  .plan/00-index.md: ## Findings | #### RF-145 — In Chromium, touch doesn't reorder an item b
+  .plan/00-index.md: ## Findings | #### RF-146 — By touch, an item without a handle isn't reo
+
+#291 material-x/group-rtl-1 at 5061a5108
+  .plan/00-index.md: ## Findings | #### RF-134 — In right-to-left text, a connected group's a
+
+#288 material-x/list-selected-1 at 0d88cace2
+  .plan/00-index.md: ## Findings | #### RF-132 — A selected `mx-list-button-item` gives its b
+
+#286 material-x/item-overflow-1 at c7b7a3e32
+  .plan/00-index.md: ## Findings | #### RF-139 — A list item's long texts run out of it, and 

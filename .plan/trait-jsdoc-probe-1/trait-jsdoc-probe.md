@@ -1,6 +1,6 @@
 # A decorated trait's JSDoc in the published `.d.ts`: three ways probed, and a fourth found
 
-**What this record answers:** how the `@trait` pass of [RD-26](../00-index.md#rd-26--traits-are-plain-classes-in-two-layers-a-component-names-its-traits-in-a-composed-annotation-and-the-flattener-is-a-required-build-step) can keep a trait's JSDoc in the published `.d.ts`. It gives the result for each way and a recommendation, as **P47**. It was written by the architect on `repo/trait-jsdoc-probe-1`, from `origin/repo/attributes-decorator-1` at `dfd49e683`. It decides nothing. The source form is RD-26's, and the owner chooses.
+**What this record answers:** how the `@trait` pass of [RD-26](../decisions/RD-26.md) can keep a trait's JSDoc in the published `.d.ts`. It gives the result for each way and a recommendation, as **P47**. It was written by the architect on `repo/trait-jsdoc-probe-1`, from `origin/repo/attributes-decorator-1` at `dfd49e683`. It decides nothing. The source form is RD-26's, and the owner chooses.
 
 **Chosen 2026-11-20 by the owner: way 1,** a `load` stage, with the written form unchanged. `RD-26`'s third amendment of that date records it. The [`@trait` plan](../trait-decorator-1/trait-decorator-plan.md#the-doc-in-the-declarations-a-load-stage) holds the design. Its internal form is `export @trait class`, not this probe's stand-in. **P48** ([`probes/p48/`](probes/p48/), [transcript](checks/p48-run.txt)) measured that form on the implementer's compile at `eda3b1bfc`.
 

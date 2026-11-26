@@ -4,7 +4,7 @@
 
 **Governing records:**
 
-- `repo:RD-26` in [`00-index.md`](../../00-index.md), with both amendments of property 4, the amendment of property 7, and the implementation note.
+- `repo:RD-26` in [`00-index.md`](../../decisions/RD-26.md), with both amendments of property 4, the amendment of property 7, and the implementation note.
 - The closure notes on `RF-44`, `RF-54`, `RF-57` and `RF-63`.
 - The [migration plan](../../trait-decorators-1/trait-migration-plan.md): layers (a) and (b), the plugin's structure, the diagnostics, the seven proofs, and _Decided here_.
 - The [proofs record](../../trait-migration-1/checks/proofs.md).

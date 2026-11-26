@@ -1,0 +1,53 @@
+# The move's script, run on #301 and #303 after each merges the move (repo:RD-64).
+# By the architect, 2026-11-26, in a scratch clone of the local repository, not a worktree.
+# The move's branch at 389a36f53. #301 at 08b72380c, #303 at 5a7cf7e75.
+# #301's merge conflicts only in package-lock.json, resolved to #301's side; no index conflicts.
+
+## git merge 389a36f53 + 5a7cf7e75b289264c15e0ce380b11526d16b28ae
+$ .scripts/entry.sh --duplicates
+no duplicated address in drag, repo
+exit 0
+$ grep -n '^#### RD-' .plan/00-index.md
+17:#### RD-67 — The coordinator reads each session's conte
+$ node .plan/decision-files-1/probes/move.mjs | tail -6
+ "filesWritten": 1,
+ "filesChanged": 3
+Left to a person (2):
+exit 0
+$ git status --short
+ M .plan/00-index.md
+ M .plan/session-context-1/session-context-plan.md
+?? .plan/decisions/RD-67.md
+$ .scripts/entry.sh --duplicates
+no duplicated address in drag, repo
+exit 0
+$ grep -c '^#### RD-' .plan/00-index.md
+0
+$ node .plan/decision-files-1/probes/move.mjs (again); git status --short (unstaged)
+(end)
+
+## git merge 389a36f53 + 08b72380c351c975b6a924f1d6ccc9c05a38e657
+$ .scripts/entry.sh --duplicates
+no duplicated address in drag, repo
+exit 0
+$ grep -n '^#### RD-' .plan/00-index.md
+17:#### RD-65 — A review's mutations are data that one run
+51:#### RD-66 — A dispatched run reads its mutation file w
+$ node .plan/decision-files-1/probes/move.mjs | tail -6
+ "filesWritten": 2,
+ "filesChanged": 5
+Left to a person (2):
+exit 0
+$ git status --short
+ M .plan/00-index.md
+ M .plan/mutations-1/mutations-plan.md
+ M .plan/reviews/mutations-1/feature-proof-claude.md
+?? .plan/decisions/RD-65.md
+?? .plan/decisions/RD-66.md
+$ .scripts/entry.sh --duplicates
+no duplicated address in drag, repo
+exit 0
+$ grep -c '^#### RD-' .plan/00-index.md
+0
+$ node .plan/decision-files-1/probes/move.mjs (again); git status --short (unstaged)
+(end)

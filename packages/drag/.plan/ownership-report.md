@@ -1,6 +1,6 @@
 # Ownership report
 
-**Input:** `drag/production` at `a343b3d45`, which carries [`ownership-handoff.md`](ownership-handoff.md). **Governing records:** `DRD-26`, `DRD-27` (revised 2026-11-07) and `DRD-28` in [`00-index.md`](00-index.md), and [`contract.md`](contract.md).
+**Input:** `drag/production` at `a343b3d45`, which carries [`ownership-handoff.md`](ownership-handoff.md). **Governing records:** `DRD-26`, `DRD-27` (revised 2026-11-07) and `DRD-28` in [`00-index.md`](decisions/), and [`contract.md`](contract.md).
 
 **Outcome:** the three items landed in order. The handoff's stop condition was met once, in item 3, by an existing test edit outside the handoff's list. The owner approved that edit in this session (§Edits beyond the handoff's list). Nothing is returned to the architect. **No cost is accepted, and no ceiling or control is re-based.** The figures below are for `DRO-7`. No timing reading was taken.
 

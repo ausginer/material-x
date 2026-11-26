@@ -1,0 +1,37 @@
+# Chromium 158.0.8127.18. The same rows, one mutation at a time on the branch. Only failing rows are listed.
+
+## M1: the handle rule's display is revert-layer
+× |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by a span with text
+× |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by a span with an mx-icon
+× |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by an mx-icon-button
+× |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by a span with text
+× |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by a span with an mx-icon
+× |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by an mx-icon-button
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+Tests  6 failed | 9 passed | 161 skipped (176)
+
+## M2: mx-icon's slot is display: contents
+× |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by an mx-icon
+× |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by a span with an mx-icon
+× |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by a native button with an mx-icon
+× |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by an mx-icon
+× |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by a span with an mx-icon
+× |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by a native button with an mx-icon
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+Tests  6 failed | 9 passed | 161 skipped (176)
+
+## M3: the handle rule has no :not([hidden]) guard
+× |browser (chromium)| mx-sortable-list handle box > should keep a hidden handle hidden
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 14 passed | 161 skipped (176)
+
+## M4: the handle rule's display is !important
+× |browser (chromium)| mx-sortable-list handle box > should keep a page's display on a handle
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 14 passed | 161 skipped (176)
+
+## M5: each item has touch-action: none (RF-146's witness)
+× |browser (chromium)| mx-sortable-list touch > should propose nothing in a swipe on a mx-list-item without a handle
+× |browser (chromium)| mx-sortable-list touch > should propose nothing in a swipe on a mx-list-button-item without a handle
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+Tests  2 failed | 13 passed | 161 skipped (176)

@@ -1,0 +1,152 @@
+# The mutations at 4cc69c603, against tests/list/sortable-list.browser.test.ts, one at a time in src/list/styles/item/main.styles.css (probes/recheck/mutations.mjs.txt). Chromium 158.0.8127.18, Firefox and WebKit of Playwright 1.65.0. Skipped rows in Firefox and WebKit are the 12 that run in Chromium only, the touch rows among them. Firefox's and WebKit's failure lines carry the stack frame, not the message.
+
+## no mutation | chromium | tests/list/sortable-list.browser.test.ts | 0 failed, 183 passed, 0 skipped
+## W1: the rule of f529f3264 | chromium | tests/list/sortable-list.browser.test.ts | 6 failed, 177 passed, 0 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: AssertionError: expected 'inline-block' to be 'inline-grid' // Object.is equality
+   mx-sortable-list handle box in lead should center the mx-icon of a button handle in its box :: AssertionError: 3 above, 6 below: expected 3 to be less than or equal to 1
+   mx-sortable-list handle box in trail should center the mx-icon of a span handle in its box :: AssertionError: 0 above, 5 below: expected 5 to be less than or equal to 1
+   mx-sortable-list handle box in trail should center the mx-icon of a button handle in its box :: AssertionError: 3 above, 8 below: expected 5 to be less than or equal to 1
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: AssertionError: expected [ false, false ] to deeply equal [ true, true ]
+   mx-sortable-list handle box should keep the text of a lead handle inside its box :: AssertionError: expected [ false, false, true, true ] to deeply equal [ true, true, true, true ]
+## W2: no line-height: normal in lead | chromium | tests/list/sortable-list.browser.test.ts | 1 failed, 182 passed, 0 skipped
+   mx-sortable-list handle box should keep the text of a lead handle inside its box :: AssertionError: expected [ false, false, true, true ] to deeply equal [ true, true, true, true ]
+## W3: no place-items: center | chromium | tests/list/sortable-list.browser.test.ts | 1 failed, 182 passed, 0 skipped
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: AssertionError: expected [ false, false ] to deeply equal [ true, true ]
+## W4: the rules on a bare mx-icon too | chromium | tests/list/sortable-list.browser.test.ts | 0 failed, 183 passed, 0 skipped
+## without the handle rule | chromium | tests/list/sortable-list.browser.test.ts | 12 failed, 171 passed, 0 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: AssertionError: expected 'inline' to be 'inline-grid' // Object.is equality
+   mx-sortable-list handle box in lead should center the mx-icon of a span handle in its box :: AssertionError: -1 above, 4 below: expected 5 to be less than or equal to 1
+   mx-sortable-list handle box in lead should center the mx-icon of a button handle in its box :: AssertionError: 3 above, 6 below: expected 3 to be less than or equal to 1
+   mx-sortable-list handle box in trail should center the mx-icon of a span handle in its box :: AssertionError: -1 above, 3 below: expected 4 to be less than or equal to 1
+   mx-sortable-list handle box in trail should center the mx-icon of a button handle in its box :: AssertionError: 3 above, 8 below: expected 5 to be less than or equal to 1
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: AssertionError: expected [ false, true ] to deeply equal [ true, true ]
+   mx-sortable-list touch in lead should propose a move in a touch drag by a span with text :: AssertionError: expected [] to deeply equal [ <mx-list-item>…(1)</mx-list-item> ]
+   mx-sortable-list touch in lead should propose a move in a touch drag by a span with an mx-icon :: AssertionError: expected [] to deeply equal [ <mx-list-item>…(1)</mx-list-item> ]
+   mx-sortable-list touch in lead should propose a move in a touch drag by an mx-icon-button :: AssertionError: expected [] to deeply equal [ <mx-list-item>…(1)</mx-list-item> ]
+   mx-sortable-list touch in trail should propose a move in a touch drag by a span with text :: AssertionError: expected [] to deeply equal [ <mx-list-item>…(1)</mx-list-item> ]
+   mx-sortable-list touch in trail should propose a move in a touch drag by a span with an mx-icon :: AssertionError: expected [] to deeply equal [ <mx-list-item>…(1)</mx-list-item> ]
+   mx-sortable-list touch in trail should propose a move in a touch drag by an mx-icon-button :: AssertionError: expected [] to deeply equal [ <mx-list-item>…(1)</mx-list-item> ]
+## own: inline-block, keeping place-items and line-height | chromium | tests/list/sortable-list.browser.test.ts | 6 failed, 177 passed, 0 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: AssertionError: expected 'inline-block' to be 'inline-grid' // Object.is equality
+   mx-sortable-list handle box in lead should center the mx-icon of a span handle in its box :: AssertionError: 0 above, 4 below: expected 4 to be less than or equal to 1
+   mx-sortable-list handle box in lead should center the mx-icon of a button handle in its box :: AssertionError: 3 above, 6 below: expected 3 to be less than or equal to 1
+   mx-sortable-list handle box in trail should center the mx-icon of a span handle in its box :: AssertionError: 0 above, 5 below: expected 5 to be less than or equal to 1
+   mx-sortable-list handle box in trail should center the mx-icon of a button handle in its box :: AssertionError: 3 above, 8 below: expected 5 to be less than or equal to 1
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: AssertionError: expected [ false, false ] to deeply equal [ true, true ]
+## own: align-items in place of place-items | chromium | tests/list/sortable-list.browser.test.ts | 1 failed, 182 passed, 0 skipped
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: AssertionError: expected [ true, false ] to deeply equal [ true, true ]
+## own: the handle inline | chromium | tests/list/sortable-list.browser.test.ts | 14 failed, 169 passed, 0 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: AssertionError: expected 'inline' to be 'inline-grid' // Object.is equality
+   mx-sortable-list handle box in lead should center the mx-icon of a span handle in its box :: AssertionError: -1 above, 4 below: expected 5 to be less than or equal to 1
+   mx-sortable-list handle box in lead should center the mx-icon of a button handle in its box :: AssertionError: 3 above, 6 below: expected 3 to be less than or equal to 1
+   mx-sortable-list handle box in trail should center the mx-icon of a span handle in its box :: AssertionError: -1 above, 3 below: expected 4 to be less than or equal to 1
+   mx-sortable-list handle box in trail should center the mx-icon of a button handle in its box :: AssertionError: 3 above, 8 below: expected 5 to be less than or equal to 1
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: AssertionError: expected [ false, true ] to deeply equal [ true, true ]
+   mx-sortable-list touch in lead should propose a move in a touch drag by a span with text :: AssertionError: expected [] to deeply equal [ <mx-list-item>…(1)</mx-list-item> ]
+   mx-sortable-list touch in lead should propose a move in a touch drag by a span with an mx-icon :: AssertionError: expected [] to deeply equal [ <mx-list-item>…(1)</mx-list-item> ]
+   mx-sortable-list touch in lead should propose a move in a touch drag by an mx-icon-button :: AssertionError: expected [] to deeply equal [ <mx-list-item>…(1)</mx-list-item> ]
+   mx-sortable-list touch in lead should propose a move in a touch drag by a native button with an mx-icon :: AssertionError: expected [] to deeply equal [ <mx-list-item>…(1)</mx-list-item> ]
+   mx-sortable-list touch in trail should propose a move in a touch drag by a span with text :: AssertionError: expected [] to deeply equal [ <mx-list-item>…(1)</mx-list-item> ]
+   mx-sortable-list touch in trail should propose a move in a touch drag by a span with an mx-icon :: AssertionError: expected [] to deeply equal [ <mx-list-item>…(1)</mx-list-item> ]
+   mx-sortable-list touch in trail should propose a move in a touch drag by an mx-icon-button :: AssertionError: expected [] to deeply equal [ <mx-list-item>…(1)</mx-list-item> ]
+   mx-sortable-list touch in trail should propose a move in a touch drag by a native button with an mx-icon :: AssertionError: expected [] to deeply equal [ <mx-list-item>…(1)</mx-list-item> ]
+## without the hidden guard | chromium | tests/list/sortable-list.browser.test.ts | 1 failed, 182 passed, 0 skipped
+   mx-sortable-list handle box should keep a hidden handle hidden :: AssertionError: expected 'inline-grid' to be 'none' // Object.is equality
+## the handle rule !important | chromium | tests/list/sortable-list.browser.test.ts | 1 failed, 182 passed, 0 skipped
+   mx-sortable-list handle box should keep a page's display on a handle :: AssertionError: expected 'inline-grid' to be 'block' // Object.is equality
+## own: until-found hidden too | chromium | tests/list/sortable-list.browser.test.ts | 1 failed, 182 passed, 0 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: AssertionError: expected 'inline' to be 'inline-grid' // Object.is equality
+## W4a: the grid rule on a bare mx-icon too | chromium | tests/list/sortable-list.browser.test.ts | 0 failed, 183 passed, 0 skipped
+## W4b: the lead line-height on a bare mx-icon too | chromium | tests/list/sortable-list.browser.test.ts | 0 failed, 183 passed, 0 skipped
+
+## no mutation | firefox | tests/list/sortable-list.browser.test.ts | 0 failed, 171 passed, 12 skipped
+## W1: the rule of f529f3264 | firefox | tests/list/sortable-list.browser.test.ts | 6 failed, 165 passed, 12 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686526929:2095:49
+   mx-sortable-list handle box in lead should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686526929:2118:70
+   mx-sortable-list handle box in trail should center the mx-icon of a span handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686526929:2118:70
+   mx-sortable-list handle box in trail should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686526929:2118:70
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686526929:2128:140
+   mx-sortable-list handle box should keep the text of a lead handle inside its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686526929:2143:6
+## W2: no line-height: normal in lead | firefox | tests/list/sortable-list.browser.test.ts | 1 failed, 170 passed, 12 skipped
+   mx-sortable-list handle box should keep the text of a lead handle inside its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686567344:2143:6
+## W3: no place-items: center | firefox | tests/list/sortable-list.browser.test.ts | 1 failed, 170 passed, 12 skipped
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686606590:2128:140
+## W4: the rules on a bare mx-icon too | firefox | tests/list/sortable-list.browser.test.ts | 0 failed, 171 passed, 12 skipped
+## without the handle rule | firefox | tests/list/sortable-list.browser.test.ts | 7 failed, 164 passed, 12 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686689389:2095:49
+   mx-sortable-list handle box in lead should center the mx-icon of a span handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686689389:2118:70
+   mx-sortable-list handle box in lead should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686689389:2118:70
+   mx-sortable-list handle box in trail should center the mx-icon of a span handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686689389:2118:70
+   mx-sortable-list handle box in trail should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686689389:2118:70
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686689389:2128:140
+   mx-sortable-list handle box should keep the text of a lead handle inside its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686689389:2143:6
+## own: inline-block, keeping place-items and line-height | firefox | tests/list/sortable-list.browser.test.ts | 6 failed, 165 passed, 12 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686732787:2095:49
+   mx-sortable-list handle box in lead should center the mx-icon of a span handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686732787:2118:70
+   mx-sortable-list handle box in lead should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686732787:2118:70
+   mx-sortable-list handle box in trail should center the mx-icon of a span handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686732787:2118:70
+   mx-sortable-list handle box in trail should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686732787:2118:70
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686732787:2128:140
+## own: align-items in place of place-items | firefox | tests/list/sortable-list.browser.test.ts | 1 failed, 170 passed, 12 skipped
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686778499:2128:140
+## own: the handle inline | firefox | tests/list/sortable-list.browser.test.ts | 7 failed, 164 passed, 12 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686820224:2095:49
+   mx-sortable-list handle box in lead should center the mx-icon of a span handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686820224:2118:70
+   mx-sortable-list handle box in lead should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686820224:2118:70
+   mx-sortable-list handle box in trail should center the mx-icon of a span handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686820224:2118:70
+   mx-sortable-list handle box in trail should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686820224:2118:70
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686820224:2128:140
+   mx-sortable-list handle box should keep the text of a lead handle inside its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686820224:2143:6
+## without the hidden guard | firefox | tests/list/sortable-list.browser.test.ts | 1 failed, 170 passed, 12 skipped
+   mx-sortable-list handle box should keep a hidden handle hidden :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686862867:2090:49
+## the handle rule !important | firefox | tests/list/sortable-list.browser.test.ts | 1 failed, 170 passed, 12 skipped
+   mx-sortable-list handle box should keep a page's display on a handle :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686904645:2085:49
+## own: until-found hidden too | firefox | tests/list/sortable-list.browser.test.ts | 1 failed, 170 passed, 12 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795686949385:2095:49
+## W4a: the grid rule on a bare mx-icon too | firefox | tests/list/sortable-list.browser.test.ts | 0 failed, 171 passed, 12 skipped
+## W4b: the lead line-height on a bare mx-icon too | firefox | tests/list/sortable-list.browser.test.ts | 0 failed, 171 passed, 12 skipped
+
+## no mutation | webkit | tests/list/sortable-list.browser.test.ts | 0 failed, 171 passed, 12 skipped
+## W1: the rule of f529f3264 | webkit | tests/list/sortable-list.browser.test.ts | 6 failed, 165 passed, 12 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2095:53
+   mx-sortable-list handle box in lead should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2118:89
+   mx-sortable-list handle box in trail should center the mx-icon of a span handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2118:89
+   mx-sortable-list handle box in trail should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2118:89
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2128:147
+   mx-sortable-list handle box should keep the text of a lead handle inside its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2143:13
+## W2: no line-height: normal in lead | webkit | tests/list/sortable-list.browser.test.ts | 1 failed, 170 passed, 12 skipped
+   mx-sortable-list handle box should keep the text of a lead handle inside its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2143:13
+## W3: no place-items: center | webkit | tests/list/sortable-list.browser.test.ts | 1 failed, 170 passed, 12 skipped
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2128:147
+## W4: the rules on a bare mx-icon too | webkit | tests/list/sortable-list.browser.test.ts | 0 failed, 171 passed, 12 skipped
+## without the handle rule | webkit | tests/list/sortable-list.browser.test.ts | 6 failed, 165 passed, 12 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2095:53
+   mx-sortable-list handle box in lead should center the mx-icon of a span handle in its box :: @[native code]
+   mx-sortable-list handle box in lead should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2118:89
+   mx-sortable-list handle box in trail should center the mx-icon of a span handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2118:89
+   mx-sortable-list handle box in trail should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2118:89
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2128:147
+## own: inline-block, keeping place-items and line-height | webkit | tests/list/sortable-list.browser.test.ts | 6 failed, 165 passed, 12 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2095:53
+   mx-sortable-list handle box in lead should center the mx-icon of a span handle in its box :: @[native code]
+   mx-sortable-list handle box in lead should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2118:89
+   mx-sortable-list handle box in trail should center the mx-icon of a span handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2118:89
+   mx-sortable-list handle box in trail should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2118:89
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: @http://127.0.0.1:23315/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2128:147
+## own: align-items in place of place-items | webkit | tests/list/sortable-list.browser.test.ts | 1 failed, 170 passed, 12 skipped
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: @http://127.0.0.1:23316/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2128:147
+## own: the handle inline | webkit | tests/list/sortable-list.browser.test.ts | 6 failed, 165 passed, 12 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: @http://127.0.0.1:23316/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2095:53
+   mx-sortable-list handle box in lead should center the mx-icon of a span handle in its box :: @[native code]
+   mx-sortable-list handle box in lead should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23316/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2118:89
+   mx-sortable-list handle box in trail should center the mx-icon of a span handle in its box :: @http://127.0.0.1:23316/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2118:89
+   mx-sortable-list handle box in trail should center the mx-icon of a button handle in its box :: @http://127.0.0.1:23316/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2118:89
+   mx-sortable-list handle box should center the mx-icon of a span handle that the page sizes :: @http://127.0.0.1:23316/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2128:147
+## without the hidden guard | webkit | tests/list/sortable-list.browser.test.ts | 1 failed, 170 passed, 12 skipped
+   mx-sortable-list handle box should keep a hidden handle hidden :: @http://127.0.0.1:23316/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2090:53
+## the handle rule !important | webkit | tests/list/sortable-list.browser.test.ts | 1 failed, 170 passed, 12 skipped
+   mx-sortable-list handle box should keep a page's display on a handle :: @http://127.0.0.1:23316/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2085:53
+## own: until-found hidden too | webkit | tests/list/sortable-list.browser.test.ts | 1 failed, 170 passed, 12 skipped
+   mx-sortable-list handle box should keep the inline-grid box of a handle hidden until found :: @http://127.0.0.1:23316/workspaces/worktrees/d/packages/material-x/tests/list/sortable-list.browser.test.ts:2095:53
+## W4a: the grid rule on a bare mx-icon too | webkit | tests/list/sortable-list.browser.test.ts | 0 failed, 171 passed, 12 skipped
+## W4b: the lead line-height on a bare mx-icon too | webkit | tests/list/sortable-list.browser.test.ts | 0 failed, 171 passed, 12 skipped

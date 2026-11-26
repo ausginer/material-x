@@ -1,0 +1,67 @@
+# Rule 6 as amended, on a real merge of main: origin/main 5d867401f (#303, which adds #### RD-67 to the repository index) merged into the branch's head <H> = 4f8e6fc36 as df607d3b8, with no conflict. <S> = e94ab0e9b.
+
+## entry.sh --duplicates df607d3b8 (the merge, before the rerun)
+decisions outside .plan/decisions/: a decision is a file of its own there
+repo:RD-67
+  .plan/00-index.md:17
+exit 1
+
+## node .plan/decision-files-1/probes/move.mjs (step 1, committed alone as eab14d703)
+{
+ "entries": {
+  "RD": 1
+ },
+ "moved": 1,
+ "bytes": {
+  ".plan/00-index.md": 9018
+ },
+ "statusRows": 0,
+ "insideRelative": 10,
+ "insideRewritten": 10,
+ "insideAbsolute": 0,
+ "elsewhere": {
+  "fragMoved": 0,
+  "fragOther": 13,
+  "textFile": 0,
+  "toFile": 2,
+  "toDir": 0,
+  "unchanged": 213
+ },
+ "elsewhereTotal": 228,
+ "elsewhereFiles": 183,
+ "sameIndexFragments": 0,
+ "filesWritten": 1,
+ "filesChanged": 3
+}
+Left to a person (2):
+  .plan/decision-files-1/decision-files-report.md:54: a link in code, ../00-index.md; kept
+  .plan/decision-files-1/decision-files-report.md:55: a link in code, ../00-index.md; kept
+
+## git diff --stat df607d3b8 eab14d703
+ .plan/00-index.md                               | 49 -------------------------
+ .plan/decisions/RD-67.md                        | 48 ++++++++++++++++++++++++
+ .plan/session-context-1/session-context-plan.md |  4 +-
+ 3 files changed, 50 insertions(+), 51 deletions(-)
+
+## git diff <S> <H> -- .plan/decisions packages/drag/.plan/decisions | git apply --3way (step 2)
+ .plan/decisions/RD-64.md | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+Applied patch to '.plan/decisions/RD-64.md' cleanly; git status empty, so no commit: the rerun doesn't write RD-64.md, because main's index has no RD-64.
+
+## git diff --stat <H> eab14d703 -- .plan/decisions packages/drag/.plan/decisions .plan/00-index.md packages/drag/.plan/00-index.md (step 3)
+ .plan/00-index.md        | 112 ++++++++++++++++++++++++++++++++++++++++++++++-
+ .plan/decisions/RD-67.md |  48 ++++++++++++++++++++
+ 2 files changed, 159 insertions(+), 1 deletion(-)
+
+## entry headings added or removed in the indexes between <H> and eab14d703
++#### RF-148 — A button's label that wraps is drawn outside the button, which keeps its height
++#### RF-149 — No row reads a selected list item that is also disabled
++#### RF-150 — A sortable-list row about the drop zone's paint failed in WebKit under load, and its cause isn't established
+
+## main's own change to the indexes: git diff --stat e457ed209 origin/main (merge base to main), 161 lines, of which RD-67's 49 are now its file
+ .plan/00-index.md | 161 +++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 160 insertions(+), 1 deletion(-)
+
+## entry.sh --duplicates (eab14d703)
+no duplicated address in drag, repo
+exit 0

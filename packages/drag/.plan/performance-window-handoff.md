@@ -4,7 +4,7 @@
 
 **For:** one `implementer` unit on `drag/performance`. **Base:** the commit that carries this handoff. Its `packages/drag/src` is `71f20df20`'s.
 
-**Governing records:** `DRD-49` in [`00-index.md`](00-index.md), with `DRD-47`, `DRD-46` property 8, `DRD-40` properties 4, 6 and 7, `DRD-44` property 6 and `DRD-45` property 9. [`performance-plan.md`](performance-plan.md) §2 P3. The reasons are in [`free-drag-drop-assessment.md`](free-drag-drop-assessment.md) §2, and the costs in [`performance-trace-report.md`](performance-trace-report.md) §Item 4, candidate 1.
+**Governing records:** `DRD-49` in [`00-index.md`](decisions/), with `DRD-47`, `DRD-46` property 8, `DRD-40` properties 4, 6 and 7, `DRD-44` property 6 and `DRD-45` property 9. [`performance-plan.md`](performance-plan.md) §2 P3. The reasons are in [`free-drag-drop-assessment.md`](free-drag-drop-assessment.md) §2, and the costs in [`performance-trace-report.md`](performance-trace-report.md) §Item 4, candidate 1.
 
 **Goal:** after this unit, `y()` measures only the rows between the placeholder and the pointer, and one beyond, instead of every row at the activation and after every invalidation. The gap is the one a full scan gives. A paired run against `71f20df20` shows whether the 2,000-item cycle row is faster, and that no move row is slower.
 

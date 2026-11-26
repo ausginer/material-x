@@ -2,7 +2,7 @@
 
 **For:** one `implementer` unit on `drag/performance-resolution`, in the worktree `.claude/worktrees/drag-performance-resolution`. **Base:** the commit that carries this handoff. Its `packages/drag/src` is `a9c323f6a`'s, and its `bench/` is `a7b3851c1`'s.
 
-**Governing records:** `DRD-44`, `DRD-43`, `DRD-40` and `DRD-23`'s last bullet in [`00-index.md`](00-index.md), and [`performance-resolution-assessment.md`](performance-resolution-assessment.md) §4. The previous unit is [`performance-resolution-handoff.md`](performance-resolution-handoff.md), and its [report](performance-resolution-report.md) holds the readings this unit starts from.
+**Governing records:** `DRD-44`, `DRD-43`, `DRD-40` and `DRD-23`'s last bullet in [`00-index.md`](decisions/), and [`performance-resolution-assessment.md`](performance-resolution-assessment.md) §4. The previous unit is [`performance-resolution-handoff.md`](performance-resolution-handoff.md), and its [report](performance-resolution-report.md) holds the readings this unit starts from.
 
 **Goal:** after this unit, the architect can tell whether the in-page gates failed because of the machine or because of the method, by `DRD-44` property 8's table, from readings that record their own run-queue wait, core class and speed.
 
