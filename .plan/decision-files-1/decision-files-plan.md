@@ -1,6 +1,6 @@
 # A file per decision — plan
 
-**Status: proposed on 2026-11-26 by the architect, for `repo:RD-64`, which the owner accepted the same day:** _"RD-64 - да"_ ("RD-64, yes"), relayed by the coordinator. This branch, `repo/decision-files-1`, is from `origin/main` at `6aa5330e3`. **The plan waits for the owner's answer to [Q1](#questions) before the move is timed.** The implementer can start on items 1 to 4 of the [work list](#work-list) now.
+**Status: proposed on 2026-11-26 by the architect, for `repo:RD-64`, which the owner accepted the same day:** _"RD-64 - да"_ ("RD-64, yes"), relayed by the coordinator. This branch, `repo/decision-files-1`, is from `origin/main` at `6aa5330e3`. **The owner answered [Q1](#questions) on 2026-11-26, (a): the move waits until #297, #293, #295 and #298 have merged.** It said: _"The plan waits for the owner's answer to Q1 before the move is timed."_ The implementer can start on items 1 to 4 of the [work list](#work-list) now.
 
 `RD-64` and `RD-63` are on #297's branch, `repo/findings-rules-1` at `494b12db4`, and not on `main`. **This unit carries nothing of #297 and waits for it:** the move is made after #297 is on `main` and merged into this branch. #297 adds `RD-63` and `RD-64` to the index and dated notes to `RD-17` and `RD-56`. A move made before it would leave #297 to make those four changes again in files. The plan names `RD-64`'s properties by number, and they are read at `494b12db4`.
 
@@ -97,7 +97,7 @@ Read at `6aa5330e3` ([reading](checks/open-branches.txt)).
 2. **The resolver's two rows and the three rows of its tests,** with the witness.
 3. **The documents** of [the documents](#the-documents), in [technical English](../../.agents/docs/technical-english.md).
 4. **A dry run** on a scratch copy of the tree, not committed: the counts, the lines left to a person, and property 2's witness below. Report anything that a rule doesn't cover, and stop on it.
-5. **After #297 is on `main`, and the owner's answer to Q1:** merge `main`, run the script, and commit its output alone.
+5. **After #297, #293, #295 and #298 are on `main`, by Q1 (a):** merge `main`, run the script, and commit its output alone.
 6. **The checks:**
    - **`RD-64` property 2's witness:** for each moved identifier, `.scripts/entry.sh <scope>:<id>` before the move and after it prints the same text, except the rewritten links and the status paragraph. The comparison is committed as a reading, with the count of identifiers.
    - **Every relative link in a Markdown file of the tree resolves** to a file or directory, by a script, before and after the move. The count of broken links after isn't above the count before. The reading names both.
@@ -133,3 +133,5 @@ Read at `6aa5330e3` ([reading](checks/open-branches.txt)).
 - **(b) Right after #297 merges.** #293, #295 and #298 each remake their change of one or two entries in files, by hand, before they merge.
 
 Nothing else is the owner's. The rules above are the architect's.
+
+**Answered on 2026-11-26 by the owner, (a),** relayed by the coordinator: _"Q1 (a)"_. Recorded by the architect the same day. Item 5 of the [work list](#work-list) waits for #297, #293, #295 and #298 on `main`, and no pull request remakes a change by hand. The same day he set #297 and #295 to merge automatically. Nothing else in the plan changes.
