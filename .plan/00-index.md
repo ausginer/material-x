@@ -4867,6 +4867,8 @@ Tier A, **open**, **ready, with `RF-145`'s unit** (the last note), pre-existing.
 
 **Dated 2026-11-26 by the implementer: (a) is implemented with `RF-145`, on its branch.** The candidate text is in `sortable-list.ts`'s JSDoc and in `list.mdx`'s second bullet, as the table says. No code changes for (a). The row, Chromium only: a swipe on an enabled `mx-list-item` and `mx-list-button-item` without a handle proposes nothing, 2 rows. **Witness:** with `touch-action: none` on each item, both fail ([reading](touch-handle-1/checks/mutations.txt)). They pass at `d20c47bda` too, as nothing changes there.
 
+**Dated 2026-11-26 by the architect: property 3 is amended by `RF-151`'s repair,** on `material-x/drag-selection-1`. It is now: _"No code changes for (a). `touch-action` isn't written on an item, and `user-select` is written on an item only while the item is in a drag, by `RF-151`."_ The text that it replaces is _"No code changes for (a). `touch-action` and `user-select` aren't written on an item."_ (a) doesn't change: a finger on an item without a handle still scrolls, and its text is selectable outside a drag.
+
 #### RF-147 — An `mx-icon` inline in a page's text stands on the text's baseline, off its center
 
 Tier C, **open**, **ready** (the last note), pre-existing. Registered on 2026-11-26 by the architect, on `repo/axe-checks-1`, from #299, which the owner asked to register, relayed by the coordinator. The observation is `RF-145`'s note of 2026-11-26 on the focused handles (`material-x/touch-handle-1`, #296). `RF-146` is the highest `RF-` on any branch on `origin`, so this is the next free number.
@@ -4974,6 +4976,19 @@ Tier A, **open**, **ready**, not this unit's. Registered on 2026-11-26 by the ar
 - **For the unit that takes it:** the repair amends `RF-146` property 3 if it writes `user-select` on an item. Whether WebKit reports this highlight through `getSelection()` decides whether the row can read it, or needs a screenshot.
 - **Not read:** Safari, an item with a handle, the button and link items, the selection after the drop, whether `getSelection()` reports the highlight.
 - **Plan needed:** no. **Size:** _small_.
+
+**Dated 2026-11-26 by the architect: the repair is on the list, by `user-select` on an item in a drag, and drag's kernel doesn't change,** on `material-x/drag-selection-1`, requested by the coordinator, read at `d6f6cf60b`. The implementer offered two repairs. (A) prevents each `pointermove` of an active drag in drag's kernel. (B) writes `user-select: none` on an item that is in a drag. The implementer's reading is that WebKit reports the highlight through `getSelection()`: the press's selection grows with each move after the kernel's `removeAllRanges` at the activation, and it stays after a drop that the page doesn't commit.
+
+- **(B) is chosen.** drag's contract already assigns text to the consumer. Its README and `draggable`'s JSDoc say to give the handle `user-select: none` for text, and `mx-sortable-list` is the consumer that didn't. (A) would change `drag:DRI-11`, _"Only the move that crosses the threshold is prevented"_, a guarantee to every consumer of drag, to repair one consumer. That needs the owner's word, and nothing here needs it.
+- **(B) covers more than the item, by reading:** in WebKit, with the press in the lifted item's text, a held pointer that leaves the list over a page paragraph selects nothing, during the drag and after the drop. Without (B) it selects `e text` ([reading](drag-selection-1/checks/off-list.txt), [probe](drag-selection-1/probes/off-list.browser.test.ts.txt)). Chromium selects nothing either way. The implementer's three rows pass with (B) in WebKit and Chromium.
+- **`RF-146` property 3 is amended,** in its own note: `user-select` is written on an item only while the item is in a drag.
+- **Required properties:**
+  1. An item in a pointer drag isn't selectable, nor is its content, whatever its kind: `mx-list-item`, `mx-list-button-item` and `mx-list-link-item`. One rule in the sortable sheet, `list/styles/sortable`, that `mx-list` doesn't adopt (`RF-129`).
+  2. An item that isn't in a drag keeps its `user-select`, so a press that moves less than the threshold still selects text (row 3).
+  3. drag doesn't change, and neither does `drag:DRI-11`.
+- **Rows,** `browser`, in each engine, by real mouse input: the implementer's three, with rows 1 and 2 for each of the three item kinds. Also **row 4:** the probe's case, in which the held pointer leaves the list over page text, with the selection read during the drag and after the drop. **Witnesses,** in WebKit: without the rule, rows 1, 2 and 4 fail. With the rule on every item, not only in a drag, row 3 fails. If a row reads differently in an engine, or for an item kind, the implementer stops and returns it.
+- **Not read:** Firefox, beyond CI. Safari. An item with a handle, whose handle is inside the item and so takes the rule with it. A link item's native drag, which `draggable="false"` already concerns (`drag:DRI-19`).
+- **Also owed:** sizes by `just size`, in which `list/sortable-list` grows by a few bytes. The list's JSDoc and `list.mdx` don't change, because they promise nothing about selection. A feature proof follows. **Size:** _small_.
 
 #### RF-152 — `parseMs` reads a duration in milliseconds as seconds
 
