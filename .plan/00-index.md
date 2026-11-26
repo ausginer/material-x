@@ -5000,6 +5000,8 @@ Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi
 - **Rejected:** the register saying that `parseMs` reads lowercase units only. That would document a limit that costs as many words as the fix and would still depend on the printer.
 - **What the implementer owes:** `parseMs` reads the unit regardless of case. Rows in `tests/core/utils/fns.browser.test.ts` read `250MS` and `250Ms` as 250, `0.25S` as 250, and throw on `MS`. **Witness:** the `250MS` and `250Ms` rows fail at `4fcc0a457` (250000). `0.25S` and `MS` already pass there, so they fix the contract and don't witness the change. Nothing else in the entry changes.
 
+**Dated 2026-11-26 by the implementer: the unit is read regardless of case,** on `material-x/parse-ms-1`, from `3471619eb`, in Chromium (`RD-62`). `parseMs` compares the value's last two characters, folded to lowercase, with `ms`. The four rows are in `tests/core/utils/fns.browser.test.ts`. **Witness:** at `4fcc0a457`, the `250MS` and `250Ms` rows fail with 250000, and the other eleven pass. **Checks:** with the repair, `tests/core` and `tests/list` pass in Chromium (534 rows). Lint and typecheck are clean.
+
 #### RF-153 — material-x's node tests build with a private-property list that may be stale
 
 Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from observation 1 of #310's [feature proof](reviews/sortable-displacement-1/feature-proof-claude.md#observations), relayed by the coordinator. `RF-152` is the entry before this one. Read at `c2ea0dcbe`.
