@@ -22,8 +22,10 @@
 }
 
 /*
- * Chromium gives a text in a `display: contents` slot no touch action of the
- * host, so a touch on it pans even where the host has `touch-action: none`.
+ * The slot has a box for two engines. WebKit ignores `aria-hidden` on an
+ * element without a box. Chromium gives a text in a `display: contents` slot
+ * no touch action of the host, so a touch on it pans even where the host has
+ * `touch-action: none`.
  */
 slot {
   display: inline;

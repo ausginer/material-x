@@ -1,0 +1,20 @@
+import { afterAll, it } from 'vitest';
+import { xy } from '../src/sortable/xy.ts';
+import { sortable } from '../src/sortable.ts';
+import { commands, engine, frames } from './support/harness.ts';
+const OUT: string[] = [];
+afterAll(() => { throw new Error(`\nPROOF\n${OUT.join('\n')}\nEND`); });
+const st = document.createElement('style'); st.textContent = '[data-drag-placeholder]{float:left}'; document.head.append(st);
+for (const [id, k] of [['r1', 'ArrowUp'], ['r1', 'ArrowDown']] as const) it(`float ${k}`, async () => {
+  const l = document.createElement('div'); l.style.cssText = 'width:220px;position:absolute;top:20px;left:20px';
+  for (const [i, x] of [60, 90, 70, 60, 80, 50].entries()) { const r = document.createElement('div'); r.tabIndex = 0; r.id = `r${i}`; r.style.float = 'left'; const c = document.createElement('div'); c.style.cssText = `width:${x}px;height:40px`; r.append(c); l.append(r); }
+  document.body.append(l);
+  const s = sortable(l, { items: () => [...l.children].filter((e) => !e.hasAttribute('data-drag-placeholder')) as HTMLElement[], axis: xy(), visual: (i: any) => i.firstElementChild, onReorder: () => new Promise(() => {}) } as any);
+  const dump = (): string => [...l.children].map((e: any) => `${e.id || 'P'}:${e.offsetLeft},${e.offsetTop} ${e.offsetWidth}x${e.offsetHeight}`).join(' | ');
+  document.querySelector<HTMLElement>(`#${id}`)!.focus(); await commands.keyPress(k); await frames(3);
+  const p = l.querySelector('[data-drag-placeholder]')!;
+  OUT.push(`${engine} ${k} pending ${dump()}`);
+  document.querySelector(`#${id}`)!.before(p); OUT.push(`${engine} ${k} placeholder before the item, as the return puts it: ${dump()}`);
+  l.style.display = 'none'; l.offsetHeight; l.style.display = ''; OUT.push(`${engine} ${k} the same, relaid: ${dump()}`);
+  s.requestDestroy();
+});

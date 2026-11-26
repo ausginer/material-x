@@ -1,0 +1,12 @@
+#!/bin/bash
+# eng.sh <engine>: the affected files in every browser project, then the four probes on the plain item, one after another.
+Q=/tmp/claude-1000/-workspaces-worktrees-b/e64c54e5-c6df-4cae-91a9-3ec47d1d631e/scratchpad/q
+e=${1:?}
+cd /workspaces/worktrees/f/packages/drag
+F="tests/callbacks.browser.test.ts tests/destruction.browser.test.ts tests/displacement-sink.browser.test.ts tests/displacement.browser.test.ts tests/hot-path.browser.test.ts tests/layout-animation.browser.test.ts tests/sortable.browser.test.ts tests/stories.browser.test.ts tests/y-geometry.browser.test.ts"
+MX_TEST_ENGINES=$e timeout 900 aube exec -- vitest run -c vitest.config.ts $F --reporter=json --outputFile=$Q/files-$e.json > $Q/files-$e.log 2>&1
+export VITE_SETS='[{"axis":"y","env":"none","vis":"item"},{"axis":"xy","env":"none","vis":"item"}]'
+for p in append commit-around cases ends; do
+  MX_TEST_ENGINES=$e timeout 900 aube exec -- vitest run -c vitest.config.ts --project 'browser*' tests/proof-$p.browser.test.ts > $Q/$p-$e.txt 2>&1
+done
+echo done $e

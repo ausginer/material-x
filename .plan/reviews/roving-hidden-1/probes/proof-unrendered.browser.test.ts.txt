@@ -1,0 +1,71 @@
+// Feature proof of RF-143. Prints one line a reading: the member that Tab and Shift+Tab reach, the
+// member of each key, the tab stops, and the members that have the outer marks.
+import { afterAll, describe, it } from 'vitest';
+import { server, userEvent } from 'vitest/browser';
+import '../../src/button-group/connected-button-group.ts';
+import '../../src/button/switch-button.ts';
+import '../../src/button/switch-icon-button.ts';
+import { nextFrame } from '../browser.ts';
+
+const OUT: string[] = [];
+afterAll(() => { throw new Error(`\nPROOF\n${OUT.join('\n')}\nEND`); });
+const E = server.browser;
+const V = ['a', 'b', 'c', 'd'];
+let style: HTMLStyleElement;
+function make(n = 4, tag = 'mx-switch-button'): [HTMLElement, HTMLElement[]] {
+  const g = document.createElement('mx-connected-button-group');
+  const m = V.slice(0, n).map((v) => { const e = document.createElement(tag); e.setAttribute('value', v); e.id = v; if (tag === 'mx-switch-button') e.textContent = v; return e; });
+  g.append(...m); return [g, m];
+}
+function page(css = ''): void { document.body.replaceChildren(); style = document.createElement('style'); style.textContent = css; document.body.append(style); }
+const frames = async (): Promise<void> => { await nextFrame(); await nextFrame(); };
+const act = (): string => (document.activeElement as HTMLElement | null)?.id || document.activeElement?.localName || '-';
+const stops = (g: HTMLElement): string => [...g.children].filter((e) => e.getAttribute('tabindex') === '0').map((e) => e.id).join('') || '-';
+const marks = (g: HTMLElement): string => `${[...g.children].filter((e) => (e as HTMLElement).dataset['first'] !== undefined).map((e) => e.id).join('') || '-'}${[...g.children].filter((e) => (e as HTMLElement).dataset['last'] !== undefined).map((e) => e.id).join('') || '-'}`;
+async function tab(g: HTMLElement, back = false): Promise<string> {
+  const s = document.createElement('button'); s.id = 'side'; if (back) g.after(s); else g.before(s);
+  s.focus(); await userEvent.keyboard(back ? '{Shift>}{Tab}{/Shift}' : '{Tab}'); const r = act(); s.remove(); return r;
+}
+async function say(tag: string, g: HTMLElement): Promise<void> {
+  const st = stops(g); const mk = marks(g); const a = await tab(g); const b = await tab(g, true);
+  OUT.push(`${E} ${tag} | stop ${st} | tab ${a} back ${b} | ends ${mk}`);
+}
+const KEYS = ['{ArrowRight}', '{ArrowDown}', '{ArrowLeft}', '{ArrowUp}', '{Home}', '{End}'];
+async function keys(tag: string, g: HTMLElement, from: HTMLElement): Promise<void> {
+  const r: string[] = [];
+  for (const k of KEYS) { from.focus(); await userEvent.keyboard(k); r.push(act()); }
+  OUT.push(`${E} ${tag} keys from ${from.id}: ${r.join(' ')}`); (document.activeElement as HTMLElement).blur();
+}
+const set: Record<string, [(e: HTMLElement) => void, (e: HTMLElement) => void]> = {
+  hidden: [(e) => { e.hidden = true; }, (e) => { e.hidden = false; }],
+  disabled: [(e) => { e.toggleAttribute('disabled', true); }, (e) => { e.toggleAttribute('disabled', false); }],
+  'until-found': [(e) => { e.setAttribute('hidden', 'until-found'); }, (e) => { e.removeAttribute('hidden'); }],
+  'display:none': [(e) => { e.style.display = 'none'; }, (e) => { e.style.display = ''; }],
+};
+
+// A member changes while the group, or an ancestor, isn't rendered.
+for (const where of ['group hidden', 'ancestor hidden', 'ancestor display', 'details closed', 'content-visibility'] as const) for (const w of ['hidden', 'disabled', 'display:none'] as const) for (const when of ['same task', 'later'] as const) it([where, w, when].join(), async () => {
+  page(); const [g, m] = make(); const p = document.createElement(where === 'details closed' ? 'details' : 'div'); p.append(g); document.body.append(p); if (where === 'details closed') (p as HTMLDetailsElement).open = true; await frames();
+  if (where === 'group hidden') g.hidden = true; else if (where === 'ancestor hidden') p.hidden = true; else if (where === 'ancestor display') p.style.display = 'none'; else if (where === 'details closed') (p as HTMLDetailsElement).open = false; else p.style.contentVisibility = 'hidden';
+  if (when === 'later') { await frames(); await frames(); }
+  set[w]![0](m[0]!); await frames();
+  const s0 = stops(g);
+  if (where === 'group hidden') g.hidden = false; else if (where === 'ancestor hidden') p.hidden = false; else if (where === 'ancestor display') p.style.display = ''; else if (where === 'details closed') (p as HTMLDetailsElement).open = true; else p.style.contentVisibility = '';
+  await frames(); OUT.push(E + ' ' + where + ' | ' + w + ' ' + when + ' | stop while unrendered ' + s0);
+  await say(where + ' | ' + w + ' ' + when, g);
+  const b = document.createElement('button');
+});
+for (const kind of ['built in a display none ancestor', 'shown again in a display none ancestor', 'added in a display none ancestor'] as const) it(kind, async () => {
+  page(); const [g, m] = make(); const p = document.createElement('div'); document.body.append(p);
+  if (kind.startsWith('built')) { p.style.display = 'none'; m[0]!.hidden = true; p.append(g); }
+  if (kind.startsWith('shown')) { m[0]!.hidden = true; p.append(g); await frames(); p.style.display = 'none'; await frames(); m[0]!.hidden = false; }
+  if (kind.startsWith('added')) { p.append(g); await frames(); p.style.display = 'none'; await frames(); const n = document.createElement('mx-switch-button'); n.id = 'n'; n.hidden = true; n.setAttribute('value', 'n'); g.prepend(n); }
+  await frames(); p.style.display = ''; await frames(); await say(kind, g);
+});
+it('raw', async () => {
+  page(); const d = document.createElement('div'); d.innerHTML = '<div id="h"></div><p id="q"></p>'; document.body.append(d);
+  const h = d.querySelector<HTMLElement>('#h')!; const r = h.attachShadow({ mode: 'open' }); r.innerHTML = '<style>:host{display:contents}:host([hidden]){display:none}</style>x'; await frames();
+  const first = getComputedStyle(h).display; d.style.display = 'none'; await frames(); h.hidden = true; const a = getComputedStyle(h).display; const b = getComputedStyle(h).display;
+  OUT.push(E + ' raw: an element with a :host([hidden]) rule in a display:none parent: before ' + first + ', after hidden ' + a + ' then ' + b);
+  const [g, m] = make(); document.body.append(g); await frames(); g.style.display = 'none'; await frames(); getComputedStyle(m[1]!).display; m[0]!.hidden = true; const x = getComputedStyle(m[0]!).display; const y = getComputedStyle(m[0]!).display; await frames(); OUT.push(E + ' raw: a member, after hidden ' + x + ' then ' + y + ', a frame later ' + getComputedStyle(m[0]!).display);
+});

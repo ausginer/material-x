@@ -21,8 +21,8 @@ export const summary = declaration?.summary?.trim();
 export const importSnippet =
   "import '@ydinjs/material-x/button-group/connected-button-group.js';";
 export const usageSnippet = `<mx-connected-button-group value="one">
-  <mx-switch-icon-button value="one"></mx-switch-icon-button>
-  <mx-switch-icon-button value="two"></mx-switch-icon-button>
+  <mx-switch-icon-button value="one" aria-label="One"></mx-switch-icon-button>
+  <mx-switch-icon-button value="two" aria-label="Two"></mx-switch-icon-button>
 </mx-connected-button-group>`;
 
 <Meta of={Stories} />
@@ -84,6 +84,7 @@ Use the live example below to inspect connected interaction behavior:
   - Removing the group's `value` unchecks the switch that the previous value selected. No other switch's `checked` changes.
   - A switch that joins a group with no `value` keeps its `checked`.
 - **Keyboard:** Child controls remain focusable and activatable with keyboard input.
+- **Hidden and disabled members:** A hidden or disabled member isn't the group's tab stop, and no key moves focus to it. Hide a member with its `hidden` attribute. A hidden member stays out of the group's order even where a page's style shows it. When a style alone hides or shows a member, such as a media query, the tab stop follows at the group's next change, and the outer corners don't follow it.
 - **Keyboard focus:** While a button in the group has keyboard focus, it is raised above the others, and the group is a stacking context. An overlay that a page puts in or near the group belongs in the top layer, such as a popover.
 - **Labeling:** Every segment should have text or icon labels with accessible names.
 - **Disabled:** Group-level `disabled` can block interaction for connected options.

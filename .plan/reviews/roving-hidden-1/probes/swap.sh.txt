@@ -1,0 +1,6 @@
+#!/bin/bash
+# swap.sh main|head : the three sources of the unit, and core's build
+cd /workspaces/worktrees/g || exit 1
+F="packages/core/src/controllers/useRovingTabindex.ts packages/material-x/src/button-group/connected-button-group.ts packages/material-x/src/button-group/styles/connected/main.styles.css"
+case $1 in main) git show 2485fb2df:packages/core/src/controllers/useRovingTabindex.ts > /dev/null && for f in $F; do git show 2485fb2df:$f > $f; done;; head) git checkout -q HEAD -- $F;; esac
+(cd packages/core && aube exec just build >/dev/null 2>&1); echo "build $?"

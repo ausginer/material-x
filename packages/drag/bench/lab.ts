@@ -58,7 +58,9 @@ const lab = {
             [...list.children].filter((element) => element.id) as HTMLElement[],
       axis: y(),
       ...(landed ? { landing: landing({ duration: 50 }) } : {}),
-      displacement: layoutAnimation({ duration: 50 }),
+      displacement: layoutAnimation({
+        timing: () => ({ duration: 50, easing: 'ease-out' }),
+      }),
       onReorder({ item, next, from, to }) {
         list.insertBefore(item, next);
 

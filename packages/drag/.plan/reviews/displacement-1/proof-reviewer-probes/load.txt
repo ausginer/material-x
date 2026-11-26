@@ -1,0 +1,61 @@
+# load.sh: two rows; 'minute' with 60 s animations; load-file.sh: the whole file
+hour run 1 load 17.4 Escape:passed:281ms requestCancel:passed:249ms
+hour run 2 load 19.4 Escape:passed:265ms requestCancel:passed:246ms
+hour run 3 load 19.6 Escape:passed:343ms requestCancel:passed:262ms
+hour run 4 load 20.3 Escape:passed:293ms requestCancel:passed:245ms
+hour run 5 load 20.3 Escape:passed:386ms requestCancel:passed:280ms
+hour run 6 load 22.0 Escape:passed:294ms requestCancel:passed:244ms
+hour run 7 load 21.3 Escape:passed:401ms requestCancel:passed:250ms
+hour run 8 load 22.6 Escape:passed:402ms requestCancel:passed:284ms
+hour run 9 load 22.9 Escape:passed:330ms requestCancel:passed:254ms
+hour run 10 load 23.0 Escape:passed:314ms requestCancel:passed:272ms
+hour run 11 load 24.6 Escape:passed:301ms requestCancel:passed:245ms
+hour run 12 load 25.0 Escape:passed:321ms requestCancel:passed:264ms
+hour run 13 load 24.7 Escape:passed:277ms requestCancel:passed:248ms
+hour run 14 load 25.1 Escape:passed:301ms requestCancel:passed:256ms
+hour run 15 load 25.4 Escape:passed:263ms requestCancel:passed:251ms
+hour run 16 load 25.1 Escape:passed:268ms requestCancel:passed:248ms
+hour run 17 load 24.1 Escape:passed:292ms requestCancel:passed:286ms
+hour run 18 load 25.6 Escape:passed:283ms requestCancel:passed:266ms
+hour run 19 load 26.8 Escape:passed:419ms requestCancel:passed:258ms
+hour run 20 load 25.4 Escape:passed:298ms requestCancel:passed:243ms
+minute run 1 load 21.4 Escape:passed:278ms requestCancel:passed:249ms
+minute run 2 load 21.7 Escape:passed:473ms requestCancel:passed:256ms
+minute run 3 load 21.4 Escape:passed:271ms requestCancel:passed:246ms
+minute run 4 load 21.3 Escape:passed:335ms requestCancel:passed:245ms
+minute run 5 load 22.8 Escape:passed:270ms requestCancel:passed:250ms
+minute run 6 load 23.8 Escape:passed:328ms requestCancel:passed:248ms
+minute run 7 load 23.8 Escape:passed:276ms requestCancel:passed:248ms
+minute run 8 load 23.1 Escape:passed:290ms requestCancel:passed:245ms
+minute run 9 load 24.2 Escape:passed:386ms requestCancel:passed:274ms
+minute run 10 load 23.7 Escape:passed:265ms requestCancel:passed:245ms
+minute run 11 load 23.1 Escape:passed:280ms requestCancel:passed:249ms
+minute run 12 load 22.6 Escape:passed:305ms requestCancel:passed:242ms
+minute run 13 load 22.5 Escape:passed:258ms requestCancel:passed:248ms
+minute run 14 load 22.8 Escape:passed:287ms requestCancel:passed:243ms
+minute run 15 load 22.8 Escape:passed:351ms requestCancel:passed:269ms
+minute run 16 load 22.3 Escape:passed:277ms requestCancel:passed:243ms
+minute run 17 load 22.4 Escape:passed:383ms requestCancel:passed:315ms
+minute run 18 load 22.9 Escape:passed:311ms requestCancel:passed:261ms
+minute run 19 load 22.7 Escape:passed:339ms requestCancel:passed:245ms
+minute run 20 load 21.9 Escape:passed:309ms requestCancel:passed:245ms
+file run 1 load 21.8 passed 85 failed 0
+file run 2 load 21.9 passed 85 failed 0
+file run 3 load 22.7 passed 85 failed 0
+file run 4 load 24.8 passed 85 failed 0
+file run 5 load 24.8 passed 85 failed 0
+file run 6 load 23.3 passed 85 failed 0
+file run 7 load 23.6 passed 85 failed 0
+file run 8 load 24.2 passed 85 failed 0
+file run 9 load 23.6 passed 85 failed 0
+file run 10 load 22.5 passed 85 failed 0
+file run 11 load 20.7 passed 85 failed 0
+file run 12 load 19.1 passed 85 failed 0
+file run 13 load 19.9 passed 85 failed 0
+file run 14 load 19.3 passed 85 failed 0
+file run 15 load 20.6 passed 85 failed 0
+file run 16 load 18.7 passed 85 failed 0
+file run 17 load 21.0 passed 85 failed 0
+file run 18 load 21.8 passed 85 failed 0
+file run 19 load 21.8 passed 85 failed 0
+file run 20 load 20.6 passed 85 failed 0
