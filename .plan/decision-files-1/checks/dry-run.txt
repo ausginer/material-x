@@ -1,0 +1,46 @@
+# Dry run of probes/move.mjs at e2a0e05eb, in a scratch clone, not committed. Run on 2026-11-26 by the implementer.
+# node .plan/decision-files-1/probes/move.mjs --classified dry-run-classified.tsv
+
+{
+ "entries": {
+  "RD": 62,
+  "DRD": 72,
+  "DRO": 21
+ },
+ "moved": 155,
+ "bytes": {
+  ".plan/00-index.md": 499533,
+  "packages/drag/.plan/00-index.md": 533476
+ },
+ "statusRows": 72,
+ "insideRelative": 713,
+ "insideRewritten": 713,
+ "insideAbsolute": 18,
+ "elsewhere": {
+  "fragMoved": 5,
+  "fragOther": 4,
+  "toFile": 61,
+  "toDir": 72,
+  "unchanged": 212
+ },
+ "elsewhereTotal": 354,
+ "elsewhereFiles": 283,
+ "sameIndexFragments": 1,
+ "filesWritten": 155,
+ "filesChanged": 284
+}
+Left to a person (4):
+  .plan/00-index.md:1373: a link in code, o; kept
+  .plan/list-sortable-1/list-sortable-plan.md:9: a link to .plan/00-index.md on a line that names DRD-70 of another scope; kept
+  .plan/list-sortable-1/list-sortable-plan.md:9: a link to packages/drag/.plan/00-index.md on a line that names RD-31 of another scope; kept
+  packages/drag/.plan/displacement-1/displacement-plan.md:3: a link to packages/drag/.plan/00-index.md on a line that names RD-60 of another scope; kept
+
+# The tree after it:
+# .scripts/entry.sh --duplicates
+no duplicated address in drag, repo
+# oxfmt --check on the 284 changed and new Markdown files
+All matched files use the correct format.
+Finished in 113ms on 284 files using 12 threads.
+# The script again, on its own output, committed: rerun changed: 0 files
+ "filesChanged": 0
+No line is left to a person.
