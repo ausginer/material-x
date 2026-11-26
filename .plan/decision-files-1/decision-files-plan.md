@@ -157,3 +157,40 @@ Read at `6aa5330e3` ([reading](checks/open-branches.txt)).
 Nothing else is the owner's. The rules above are the architect's.
 
 **Answered on 2026-11-26 by the owner, (a),** relayed by the coordinator: _"Q1 (a)"_. Recorded by the architect the same day. Item 5 of the [work list](#work-list) waits for #297, #293, #295 and #298 on `main`, and no pull request remakes a change by hand. The same day he set #297 and #295 to merge automatically. Nothing else in the plan changes.
+
+## Rulings on the feature proof
+
+**Dated 2026-11-26 by the architect, on the [feature proof](../reviews/decision-files-1/feature-proof-claude.md) read at `6b7ed6263`,** findings `reviewer-1` to `reviewer-4`. The coordinator requested the rulings. `reviewer-5` is the implementer's, as the proof routes it. Every fix below goes in a commit of its own after the move's, so rule 7 still holds. Each fix stays in place when rule 6 runs the script again.
+
+**`reviewer-1`: a check is owed, in this unit.** `RD-64` property 1 says _"A new decision is a new file"_, and nothing enforces it. A branch that adds an entry merges with the move with no conflict, and every check passes. The proof read this for #301 and #303, and so does this note's [reading](checks/open-branches-remake.txt). The case isn't limited to those two. Any branch from before the move that mints a decision and comes back is the same case.
+
+- **Required property:** where a scope's `.plan/decisions/` holds a document, in the working tree or at the commit read, the check that CI already runs (`.scripts/entry.sh --duplicates`) fails when another document of that scope has a heading with a prefix that property 1 moves. Those prefixes are `RD` in `repo`, and `DRD` and `DRO` in `drag`. The failure names each `<path>:<line>`, and its message says that a decision is outside `decisions/`, because the address isn't duplicated. A scope without the directory reads as it does now, so `--duplicates <commit>` on a commit before the move still passes. `DRI-` in `contract.md` isn't such a prefix.
+- **Rows:** a fixture whose `.plan/decisions/` has `RD-1.md` and whose index has `#### RD-2`. `--duplicates` fails and names the index's line, both in the working tree and at a commit. Witness: without the condition, the row fails. Rows 3 and 4 still pass.
+- **Where it runs:** `verify`'s `scope` job runs `--duplicates` in every mode. A `pull_request` run checks out the pull request merged with `main`, so after the move is on `main`, an open branch that still has an entry in an index fails on its next run.
+
+**What #301 and #303 do, if either merges after the move.** Merge `main`, and the check fails. Run `probes/move.mjs` on the merged branch, and commit its output alone. The script moves only the entries that are still in an index, and rewrites the links that name them. Before committing, confirm that the script wrote no file under `decisions/` that already existed: in `git status`, each such file shows as `??`, and nothing under `decisions/` shows as `M`.
+
+- **The reading** ([`open-branches-remake.txt`](checks/open-branches-remake.txt)): on #303 the script writes `RD-67.md`, and on #301 it writes `RD-65.md` and `RD-66.md`. Afterwards no `#### RD-` heading is left in the index, `--duplicates` passes, and a second run changes nothing.
+- **Why the script and not by hand:** [the order](#order-against-open-pull-requests) says _"The script isn't run there, because a branch's index is older than `main`'s files, and the script would write its older text over them."_ That sentence still holds for a branch that changes an existing entry, which still makes its change by hand. A branch that only adds entries and merges cleanly has no older text of a moved entry in its index. The check that the script created only new files confirms this.
+- **If either merges before the move,** rule 6's rerun moves its entries with the rest.
+- **The report's two sentences are wrong, and the implementer corrects them in a dated note:** #301 has no index conflict and adds `RD-65` and `RD-66`, and #303 adds `RD-67`.
+- **The order is the owner's question:** Q2, below.
+
+**`reviewer-2`: the link opens the index, through the fragment of the index's title:** `../../.plan/00-index.md#repository-record--index`. Rule 5's second row keeps any fragment that isn't a moved entry's, so every later run keeps this link.
+
+**`reviewer-3`: a rewritten link whose line cites a section that stays in an index opens that section, through its heading's fragment.** Rule 5's second row keeps that fragment too. `documentation.md` §6 allows a link in a record to be re-pointed in place.
+
+- **The proof's four lines** go to the _Disposition_ section that each one names.
+- **The fifth, `size-acceptance-follow-up-report.md:3`,** goes to its disposition as well. `entry.sh` still finds the three decisions that the line names, and no other path leads to the disposition.
+- **The implementer reads the other candidates:** the rewritten links in [`move-classified.tsv`](checks/move-classified.tsv) (`toFile`, `toDir` and `textFile`) whose line contains `§`, `Disposition`, `Owner decisions`, `_Findings_` or `_Questions_`. There are 44, the proof's five among them. The implementer re-points each link that cites a section that stays in an index.
+- **Rejected: a rule in the script.** `§` doesn't tell an index's section from a decision's: `size-pass-unit-report.md:3` cites `DRD-51` (§First unit). So these lines are read by hand, as rule 5 says, and the fix is made in the source.
+
+**`reviewer-4`: accepted as it is, except for two links.** Each link's text cites where the entry was when the record was written, and its target is where the entry is now, which is what `RD-64` property 6 asks. Changing the text of 115 links would edit records' text for a move, which rule 7 and `documentation.md` §6 don't allow.
+
+- **The two exceptions** are change-record rows whose link opens a directory although the row names one decision. They are re-pointed to that decision's file: `.agents/docs/review-findings.md:31` to `../../.plan/decisions/RD-1.md`, and `CONTRIBUTING.md:454` to `packages/drag/.plan/decisions/DRD-29.md`.
+- **A later run keeps them,** because a link to a decision's file doesn't point into an index.
+
+**Q2, for the owner: the order of #302, #301 and #303.** `RD-64` property 7 says _"The unit merges when no open branch changes a decision entry in an index"_. That condition doesn't hold while #301 and #303 have their entries in the index.
+
+- **(a) Recommended: the order is free.** Whichever pull request is ready first merges first, and #302 merges once its fixes pass their recheck. Property 7's first sentence is amended in place, with its former text, to _"changes an existing decision entry"_. A branch that adds an entry remakes it after the move, by the script, as described above, and the check makes it do so. The amendment changes when the unit merges, not what the tree holds after the merge. With the check in place, the order doesn't affect correctness, and #302 doesn't have to hold a 290-file move against `main` while `main` keeps changing.
+- **(b) #301 and #303 merge first.** Then #302 merges `main` and runs the script again by rule 6. Property 7 stays as written. #302 waits for #301's remediation of `RD-66` and its seven findings, and for their recheck, and every merge of `main` in the meantime means another rerun.
