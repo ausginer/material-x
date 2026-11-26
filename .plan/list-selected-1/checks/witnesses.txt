@@ -1,0 +1,70 @@
+## no mutation | chromium | 0 failed, 57 passed
+## main's sources | chromium | 7 failed, 50 passed
+   mx-list-button-item aria-current, with "step" on the host should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host should stay the host's while the source changes, and then be the component's
+   mx-list-button-item selection should give the control only aria-current="true" when selected before the connect
+   mx-list-button-item selection should give the control only aria-current="true" when selected after the connect
+   mx-list-button-item selection should give the control no ARIA after the item is deselected
+## not selected writes "false" | chromium | 4 failed, 53 passed
+   mx-list-link-item aria-current, with "step" on the host should be the component's without the source, after the source and the host's are set and lost
+   mx-list-button-item aria-current, with "step" on the host should be the component's without the source, after the source and the host's are set and lost
+   mx-list-button-item selection should give the control no ARIA after the item is deselected
+   mx-list-link-item selection should give the control no ARIA after the item is deselected
+## nothing is written | chromium | 12 failed, 45 passed
+   mx-list-link-item aria-current, with "step" on the host should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-current, with "step" on the host should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host should stay the host's while the source changes, and then be the component's
+   mx-list-button-item selection should give the control only aria-current="true" when selected before the connect
+   mx-list-button-item selection should give the control only aria-current="true" when selected after the connect
+   mx-list-link-item selection should give the control only aria-current="page" when selected before the connect
+   mx-list-link-item selection should give the control only aria-current="page" when selected after the connect
+## a button item says "page" | chromium | 6 failed, 51 passed
+   mx-list-button-item aria-current, with "step" on the host should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host should stay the host's while the source changes, and then be the component's
+   mx-list-button-item selection should give the control only aria-current="true" when selected before the connect
+   mx-list-button-item selection should give the control only aria-current="true" when selected after the connect
+## a link item says "true" | chromium | 6 failed, 51 passed
+   mx-list-link-item aria-current, with "step" on the host should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host should stay the host's while the source changes, and then be the component's
+   mx-list-link-item selection should give the control only aria-current="page" when selected before the connect
+   mx-list-link-item selection should give the control only aria-current="page" when selected after the connect
+## the value is written past setOwnARIA | chromium | 8 failed, 49 passed
+   mx-list-link-item aria-current, with "step" on the host should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-current, with "step" on the host should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host should stay the host's while the source changes, and then be the component's
+## aria-pressed in its place | chromium | 12 failed, 45 passed
+   mx-list-link-item aria-current, with "step" on the host should be the component's after the host's is set and lost
+   mx-list-link-item aria-current, with "step" on the host should be the component's when the loss, the source and the connect are in one task
+   mx-list-link-item aria-current, with "step" on the host should be the component's when the host's is set and lost before the first connect
+   mx-list-link-item aria-current, with "step" on the host should stay the host's while the source changes, and then be the component's
+   mx-list-button-item aria-current, with "step" on the host should be the component's after the host's is set and lost
+   mx-list-button-item aria-current, with "step" on the host should be the component's when the loss, the source and the connect are in one task
+   mx-list-button-item aria-current, with "step" on the host should be the component's when the host's is set and lost before the first connect
+   mx-list-button-item aria-current, with "step" on the host should stay the host's while the source changes, and then be the component's
+   mx-list-button-item selection should give the control only aria-current="true" when selected before the connect
+   mx-list-button-item selection should give the control only aria-current="true" when selected after the connect
+   mx-list-link-item selection should give the control only aria-current="page" when selected before the connect
+   mx-list-link-item selection should give the control only aria-current="page" when selected after the connect
+## aria-selected beside it | chromium | 6 failed, 51 passed
+   mx-list-button-item selection should give the control only aria-current="true" when selected before the connect
+   mx-list-button-item selection should give the control only aria-current="true" when selected after the connect
+   mx-list-button-item selection should give the control no ARIA after the item is deselected
+   mx-list-link-item selection should give the control only aria-current="page" when selected before the connect
+   mx-list-link-item selection should give the control only aria-current="page" when selected after the connect
+   mx-list-link-item selection should give the control no ARIA after the item is deselected

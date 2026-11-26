@@ -1,0 +1,13 @@
+# RD-58 (a) at c7863961e, Chromium 158, 2026-11-26, by the implementer
+
+## tests/axe.browser.test.ts, tests/button/split-button.browser.test.ts and tests/icon/icon.browser.test.ts, no change
+Test Files  3 passed (3)
+Tests  151 passed (151)
+✓ |browser (chromium)| tests/button/split-button.browser.test.ts > mx-split-button accessibility tree > should expose no name of the trailing button without a label
+✓ |browser (chromium)| tests/axe.browser.test.ts > axe-core > mx-split-button > should have exactly its listed violations: without secondarylabel
+
+## Witness: without aria-hidden on the trailing button's mx-icon in split-button.tpl.html, tests/axe.browser.test.ts
+× |browser (chromium)| tests/axe.browser.test.ts > axe-core > mx-split-button > should have exactly its listed violations: without secondarylabel
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: Listed: button-name at mx-split-button > mx-icon-button > button (repo:RD-58): expected [] to deeply equal [ Array(1) ]
+Tests  1 failed | 70 passed (71)

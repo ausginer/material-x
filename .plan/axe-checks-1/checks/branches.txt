@@ -1,0 +1,5 @@
+# branches.browser.test.ts.txt, Chromium, axe-core 4.14.1, color-contrast off. RF-132: the source diff in slot b's working tree on 2026-11-25 (not committed, not ruled on yet; aria-current in place of aria-selected).
+main at 8bed561de: selected button item: aria-allowed-attr; deselected button item (selected, then removed): aria-allowed-attr; selected link item: none
+main at 8bed561de: handle in a disabled button item: nested-interactive; in a disabled link item: none
+origin/material-x/disabled-item-1 at 9173a25a1 (RF-142, #278): the same five results. The handle there has tabindex="-1" and aria-disabled="true"
+RF-132's working tree: selected and deselected button item: none; the other three as on main

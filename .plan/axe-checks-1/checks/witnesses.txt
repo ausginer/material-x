@@ -1,0 +1,142 @@
+## 1a. a listed line removed: radio, checked
+ × |browser (chromium)| tests/axe.browser.test.ts:473 > axe-core > mx-radio > should have exactly its listed violations: checked 216ms
+      Tests  1 failed | 69 passed (70)
+AssertionError: Listed: none: expected [ 'label at mx-radio > #input' ] to deeply equal []
++   "label at mx-radio > #input",
+
+## 1b. a line added to a clean state: mx-button, disabled
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-button > should have exactly its listed violations: disabled 259ms
+      Tests  1 failed | 69 passed (70)
+AssertionError: Listed: label at mx-radio > #input (repo:RF-94): expected [] to deeply equal [ 'label at mx-radio > #input' ]
+-   "label at mx-radio > #input",
+
+## 2. useARIA's call out of ButtonCore
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-button > should have exactly its listed violations: icon only 225ms
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-icon-button > should have exactly its listed violations: enabled 104ms
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-icon-button > should have exactly its listed violations: disabled 107ms
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-switch-icon-button > should have exactly its listed violations: off 98ms
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-switch-icon-button > should have exactly its listed violations: on 98ms
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-switch-icon-button > should have exactly its listed violations: required with an error 115ms
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-split-button > should have exactly its listed violations: closed 100ms
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-split-button > should have exactly its listed violations: open 107ms
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-split-button > should have exactly its listed violations: disabled 105ms
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-list-button-item > should have exactly its listed violations: with a trailing control 103ms
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-top-app-bar > should have exactly its listed violations: with controls 102ms
+      Tests  11 failed | 59 passed (70)
+AssertionError: Listed: none: expected [ 'button-name at mx-button > button' ] to deeply equal []
++   "button-name at mx-button > button",
+AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
++   "button-name at mx-icon-button > button",
+AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
++   "button-name at mx-switch-icon-button > button",
+AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
++   "button-name at mx-split-button > mx-icon-button > button",
+AssertionError: Listed: nested-interactive at mx-list-button-item > button (repo:RF-144): expected [ …(2) ] to deeply equal [ Array(1) ]
++   "button-name at mx-icon-button > button",
+AssertionError: Listed: none: expected [ …(2) ] to deeply equal []
++   "button-name at mx-icon-button[slot=\"lead\"] > button",
++   "button-name at mx-icon-button[slot=\"trail\"] > button",
+
+## 2b. the FAB's own useARIA call out
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-fab > should have exactly its listed violations: icon only 243ms
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-fab > should have exactly its listed violations: disabled 107ms
+      Tests  2 failed | 68 passed (70)
+AssertionError: Listed: none: expected [ 'button-name at mx-fab > button' ] to deeply equal []
++   "button-name at mx-fab > button",
+
+## 3. axe.run replaced by an empty result
+ × |browser (chromium)| tests/axe.browser.test.ts:462 > axe-core > should report an unnamed control inside a shadow tree 974ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-button > should have exactly its listed violations: enabled 217ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-button > should have exactly its listed violations: disabled 256ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-button > should have exactly its listed violations: icon only 166ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-link-button > should have exactly its listed violations: enabled 132ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-link-button > should have exactly its listed violations: disabled 101ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-icon-button > should have exactly its listed violations: enabled 98ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-icon-button > should have exactly its listed violations: disabled 109ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-switch-button > should have exactly its listed violations: off 115ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-switch-button > should have exactly its listed violations: on 101ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-switch-button > should have exactly its listed violations: disabled 114ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-switch-button > should have exactly its listed violations: required with an error 92ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-switch-icon-button > should have exactly its listed violations: off 103ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-switch-icon-button > should have exactly its listed violations: on 97ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-switch-icon-button > should have exactly its listed violations: required with an error 100ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-split-button > should have exactly its listed violations: closed 100ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-split-button > should have exactly its listed violations: open 101ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-split-button > should have exactly its listed violations: disabled 145ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-button-group > should have exactly its listed violations: named 154ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-connected-button-group > should have exactly its listed violations: named 100ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-checkbox > should have exactly its listed violations: unchecked 149ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-checkbox > should have exactly its listed violations: checked 181ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-checkbox > should have exactly its listed violations: indeterminate 172ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-checkbox > should have exactly its listed violations: disabled 193ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-checkbox > should have exactly its listed violations: required with an error 162ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-checkbox > should have exactly its listed violations: with a label element 136ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-radio > should have exactly its listed violations: unchecked 136ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-radio > should have exactly its listed violations: checked 159ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-radio > should have exactly its listed violations: disabled 143ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-radio > should have exactly its listed violations: required with an error 96ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-fab > should have exactly its listed violations: icon only 169ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-fab > should have exactly its listed violations: extended and open 130ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-fab > should have exactly its listed violations: extended and closed 153ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-fab > should have exactly its listed violations: disabled 93ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-icon > should have exactly its listed violations: hidden 139ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-list-item > should have exactly its listed violations: with a handle 108ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-list-button-item > should have exactly its listed violations: enabled 114ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-list-button-item > should have exactly its listed violations: selected 104ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-list-button-item > should have exactly its listed violations: deselected 114ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-list-button-item > should have exactly its listed violations: disabled 107ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-list-button-item > should have exactly its listed violations: with a handle 106ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-list-button-item > should have exactly its listed violations: disabled with a handle 109ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-list-button-item > should have exactly its listed violations: with a trailing control 104ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-list-link-item > should have exactly its listed violations: enabled 98ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-list-link-item > should have exactly its listed violations: selected 91ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-list-link-item > should have exactly its listed violations: disabled 101ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-sortable-list > should have exactly its listed violations: with items 103ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-sortable-list > should have exactly its listed violations: with an icon as a handle 96ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-sortable-list > should have exactly its listed violations: with an icon as a handle that the compo… 101ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-sortable-list > should have exactly its listed violations: with a handle that the component names 101ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-sortable-list > should have exactly its listed violations: with button items 102ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-slider > should have exactly its listed violations: with a label 133ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-slider > should have exactly its listed violations: with aria-label 129ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-slider > should have exactly its listed violations: with a value text 101ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-slider > should have exactly its listed violations: disabled 99ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-slider > should have exactly its listed violations: with an error 114ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-text-field > should have exactly its listed violations: with a label 125ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-text-field > should have exactly its listed violations: with aria-label 95ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-text-field > should have exactly its listed violations: outlined 91ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-text-field > should have exactly its listed violations: required with an error, a support text … 92ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-text-field > should have exactly its listed violations: disabled 100ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-text-field > should have exactly its listed violations: read-only 99ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-multiline-text-field > should have exactly its listed violations: with a label 102ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-multiline-text-field > should have exactly its listed violations: required with an error and a support te… 109ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-multiline-text-field > should have exactly its listed violations: disabled 124ms
+ × |browser (chromium)| tests/axe.browser.test.ts:472 > axe-core > mx-top-app-bar > should have exactly its listed violations: with controls 100ms
+      Tests  66 failed | 4 passed (70)
+AssertionError: expected [] to deeply equal [ Array(1) ]
+-   "button-name at mx-icon-button > button",
+AssertionError: Whether axe applied a rule: expected false to be true // Object.is equality
+AssertionError: Listed: label at mx-checkbox > #input (repo:RF-94): expected [] to deeply equal [ 'label at mx-checkbox > #input' ]
+-   "label at mx-checkbox > #input",
+AssertionError: Listed: label at #c > #input (repo:RF-94): expected [] to deeply equal [ 'label at #c > #input' ]
+-   "label at #c > #input",
+AssertionError: Listed: label at mx-radio > #input (repo:RF-94): expected [] to deeply equal [ 'label at mx-radio > #input' ]
+-   "label at mx-radio > #input",
+AssertionError: Listed: aria-allowed-attr at mx-list-button-item > button (repo:RF-132): expected [] to deeply equal [ Array(1) ]
+-   "aria-allowed-attr at mx-list-button-item > button",
+AssertionError: Listed: nested-interactive at mx-list-button-item > button (repo:RF-144): expected [] to deeply equal [ Array(1) ]
+-   "nested-interactive at mx-list-button-item > button",
+
+## 4. a new element in files.json, with no row
+ × |browser (chromium)| tests/axe.browser.test.ts:460 > axe-core > should have a row for each element that a runtime entry defines 421ms
+      Tests  1 failed | 69 passed (70)
+AssertionError: expected [ 'mx-button', …(21) ] to deeply equal [ 'mx-button', …(22) ]
+-   "mx-witness",
+
+## 5. without the glyph file
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-split-button > should have exactly its listed violations: closed 238ms
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-split-button > should have exactly its listed violations: open 156ms
+ × |browser (chromium)| tests/axe.browser.test.ts:474 > axe-core > mx-split-button > should have exactly its listed violations: disabled 199ms
+      Tests  3 failed | 67 passed (70)
+AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
++   "label-content-name-mismatch at mx-split-button > mx-icon-button > button",
+

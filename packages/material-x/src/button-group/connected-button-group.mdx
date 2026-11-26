@@ -86,6 +86,7 @@ Use the live example below to inspect connected interaction behavior:
 - **Keyboard:** Child controls remain focusable and activatable with keyboard input.
 - **Hidden and disabled members:** A hidden or disabled member isn't the group's tab stop, and no key moves focus to it. Hide a member with its `hidden` attribute. A hidden member stays out of the group's order even where a page's style shows it. When a style alone hides or shows a member, such as a media query, the tab stop follows at the group's next change, and the outer corners don't follow it.
 - **Keyboard focus:** While a button in the group has keyboard focus, it is raised above the others, and the group is a stacking context. An overlay that a page puts in or near the group belongs in the top layer, such as a popover.
+- **Direction:** The outer corners of the group's first and last buttons follow the `dir` attribute on the group or an ancestor. A page that sets the CSS `direction` alone gets the corners of left-to-right text, so set `dir`.
 - **Labeling:** Every segment should have text or icon labels with accessible names.
 - **Disabled:** Group-level `disabled` can block interaction for connected options.
 

@@ -1,0 +1,85 @@
+# webkit 27.2, part survivors
+a label, 12:30 | mx-list-item | now: item 300x56 content 225.6 trail 30.4 kids [30.4x13] tops [22] lines [1] past 0
+a label, 12:30 | mx-list-button-item | now: item 300x56 content 225.6 trail 30.4 kids [30.4x13] tops [22] lines [1] past 0
+a label, 12:30 | mx-list-item | content does not grow: item 300x164 content 45 trail 30.4 kids [30.4x13] tops [76] lines [1] past 0
+a label, 12:30 | mx-list-button-item | content does not grow: item 300x164 content 40.2 trail 30.4 kids [30.4x13] tops [76] lines [1] past 0
+a label, 12:30 | mx-list-item | trail grows: item 300x68 content 135.3 trail 120.7 kids [30.4x13] tops [28] lines [1] past 0
+a label, 12:30 | mx-list-button-item | trail grows: item 300x68 content 132.9 trail 123.1 kids [30.4x13] tops [28] lines [1] past 0
+a label, 12:30 | mx-list-item | half is 40%: item 300x56 content 225.6 trail 30.4 kids [30.4x13] tops [22] lines [1] past 0
+a label, 12:30 | mx-list-button-item | half is 40%: item 300x56 content 225.6 trail 30.4 kids [30.4x13] tops [22] lines [1] past 0
+a label, 12:30 | mx-list-item | half is 45%: item 300x56 content 225.6 trail 30.4 kids [30.4x13] tops [22] lines [1] past 0
+a label, 12:30 | mx-list-button-item | half is 45%: item 300x56 content 225.6 trail 30.4 kids [30.4x13] tops [22] lines [1] past 0
+a label, 12:30 | mx-list-item | trail min auto: item 300x56 content 225.6 trail 30.4 kids [30.4x13] tops [22] lines [1] past 0
+a label, 12:30 | mx-list-button-item | trail min auto: item 300x56 content 225.6 trail 30.4 kids [30.4x13] tops [22] lines [1] past 0
+a label, 12:30 | mx-list-item | lead shrinks: item 300x56 content 225.6 trail 30.4 kids [30.4x13] tops [22] lines [1] past 0
+a label, 12:30 | mx-list-button-item | lead shrinks: item 300x56 content 225.6 trail 30.4 kids [30.4x13] tops [22] lines [1] past 0
+a button of 130 | mx-list-item | now: item 300x60 content 138.9 trail 117.1 kids [117.1x40] tops [10] lines [1] past 0
+a button of 130 | mx-list-button-item | now: item 300x60 content 138.9 trail 117.1 kids [117.1x40] tops [10] lines [1] past 0
+a button of 130 | mx-list-item | content does not grow: item 300x60 content 45 trail 117.1 kids [117.1x40] tops [10] lines [1] past 0
+a button of 130 | mx-list-button-item | content does not grow: item 300x60 content 40.2 trail 117.1 kids [117.1x40] tops [10] lines [1] past 0
+a button of 130 | mx-list-item | trail grows: item 300x60 content 106 trail 150 kids [117.1x40] tops [10] lines [1] past 0
+a button of 130 | mx-list-button-item | trail grows: item 300x60 content 122 trail 134 kids [117.1x40] tops [10] lines [1] past 0
+a button of 130 | mx-list-item | half is 40%: item 300x60 content 138.9 trail 117.1 kids [117.1x40] tops [10] lines [1] past 0
+a button of 130 | mx-list-button-item | half is 40%: item 300x60 content 148.8 trail 107.2 kids [107.2x40] tops [10] lines [2] past 0
+a button of 130 | mx-list-item | half is 45%: item 300x60 content 138.9 trail 117.1 kids [117.1x40] tops [10] lines [1] past 0
+a button of 130 | mx-list-button-item | half is 45%: item 300x60 content 138.9 trail 117.1 kids [117.1x40] tops [10] lines [1] past 0
+a button of 130 | mx-list-item | trail min auto: item 300x60 content 138.9 trail 117.1 kids [117.1x40] tops [10] lines [1] past 0
+a button of 130 | mx-list-button-item | trail min auto: item 300x60 content 138.9 trail 117.1 kids [117.1x40] tops [10] lines [1] past 0
+a button of 130 | mx-list-item | lead shrinks: item 300x60 content 138.9 trail 117.1 kids [117.1x40] tops [10] lines [1] past 0
+a button of 130 | mx-list-button-item | lead shrinks: item 300x60 content 138.9 trail 117.1 kids [117.1x40] tops [10] lines [1] past 0
+a text of 140 | mx-list-item | now: item 300x56 content 130.6 trail 125.4 kids [125.4x13] tops [22] lines [1] past 0
+a text of 140 | mx-list-button-item | now: item 300x56 content 130.6 trail 125.4 kids [125.4x13] tops [22] lines [1] past 0
+a text of 140 | mx-list-item | content does not grow: item 300x56 content 45 trail 125.4 kids [125.4x13] tops [22] lines [1] past 0
+a text of 140 | mx-list-button-item | content does not grow: item 300x56 content 40.2 trail 125.4 kids [125.4x13] tops [22] lines [1] past 0
+a text of 140 | mx-list-item | trail grows: item 300x56 content 106 trail 150 kids [125.4x13] tops [22] lines [1] past 0
+a text of 140 | mx-list-button-item | trail grows: item 300x56 content 122 trail 134 kids [125.4x13] tops [22] lines [1] past 0
+a text of 140 | mx-list-item | half is 40%: item 300x56 content 136 trail 120 kids [109.5x29] tops [14] lines [2] past 0
+a text of 140 | mx-list-button-item | half is 40%: item 300x56 content 148.8 trail 107.2 kids [78.7x29] tops [14] lines [2] past 0
+a text of 140 | mx-list-item | half is 45%: item 300x56 content 130.6 trail 125.4 kids [125.4x13] tops [22] lines [1] past 0
+a text of 140 | mx-list-button-item | half is 45%: item 300x56 content 135.4 trail 120.6 kids [109.5x29] tops [14] lines [2] past 0
+a text of 140 | mx-list-item | trail min auto: item 300x56 content 130.6 trail 125.4 kids [125.4x13] tops [22] lines [1] past 0
+a text of 140 | mx-list-button-item | trail min auto: item 300x56 content 130.6 trail 125.4 kids [125.4x13] tops [22] lines [1] past 0
+a text of 140 | mx-list-item | lead shrinks: item 300x56 content 130.6 trail 125.4 kids [125.4x13] tops [22] lines [1] past 0
+a text of 140 | mx-list-button-item | lead shrinks: item 300x56 content 130.6 trail 125.4 kids [125.4x13] tops [22] lines [1] past 0
+a fixed 200 | mx-list-item | now: item 300x56 content 56 trail 200 kids [200x24] tops [16] lines [0] past 0
+a fixed 200 | mx-list-button-item | now: item 300x56 content 56 trail 200 kids [200x24] tops [16] lines [0] past 0
+a fixed 200 | mx-list-item | content does not grow: item 300x56 content 45 trail 200 kids [200x24] tops [16] lines [0] past 0
+a fixed 200 | mx-list-button-item | content does not grow: item 300x56 content 40.2 trail 200 kids [200x24] tops [16] lines [0] past 0
+a fixed 200 | mx-list-item | trail grows: item 300x56 content 56 trail 200 kids [200x24] tops [16] lines [0] past 0
+a fixed 200 | mx-list-button-item | trail grows: item 300x56 content 56 trail 200 kids [200x24] tops [16] lines [0] past 0
+a fixed 200 | mx-list-item | half is 40%: item 300x56 content 56 trail 200 kids [200x24] tops [16] lines [0] past 0
+a fixed 200 | mx-list-button-item | half is 40%: item 300x56 content 56 trail 200 kids [200x24] tops [16] lines [0] past 0
+a fixed 200 | mx-list-item | half is 45%: item 300x56 content 56 trail 200 kids [200x24] tops [16] lines [0] past 0
+a fixed 200 | mx-list-button-item | half is 45%: item 300x56 content 56 trail 200 kids [200x24] tops [16] lines [0] past 0
+a fixed 200 | mx-list-item | trail min auto: item 300x56 content 106 trail 150 kids [200x24] tops [16] lines [0] past 34
+a fixed 200 | mx-list-button-item | trail min auto: item 300x56 content 122 trail 134 kids [200x24] tops [16] lines [0] past 50
+a fixed 200 | mx-list-item | lead shrinks: item 300x56 content 56 trail 200 kids [200x24] tops [16] lines [0] past 0
+a fixed 200 | mx-list-button-item | lead shrinks: item 300x56 content 56 trail 200 kids [200x24] tops [16] lines [0] past 0
+large video, fixed 120 | mx-list-item | now: item 300x88 content 10 trail 120 kids [120x24] tops [32] lines [0] past 0
+large video, fixed 120 | mx-list-button-item | now: item 300x88 content 10 trail 120 kids [120x24] tops [32] lines [0] past 0
+large video, fixed 120 | mx-list-item | content does not grow: item 300x88 content 10 trail 120 kids [120x24] tops [32] lines [0] past 0
+large video, fixed 120 | mx-list-button-item | content does not grow: item 300x88 content 10 trail 120 kids [120x24] tops [32] lines [0] past 0
+large video, fixed 120 | mx-list-item | trail grows: item 300x88 content 10 trail 120 kids [120x24] tops [32] lines [0] past 0
+large video, fixed 120 | mx-list-button-item | trail grows: item 300x88 content 10 trail 120 kids [120x24] tops [32] lines [0] past 0
+large video, fixed 120 | mx-list-item | half is 40%: item 300x88 content 10 trail 120 kids [120x24] tops [32] lines [0] past 0
+large video, fixed 120 | mx-list-button-item | half is 40%: item 300x88 content 10 trail 120 kids [120x24] tops [32] lines [0] past 0
+large video, fixed 120 | mx-list-item | half is 45%: item 300x88 content 10 trail 120 kids [120x24] tops [32] lines [0] past 0
+large video, fixed 120 | mx-list-button-item | half is 45%: item 300x88 content 10 trail 120 kids [120x24] tops [32] lines [0] past 0
+large video, fixed 120 | mx-list-item | trail min auto: item 300x88 content 10 trail 120 kids [120x24] tops [32] lines [0] past 0
+large video, fixed 120 | mx-list-button-item | trail min auto: item 300x88 content 10 trail 120 kids [120x24] tops [32] lines [0] past 0
+large video, fixed 120 | mx-list-item | lead shrinks: item 300x88 content 35.1 trail 120 kids [120x24] tops [32] lines [0] past 0
+large video, fixed 120 | mx-list-button-item | lead shrinks: item 300x88 content 32.3 trail 120 kids [120x24] tops [32] lines [0] past 0
+img 56, two words | mx-list-item | 240px: item 240x76 content 36 trail 92 kids [92x40] tops [18] lines [2] past 0
+img 56, two words | mx-list-button-item | 240px: item 240x76 content 31.2 trail 96.8 kids [96.8x40] tops [18] lines [2] past 0
+img 56, two words | mx-list-item | 300px: item 300x76 content 86.9 trail 101.1 kids [101.1x40] tops [18] lines [1] past 0
+img 56, two words | mx-list-button-item | 300px: item 300x76 content 86.9 trail 101.1 kids [101.1x40] tops [18] lines [1] past 0
+img 56, two words | mx-list-item | 360px: item 360x76 content 146.9 trail 101.1 kids [101.1x40] tops [18] lines [1] past 0
+img 56, two words | mx-list-button-item | 360px: item 360x76 content 146.9 trail 101.1 kids [101.1x40] tops [18] lines [1] past 0
+video, label Hi, Unsubscribe | mx-list-item | main: item 300x76 content 32.7 trail 111.3 kids [111.3x40] tops [18] lines [1] past 0
+video, label Hi, Unsubscribe | mx-list-button-item | main: item 300x76 content 32.7 trail 111.3 kids [111.3x40] tops [18] lines [1] past 0
+video, label Hi, Unsubscribe | mx-list-item | now: item 300x76 content 32.7 trail 111.3 kids [111.3x40] tops [18] lines [1] past 0
+video, label Hi, Unsubscribe | mx-list-button-item | now: item 300x76 content 32.7 trail 111.3 kids [111.3x40] tops [18] lines [1] past 0
+video, label Hi, Download | mx-list-item | main: item 300x76 content 49 trail 95 kids [95x40] tops [18] lines [1] past 0
+video, label Hi, Download | mx-list-button-item | main: item 300x76 content 49 trail 95 kids [95x40] tops [18] lines [1] past 0
+video, label Hi, Download | mx-list-item | now: item 300x76 content 49 trail 95 kids [95x40] tops [18] lines [1] past 0
+video, label Hi, Download | mx-list-button-item | now: item 300x76 content 49 trail 95 kids [95x40] tops [18] lines [1] past 0

@@ -76,6 +76,8 @@
   place-content: center;
   gap: var(--md-button-icon-label-space, var(--_icon-label-space));
   text-align: center;
+  /* A label breaks between its words, whatever its container breaks. */
+  overflow-wrap: normal;
   box-sizing: border-box;
   max-block-size: var(--_container-height);
 

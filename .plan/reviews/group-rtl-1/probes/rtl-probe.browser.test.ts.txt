@@ -1,0 +1,228 @@
+// Run as packages/material-x/tests/button-group/zz-rtl-probe.browser.test.ts, a copy removed after each run,
+// with --silent=false, alone or through probes/mutations.mjs with that path.
+// RF-134 feature proof probe: reads where each member's outer corners are,
+// against where the member is drawn, in cases beyond the unit's rows.
+import { expect, it } from 'vitest';
+import '../../src/button-group/connected-button-group.ts';
+import '../../src/button/split-button.ts';
+import '../../src/button/switch-button.ts';
+import { nextFrame, pixels, settleAnimations } from '../browser.ts';
+
+type Reading = Readonly<{
+  x: number;
+  corners: readonly number[];
+}>;
+
+const inner = (element: HTMLElement): HTMLElement =>
+  element.shadowRoot!.querySelector<HTMLElement>('.host')!;
+
+async function read(members: readonly HTMLElement[]): Promise<Reading[]> {
+  await nextFrame();
+  await nextFrame();
+  const readings: Reading[] = [];
+  for (const member of members) {
+    await settleAnimations(member);
+    const box = inner(member);
+    const s = getComputedStyle(box);
+    readings.push({
+      x: Math.round(box.getBoundingClientRect().left),
+      corners: [
+        s.borderTopLeftRadius,
+        s.borderBottomLeftRadius,
+        s.borderTopRightRadius,
+        s.borderBottomRightRadius,
+      ].map(pixels),
+    });
+  }
+  return readings;
+}
+
+/**
+ * Whether the drawn ends have their outer corners outside: the leftmost member's
+ * left corners are larger than its right ones, the rightmost's right ones are,
+ * and a member between them has four equal corners.
+ */
+function verdict(readings: readonly Reading[]): string {
+  const sorted = [...readings].sort((a, b) => a.x - b.x);
+  if (sorted.length === 1) {
+    const [tl, bl, tr, br] = sorted[0]!.corners;
+    return `single ${tl},${bl},${tr},${br}`;
+  }
+  const left = sorted[0]!.corners;
+  const right = sorted.at(-1)!.corners;
+  const middle = sorted.slice(1, -1);
+  const ok =
+    left[0]! > left[2]! &&
+    left[1]! > left[3]! &&
+    right[2]! > right[0]! &&
+    right[3]! > right[1]! &&
+    middle.every(({ corners }) => new Set(corners).size === 1);
+  return ok ? 'outer outside' : 'WRONG';
+}
+
+function switches(labels: readonly string[]): HTMLElement[] {
+  return labels.map((label, i) => {
+    const element = document.createElement('mx-switch-button');
+    element.setAttribute('value', String(i));
+    element.textContent = label;
+    return element;
+  });
+}
+
+const LATIN = ['one', 'two', 'three'];
+const HEBREW = ['אחת', 'שתיים', 'שלוש'];
+
+function group(labels = LATIN): [HTMLElement, HTMLElement[]] {
+  const element = document.createElement('mx-connected-button-group');
+  const members = switches(labels);
+  element.append(...members);
+  return [element, members];
+}
+
+function splitMembers(split: HTMLElement): HTMLElement[] {
+  return [
+    ...split.shadowRoot!.querySelectorAll<HTMLElement>('mx-button, mx-icon-button'),
+  ];
+}
+
+const results: string[] = [];
+
+async function record(
+  name: string,
+  members: readonly HTMLElement[],
+  host: HTMLElement,
+): Promise<void> {
+  const readings = await read(members);
+  results.push(
+    `${name} | direction ${getComputedStyle(host).direction} | :dir(rtl) ${host.matches(':dir(rtl)')} | ${verdict(readings)} | ${readings.map(({ x, corners }) => `${x}:${corners.join(',')}`).join(' ')}`,
+  );
+}
+
+function wrap(...children: Node[]): HTMLDivElement {
+  const div = document.createElement('div');
+  div.append(...children);
+  document.body.append(div);
+  return div;
+}
+
+it('reads the corners', async () => {
+  {
+    const [g, m] = group();
+    const a = wrap(g);
+    await record('ancestor dir set after render, before', m, g);
+    a.dir = 'rtl';
+    await record('ancestor dir set after render, after', m, g);
+    a.dir = 'ltr';
+    await record('ancestor dir rtl then ltr', m, g);
+    a.remove();
+  }
+  {
+    const [g, m] = group();
+    const outer = document.createElement('div');
+    const a = wrap(outer);
+    outer.append(g);
+    await record('grandparent dir set after render, before', m, g);
+    a.dir = 'rtl';
+    await record('grandparent dir set after render, after', m, g);
+    a.remove();
+  }
+  {
+    const split = document.createElement('mx-split-button');
+    split.append('Save');
+    const a = wrap(split);
+    const g = split.shadowRoot!.querySelector<HTMLElement>(
+      'mx-connected-button-group',
+    )!;
+    await record('split, no dir', splitMembers(split), g);
+    split.dir = 'rtl';
+    await record('split dir set after render', splitMembers(split), g);
+    split.removeAttribute('dir');
+    a.dir = 'rtl';
+    await record('split ancestor dir set after render', splitMembers(split), g);
+    a.remove();
+  }
+  {
+    const [g, m] = group(HEBREW);
+    g.dir = 'auto';
+    const a = wrap(g);
+    await record('group dir=auto, Hebrew labels', m, g);
+    a.remove();
+  }
+  {
+    const [g, m] = group(LATIN);
+    const a = wrap(document.createTextNode('שלום '), g);
+    a.dir = 'auto';
+    await record('ancestor dir=auto, Hebrew text first', m, g);
+    a.remove();
+  }
+  {
+    const [g, m] = group();
+    const a = wrap(g);
+    a.style.direction = 'rtl';
+    await record('CSS direction rtl on ancestor, no dir', m, g);
+    a.remove();
+  }
+  {
+    const [g, m] = group(['one', 'two', 'three', 'four']);
+    const a = wrap(g);
+    a.dir = 'rtl';
+    await record('RTL, four members (two between)', m, g);
+    a.remove();
+  }
+  {
+    const [g, m] = group(['one']);
+    const a = wrap(g);
+    await record('LTR, one member', m, g);
+    a.dir = 'rtl';
+    await record('RTL, one member', m, g);
+    a.remove();
+  }
+  {
+    const [g, m] = group();
+    const a = wrap(g);
+    a.dir = 'rtl';
+    await read(m);
+    const [added] = switches(['four']);
+    g.append(added!);
+    await record('RTL, a member appended', [...m, added!], g);
+    m[0]!.remove();
+    await record('RTL, the first member removed', [m[1]!, m[2]!, added!], g);
+    a.remove();
+  }
+  {
+    const host = document.createElement('div');
+    host.dir = 'rtl';
+    const root = host.attachShadow({ mode: 'open' });
+    const [g, m] = group();
+    root.append(g);
+    const a = wrap(host);
+    await record('in a shadow root whose host has dir=rtl', m, g);
+    host.dir = 'ltr';
+    await record('that host changed to ltr', m, g);
+    a.remove();
+  }
+  {
+    const host = document.createElement('div');
+    const root = host.attachShadow({ mode: 'open' });
+    const inside = document.createElement('div');
+    inside.dir = 'rtl';
+    const [g, m] = group();
+    inside.append(g);
+    root.append(inside);
+    const a = wrap(host);
+    await record('in a dir=rtl element in a shadow root', m, g);
+    a.remove();
+  }
+  {
+    const [g, m] = group();
+    const a = wrap(g);
+    document.documentElement.dir = 'rtl';
+    await record('dir=rtl on the root element', m, g);
+    document.documentElement.removeAttribute('dir');
+    await record('dir removed from the root element', m, g);
+    a.remove();
+  }
+
+  console.log(`\n${results.join('\n')}\n`);
+  expect(results.length).toBeGreaterThan(0);
+});

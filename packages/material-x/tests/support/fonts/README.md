@@ -22,4 +22,10 @@ curl -sH 'User-Agent: Mozilla/5.0 Chrome/120' \
 # then fetch the url(...) from the returned @font-face into this directory
 ```
 
+## `keyboard-arrow-down.ttf`
+
+The one glyph `keyboard_arrow_down` of the same family and axes, under the same license, retrieved on 2026-11-25 as above with `icon_names=keyboard_arrow_down`. Only `tests/axe.browser.test.ts` loads it, for the split button's icon: without the glyph the icon renders its name as text, and axe reports that the button's accessible name doesn't contain that text. The shared subset doesn't hold the glyph, because regenerating the subset can change the outlines that other tests and baselines render.
+
+## Missing glyphs
+
 A component whose glyph is missing from the subset renders its ligature name as text, which is visible in review as stray letters instead of an icon. Add the glyph and regenerate rather than accepting such a baseline.

@@ -1,0 +1,8 @@
+# nested.browser.test.ts.txt at 8bed561de, axe-core 4.14.1: a control in a slot of each list item. "tree" is Chromium's own accessibility tree (readAccessibilityTree). axe gave the same in Chromium, Firefox and WebKit; the trees of Firefox and WebKit weren't read.
+mx-list-button-item + handle (sortable list): axe nested-interactive; tree list(listitem(button"Move A A"(generic(button"Move A") generic generic)) generic)
+mx-list-button-item + mx-icon-button: axe nested-interactive; tree list(listitem(button"A More"(generic generic(generic"More"(button"More"(generic))) generic)))
+mx-list-button-item + native button: axe nested-interactive; tree list(listitem(button"A More"(generic generic(button"More") generic)))
+mx-list-link-item + handle: axe none; tree list(listitem(link"Move A A"(generic(button"Move A") generic generic)) generic)
+mx-list-link-item + mx-icon-button: axe none; tree list(listitem(link"A More"(generic generic(generic"More"(button"More"(generic))) generic)))
+mx-list-link-item + native button: axe none; tree list(listitem(link"A More"(generic generic(button"More") generic)))
+mx-list-item, the same three controls: axe none; tree: the control beside the content, in the listitem

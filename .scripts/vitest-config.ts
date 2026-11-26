@@ -502,7 +502,12 @@ function createMaterialXTestProjects(
       ],
       setupFiles: ['tests/support/browser-setup.ts'],
       commands,
-      viteConfig: createMaterialXViteConfig(env, root),
+      viteConfig: mergeConfig(createMaterialXViteConfig(env, root), {
+        // Without it, the first run on a cold cache optimizes axe-core when a
+        // test imports it, and the reload that follows fails the test file in
+        // Firefox and WebKit.
+        optimizeDeps: { include: ['axe-core'] },
+      } satisfies UserConfig),
     }),
     ...createEngineTestProjects({
       name: scopedName('spec', scope),
