@@ -27,6 +27,13 @@
  * add a duplicate to them, and a clone without that commit would fail for a
  * reason unrelated to the change under test.
  *
+ * **Where a scope's `.plan/decisions/` holds a document, it also fails on a
+ * decision heading in any other document of that scope,** naming each place.
+ * A new decision is a new file there (`repo:RD-64`), and a branch from before
+ * the move that adds one to an index merges with no conflict and no duplicate.
+ * A scope without the directory, as at a commit before the move, reads as
+ * before.
+ *
  * **A retired scope is read at the commit its row names, never from the working
  * tree.** Its record no longer changes, so that commit holds all of it. A clone
  * that does not hold the commit gets a fourth error, which names the commit,
@@ -39,13 +46,18 @@ import { join, relative, resolve } from 'node:path';
 /**
  * Where one scope's record lives, relative to the repository, and the
  * current-state documents or directories of Markdown inside it. A retired scope
- * names the commit it is read at.
+ * names the commit it is read at. A scope with decision files names the
+ * families whose entries belong in `DECISIONS`.
  */
 type Scope = Readonly<{
   root: string;
   currentState: readonly string[];
   commit?: string;
+  decisionFamilies?: readonly string[];
 }>;
+
+/** The directory of a scope's decisions, one file each, relative to its root. */
+const DECISIONS = '.plan/decisions';
 
 /**
  * The scopes this build resolves. A new package is a row here. The first row is
@@ -56,16 +68,17 @@ const SCOPES: ReadonlyMap<string, Scope> = new Map([
     'drag',
     {
       root: 'packages/drag',
-      currentState: [
-        '.plan/00-index.md',
-        '.plan/contract.md',
-        '.plan/decisions',
-      ],
+      currentState: ['.plan/00-index.md', '.plan/contract.md', DECISIONS],
+      decisionFamilies: ['DRD', 'DRO'],
     },
   ],
   [
     'repo',
-    { root: '.', currentState: ['.plan/00-index.md', '.plan/decisions'] },
+    {
+      root: '.',
+      currentState: ['.plan/00-index.md', DECISIONS],
+      decisionFamilies: ['RD'],
+    },
   ],
   [
     'drag2',
@@ -223,9 +236,10 @@ function matching(source: string, local: string): string[] {
 
 /**
  * Fails when a current scope's documents claim one local identifier more than
- * once, and prints each such address with every `<path>:<line>` that claims it.
+ * once, or when a scope with decision files has a decision heading outside
+ * them, and prints each such address with every `<path>:<line>` concerned.
  */
-async function checkDuplicates(commit: string | undefined): Promise<void> {
+async function checkHeadings(commit: string | undefined): Promise<void> {
   if (commit !== undefined && !(await holds(commit))) {
     fail(`cannot read ${commit}: this clone does not hold it as a commit`);
   }
@@ -238,29 +252,61 @@ async function checkDuplicates(commit: string | undefined): Promise<void> {
           ? await workingTree(scope)
           : await atCommit(scope, commit);
       const claims = new Map<string, string[]>();
+      const outside = new Map<string, string[]>();
+      const families = documents.some(({ path }) =>
+        path.startsWith(`${DECISIONS}/`),
+      )
+        ? (scope.decisionFamilies ?? [])
+        : [];
 
       for (const { path, source } of documents) {
+        const decisionFile = path.startsWith(`${DECISIONS}/`);
+
         for (const { local, at } of headings(source.split('\n'))) {
+          const place = `${path}:${at + 1}`;
           const places = claims.get(local) ?? [];
-          places.push(`${path}:${at + 1}`);
+          places.push(place);
           claims.set(local, places);
+
+          if (
+            !decisionFile &&
+            families.includes(local.slice(0, local.lastIndexOf('-')))
+          ) {
+            const misplaced = outside.get(local) ?? [];
+            misplaced.push(place);
+            outside.set(local, misplaced);
+          }
         }
       }
 
-      return [...claims]
-        .filter(([, places]) => places.length > 1)
-        .map(
-          ([local, places]) =>
-            `${name}:${local}\n${places.map((place) => `  ${place}`).join('\n')}`,
-        );
+      const format = ([local, places]: readonly [string, string[]]): string =>
+        `${name}:${local}\n${places.map((place) => `  ${place}`).join('\n')}`;
+
+      return {
+        duplicates: [...claims]
+          .filter(([, places]) => places.length > 1)
+          .map(format),
+        outside: [...outside].map(format),
+      };
     }),
   );
-  const duplicates = reports.flat();
+  const duplicates = reports.flatMap((report) => report.duplicates);
+  const outside = reports.flatMap((report) => report.outside);
+  const failures = [
+    ...(duplicates.length > 0
+      ? [
+          `duplicated addresses: each is claimed by more than one entry heading\n${duplicates.join('\n')}`,
+        ]
+      : []),
+    ...(outside.length > 0
+      ? [
+          `decisions outside ${DECISIONS}/: a decision is a file of its own there\n${outside.join('\n')}`,
+        ]
+      : []),
+  ];
 
-  if (duplicates.length > 0) {
-    fail(
-      `duplicated addresses: each is claimed by more than one entry heading\n${duplicates.join('\n')}`,
-    );
+  if (failures.length > 0) {
+    fail(failures.join('\n'));
   }
 
   process.stdout.write(
@@ -272,7 +318,7 @@ const [address, ...rest] = process.argv.slice(2);
 const example = [...SCOPES.keys()][0]!;
 
 if (address === '--duplicates' && rest.length <= 1) {
-  await checkDuplicates(rest[0]);
+  await checkHeadings(rest[0]);
   process.exit(0);
 }
 

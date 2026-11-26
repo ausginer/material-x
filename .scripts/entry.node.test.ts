@@ -463,6 +463,50 @@ describe('entry.sh with a decisions directory', () => {
     );
   });
 
+  it('should refuse a decision heading in an index once a decisions file exists', async () => {
+    const root = await fixture({
+      '.plan/00-index.md': '#### RF-1 — Finding\n\n#### RD-2 — Second\n',
+      '.plan/decisions/RD-1.md': '#### RD-1 — Repository\n',
+    });
+    await git(root, ['add', '.']);
+    await git(root, [
+      '-c',
+      'user.name=fixture',
+      '-c',
+      'user.email=fixture@example.invalid',
+      'commit',
+      '-qm',
+      'fixture',
+    ]);
+
+    const results = await Promise.all([
+      run(root, ['--duplicates']),
+      run(root, ['--duplicates', 'HEAD']),
+    ]);
+
+    expect(results).toEqual(
+      Array(2).fill({
+        code: 1,
+        out: '',
+        err: 'decisions outside .plan/decisions/: a decision is a file of its own there\nrepo:RD-2\n  .plan/00-index.md:3\n',
+      }),
+    );
+  });
+
+  it("should refuse only drag's decision families outside its decisions files", async () => {
+    const root = await fixture({
+      'packages/drag/.plan/00-index.md':
+        '#### DRF-1 — Finding\n\n#### DRO-2 — Owner\n',
+      'packages/drag/.plan/decisions/DRD-1.md': '#### DRD-1 — Drag\n',
+    });
+
+    expect(await run(root, ['--duplicates'])).toEqual({
+      code: 1,
+      out: '',
+      err: 'decisions outside .plan/decisions/: a decision is a file of its own there\ndrag:DRO-2\n  .plan/00-index.md:3\n',
+    });
+  });
+
   it('should read the index alone in a working tree without the directory', async () => {
     const root = await fixture({});
 
