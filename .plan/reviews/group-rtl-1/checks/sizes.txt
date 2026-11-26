@@ -1,0 +1,5 @@
+Brotli, size-limit (aube exec just size --json in packages/material-x): main ee0afea12 sheet, then the head 71b839f4a. Rows that differ:
+button/split-button: 7766 7796
+button-group/connected-button-group: 4042 4069
+complete: 25924 25980
+20 other rows are the same
