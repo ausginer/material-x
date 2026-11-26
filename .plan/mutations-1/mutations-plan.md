@@ -1,6 +1,6 @@
 # A review's mutations as data, one runner, and a CI workflow that runs them in each engine
 
-**Status: answered by the owner on 2026-11-26** ([answers](#the-owners-answers-2026-11-26)), for the main architect to mint. Written by the architect on `repo/mutations-1`, from `origin/main` at `6aa5330e3`, on the coordinator's task of 2026-11-26. The labels `MU-1` to `MU-12` are local to this plan. The main architect mints them as one `RD` (see [Identifiers](#identifiers)).
+**Status: answered by the owner on 2026-11-26** ([answers](#the-owners-answers-2026-11-26)), **and minted as [`repo:RD-65`](../00-index.md) by the main architect the same day** (it said _"for the main architect to mint"_). **Ready for an implementer: unit 1.** Written by the architect on `repo/mutations-1`, from `origin/main` at `6aa5330e3`, on the coordinator's task of 2026-11-26. The labels `MU-1` to `MU-12` are local to this plan. The main architect mints them as one `RD` (see [Identifiers](#identifiers)).
 
 **Where it comes from:**
 
