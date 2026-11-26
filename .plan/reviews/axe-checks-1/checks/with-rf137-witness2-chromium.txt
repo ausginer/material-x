@@ -1,0 +1,10 @@
+## a. RF-137 | chromium
+0 failed, 70 passed
+## b. RF-137, the fixtures' icons not aria-hidden | chromium
+1 failed, 69 passed
+   mx-icon should have exactly its listed violations: hidden
+     AssertionError: Whether axe applied a rule: expected false to be true // Object.is equality
+## c. as b, and useARIA's call out of ButtonCore (witness 2) | chromium
+1 failed, 69 passed
+   mx-icon should have exactly its listed violations: hidden
+     AssertionError: Whether axe applied a rule: expected false to be true // Object.is equality

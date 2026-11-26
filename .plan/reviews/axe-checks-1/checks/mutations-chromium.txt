@@ -1,0 +1,67 @@
+## no mutation | chromium | 0 failed, 70 passed
+## the switch has no aria-checked | chromium | 8 failed, 62 passed
+   mx-switch-button should have exactly its listed violations: off
+     AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   mx-switch-button should have exactly its listed violations: on
+     AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   mx-switch-button should have exactly its listed violations: disabled
+     AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   mx-switch-button should have exactly its listed violations: required with an error
+     AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   mx-switch-icon-button should have exactly its listed violations: off
+     AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   mx-switch-icon-button should have exactly its listed violations: on
+     AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   mx-switch-icon-button should have exactly its listed violations: required with an error
+     AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   mx-connected-button-group should have exactly its listed violations: named
+     AssertionError: Listed: none: expected [ …(2) ] to deeply equal []
+## the switch's role is misspelled | chromium | 8 failed, 62 passed
+   mx-switch-button should have exactly its listed violations: off
+     AssertionError: Listed: none: expected [ …(2) ] to deeply equal []
+   mx-switch-button should have exactly its listed violations: on
+     AssertionError: Listed: none: expected [ …(2) ] to deeply equal []
+   mx-switch-button should have exactly its listed violations: disabled
+     AssertionError: Listed: none: expected [ …(2) ] to deeply equal []
+   mx-switch-button should have exactly its listed violations: required with an error
+     AssertionError: Listed: none: expected [ …(2) ] to deeply equal []
+   mx-switch-icon-button should have exactly its listed violations: off
+     AssertionError: Listed: none: expected [ …(2) ] to deeply equal []
+   mx-switch-icon-button should have exactly its listed violations: on
+     AssertionError: Listed: none: expected [ …(2) ] to deeply equal []
+   mx-switch-icon-button should have exactly its listed violations: required with an error
+     AssertionError: Listed: none: expected [ …(2) ] to deeply equal []
+   mx-connected-button-group should have exactly its listed violations: named
+     AssertionError: Listed: none: expected [ …(4) ] to deeply equal []
+## the slider's input is labelled by aria-labelledby only | chromium | 0 failed, 70 passed
+## the slider's input isn't labelled | chromium | 4 failed, 66 passed
+   mx-slider should have exactly its listed violations: with a label
+     AssertionError: Listed: none: expected [ 'label at mx-slider > #input' ] to deeply equal []
+   mx-slider should have exactly its listed violations: with a value text
+     AssertionError: Listed: none: expected [ 'label at mx-slider > #input' ] to deeply equal []
+   mx-slider should have exactly its listed violations: disabled
+     AssertionError: Listed: none: expected [ 'label at mx-slider > #input' ] to deeply equal []
+   mx-slider should have exactly its listed violations: with an error
+     AssertionError: Listed: none: expected [ 'label at mx-slider > #input' ] to deeply equal []
+## the text field's input is labelled by its <label for> only | chromium | 0 failed, 70 passed
+## the text field's input isn't labelled by its label | chromium | 8 failed, 62 passed
+   mx-text-field should have exactly its listed violations: with a label
+     AssertionError: Listed: none: expected [ 'label at mx-text-field > #field' ] to deeply equal []
+   mx-text-field should have exactly its listed violations: outlined
+     AssertionError: Listed: none: expected [ 'label at mx-text-field > #field' ] to deeply equal []
+   mx-text-field should have exactly its listed violations: required with an error, a support text …
+     AssertionError: Listed: none: expected [ …(2) ] to deeply equal []
+   mx-text-field should have exactly its listed violations: disabled
+     AssertionError: Listed: none: expected [ 'label at mx-text-field > #field' ] to deeply equal []
+   mx-text-field should have exactly its listed violations: read-only
+     AssertionError: Listed: none: expected [ 'label at mx-text-field > #field' ] to deeply equal []
+   mx-multiline-text-field should have exactly its listed violations: with a label
+     AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   mx-multiline-text-field should have exactly its listed violations: required with an error and a support te…
+     AssertionError: Listed: none: expected [ …(2) ] to deeply equal []
+   mx-multiline-text-field should have exactly its listed violations: disabled
+     AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+## the sortable list doesn't name a handle | chromium | 1 failed, 69 passed
+   mx-sortable-list should have exactly its listed violations: with a handle that the component names
+     AssertionError: Listed: none: expected [ 'aria-command-name at span' ] to deeply equal []
+## the group's role through ElementInternals is misspelled | chromium | 0 failed, 70 passed
