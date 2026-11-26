@@ -6545,6 +6545,13 @@ Tier A, **open**, pre-existing. Until the last note, of 2026-11-24, it was Tier 
 
 **What the implementer owes:** the two rows with their witnesses, the two bullets, and the format, lint and typecheck of the changed files, with the root format check. **Recheck:** targeted, by the same reviewer: the two rows in the three engines with the two mutations, and the two texts read. Nothing else of the proof is read again.
 
+**Dated 2026-11-26 by the implementer, on `material-x/group-rtl-1`: the triage's rows, witnesses and text are in,** at `cc92031db` as the base, requested by the coordinator. By `RD-62`, only Chromium was read.
+
+- **Rows,** in `button-group-rtl.spec.browser.test.ts`, under _connected group corners of a member at neither end or at both_: the middle member of an RTL group of three has the group's resting inner corner on all four sides; and the only member of a group has, in an RTL group, the corners it has with no `dir`. The second compares the two readings and names no value.
+- **Witnesses** ([reading](group-rtl-1/checks/witnesses.txt), [program](group-rtl-1/probes/mutate.mjs), which now carries the two mutations), of 74 rows: `[data-first]` out of the RTL first-button rule fails the middle member's row alone, and `:not([data-first])` out of the RTL last-button rule fails the only member's row alone. The other mutations fail what they failed before, and none fails without a mutation.
+- **Text:** a **Direction** bullet in the lists of `connected-button-group.mdx` and `split-button.mdx`, with the triage's substance.
+- **Not run:** Firefox, WebKit and Safari; the recheck reads them.
+
 #### RF-135 — A list item's trail slot clips the focus indicator of what is in it, and in Firefox all of it
 
 Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `material-x/handle-focus-1`, from the implementer's return of `RF-128`, on the coordinator's question whether it is a finding of its own. `RF-134` is the highest `RF-` on any branch on `origin` and in the local slots, so this is the next free number. Read at `751b1fb81` merged, on the built elements in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](handle-focus-1/checks/trail-focus.txt), [probe](handle-focus-1/probes/trail-focus.mjs)).

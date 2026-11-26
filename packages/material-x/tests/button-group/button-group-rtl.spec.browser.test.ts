@@ -33,6 +33,7 @@ const VALUES = ['one', 'two', 'three'] as const;
 async function create(
   tag: Root,
   { group, ancestor, member }: Direction,
+  values: readonly string[] = VALUES,
 ): Promise<readonly [root: HTMLElement, members: readonly HTMLElement[]]> {
   const parent = document.createElement('div');
   parent.dir = ancestor;
@@ -44,7 +45,7 @@ async function create(
     root.append('Save');
   } else {
     root.append(
-      ...VALUES.map((value) => {
+      ...values.map((value) => {
         const element = document.createElement('mx-switch-button');
         element.dir = member;
         element.setAttribute('value', value);
@@ -272,6 +273,34 @@ describe('connected group corners when a direction changes or is mixed', () => {
       );
     },
   );
+});
+
+describe('connected group corners of a member at neither end or at both', () => {
+  it('should have four inner corners on the middle member of an RTL group', async () => {
+    const [, members] = await create(
+      'mx-connected-button-group',
+      DIRECTIONS[1],
+    );
+    const inner = await innerCorner('default');
+
+    expect(await readCorners(members[1]!)).toEqual([
+      inner,
+      inner,
+      inner,
+      inner,
+    ]);
+  });
+
+  it('should have the same corners on the only member in RTL as in LTR', async () => {
+    const [, [ltr]] = await create('mx-connected-button-group', DIRECTIONS[0], [
+      'one',
+    ]);
+    const [, [rtl]] = await create('mx-connected-button-group', DIRECTIONS[1], [
+      'one',
+    ]);
+
+    expect(await readCorners(rtl!)).toEqual(await readCorners(ltr!));
+  });
 });
 
 describe.each(DIRECTIONS)('mx-split-button corners with $name', (direction) => {

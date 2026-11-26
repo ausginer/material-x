@@ -1,5 +1,5 @@
-## no mutation | chromium | 0 failed, 72 passed
-## main's sheet | chromium | 26 failed, 46 passed
+## no mutation | chromium | 0 failed, 74 passed
+## main's sheet | chromium | 26 failed, 48 passed
    connected group corners with RTL group first button should have its outer corners at the outer side at rest
    connected group corners with RTL group first button should have its outer corners at the outer side while pressed
    connected group corners with RTL group first button should have its outer corners at the outer side while selected and pressed
@@ -26,7 +26,7 @@
    mx-split-button corners with RTL ancestor leading button should have its outer corners at the outer side at rest
    mx-split-button corners with RTL ancestor leading button should have its outer corners at the outer side while pressed
    mx-split-button corners with RTL ancestor trailing button should have its outer corners at the outer side at rest
-## the directions reversed | chromium | 50 failed, 22 passed
+## the directions reversed | chromium | 50 failed, 24 passed
    connected group corners with no dir first button should have its outer corners at the outer side at rest
    connected group corners with no dir first button should have its outer corners at the outer side while pressed
    connected group corners with no dir first button should have its outer corners at the outer side while selected and pressed
@@ -77,7 +77,7 @@
    mx-split-button corners with LTR group in an RTL ancestor leading button should have its outer corners at the outer side at rest
    mx-split-button corners with LTR group in an RTL ancestor leading button should have its outer corners at the outer side while pressed
    mx-split-button corners with LTR group in an RTL ancestor trailing button should have its outer corners at the outer side at rest
-## always reversed | chromium | 30 failed, 42 passed
+## always reversed | chromium | 30 failed, 44 passed
    connected group corners with no dir first button should have its outer corners at the outer side at rest
    connected group corners with no dir first button should have its outer corners at the outer side while pressed
    connected group corners with no dir first button should have its outer corners at the outer side while selected and pressed
@@ -108,7 +108,7 @@
    mx-split-button corners with LTR group in an RTL ancestor leading button should have its outer corners at the outer side at rest
    mx-split-button corners with LTR group in an RTL ancestor leading button should have its outer corners at the outer side while pressed
    mx-split-button corners with LTR group in an RTL ancestor trailing button should have its outer corners at the outer side at rest
-## only a dir attribute on the group | chromium | 14 failed, 58 passed
+## only a dir attribute on the group | chromium | 14 failed, 60 passed
    connected group corners with RTL ancestor first button should have its outer corners at the outer side at rest
    connected group corners with RTL ancestor first button should have its outer corners at the outer side while pressed
    connected group corners with RTL ancestor first button should have its outer corners at the outer side while selected and pressed
@@ -123,7 +123,7 @@
    mx-split-button corners with RTL ancestor leading button should have its outer corners at the outer side at rest
    mx-split-button corners with RTL ancestor leading button should have its outer corners at the outer side while pressed
    mx-split-button corners with RTL ancestor trailing button should have its outer corners at the outer side at rest
-## no rule for the first button | chromium | 14 failed, 58 passed
+## no rule for the first button | chromium | 14 failed, 60 passed
    connected group corners with RTL group first button should have its outer corners at the outer side at rest
    connected group corners with RTL group first button should have its outer corners at the outer side while pressed
    connected group corners with RTL group first button should have its outer corners at the outer side while selected and pressed
@@ -138,7 +138,7 @@
    mx-split-button corners with RTL group leading button should have its outer corners at the outer side while pressed
    mx-split-button corners with RTL ancestor leading button should have its outer corners at the outer side at rest
    mx-split-button corners with RTL ancestor leading button should have its outer corners at the outer side while pressed
-## no rule for the last button | chromium | 12 failed, 60 passed
+## no rule for the last button | chromium | 12 failed, 62 passed
    connected group corners with RTL group last button should have its outer corners at the outer side at rest
    connected group corners with RTL group last button should have its outer corners at the outer side while pressed
    connected group corners with RTL group last button should have its outer corners at the outer side while selected and pressed
@@ -151,24 +151,28 @@
    connected group corners when a direction changes or is mixed should follow dir="rtl" of the group on the last button with dir="ltr"
    mx-split-button corners with RTL group trailing button should have its outer corners at the outer side at rest
    mx-split-button corners with RTL ancestor trailing button should have its outer corners at the outer side at rest
-## the member's direction in place of the group's | chromium | 4 failed, 68 passed
+## the first-button rule without [data-first] | chromium | 1 failed, 73 passed
+   connected group corners of a member at neither end or at both should have four inner corners on the middle member of an RTL group
+## the last-button rule without :not([data-first]) | chromium | 1 failed, 73 passed
+   connected group corners of a member at neither end or at both should have the same corners on the only member in RTL as in LTR
+## the member's direction in place of the group's | chromium | 4 failed, 70 passed
    connected group corners when a direction changes or is mixed should follow dir="rtl" of the group on the first button with dir="ltr"
    connected group corners when a direction changes or is mixed should follow dir="ltr" of the group on the first button with dir="rtl"
    connected group corners when a direction changes or is mixed should follow dir="rtl" of the group on the last button with dir="ltr"
    connected group corners when a direction changes or is mixed should follow dir="ltr" of the group on the last button with dir="rtl"
-## the override ignored in RTL | chromium | 4 failed, 68 passed
+## the override ignored in RTL | chromium | 4 failed, 70 passed
    connected group corners with RTL group first button should have the overridden inner corners at the inner side
    connected group corners with RTL group last button should have the overridden inner corners at the inner side
    connected group corners with RTL ancestor first button should have the overridden inner corners at the inner side
    connected group corners with RTL ancestor last button should have the overridden inner corners at the inner side
-## the arrow keys reversed | chromium | 6 failed, 66 passed
+## the arrow keys reversed | chromium | 6 failed, 68 passed
    mx-connected-button-group arrow keys, dir="ltr" on the group should move focus to the neighbor that ArrowRight points at
    mx-connected-button-group arrow keys, dir="ltr" on the group should move focus to the neighbor that ArrowLeft points at
    mx-connected-button-group arrow keys, dir="rtl" on the group should move focus to the neighbor that ArrowRight points at
    mx-connected-button-group arrow keys, dir="rtl" on the group should move focus to the neighbor that ArrowLeft points at
    mx-connected-button-group arrow keys, dir="rtl" on the ancestor should move focus to the neighbor that ArrowRight points at
    mx-connected-button-group arrow keys, dir="rtl" on the ancestor should move focus to the neighbor that ArrowLeft points at
-## the arrow keys without a direction | chromium | 4 failed, 68 passed
+## the arrow keys without a direction | chromium | 4 failed, 70 passed
    mx-connected-button-group arrow keys, dir="rtl" on the group should move focus to the neighbor that ArrowRight points at
    mx-connected-button-group arrow keys, dir="rtl" on the group should move focus to the neighbor that ArrowLeft points at
    mx-connected-button-group arrow keys, dir="rtl" on the ancestor should move focus to the neighbor that ArrowRight points at

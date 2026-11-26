@@ -50,6 +50,14 @@ const mutations = [
     swap('[data-last]:not([data-first])', '[data-none]'),
   ],
   [
+    'the first-button rule without [data-first]',
+    swap('[data-first]:not([data-last])', ':not([data-last])'),
+  ],
+  [
+    'the last-button rule without :not([data-first])',
+    swap('[data-last]:not([data-first])', '[data-last]'),
+  ],
+  [
     "the member's direction in place of the group's",
     sheet(
       `${before}:host {${rtl
