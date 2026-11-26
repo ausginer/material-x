@@ -1,0 +1,92 @@
+## no mutation | chromium | 0 failed, 1 passed
+   stdout | tests/button-group/zz-rtl-probe.browser.test.ts:106 > reads the corners
+   ancestor dir set after render, before | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   ancestor dir set after render, after | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   ancestor dir rtl then ltr | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   grandparent dir set after render, before | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   grandparent dir set after render, after | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   split, no dir | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 85:8,8,20,20
+   split dir set after render | direction rtl | :dir(rtl) true | outer outside | 1197:8,8,20,20 1145:20,20,8,8
+   split ancestor dir set after render | direction rtl | :dir(rtl) true | outer outside | 1197:8,8,20,20 1145:20,20,8,8
+   group dir=auto, Hebrew labels | direction rtl | :dir(rtl) true | outer outside | 1198:8,8,20,20 1129:8,8,8,8 1065:20,20,8,8
+   ancestor dir=auto, Hebrew text first | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   CSS direction rtl on ancestor, no dir | direction rtl | :dir(rtl) false | WRONG | 1200:20,20,8,8 1143:8,8,8,8 1076:8,8,20,20
+   RTL, four members (two between) | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:8,8,8,8 1016:20,20,8,8
+   LTR, one member | direction ltr | :dir(rtl) false | single 8,8,20,20 | 24:8,8,20,20
+   RTL, one member | direction rtl | :dir(rtl) true | single 8,8,20,20 | 1200:8,8,20,20
+   RTL, a member appended | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:8,8,8,8 1016:20,20,8,8
+   RTL, the first member removed | direction rtl | :dir(rtl) true | outer outside | 1201:8,8,20,20 1134:8,8,8,8 1074:20,20,8,8
+   in a shadow root whose host has dir=rtl | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   that host changed to ltr | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   in a dir=rtl element in a shadow root | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   dir=rtl on the root element | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   dir removed from the root element | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+## the RTL first rule on every member but the last | chromium | 0 failed, 1 passed
+   stdout | tests/button-group/zz-rtl-probe.browser.test.ts:106 > reads the corners
+   ancestor dir set after render, before | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   ancestor dir set after render, after | direction rtl | :dir(rtl) true | WRONG | 1200:8,8,20,20 1143:8,8,20,20 1076:20,20,8,8
+   ancestor dir rtl then ltr | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   grandparent dir set after render, before | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   grandparent dir set after render, after | direction rtl | :dir(rtl) true | WRONG | 1200:8,8,20,20 1143:8,8,20,20 1076:20,20,8,8
+   split, no dir | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 85:8,8,20,20
+   split dir set after render | direction rtl | :dir(rtl) true | outer outside | 1197:8,8,20,20 1145:20,20,8,8
+   split ancestor dir set after render | direction rtl | :dir(rtl) true | outer outside | 1197:8,8,20,20 1145:20,20,8,8
+   group dir=auto, Hebrew labels | direction rtl | :dir(rtl) true | WRONG | 1198:8,8,20,20 1129:8,8,20,20 1065:20,20,8,8
+   ancestor dir=auto, Hebrew text first | direction rtl | :dir(rtl) true | WRONG | 1200:8,8,20,20 1143:8,8,20,20 1076:20,20,8,8
+   CSS direction rtl on ancestor, no dir | direction rtl | :dir(rtl) false | WRONG | 1200:20,20,8,8 1143:8,8,8,8 1076:8,8,20,20
+   RTL, four members (two between) | direction rtl | :dir(rtl) true | WRONG | 1200:8,8,20,20 1143:8,8,20,20 1076:8,8,20,20 1016:20,20,8,8
+   LTR, one member | direction ltr | :dir(rtl) false | single 8,8,20,20 | 24:8,8,20,20
+   RTL, one member | direction rtl | :dir(rtl) true | single 8,8,20,20 | 1200:8,8,20,20
+   RTL, a member appended | direction rtl | :dir(rtl) true | WRONG | 1200:8,8,20,20 1143:8,8,20,20 1076:8,8,20,20 1016:20,20,8,8
+   RTL, the first member removed | direction rtl | :dir(rtl) true | WRONG | 1201:8,8,20,20 1134:8,8,20,20 1074:20,20,8,8
+   in a shadow root whose host has dir=rtl | direction rtl | :dir(rtl) true | WRONG | 1200:8,8,20,20 1143:8,8,20,20 1076:20,20,8,8
+   that host changed to ltr | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   in a dir=rtl element in a shadow root | direction rtl | :dir(rtl) true | WRONG | 1200:8,8,20,20 1143:8,8,20,20 1076:20,20,8,8
+   dir=rtl on the root element | direction rtl | :dir(rtl) true | WRONG | 1200:8,8,20,20 1143:8,8,20,20 1076:20,20,8,8
+   dir removed from the root element | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+## the RTL last rule on the only member | chromium | 0 failed, 1 passed
+   stdout | tests/button-group/zz-rtl-probe.browser.test.ts:106 > reads the corners
+   ancestor dir set after render, before | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   ancestor dir set after render, after | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   ancestor dir rtl then ltr | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   grandparent dir set after render, before | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   grandparent dir set after render, after | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   split, no dir | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 85:8,8,20,20
+   split dir set after render | direction rtl | :dir(rtl) true | outer outside | 1197:8,8,20,20 1145:20,20,8,8
+   split ancestor dir set after render | direction rtl | :dir(rtl) true | outer outside | 1197:8,8,20,20 1145:20,20,8,8
+   group dir=auto, Hebrew labels | direction rtl | :dir(rtl) true | outer outside | 1198:8,8,20,20 1129:8,8,8,8 1065:20,20,8,8
+   ancestor dir=auto, Hebrew text first | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   CSS direction rtl on ancestor, no dir | direction rtl | :dir(rtl) false | WRONG | 1200:20,20,8,8 1143:8,8,8,8 1076:8,8,20,20
+   RTL, four members (two between) | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:8,8,8,8 1016:20,20,8,8
+   LTR, one member | direction ltr | :dir(rtl) false | single 8,8,20,20 | 24:8,8,20,20
+   RTL, one member | direction rtl | :dir(rtl) true | single 20,20,8,8 | 1200:20,20,8,8
+   RTL, a member appended | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:8,8,8,8 1016:20,20,8,8
+   RTL, the first member removed | direction rtl | :dir(rtl) true | outer outside | 1201:8,8,20,20 1134:8,8,8,8 1074:20,20,8,8
+   in a shadow root whose host has dir=rtl | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   that host changed to ltr | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   in a dir=rtl element in a shadow root | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   dir=rtl on the root element | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   dir removed from the root element | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+## the RTL rules before the base rules | chromium | 0 failed, 1 passed
+   stdout | tests/button-group/zz-rtl-probe.browser.test.ts:106 > reads the corners
+   ancestor dir set after render, before | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   ancestor dir set after render, after | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   ancestor dir rtl then ltr | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   grandparent dir set after render, before | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   grandparent dir set after render, after | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   split, no dir | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 85:8,8,20,20
+   split dir set after render | direction rtl | :dir(rtl) true | outer outside | 1197:8,8,20,20 1145:20,20,8,8
+   split ancestor dir set after render | direction rtl | :dir(rtl) true | outer outside | 1197:8,8,20,20 1145:20,20,8,8
+   group dir=auto, Hebrew labels | direction rtl | :dir(rtl) true | outer outside | 1198:8,8,20,20 1129:8,8,8,8 1065:20,20,8,8
+   ancestor dir=auto, Hebrew text first | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   CSS direction rtl on ancestor, no dir | direction rtl | :dir(rtl) false | WRONG | 1200:20,20,8,8 1143:8,8,8,8 1076:8,8,20,20
+   RTL, four members (two between) | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:8,8,8,8 1016:20,20,8,8
+   LTR, one member | direction ltr | :dir(rtl) false | single 8,8,20,20 | 24:8,8,20,20
+   RTL, one member | direction rtl | :dir(rtl) true | single 8,8,20,20 | 1200:8,8,20,20
+   RTL, a member appended | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:8,8,8,8 1016:20,20,8,8
+   RTL, the first member removed | direction rtl | :dir(rtl) true | outer outside | 1201:8,8,20,20 1134:8,8,8,8 1074:20,20,8,8
+   in a shadow root whose host has dir=rtl | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   that host changed to ltr | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
+   in a dir=rtl element in a shadow root | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   dir=rtl on the root element | direction rtl | :dir(rtl) true | outer outside | 1200:8,8,20,20 1143:8,8,8,8 1076:20,20,8,8
+   dir removed from the root element | direction ltr | :dir(rtl) false | outer outside | 24:20,20,8,8 82:8,8,8,8 139:8,8,20,20
