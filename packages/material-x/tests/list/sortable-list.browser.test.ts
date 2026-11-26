@@ -1,12 +1,13 @@
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { commands, server, userEvent } from 'vitest/browser';
 import '../../src/button/icon-button.ts';
+import '../../src/icon/icon.ts';
 import '../../src/list/list-button-item.ts';
 import '../../src/list/list-item.ts';
 import '../../src/list/list-link-item.ts';
 import '../../src/list/list.ts';
 import { ReorderEvent } from '../../src/list/sortable-list.ts';
-import { nextFrame } from '../browser.ts';
+import { nextFrame, whenFontsReady } from '../browser.ts';
 import { TAB } from '../focus-indicator.ts';
 
 type ListTag = 'mx-list' | 'mx-sortable-list';
@@ -2407,6 +2408,231 @@ describe('mx-sortable-list scrollable overflow', () => {
       list.shadowRoot!.querySelector('[aria-live]')!.remove();
 
       expect(withRegion).toEqual(measure());
+    },
+  );
+});
+
+describe('mx-sortable-list handle box', () => {
+  it("should keep a page's display on a handle", async () => {
+    const style = document.createElement('style');
+    style.textContent = '[data-handle] { display: block; }';
+    document.head.append(style);
+    onTestFinished(() => style.remove());
+    const [, [a]] = await createList(['A'], { handles: true });
+
+    expect(getComputedStyle(handleOf(a!)).display).toBe('block');
+  });
+
+  it('should keep a hidden handle hidden', async () => {
+    const [, [a]] = await createList(['A'], { handles: true });
+    handleOf(a!).hidden = true;
+
+    expect(getComputedStyle(handleOf(a!)).display).toBe('none');
+  });
+
+  it('should keep the inline-grid box of a handle hidden until found', async () => {
+    const [, [a]] = await createList(['A'], { handles: true });
+    handleOf(a!).setAttribute('hidden', 'until-found');
+
+    expect(getComputedStyle(handleOf(a!)).display).toBe('inline-grid');
+  });
+
+  /** A list of one item whose handle in `slot` is a `tag` with an `mx-icon`. */
+  const createIconHandle = async (
+    tag: string,
+    slot: string,
+  ): Promise<HTMLElement> => {
+    const [, [a]] = await createList(['A']);
+    const handle = document.createElement(tag);
+    const icon = document.createElement('mx-icon');
+    icon.textContent = 'check';
+    handle.append(icon);
+    handle.dataset['handle'] = '';
+    handle.slot = slot;
+    a!.prepend(handle);
+    await whenFontsReady();
+    await nextFrame();
+    return handle;
+  };
+
+  describe.each(['lead', 'trail'])('in %s', (slot) => {
+    it.each(['span', 'button'])(
+      'should center the mx-icon of a %s handle in its box',
+      async (tag) => {
+        const handle = await createIconHandle(tag, slot);
+        const box = handle.getBoundingClientRect();
+        const icon = handle.querySelector('mx-icon')!.getBoundingClientRect();
+        const above = icon.top - box.top;
+        const below = box.bottom - icon.bottom;
+
+        expect(
+          Math.abs(above - below),
+          `${above} above, ${below} below`,
+        ).toBeLessThanOrEqual(1);
+      },
+    );
+  });
+
+  it("should center the text of a bare mx-icon handle in lead in the icon's box", async () => {
+    const [, [a]] = await createList(['A']);
+    const icon = document.createElement('mx-icon');
+    icon.textContent = 'check';
+    icon.dataset['handle'] = '';
+    icon.slot = 'lead';
+    a!.prepend(icon);
+    await whenFontsReady();
+    await nextFrame();
+    const range = document.createRange();
+    range.selectNodeContents(icon);
+    const text = range.getBoundingClientRect();
+    const box = icon.getBoundingClientRect();
+    const above = text.top - box.top;
+    const below = box.bottom - text.bottom;
+
+    expect(
+      Math.abs(above - below),
+      `${above} above, ${below} below`,
+    ).toBeLessThanOrEqual(1);
+  });
+
+  it('should center the mx-icon of a span handle that the page sizes', async () => {
+    const handle = await createIconHandle('span', 'lead');
+    handle.style.inlineSize = '48px';
+    handle.style.blockSize = '48px';
+    await nextFrame();
+    const box = handle.getBoundingClientRect();
+    const icon = handle.querySelector('mx-icon')!.getBoundingClientRect();
+
+    expect([
+      Math.abs(icon.top - box.top - (box.bottom - icon.bottom)) <= 1,
+      Math.abs(icon.left - box.left - (box.right - icon.right)) <= 1,
+    ]).toEqual([true, true]);
+  });
+
+  it('should keep the text of a lead handle inside its box', async () => {
+    const [, [a]] = await createList(['A'], { handles: true });
+    await whenFontsReady();
+    const handle = handleOf(a!);
+    const range = document.createRange();
+    range.selectNodeContents(handle);
+    const text = range.getBoundingClientRect();
+    const box = handle.getBoundingClientRect();
+
+    expect([
+      text.top >= box.top,
+      text.bottom <= box.bottom,
+      text.left >= box.left,
+      text.right <= box.right,
+    ]).toEqual([true, true, true, true]);
+  });
+});
+
+describe.runIf(server.browser === 'chromium')('mx-sortable-list touch', () => {
+  const STEPS = 8;
+
+  const makeElement = (
+    tag: string,
+    ...content: ReadonlyArray<Node | string>
+  ): HTMLElement => {
+    const element = document.createElement(tag);
+    element.append(...content);
+    return element;
+  };
+  const icon = (): HTMLElement => makeElement('mx-icon', 'check');
+
+  const HANDLES: ReadonlyArray<readonly [string, () => HTMLElement]> = [
+    ['a span with text', () => makeElement('span', '≡')],
+    ['an mx-icon', icon],
+    ['a span with an mx-icon', () => makeElement('span', icon())],
+    ['an mx-icon-button', () => makeElement('mx-icon-button', icon())],
+    ['a native button with an mx-icon', () => makeElement('button', icon())],
+  ];
+
+  /**
+   * A list whose items have the handle that `create` makes, in `slot`, on a
+   * page that scrolls.
+   */
+  const createTouchList = async (
+    create: (() => HTMLElement) | null,
+    slot = 'lead',
+    item: ItemTag = 'mx-list-item',
+  ): Promise<readonly [HTMLElement, readonly HTMLElement[]]> => {
+    const [list, items] = await createList(['A', 'B', 'C'], { item });
+
+    if (create) {
+      for (const element of items) {
+        const handle = create();
+        handle.dataset['handle'] = '';
+        handle.slot = slot;
+        element.prepend(handle);
+      }
+    }
+
+    const spacer = document.createElement('div');
+    spacer.style.blockSize = '3000px';
+    document.body.append(spacer);
+    await nextFrame();
+    return [list, items];
+  };
+
+  /** The handle's box: an `mx-icon-button`'s button, or the handle itself. */
+  const boxOf = (handle: HTMLElement): HTMLElement =>
+    handle.shadowRoot?.querySelector<HTMLElement>('.host') ?? handle;
+
+  /**
+   * Touches `target`'s center, moves the finger to 10 px below the center of
+   * `over`, and lifts it.
+   */
+  const swipe = async (
+    target: HTMLElement,
+    over: HTMLElement,
+  ): Promise<void> => {
+    const [x, y] = centerOf(target);
+    const [, toY] = centerOf(over);
+
+    await commands.touch('touchStart', [x, y]);
+    await nextFrame();
+
+    for (let i = 1; i <= STEPS; i += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- one move at a time
+      await commands.touch('touchMove', [x, y + ((toY + 10 - y) * i) / STEPS]);
+      // oxlint-disable-next-line no-await-in-loop -- one move at a time
+      await nextFrame();
+    }
+
+    await commands.touch('touchEnd');
+    await nextFrame();
+  };
+
+  afterEach(async () => {
+    // A row that fails mid-gesture leaves the finger down.
+    await commands.touch('touchCancel').catch(() => {});
+    window.scrollTo(0, 0);
+  });
+
+  describe.each(['lead', 'trail'])('in %s', (slot) => {
+    it.each(HANDLES)(
+      'should propose a move in a touch drag by %s',
+      async (_, create) => {
+        const [list, [a, b]] = await createTouchList(create, slot);
+        const events = recordReorders(list);
+
+        await swipe(boxOf(handleOf(a!)), visualOf(b!));
+
+        expect(events.map(({ item }) => item)).toEqual([a]);
+      },
+    );
+  });
+
+  it.each(['mx-list-item', 'mx-list-button-item'] as const)(
+    'should propose nothing in a swipe on %s without a handle',
+    async (tag) => {
+      const [list, [a, b]] = await createTouchList(null, 'lead', tag);
+      const events = recordReorders(list);
+
+      await swipe(visualOf(a!), visualOf(b!));
+
+      expect(events).toEqual([]);
     },
   );
 });

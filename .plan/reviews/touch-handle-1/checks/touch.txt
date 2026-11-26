@@ -1,0 +1,151 @@
+# proof-touch at df577d7df, one line a reading. 'main' is the two style files of d20c47bda. Touch is CDP's, Chromium only: each handle in the middle item, touched at six points and swiped up over the item above; 'ok' is 'scrolled 0 cancel 0' (the page didn't scroll, and no pointercancel).
+## head, chromium
+chromium box | lead span text | display inline-block | box 9x0 | paint 9x19 | touch-action none
+chromium box | lead mx-icon | display inline-block | box 20x20 | paint 20x20 | touch-action none
+chromium box | lead span mx-icon | display inline-block | box 16x16 | paint 16x16 | touch-action none
+chromium box | lead mx-icon-button | display inline-block | box 40x40 | paint 24x24 | touch-action none
+chromium box | lead button mx-icon | display inline-block | box 29x22 | paint 13x13 | touch-action none
+chromium box | lead button text | display inline-block | box 24x21 | paint 8x15 | touch-action none
+chromium box | trail span text | display inline-block | box 7x16 | paint 7x13 | touch-action none
+chromium box | trail mx-icon | display inline-block | box 20x20 | paint 20x20 | touch-action none
+chromium box | trail span mx-icon | display inline-block | box 11x16 | paint 11x11 | touch-action none
+chromium box | trail mx-icon-button | display inline-block | box 40x40 | paint 24x24 | touch-action none
+chromium box | trail button mx-icon | display inline-block | box 27x22 | paint 11x11 | touch-action none
+chromium box | trail button text | display inline-block | box 23x22 | paint 7x13 | touch-action none
+chromium box | a [data-handle] span in a plain mx-list | display inline-block | box 9x0
+chromium box | a hidden=until-found span handle | display inline-block | content-visibility hidden | paint 9x19
+chromium box | a page's display: inline on a span handle | display inline
+chromium mouse | lead span text | proposed B
+chromium mouse | lead mx-icon | proposed B
+chromium mouse | lead span mx-icon | proposed B
+chromium mouse | lead mx-icon-button | proposed B
+chromium mouse | lead button mx-icon | proposed B
+chromium mouse | lead button text | proposed B
+chromium mouse | trail span text | proposed B
+chromium mouse | trail mx-icon | proposed B
+chromium mouse | trail span mx-icon | proposed B
+chromium mouse | trail mx-icon-button | proposed B
+chromium mouse | trail button mx-icon | proposed B
+chromium mouse | trail button text | proposed B
+chromium touch | lead span text | box center (hit handle) proposed ok ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) proposed ok ; paint top left (hit handle) proposed ok ; paint bottom right (hit handle) proposed ok
+chromium touch | lead mx-icon | box center (hit handle) proposed ok ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) proposed ok ; paint top left (hit handle) proposed ok ; paint bottom right (hit handle) proposed ok
+chromium touch | lead span mx-icon | box center (hit handle) proposed ok ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) proposed ok ; paint top left (hit handle) proposed ok ; paint bottom right (hit handle) proposed ok
+chromium touch | lead mx-icon-button | box center (hit handle) proposed ok ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) proposed ok ; paint top left (hit handle) proposed ok ; paint bottom right (hit handle) proposed ok
+chromium touch | lead button mx-icon | box center (hit handle) proposed ok ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) proposed ok ; paint top left (hit handle) proposed ok ; paint bottom right (hit handle) proposed ok
+chromium touch | lead button text | box center (hit handle) proposed ok ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) proposed ok ; paint top left (hit handle) proposed ok ; paint bottom right (hit handle) proposed ok
+chromium touch | trail span text | box center (hit handle) proposed ok ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) proposed ok ; paint top left (hit handle) proposed ok ; paint bottom right (hit handle) proposed ok
+chromium touch | trail mx-icon | box center (hit handle) proposed ok ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) proposed ok ; paint top left (hit handle) proposed ok ; paint bottom right (hit handle) proposed ok
+chromium touch | trail span mx-icon | box center (hit handle) proposed ok ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) proposed ok ; paint top left (hit handle) proposed ok ; paint bottom right (hit handle) proposed ok
+chromium touch | trail mx-icon-button | box center (hit handle) proposed ok ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) proposed ok ; paint top left (hit handle) proposed ok ; paint bottom right (hit handle) proposed ok
+chromium touch | trail button mx-icon | box center (hit handle) proposed ok ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) proposed ok ; paint top left (hit handle) proposed ok ; paint bottom right (hit handle) proposed ok
+chromium touch | trail button text | box center (hit handle) proposed ok ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) proposed ok ; paint top left (hit handle) proposed ok ; paint bottom right (hit handle) proposed ok
+chromium touch | disabled button item, span handle | none scrolled 53 cancel 1 | touch-action auto
+chromium touch | a page's touch-action: pan-y inline on a span handle | none scrolled 53 cancel 1 | touch-action pan-y
+chromium touch | a page's display: inline on a span handle | none scrolled 53 cancel 1 | touch-action none
+chromium touch | a page's display: block on a span handle | proposed ok | touch-action none
+chromium touch | no handle, mx-list-item | none scrolled 53 cancel 1
+chromium touch | no handle, mx-list-button-item | none scrolled 53 cancel 1
+chromium touch | no handle, mx-list-link-item | none scrolled 53 cancel 1
+## main's two style files, chromium
+chromium box | lead span text | display inline | box 9x19 | paint 9x19 | touch-action none
+chromium box | lead mx-icon | display inline-block | box 20x20 | paint 20x20 | touch-action none
+chromium box | lead span mx-icon | display inline | box 16x19 | paint 16x16 | touch-action none
+chromium box | lead mx-icon-button | display contents | box 40x40 | paint 24x24 | touch-action none
+chromium box | lead button mx-icon | display inline-block | box 29x22 | paint 13x13 | touch-action none
+chromium box | lead button text | display inline-block | box 24x21 | paint 8x15 | touch-action none
+chromium box | trail span text | display inline | box 7x13 | paint 7x13 | touch-action none
+chromium box | trail mx-icon | display inline-block | box 20x20 | paint 20x20 | touch-action none
+chromium box | trail span mx-icon | display inline | box 11x13 | paint 11x11 | touch-action none
+chromium box | trail mx-icon-button | display contents | box 40x40 | paint 24x24 | touch-action none
+chromium box | trail button mx-icon | display inline-block | box 27x22 | paint 11x11 | touch-action none
+chromium box | trail button text | display inline-block | box 23x22 | paint 7x13 | touch-action none
+chromium box | a [data-handle] span in a plain mx-list | display inline | box 9x19
+chromium box | a hidden=until-found span handle | display inline | content-visibility hidden | paint 9x19
+chromium box | a page's display: inline on a span handle | display inline
+chromium mouse | lead span text | proposed B
+chromium mouse | lead mx-icon | proposed B
+chromium mouse | lead span mx-icon | proposed B
+chromium mouse | lead mx-icon-button | proposed B
+chromium mouse | lead button mx-icon | proposed B
+chromium mouse | lead button text | proposed B
+chromium mouse | trail span text | proposed B
+chromium mouse | trail mx-icon | proposed B
+chromium mouse | trail span mx-icon | proposed B
+chromium mouse | trail mx-icon-button | proposed B
+chromium mouse | trail button mx-icon | proposed B
+chromium mouse | trail button text | proposed B
+chromium touch | lead span text | box center (hit handle) none scrolled 53 cancel 1 ; box top left (hit handle) none scrolled 45 cancel 1 ; box bottom right (hit handle) none scrolled 60 cancel 1 ; paint center (hit handle) none scrolled 52 cancel 1 ; paint top left (hit handle) none scrolled 45 cancel 1 ; paint bottom right (hit handle) none scrolled 60 cancel 1
+chromium touch | lead mx-icon | box center (hit handle) none scrolled 53 cancel 1 ; box top left (hit handle) none scrolled 45 cancel 1 ; box bottom right (hit handle) none scrolled 61 cancel 1 ; paint center (hit handle) none scrolled 53 cancel 1 ; paint top left (hit handle) none scrolled 45 cancel 1 ; paint bottom right (hit handle) none scrolled 61 cancel 1
+chromium touch | lead span mx-icon | box center (hit handle) none scrolled 56 cancel 1 ; box top left (hit handle) none scrolled 48 cancel 1 ; box bottom right (hit handle) none scrolled 63 cancel 1 ; paint center (hit handle) none scrolled 53 cancel 1 ; paint top left (hit handle) none scrolled 47 cancel 1 ; paint bottom right (hit handle) none scrolled 59 cancel 1
+chromium touch | lead mx-icon-button | box center (hit handle) none scrolled 57 cancel 1 ; box top left (hit mx-list-item) none scrolled 39 cancel 1 ; box bottom right (hit mx-list-item) none scrolled 75 cancel 1 ; paint center (hit handle) none scrolled 57 cancel 1 ; paint top left (hit handle) none scrolled 50 cancel 1 ; paint bottom right (hit handle) none scrolled 78 cancel 1
+chromium touch | lead button mx-icon | box center (hit handle) none scrolled 53 cancel 1 ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) none scrolled 51 cancel 1 ; paint top left (hit handle) none scrolled 47 cancel 1 ; paint bottom right (hit handle) none scrolled 56 cancel 1
+chromium touch | lead button text | box center (hit handle) proposed ok ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) proposed ok ; paint top left (hit handle) proposed ok ; paint bottom right (hit handle) proposed ok
+chromium touch | trail span text | box center (hit handle) none scrolled 53 cancel 1 ; box top left (hit handle) none scrolled 48 cancel 1 ; box bottom right (hit handle) none scrolled 57 cancel 1 ; paint center (hit handle) none scrolled 52 cancel 1 ; paint top left (hit handle) none scrolled 48 cancel 1 ; paint bottom right (hit handle) none scrolled 57 cancel 1
+chromium touch | trail mx-icon | box center (hit handle) none scrolled 53 cancel 1 ; box top left (hit handle) none scrolled 45 cancel 1 ; box bottom right (hit handle) none scrolled 61 cancel 1 ; paint center (hit handle) none scrolled 53 cancel 1 ; paint top left (hit handle) none scrolled 45 cancel 1 ; paint bottom right (hit handle) none scrolled 61 cancel 1
+chromium touch | trail span mx-icon | box center (hit handle) none scrolled 53 cancel 1 ; box top left (hit handle) none scrolled 48 cancel 1 ; box bottom right (hit handle) none scrolled 57 cancel 1 ; paint center (hit handle) none scrolled 50 cancel 1 ; paint top left (hit handle) none scrolled 47 cancel 1 ; paint bottom right (hit handle) none scrolled 54 cancel 1
+chromium touch | trail mx-icon-button | box center (hit handle) none scrolled 57 cancel 1 ; box top left (hit mx-list-item) none scrolled 39 cancel 1 ; box bottom right (hit mx-list-item) none scrolled 75 cancel 1 ; paint center (hit handle) none scrolled 57 cancel 1 ; paint top left (hit handle) none scrolled 50 cancel 1 ; paint bottom right (hit handle) none scrolled 78 cancel 1
+chromium touch | trail button mx-icon | box center (hit handle) none scrolled 53 cancel 1 ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) none scrolled 51 cancel 1 ; paint top left (hit handle) none scrolled 47 cancel 1 ; paint bottom right (hit handle) none scrolled 54 cancel 1
+chromium touch | trail button text | box center (hit handle) proposed ok ; box top left (hit handle) proposed ok ; box bottom right (hit handle) proposed ok ; paint center (hit handle) proposed ok ; paint top left (hit handle) proposed ok ; paint bottom right (hit handle) proposed ok
+chromium touch | disabled button item, span handle | none scrolled 53 cancel 1 | touch-action auto
+chromium touch | a page's touch-action: pan-y inline on a span handle | none scrolled 53 cancel 1 | touch-action pan-y
+chromium touch | a page's display: inline on a span handle | none scrolled 53 cancel 1 | touch-action none
+chromium touch | a page's display: block on a span handle | proposed ok | touch-action none
+chromium touch | no handle, mx-list-item | none scrolled 53 cancel 1
+chromium touch | no handle, mx-list-button-item | none scrolled 53 cancel 1
+chromium touch | no handle, mx-list-link-item | none scrolled 53 cancel 1
+## head, firefox
+firefox box | lead span text | display inline-block | box 13x0 | paint 13x21 | touch-action none
+firefox box | lead mx-icon | display inline-block | box 20x20 | paint 20x20 | touch-action none
+firefox box | lead span mx-icon | display inline-block | box 16x16 | paint 16x16 | touch-action none
+firefox box | lead mx-icon-button | display inline-block | box 40x40 | paint 24x24 | touch-action none
+firefox box | lead button mx-icon | display inline-block | box 25x23 | paint 13x13 | touch-action none
+firefox box | lead button text | display inline-block | box 23x23 | paint 11x17 | touch-action none
+firefox box | trail span text | display inline-block | box 10x16 | paint 10x15 | touch-action none
+firefox box | trail mx-icon | display inline-block | box 20x20 | paint 20x20 | touch-action none
+firefox box | trail span mx-icon | display inline-block | box 11x16 | paint 11x11 | touch-action none
+firefox box | trail mx-icon-button | display inline-block | box 40x40 | paint 24x24 | touch-action none
+firefox box | trail button mx-icon | display inline-block | box 23x22 | paint 11x11 | touch-action none
+firefox box | trail button text | display inline-block | box 22x22 | paint 10x15 | touch-action none
+firefox box | a [data-handle] span in a plain mx-list | display inline-block | box 13x0
+firefox box | a hidden=until-found span handle | display inline-block | content-visibility hidden | paint 0x0
+firefox box | a page's display: inline on a span handle | display inline
+firefox mouse | lead span text | proposed B
+firefox mouse | lead mx-icon | proposed B
+firefox mouse | lead span mx-icon | proposed B
+firefox mouse | lead mx-icon-button | proposed B
+firefox mouse | lead button mx-icon | proposed B
+firefox mouse | lead button text | proposed B
+firefox mouse | trail span text | proposed B
+firefox mouse | trail mx-icon | proposed B
+firefox mouse | trail span mx-icon | proposed B
+firefox mouse | trail mx-icon-button | proposed B
+firefox mouse | trail button mx-icon | proposed B
+firefox mouse | trail button text | proposed B
+## head, webkit
+webkit box | lead span text | display inline-block | box 13x0 | paint 13x19 | touch-action none
+webkit box | lead mx-icon | display inline-block | box 20x20 | paint 20x20 | touch-action none
+webkit box | lead span mx-icon | display inline-block | box 16x16 | paint 16x16 | touch-action none
+webkit box | lead mx-icon-button | display inline-block | box 40x40 | paint 24x24 | touch-action none
+webkit box | lead button mx-icon | display inline-block | box 32x31 | paint 16x16 | touch-action none
+webkit box | lead button text | display inline-block | box 29x30 | paint 13x20 | touch-action none
+webkit box | trail span text | display inline-block | box 10x16 | paint 10x13 | touch-action none
+webkit box | trail mx-icon | display inline-block | box 20x20 | paint 20x20 | touch-action none
+webkit box | trail span mx-icon | display inline-block | box 11x16 | paint 11x11 | touch-action none
+webkit box | trail mx-icon-button | display inline-block | box 40x40 | paint 24x24 | touch-action none
+webkit box | trail button mx-icon | display inline-block | box 27x25 | paint 11x11 | touch-action none
+webkit box | trail button text | display inline-block | box 26x25 | paint 10x13 | touch-action none
+webkit box | a [data-handle] span in a plain mx-list | display inline-block | box 13x0
+webkit box | a hidden=until-found span handle | display inline-block | content-visibility hidden | paint 13x19
+webkit box | a page's display: inline on a span handle | display inline
+webkit mouse | lead span text | proposed B
+webkit mouse | lead mx-icon | proposed B
+webkit mouse | lead span mx-icon | proposed B
+webkit mouse | lead mx-icon-button | proposed B
+webkit mouse | lead button mx-icon | proposed B
+webkit mouse | lead button text | proposed B
+webkit mouse | trail span text | proposed B
+webkit mouse | trail mx-icon | proposed B
+webkit mouse | trail span mx-icon | proposed B
+webkit mouse | trail mx-icon-button | proposed B
+webkit mouse | trail button mx-icon | proposed B
+webkit mouse | trail button text | proposed B

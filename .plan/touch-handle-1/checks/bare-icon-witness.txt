@@ -1,0 +1,8 @@
+# RF-145's row for a bare mx-icon handle in lead, Chromium, on b8394ca8c with the row. 2026-11-26, the implementer.
+# aube exec vitest run -c vitest.config.ts --project browser tests/list/sortable-list.browser.test.ts
+# Unmutated: 184 passed (184).
+# Witness: .lead::slotted([data-handle]) in place of .lead::slotted([data-handle]:not(mx-icon)), src/list/styles/item/main.styles.css:83, reverted after the run:
+ × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2476 > mx-sortable-list handle box > should center the text of a bare mx-icon handle in lead in the icon's box
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: 0 above, -4 below: expected 4 to be less than or equal to 1
+      Tests  1 failed | 183 passed (184)

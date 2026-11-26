@@ -1,0 +1,13 @@
+#!/bin/bash
+# The proof's runs, one engine at a time.
+export T=/tmp/claude-1000/-workspaces-worktrees-b/e64c54e5-c6df-4cae-91a9-3ec47d1d631e/scratchpad/t
+cd /workspaces/worktrees/d/packages/material-x || exit 1
+AFF="tests/list tests/button tests/fab tests/top-app-bar tests/button-group/button-group-focus.spec.browser.test.ts tests/core/focus-layer.spec.browser.test.ts tests/core/hidden.browser.test.ts tests/core/traits/focus-forwarding.browser.test.ts"
+node $T/mut.mjs chromium all tests/list/sortable-list.browser.test.ts > $T/mut-chromium.txt 2>&1
+for e in chromium firefox webkit; do
+  MX_TEST_ENGINES=$e NO_COLOR=1 timeout 1500 aube exec -- vitest run -c vitest.config.ts --project 'browser*' --project 'spec*' $AFF --exclude 'tests/list/proof-*' --reporter=json --outputFile=$T/files-$e.json > $T/files-$e.log 2>&1
+  [ $e = chromium ] || { $T/run.sh $e $T/head-$e; node $T/mut.mjs $e "no mutation;without the hidden guard;the handle rule !important;own: until-found hidden too" tests/list/sortable-list.browser.test.ts > $T/mut-$e.txt 2>&1; }
+done
+MX_TEST_ENGINES=chromium MX_TEST_VISUAL=1 NO_COLOR=1 timeout 1500 aube exec -- vitest run -c vitest.config.ts --project 'visual*' --reporter=json --outputFile=$T/visual.json > $T/visual.log 2>&1
+git -C /workspaces/worktrees/d status --short
+echo done
