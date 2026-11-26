@@ -1,0 +1,10 @@
+Command, from packages/material-x: MX_TEST_ENGINES=<engine> aube exec -- vitest run -c vitest.config.ts tests/list, at 218c3ec0b, unmutated
+## tests/list | chromium
+ Test Files  6 passed (6)
+      Tests  407 passed (407)
+## tests/list | firefox
+ Test Files  6 passed (6)
+      Tests  395 passed | 2 skipped (397)
+## tests/list | webkit
+ Test Files  6 passed (6)
+      Tests  405 passed | 2 skipped (407)
