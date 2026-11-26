@@ -1,0 +1,6 @@
+## at 6bde42160: node .plan/reviews/group-rtl-1/probes/mutations.mjs chromium <report> <names>
+## no mutation | chromium | 0 failed, 275 passed
+## the RTL first rule on every member but the last | chromium | 1 failed, 274 passed
+   connected group corners of a member at neither end or at both should have four inner corners on the middle member of an RTL group
+## the RTL last rule on the only member | chromium | 1 failed, 274 passed
+   connected group corners of a member at neither end or at both should have the same corners on the only member in RTL as in LTR

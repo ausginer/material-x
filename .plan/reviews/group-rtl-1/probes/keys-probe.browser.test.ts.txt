@@ -1,0 +1,35 @@
+// Run as packages/material-x/tests/button-group/zz-keys-probe.browser.test.ts, a copy removed after the run, with --silent=false.
+// RF-134 feature proof probe: the arrow keys of a connected group mirrored by CSS
+// `direction` on an ancestor, with no `dir` anywhere.
+import { expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
+import '../../src/button-group/connected-button-group.ts';
+import '../../src/button/switch-button.ts';
+import { nextFrame } from '../browser.ts';
+
+it('reads the arrow keys', async () => {
+  const ancestor = document.createElement('div');
+  ancestor.style.direction = 'rtl';
+  const group = document.createElement('mx-connected-button-group');
+  const switches = ['one', 'two', 'three'].map((value) => {
+    const element = document.createElement('mx-switch-button');
+    element.setAttribute('value', value);
+    element.textContent = value;
+    return element;
+  });
+  group.append(...switches);
+  ancestor.append(group);
+  document.body.append(ancestor);
+  await nextFrame();
+  const x = (e: HTMLElement): number =>
+    Math.round(e.shadowRoot!.querySelector('.host')!.getBoundingClientRect().left);
+  const lines = [`positions ${switches.map(x).join(' ')}`];
+  for (const key of ['ArrowRight', 'ArrowLeft']) {
+    switches[1]!.focus();
+    await userEvent.keyboard(`{${key}}`);
+    const to = document.activeElement as HTMLElement;
+    lines.push(`${key} from x=${x(switches[1]!)} to x=${x(to)} (${to.textContent})`);
+  }
+  console.log(`\n${lines.join('\n')}\n`);
+  expect(lines.length).toBe(3);
+});
