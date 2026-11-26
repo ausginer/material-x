@@ -4,7 +4,7 @@
 
 **Governing records:**
 
-- `repo:RD-28` in [`00-index.md`](../../00-index.md), with its dated step-1 block;
+- `repo:RD-28` in [`00-index.md`](../../decisions/RD-28.md), with its dated step-1 block;
 - the [plan](../../tokens-source-1/tokens-source-plan.md): _Steps, revised_, step 1, proofs P1 to P5, P10 and P11, _The store_ and its _Field rulings_ (`82f88726f`), _The converter's checks_, and _The reader and the CSS layer_;
 - the owner's answers to Q1, Q3 and Q4.
 

@@ -1,6 +1,6 @@
 # Feature proof: core declares `"sideEffects": false` (`RD-30`), PR #91
 
-**Read at** `42999d4a3` on `core/side-effects-1`, against the [plan](../../core-side-effects-1/core-side-effects-plan.md) at `ddb70b49f` and `RD-30` in the [register](../../00-index.md). The implementation is `cf7d43270`, and the [report](../../core-side-effects-1/core-side-effects-report.md) is `42999d4a3`. Reviewer: Claude, a feature-proof pass that didn't implement the unit, on the coordinator's task of 2026-11-20. Everything ran in a detached worktree at `42999d4a3`, with rolldown 1.3.2.
+**Read at** `42999d4a3` on `core/side-effects-1`, against the [plan](../../core-side-effects-1/core-side-effects-plan.md) at `ddb70b49f` and `RD-30` in the [register](../../decisions/RD-30.md). The implementation is `cf7d43270`, and the [report](../../core-side-effects-1/core-side-effects-report.md) is `42999d4a3`. Reviewer: Claude, a feature-proof pass that didn't implement the unit, on the coordinator's task of 2026-11-20. Everything ran in a detached worktree at `42999d4a3`, with rolldown 1.3.2.
 
 **Scope:**
 

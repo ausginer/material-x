@@ -41,7 +41,7 @@
 ### `RD-6` property 9 no longer describes the workflow's permissions
 
 - **`reviewer-1`, Tier C.** Routed to the main slot's architect. The record needs an amendment, and the workflow is as the plan asks.
-- **Current behavior.** `measurements` declares `contents: read`, `pull-requests: write` and `actions: read` (`verify.yml`). `RD-6` property 9 says: _"Only the measurement job adds `pull-requests: write` (`RD-7`), only `scope` adds `actions: read` (`RD-15`), …"_ ([`00-index.md`](../../00-index.md), `RD-6`).
+- **Current behavior.** `measurements` declares `contents: read`, `pull-requests: write` and `actions: read` (`verify.yml`). `RD-6` property 9 says: _"Only the measurement job adds `pull-requests: write` (`RD-7`), only `scope` adds `actions: read` (`RD-15`), …"_ ([`00-index.md`](../../decisions/), `RD-6`).
 - **Why it is a problem.** The record of the token's permissions is false at this head. When `RD-15` gave `scope` `actions: read`, that was recorded as an amendment of property 9, with the old text kept (_"Property 9 named no `actions: read`"_). `RD-7`'s amendment of 2026-11-19 lists what changes: _"property 5's base reading and the last bullet of **Why**"_. It doesn't name `RD-6`. The plan's property 5 requires the permission, but its [Proposed record changes](../../size-base-1/size-base-plan.md#proposed-record-changes) don't name property 9.
 - **Evidence.** `git show 910c5e4b3:.github/workflows/verify.yml`, the `measurements` job's `permissions`. `git show 910c5e4b3:.plan/00-index.md`, `RD-6` property 9 and its _"What it said before"_ notes.
 - **Required property.** `RD-6` property 9 lists every job that adds a permission, as the workflow declares it.

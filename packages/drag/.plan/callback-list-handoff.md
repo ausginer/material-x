@@ -1,6 +1,6 @@
 # Callback list handoff
 
-**One bounded unit for one implementer.** It ports `DRD-35` in [`00-index.md`](00-index.md) to production: the model at `9f885b9a9` on `drag/step-queue-model` and the owner's edit on it, completed. It then updates the tests and documentation that the decision affects, runs the three engines, and reports the figures `DRO-12` asks for.
+**One bounded unit for one implementer.** It ports `DRD-35` in [`00-index.md`](decisions/) to production: the model at `9f885b9a9` on `drag/step-queue-model` and the owner's edit on it, completed. It then updates the tests and documentation that the decision affects, runs the three engines, and reports the figures `DRO-12` asks for.
 
 **Read before starting:**
 

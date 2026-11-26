@@ -102,7 +102,7 @@ The queue has no milestones (property 14).
 | [`agent-workflow.md`](../../.agents/docs/agent-workflow.md) §Recovering state | The durable part of the working summary is the queue. The `.agents/codex/` note stays a convenience. |
 | [`documentation.md`](../../.agents/docs/documentation.md) §8, §9 | A row: GitHub Issues and the `Work queue` board are the work queue, what is next and whom it waits on, never a reason (`work-queue.md`). A change-record line. |
 | `.claude/agents/coordinator.md` | One line: the coordinator maintains the queue as `work-queue.md` says. Its writes to GitHub are within its authority. |
-| [`00-index.md`](../00-index.md) | `RD-22`, registered by the main slot's architect: this decision. |
+| [`00-index.md`](../decisions/RD-22.md) | `RD-22`, registered by the main slot's architect: this decision. |
 
 **Why a new document.** `coordinator.md` is read by the coordinator only, `agent-workflow.md` is read by no role at runtime, and `handoff.md` is retrieved when a role finalizes. The issue rules have several readers: the coordinator, every role that writes a pull request, and the owner. Each of those three documents names `work-queue.md` at the point where its reader needs it.
 

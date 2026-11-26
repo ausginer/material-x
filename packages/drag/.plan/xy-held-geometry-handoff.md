@@ -208,7 +208,7 @@ The owner starts the independent review below on the pushed report. The architec
 
 **Read, in this order:**
 
-1. `DRD-62` in [`00-index.md`](00-index.md);
+1. `DRD-62` in [`00-index.md`](decisions/DRD-62.md);
 2. the code at the pinned commit: `src/sortable/rect-index.ts`, `src/sortable/xy.ts`, `src/sortable/y.ts`, `tests/rect-index.declaration.test.ts` and the `drag:DRD-62` tests in `tests/displacement-sink.browser.test.ts`;
 3. only then, the report and its measurements.
 

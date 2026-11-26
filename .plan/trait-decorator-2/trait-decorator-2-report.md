@@ -1,6 +1,6 @@
 # `@trait` follow-ups: implementation report
 
-**Implemented 2026-11-20** on `repo/trait-decorator-2`, against the [plan](trait-decorator-2-plan.md) and `RD-26`'s fourth amendment of 2026-11-20 in [`00-index.md`](../00-index.md). The branch merged `origin/main` at `e4b0e475d` first. The implementation commit is `801b94e23`. The baseline for every "before" reading is `645410c12`, the plan's, in a scratch worktree of its own with a frozen install and `just build`.
+**Implemented 2026-11-20** on `repo/trait-decorator-2`, against the [plan](trait-decorator-2-plan.md) and `RD-26`'s fourth amendment of 2026-11-20 in [`00-index.md`](../decisions/RD-26.md). The branch merged `origin/main` at `e4b0e475d` first. The implementation commit is `801b94e23`. The baseline for every "before" reading is `645410c12`, the plan's, in a scratch worktree of its own with a frozen install and `just build`.
 
 ## What changed
 

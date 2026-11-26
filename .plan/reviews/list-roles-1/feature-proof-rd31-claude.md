@@ -6,7 +6,7 @@
 - [The rise in WebKit, ruled](../../list-roles-1/list-roles-handoff.md#the-rise-in-webkit-ruled);
 - decisions 1 to 4, properties 1 to 9 and proofs 1 to 8.
 
-I also read `RD-31`'s seventh amendment in the [register](../../00-index.md) (`75ba6bf5b`, `11331a545`), the [report](../../list-roles-1/list-roles-report.md) at `de24d50d5`, and the report's readings. **The base** is `73f081dc4`: `main`, and the merge's parent from `main`. Reviewer: Claude, a feature-proof pass that didn't implement the unit, on the coordinator's task of 2026-11-21. **Everything ran in two private detached worktrees,** one at each commit, each installed and built with `aube exec just build`. The browsers were Playwright 1.65.0's Chromium 158.0.8127.18, Firefox 159.0 and WebKit 27.2, with Node 26.13.1.
+I also read `RD-31`'s seventh amendment in the [register](../../decisions/RD-31.md) (`75ba6bf5b`, `11331a545`), the [report](../../list-roles-1/list-roles-report.md) at `de24d50d5`, and the report's readings. **The base** is `73f081dc4`: `main`, and the merge's parent from `main`. Reviewer: Claude, a feature-proof pass that didn't implement the unit, on the coordinator's task of 2026-11-21. **Everything ran in two private detached worktrees,** one at each commit, each installed and built with `aube exec just build`. The browsers were Playwright 1.65.0's Chromium 158.0.8127.18, Firefox 159.0 and WebKit 27.2, with Node 26.13.1.
 
 The earlier proofs, [`feature-proof-claude.md`](feature-proof-claude.md) and [`feature-proof-fold-claude.md`](feature-proof-fold-claude.md), read the first implementation and the fold. Their findings are ruled, and this pass doesn't reopen them.
 

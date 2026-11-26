@@ -1,6 +1,6 @@
 # Gesture receiver report
 
-**Input:** `drag/feature-composition` at `c492e713e`, which carries [`gesture-receiver-handoff.md`](gesture-receiver-handoff.md), with the owner's uncommitted edit to five files under `src/`. **Governing records:** `DRD-34`, `DRD-32` and `DRD-20` in [`00-index.md`](00-index.md), and [`contract.md`](contract.md).
+**Input:** `drag/feature-composition` at `c492e713e`, which carries [`gesture-receiver-handoff.md`](gesture-receiver-handoff.md), with the owner's uncommitted edit to five files under `src/`. **Governing records:** `DRD-34`, `DRD-32` and `DRD-20` in [`00-index.md`](decisions/), and [`contract.md`](contract.md).
 
 **Base check:** `git diff HEAD -- packages/drag/src | cmp - packages/drag/.plan/probes/gesture-receiver/owner-edit.diff.txt` succeeded before any edit.
 

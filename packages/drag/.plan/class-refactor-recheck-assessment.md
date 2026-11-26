@@ -7,7 +7,7 @@
 
 **The governing records:**
 
-- `DRD-63` in [`00-index.md`](00-index.md), and what it amends: `DRD-35` property 7 and `DRD-37` property 4;
+- `DRD-63` in [`00-index.md`](decisions/), and what it amends: `DRD-35` property 7 and `DRD-37` property 4;
 - `DRD-35` property 1, the kernel's receiver signatures;
 - the [assessment](owner-class-refactor-assessment.md), with the owner's answer to Q2, and the [handoff](owner-class-refactor-handoff.md);
 - CONTRIBUTING Part II §1.1 and §14.

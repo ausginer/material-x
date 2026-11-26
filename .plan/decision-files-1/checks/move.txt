@@ -1,0 +1,50 @@
+# The move, probes/move.mjs run on 2026-11-26 by the implementer at b197acdd3 (origin/main at e457ed209 merged), committed alone as e94ab0e9b.
+# node .plan/decision-files-1/probes/move.mjs --classified move-classified.tsv
+
+{
+ "entries": {
+  "RD": 64,
+  "DRD": 72,
+  "DRO": 21
+ },
+ "moved": 157,
+ "bytes": {
+  ".plan/00-index.md": 534292,
+  "packages/drag/.plan/00-index.md": 533956
+ },
+ "statusRows": 72,
+ "insideRelative": 736,
+ "insideRewritten": 736,
+ "insideAbsolute": 22,
+ "elsewhere": {
+  "fragMoved": 6,
+  "fragOther": 4,
+  "textFile": 16,
+  "toFile": 56,
+  "toDir": 67,
+  "unchanged": 211
+ },
+ "elsewhereTotal": 360,
+ "elsewhereFiles": 289,
+ "sameIndexFragments": 1,
+ "filesWritten": 157,
+ "filesChanged": 290
+}
+Left to a person (3):
+  .plan/00-index.md:1379: a link in code, o; kept
+  .plan/decision-files-1/decision-files-report.md:54: a link in code, ../00-index.md; kept
+  .plan/decision-files-1/decision-files-report.md:55: a link in code, ../00-index.md; kept
+
+# The tree after it, at e94ab0e9b:
+# .scripts/entry.sh --duplicates
+no duplicated address in drag, repo
+# oxfmt --check on the 290 changed and new Markdown files
+All matched files use the correct format.
+Finished on 290 files.
+# git diff --check: no output
+# The script again, on its own output, committed: changed 0 files, git status empty
+ "filesChanged": 0
+}
+Left to a person (2):
+  .plan/decision-files-1/decision-files-report.md:54: a link in code, ../00-index.md; kept
+  .plan/decision-files-1/decision-files-report.md:55: a link in code, ../00-index.md; kept

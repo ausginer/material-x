@@ -2,7 +2,7 @@
 
 **For:** one `implementer` unit on `drag/performance-resolution`, in the worktree `.claude/worktrees/drag-performance-resolution`. **Base:** the commit that carries this handoff.
 
-**Governing records:** `DRD-46` in [`00-index.md`](00-index.md), with `DRD-40` properties 4 and 7 and `DRD-45` property 9. [`performance-plan.md`](performance-plan.md) §2 P1c. The stopped check is [`performance-page-check-handoff.md`](performance-page-check-handoff.md), and this unit doesn't run it.
+**Governing records:** `DRD-46` in [`00-index.md`](decisions/), with `DRD-40` properties 4 and 7 and `DRD-45` property 9. [`performance-plan.md`](performance-plan.md) §2 P1c. The stopped check is [`performance-page-check-handoff.md`](performance-page-check-handoff.md), and this unit doesn't run it.
 
 **Goal:** after this unit, the owner and the architect can open a short Chrome trace of each scenario below in DevTools and see where each event's main-thread time goes, with the set-up outside the trace. The report names the optimization candidates the traces show, and the architect selects one from it.
 

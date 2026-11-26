@@ -1,0 +1,64 @@
+# probes/links-resolve.mjs with a CommonMark code span (inCode, as in move.mjs) against its former odd-or-even count, at e4a3863f4 and on the dry run's tree (move.mjs run in a scratch clone at e4a3863f4). Run on 2026-11-26 by Mx Architect B.
+
+## Before the move, former rule
+{
+ "files": 515,
+ "links": 7103,
+ "broken": 37
+}
+## Before the move, CommonMark rule (output identical to the former rule's: diff is empty)
+{
+ "files": 515,
+ "links": 7103,
+ "broken": 37
+}
+## After the move, former rule
+{
+ "files": 672,
+ "links": 7108,
+ "broken": 37
+}
+## After the move, CommonMark rule (output identical to the former rule's: diff is empty)
+{
+ "files": 672,
+ "links": 7108,
+ "broken": 37
+}
+.plan/decisions/RD-3.md:3 ../../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/decisions/RD-4.md:3 ../../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:121 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:121 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:127 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:127 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:133 ../packages/drag2/.plan/reviews/fin-review2/verification-restored-recheck-claude.md
+.plan/00-index.md:133 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:171 ../packages/drag2/.plan/reviews/fin-review2/verification-regressions-recheck-claude.md
+.plan/00-index.md:171 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:3462 handle-focus-1/checks/remediation-witnesses-repeat.txt
+.plan/aria-own-value-1/aria-own-value-plan.md:155 .plan/aria-own-value-1/checks/size-noise.txt
+.plan/aube-isolated-1/aube-isolated-report.md:64 aube-isolated-1/aube-isolated-report.md
+.plan/aube-isolated-1/aube-isolated-report.md:64 aube-isolated-1/checks/isolated-reading.txt
+.plan/declarations-check-1/declarations-check-handoff.md:25 declarations-check-1/declarations-check-handoff.md
+.plan/declarations-check-1/declarations-check-handoff.md:25 declarations-check-1/checks/rf54-mapped-brand-probe.txt
+.plan/declarations-check-1/declarations-check-handoff.md:43 declarations-check-1/declarations-check-handoff.md
+.plan/host-has-fallback-1/host-has-fallback-handoff.md:64 host-has-fallback-1/host-has-fallback-handoff.md
+.plan/host-has-fallback-1/host-has-fallback-handoff.md:64 host-has-fallback-1/checks/rf40-reading.txt
+.plan/host-has-fallback-1/host-has-fallback-handoff.md:64 host-has-fallback-1/host-has-fallback-handoff.md#item-1-the-tests
+.plan/slider-1/slider-plan.md:568 slider-1/slider-plan.md#the-rechecks-rulings
+packages/box-quad/.plan/plan.md:5 ../../drag2/.plan/plan.md
+packages/box-quad/.plan/plan.md:13 contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:14 ../../drag2/.plan/contract/00-index.md
+packages/box-quad/.plan/plan.md:15 contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:16 contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:18 contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:23 ../../drag2/.plan/measurements/budget-rebases.md
+packages/box-quad/.plan/plan.md:65 contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:66 contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:296 ../../drag2/.plan/measurements/budget-rebases.md
+packages/box-quad/.plan/reviews/03-C-correctness-review.md:5 ../contract/03-failure-table.md:27
+packages/drag/.plan/architecture-plan.md:50 ../../drag2/.plan/reentrancy-redesign-brief.md
+packages/drag/.plan/mangle-selection-report.md:140 measurements/2026-11-13-selection-rect-index/
+packages/drag/.plan/publish-mangle-report.md:142 ../build/property-names.json
+packages/drag/.plan/publish-mangle-report.md:143 ../build/generate-property-names.ts
+packages/drag/.plan/publish-mangle-report.md:153 ../build/rename-properties.ts
+# The same 37 targets before and after; the two of RD-3 and RD-4 are rewritten from decisions/ (one ../ more), as checks/dry-run-links.txt says.

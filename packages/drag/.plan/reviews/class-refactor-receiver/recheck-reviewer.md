@@ -7,7 +7,7 @@
 - **Pinned to the report commit `f6b4bdf4c`.** It adds only the report and files under its `measurements/` directory, so its code equals the unit's commit `c9e728bad` ([`input-and-scope.txt`](recheck-reviewer-probes/input-and-scope.txt)). The main checkout was clean at `f6b4bdf4c` when this review started, and `origin/drag/class-refactor` was at the same commit.
 - **The reviewed range is `c157dffb5..c9e728bad`.** Its code base `c157dffb5` equals `42f42a164`'s. The unit changes three files: `retirable.ts`, `invalidatable.ts` and `tests/callbacks.declaration.test.ts`.
 - **Governing records:**
-  - `DRD-63` property 2, as revised on 2026-11-14, in [`00-index.md`](../../00-index.md);
+  - `DRD-63` property 2, as revised on 2026-11-14, in [`00-index.md`](../../decisions/DRD-63.md);
   - the [handoff](../../class-refactor-receiver-handoff.md);
   - the [recheck assessment](../../class-refactor-recheck-assessment.md) §2;
   - `class-refactor-recheck-1` in the [previous recheck](../owner-class-refactor-remediation/recheck-reviewer.md), with its [probe](../owner-class-refactor-remediation/recheck-reviewer-probes/wrong-receiver.ts.txt);

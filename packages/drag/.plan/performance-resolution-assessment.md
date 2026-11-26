@@ -1,6 +1,6 @@
 # Performance resolution: assessment
 
-**Read by:** the architect, on `drag/performance-resolution` at `39c8b432c`, with a clean tree, in the worktree `.claude/worktrees/drag-performance-resolution`. **Input:** [`performance-resolution-report.md`](performance-resolution-report.md), and the commits `a600abc51`, `a7b3851c1` and `39c8b432c`. **Governing records:** [`performance-resolution-handoff.md`](performance-resolution-handoff.md), [`performance-plan.md`](performance-plan.md) §2 P1b, and `DRD-40`, `DRD-42`, `DRD-43`, `DRD-23`'s last bullet and `DRO-4` in [`00-index.md`](00-index.md).
+**Read by:** the architect, on `drag/performance-resolution` at `39c8b432c`, with a clean tree, in the worktree `.claude/worktrees/drag-performance-resolution`. **Input:** [`performance-resolution-report.md`](performance-resolution-report.md), and the commits `a600abc51`, `a7b3851c1` and `39c8b432c`. **Governing records:** [`performance-resolution-handoff.md`](performance-resolution-handoff.md), [`performance-plan.md`](performance-plan.md) §2 P1b, and `DRD-40`, `DRD-42`, `DRD-43`, `DRD-23`'s last bullet and `DRO-4` in [`00-index.md`](decisions/).
 
 **Outcome:**
 

@@ -4,7 +4,7 @@
 
 **Governing records:**
 
-- `DRD-57` in [`00-index.md`](00-index.md), properties 1 to 6, and [`mangle-selection-audit.md`](mangle-selection-audit.md) §3 to §5, which hold the selection and the exclusions;
+- `DRD-57` in [`00-index.md`](decisions/DRD-57.md), properties 1 to 6, and [`mangle-selection-audit.md`](mangle-selection-audit.md) §3 to §5, which hold the selection and the exclusions;
 - `DRD-56` properties 1, 3 and 5 to 9, which apply as written;
 - `DRD-51` properties 1, 3 and 4: readings, the stopped campaigns, and runtime checks;
 - [`publish-mangle-handoff.md`](publish-mangle-handoff.md) and [`publish-mangle-report.md`](publish-mangle-report.md), for the scripts that this unit reuses;

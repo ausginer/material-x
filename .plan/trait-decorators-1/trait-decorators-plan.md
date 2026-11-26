@@ -29,7 +29,7 @@
 - the brand install names symbols, not classes ([P41](#evidence)), and the trait module's build installs it as a static `[Symbol.hasInstance]` method ([P42](#evidence));
 - the migration's commits don't need to build in between.
 
-This study stays as the evidence. The decision is registered as [`RD-26`](../00-index.md).
+This study stays as the evidence. The decision is registered as [`RD-26`](../decisions/RD-26.md).
 
 ## The verdict
 

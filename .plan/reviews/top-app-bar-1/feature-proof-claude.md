@@ -2,7 +2,7 @@
 
 **Files were read at:** `6dbdcbbd1`, the head of #211 (`material-x/top-app-bar-1`), in slot `e`, detached. The base is `origin/main` at `92a386a17`. The task named the revision `6dbdcbbb1`, which doesn't exist. The branch's tip differs from it by one character, so I read the tip. Mutations were written into slot `e`'s files and restored after each run. Browsers: Playwright's Chromium, Firefox and WebKit, one suite at a time.
 
-**Subject:** the [plan](../../top-app-bar-1/top-app-bar-plan.md) with its probes and readings, `repo:RD-54` in [`00-index.md`](../../00-index.md), `repo:RD-47`'s six properties in the [landing plan](../../landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component), and the diff `92a386a17...6dbdcbbd1`.
+**Subject:** the [plan](../../top-app-bar-1/top-app-bar-plan.md) with its probes and readings, `repo:RD-54` in [`00-index.md`](../../decisions/), `repo:RD-47`'s six properties in the [landing plan](../../landing-1/landing-plan.md#top-app-bar-the-first-sets-third-component), and the diff `92a386a17...6dbdcbbd1`.
 
 **Verdict: the bar meets the plan's properties in the three engines, on the pages the plan read and on most others. The state is wrong on two other kinds of page, in all three engines (`reviewer-1`, `reviewer-2`, both tier A), so the plan's stopping boundary applies and they go to the architect. One more tier A finding is narrow (`reviewer-3`). Four findings (tier B) are rows that pass without what they guard. The tokens read and not read are as the plan says.** The three witnesses that the plan names reproduce. The plan's own assertion that no `scroll` listener is added doesn't work for a listener on `window` (`reviewer-4`).
 

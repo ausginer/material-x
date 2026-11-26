@@ -1,6 +1,6 @@
 # Performance window correction report
 
-**Input:** [`performance-window-correction-handoff.md`](performance-window-correction-handoff.md), carried by `6e505dacf` on `drag/performance`. **Governing records:** `DRD-50` in [`00-index.md`](00-index.md), with `DRD-49`, `DRD-47`, `DRD-44` property 6 and `DRD-40` properties 4 and 6. **Bases for comparison:** `packages/drag/src` at `501f60ab7` and at `71f20df20`.
+**Input:** [`performance-window-correction-handoff.md`](performance-window-correction-handoff.md), carried by `6e505dacf` on `drag/performance`. **Governing records:** `DRD-50` in [`00-index.md`](decisions/), with `DRD-49`, `DRD-47`, `DRD-44` property 6 and `DRD-40` properties 4 and 6. **Bases for comparison:** `packages/drag/src` at `501f60ab7` and at `71f20df20`.
 
 **Outcome: complete. Item 5 didn't apply.** A measurement now settles a slot range of the cache's own buffer and element array, and allocates nothing for the sink. That covers `y()`'s growth and `xy()`'s rebuild. W7 and W8 pass in Chromium, Firefox and WebKit, and M7 and M8 each fail their witness in all three engines. The probe of `xy()`'s rebuild reads **"no difference shown"** in both cases, so the shared rebuild stays. Its A/A bounds are wide, though: 650 µs and 807 µs, which is 27 % and 39 % of a rebuild (see [§Limits](#limits)). The three-engine suite and the hot-path tests pass. Against `501f60ab7`, "sortable + y" is −12 B Brotli, "sortable + xy" −15 B and "complete" −6 B. The seven rows without `sortable` read 0. No return condition was met.
 

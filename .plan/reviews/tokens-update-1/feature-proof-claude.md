@@ -4,7 +4,7 @@
 
 **Governing records:**
 
-- `repo:RD-28` in [`00-index.md`](../../00-index.md), with its dated block for steps 2 and 3, ruled at `a5c9be8a3`;
+- `repo:RD-28` in [`00-index.md`](../../decisions/RD-28.md), with its dated block for steps 2 and 3, ruled at `a5c9be8a3`;
 - the [plan](../../tokens-source-1/tokens-source-plan.md): _Steps, revised_, steps 2 and 3, proofs P6 to P9, _The converter's checks_ as amended, and _Rulings for steps 2 and 3_;
 - the owner's rule for CSS changes, relayed by the coordinator: _"the spec matters most; components must not break"_.
 

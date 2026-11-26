@@ -1,12 +1,12 @@
 # The list's sortable items on `@ydinjs/drag` — plan
 
-**Dated 2026-11-21 by the architect: [`RD-31`](../00-index.md) is amended a seventh time,** on `RF-68`'s [re-plan](../list-roles-1/list-roles-handoff.md#on-top-of-rd-31-90) (#99). `mx-list-item` has no inner `.host`, so a handle-less static item's tab stop and description go on its host, it composes neither `FocusForwarding` nor `delegatesFocus`, and drag's `visual` is the item itself. Where this plan says the inner `.host`, `FocusForwarding` or the `visual` callback, the entry governs.
+**Dated 2026-11-21 by the architect: [`RD-31`](../decisions/RD-31.md) is amended a seventh time,** on `RF-68`'s [re-plan](../list-roles-1/list-roles-handoff.md#on-top-of-rd-31-90) (#99). `mx-list-item` has no inner `.host`, so a handle-less static item's tab stop and description go on its host, it composes neither `FocusForwarding` nor `delegatesFocus`, and drag's `visual` is the item itself. Where this plan says the inner `.host`, `FocusForwarding` or the `visual` callback, the entry governs.
 
 **Status: the owner answered Q1 to Q5 on 2026-11-20 and Q6, with its two follow-ups, on 2026-11-21 ([Owner's answers](#owners-answers)). No question is open, and the plan is ready for implementation.** The architect wrote this plan on 2026-11-20 at `e4b0e475d` (`origin/main`), on `repo/list-sortable-1`, for the coordinator's task on issue #86. It was revised twice the same day for the answers, and on 2026-11-21 for Q6 ([what Q6 changes](#q6-a-handle-less-item-takes-focus)).
 
 **Revised 2026-11-21 on the implementer's size stop at `88801757e`:** the items' sortable writes move into a module that only `list/sortable-list` imports, and reach the item through the context's value. The stop bounds don't change. [Where the sortable writes live](#where-the-sortable-writes-live) has the ruling, and task 3a the work.
 
-The owner asked for it in these words: _"reorderable in core needs to be replaced with our new shiny drag, with a separate import for List where sortable items are needed"_. The decision is [`repo:RD-31`](../00-index.md). Where the entry and this plan differ, the entry governs. Grab mode was proposed as [`drag:DRD-70`](../../packages/drag/.plan/00-index.md), and the owner deferred it, so it isn't part of this plan. **This plan changes no drag source.**
+The owner asked for it in these words: _"reorderable in core needs to be replaced with our new shiny drag, with a separate import for List where sortable items are needed"_. The decision is [`repo:RD-31`](../decisions/RD-31.md). Where the entry and this plan differ, the entry governs. Grab mode was proposed as [`drag:DRD-70`](../../packages/drag/.plan/decisions/DRD-70.md), and the owner deferred it, so it isn't part of this plan. **This plan changes no drag source.**
 
 The plan is repository-level because the work changes three packages: it deletes code from `core`, adds code to `material-x`, and makes `material-x` depend on `drag`.
 
@@ -386,7 +386,7 @@ Ruled on 2026-11-21 on Mx Implementer B's size stop at `88801757e`, relayed by t
 
 This slot doesn't amend record entries, so the text is proposed here.
 
-**Registered on 2026-11-21 by the main slot's architect,** with one change. The item on handle semantics now says that the item applies these writes, the (Q6) item's tab stop included, and that the code runs only when the item calls the value with its own host and control, writing only on that item's elements. The proposed _"The list writes nothing on an item"_ is replaced by _"The list keeps no registry and queries no item"_, because the code that writes is now in the list's module. The new reason adds that the item hands the value its own elements. Property 7 is as proposed. [`RD-31`](../00-index.md) holds the text in force.
+**Registered on 2026-11-21 by the main slot's architect,** with one change. The item on handle semantics now says that the item applies these writes, the (Q6) item's tab stop included, and that the code runs only when the item calls the value with its own host and control, writing only on that item's elements. The proposed _"The list writes nothing on an item"_ is replaced by _"The list keeps no registry and queries no item"_, because the code that writes is now in the list's module. The new reason adds that the item hands the value its own elements. Property 7 is as proposed. [`RD-31`](../decisions/RD-31.md) holds the text in force.
 
 In property 4's item on handle semantics, replace _"The item writes it on its own handle or control while it is in a sortable list, and never on its host. The list writes nothing on an item."_ with:
 
