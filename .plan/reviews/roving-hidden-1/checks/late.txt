@@ -1,0 +1,14 @@
+## head
+chromium undefined at first true | :not(:defined){display:none} | a tab 0 first false last false corners 8px,8px | b tab -1 first false last false corners 8px,8px
+chromium undefined at first true | no rule | c tab 0 first true last false corners 20px,8px | d tab -1 first false last true corners 8px,20px
+firefox undefined at first true | :not(:defined){display:none} | a tab 0 first false last false corners 8px,8px | b tab -1 first false last false corners 8px,8px
+firefox undefined at first true | no rule | c tab 0 first true last false corners 20px,8px | d tab -1 first false last true corners 8px,20px
+webkit undefined at first true | :not(:defined){display:none} | a tab 0 first false last false corners 8px,8px | b tab -1 first false last false corners 8px,8px
+webkit undefined at first true | no rule | c tab 0 first true last false corners 20px,8px | d tab -1 first false last true corners 8px,20px
+## main's sources
+chromium undefined at first true | :not(:defined){display:none} | a tab 0 first true last false corners 20px,8px | b tab -1 first false last true corners 8px,20px
+chromium undefined at first true | no rule | c tab 0 first true last false corners 20px,8px | d tab -1 first false last true corners 8px,20px
+firefox undefined at first true | :not(:defined){display:none} | a tab 0 first true last false corners 20px,8px | b tab -1 first false last true corners 8px,20px
+firefox undefined at first true | no rule | c tab 0 first true last false corners 20px,8px | d tab -1 first false last true corners 8px,20px
+webkit undefined at first true | :not(:defined){display:none} | a tab 0 first true last false corners 20px,8px | b tab -1 first false last true corners 8px,20px
+webkit undefined at first true | no rule | c tab 0 first true last false corners 20px,8px | d tab -1 first false last true corners 8px,20px

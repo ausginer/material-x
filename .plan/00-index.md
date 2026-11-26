@@ -1016,6 +1016,8 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
 **What the second amendment of 2026-11-17 changed.** Property 2 had no bullet on resuming after a `/clear`, and _Not adopted_ had no entry on avoiding the picker. Nothing was removed.
 
+**Dated 2026-11-26 by the architect: `RD-64` supersedes property 6 and the _Not adopted_ entry _"Splitting the index now"_, at the merge of its unit and not before.** The owner asked for a file per decision. Property 6's condition for revisiting, a conflict that neither the single minter nor the stack order prevented, wasn't read, and `RD-64` doesn't rest on it. Until that merge, property 6 is in force.
+
 #### RD-18 — The effort guard and `.scripts/claude-role.sh` are removed, and `cl` starts every role session at the effort its definition declares
 
 **Decided 2026-11-17 by the architect** on `repo/harness-1` at `21392e738`, on the owner's decisions relayed by the coordinator: _"устаревший скрипт, его стоит удалить; я сейчас пользуюсь только `cl`"_ (`claude-role.sh`), and _"этот гард тоже в принципе можно убрать (`cl` как раз решил эту проблему более \"брутфорсом\")"_. **Implemented** on `repo/harness-1` by the [harness handoff](harness-1/harness-handoff.md), at `4c489e745`, and the [feature proof](reviews/harness-1/feature-proof-claude.md) at `fbae00994` holds. It reaches `main` when #33 merges. Property 4's steps are the owner's and are pending. (_Was:_ _"**Unimplemented:** the harness handoff implements it."_)
@@ -2665,6 +2667,8 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 **Dated 2026-11-25 by the architect, from the trial (#265): which text governs where a finding's body and a decision that it names differ. The body does, for what the repair must do.** The decision gives the form and the public surface, and doesn't narrow the body. A role that finds a difference stops, or judges by the body and reports it if it is a review, and the architect amends the wrong text. `findings.md` doesn't say this: it says that the body alone is the contract, and that a decision in a register is named by the body. **Stage 4 adds the sentence to its _The body_,** and the trial report names the case: #265 property 1 and `drag:DRD-72` property 1, found by the feature proof after the implementation and one ruling had passed over it. Until then #265 says it in its own body, at `r4`. No property changes.
 
+**Dated 2026-11-26 by the architect: the trial is over, and `RD-63` supersedes properties 2, 6 and 7 in part, at the cut-over.** #265 was accepted at `27f507e04`, revision 4, and closed with #275. Requested by the coordinator. Its count: four amendments, the second of which records an answer and changes no property, and no refusal or failure of the tool in any run. The owner answered the corrections' Q1 to Q3 and set the order: `RD-64`'s unit next, then stage 4, which carries `RD-63`'s documents. Stage 4 still waits for his word. The note above is `RD-63` property 7.
+
 #### RD-57 — axe-core checks material-x's elements in the browser tests, supplementary, with each known violation listed by rule and target
 
 **Decided 2026-11-24 by the architect, on `repo/accessibility-findings-1`,** from Mx Architect Explainer's proposal, relayed by the coordinator. The owner approved its registration with the branch's other items: _"Да, отличный анализ, пасиба! Кидай всё"_ ("Yes, great analysis, thanks! Send it all"). That covers registration and not the design. `RD-56` (`repo/findings-on-github-1`) is the highest `RD-` on any branch on `origin`, so this is the next free number. **Unimplemented:** a short plan comes first.
@@ -2780,7 +2784,14 @@ The unit of #266 quotes and amends both, on its own branch.
 1. **An implementer runs Chromium:** rows, suites, witnesses and probes. CI's `verify` runs every row in Chromium, Firefox and WebKit on the pull request.
 2. **The exception: a row that can't show its property in Chromium,** because the defect or the code path exists only in another engine, or the row has an engine condition. That row and its witness run in the engines that show it, that file only. Reproducing a CI failure is the same.
 3. **The implementer doesn't wait for CI.** The report names the head, and says that `verify` is pending or gives its result. A failure returns to the implementer as remediation. Nothing is accepted or proposed for merging until `verify` passes on its head. A run that `RD-15` reduces counts. A unit whose subject is CI, the harness or an engine's configuration reads CI before it reports.
-4. **A feature proof runs Chromium, Firefox and WebKit,** one engine at a time with nothing else running: the test files that the unit adds or changes, the files that test the source it changes, the reviewer's own probes, and the mutations of property 5. It doesn't repeat the whole suite. It cites `verify`'s run on the reviewed head, or on the last commit before it that changed more than records, or says that there is none. These local runs are the review's evidence. Visual stays CI's.
+4. **A feature proof reads the unmutated pass in Firefox and WebKit from CI, and runs the rest locally.** The affected files are the test files that the unit adds or changes and the files that test the source it changes.
+   - **From CI:** `verify`'s full run on the reviewed head, or on the last commit before it that changed more than records. The review names the run, and the affected files pass in its `firefox` and `webkit` jobs.
+   - **Locally,** one engine at a time with nothing else running: the affected files unmutated in Chromium, the mutations of property 5 in the engines that it names, and the reviewer's own probes in the engines that their question is about (property 10).
+   - **When the run is pending,** the review does the rest and reports it pending. Its verdict for Firefox and WebKit waits for that run, and property 3's gate reads it before anything is accepted.
+   - **When it fails,** a failure of a row in the affected files is the review's finding, reproduced in its engine, that file only (property 2). Any other failure is named in the report, and the affected files' results are read from the job's log. A run that didn't reach them gives the review no pass in that engine until a run on its head does.
+
+   It doesn't repeat the whole suite. The local runs and the named run are the review's evidence. Visual stays CI's. (**Amended 2026-11-26, a trial that the owner can end.** This property said: _"**A feature proof runs Chromium, Firefox and WebKit,** one engine at a time with nothing else running: the test files that the unit adds or changes, the files that test the source it changes, the reviewer's own probes, and the mutations of property 5. It doesn't repeat the whole suite. It cites `verify`'s run on the reviewed head, or on the last commit before it that changed more than records, or says that there is none. These local runs are the review's evidence. Visual stays CI's."_)
+
 5. **The mutations that a feature proof repeats in the three engines:**
    - for each required property, the one that removes its mechanism;
    - each whose mechanism engines implement differently, such as focus and Tab, selectors with a fallback, the accessibility tree, forms and restoration, pointer and touch, top layer and popover, scrolling, layout rounding, animation and timers, custom element and slot timing;
@@ -2818,6 +2829,108 @@ The unit of #266 quotes and amends both, on its own branch.
 - **`integrity-7`, rejected.** _Rows and witnesses name no engine_ binds a contract, which the architect writes. A test's author follows the contract, and an implementer's engines are in `implementer.md`. The `test-component` skill says how a row is written, and nothing in it names an engine to contradict this.
 
 **Checks:** Markdown only, so no build or test applies. Root format check; the changed links and anchors resolved by a scratch script; `git diff --check`. Lint doesn't apply to Markdown. `aube exec playwright install --dry-run firefox` resolves Playwright's Firefox 159.0.
+
+**Dated 2026-11-26 by the architect: property 4 is amended, as a trial, on the owner's direction of the same day,** relayed by the coordinator: implementers in Chromium are fast, and a review's Firefox and WebKit runs are now what takes longest, while CI runs the three engines on every pull request's head. His words: _"Да, давай попробуем CI, всё равно он у нас постоянно бегает..."_ ("Yes, let's try CI, it runs all the time anyway..."). Written on `repo/engines-2`.
+
+- **What changes:** a review's unmutated pass of the affected files in Firefox and WebKit is read from `verify`'s full run, which the review names, in place of its own runs. Chromium's unmutated pass stays local, because it is where the review's mutations are compared, and it is fast. Property 4 also says what a review does while that run is pending and when it fails.
+- **What doesn't:** the gate of property 3; the mutations of property 5 and the engines they run in, because CI runs no mutation; the probes and readings of property 10; property 2's rows; visual and Safari.
+- **Why:** the run that a review made was the run that CI makes on the same head. Reading it gives the same evidence without the time.
+- **Cost:** the review depends on CI's being up and green on the head it reads. A row that CI's `firefox` or `webkit` job skips, or a log that doesn't show the affected files, is read less closely than a local run was. CI's jobs leave out `measurement` rows (`RD-7`), so those of an affected file aren't in the named run, and are read as `RD-7` says. While the run is pending, the review's verdict for those engines is open.
+- **A trial:** the owner can end it, and the record then restores property 4's former text, which is quoted in place.
+- **What this amends,** in place: property 4; `.agents/docs/test-architecture.md`'s bullet of the feature proof; `.claude/agents/reviewer.md`'s sentence on engines; `.agents/docs/handoff.md`'s clause on a feature proof. `coordinator.md` already says to check `verify` on the head, and it stands. `drag:DRO-18` gains a note: its note of 2026-11-25 has a feature proof of drag run `browser` and `shipped` in each engine, and CI's `firefox` and `webkit` jobs run both projects (`--project '*/firefox'`, `'*/webkit'`).
+
+**Not decided here, for the owner (Q1):** whether the mutations of property 5 also move to Chromium by default. CI can't run them, so the trial alone doesn't move them, and he confirmed that they run in the three engines (this entry's first paragraph). By the coordinator, they are most of what is left of a review's time.
+
+- **(a) As now:** the three groups of property 5 in the three engines. Costs nothing in evidence, and saves only the unmutated runs.
+- **(b) Recommended: Chromium, and the other two engines only where engines differ:** property 5's second group, the mechanisms that engines implement differently, and property 2's rows and their witnesses, stay in the three engines. The first and third groups run in Chromium. A mechanism that engines implement alike fails alike, so the cost is small: a row that is blind without such a mechanism only in Firefox or WebKit isn't seen. Saves most of the mutation runs.
+- **(c) Chromium alone, but for property 2's rows:** the fastest. The cost is `RD-62`'s own: a row that passes without its mechanism in Firefox or WebKit is found by nobody, also for focus, the accessibility tree and timing, which engines implement differently.
+
+**Dated 2026-11-26 by the architect: Q1 is answered by the owner, (a), until the mutations run in CI.** In chat, relayed by the coordinator, on the architect's reading of the same day: _"Согласен с вариантом 1 (можно даже отдельный тулсет новым пакетом сделать 😅 Будем конкурента stryker'у писать). Пока его нет - (а)"_ ("I agree with option 1 (we could even make a separate toolset as a new package 😅 We'll write a Stryker competitor). Until it exists, (a)").
+
+- **What holds:** property 5 is unchanged. Its three groups of mutations run in the three engines, locally, by property 4. No text changes.
+- **The reading's options:** the per-unit mutation runners in `.plan/**/probes/` are nearly the same script: a list of exact-once replacements, each followed by a Vitest run of a few files in one engine and a printout of the rows that fail. None records which rows a mutation is expected to fail.
+  - **Option 1, chosen as the direction:** a unit's mutations are committed as data, with what each is expected to fail. One shared runner applies them one at a time, compares each with its expectation and compares the engines (property 5's last sentence). A CI workflow that the reviewer dispatches runs them in each engine on the reviewed head.
+  - **Option 2, rejected:** a mutation-testing tool such as StrykerJS. Its Vitest runner documents that browser mode isn't supported, and its generated mutations don't answer property 5's question, which is whether a row fails without the mechanism that the review names.
+  - **Option 3, the local-only form of option 1:** the shared runner and the data without CI. It is option 1's first half.
+- **Not decided here:** option 1's own decisions belong to its own unit, which is planned next: the data's required properties, whether it runs on dispatch or per pull request, what happens to a unit's mutations after its review, and whether the runner is a new package, as the owner suggests. That unit's decision amends properties 4 and 5 for where the mutations run, and this answer ends when it lands.
+
+#### RD-63 — A finding's body names its decisions' properties and questions by address and link, restates none of them, and is read with them at a pinned commit
+
+**Accepted 2026-11-25 by the owner. In force at `RD-56`'s cut-over, with stage 4's documents, and not before.** Proposed the same day by the architect on `repo/findings-rules-1` from `ca6918376`, from `RD-56`'s trial, as the plan's [corrections](findings-on-github-1/findings-on-github-plan.md#stage-3-the-trials-corrections). Recorded on 2026-11-26 after the trial's finding, #265, closed with #275. `RD-62` is the highest `RD-` on any branch on `origin`.
+
+**The owner's answers,** in chat with Mx Architect Explainer on 2026-11-25, relayed by the coordinator. He agreed to the explainer's readings and recommendations: _"Ага, согласен 🙂 Отправляй"_ ("Yes, agreed. Send it").
+
+- **Q1, one place for each text: (a).**
+- **Q2, what the issue shows of a question that is in a decision: (b) in substance.** A link whose label is the question's plain words, such as _"Q1: is the cost accepted?"_, with no option and no answer.
+- **Q3, when: (a),** with stage 4.
+- **The order:** #265 closes first, then `RD-64`'s unit, then stage 4, so that a link has a target. #265 stays as it is.
+- **His two ideas:** _"а что если нам оставлять прям hyperlinks на решения? Прям в репозиторий?"_ ("what if we leave hyperlinks right to the decisions? Right into the repository?") is property 4. _"решения можно разнести по файликам, типа DRD-72.md … Очень unix-подход"_ ("decisions can be spread over files, like DRD-72.md … a very unix approach") is `RD-64`.
+
+**Properties.** The words are [`stage-3-documents.patch.txt`](findings-on-github-1/checks/stage-3-documents.patch.txt), for `findings.md` and one sentence of `agent-workflow.md`. Stage 4 applies them.
+
+1. **Each text has one place.** A property that a decision states, and a number that it or an answer fixes, such as a size ceiling, is in the decision. The body names the decision's address and the numbers of its properties, and restates none of them. The witnesses, and the properties that no decision states, are in the body, and a decision or a plan names no witness that the body doesn't have. A question about the decision is in the decision with its options, recommendation and answer. The plan restates no property, answer or witness. A change of a decision amends the finding only when it makes the body's text false.
+2. **A prompt pins `#N rM, decisions at <sha>`** when the body names a decision. A role reads the decisions at that commit, and stops when the branch has a later text of a property or an answer. A decision or a plan names `#N` alone.
+3. **_Questions_ has, for a question in a decision, its address and a link labeled with the question's number and plain words,** and no option and no answer.
+4. **A link is a whole URL on GitHub, to a file and never to a heading fragment.** It goes to `main` when the file is there, and to the unit's branch while the file is only there. When the finding is still open after that branch merges, the architect amends the link to `main`. The acceptance links its commit. A link is for people: the contract is the address, read at the pinned commit.
+5. **Evidence is cited by branch and path, and linked.** The pull request is in the issue's timeline.
+6. **The body's text:** a property can be read alone, with no _so_ or _the same_ pointing to another sentence's state. A property that owes text names the document, the place and what the text says. Each reading names the commit that it was read at.
+7. **Where a property of the body contradicts one of a decision that it names, the body applies** to what the repair must do. A role that finds one stops, or, in a review, judges by the body and reports it, and the architect amends the wrong text. This is `RD-56`'s note of 2026-11-25.
+8. **The writer's order:** the decision is pushed first, then the body is edited, the amendment is posted and the tool runs. A prompt names the new revision only after that. An amendment doesn't quote the replaced `Revision` line. The owner's answer is recorded where the question is.
+9. **The title names no package. A test title names the finding as `#N`.** An implementer's note is in the decision's entry, or in the unit's `.plan/` directory when the finding has no decision. A departure goes in the note and the closing message, and the architect rules on it before the review.
+10. **The tool doesn't change.**
+
+**What it supersedes, at the cut-over:** `RD-56` property 2 gains property 2 here. Property 6's last sentence, _"The issue cites the path and the pull request"_, becomes property 5. Property 7 gains property 1. Nothing else of `RD-56` changes.
+
+**Why. The trial's readings** (#265, `r0` to `r4`; `drag:DRD-72`, its last note):
+
+- One answer was in five places, and cost a revision and an amendment that changed no property.
+- Six of the body's eight properties restated `DRD-72`'s. Amendment 4 carried `DRD-72`'s properties into the body, and not its numbers or witnesses. The body's Q1 says _"about 0.2 kB"_, the answer was given on +235, +209 and +360 B, and the ceilings are +160, +145 and +398 (`drag:DRO-20`), in `DRD-72` alone. Two of the recheck's witnesses were in `DRD-72`'s list and not in the body.
+- _Evidence_ began with one _"Read at `e57c9f074`"_ for readings of three commits.
+- Property 3's _"put every row back so"_ reads as the new order or the old one.
+- Property 1's _"and the documentation says so"_ didn't say which words were owed. The README's line was found missing at the recheck, and added in `27f507e04`.
+- The texts never disagreed on behavior.
+- The tool refused nothing and failed in no run. The implementer and the reviewer worked from its output. Four amendments: one registration, one answer that changed no property, two rulings.
+
+**Costs.** A reader of the issue alone doesn't see the whole contract: he follows the link. A closed issue's link to a deleted branch is dead, and the acceptance's link to its commit isn't. Nothing checks a decision's text against the body: the prompt's commit and the role's stop are conventions. Whoever changes a decision searches the open findings that name it. Two forms exist, a finding with a decision and one without, and #265 is of neither. `findings.md` grows from 7.3 to 11.9 kB.
+
+**Not adopted:** the issue restates and one text applies, decisions in issues, the tool printing the decisions, a writing tool. The plan has each. A link to `main` only, which is dead while the decision is on the unit's branch. A link to a commit only, which shows an old text while the finding is open.
+
+#### RD-64 — A decision is a file of its own, named by its identifier, and an index keeps what isn't a decision
+
+**Accepted in direction 2026-11-25 by the owner. Its unit is the next step of `RD-56`'s order, and starts on his word.** His words are in `RD-63`. Recorded by the architect on 2026-11-26 on `repo/findings-rules-1`. The unit's work list is written on its own branch, with its implementation ([one unit](../.agents/docs/agent-workflow.md#one-branch-and-one-pull-request-per-unit)). Nothing has moved yet.
+
+**Properties:**
+
+1. **Each `#### RD-n`, `#### DRD-n` and `#### DRO-n` entry is one file,** `<root>/.plan/decisions/<identifier>.md`, such as `.plan/decisions/RD-56.md` and `packages/drag/.plan/decisions/DRD-72.md`. The file holds the entry from its heading to the next entry, with the heading unchanged. A new decision is a new file, and a dated note is appended to its file.
+2. **The move changes two kinds of text and no other:** each relative link target, so that it resolves to the same file from the new place, and drag's _Decision status_ row, which becomes the paragraph after its decision's heading, as written. The table goes. Witness: for each moved identifier, `.scripts/entry.sh` prints the same text before and after the move, except for those two.
+3. **Addresses don't change.** `repo:RD-56` and `drag:DRD-72` resolve as before. The resolver's scope rows add the directory, which [`entry.ts`](../.scripts/entry.ts) already reads as Markdown documents in path order. No identifier is claimed twice in the tree.
+4. **No table of contents is committed,** because every new decision would change its one line. `CONTRIBUTING.md`'s _Reading one entry of a record_ says how to list a scope's titles.
+5. **An index keeps the rest:** its preamble, which says where the decisions are, the findings, the questions, the dispositions and the status paragraphs. `DRI-` stays in drag's `contract.md`, a current-state document that is read whole.
+6. **Every relative link in the tree resolves after the move.** A link that pointed into an index for a moved entry points to its file. A link on a line that cites several entries, or none, is read by hand.
+7. **A script makes the move from the unit's base,** and is committed with its output as evidence. The unit merges when no open branch changes a decision entry in an index, which the coordinator reads before the merge. A branch that changes one later takes `main`'s side of the conflict and makes its change again in the file.
+8. **The single minter stays.** Two branches that mint the same number now add the same file, which git reports as a conflict.
+
+**What it supersedes, at the unit's merge:** `RD-17` property 6, _"The repository record stays one file"_, and its _Not adopted_ entry _"Splitting the index now"_, and `agent-workflow.md`'s _The record stays one file_.
+
+**Why.** `RD-63`'s link needs a target that GitHub renders, and it renders neither index (the explainer's reading). Read at `d6225045d`: `.plan/00-index.md` is 1,386,014 bytes, of which its decisions are 499,328, and drag's is 881,571, of which its decisions are 475,081 and its owner decisions 59,725. Of the 31 merges in two weeks that conflicted in a register, 12 conflicted in its decisions, 8 of them there alone ([`RD-56`'s plan](findings-on-github-1/findings-on-github-plan.md#readings)). With a file each, two units conflict only where they change one decision, which the stack order expresses.
+
+**`RD-17`'s condition isn't what this rests on.** Its property 6 revisits a split when a conflict is recorded that neither the single minter nor the stack order prevented. The 12 weren't read against that. The owner's word and the link are the reasons.
+
+**Costs,** read at `d6225045d`:
+
+- **One large pull request:** about 1.03 MB moved into 155 files (62 `RD`, 72 `DRD`, 21 `DRO`), 594 relative links rewritten inside them, and up to 362 links into an index elsewhere, 8 of them with a fragment.
+- **Code and documents:** the resolver's scope rows and their tests, `CONTRIBUTING.md`'s section, and the documents that name an index as the place of a decision: `agent-workflow.md`, `review-findings.md`, `documentation.md`, `coordinator.md`, `architecture.md` and `test-architecture.md`. No role definition and no workflow names an index.
+- **Open branches** that change a decision entry merge first, or make their change again.
+- **History:** a decision's file begins at the move, and its earlier history is the index's, at the move's parent.
+- **GitHub's directory view** shows names and no titles, sorted as text: `DRD-1`, `DRD-10`, `DRD-11`.
+
+**Not adopted:**
+
+- **Findings too.** About 185 more files, and most open branches add a finding: 6 of the 8 open pull requests name an `RF-`. Each would conflict, for text that the cut-over freezes. So a frozen finding's link goes to an index that GitHub doesn't render, and `entry.sh` reads it.
+- **A committed table of contents,** generated or not. Its line per decision brings the conflict back.
+- **Zero-padded names,** such as `DRD-072.md`. They sort, and the name is no longer the identifier.
+
+**Not read:** the docs site's build and Storybook, as consumers of the indexes. The unit reads them first.
 
 ## Findings
 
@@ -7206,6 +7319,116 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 - **Not read:** Safari, screen readers, sizes, the group's own `disabled`, a member hidden or disabled while it has focus, and the standard group's `:first-child` and `:last-child` with a hidden member.
 - **Plan needed:** no. **Ready** for an implementer, after #269 and #270, on a branch of its own. Nothing is the owner's to answer.
 - **Size:** _medium_. One hook in core, the connected group, its page and their rows.
+
+**Dated 2026-11-25 by the implementer: implemented on `core/roving-hidden-1`, for #273, from `main` at `2485fb2df`, and not closed.** Requested by the coordinator. It is built on `RF-141`'s choice, whose last note replaces this entry's property 2's sentence about a first member that is shown again.
+
+- **The hook:** eligibility is `disabled` and the computed `display`, one `MutationObserver` hears the items' `hidden` and `disabled`, and the tab stop is chosen again at the connect. The observer is on each item of the last read, because a wider one would also choose again for a change inside an item or of the host's own `disabled`.
+- **The group:** its ends are marked by the computed `display`, at a slot change, at the connect, and after a change of `hidden`.
+- **One rule more than the direction names:** a member that is the only one shown is both ends. The former sheet gave it the last member's corners, so `::slotted([data-first][data-last])` has the outer corner on all sides. Property 4 asks for it. A group with one member had the same corners before.
+- **Engines: Chromium, on the owner's ruling of 2026-11-25,** relayed by the coordinator, that development runs in Chromium and the review in the three engines. It came while the witnesses ran. Finished before it: the rows in the three engines, the witnesses in Chromium and Firefox, and in WebKit the first five mutations. The WebKit run was ended, and the sources and core's build are restored.
+- **Rows:** 30 in core's `useRovingTabindex` (95 in all), three in `button-group.browser.test.ts` and seven in `button-group.spec.browser.test.ts`. They pass in Chromium, Firefox and WebKit. **Witnesses,** Chromium ([reading](roving-hidden-1/checks/witnesses.txt), [probe](roving-hidden-1/probes/mutate.mjs)):
+
+  | Change | Core rows that fail, of 95 | material-x, of 140 |
+  | --- | --- | --- |
+  | The hook, the group and the sheet of `main` | 21 | 8 |
+  | The hook of `main` | 21 | 3 |
+  | The group of `main` | 0 | 5 |
+  | `item.hidden` in place of the computed `display` | 3, with the page's `display` | 0 |
+  | No `display` in the hook | 15 | 2 |
+  | No `disabled` in the hook | 12 | 1 |
+  | `hidden` not heard by the hook | 5 | 1 |
+  | `disabled` not heard by the hook | 5 | 1 |
+  | Items that left still heard | 2 | 1, of the pressed corners |
+  | The items of a read of more than three not heard | 2 | 0 |
+  | No choice at the connect | 2 | 0 |
+  | The group's ends by `hidden` | 0 | 1 |
+  | The group's ends without `display` | 0 | 5 |
+  | The ends not marked at the connect | 0 | 2 |
+  | `hidden` not heard by the group | 0 | 2 |
+  | No rule for the only member | 0 | 1 |
+
+  The nine new core rows that `main`'s hook passes say what must not change: the first item shown or enabled again, the choice of focus kept when it is, an item that left, the page's `display`, and `disabled` in a group built while out. The two such rows of the corners are the ends shown again and the page's `display`. Core's rows fail alike in Firefox, and in WebKit as far as it ran.
+
+- **Intermittent, not this unit's rows:** a row of the pressed inner corners failed once in Chromium and twice in Firefox, each under another mutation of the hook, which doesn't reach it. Those rows passed in every run without a mutation. The cause wasn't read, and other sessions ran on the machine.
+- **Size, Brotli** ([reading](roving-hidden-1/checks/sizes.txt)): `button-group/connected-button-group` 4042 to 4187 (+145), `button/split-button` 7766 to 7887 (+121), `complete` 25869 to 26035 (+166). No other row of the 23 moves, and the gate passes.
+- **Checks:** core's projects (394 rows) and material-x's (2044 rows and 2 expected failures) in Chromium, without the visual one; root format check, typecheck, lint and the size gate. After them, one JSDoc paragraph of the group moved, and only format, lint and typecheck of material-x ran again. **Not run:** the docs build, the two other engines' full suites, and what the entry lists as not read.
+
+**Dated 2026-11-26 by the architect: the [feature proof](reviews/roving-hidden-1/feature-proof-claude.md) of `810cffceb` is ruled, and properties 1 and 4 are amended,** requested by the coordinator. The three findings are accepted. My own reading is of the end marks by CSS alone, in the three engines one at a time ([reading](roving-hidden-1/checks/ruling-ends.txt), [probe](roving-hidden-1/probes/ruling-ends.mjs), [again after frames](roving-hidden-1/probes/ruling-ends-frames.mjs)). The rest is the proof's readings.
+
+**One cause behind two findings: the computed `display` is read where an attribute already decides.** WebKit keeps a stale `display` in a subtree that isn't rendered (`reviewer-1`), and an undefined member that a page hides has `display: none` with no change to hear when it is defined (`reviewer-2`). The group's reads of computed style, between its writes of the marks, are the cost (`reviewer-3`), by the proof's attribution. Where the page used `hidden`, the attribute gives the right answer in each case without a read.
+
+**The contract now:**
+
+- **Property 1, in place of its second sentence** (_"`hidden` alone doesn't decide: a page's own `display` can show the member, and it is then one like the others"_): **a member with the `hidden` attribute is out, whatever a page's style does with it.** The computed `display` still decides for a member without `hidden`, so a page's own `display: none` still keeps the keys from it. A page that shows a hidden member has a member that the keys don't reach. The author declared it irrelevant, and the group's page says to hide a member with `hidden`. Keeping the computed `display` as the only test leaves the unit's own finding open in WebKit, for correct use, in an inactive panel.
+- **Property 4, in place of its first sentence:** the outer corners are on the first and the last member **without the `hidden` attribute**, after a slot change or a change of a member's `hidden`. The ends read no computed style, so they need no read at the connect. A member that a page's style alone hides or shows doesn't move the corners. That is visual only, because the tab stop and the keys follow property 1.
+- **Not adopted: ends by CSS alone,** `::slotted(:nth-child(1 of :not([hidden])))` and its `:nth-last-child` twin. They match in the three engines when the group is built, also in RTL and with undefined members. In WebKit, a change of a sibling's `hidden` isn't matched again, also two frames later, so every end stays unmarked until something else changes the group.
+- **Not adopted: the group's reads kept, written only where a mark changes.** It would keep a page's style for the corners, which the ends don't need. `reviewer-2` would still need the group to hear a definition, which only the hook hears, and `reviewer-1`'s corners would stay stale in WebKit.
+
+**Triage:**
+
+- **`reviewer-1`: accepted, pre-existing.** Answered by property 1 as amended: the observer hears `hidden`, and the attribute isn't stale. **The limit that stays, WebKit's, accepted:** a member that is shown again while its group isn't rendered still reads `display: none` there. It isn't given the tab stop back at that change, and the next choice gives it. Another member keeps the tab stop meanwhile, so Tab still enters the group, on another member than the value's when the value names it. The entry and the hook's JSDoc say nothing of it, as of any engine's defect, and this note records it.
+- **`reviewer-2`: accepted, this unit's regression.** Answered by property 4 as amended: an undefined member that a page hides has no `hidden`, so it is an end before and after its definition.
+- **`reviewer-3`: accepted, this unit's. A group without a hidden member may not cost this:** each `mx-split-button` has one, and its members are never hidden. With the group's ends of `main` and this unit's hook, the proof reads `main`'s times in Chromium, so the hook's reads at the connect are accepted. **Required property:** in Chromium, connecting 20, 100 and 300 groups of four, and as many split buttons, in one task, each median of seven is at most 1.5 times `main`'s, read in turn with `main`, three times. It is a reading, not a row, because a row can't hold a time on a loaded machine.
+- **The departure, the only shown member with four outer corners, and a group of one with them too:** accepted, as the proof accepts it.
+- **It isn't the owner's.** The changes are of a unit that isn't on `main`, and core has no release. A page that shows a hidden member is the only one that sees a difference, and its own markup contradicts itself there.
+
+**The list:**
+
+1. **The hook:** an item with the `hidden` attribute isn't eligible. The computed `display` is read only for an item that is enabled and not hidden. The hook's JSDoc and the comment on `eligible` state property 1 as amended.
+2. **The group:** the ends are marked by `hidden` at a slot change and at a change of a member's `hidden`. The read at the connect and the reads of computed style go. A mark is written only where it changes, so a slot change that changes no end writes nothing. That is how to write it, not a required property. The group's JSDoc already says _"isn't hidden"_.
+3. **`connected-button-group.mdx`,** the sentence after _"Hide a member with its `hidden` attribute."_: a hidden member stays out of the group's order even where a page's style shows it. When a style alone hides or shows a member, the tab stop follows at the group's next change, and the outer corners don't follow it.
+4. **Rows that change:** core's two rows _"hidden and shown by a page's display"_ now say that a hidden item that a page's `display` shows isn't the tab stop, and that an arrow key passes it. material-x's _"should count a hidden member that a page's display shows"_ now says that the ends pass over it. Core's row _"should skip an item on an arrow key that a style alone hides"_ stays.
+5. **Rows added:**
+   - In core: an item hidden while the host's ancestor has `hidden` isn't the tab stop, and the next item is, after the ancestor is shown. The same with `hidden` on the host.
+   - In material-x: a group in a `hidden` ancestor, its first member hidden, then the ancestor shown: Tab reaches the second member, and the ends are on the second and the last.
+   - In material-x: a page with `:not(:defined) { display: none }`, the group defined before its members: after their definition, the ends are on the first and the last.
+6. **Witnesses:** `hidden` not read by the hook, which fails the core and material-x rows of the hidden ancestor in WebKit, and core's rows of item 4 in each engine; the group's ends by the computed `display`, as at `810cffceb`, which fails the `:not(:defined)` row in Chromium and the material-x row of item 4; the ends not marked at a change of `hidden`. The rows of the hidden ancestor are blind in Chromium, which reads `none` there. They are witnessed in WebKit, under `RD-62`, in those two files only.
+7. **The cost reading** of `reviewer-3` in Chromium, with the proof's [probe](reviews/roving-hidden-1/probes/proof-cost.browser.test.ts.txt), recorded with the unit.
+
+**Checks owed:** the affected rows in Chromium, the witnesses there and in WebKit as item 6 says, the size table, typecheck, lint and the root format check.
+
+**Recheck:** targeted, by the same reviewer, in the three engines: the proof's readings of the group while it isn't rendered and of a late definition, the cost in turn with `main` in each engine, the sizes, and the new witnesses. Nothing else of the proof is read again.
+
+**`RF-134` (#291)** marks the ends in RTL with the same `data-first` and `data-last`, so it is unaffected. Its sheet's edit is beside this unit's, and the second to reach `main` merges it.
+
+**Dated 2026-11-26 by the implementer: the ruling of 2026-11-26 is implemented on `core/roving-hidden-1`, from `ec9969500`, and not closed.** Requested by the coordinator. Developed and witnessed in Chromium, and the rows of the hidden ancestor also in WebKit, in their two files only, under `RD-62`.
+
+- **The hook (item 1):** `eligible` reads `disabled`, then `hidden`, and the computed `display` only for an item that passes both. Its comment and the hook's JSDoc state property 1 as amended. The read at the connect stays, as the ruling accepts.
+- **The group (item 2):** the ends are the first and the last member without `hidden`, written with `toggleAttribute`, so a mark is written only where it changes. No computed style is read, and nothing is read at the connect.
+- **One choice that the list doesn't name:** the group's `MutationObserver` observes from the constructor and is never disconnected, as the hook's is. `useMutationObserver` disconnects while the group is out, so with the connect's read gone, a member hidden while the group is out isn't heard. The row _"should be right in a group that was changed while out"_ is the one that fails with it. The group's code is 40 B less than at `810cffceb`.
+- **The page (item 3):** the sentence is replaced as the list says.
+- **Rows (items 4 and 5):** the three rows of item 4 changed as listed. Added: core's two rows of the hidden ancestor and of the hidden host (97 in the file), the material-x row of the hidden ancestor in `button-group.browser.test.ts`, and the row of `:not(:defined)` in `button-group-late-switch.browser.test.ts`, whose second member module is `mx-button`. **Core's two rows need an item whose host is `display: contents` with `:host([hidden]) { display: none }`,** the shape of a material-x member. With the plain test item, WebKit reads `none` and the rows are blind there too. The rows define that item.
+- **Witnesses (item 6)** ([reading](roving-hidden-1/checks/witnesses-ends.txt), [probe](roving-hidden-1/probes/witness-ends.mjs)). Without a mutation, core's 97 and material-x's 142 pass in Chromium, and the two files' 97 and 30 in WebKit.
+
+  | Mutation | Engine | Core rows that fail | material-x rows that fail |
+  | --- | --- | --- | --- |
+  | `hidden` not read by the hook | Chromium | 2, of item 4 | 0 |
+  | `hidden` not read by the hook | WebKit | 4: item 4's and the hidden ancestor's and host's | 1, the hidden ancestor |
+  | The group of `810cffceb`, its ends by the computed `display` | Chromium | 0 | 2: `:not(:defined)`, and the page's `display` of item 4 |
+  | The ends not marked at a change of `hidden` | Chromium | 0 | 5, the hidden ancestor among them |
+  | The group's observer only while it is connected | Chromium | 0 | 1, changed while out |
+
+- **The cost (item 7)** ([reading](roving-hidden-1/checks/cost-ends.txt), [probe](roving-hidden-1/probes/cost-ends.sh), with the proof's probe), Chromium, at a load of 11 to 20 on 12 cores. Two series of three, the first with this unit before `main` and the second with `main` first. **The head's median over `main`'s is 0.41 to 2.13, and 8 of the 36 pairs are above 1.5:** in the first series, the groups' three rows of its second run (1.76 to 1.83) and four rows of its third (1.58 to 2.13); in the second, the 20 groups of its second run (1.53, 13.0 against 8.5 ms). Summed over each series' runs, the groups are 1.34 and 0.97 of `main`, and the split buttons 0.91 and 0.74. The proof read 3.4 to 7.5 at `810cffceb`. So the property, as read here, isn't met for every pair. I didn't find the cause of the pairs above 1.5, and they aren't in the same rows in the two series. The recheck reads the cost again.
+- **Size, Brotli** ([reading](roving-hidden-1/checks/sizes-ends.txt)): `button-group/connected-button-group` 4042 at `main`, 4187 at `810cffceb`, 4147 now (+105 over `main`); `button/split-button` 7766, 7887, 7872 (+106); `complete` 25869, 26035, 26016 (+147). No other row of the 36 moves, and none is over its limit.
+- **Checks:** core's suite (396 rows) and the 10 material-x files that use the group (277 rows), in Chromium; the format, lint and typecheck of each changed file, core and material-x; the root format check and `git diff --check`. One ESLint `prefer-destructuring` error on a new line of the group was fixed by rewriting the line. **Not run:** Firefox, WebKit beyond the two files, material-x's full suite, the docs build, and the size gate's own recipe; the table above reads the same rows with `just size-reading`.
+
+**Dated 2026-11-26 by the architect: the cost of `e8be2ba17` is ruled met, and `reviewer-3`'s required property is replaced,** requested by the coordinator. Read from the implementer's [reading](roving-hidden-1/checks/cost-ends.txt), with no run of my own.
+
+**The property as written can't be met by any head on this machine, `main` included.** In the same reading, `main`'s own median for one row differs between its runs by up to 2.83 times in the first series and 2.21 in the second, so a single pair over 1.5 says nothing about the head. What `reviewer-3` found was 3.4 to 7.5 times, in every row. Summed over each series, the head is 1.34 and 0.97 of `main` for the groups and 0.91 and 0.74 for the split buttons, so that finding is gone.
+
+**The property now, in place of** _"each median of seven is at most 1.5 times `main`'s, read in turn with `main`, three times"_: in Chromium, connecting 20, 100 and 300 groups of four, and as many split buttons, in one task, read in two series of three runs in turn with `main`, one with the head first and one with `main` first. **Summed over a series' runs, the groups' times and the split buttons' times are each at most 1.5 times `main`'s, in both series.** A single pair above it isn't a finding. The 1.34 of the groups in the first series is within it, and a cost of that size is the hook's read at the connect, which the ruling accepts.
+
+- **Met at `e8be2ba17`:** 1.34 and 0.97, 0.91 and 0.74.
+- **The recheck** reads it the same way, in Chromium, Firefox and WebKit, one engine at a time.
+
+**The two choices that the list didn't name are confirmed:**
+
+- **The group's observer, for its whole life.** The hook's observer does the same. The group holds it and its callback through the registration on its own node, so nothing outlives the group. While out, a change of `hidden` writes marks and reads no style. With the connect's read gone, an observer that stops while out would leave property 3 to nothing.
+- **Core's rows of the hidden ancestor and host, with a `display: contents` item and `:host([hidden]) { display: none }`.** WebKit's stale `display` is of that shape, as the proof and the [ruling's reading](roving-hidden-1/checks/ruling-ends.txt) read it. A plain item reads `none` there, so a row with it would show nothing in any engine. The row has to show the defect, and the shape is the material-x member's.
+
+**Sizes:** +105, +106 and +147 B over `main`, each less than at `810cffceb`. Accepted.
+
+**Ready for the recheck** by the same reviewer, as the ruling says, with this property for the cost.
 
 #### RF-145 — In Chromium, touch doesn't reorder an item by most handles, `mx-icon` among them
 

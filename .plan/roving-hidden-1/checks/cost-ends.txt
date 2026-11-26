@@ -1,0 +1,15 @@
+# The proof's cost probe (reviews/roving-hidden-1/probes/proof-cost.browser.test.ts.txt), Chromium, median of seven, ms. "head" is this unit's three sources, "main" those of 2485fb2df, core built for each; 12 cores.
+## series 1, head first
+1 head load 17.15 | groups 20: 11.2 ms;groups 100: 58.2 ms;groups 300: 137.0 ms;split 20: 10.2 ms;split 100: 39.3 ms;split 300: 155.4 ms;
+1 main load 15.56 | groups 20: 13.2 ms;groups 100: 50.1 ms;groups 300: 160.9 ms;split 20: 24.6 ms;split 100: 65.7 ms;split 300: 180.7 ms;
+2 head load 19.59 | groups 20: 20.1 ms;groups 100: 92.4 ms;groups 300: 207.9 ms;split 20: 9.0 ms;split 100: 45.7 ms;split 300: 104.5 ms;
+2 main load 18.92 | groups 20: 11.3 ms;groups 100: 50.4 ms;groups 300: 118.1 ms;split 20: 20.7 ms;split 100: 54.1 ms;split 300: 88.9 ms;
+3 head load 16.68 | groups 20: 12.8 ms;groups 100: 56.6 ms;groups 300: 104.7 ms;split 20: 17.2 ms;split 100: 48.7 ms;split 300: 69.0 ms;
+3 main load 16.95 | groups 20: 6.0 ms;groups 100: 35.8 ms;groups 300: 77.3 ms;split 20: 8.7 ms;split 100: 23.9 ms;split 300: 79.7 ms;
+## series 2, main first
+1 main load 15.40 | groups 20: 7.0 ms;groups 100: 32.7 ms;groups 300: 133.6 ms;split 20: 7.3 ms;split 100: 34.7 ms;split 300: 80.7 ms;
+1 head load 14.85 | groups 20: 9.1 ms;groups 100: 28.6 ms;groups 300: 112.2 ms;split 20: 8.5 ms;split 100: 29.2 ms;split 300: 48.5 ms;
+2 main load 12.88 | groups 20: 8.5 ms;groups 100: 40.6 ms;groups 300: 71.9 ms;split 20: 8.2 ms;split 100: 33.5 ms;split 300: 118.9 ms;
+2 head load 11.68 | groups 20: 13.0 ms;groups 100: 31.9 ms;groups 300: 81.8 ms;split 20: 10.5 ms;split 100: 24.0 ms;split 300: 56.8 ms;
+3 main load 10.81 | groups 20: 15.5 ms;groups 100: 36.6 ms;groups 300: 87.9 ms;split 20: 10.2 ms;split 100: 24.3 ms;split 300: 59.9 ms;
+3 head load 10.59 | groups 20: 9.1 ms;groups 100: 25.5 ms;groups 300: 109.8 ms;split 20: 10.0 ms;split 100: 31.2 ms;split 300: 61.0 ms;

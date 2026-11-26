@@ -1,0 +1,100 @@
+// The recheck's copy of .plan/roving-hidden-1/probes/witness-ends.mjs, with the suites below in every engine.
+// Run from the repository root, with a clean src:
+//   node .plan/roving-hidden-1/probes/witness-ends.mjs <engine> <path of a scratch report> [<mutation> ...]
+// RF-143, the ruling of 2026-11-26: applies each mutation, builds core, runs the
+// rows of core's hook and of material-x's groups, and restores the files and the
+// build. In WebKit it runs the two files of the hidden ancestor only.
+import { execFileSync, spawnSync } from 'node:child_process';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
+
+const HOOK = 'packages/core/src/controllers/useRovingTabindex.ts';
+const GROUP = 'packages/material-x/src/button-group/connected-button-group.ts';
+const originals = new Map(
+  [HOOK, GROUP].map((file) => [file, readFileSync(file, 'utf8')]),
+);
+const swap = (file, from, to) => {
+  const source = originals.get(file);
+  if (source.split(from).length !== 2)
+    throw new Error(`not one match: ${from}`);
+  return { [file]: source.replace(from, () => to) };
+};
+const OBSERVER = `    new MutationObserver(markEnds).observe(this, {
+      attributeFilter: ['hidden'],
+      subtree: true,
+    });
+`;
+const mutations = {
+  'no mutation': {},
+  'hidden not read by the hook': swap(HOOK, '        !item.hidden &&\n', ''),
+  'the group of 810cffceb, its ends by the computed display': {
+    [GROUP]: execFileSync('git', ['show', `810cffceb:${GROUP}`], {
+      encoding: 'utf8',
+    }),
+  },
+  'the ends not marked at a change of hidden': swap(GROUP, OBSERVER, ''),
+  'the group observing only while connected': swap(
+    GROUP,
+    OBSERVER,
+    `    useMutationObserver(this, markEnds, {
+      attributeFilter: ['hidden'],
+      subtree: true,
+    });
+`,
+  ),
+};
+// The import that the last mutation needs.
+mutations['the group observing only while connected'][GROUP] = mutations[
+  'the group observing only while connected'
+][GROUP].replace(
+  'import { useRovingTabindex }',
+  "import { useMutationObserver } from '@ydinjs/core/controllers/useMutationObserver.js';\nimport { useRovingTabindex }",
+);
+
+const [engine, out, ...names] = process.argv.slice(2);
+// The recheck: the same files in every engine, and the other material-x files that use the group.
+const suites = [
+  ['packages/core', ['tests/controllers/useRovingTabindex.browser.test.ts']],
+  ['packages/material-x', ['tests/button-group/button-group-focus.spec.browser.test.ts', 'tests/button-group/button-group-late-switch.browser.test.ts', 'tests/button-group/button-group-order.browser.test.ts', 'tests/button-group/button-group-switch-order.browser.test.ts', 'tests/button-group/button-group.browser.test.ts', 'tests/button-group/button-group.spec.browser.test.ts', 'tests/button-group/button-group.visual.browser.test.ts', 'tests/button/split-button.browser.test.ts', 'tests/button/SwitchCore.browser.test.ts', 'tests/slotted-content.browser.test.ts', 'tests/traits-baseline.browser.test.ts']],
+];
+const restore = () => {
+  for (const [file, text] of originals) writeFileSync(file, text);
+};
+const run = (dir, args) =>
+  spawnSync('aube', ['exec', '--', ...args], {
+    cwd: dir,
+    env: { ...process.env, NO_COLOR: '1', MX_TEST_ENGINES: engine },
+    encoding: 'utf8',
+    maxBuffer: 1e8,
+  });
+try {
+  for (const name of names.length ? names : Object.keys(mutations)) {
+    restore();
+    for (const [file, text] of Object.entries(mutations[name]))
+      writeFileSync(file, text);
+    if (run('packages/core', ['just', 'build']).status) throw new Error(name);
+    for (const [dir, tests] of suites) {
+      rmSync(out, { force: true });
+      run(dir, [
+        'vitest',
+        'run',
+        '-c',
+        'vitest.config.ts',
+        ...tests,
+        '--reporter=json',
+        `--outputFile=${out}`,
+      ]);
+      const report = JSON.parse(readFileSync(out, 'utf8'));
+      if (!report.numTotalTests) throw new Error(`no rows: ${name}`);
+      console.log(
+        `## ${name} | ${engine} | ${dir} | ${report.numFailedTests} failed, ${report.numPassedTests} passed`,
+      );
+      for (const { assertionResults } of report.testResults)
+        for (const { status, fullName } of assertionResults)
+          if (status === 'failed') console.log(`   ${fullName}`);
+    }
+  }
+} finally {
+  restore();
+  rmSync(out, { force: true });
+  run('packages/core', ['just', 'build']);
+}

@@ -1,0 +1,59 @@
+# The recheck at 1d2c5e0b8: the proof's cost probe (probes/proof-cost.browser.test.ts.txt), median of seven, ms, with probes/recheck-cost.sh.txt. 'head' is this unit's three sources, 'main' those of 2485fb2df, core built for each. Two series of three runs in turn with main, one engine at a time; 12 cores, the load is the 1-minute average. Then the ruling's property: each series' sums, head over main.
+# chromium
+## series 1, head first
+1 head load 11.09 | groups 20: 9.4 ms;groups 100: 46.3 ms;groups 300: 159.1 ms;split 20: 9.4 ms;split 100: 43.4 ms;split 300: 144.0 ms;
+1 main load 12.72 | groups 20: 11.0 ms;groups 100: 34.2 ms;groups 300: 192.2 ms;split 20: 19.5 ms;split 100: 59.7 ms;split 300: 155.4 ms;
+2 head load 18.66 | groups 20: 17.3 ms;groups 100: 38.0 ms;groups 300: 178.1 ms;split 20: 18.2 ms;split 100: 70.8 ms;split 300: 227.1 ms;
+2 main load 22.62 | groups 20: 23.2 ms;groups 100: 61.3 ms;groups 300: 230.8 ms;split 20: 17.3 ms;split 100: 62.0 ms;split 300: 254.4 ms;
+3 head load 25.47 | groups 20: 11.7 ms;groups 100: 62.7 ms;groups 300: 204.4 ms;split 20: 28.1 ms;split 100: 66.0 ms;split 300: 208.4 ms;
+3 main load 30.55 | groups 20: 15.5 ms;groups 100: 83.3 ms;groups 300: 188.7 ms;split 20: 23.8 ms;split 100: 90.5 ms;split 300: 174.3 ms;
+## series 2, main first
+1 main load 28.71 | groups 20: 15.8 ms;groups 100: 80.1 ms;groups 300: 209.1 ms;split 20: 24.4 ms;split 100: 117.3 ms;split 300: 167.0 ms;
+1 head load 24.98 | groups 20: 17.0 ms;groups 100: 76.8 ms;groups 300: 283.8 ms;split 20: 14.1 ms;split 100: 102.6 ms;split 300: 146.2 ms;
+2 main load 22.50 | groups 20: 16.0 ms;groups 100: 56.3 ms;groups 300: 201.4 ms;split 20: 13.4 ms;split 100: 64.6 ms;split 300: 129.6 ms;
+2 head load 21.93 | groups 20: 14.3 ms;groups 100: 61.4 ms;groups 300: 144.6 ms;split 20: 17.0 ms;split 100: 71.0 ms;split 300: 115.1 ms;
+3 main load 21.65 | groups 20: 20.7 ms;groups 100: 58.6 ms;groups 300: 190.4 ms;split 20: 12.5 ms;split 100: 62.1 ms;split 300: 178.2 ms;
+3 head load 20.21 | groups 20: 11.8 ms;groups 100: 36.7 ms;groups 300: 137.0 ms;split 20: 13.4 ms;split 100: 72.0 ms;split 300: 155.7 ms;
+# firefox
+## series 1, head first
+1 head load 8.70 | groups 20: 18.0 ms;groups 100: 53.0 ms;groups 300: 140.0 ms;split 20: 17.0 ms;split 100: 43.0 ms;split 300: 160.0 ms;
+1 main load 9.05 | groups 20: 20.0 ms;groups 100: 86.0 ms;groups 300: 325.0 ms;split 20: 25.0 ms;split 100: 36.0 ms;split 300: 101.0 ms;
+2 head load 7.95 | groups 20: 14.0 ms;groups 100: 36.0 ms;groups 300: 102.0 ms;split 20: 14.0 ms;split 100: 47.0 ms;split 300: 189.0 ms;
+2 main load 9.04 | groups 20: 22.0 ms;groups 100: 64.0 ms;groups 300: 237.0 ms;split 20: 19.0 ms;split 100: 62.0 ms;split 300: 267.0 ms;
+3 head load 8.66 | groups 20: 20.0 ms;groups 100: 64.0 ms;groups 300: 109.0 ms;split 20: 13.0 ms;split 100: 48.0 ms;split 300: 99.0 ms;
+3 main load 7.23 | groups 20: 16.0 ms;groups 100: 40.0 ms;groups 300: 145.0 ms;split 20: 11.0 ms;split 100: 47.0 ms;split 300: 149.0 ms;
+## series 2, main first
+1 main load 6.64 | groups 20: 20.0 ms;groups 100: 67.0 ms;groups 300: 121.0 ms;split 20: 14.0 ms;split 100: 75.0 ms;split 300: 197.0 ms;
+1 head load 7.79 | groups 20: 28.0 ms;groups 100: 76.0 ms;groups 300: 404.0 ms;split 20: 30.0 ms;split 100: 51.0 ms;split 300: 117.0 ms;
+2 main load 8.27 | groups 20: 27.0 ms;groups 100: 127.0 ms;groups 300: 169.0 ms;split 20: 22.0 ms;split 100: 39.0 ms;split 300: 90.0 ms;
+2 head load 7.86 | groups 20: 17.0 ms;groups 100: 53.0 ms;groups 300: 106.0 ms;split 20: 14.0 ms;split 100: 44.0 ms;split 300: 103.0 ms;
+3 main load 6.91 | groups 20: 19.0 ms;groups 100: 80.0 ms;groups 300: 159.0 ms;split 20: 19.0 ms;split 100: 62.0 ms;split 300: 147.0 ms;
+3 head load 7.00 | groups 20: 18.0 ms;groups 100: 60.0 ms;groups 300: 108.0 ms;split 20: 19.0 ms;split 100: 49.0 ms;split 300: 126.0 ms;
+# webkit
+## series 1, head first
+1 head load 10.69 | groups 20: 12.0 ms;groups 100: 60.0 ms;groups 300: 334.0 ms;split 20: 21.0 ms;split 100: 108.0 ms;split 300: 182.0 ms;
+1 main load 10.11 | groups 20: 17.0 ms;groups 100: 39.0 ms;groups 300: 130.0 ms;split 20: 14.0 ms;split 100: 45.0 ms;split 300: 101.0 ms;
+2 head load 9.87 | groups 20: 14.0 ms;groups 100: 36.0 ms;groups 300: 108.0 ms;split 20: 13.0 ms;split 100: 43.0 ms;split 300: 149.0 ms;
+2 main load 10.24 | groups 20: 19.0 ms;groups 100: 48.0 ms;groups 300: 160.0 ms;split 20: 18.0 ms;split 100: 77.0 ms;split 300: 106.0 ms;
+3 head load 9.20 | groups 20: 15.0 ms;groups 100: 53.0 ms;groups 300: 147.0 ms;split 20: 14.0 ms;split 100: 23.0 ms;split 300: 85.0 ms;
+3 main load 9.92 | groups 20: 19.0 ms;groups 100: 38.0 ms;groups 300: 242.0 ms;split 20: 14.0 ms;split 100: 60.0 ms;split 300: 155.0 ms;
+## series 2, main first
+1 main load 9.20 | groups 20: 24.0 ms;groups 100: 75.0 ms;groups 300: 152.0 ms;split 20: 16.0 ms;split 100: 58.0 ms;split 300: 92.0 ms;
+1 head load 9.20 | groups 20: 19.0 ms;groups 100: 43.0 ms;groups 300: 145.0 ms;split 20: 8.0 ms;split 100: 60.0 ms;split 300: 138.0 ms;
+2 main load 8.79 | groups 20: 11.0 ms;groups 100: 66.0 ms;groups 300: 153.0 ms;split 20: 16.0 ms;split 100: 44.0 ms;split 300: 122.0 ms;
+2 head load 8.05 | groups 20: 16.0 ms;groups 100: 87.0 ms;groups 300: 172.0 ms;split 20: 15.0 ms;split 100: 50.0 ms;split 300: 73.0 ms;
+3 main load 7.79 | groups 20: 11.0 ms;groups 100: 88.0 ms;groups 300: 111.0 ms;split 20: 13.0 ms;split 100: 38.0 ms;split 300: 175.0 ms;
+3 head load 7.04 | groups 20: 17.0 ms;groups 100: 36.0 ms;groups 300: 111.0 ms;split 20: 9.0 ms;split 100: 21.0 ms;split 300: 75.0 ms;
+# The sums
+chromium | series 1, head first | groups | head 727.0 ms, main 840.2 ms | 0.87
+chromium | series 1, head first | split | head 815.4 ms, main 856.9 ms | 0.95
+chromium | series 2, main first | groups | head 783.4 ms, main 848.4 ms | 0.92
+chromium | series 2, main first | split | head 707.1 ms, main 769.1 ms | 0.92
+firefox | series 1, head first | groups | head 556.0 ms, main 955.0 ms | 0.58
+firefox | series 1, head first | split | head 630.0 ms, main 717.0 ms | 0.88
+firefox | series 2, main first | groups | head 870.0 ms, main 789.0 ms | 1.10
+firefox | series 2, main first | split | head 553.0 ms, main 665.0 ms | 0.83
+webkit | series 1, head first | groups | head 779.0 ms, main 712.0 ms | 1.09
+webkit | series 1, head first | split | head 638.0 ms, main 590.0 ms | 1.08
+webkit | series 2, main first | groups | head 646.0 ms, main 691.0 ms | 0.93
+webkit | series 2, main first | split | head 449.0 ms, main 574.0 ms | 0.78

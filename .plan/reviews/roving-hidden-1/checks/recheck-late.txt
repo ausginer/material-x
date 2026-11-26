@@ -1,0 +1,7 @@
+# The recheck at 1d2c5e0b8: the proof's probe proof-late on the head, one engine at a time. At 810cffceb (checks/late.txt) the rule's line read 'first false last false corners 8px,8px' on both members, in each engine.
+chromium undefined at first true | :not(:defined){display:none} | a tab 0 first true last false corners 20px,8px | b tab -1 first false last true corners 8px,20px
+chromium undefined at first true | no rule | c tab 0 first true last false corners 20px,8px | d tab -1 first false last true corners 8px,20px
+firefox undefined at first true | :not(:defined){display:none} | a tab 0 first true last false corners 20px,8px | b tab -1 first false last true corners 8px,20px
+firefox undefined at first true | no rule | c tab 0 first true last false corners 20px,8px | d tab -1 first false last true corners 8px,20px
+webkit undefined at first true | :not(:defined){display:none} | a tab 0 first true last false corners 20px,8px | b tab -1 first false last true corners 8px,20px
+webkit undefined at first true | no rule | c tab 0 first true last false corners 20px,8px | d tab -1 first false last true corners 8px,20px

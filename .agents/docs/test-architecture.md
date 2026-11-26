@@ -168,7 +168,14 @@ Development runs in Chromium, a review runs in the three engines, and CI runs th
 - **An implementer runs Chromium:** rows, suites, witnesses and probes. CI runs every row in Chromium, Firefox and WebKit.
 - **The exception is a row that can't show its property in Chromium,** because the defect or the code path exists only in another engine, or the row has an engine condition. That row and its witness run in the engines that show it, that file only. Reproducing a CI failure is the same.
 - **The implementer doesn't wait for CI.** The report names the head, and says that `verify` is pending or gives its result. A failure returns to the implementer. Nothing is accepted or proposed for merging until `verify` passes on its head, and a reduced run counts (`repo:RD-15`). A unit whose subject is CI, the harness or an engine's configuration reads CI before it reports.
-- **A feature proof runs Chromium, Firefox and WebKit,** one engine at a time with nothing else running: the test files that the unit adds or changes, the files that test the source it changes, the reviewer's own probes, and the mutations below. It doesn't repeat the whole suite: it cites `verify`'s run on the reviewed head, or on the last commit before it that changed more than records, or says that there is none. These local runs are the review's evidence. Visual stays CI's.
+- **A feature proof reads the unmutated pass in Firefox and WebKit from CI, and runs the rest locally.** The affected files are the test files that the unit adds or changes and the files that test the source it changes.
+  - **From CI:** `verify`'s full run on the reviewed head, or on the last commit before it that changed more than records. The review names the run, and the affected files pass in its `firefox` and `webkit` jobs.
+  - **Locally,** one engine at a time with nothing else running: the affected files unmutated in Chromium, the mutations below in the three engines, and the reviewer's own probes in the engines that their question is about.
+  - **When the run is pending,** the review does the rest and reports it pending. Its verdict for Firefox and WebKit waits for that run, and the gate above reads it before anything is accepted.
+  - **When it fails,** a failure of a row in the affected files is the review's finding, reproduced in its engine, that file only. Any other failure is named in the report, and the affected files' results are read from the job's log. A run that didn't reach them gives the review no pass in that engine until a run on its head does.
+
+  It doesn't repeat the whole suite. The local runs and the named run are the review's evidence. Visual stays CI's. This is a trial, from 2026-11-26.
+
 - **The mutations that a feature proof repeats in the three engines:**
   - for each required property, the one that removes its mechanism;
   - each whose mechanism engines implement differently, such as focus and Tab, selectors with a fallback, the accessibility tree, forms and restoration, pointer and touch, top layer and popover, scrolling, layout rounding, animation and timers, custom element and slot timing;

@@ -1,0 +1,5 @@
+# just size-reading, Brotli. main is 2485fb2df's three sources, 810cffceb the unit before the ruling, head this unit. Rows that move:
+material-x button/split-button main 7766 | 810cffceb 7887 | head 7872
+material-x button-group/connected-button-group main 4042 | 810cffceb 4187 | head 4147
+material-x complete main 25869 | 810cffceb 26035 | head 26016
+36 rows, over a limit: 0
