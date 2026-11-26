@@ -1,0 +1,93 @@
+# RF-149's proof: tests/list/list-item-selected.browser.test.ts without a mutation, then under each mutation, at 85a1a1989.
+# Program: ../probes/mutations.mjs.txt, run from the repository root, one engine at a time, on 2026-11-26. Load before the runs: 1.74 on 12 cores.
+# Firefox and WebKit print the failure's first stack line instead of its message. Their lines 38 and 47 come where Chromium's message is the aria-current assertion, and 39 and 48 where it is the aria-selected one; the lines are of the served module.
+
+## none | chromium | 0 failed, 12 passed
+## #288's: a disabled item says nothing | chromium | 4 failed, 8 passed
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected before the connect
+      AssertionError: expected {} to have property "aria-current" with value 'true'
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected after the connect
+      AssertionError: expected {} to have property "aria-current" with value 'true'
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected before the connect
+      AssertionError: expected { 'aria-disabled': 'true' } to have property "aria-current" with value 'page'
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected after the connect
+      AssertionError: expected { 'aria-disabled': 'true' } to have property "aria-current" with value 'page'
+## own: a disabled item says nothing when selected before the connect | chromium | 2 failed, 10 passed
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected before the connect
+      AssertionError: expected {} to have property "aria-current" with value 'true'
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected before the connect
+      AssertionError: expected { 'aria-disabled': 'true' } to have property "aria-current" with value 'page'
+## own: a disabled item says nothing when selected after the connect | chromium | 2 failed, 10 passed
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected after the connect
+      AssertionError: expected {} to have property "aria-current" with value 'true'
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected after the connect
+      AssertionError: expected { 'aria-disabled': 'true' } to have property "aria-current" with value 'page'
+## own: a disabled item also says aria-selected | chromium | 4 failed, 8 passed
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected before the connect
+      AssertionError: expected { 'aria-current': 'true', …(1) } to not have property "aria-selected"
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected after the connect
+      AssertionError: expected { 'aria-current': 'true', …(1) } to not have property "aria-selected"
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected before the connect
+      AssertionError: expected { 'aria-disabled': 'true', …(2) } to not have property "aria-selected"
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected after the connect
+      AssertionError: expected { 'aria-disabled': 'true', …(2) } to not have property "aria-selected"
+
+## none | firefox | 0 failed, 12 passed
+## #288's: a disabled item says nothing | firefox | 4 failed, 8 passed
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected before the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts?import&browserv=1795712762618:38:16
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected after the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts?import&browserv=1795712762618:47:16
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected before the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts?import&browserv=1795712762618:38:16
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected after the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts?import&browserv=1795712762618:47:16
+## own: a disabled item says nothing when selected before the connect | firefox | 2 failed, 10 passed
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected before the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts?import&browserv=1795712767509:38:16
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected before the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts?import&browserv=1795712767509:38:16
+## own: a disabled item says nothing when selected after the connect | firefox | 2 failed, 10 passed
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected after the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts?import&browserv=1795712772110:47:16
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected after the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts?import&browserv=1795712772110:47:16
+## own: a disabled item also says aria-selected | firefox | 4 failed, 8 passed
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected before the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts?import&browserv=1795712777420:39:20
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected after the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts?import&browserv=1795712777420:48:20
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected before the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts?import&browserv=1795712777420:39:20
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected after the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts?import&browserv=1795712777420:48:20
+
+## none | webkit | 0 failed, 12 passed
+## #288's: a disabled item says nothing | webkit | 4 failed, 8 passed
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected before the connect
+      @[native code]
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected after the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts:47:30
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected before the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts:38:30
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected after the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts:47:30
+## own: a disabled item says nothing when selected before the connect | webkit | 2 failed, 10 passed
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected before the connect
+      @[native code]
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected before the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts:38:30
+## own: a disabled item says nothing when selected after the connect | webkit | 2 failed, 10 passed
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected after the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts:47:30
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected after the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts:47:30
+## own: a disabled item also says aria-selected | webkit | 4 failed, 8 passed
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected before the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts:39:34
+   mx-list-button-item selection should give a disabled item's control aria-current="true" and no aria-selected when selected after the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts:48:34
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected before the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts:39:34
+   mx-list-link-item selection should give a disabled item's control aria-current="page" and no aria-selected when selected after the connect
+      @http://127.0.0.1:23315/workspaces/worktrees/g/packages/material-x/tests/list/list-item-selected.browser.test.ts:48:34
