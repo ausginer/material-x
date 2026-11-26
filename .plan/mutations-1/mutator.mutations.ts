@@ -1,8 +1,10 @@
 /**
  * The implementer's mutations of `@ydinjs/mutator`'s own mechanisms, one for
- * each behavior that its node rows hold (RD-65 property 10), run with the tool
- * itself in Chromium. The rows are in one file, so each selector names a row of
- * `packages/mutator/tests/mutator.node.test.ts`.
+ * each behavior that its node rows hold (RD-65 property 10, RD-66), run with the
+ * tool itself in Chromium. The rows are in one file, so each selector names a
+ * row of `packages/mutator/tests/mutator.node.test.ts`. The three after RD-66's
+ * comment are the feature proof's witnesses, with its predictions, read again
+ * against the rows as they are now.
  */
 import type { MutationFile } from '@ydinjs/mutator';
 
@@ -10,6 +12,11 @@ const ROWS = 'packages/mutator/tests/mutator.node.test.ts';
 const RUN = 'packages/mutator/src/run.ts';
 const REPORT = 'packages/mutator/src/report.ts';
 const COPY = 'packages/mutator/src/copy.ts';
+const PROCESS = 'packages/mutator/src/process.ts';
+const row = (name: string): Readonly<{ file: string; row: string }> => ({
+  file: ROWS,
+  row: name,
+});
 
 const config: MutationFile = {
   runs: [{ dir: 'packages/mutator', tests: ['tests/mutator.node.test.ts'] }],
@@ -108,16 +115,15 @@ const config: MutationFile = {
       edits: [
         {
           file: REPORT,
-          text: "voided.length > 0 ? 'void' : ",
-          replacement: '',
+          text: "voided.length > 0 ? 'void' : missed",
+          replacement: 'missed',
         },
       ],
       expect: {
         fails: [
-          {
-            file: ROWS,
-            row: 'should read a selected row that fails unmutated as void',
-          },
+          row("should not flag a row that doesn't run in another engine"),
+          row('should read a selected row that fails unmutated as void'),
+          row("should read a selected row that doesn't run as void"),
         ],
       },
     },
@@ -127,8 +133,8 @@ const config: MutationFile = {
       edits: [
         {
           file: REPORT,
-          text: "failed.length === 0 ? 'as expected' : 'caught'",
-          replacement: "'as expected'",
+          text: "failed.length > 0\n          ? 'caught'",
+          replacement: "false\n          ? 'caught'",
         },
       ],
       expect: {
@@ -165,8 +171,8 @@ const config: MutationFile = {
       edits: [
         {
           file: REPORT,
-          text: '.some((result) => result.hasEngineExpectations)',
-          replacement: '.some(() => false)',
+          text: '.filter(([, result]) => result.engineReason === undefined)',
+          replacement: '.filter(() => true)',
         },
       ],
       expect: {
@@ -184,7 +190,7 @@ const config: MutationFile = {
       edits: [
         {
           file: REPORT,
-          text: 'ranIn.every((set) => set.has(key)),',
+          text: 'verdicts.every((set) => set.has(key)),',
           replacement: 'true,',
         },
       ],
@@ -237,17 +243,189 @@ const config: MutationFile = {
     },
     {
       name: "a row that doesn't run counts as passing",
-      group: 'doubted',
+      group: 'mechanism',
       edits: [
         {
           file: REPORT,
-          text: "after.get(rowKey(row))?.status !== 'passed',",
-          replacement: "after.get(rowKey(row))?.status === 'failed',",
+          text: "} else if (next?.status !== 'passed') {",
+          replacement: '} else if (false) {',
         },
       ],
       expect: {
-        survives:
-          "No fixture row's test file fails to load with a mutation, so no row sees a row that stops running. A mutation that breaks its file's import is then read as passing.",
+        fails: [
+          row("should not flag a row that doesn't run in another engine"),
+          row("should read a selected row that doesn't run as void"),
+          row("should read a survivor whose rows don't run as void"),
+        ],
+      },
+    },
+    {
+      name: "a row that doesn't run counts as failed",
+      group: 'mechanism',
+      edits: [
+        {
+          file: REPORT,
+          text: "    if (next?.status === 'failed') {\n      failedRows.push(next);",
+          replacement:
+            "    if (next?.status !== 'passed') {\n      failedRows.push(next ?? row);",
+        },
+      ],
+      expect: {
+        fails: [
+          row("should not flag a row that doesn't run in another engine"),
+          row("should read a selected row that doesn't run as void"),
+          row("should read a survivor whose rows don't run as void"),
+        ],
+      },
+    },
+    {
+      name: "one engine's own expectation accounts for every engine's difference",
+      group: 'mechanism',
+      edits: [
+        {
+          file: REPORT,
+          text: '.filter(([, result]) => result.engineReason === undefined)',
+          replacement:
+            '.filter(() => [...byEngine.values()].every((result) => result.engineReason === undefined))',
+        },
+      ],
+      expect: {
+        fails: [
+          row(
+            "should flag a difference between engines that another engine's own expectation doesn't explain",
+          ),
+        ],
+      },
+    },
+    {
+      name: "an engine's environment doesn't reach Vitest",
+      group: 'mechanism',
+      edits: [
+        {
+          file: RUN,
+          text: '          config.engines[engine]!.env,',
+          replacement: '          {},',
+        },
+      ],
+      expect: {
+        fails: [
+          row("should not flag a row that doesn't run in another engine"),
+          row('should run in a browser project'),
+          row('should read a selected row that fails unmutated as void'),
+          row('should judge each engine by its own expectation'),
+          row('should flag a mutation that fails other rows in another engine'),
+          row('should not flag a row that another engine skips'),
+          row(
+            "should flag a difference between engines that another engine's own expectation doesn't explain",
+          ),
+        ],
+      },
+    },
+    {
+      name: 'a signal stops nothing',
+      group: 'mechanism',
+      edits: [{ file: RUN, text: '    stop.abort();\n', replacement: '' }],
+      expect: {
+        fails: [
+          row(
+            'should stop its Vitest and leave nothing after SIGTERM to the tool alone',
+          ),
+        ],
+      },
+    },
+    {
+      name: 'a stopped command is not waited for',
+      group: 'mechanism',
+      edits: [
+        {
+          file: PROCESS,
+          text: '        failure = error;',
+          replacement: '        reject(error);',
+        },
+      ],
+      expect: {
+        fails: [
+          row(
+            'should stop its Vitest and leave nothing after SIGTERM to the tool alone',
+          ),
+        ],
+      },
+    },
+    {
+      name: "a row that doesn't run in one engine is compared",
+      group: 'mechanism',
+      edits: [
+        {
+          file: REPORT,
+          text: '        .filter((key) => !(key in unrun)),\n',
+          replacement: '',
+        },
+      ],
+      expect: {
+        fails: [
+          row("should not flag a row that doesn't run in another engine"),
+        ],
+      },
+    },
+    // The feature proof's three (`reviewer-6`), at the rows of RD-66.
+    {
+      name: 'a selected row that passes is never missed',
+      group: 'mechanism',
+      edits: [
+        {
+          file: REPORT,
+          text: '(key) => !voided.includes(key) && !failedSet.has(key),',
+          replacement: '() => false,',
+        },
+      ],
+      expect: {
+        fails: [row('should read a selected row that passes as missed')],
+      },
+    },
+    {
+      name: 'nothing is read as expected',
+      group: 'mechanism',
+      edits: [
+        {
+          file: REPORT,
+          text: "missed.length > 0 ? 'missed' : 'as expected',",
+          replacement: "'missed',",
+        },
+      ],
+      expect: {
+        fails: [
+          row("should not flag a row that doesn't run in another engine"),
+          row(
+            'should leave the checkout and the temporary directory as they were after a run',
+          ),
+          row('should remove a locked copy whose process no longer runs'),
+          row(
+            'should read a mutation that fails every selected row as expected',
+          ),
+          row('should judge each engine by its own expectation'),
+          row('should run in a browser project'),
+          row('should restore each mutation before the next one runs'),
+          row('should rebuild after a matching edit and after its restore'),
+        ],
+      },
+    },
+    {
+      name: 'a survivor is always caught',
+      group: 'mechanism',
+      edits: [
+        {
+          file: REPORT,
+          text: "failed.length > 0\n          ? 'caught'\n          : voided.length > 0\n            ? 'void'\n            : 'as expected',",
+          replacement: "'caught',",
+        },
+      ],
+      expect: {
+        fails: [
+          row('should read a survivor that fails no row as expected'),
+          row('should judge each engine by its own expectation'),
+          row("should read a survivor whose rows don't run as void"),
+          row('should restore each mutation before the next one runs'),
+        ],
       },
     },
   ],

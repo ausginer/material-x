@@ -682,6 +682,38 @@ describe('mutator run, engines', () => {
     },
     TIMEOUT,
   );
+
+  it(
+    "should not flag a row that doesn't run in another engine",
+    async () => {
+      const result = await mutate(
+        fileOf(
+          [
+            {
+              ...CLAMP,
+              edits: [
+                ...CLAMP.edits,
+                {
+                  file: TEST_FILE,
+                  text: "const engine = process.env['FIXTURE_ENGINE'] ?? 'a';",
+                  replacement:
+                    "const engine = process.env['FIXTURE_ENGINE'] ?? 'a';\nif (engine === 'b') throw new Error('b does not load');",
+                },
+              ],
+            },
+          ],
+          ['a', 'b'],
+        ),
+      );
+
+      expect(outcomes(result)).toEqual([
+        ['a', 'as expected'],
+        ['b', 'void'],
+      ]);
+      expect(differing([result.report!])).toEqual([]);
+    },
+    TIMEOUT,
+  );
 });
 
 describe('mutator run, restore', () => {
