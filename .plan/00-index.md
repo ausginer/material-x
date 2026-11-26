@@ -6707,7 +6707,7 @@ Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: 
 
 #### RF-132 — A selected `mx-list-button-item` gives its button `aria-selected`, which the button role doesn't support
 
-Tier A, **open**, **ready** (the last note), pre-existing. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-131` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `eddf39e7b` ([readings](accessibility-findings-1/checks/axe-and-forced-colors.txt), [probe](accessibility-findings-1/probes/a11y.mjs.txt)).
+Tier A, **closed 2026-11-26** by #288 at `c7718d2ce` (the last note). Before closure: open, ready. Pre-existing. Registered on 2026-11-24 by the architect, on `repo/accessibility-findings-1`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the registration (`RD-57` has his words). `RF-131` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `eddf39e7b` ([readings](accessibility-findings-1/checks/axe-and-forced-colors.txt), [probe](accessibility-findings-1/probes/a11y.mjs.txt)).
 
 - **What happens:** axe-core 4.14.1 reports `aria-allowed-attr`, critical, on the inner `<button>` of a selected `mx-list-button-item`, in Chromium, Firefox and WebKit. It reports nothing on an item that was never selected.
 - **Cause:** core's `useSelectable` writes `aria-selected` on its target: `true` while `selected` is set, and `false` when it is removed. Core's own rows assert both.
@@ -6785,6 +6785,12 @@ Tier A, **open**, **ready** (the last note), pre-existing. Registered on 2026-11
 - **Next:** the feature proof, in the three engines.
 
 **Dated 2026-11-26 by the implementer, on `material-x/list-selected-1`: `main` at `3fdd384b7` is merged,** requested by the coordinator. Two conflicts, both in JSDoc: the `selected` and `disabled` lines of `list-button-item.ts` and `list-link-item.ts`. The `selected` line is this branch's, and the `disabled` line is `main`'s, which adds the sortable list and the slots' controls. The code merged on its own. In Chromium, with core and material-x rebuilt: `tests/list`, `aria-own-value` and `traits-baseline` pass 465 of 465, and the 8 witnesses fail the same rows as [before](list-selected-1/checks/witnesses.txt) ([reading](list-selected-1/checks/merged.txt)).
+
+**Dated 2026-11-26 by the architect, on `repo/register-observations-9`: closed.** Requested by the coordinator. The [feature proof](reviews/list-selected-1/feature-proof-claude.md) of `0d88cace2` accepted the unit with no finding in the three engines. #288 merged at `c7718d2ce` on 2026-11-26, and #238 closed with it. The status above said _"Tier A, **open**, **ready** (the last note), pre-existing."_
+
+- **The proof's observations:** 1, the order of the write and `useARIA`, needs nothing. 2 is `RF-149`, and 3 is `RF-150`.
+- **`RD-57`'s list** has no `RF-132` row on `main` since #293 merged at `e457ed209`. `RD-57`'s implementer note of 2026-11-25 still counts _"RF-94 10, RF-132 2 and RF-144 3"_, and is corrected after `RD-64`'s move, #302, in its own file.
+- **`.agents/docs/accessibility.md`'s line,** in the ruling's list, is still owed: the document has no `aria-current` at `e457ed209`. It is the coordinator's own pull request.
 
 #### RF-133 — material-x doesn't adapt to forced colors: a checked, selected or filled element loses what tells it apart
 
@@ -7800,6 +7806,47 @@ Tier C, **open**, **ready** (the last note), pre-existing. Registered on 2026-11
 - **Visual baselines:** none is to change but where an icon stands in a line of text, such as the icon's own stories. Each one that changes is recorded by `RD-13` and shown to the owner before and after.
 - **Stop** and return if an element of the package moves, or the property doesn't hold in an engine.
 - **Feature proof:** owed, in the three engines.
+
+#### RF-148 — A button's label that wraps is drawn outside the button, which keeps its height
+
+Tier A, **open**, **ruling owed** (Q1), pre-existing. Registered on 2026-11-26 by the architect, on `repo/register-observations-9`, from [#294](https://github.com/ausginer/material-x/issues/294), requested by the coordinator. The observation is `RF-139`'s note of 2026-11-26 on #286's feature proof, which left it to `mx-button`. `RF-147` is the highest `RF-` on any branch on `origin`, so this is the next free number. The source is read at `e457ed209`. The measurements are #286's, in Chromium: the first on its candidate `keep`, which it implemented, and the second at its recheck.
+
+- **What happens:** when a button is narrower than its label, the label wraps between its words, and the button stays 40 px high. The lines are drawn above and below its box, over what is beside it. In Chromium, in a 240 px list item beside a video, _A button of several words_ is a 79.7 × 40 px button with five lines, in an item 80 px high ([reading](item-overflow-1/checks/words-chromium.txt), line 34). With `overflow-wrap: anywhere` through `::part(impl)`, _Download_ in a 60 px container has three lines, 56 px high, in a 60 × 40 px button ([reading](reviews/item-overflow-1/checks/recheck-outside-chromium.txt)).
+- **The cause, by reading:** `.host` in `button/styles/default/main.styles.css` has `max-block-size: var(--_container-height)` and a block padding computed for one line, and nothing that keeps the label on one line or clips it. The sheet is the one that `ButtonCore` adopts, so `mx-button`, `mx-link-button`, `mx-switch-button` and the split button's leading button have it.
+- **Since `RF-139`'s ruling,** the label breaks only between its words, unless a page breaks it through `::part(impl)`. A label of one word then stays on one line and the button runs out of a narrow container instead. A label of several words still wraps.
+- **Why it is a problem:** the lines cover the content beside and below the button, such as the next list item, and the button's shape, its state layer and its focus indicator don't enclose its label.
+- **Required property:** in any container, every line of a button's label is inside the button's box, in each engine at `RD-20`'s floor. Which way is Q1's.
+- **Q1, for the architect, or the owner if it changes what a page may expect — what does a button do with a label that doesn't fit?**
+  - **(a) It keeps one line,** and the button is as wide as its label. A narrow container gets a button that runs out of it, as a one-word label does today.
+  - **(b) It grows** to its lines' height, with the same padding. The button's height then depends on its container.
+  - **(c) It keeps one line and truncates** the label with an ellipsis. Its words are lost, and the accessible name keeps them.
+  - **No recommendation yet:** whether Material lets a button's label wrap, or truncate, wasn't read. Its answer decides between (a), (b) and (c).
+- **Rows,** the three engines, on `mx-button`, `mx-link-button` and `mx-switch-button`: a label of several words in a container narrower than it, and with `overflow-wrap: anywhere` through `::part(impl)`. Every line of the label is inside the button's box. **Witness:** each fails on `main`. `RF-139`'s rows in `tests/button/button-label-breaks.browser.test.ts` and the list's rows keep passing, or change as Q1 says.
+- **Not read:** Material's guidance, Firefox, WebKit, Safari, the icon button's and the FAB's labels (the extended FAB's is `nowrap`), visual baselines.
+- **Plan needed:** no, once Q1 is answered. **Size:** _small_ after Q1.
+
+#### RF-149 — No row reads a selected list item that is also disabled
+
+Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `repo/register-observations-9`, from observation 2 of #288's [feature proof](reviews/list-selected-1/feature-proof-claude.md#observations), requested by the coordinator. `RF-148` is the entry before this one. Read at `e457ed209`.
+
+- **What happens:** `RF-132`'s `LS-1` makes a selected `mx-list-button-item` give its button `aria-current="true"`, whether or not the item is disabled, and the link item's link `aria-current="page"`. The three engines' trees read _current_ for an item that is selected and disabled. No row reads one: in `tests/list/list-item-selected.browser.test.ts` no item is disabled. The proof's mutation _"a disabled item says nothing"_, which drops `aria-current` from a disabled item, fails none of 426 rows in WebKit ([reading](reviews/list-selected-1/checks/mutations.txt), [program](reviews/list-selected-1/probes/own.mjs.txt)), nor in Chromium and Firefox.
+- **Why it is a problem:** the rows that the repository relies on for `LS-1` miss a regression in which a disabled item stops saying that it is selected, which is all its users hear of the selection.
+- **Required property:** for each of the button and link items, a row asserts that a selected, disabled item's control has its `aria-current`, selected before the connect and after it, and no `aria-selected`. **Witness:** the proof's mutation fails each row.
+- **With `RF-142`** (#271): its repair changes what a disabled item's controls do, and not its selection. The rows can go with that unit, or with any unit that edits these tests.
+- **Plan needed:** no. **Size:** _small_.
+
+#### RF-150 — A sortable-list row about the drop zone's paint failed in WebKit under load, and its cause isn't established
+
+Tier B, **open**, cause not read, pre-existing. Registered on 2026-11-26 by the architect, on `repo/register-observations-9`, from observation 3 of #288's [feature proof](reviews/list-selected-1/feature-proof-claude.md#observations), requested by the coordinator. `RF-149` is the entry before this one. **No row is disabled.**
+
+- **What was observed:** `tests/list/sortable-list.browser.test.ts` › _"should paint the drop zone in each frame while the commit of a pointer drop is pending"_ failed in WebKit in 2 of 5 runs of `tests/list`, at `0d88cace2` on `material-x/list-selected-1`: once without a mutation ([reading](reviews/list-selected-1/checks/rows.txt)), and once under a mutation of the list item's selection, whose code isn't on the row's path ([reading](reviews/list-selected-1/checks/mutations.txt), _"the selection written before useARIA"_). The load was 14 to 17 on 12 cores. Alone, the file's drop-zone rows passed three times, 11 of 11. The failure's message wasn't saved, so which of the three values of its assertion differed isn't known.
+- **What the row reads:** a pointer drop onto the next item, with a page that commits the move 100 ms after `reorder` by `setTimeout`. From `reorder` until the placeholder goes, it reads in each animation frame whether the placeholder paints, and it asserts more than one frame, no frame without paint, and the new order. The row came with `RF-127`'s repair (`e10c9a48d`, #235).
+- **Candidates, not read:** fewer than two frames before the placeholder goes, when a loaded WebKit throttles frames; a frame between the commit and the placeholder's removal in which it no longer paints; the list's commit wait ending before the page's late commit.
+- **Why it matters:** a row whose result depends on more than the code is an unsound instrument. A rerun hides it, and a review that runs WebKit under load reads a failure that isn't the unit's.
+- **Required property:** the row's result depends only on the code. Either a reproduction names the cause and the cause is repaired, or the record states why the row can't fail again.
+- **The direction, for the unit that takes it:** first make the row's failure say which value differed, with the frames read. Then repeat it in WebKit beside a load, as `RF-60`'s reproduction did.
+- **Not read:** CI's history of the row, Chromium and Firefox under the same load, Safari.
+- **Plan needed:** no. **Size:** _not known yet._
 
 ## Questions
 
