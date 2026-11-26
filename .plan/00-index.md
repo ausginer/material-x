@@ -4988,7 +4988,7 @@ Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi
 
 #### RF-153 — material-x's node tests build with a private-property list that may be stale
 
-Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from observation 1 of #310's [feature proof](reviews/sortable-displacement-1/feature-proof-claude.md#observations), relayed by the coordinator. `RF-152` is the entry before this one. Read at `c2ea0dcbe`.
+Tier B, **closed 2026-11-26** by #316 at `6588c7361` (the last note). Before closure: open, ready. Pre-existing. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from observation 1 of #310's [feature proof](reviews/sortable-displacement-1/feature-proof-claude.md#observations), relayed by the coordinator. `RF-152` is the entry before this one. Read at `c2ea0dcbe`.
 
 - **What happens:** the node project's global setup, `packages/material-x/tests/support/build-package.node.ts`, runs `tsdown` alone, which is `just build-lib`. Mangling reads `node_modules/.cache/css/css-private-props.json`, which only `just build-prepare` (`.scripts/css/collect-props.ts`) writes. In a tree whose sheets have a private property that the list lacks, the build fails with _"Property `--_layout-animation-duration` is not collected"_. Every file of the project then fails, as the proof saw in its slot before it ran `build-prepare`. A tree whose sheets changed without a new name builds with the old list's short names, which differ from what a fresh list gives.
 - **Why it is a problem:** a local run of the node rows, which implementers and proofs make, can fail for a reason that isn't the code, and nothing in the error names `build-prepare`. Or the rows can read a build that `just build` and CI wouldn't make from the same tree. CI isn't affected, because it builds first.
@@ -5001,6 +5001,10 @@ Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi
 - **Witness** ([reading](node-build-props-1/checks/witness.txt)): a list collected by `build-prepare`, then a private property added to the sortable sheet. At `d6f6cf60b`, the project's three files fail with _"Property `--_rf153-witness` is not collected"_. With the repair, its 38 rows pass.
 - **Run time** ([reading](node-build-props-1/checks/times.txt)): the collection takes 0.6 to 0.8 s, and `tsdown` 2.2 to 2.4 s. A run of the node project takes 5.8 to 6.1 s with the repair and 5.2 to 5.7 s without it, so about half a second more. It doesn't matter for the setup.
 - **Checks:** the node project passes (38 rows). Lint and typecheck are clean. Typecheck needed drag rebuilt in the slot: its built types predated `RD-60`.
+
+**Dated 2026-11-26 by the architect, on `repo/register-observations-10`: closed.** Requested by the coordinator. The [feature proof](reviews/node-build-props-1/feature-proof-claude.md) of `776fad3db` found that the repair meets the required property and that its witness reproduces. `verify` passed on `776fad3db` in the three engines. The pull request's head, `0df48d56c`, adds only the proof's files. #316 merged at `6588c7361` on 2026-11-26, and #313 closed with it. The status above said _"Tier B, **open**, **ready**, pre-existing."_
+
+- **The proof's finding,** `reviewer-1`, is `RF-156` (#320). A tree with no list at all fails before the node setup that this repair changed.
 
 #### RF-154 — Storybook's manager rebuilds its URL with the theme that the URL had when it loaded
 
@@ -5019,6 +5023,8 @@ Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi
   - **Recommended: a Storybook global, `theme`,** from `globalTypes` and `initialGlobals`. The decorator reads it from the story's context, the toolbar sets it with `updateGlobals`, and the docs pages' `ThemeToggleLink` sets it through the channel. Storybook writes it as `globals=theme:…` and keeps it through navigation and reload, so both URL writers go, with `top.history` and its cross-origin `try`. `@storybook/addon-themes`, which the root manifest already declares, unused, at 10.6.7, keeps one such global. This is Mx Architect Explainer's proposal, and the architect's choice, because it gives the preview and the manager one source.
   - **The smaller alternative:** write the parameter through the manager's `api.applyQueryParams({ theme })`, which updates `customQueryParams`. The preview still writes its own copy, so it keeps two writers.
   - **Not checked:** whether a global reaches the docs pages through the repository's `DocsContainer`. The unit reads it first.
+- **The owner's answer** to the direction, of 2026-11-26, relayed by the coordinator: _"давай попробуем, но, помнится, globals меня жестоко забуллил в своё время, так что может и не сработать 😅"_ ("Let's try it, but as I recall, globals gave me a really hard time back then, so it may not work.")
+  - **So the unit tries the global first.** If a global doesn't hold where the required property needs it, on a docs page through `DocsContainer` or across a navigation or a reload, the unit stops and returns with the reading. The architect then rules on `applyQueryParams`, which is the fallback.
 - **Not decided:** whether a new visit, without the parameter, opens with the last theme or with the system's. The property doesn't ask it.
 - **Not read:** Firefox, WebKit, the deployed site, the docs pages' `ThemeToggleLink` after a navigation, the cause line by line in the router.
 - **Plan needed:** no. **Size:** _small_.
