@@ -20,14 +20,17 @@ import arrowFontUrl from './support/fonts/keyboard-arrow-down.ttf?url';
  *   the repair.
  * - A row is marked `hasNoRule` when axe has no rule for anything in it. Such a
  *   row fails once axe applies one.
- * - An icon in a control is `aria-hidden`, because the name of an exposed icon
- *   would be the control's when the control loses its `aria-label`.
+ * - An icon in a control is `aria-hidden`. axe takes an `mx-icon`'s text into
+ *   the control's name although the icon's slot is hidden from the browsers'
+ *   trees, so without the attribute a control that loses its name isn't
+ *   reported.
  * - A fixture's icons are `check`, because an icon that the test font doesn't
  *   have renders its name as text. The split button renders its own icon, so
  *   its rows use a font that has it.
  *
  * Limits: axe doesn't see a role that a host has through `ElementInternals`,
- * and it reports only what it has a rule for. `color-contrast` is off, because
+ * axe names an `mx-icon` by its text, and it reports only what it has a rule
+ * for. `color-contrast` is off, because
  * contrast belongs to the palette and the page's theme. `incomplete`, what axe
  * can't decide, isn't asserted.
  *
@@ -324,7 +327,7 @@ const ROWS: Readonly<Record<string, readonly Row[]>> = {
       html: '<mx-sortable-list><mx-list-item><mx-icon data-handle slot="lead" aria-label="Move A">check</mx-icon>A</mx-list-item></mx-sortable-list>',
     },
     {
-      state: 'with an icon as a handle that the component names',
+      state: "with an icon as a handle and no label of the page's",
       html: '<mx-sortable-list><mx-list-item><mx-icon data-handle slot="lead">check</mx-icon>A</mx-list-item></mx-sortable-list>',
     },
     {

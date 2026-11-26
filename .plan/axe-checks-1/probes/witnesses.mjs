@@ -1,6 +1,7 @@
 // The witnesses of RD-57's implementation. Run from packages/material-x on a clean tree:
 // node ../../.plan/axe-checks-1/probes/witnesses.mjs
 // Each change is reverted before the next one.
+// An argument runs only the witnesses whose name starts with it, such as `2.`.
 import { spawnSync } from 'node:child_process';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 
@@ -75,7 +76,10 @@ await writeFile(
   NEW,
   "customElements.define('mx-witness', class extends HTMLElement {});\n",
 );
-for (const [name, file, mutate] of WITNESSES) {
+const [only = ''] = process.argv.slice(2);
+for (const [name, file, mutate] of WITNESSES.filter(([name]) =>
+  name.startsWith(only),
+)) {
   const source = await readFile(file, 'utf8');
   const mutated = mutate(source);
   if (mutated === source) throw new Error(`no change: ${name}`);

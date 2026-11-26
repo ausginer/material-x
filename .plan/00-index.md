@@ -2705,6 +2705,13 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
   3. On the merged tree, in Chromium: the 70 rows pass, and witness 2 with the fixtures as they are fails its 11 control rows. The reading is committed.
 - **No recheck is owed:** text and a state's name, and one reading of a witness that the coordinator reads in the report.
 
+**Dated 2026-11-26 by the implementer, on `repo/axe-checks-1`: items 1 and 2 are in, and item 3 reads 8 rows where it expects 11.** Requested by the coordinator. Chromium alone (`RD-62`), on the merged tree ([reading](axe-checks-1/checks/merged-witness2.txt); `witnesses.mjs` now takes a name prefix, so `2.` runs witness 2 alone).
+
+- **Items 1 and 2:** the header's icon bullet gives the reason above, _Limits_ says that axe names an `mx-icon` by its text, and the row's state is _with an icon as a handle and no label of the page's_.
+- **The file:** 70 of 70 pass.
+- **Witness 2 fails 8 of the 11 control rows.** The split button's three, _closed_, _open_ and _disabled_, pass. Its trailing button's icon is in the split button's own template, `<mx-icon>keyboard_arrow_down</mx-icon>`, and no fixture can hide it. So axe names that button by the ligature, as `reviewer-1` reads of any `mx-icon`. With `aria-hidden="true"` on that icon in a probe edit of the template, reverted after the run, witness 2 fails 11, and the three again report `button-name` at `mx-split-button > mx-icon-button > button`.
+- **Not decided here:** whether the split button's rows stay without the witness (its names are held by `RF-136`'s rows) or the template's icon is hidden. The second changes source outside this file, which the triage excludes. That is the architect's.
+
 #### RD-58 — A page names the split button's trailing button with `secondarylabel`, and `open` is its expanded state
 
 **Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer of 2026-11-24 to `RF-136`'s Q1, (a). In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). `RD-57` is the highest `RD-` on any branch on `origin`, so this is the next free number. The [contract](#rf-136--the-split-buttons-trailing-button-is-named-by-its-icons-ligature-cant-be-given-a-name-and-doesnt-expose-open) is in `RF-136`.
