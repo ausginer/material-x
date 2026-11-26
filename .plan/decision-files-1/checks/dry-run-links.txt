@@ -1,9 +1,9 @@
-# Relative links of tracked and new Markdown files that don't resolve, by probes/links-resolve.mjs, at cdbf8c757 and on the dry run's tree. The same 37 targets: the two in RD-3 and RD-4 are in their files after the move, rewritten from there.
+# Relative links of tracked and new Markdown files that don't resolve, by probes/links-resolve.mjs, at a96dc744b and on the dry run's tree (a96dc744b with inCode reading CommonMark code spans). The same 37 targets: the two in RD-3 and RD-4 are in their files after the move, rewritten from there.
 
 ## Before
 {
  "files": 515,
- "links": 7101,
+ "links": 7102,
  "broken": 37
 }
 .plan/00-index.md:63 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
@@ -43,14 +43,13 @@ packages/drag/.plan/mangle-selection-report.md:140 measurements/2026-11-13-selec
 packages/drag/.plan/publish-mangle-report.md:142 ../build/property-names.json
 packages/drag/.plan/publish-mangle-report.md:143 ../build/generate-property-names.ts
 packages/drag/.plan/publish-mangle-report.md:153 ../build/rename-properties.ts
+
 ## After
 {
  "files": 672,
- "links": 7106,
+ "links": 7107,
  "broken": 37
 }
-.plan/decisions/RD-3.md:3 ../../packages/drag2/.plan/reviews/architecture/request-application-claude.md
-.plan/decisions/RD-4.md:3 ../../packages/drag2/.plan/reviews/architecture/request-application-claude.md
 .plan/00-index.md:121 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
 .plan/00-index.md:121 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
 .plan/00-index.md:127 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
@@ -63,6 +62,8 @@ packages/drag/.plan/publish-mangle-report.md:153 ../build/rename-properties.ts
 .plan/aria-own-value-1/aria-own-value-plan.md:155 .plan/aria-own-value-1/checks/size-noise.txt
 .plan/aube-isolated-1/aube-isolated-report.md:64 aube-isolated-1/aube-isolated-report.md
 .plan/aube-isolated-1/aube-isolated-report.md:64 aube-isolated-1/checks/isolated-reading.txt
+.plan/decisions/RD-3.md:3 ../../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/decisions/RD-4.md:3 ../../packages/drag2/.plan/reviews/architecture/request-application-claude.md
 .plan/declarations-check-1/declarations-check-handoff.md:25 declarations-check-1/declarations-check-handoff.md
 .plan/declarations-check-1/declarations-check-handoff.md:25 declarations-check-1/checks/rf54-mapped-brand-probe.txt
 .plan/declarations-check-1/declarations-check-handoff.md:43 declarations-check-1/declarations-check-handoff.md

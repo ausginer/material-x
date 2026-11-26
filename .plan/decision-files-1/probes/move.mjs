@@ -149,9 +149,30 @@ const textIdsOf = (text, scope) =>
       .map(([, , id]) => id),
   );
 
-/** Whether the match at `index` of `line` is inside an inline code span. */
-const inCode = (line, index) =>
-  (line.slice(0, index).match(/`/gu)?.length ?? 0) % 2 === 1;
+/**
+ * Whether the match at `index` of `line` is inside an inline code span, as CommonMark reads one: a
+ * run of n backticks opens it, and the next run of exactly n closes it. A run that nothing closes
+ * is text.
+ */
+function inCode(line, index) {
+  const runs = [...line.matchAll(/`+/gu)];
+
+  for (let i = 0; i < runs.length && runs[i].index < index; i += 1) {
+    const close = runs.findIndex(
+      (run, j) => j > i && run[0].length === runs[i][0].length,
+    );
+
+    if (close !== -1) {
+      if (index < runs[close].index) {
+        return true;
+      }
+
+      i = close;
+    }
+  }
+
+  return false;
+}
 
 /**
  * Rule 5: where a link into `index` goes, by its fragment and the line it is on. `from` is the

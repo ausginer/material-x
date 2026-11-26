@@ -28,3 +28,7 @@ packages/drag/.plan/displacement-1/displacement-plan.md:3	unchanged, (kept)	text
 
 .plan/findings-on-github-1/findings-on-github-plan.md:3	toDir, ../decisions/	fragMoved, ../decisions/RD-56.md	(Mx Architect B's ruling: the link carries RD-56's fragment)
 .plan/decision-files-1/decision-files-plan.md:55	(new line)	toDir, ../decisions/	(Mx Architect B's note quotes the old link in link syntax)
+
+## From the dry run at cdbf8c757 to the dry run at a96dc744b, with inCode reading CommonMark code spans
+
+.plan/decision-files-1/decision-files-report.md:55	toDir, ../decisions/	(in code, kept)	(Mx Architect B's ruling at a96dc744b: the link is in a two-backtick code span)

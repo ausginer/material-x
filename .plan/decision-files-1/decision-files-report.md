@@ -30,7 +30,7 @@
 
 ## The dry run
 
-At `cdbf8c757`, with `main` at `4b7e6e181` merged, rule 5's third row and Mx Architect B's ruling on the last stop, in a scratch clone, not committed ([reading](checks/dry-run.txt), [every link it classified](checks/dry-run-classified.tsv)). The plan's table, read at `6aa5330e3`, against the dry run:
+At `a96dc744b`, with `main` at `4b7e6e181` merged, rule 5's third row, Mx Architect B's ruling on the last stop, and code spans read as CommonMark reads them, in a scratch clone, not committed ([reading](checks/dry-run.txt), [every link it classified](checks/dry-run-classified.tsv)). The plan's table, read at `6aa5330e3`, against the dry run:
 
 | What | Plan | Dry run |
 | --- | --: | --: |
@@ -41,7 +41,7 @@ At `cdbf8c757`, with `main` at `4b7e6e181` merged, rule 5's third row and Mx Arc
 | Rule 5, another fragment | 4 | 4 |
 | Rule 5, the link's text names one identifier | — | 16 |
 | Rule 5, the line names one identifier | 61 | 55 |
-| Rule 5, the line names several identifiers | 75 | 68, with the plan's quotation below |
+| Rule 5, the line names several identifiers | 75 | 67 |
 | Rule 5, unchanged | 209 | 206 |
 | Status rows | 72 | 72 |
 
@@ -54,11 +54,13 @@ The bytes differ by one per entry from the plan's probe, which counts a line bre
 - **One link changed because `main` changed its line: decided.** `.plan/findings-on-github-1/findings-on-github-plan.md:3`, ``RD-56` states what holds [before and after the cut-over](../00-index.md)``. With `RD-63` and `RD-64` added to its line, rule 5 sent it to `../decisions/`, though it means `RD-56`. **Mx Architect B ruled at `cdbf8c757`:** the link carries `RD-56`'s fragment, `#rd-56--a-finding-lives-in-one-github-issue-whose-body-is-its-contract-and-the-registers-hold-decisions`, so rule 5's first row sends it to `../decisions/RD-56.md`, with no change to the script. The dry run at `cdbf8c757` does so ([changes](checks/dry-run-changed.txt)).
 - **A new link, and the rules make it a misquotation** (stop): `.plan/decision-files-1/decision-files-plan.md:55`, Mx Architect B's note at `cdbf8c757`, quotes the line above as it was, in link syntax: ``_"`RD-56` states what holds [before and after the cut-over](../00-index.md)."_``. The quoted link resolves to the index and its line names `RD-56`, `RD-63` and `RD-64`, so rule 5's fifth row sends it to `../decisions/`, and the quotation no longer reads as the line did. The script does what the rules say. The text is the architect's, and this report changes nothing in it. Writing the quotation in code, as this report does, takes it out of the move.
 
+- **A code span is CommonMark's,** by Mx Architect B's ruling at `a96dc744b`. The plan's quotation was rewritten at `771c9335f` without a link. `inCode` in `probes/move.mjs` counted the backticks before a link, odd or even, so this report's own quotation at line 55, a two-backtick span that holds single backticks, was read as a link and sent to `../decisions/`. It now reads a span as CommonMark does: a run of n backticks opens it, and the next run of exactly n closes it. **One link's outcome changes,** that quotation, which the script now keeps as a link in code ([changes](checks/dry-run-changed.txt)). The two trees, the script at `a96dc744b` and the changed one, each run on a clone of `a96dc744b`, differ in no other file. `probes/links-resolve.mjs` counts backticks as `move.mjs` did, and isn't changed here.
+
 **The checks on the dry run's tree:**
 
 - **`RD-64` property 2's witness** ([reading](checks/dry-run-witness.txt), [probe](probes/witness.mjs)): for each of the 157 identifiers, `entry.sh` at `cdbf8c757` and on the dry run's tree print the same text with each link target masked and the status paragraph left out. 597 link targets differ, and 72 status paragraphs are added. No identifier differs in anything else.
 - **Relative links** ([reading](checks/dry-run-links.txt), [probe](probes/links-resolve.mjs)): 37 don't resolve before and 37 after, the same 37 targets, all older than this unit. Two of them are in `RD-3` and `RD-4`, and after the move they are in their files, rewritten from there. The count of links grows by 5: the three sections' sentences, the fragment of `RD-59` and the index's own fragment, which were same-file links before.
-- `entry.sh --duplicates` passes. The script run again on its committed output changes no file. `oxfmt --check` passes on the 290 changed and new Markdown files.
+- `entry.sh --duplicates` passes. The script run again on its committed output changes no file. `oxfmt --check` passes on the 289 changed and new Markdown files.
 
 **A scratch worktree, against `AGENTS.md`.** The first dry run used a `git worktree add` in the session's scratch directory, which `agent-workflow.md` forbids without the owner's word. It was removed, and every reading above was made again in a scratch clone.
 
@@ -72,5 +74,4 @@ The bytes differ by one per entry from the plan's probe, which counts a line bre
 
 ## Open
 
-- **`.plan/decision-files-1/decision-files-plan.md:55`,** the quotation above, for the architect.
 - Items 5 to 7, after #293 and #298 merge.
