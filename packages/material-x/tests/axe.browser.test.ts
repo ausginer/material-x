@@ -63,14 +63,6 @@ const RADIO_LABEL: readonly Violation[] = [
   { rule: 'label', target: 'mx-radio > #input', owner: 'repo:RF-94' },
 ];
 
-const ITEM_SELECTED: readonly Violation[] = [
-  {
-    rule: 'aria-allowed-attr',
-    target: 'mx-list-button-item > button',
-    owner: 'repo:RF-132',
-  },
-];
-
 const ITEM_NESTED: readonly Violation[] = [
   {
     rule: 'nested-interactive',
@@ -282,7 +274,6 @@ const ROWS: Readonly<Record<string, readonly Row[]>> = {
     {
       state: 'selected',
       html: '<mx-list><mx-list-button-item selected>Item</mx-list-button-item></mx-list>',
-      violations: ITEM_SELECTED,
     },
     {
       state: 'deselected',
@@ -292,7 +283,6 @@ const ROWS: Readonly<Record<string, readonly Row[]>> = {
           .querySelector('mx-list-button-item')!
           .removeAttribute('selected');
       },
-      violations: ITEM_SELECTED,
     },
     {
       state: 'disabled',
