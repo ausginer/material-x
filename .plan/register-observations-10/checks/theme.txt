@@ -1,0 +1,12 @@
+# node probes/theme-probe.ts.txt, against storybook dev on main at d6f6cf60b, Chromium (Playwright), 2026-11-26
+A: loaded light, toggled after the load
+A1 loaded                                    url theme=light preview data-theme=light
+A2 toggled to dark                           url theme=dark  preview data-theme=dark
+A3 sidebar to box-quad--nested-spaces        url theme=light preview data-theme=light
+A4 reloaded                                  url theme=light preview data-theme=light
+B: loaded with theme=dark in the URL
+B1 loaded                                    url theme=dark  preview data-theme=dark
+B2 sidebar to box-quad--nested-spaces        url theme=dark  preview data-theme=dark
+B3 reloaded                                  url theme=dark  preview data-theme=dark
+B4 toggled to light                          url theme=light preview data-theme=light
+B5 sidebar to box-quad--pointer-delta        url theme=dark  preview data-theme=dark

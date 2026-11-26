@@ -1,0 +1,60 @@
+// Reads where Storybook's dark theme survives: a toggle after the manager has
+// loaded, then a sidebar navigation and a reload; and a load whose URL already
+// says `theme=dark`, then a toggle back to light and a navigation.
+// Run against a running `storybook dev`: copy to theme-probe.ts in a tree with
+// Playwright installed, then `node theme-probe.ts [base]`.
+import { chromium, type Page } from 'playwright';
+
+const base = process.argv[2] ?? 'http://localhost:6006';
+
+async function read(page: Page, label: string): Promise<void> {
+  await page.waitForTimeout(4000);
+  const frame = page.frameLocator('#storybook-preview-iframe');
+  const theme = await frame
+    .locator('html')
+    .getAttribute('data-theme')
+    .catch(() => 'unread');
+  const param = new URL(page.url()).searchParams.get('theme');
+  console.log(
+    `${label.padEnd(44)} url theme=${String(param).padEnd(5)} preview data-theme=${theme}`,
+  );
+}
+
+async function toggle(page: Page): Promise<void> {
+  await page.getByRole('button', { name: 'Toggle theme' }).click();
+}
+
+async function open(page: Page, id: string): Promise<void> {
+  await page.locator(`[data-item-id="${id}"]`).first().click();
+}
+
+const browser = await chromium.launch();
+try {
+  console.log('A: loaded light, toggled after the load');
+  let page = await browser.newPage();
+  await page.goto(`${base}/?path=/story/box-quad--live-demo`);
+  await read(page, 'A1 loaded');
+  await toggle(page);
+  await read(page, 'A2 toggled to dark');
+  await open(page, 'box-quad--nested-spaces');
+  await read(page, 'A3 sidebar to box-quad--nested-spaces');
+  await page.reload();
+  await read(page, 'A4 reloaded');
+  await page.close();
+
+  console.log('B: loaded with theme=dark in the URL');
+  page = await browser.newPage();
+  await page.goto(`${base}/?path=/story/box-quad--live-demo&theme=dark`);
+  await read(page, 'B1 loaded');
+  await open(page, 'box-quad--nested-spaces');
+  await read(page, 'B2 sidebar to box-quad--nested-spaces');
+  await page.reload();
+  await read(page, 'B3 reloaded');
+  await toggle(page);
+  await read(page, 'B4 toggled to light');
+  await open(page, 'box-quad--pointer-delta');
+  await read(page, 'B5 sidebar to box-quad--pointer-delta');
+  await page.close();
+} finally {
+  await browser.close();
+}

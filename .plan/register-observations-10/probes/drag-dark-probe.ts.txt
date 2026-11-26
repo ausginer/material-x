@@ -1,0 +1,36 @@
+// Reads, in the light and the dark theme, the background of the page and of each
+// drag story's surfaces, beside box-quad's stage. Run against a running
+// `storybook dev`: copy to drag-dark-probe.ts in a tree with Playwright
+// installed, then `node drag-dark-probe.ts [base]`.
+import { chromium } from 'playwright';
+
+const base = process.argv[2] ?? 'http://localhost:6006';
+const stories: Record<string, string[]> = {
+  'box-quad--live-demo': ['[class*="stage"]'],
+  'drag-sortable--list': ['[class*="list"]', '[class*="row"]'],
+  'drag-sortable--grid': ['[class*="grid"]', '[class*="tile"]'],
+  'drag-free-drag--interactive': ['[class*="area"]', '[class*="box"]'],
+  'drag-custom-behavior--resize-handle': ['[class*="resizable"]'],
+};
+
+const browser = await chromium.launch();
+try {
+  const page = await browser.newPage();
+  for (const [id, selectors] of Object.entries(stories)) {
+    for (const theme of ['light', 'dark']) {
+      await page.goto(`${base}/iframe.html?id=${id}&viewMode=story&theme=${theme}`);
+      await page.waitForTimeout(2500);
+      const read = await page.evaluate((sels) => {
+        const bg = (el: Element | null) => (el ? getComputedStyle(el).backgroundColor : 'none');
+        return [
+          `html data-theme=${document.documentElement.dataset['theme']}`,
+          `body ${bg(document.body)}`,
+          ...sels.map((s) => `${s} ${bg(document.querySelector(`#storybook-root ${s}`))}`),
+        ].join(' | ');
+      }, selectors);
+      console.log(`${id.padEnd(38)} ${theme.padEnd(5)} ${read}`);
+    }
+  }
+} finally {
+  await browser.close();
+}
