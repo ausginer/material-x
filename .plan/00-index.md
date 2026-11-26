@@ -7452,6 +7452,16 @@ Tier C, **open**, **waiting on the owner** (Q1), pre-existing. Registered on 202
 - **Not read:** Safari, a page's own font, an icon with a size other than its text's, an SVG in `mx-icon`.
 - **Plan needed:** no, once Q1 is answered. **Size:** _small_.
 
+**Dated 2026-11-26 by the architect: Q1 is answered by the owner, (a),** relayed by the coordinator: _"(a)"_. An inline icon's middle stands on the middle of its text's lowercase letters. **Ready** for an implementer, in a unit of its own, on a branch from `main` after #293 merges, because this entry is on #293's branch until then and the subject isn't that unit's. The status above said _"waiting on the owner (Q1)"_. The size stays _small_.
+
+- **The property, made exact:** in each engine at `RD-20`'s floor, the vertical middle of an `mx-icon` inline in a line of text is within 1 px of the text's baseline plus half its x-height, at 16 and 24 px. The x-height is measured independently of CSS's `middle`, for example by a canvas `measureText('x')` in the text's font, so the row doesn't assert the rule with itself.
+- **The candidate, and its form is the implementer's:** `vertical-align: middle` on the host in `icon.ctr.css`, with a comment that gives the reason: an `inline-block` with `overflow: hidden` stands on its bottom edge.
+- **Rows,** the three engines: the property at both sizes, in a `span` of text and in a native button with text. **Witness:** each fails on `main`.
+- **Unchanged, and read:** the boxes of `mx-icon` in `mx-button`, `mx-icon-button`, `mx-fab`, a list item's `lead` and `trail`, and a sortable handle, with `RF-145`'s probe (`material-x/touch-handle-1`'s `.plan/touch-handle-1/probes/boxes.mjs`, or a copy). In a slot whose line is 0 high, the icon's place shouldn't move, and the reading says whether it does.
+- **Visual baselines:** none is to change but where an icon stands in a line of text, such as the icon's own stories. Each one that changes is recorded by `RD-13` and shown to the owner before and after.
+- **Stop** and return if an element of the package moves, or the property doesn't hold in an engine.
+- **Feature proof:** owed, in the three engines.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
