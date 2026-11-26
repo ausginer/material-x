@@ -9,7 +9,7 @@
   - [`run.ts`](../../packages/mutator/src/run.ts): refuses stale edits from the commit before anything runs, makes the copy, runs the config's setup, runs the unmutated files in each engine, refuses a selector that covers no row that ran before any mutation, and then applies each mutation once for all its engines, rebuilds, runs and restores.
   - [`copy.ts`](../../packages/mutator/src/copy.ts): the copy is a detached worktree in a temporary directory, locked with the reason `mutator <pid>`. See [the copy](#the-copy).
   - [`report.ts`](../../packages/mutator/src/report.ts): the outcomes, the engines' comparison and the Markdown summary.
-  - [`cli.ts`](../../packages/mutator/src/cli.ts): `run`, `check` and `summary`. `run` exits with 0 when every outcome is _as expected_ and nothing differs, 1 otherwise, 2 on a refusal, and 3 on any other failure.
+  - [`cli.ts`](../../packages/mutator/src/cli.ts): `run`, `check` and `summary`. `run` exits with 0 when every outcome is _as expected_ and nothing differs, 1 otherwise, 2 on a refusal, 128 plus the signal's number when `SIGINT` or `SIGTERM` stops it, and 3 on any other failure.
 - **The config,** [`mutator.config.ts`](../../mutator.config.ts) at the root: the setup is `aube install --frozen-lockfile` and `just _test-builds`, each engine is `MX_TEST_ENGINES=<engine>`, and an edit of the source of `box-quad`, `core`, `drag`, `tproc`, `vite-custom-element-assets` or `vite-traits-plugin` rebuilds that package with Nx.
 - **The workflow,** [`mutations.yml`](../../.github/workflows/mutations.yml): `workflow_dispatch` alone, with `ref`, `file` and `shards`, `contents: read` and no secret. See [the workflow](#the-workflow).
 - **The workspace:** the package's node project, `node/mutator`, in the root's Vitest projects, and the package in the root recipes' project lists for format, lint and typecheck. The lockfile records the new member, with `aube install --fix-lockfile`. No other version changes.
@@ -18,12 +18,12 @@
 
 For the reviewer, each a reading of `RD-65` and the plan:
 
-- **A row that ran and passed unmutated, and doesn't run with the mutation, counts as failed,** as when the mutation stops its test file from loading. The report says _the row did not run_ for it.
+- **A row that ran and passed unmutated, and doesn't run with the mutation, has no verdict,** as `RD-66` property 3 decides. Until `RD-66` it counted as failed: `reviewer-1`.
 - **_Survives_ is judged on rows that passed unmutated,** so a row that already fails doesn't make it _caught_. _Void_ is only for a selected row, as the plan defines it.
 - **A selector covers only the rows that ran unmutated in that engine.** A selector whose rows an engine skips is refused there, so a file with a row that only one engine runs needs that engine's own expectation, which is the plan's _"for a row with an engine condition"_.
-- **_Differs_ isn't raised for a mutation with any `byEngine` expectation,** which is the expectation that gives the reason.
+- **An engine with a `byEngine` expectation is left out of the engines' comparison,** because that expectation gives the reason for its difference. The engines whose expectation is the mutation's own are still compared. Until `reviewer-2`, any `byEngine` expectation suppressed _differs_ for every engine.
 - **A mutation is applied once and run in each of its engines,** where the plan's legs run one engine each. Locally that rebuilds once per mutation, not once per engine. In CI each leg has one engine, so nothing differs.
-- **`--workdir <dir>`, `--shard <i>/<n>`, `--report` and `--summary`** are beyond the four options of property 8. The workflow needs them: a leg runs in its own checkout of `ref`, which is the separate directory of property 4 in CI, and a leg is one shard.
+- **`--shard <i>/<n>`, `--report` and `--summary`** are beyond the four options of property 8. The workflow needs them, because a leg is one shard. `RD-66` property 2 lists them and removes `--workdir`.
 - **The CLI's exit codes** in CI: a leg treats 1 as a completed run, whose outcomes the summary judges, so a leg fails only for a reason outside the tests.
 
 ## The copy
@@ -31,13 +31,23 @@ For the reviewer, each a reading of `RD-65` and the plan:
 **The owner's word, (b):** _"Я бы сделал detached worktree, (b)…"_, recorded under `RD-65` by the architect. It covers the worktree that `mutator run` makes for one run, and nothing else. How the tool keeps to that:
 
 - **One worktree per run,** in a new temporary directory (`$TMPDIR/mutator-*/copy`), detached at the commit, locked with the reason `mutator <pid>`. No ref and no file of the invoking checkout changes.
-- **Removed when the run ends,** after a success, a failure, `SIGINT` or `SIGTERM`: unlocked, removed with `--force`, pruned, and its directory deleted.
+- **Removed when the run ends,** after a success, a failure, `SIGINT` or `SIGTERM`: unlocked, removed with `--force`, pruned, and its directory deleted. On a signal, the tool first stops the command that runs with `SIGTERM` and waits for it to exit, so nothing that the command writes outlives the copy (`reviewer-5`).
 - **A run that is killed** can't remove its worktree. The next run of the tool in that repository removes every worktree locked with `mutator <pid>` whose process no longer runs, before it makes its own. A worktree whose process still runs is another run's, and is left.
 - **The node rows** make each worktree in a fixture repository that the row creates in a temporary directory, never in this repository.
 
 ## Evidence
 
-**The package's rows,** 18, in [`tests/mutator.node.test.ts`](../../packages/mutator/tests/mutator.node.test.ts), on a fixture repository made from [`fixture/`](../../packages/mutator/fixture/) for each row, with a node project and a browser project: each refusal, the checkout and the temporary directory unchanged after a run and after a failed one, a stale worktree removed, `--workdir`, each outcome, an engine's own expectation, the browser project, the flag and a skipped row that doesn't raise it, the restore between mutations, and a rebuild for a matching path and not for another.
+**The package's rows,** 23, in [`tests/mutator.node.test.ts`](../../packages/mutator/tests/mutator.node.test.ts), on a fixture repository made from [`fixture/`](../../packages/mutator/fixture/) for each row, with a node project and a browser project. They cover:
+
+- each refusal;
+- the checkout and the temporary directory unchanged after a run, after a failed one and after `SIGTERM` to the tool alone, with no process left, even when the command that the signal stops takes half a second to exit;
+- a stale worktree removed;
+- each outcome, including _void_ for a file that doesn't load, under _fails_ and under _survives_;
+- an engine's own expectation, and the browser project;
+- the flag, and three cases that don't raise it: a skipped row, a row that doesn't run in one engine, and an engine whose own expectation gives the reason, while two other engines still differ;
+- the restore between mutations, and a rebuild for a matching path and not for another.
+
+The 18 rows of `9a65f1a89` are described in [after the feature proof](#after-the-feature-proof).
 
 **Their witnesses are the tool's own run** ([file](mutator.mutations.ts)), in Chromium, as `RD-65`'s Q3 asks of an implementer:
 
@@ -55,12 +65,43 @@ For the reviewer, each a reading of `RD-65` and the plan:
 
 - The YAML parses, with `workflow_dispatch` alone, its three inputs, `contents: read`, and the jobs `plan`, `leg` and `summary`.
 - `plan`'s two steps, run locally: `mutator check` on the acceptance file at `9173a25a1` gives the commit and the three engines, and the matrix step gives one leg per engine and shard (six for `shards: 2`). On [a stale file](acceptance/stale.mutations.ts), `check` exits with 2 and names the edit.
-- A leg's command is the local run's with `--workdir .`, which a row covers.
-- **Not read:** the jobs on GitHub's runners, the browser action from the sparse checkout, the artifacts and the summary job. **Owed after the merge:** the acceptance dispatch on `9173a25a1` in the three engines, with its outcomes recorded as information, and the dispatch of `acceptance/stale.mutations.ts`, which `plan` refuses before any leg starts.
+- A leg's command is the local run's, with the file and the config from `.mutator/`. The tool makes its worktree of `ref` from the leg's checkout and doesn't write to that checkout, which the row _should leave the checkout and the temporary directory as they were after a run_ covers.
+- **Not read:** the jobs on GitHub's runners, the browser action from the sparse checkout, the artifacts and the summary job. **Owed after the merge, by `RD-66` property 4:** the acceptance dispatch on `main`, with `ref: 9173a25a1` and `file: .plan/mutations-1/acceptance/rf-142.mutations.ts`, in the three engines, with its outcomes recorded as information. Its summary names `9173a25a1` as the commit run and `main`'s commit as the file's. Also owed: the dispatch of `acceptance/stale.mutations.ts` with `ref: main`, which `plan` refuses before any leg starts.
+
+## After the feature proof
+
+**`RD-66` and the [feature proof](../reviews/mutations-1/feature-proof-claude.md)'s other findings, by the implementer, on 2026-11-26,** on `repo/mutations-1` from `08b72380c`, with `origin/main` at `e457ed209` merged in `81e8b18dc`. Requested by the coordinator. The owner approved `RD-66`'s three rulings. The code is at `10b3be83d`, and the rows and witnesses at `a1ba81d6c` and `d643d8f4d`. Until then, the package had 18 rows, and the `--workdir` row was one of them.
+
+- **`reviewer-3`, `RD-66` properties 1 and 4.** The workflow's sparse checkout of the dispatch ref adds `inputs.file`. `plan` and `leg` pass `.mutator/<file>`, so `ref` doesn't have to hold the file. The header and the two inputs' descriptions say so. `run` reads the file's commit and its path from the checkout that holds it. The report's `fileCommit` and the summary's first line name it beside the commit whose code ran. Property 4's dispatch is the witness, after the merge.
+- **`reviewer-4`, `RD-66` property 2.** `--workdir` is removed from the CLI, its header, `RunOptions` and `run`. The leg calls `run` without it, and the `--workdir` row is gone. Every run makes its own worktree.
+- **`reviewer-1`, `RD-66` property 3.** In `judge`, a row has a verdict only when it passed unmutated and ran with the mutation.
+  - For _fails_, the order is _void_, then _missed_, then _as expected_. For _survives_, it is _caught_, then _void_, then _as expected_.
+  - `runVitest` keeps the message of a test file that failed as a whole. The report's `unrun` gives each row that didn't run with that reason, and the summary prints it under the row.
+  - The engines' comparison counts only rows with a verdict in each engine compared.
+  - New rows: a mutation that breaks `src/math.ts`'s parse reads _void_ under _fails_, with the parse error as the reason, and _void_ under _survives_. A row that doesn't run in one engine isn't flagged.
+- **`reviewer-2`.** An engine with its own expectation is left out of the comparison, and the others are still compared. `hasEngineExpectations` is gone, because `engineReason` already says it. New row: three engines, `a` with its own expectation, and `b` and `c` differ: flagged.
+- **`reviewer-5`.** `exec` takes an `AbortSignal`. When the signal aborts, `exec` waits for the command to exit before it rejects. The run then unwinds through every `finally`, so Vitest's report directory and the copy are removed. The CLI exits with 128 plus the signal's number: 130 for `SIGINT` and 143 for `SIGTERM`. New rows:
+  - `SIGTERM` to the tool alone during a mutated run: exit 143, no report, nothing in the temporary directory and no process left.
+  - The same during a setup command that takes half a second to exit and then writes into the copy.
+- **`reviewer-6`.** The implementer's file has a witness for each row, the three of the feature proof among them.
+  - The browser row's mechanism is the engine's environment, so its witness removes the environment. That witness also fails the five rows of the other engines.
+  - The `--workdir` part goes with the option.
+- **`reviewer-7`.** A leg that exits with 2 writes `refused.txt`, naming its engine and shard, and uploads it. For each refused leg, `summary` says that it refused the file and that running it again refuses it again. It says _run it again_ only when fewer legs reported than `plan` planned. Read, not run: GitHub can't dispatch the workflow before the merge.
+
+**The witnesses, in Chromium:**
+
+- **Run 3, at `a1ba81d6c`** ([summary](checks/mutator-chromium-3.md), [report](checks/mutator-chromium-3.json)): 22 rows unmutated, and 21 of 22 outcomes _as expected_. _A stopped command is not waited for_ was **missed**. The `SIGTERM` row passed without the wait, because the Vitest it stops exits before the copy is removed, so the row couldn't see the mechanism. `d643d8f4d` adds the row with the slow command. The scratch reading before the commit: that row fails with the mutation, and passes without it once the command has printed its ready line. When the signal came before that line, the command died before it set its handler, and the row passed both ways.
+- **Run 4, at `d643d8f4d`** ([summary](checks/mutator-chromium-4.md), [report](checks/mutator-chromium-4.json)): 23 rows unmutated, and **every outcome _as expected_**. Four older witnesses fail rows beyond their selectors, and those rows are newer than the predictions:
+  - _the copy stays after a run_ fails the two signal rows and the stale-copy row;
+  - _engines never differ_ fails the three-engine row;
+  - _a row that one engine skips counts_ fails the row of a file that doesn't load in one engine;
+  - _nothing rebuilds_ fails _after a run that fails midway_.
 
 ## Checks
 
-`packages/mutator`: format, lint and typecheck, and its 18 rows. The root's typecheck with `mutator.config.ts`, and lint of the changed root files. The root's `fmt-check`, `lint` and `typecheck`, which now list the package. **Not run:** the workflow on GitHub, and the other packages' suites, whose sources this unit doesn't change.
+**After the feature proof:** `packages/mutator`: format, lint and typecheck, and its 23 rows. The witnesses above, run 4 with no worktree and no `mutator-*` directory left after it. The workflow's YAML parses and `oxfmt --check` passes on it. **Not run:** the workflow on GitHub.
+
+**At `9a65f1a89`:** `packages/mutator`: format, lint and typecheck, and its 18 rows. The root's typecheck with `mutator.config.ts`, and lint of the changed root files. The root's `fmt-check`, `lint` and `typecheck`, which now list the package. **Not run:** the workflow on GitHub, and the other packages' suites, whose sources this unit doesn't change.
 
 ## Open
 

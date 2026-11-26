@@ -3020,7 +3020,7 @@ The unit of #266 quotes and amends both, on its own branch.
 - **Properties 1 to 9:** the package `@ydinjs/mutator` in `packages/mutator/`, private, the CLI `mutator`, the config `mutator.config.ts` at the root, and `mutations.yml`. Property 4's local copy is the detached worktree that the owner allowed in the architect's note above. The tool locks it for its process, removes it after a success, a failure, `SIGINT` or `SIGTERM`, and removes a locked one whose process no longer runs on its next run.
 - **Property 10, the rows:** 18 node rows on a fixture repository. Their witnesses are the tool's own mutations, run with it in Chromium. The first run found that the root's `.gitignore` kept the fixture's built source out of the commit, and the second run, at `472edce31`, reads every outcome _as expected_.
 - **Property 10, the acceptance:** `RF-142`'s review runner as data, run at `9173a25a1` in Chromium: 193 rows unmutated, every outcome _as expected_, and each mutation's failed rows exactly the review's. A wrong prediction is reported _missed_, and the run exits with 1.
-- **Owed after the merge:** the dispatch of the acceptance file in the three engines and of `acceptance/stale.mutations.ts`, the workflow's witness. GitHub dispatches only a workflow on the default branch.
+- **Owed after the merge:** the dispatch of the acceptance file in the three engines, on `main` with `ref: 9173a25a1` as `RD-66` property 4 says, and of `acceptance/stale.mutations.ts`, the workflow's witness. GitHub dispatches only a workflow on the default branch.
 
 **Dated 2026-11-26 by the architect: `RD-66` supersedes parts of properties 4, 5, 7, 8 and 10, and the plan's MU-4 to MU-8 and MU-10 where they say the same.** It takes effect now, and unit 1 implements it before the merge. The parts are: property 4's _"a separate directory in CI"_; property 5's _void_, _"the unmutated run of that engine already fails a selected row"_; MU-6's _"only rows that ran in every engine compared count"_; MU-7's input _"`ref`: the commit to run, which holds the mutation file"_; property 8's list of options; and property 10's _"dispatched in the three engines"_ with MU-10 step 3's _"on the same commit"_. The rest of `RD-65` is unchanged, and so are the owner's three answers.
 
@@ -3055,6 +3055,14 @@ The unit of #266 quotes and amends both, on its own branch.
 - **`reviewer-4`:** remove `--workdir` from the CLI and its header, from `RunOptions` and from `run`. The leg calls `run` without it. Remove the `--workdir` row. The row _the invoking checkout unchanged after a run_ covers the leg's form of invocation. With the option gone, P3c and P4 can't occur. Nothing is ever applied outside the copy, so no signal restore is owed beyond the copy's removal. `reviewer-5` stays as it is, and `reviewer-6`'s `--workdir` part goes away.
 - **`reviewer-1`:** `judge` follows property 3. The report keeps Vitest's message for a file that didn't run. Add rows for a mutation that stops a test file from loading, under a _fails_ expectation and under a _survives_ expectation: each reads _void_, with the reason. Re-predict the implementer's own witness _a row that doesn't run counts as passing_.
 - **`reviewer-2` and `reviewer-5` to `reviewer-7`:** as the proof routes them. Property 2 doesn't change `reviewer-7`.
+
+**Dated 2026-11-26 by the implementer: `RD-66` is implemented on `repo/mutations-1`,** at `10b3be83d`, with rows and witnesses at `a1ba81d6c` and `d643d8f4d`, as are the feature proof's `reviewer-2` and `reviewer-5` to `reviewer-7`. Requested by the coordinator. The [report](mutations-1/mutations-report.md#after-the-feature-proof) has each finding, the rows and the witnesses' runs.
+
+- **Property 1:** the workflow reads the file from the dispatch ref, and the summary names the commit run and the file's commit.
+- **Property 2:** `run` has no `--workdir`.
+- **Property 3:** a row that didn't run has no verdict, and the report and summary give Vitest's reason for its file.
+- **Witnesses:** the package has 23 rows. The implementer's file in Chromium, run 4, reads every outcome _as expected_. Run 3 found that the `SIGTERM` row couldn't see whether a stopped command is waited for, and a row was added for it.
+- **Owed after the merge:** property 4's dispatch.
 
 ## Findings
 
