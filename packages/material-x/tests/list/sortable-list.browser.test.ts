@@ -2543,6 +2543,94 @@ describe('mx-sortable-list handle box', () => {
   });
 });
 
+describe('mx-sortable-list text selection', () => {
+  const LABELS = ['Item A with some text', 'Item B with some text', 'Item C'];
+
+  /** The box of the label text of `item`, which is its last child. */
+  function textBoxOf(item: HTMLElement): DOMRect {
+    const range = document.createRange();
+    range.selectNodeContents(item.lastChild!);
+    return range.getBoundingClientRect();
+  }
+
+  function selectedText(): string {
+    return document.getSelection()!.toString();
+  }
+
+  /** Presses the middle of the label text of `item` and drags it past the threshold, onto `over`. */
+  async function dragText(item: HTMLElement, over: HTMLElement): Promise<void> {
+    const { left, top, width, height } = textBoxOf(item);
+    const [x, y] = [left + width / 2, top + height / 2];
+    await commands.pointerPress(x, y);
+    await commands.pointerMove(x, y + 12, 3);
+    await commands.pointerMove(x, centerOf(visualOf(over))[1] + 10, 8);
+  }
+
+  // No witness fails these rows for mx-list-button-item: in WebKit its drag
+  // extends no selection without the sheet's rule either.
+  describe.each([
+    'mx-list-item',
+    'mx-list-button-item',
+    'mx-list-link-item',
+  ] as const)('%s without a handle', (item) => {
+    it('should select no text while a mouse drags the item', async () => {
+      const [, [, b, c]] = await createList(LABELS, { item });
+      document.getSelection()!.removeAllRanges();
+      await dragText(b!, c!);
+      await nextFrame();
+
+      expect(selectedText()).toBe('');
+    });
+
+    // A commit moves the item's text node, which collapses a selection in it,
+    // so the move is never committed and the item lands home.
+    it('should select no text after a mouse drops the item', async () => {
+      const [list, [, b, c]] = await createList(LABELS, { item });
+      document.getSelection()!.removeAllRanges();
+      await dragText(b!, c!);
+      await commands.pointerRelease();
+      await whenSettled(list, b!);
+
+      expect(selectedText()).toBe('');
+    });
+  });
+
+  it('should still select text by a mouse press that moves less than the threshold', async () => {
+    const [, [a]] = await createList(LABELS);
+    document.getSelection()!.removeAllRanges();
+    const { left, top, height } = textBoxOf(a!);
+    const y = top + height / 2;
+    await commands.pointerPress(left + 1, y);
+    await commands.pointerMove(left + 7, y, 3);
+    await commands.pointerRelease();
+
+    expect(isDragged(a!)).toBe(false);
+    expect(selectedText()).not.toBe('');
+  });
+
+  it('should select no text when the held mouse leaves the list over page text', async () => {
+    const [list, [, b, c]] = await createList(LABELS);
+    list.style.width = '240px';
+    const text = document.createElement('p');
+    text.textContent = 'Page text beside the list, long enough to select';
+    text.style.cssText = `position: absolute; left: 320px; top: ${list.getBoundingClientRect().top + 60}px; margin: 0; width: 300px`;
+    document.body.append(text);
+    document.getSelection()!.removeAllRanges();
+    await dragText(b!, c!);
+    const [x, y] = centerOf(text);
+    await commands.pointerMove(x, y, 8);
+    await nextFrame();
+    const during = selectedText();
+    await commands.pointerRelease();
+    await whenSettled(list, b!);
+
+    expect({ during, after: selectedText() }).toEqual({
+      during: '',
+      after: '',
+    });
+  });
+});
+
 describe('mx-sortable-list neighbors', () => {
   type RowRead = Readonly<{ animations: number; off: number }>;
 
