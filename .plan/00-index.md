@@ -4977,7 +4977,7 @@ Tier A, **open**, **ready**, not this unit's. Registered on 2026-11-26 by the ar
 
 #### RF-152 — `parseMs` reads a duration in milliseconds as seconds
 
-Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from the implementer's point 4 in `RD-60`'s unit, relayed by the coordinator. `RF-151` is the entry before this one. Read at `5448c4fd6`.
+Tier C, **closed 2026-11-26** by #315, on `material-x/parse-ms-1`, at its merge (the last note). Before closure: open, ready. Pre-existing. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from the implementer's point 4 in `RD-60`'s unit, relayed by the coordinator. `RF-151` is the entry before this one. Read at `5448c4fd6`.
 
 - **What happens:** `parseMs` in `packages/material-x/src/core/utils/fns.ts` returns `parseFloat(value) * 1000`, whatever the value's unit, so `250ms` reads as 250,000 ms. It has done so since `b140ce683`. It reads the ripple's two durations, the sortable list's landing since `RF-109` (#199), and the list's layout animation since `RD-60`.
 - **Why the values are right today:** each value that reaches it is a tproc motion token, which tproc writes in milliseconds, such as `500ms`. lightningcss, which every material-x sheet passes through, prints a time of 100 ms or more in seconds, minified or not, and keeps `99ms` and `50ms` as they are ([reading](sortable-displacement-1/checks/lightningcss-time.txt), [probe](sortable-displacement-1/probes/lightningcss-time.mjs)). tproc's shortest motion duration is 150 ms. The properties are private, and no public property feeds them.
@@ -5001,6 +5001,8 @@ Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi
 - **What the implementer owes:** `parseMs` reads the unit regardless of case. Rows in `tests/core/utils/fns.browser.test.ts` read `250MS` and `250Ms` as 250, `0.25S` as 250, and throw on `MS`. **Witness:** the `250MS` and `250Ms` rows fail at `4fcc0a457` (250000). `0.25S` and `MS` already pass there, so they fix the contract and don't witness the change. Nothing else in the entry changes.
 
 **Dated 2026-11-26 by the implementer: the unit is read regardless of case,** on `material-x/parse-ms-1`, from `3471619eb`, in Chromium (`RD-62`). `parseMs` compares the value's last two characters, folded to lowercase, with `ms`. The four rows are in `tests/core/utils/fns.browser.test.ts`. **Witness:** at `4fcc0a457`, the `250MS` and `250Ms` rows fail with 250000, and the other eleven pass. **Checks:** with the repair, `tests/core` and `tests/list` pass in Chromium (534 rows). Lint and typecheck are clean.
+
+**Dated 2026-11-26 by the architect, on `material-x/parse-ms-1`: closed by #315, at its merge.** Requested by the coordinator. #315 says `Closes #312`, and this record change goes with it, as [`work-queue.md`](../.agents/docs/work-queue.md#closing) asks. The [feature proof](reviews/parse-ms-1/feature-proof-claude.md) of `4fcc0a457` accepts the repair for `0.25s` and `250ms` in Chromium, Firefox and WebKit, with one tier C finding, `reviewer-1`, which the note above ruled. The [recheck](reviews/parse-ms-1/feature-proof-recheck-claude.md) of `0e2817bf4` accepts the case-insensitive unit in the three engines with no finding, and `reviewer-1` is resolved. `verify` run 45886263768 passes on `0e2817bf4`. The status above said _"Tier C, **open**, **ready**, pre-existing."_
 
 #### RF-153 — material-x's node tests build with a private-property list that may be stale
 
