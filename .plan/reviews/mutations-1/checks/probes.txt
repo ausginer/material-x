@@ -1,0 +1,79 @@
+## P1: a mutation that stops the test file from loading
+exit: 0
+temporary directory: []
+worktrees: 1
+status: []
+| Mutation | Group | a | Engines |
+| --- | --- | --- | --- |
+| math.ts no longer parses | mechanism | as expected (7) |  |
+
+Every outcome is as expected, and no mutation differs between engines.
+outcome: as expected
+messages: [["the row did not run"],["the row did not run"],["the row did not run"],["the row did not run"],["the row did not run"],["the row did not run"],["the row did not run"]]
+"did not run" in the Markdown summary: 0
+
+## P2: an engine expectation for a alone, and b and c fail different rows
+exit: 0
+temporary directory: []
+worktrees: 1
+status: []
+| Mutation | Group | a | b | c | Engines |
+| --- | --- | --- | --- | --- | --- |
+| b and c greet otherwise, c subtracts | engine | as expected (0) | as expected (1) | as expected (2) |  |
+
+Every outcome is as expected, and no mutation differs between engines.
+a []
+b ["tests/math.node.test.ts > greet should greet in the engine"]
+c ["tests/math.node.test.ts > add should add","tests/math.node.test.ts > greet should greet in the engine"]
+### P2b: the same mutation in b and c, with no engine expectation
+exit: 1
+temporary directory: []
+worktrees: 1
+status: []
+| Mutation | Group | a | b | c | Engines |
+| --- | --- | --- | --- | --- | --- |
+| b and c greet otherwise, c subtracts | engine | — | as expected (1) | as expected (2) | **differs** |
+
+An outcome other than _as expected_, or a mutation that differs between engines, is the reviewer’s to judge.
+
+## P3: signals during a mutated Vitest run
+### P3a: SIGTERM to the tool alone
+during: worktrees 2, locks [locked mutator 1969303 ]
+exit: 130
+right after: worktrees 1, locks [], temporary directory [mutator-report-qOhF1O ]
+a Vitest of the run still running: yes
+after it ends: [./mutator-S1VSQ4 ./mutator-S1VSQ4/copy ./mutator-S1VSQ4/copy/node_modules ./mutator-S1VSQ4/copy/node_modules/.vite ./mutator-report-qOhF1O ./mutator-report-qOhF1O/report.json ]
+### P3b: SIGINT to its process group, as Ctrl-C sends it
+during: worktrees 2, locks [locked mutator 1969622 ]
+exit: 130
+right after: worktrees 1, locks [], temporary directory []
+a Vitest of the run still running: no
+after it ends: []
+### P3c: SIGINT to its process group, with --workdir
+during: worktrees 1, locks []
+exit: 130
+right after: worktrees 1, locks [], temporary directory [mutator-report-CCy4LT workdir ]
+a Vitest of the run still running: no
+after it ends: [./mutator-report-CCy4LT ]
+workdir status: [ M src/math.ts]
+
+## P4: --workdir whose file differs from the commit
+exit: 1
+| Mutation | Group | a | Engines |
+| --- | --- | --- | --- |
+| clamp ignores its low bound | mechanism | missed (0) |  |
+
+An outcome other than _as expected_, or a mutation that differs between engines, is the reviewer’s to judge.
+  - missed: tests/math.node.test.ts > clamp should clamp low
+
+## P5: two mutations with one name
+exit: 0
+temporary directory: []
+worktrees: 1
+status: []
+| Mutation | Group | a | Engines |
+| --- | --- | --- | --- |
+| same | mechanism | as expected (2) |  |
+
+Every outcome is as expected, and no mutation differs between engines.
+in the JSON: [["same","missed"],["same","as expected"]]
