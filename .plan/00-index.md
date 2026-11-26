@@ -4990,6 +4990,12 @@ Tier A, **open**, **ready**, not this unit's. Registered on 2026-11-26 by the ar
 - **Not read:** Firefox, beyond CI. Safari. An item with a handle, whose handle is inside the item and so takes the rule with it. A link item's native drag, which `draggable="false"` already concerns (`drag:DRI-19`).
 - **Also owed:** sizes by `just size`, in which `list/sortable-list` grows by a few bytes. The list's JSDoc and `list.mdx` don't change, because they promise nothing about selection. A feature proof follows. **Size:** _small_.
 
+**Dated 2026-11-26 by the architect: the button item's rows stay without a witness, and row 3 stays on `mx-list-item`,** requested by the coordinator, on the implementer's return at `9ff1737ab`. The rule is `::slotted(:state(drag)) { -webkit-user-select: none; user-select: none; }`, with WebKit's prefix. With it, the 8 rows pass in WebKit and Chromium. In WebKit, without the rule, rows 1 and 2 fail for `mx-list-item` and `mx-list-link-item`, and row 4 fails too. **`mx-list-button-item` passes rows 1 and 2 without the rule.** With the rule on every item, row 3 fails in both engines.
+
+- **Rows 1 and 2 stay for `mx-list-button-item`,** as rows without a witness. Property 1 is the list's for every kind, and this kind holds it today because of WebKit: a drag that starts on a `<button>` doesn't extend the press's selection. The rows cost nothing, and they fail if a change of the item's control or of the engine brings the highlight back. The record says that they have no witness.
+- **Row 3 stays on `mx-list-item` alone.** Property 2 says that the list writes no `user-select` on an item outside a drag. The rule doesn't depend on the item's kind, and the witness, the rule on every item, fails row 3. What a short press selects in a button or a link is the engine's own behavior: a button item's press selects `I` in WebKit and nothing in Chromium, and a link item's press selects nothing in either. A row of those kinds would read the engine, not the list.
+- **Not read, and not owed:** why a link item's press selects nothing in WebKit, while its drag extends a selection.
+
 #### RF-152 — `parseMs` reads a duration in milliseconds as seconds
 
 Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from the implementer's point 4 in `RD-60`'s unit, relayed by the coordinator. `RF-151` is the entry before this one. Read at `5448c4fd6`.
