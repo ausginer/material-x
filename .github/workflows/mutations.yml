@@ -2,30 +2,35 @@
 # reviewer's dispatch alone (`repo:RD-65` property 7). Nothing runs it on a push
 # or a pull request, and it gates nothing.
 #
-# The runner comes from the ref the workflow is dispatched on, and the code under
-# test from the `ref` input, so an older commit runs too. Each leg checks out
-# `ref` at the workspace's root, where it is the scratch copy that the mutations
-# are applied to, and the runner in `.mutator/`, sparsely: the command line's
-# source, the config and the browser action, with no manifest, so no workspace
-# tool takes it for a project. The engines are the builds that `ref`'s lockfile
-# pins, installed by `verify`'s browser action.
+# The runner, the config and the mutation file come from the ref the workflow
+# is dispatched on, and the code under test from the `ref` input, so an older
+# commit runs too, and it doesn't have to hold the file (`repo:RD-66` property
+# 1). Each leg checks out `ref` at the workspace's root, and the runner in
+# `.mutator/`, sparsely: the command line's source, the config, the browser
+# action and the file, with no manifest, so no workspace tool takes it for a
+# project. The tool applies the mutations in a worktree of `ref` that it
+# creates, as a local run does, and never writes to the checkout. The engines
+# are the builds that `ref`'s lockfile pins, installed by `verify`'s browser
+# action.
 #
 # `plan` refuses a file with a stale edit before any leg runs a test. Each leg
 # runs the unmutated files and then its share of the mutations, one at a time,
-# and uploads its JSON report. `summary` compares the engines and fails on any
-# outcome other than _as expected_ and on any mutation that differs between
-# engines. A leg that fails for a reason outside the tests fails the summary
-# too; run it again.
+# and uploads its JSON report. `summary` names the two commits, compares the
+# engines and fails on any outcome other than _as expected_ and on any mutation
+# that differs between engines. A leg that refuses the file in its engine fails
+# the summary, which names it, and running it again refuses it again. A leg
+# that fails for another reason outside the tests fails the summary too; run it
+# again.
 name: mutations
 
 on:
   workflow_dispatch:
     inputs:
       ref:
-        description: The commit to run, which holds the mutation file.
+        description: The commit whose code the mutations run on. It doesn't have to hold the mutation file.
         required: true
       file:
-        description: The mutation file's path at that commit.
+        description: The mutation file's path in the ref that the workflow is dispatched on.
         required: true
       shards:
         description: How many legs each engine is split into, a positive integer.
@@ -46,11 +51,13 @@ env:
   # The aube that `package.json`'s `packageManager` names, installed with npm's
   # one command outside the checkout (`repo:RD-16` property 9).
   AUBE_VERSION: 2.10.0
-  # What the runner checks out of its own ref.
+  # What the runner checks out of its own ref: the tool, the config, the
+  # browser action and the mutation file.
   RUNNER_FILES: |
     packages/mutator/src/
     mutator.config.ts
     .github/actions/browser/
+    ${{ inputs.file }}
 
 jobs:
   plan:
@@ -78,7 +85,7 @@ jobs:
         env:
           FILE: ${{ inputs.file }}
         run: |
-          checked="$(node .mutator/packages/mutator/src/cli.ts check "$FILE")"
+          checked="$(node .mutator/packages/mutator/src/cli.ts check ".mutator/$FILE")"
           echo "$checked"
           echo "commit=$(node -p 'JSON.parse(process.argv[1]).commit' "$checked")" >> "$GITHUB_OUTPUT"
           echo "checked=$checked" >> "$GITHUB_OUTPUT"
@@ -135,21 +142,31 @@ jobs:
       - uses: ./.mutator/.github/actions/browser
         with:
           engine: ${{ matrix.engine }}
-      # Exit 1 is a completed run whose outcomes `summary` judges.
+      # Exit 1 is a completed run whose outcomes `summary` judges. Exit 2 is a
+      # file that this engine refuses, which the leg records for `summary`.
       - env:
           FILE: ${{ inputs.file }}
           COMMIT: ${{ needs.plan.outputs.commit }}
           ENGINE: ${{ matrix.engine }}
           SHARD: ${{ matrix.shard }}/${{ matrix.count }}
         run: |
-          node .mutator/packages/mutator/src/cli.ts run "$FILE" \
-            --ref "$COMMIT" --engine "$ENGINE" --shard "$SHARD" --workdir . \
+          status=0
+          node .mutator/packages/mutator/src/cli.ts run ".mutator/$FILE" \
+            --ref "$COMMIT" --engine "$ENGINE" --shard "$SHARD" \
             --config .mutator/mutator.config.ts --report "$RUNNER_TEMP/leg.json" \
-            || [ $? -eq 1 ]
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+            || status=$?
+          if [ "$status" -eq 2 ]; then
+            echo "$ENGINE $SHARD" > "$RUNNER_TEMP/refused.txt"
+          fi
+          [ "$status" -le 1 ]
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: leg-${{ matrix.engine }}-${{ matrix.shard }}
-          path: ${{ runner.temp }}/leg.json
+          path: |
+            ${{ runner.temp }}/leg.json
+            ${{ runner.temp }}/refused.txt
+          if-no-files-found: ignore
 
   summary:
     needs: [plan, leg]
@@ -172,13 +189,20 @@ jobs:
           path: legs
       - env:
           LEGS: ${{ needs.leg.result }}
+          PLANNED: ${{ needs.plan.outputs.legs }}
         run: |
           shopt -s nullglob
           reports=(legs/*/leg.json)
+          refused=(legs/*/refused.txt)
           status=0
           node .mutator/packages/mutator/src/cli.ts summary "${reports[@]}" --out summary.md || status=$?
           cat summary.md >> "$GITHUB_STEP_SUMMARY"
-          if [ "$LEGS" != 'success' ]; then
+          for leg in "${refused[@]}"; do
+            echo "The leg $(cat "$leg") refused the file before any mutation: its log names each reason, and running it again refuses it again." | tee -a "$GITHUB_STEP_SUMMARY"
+            status=1
+          done
+          planned="$(node -p 'JSON.parse(process.argv[1]).length' "$PLANNED")"
+          if [ "$LEGS" != 'success' ] && [ $(( ${#reports[@]} + ${#refused[@]} )) -lt "$planned" ]; then
             echo "A leg ended with $LEGS, outside the tests: run it again." | tee -a "$GITHUB_STEP_SUMMARY"
             status=1
           fi

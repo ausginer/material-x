@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import type { Run } from './format.ts';
 import { exec } from './process.ts';
-import type { Row, RowStatus } from './report.ts';
+import type { Row, RowStatus, VitestRun } from './report.ts';
 
 type AssertionResult = Readonly<{
   fullName: string;
@@ -29,6 +29,10 @@ const MESSAGE_LINES = 8;
 const statusOf = (status: string): RowStatus =>
   status === 'passed' || status === 'failed' ? status : 'skipped';
 
+/** The first lines of `message`, without the empty ones. */
+const firstLines = (message: string): readonly string[] =>
+  message.split('\n').filter(Boolean).slice(0, MESSAGE_LINES);
+
 /**
  * The Vitest that `dir` resolves, as the program that runs its command line.
  * Vitest is the package's peer, so the copy's own install provides it.
@@ -47,13 +51,14 @@ function vitestOf(dir: string): readonly string[] {
 /**
  * Runs Vitest once for `run` in the copy at `root`, with `env`, and reads every
  * row of its JSON report. A test file that fails before its rows run adds no
- * row, so its rows read as not run.
+ * row, and its message is kept as the reason that its rows didn't run.
  */
 export async function runVitest(
   root: string,
   run: Run,
   env: Readonly<Record<string, string>>,
-): Promise<readonly Row[]> {
+  signal: AbortSignal,
+): Promise<VitestRun> {
   const dir = join(root, run.dir);
   const scratch = await mkdtemp(join(tmpdir(), 'mutator-report-'));
   const output = join(scratch, 'report.json');
@@ -69,7 +74,7 @@ export async function runVitest(
         `--outputFile=${output}`,
       ],
       dir,
-      env,
+      { env, signal },
     );
     let report: JsonReport;
 
@@ -81,20 +86,27 @@ export async function runVitest(
       );
     }
 
-    return report.testResults.flatMap(({ name, assertionResults }) => {
-      const file = relative(root, name);
+    const errors: Record<string, readonly string[]> = {};
+    const rows = report.testResults.flatMap(
+      ({ name, message, assertionResults }) => {
+        const file = relative(root, name);
 
-      return assertionResults.map((assertion) => {
-        const status = statusOf(assertion.status);
-        const messages = assertion.failureMessages
-          ?.flatMap((message) => message.split('\n').slice(0, MESSAGE_LINES))
-          .filter(Boolean);
+        if (message) {
+          errors[file] = firstLines(message);
+        }
 
-        return status === 'failed' && messages?.length
-          ? { file, name: assertion.fullName, status, messages }
-          : { file, name: assertion.fullName, status };
-      });
-    });
+        return assertionResults.map((assertion): Row => {
+          const status = statusOf(assertion.status);
+          const messages = assertion.failureMessages?.flatMap(firstLines);
+
+          return status === 'failed' && messages?.length
+            ? { file, name: assertion.fullName, status, messages }
+            : { file, name: assertion.fullName, status };
+        });
+      },
+    );
+
+    return { rows, errors };
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }

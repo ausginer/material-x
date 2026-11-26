@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join, matchesGlob } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { createCopy, removeStale, type Copy } from './copy.ts';
+import { createCopy, removeStale } from './copy.ts';
 import type { Config, Expectation, Mutation, MutationFile } from './format.ts';
 import { check } from './process.ts';
 import {
@@ -11,6 +11,7 @@ import {
   type MutationResult,
   type Report,
   type Row,
+  type VitestRun,
 } from './report.ts';
 import { runVitest } from './vitest.ts';
 
@@ -21,6 +22,19 @@ export class Refusal extends Error {
   constructor(message: string, reasons: readonly string[]) {
     super(`${message}\n${reasons.map((reason) => `  - ${reason}`).join('\n')}`);
     this.reasons = reasons;
+  }
+}
+
+/**
+ * A run that `SIGINT` or `SIGTERM` stopped, after its commands exited and its
+ * copy was removed.
+ */
+export class Interrupted extends Error {
+  readonly signal: NodeJS.Signals;
+
+  constructor(signal: NodeJS.Signals) {
+    super(`stopped by ${signal}`);
+    this.signal = signal;
   }
 }
 
@@ -141,16 +155,18 @@ export type RunOptions = Readonly<{
   config: Config;
   engines?: readonly string[];
   only?: readonly string[];
+  /** The commit of the checkout that the file and the runner came from. */
+  fileCommit?: string;
   /** This leg's shard, from 1, and the count. */
   shard?: readonly [number, number];
-  /** An existing checkout of `commit` to run in, in place of a copy. */
-  workdir?: string;
   log(line: string): void;
 }>;
 
 /**
  * Runs the file's mutations at `commit` in a copy of the repository, which it
- * removes afterwards, also after a failure.
+ * removes afterwards, also after a failure. On `SIGINT` or `SIGTERM` it stops
+ * the command that runs, waits for it to exit, removes the copy and rejects
+ * with {@link Interrupted}.
  */
 export async function run(options: RunOptions): Promise<Report> {
   const { root, file, commit, config, log } = options;
@@ -162,18 +178,18 @@ export async function run(options: RunOptions): Promise<Report> {
 
   await checkEdits(root, commit, mutations);
 
-  if (!options.workdir) {
-    for (const dir of await removeStale(root)) {
-      log(`removed a copy that an earlier run left: ${dir}`);
-    }
+  for (const dir of await removeStale(root)) {
+    log(`removed a copy that an earlier run left: ${dir}`);
   }
 
-  const copy: Copy = options.workdir
-    ? { dir: options.workdir, remove: async () => {} }
-    : await createCopy(root, commit);
-  const onSignal = (): void => {
-    void copy.remove().finally(() => process.exit(130));
+  const copy = await createCopy(root, commit);
+  const stop = new AbortController();
+  let stoppedBy: NodeJS.Signals | undefined;
+  const onSignal = (signal: NodeJS.Signals): void => {
+    stoppedBy = signal;
+    stop.abort();
   };
+  const { signal } = stop;
 
   process.once('SIGINT', onSignal);
   process.once('SIGTERM', onSignal);
@@ -182,27 +198,33 @@ export async function run(options: RunOptions): Promise<Report> {
     for (const command of config.setup) {
       log(`setup: ${command.join(' ')}`);
       // oxlint-disable-next-line no-await-in-loop -- in order
-      await check(command, copy.dir, {}, false);
+      await check(command, copy.dir, { quiet: false, signal });
     }
 
-    const runAll = async (engine: string): Promise<readonly Row[]> => {
+    const runAll = async (engine: string): Promise<VitestRun> => {
       const rows: Row[] = [];
+      const errors: Record<string, readonly string[]> = {};
 
       for (const target of file.runs) {
-        rows.push(
-          // oxlint-disable-next-line no-await-in-loop -- one Vitest at a time
-          ...(await runVitest(copy.dir, target, config.engines[engine]!.env)),
+        // oxlint-disable-next-line no-await-in-loop -- one Vitest at a time
+        const result = await runVitest(
+          copy.dir,
+          target,
+          config.engines[engine]!.env,
+          signal,
         );
+        rows.push(...result.rows);
+        Object.assign(errors, result.errors);
       }
 
-      return rows;
+      return { rows, errors };
     };
     const baselines = new Map<string, readonly Row[]>();
 
     for (const engine of engines) {
       log(`unmutated, ${engine}`);
       // oxlint-disable-next-line no-await-in-loop -- one engine at a time
-      baselines.set(engine, await runAll(engine));
+      baselines.set(engine, (await runAll(engine)).rows);
     }
 
     checkSelectors(mutations, engines, baselines);
@@ -213,22 +235,20 @@ export async function run(options: RunOptions): Promise<Report> {
 
     for (const mutation of mutations) {
       // oxlint-disable-next-line no-await-in-loop -- one mutation at a time
-      await withMutation(copy.dir, config, mutation, log, async () => {
+      await withMutation(copy.dir, config, mutation, signal, log, async () => {
         for (const engine of enginesOf(mutation, engines)) {
           log(`${mutation.name}, ${engine}`);
           const expect = expectationOf(mutation, engine);
           const engineReason = mutation.byEngine?.[engine]?.reason;
           // oxlint-disable-next-line no-await-in-loop -- one engine at a time
-          const rows = await runAll(engine);
+          const mutated = await runAll(engine);
 
           results.get(engine)!.push({
             name: mutation.name,
             group: mutation.group,
             expect,
             ...(engineReason ? { engineReason } : {}),
-            hasEngineExpectations:
-              Object.keys(mutation.byEngine ?? {}).length > 0,
-            ...judge(expect, baselines.get(engine)!, rows),
+            ...judge(expect, baselines.get(engine)!, mutated),
           });
         }
       });
@@ -241,7 +261,14 @@ export async function run(options: RunOptions): Promise<Report> {
       mutations: results.get(engine)!,
     }));
 
-    return { file: options.label, commit, legs };
+    return {
+      file: options.label,
+      commit,
+      ...(options.fileCommit ? { fileCommit: options.fileCommit } : {}),
+      legs,
+    };
+  } catch (error) {
+    throw stoppedBy ? new Interrupted(stoppedBy) : error;
   } finally {
     process.off('SIGINT', onSignal);
     process.off('SIGTERM', onSignal);
@@ -257,6 +284,7 @@ async function withMutation(
   dir: string,
   config: Config,
   mutation: Mutation,
+  signal: AbortSignal,
   log: (line: string) => void,
   body: () => Promise<void>,
 ): Promise<void> {
@@ -276,7 +304,7 @@ async function withMutation(
     for (const { command } of rebuilds) {
       log(`rebuild: ${command.join(' ')}`);
       // oxlint-disable-next-line no-await-in-loop -- in order
-      await check(command, dir);
+      await check(command, dir, { signal });
     }
   };
 

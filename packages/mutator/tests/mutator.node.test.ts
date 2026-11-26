@@ -1,7 +1,7 @@
 /**
  * `mutator`'s command line, run on a repository made from `fixture/` for each
- * test, with a config that selects three engines: `a` and `b`, which run the
- * fixture's node project and tell themselves apart by the environment, and
+ * test, with a config that selects four engines: `a`, `b` and `c`, which run
+ * the fixture's node project and tell themselves apart by the environment, and
  * `chromium`, which runs its browser project.
  */
 import { execFile } from 'node:child_process';
@@ -11,6 +11,7 @@ import {
   mkdtemp,
   readFile,
   readdir,
+  readlink,
   rm,
   writeFile,
 } from 'node:fs/promises';
@@ -29,6 +30,8 @@ const TIMEOUT = 120_000;
 type Result = Readonly<{
   code: number;
   stderr: string;
+  /** The processes whose working directory is in the row's directory. */
+  processes: number;
   report?: Report;
   /** The builds that ran, by `fixture/build.ts`'s log. */
   builds: number;
@@ -80,16 +83,34 @@ function cleanEnv(extra: Readonly<Record<string, string>>): NodeJS.ProcessEnv {
   return { ...env, ...extra };
 }
 
+/** The processes whose working directory is under `dir`, read from `/proc`. */
+async function processesIn(dir: string): Promise<number> {
+  const cwds = await Promise.all(
+    (await readdir('/proc'))
+      .filter((entry) => /^\d+$/u.test(entry))
+      .map(async (pid) => await readlink(`/proc/${pid}/cwd`).catch(() => '')),
+  );
+  return cwds.filter((cwd) => cwd.startsWith(dir)).length;
+}
+
+type MutateOptions = Readonly<{
+  rebuildCommand?: readonly string[];
+  prepare?(repo: string, temp: string): Promise<void>;
+  /** A signal sent to the tool's process alone when its log has `after`. */
+  interrupt?: Readonly<{ signal: NodeJS.Signals; after: string }>;
+}>;
+
 /**
  * Makes a repository from the fixture, runs `mutator run` on `file` there, and
  * reads what it left.
  */
 async function mutate(
   file: MutationFile,
-  args: readonly string[] = [],
-  rebuildCommand: readonly string[] = ['node', 'build.ts'],
-  prepare?: (repo: string, temp: string) => Promise<void>,
-  lateArgs: () => readonly string[] = () => [],
+  {
+    rebuildCommand = ['node', 'build.ts'],
+    prepare,
+    interrupt,
+  }: MutateOptions = {},
 ): Promise<Result> {
   const root = await mkdtemp(join(tmpdir(), 'mutator-test-'));
   roots.push(root);
@@ -121,6 +142,7 @@ async function mutate(
       engines: {
         a: { env: { FIXTURE_ENGINE: 'a' } },
         b: { env: { FIXTURE_ENGINE: 'b' } },
+        c: { env: { FIXTURE_ENGINE: 'c' } },
         chromium: { env: { FIXTURE_ENGINE: 'chromium' } },
       },
       rebuilds: [{ files: 'built/**', command: rebuildCommand }],
@@ -136,7 +158,7 @@ async function mutate(
   const { code, stderr } = await new Promise<
     Readonly<{ code: number; stderr: string }>
   >((done) => {
-    execFile(
+    const child = execFile(
       process.execPath,
       [
         CLI,
@@ -146,8 +168,6 @@ async function mutate(
         join(root, 'mutator.config.ts'),
         '--report',
         report,
-        ...args,
-        ...lateArgs(),
       ],
       { cwd: repo, env: cleanEnv({ TMPDIR: temp, FIXTURE_LOG: log }) },
       (error, _stdout, err) => {
@@ -157,6 +177,18 @@ async function mutate(
         });
       },
     );
+    let seen = '';
+
+    if (interrupt) {
+      child.stderr!.on('data', (chunk: unknown) => {
+        seen += String(chunk);
+
+        if (seen.includes(interrupt.after)) {
+          seen = '';
+          child.kill(interrupt.signal);
+        }
+      });
+    }
   });
   const after = await stateOf(repo);
   const read = async (path: string): Promise<string | undefined> =>
@@ -166,6 +198,7 @@ async function mutate(
   return {
     code,
     stderr,
+    processes: await processesIn(root),
     ...(reportText ? { report: JSON.parse(reportText) as Report } : {}),
     builds: ((await read(log)) ?? '').split('\n').filter(Boolean).length,
     leftovers: await readdir(temp),
@@ -197,6 +230,15 @@ const GREET: Mutation = {
   edits: [{ file: 'src/math.ts', text: "'hello, a'", replacement: "'hi, a'" }],
   expect: { fails: [{ file: TEST_FILE, row: 'should greet' }] },
 };
+
+/** Breaks the parse of `src/math.ts`, so the node project's test file doesn't load. */
+const UNLOADABLE: Mutation['edits'] = [
+  {
+    file: 'src/math.ts',
+    text: 'export function add(',
+    replacement: 'export function add(;',
+  },
+];
 
 const outcomes = ({
   report,
@@ -289,8 +331,7 @@ describe('mutator run, the invoking checkout', () => {
             edits: [{ file: 'built/value.ts', text: '2', replacement: '3' }],
           },
         ]),
-        [],
-        ['node', '-e', 'process.exit(1)'],
+        { rebuildCommand: ['node', '-e', 'process.exit(1)'] },
       );
 
       expect([result.code, result.state, result.leftovers]).toEqual([
@@ -301,30 +342,21 @@ describe('mutator run, the invoking checkout', () => {
     },
     TIMEOUT,
   );
-});
 
-describe('mutator run, an existing checkout', () => {
   it(
-    'should run in the checkout that --workdir names and make no worktree',
+    'should stop its Vitest and leave nothing after SIGTERM to the tool alone',
     async () => {
-      let workdir = '';
-      const result = await mutate(
-        fileOf([CLAMP]),
-        [],
-        undefined,
-        async (repo, temp) => {
-          workdir = join(temp, 'workdir');
-          await git(temp, ['clone', '--quiet', repo, workdir]);
-        },
-        () => ['--workdir', workdir],
-      );
+      const result = await mutate(fileOf([CLAMP]), {
+        interrupt: { signal: 'SIGTERM', after: `${CLAMP.name}, a` },
+      });
 
-      expect([result.code, outcomes(result), result.state]).toEqual([
-        0,
-        [['a', 'as expected']],
-        'unchanged',
-      ]);
-      expect(result.leftovers).toEqual(['workdir']);
+      expect([
+        result.code,
+        result.report,
+        result.state,
+        result.leftovers,
+        result.processes,
+      ]).toEqual([143, undefined, 'unchanged', [], 0]);
     },
     TIMEOUT,
   );
@@ -335,11 +367,8 @@ describe('mutator run, a copy that an earlier run left', () => {
     'should remove a locked copy whose process no longer runs',
     async () => {
       let stale = '';
-      const result = await mutate(
-        fileOf([CLAMP]),
-        [],
-        undefined,
-        async (repo, temp) => {
+      const result = await mutate(fileOf([CLAMP]), {
+        prepare: async (repo, temp) => {
           // The process of a run that was killed: one that has exited.
           const pid = await new Promise<number>((done) => {
             const child = execFile('true', () => {
@@ -359,7 +388,7 @@ describe('mutator run, a copy that an earlier run left', () => {
             'HEAD',
           ]);
         },
-      );
+      });
 
       expect([result.code, result.leftovers]).toEqual([0, []]);
       expect(result.state).not.toContain(stale);
@@ -465,6 +494,49 @@ describe('mutator run, outcomes', () => {
   );
 
   it(
+    "should read a selected row that doesn't run as void, with its file's reason",
+    async () => {
+      const result = await mutate(
+        fileOf([{ ...CLAMP, name: 'math does not load', edits: UNLOADABLE }]),
+      );
+      const [mutation] = result.report!.legs[0]!.mutations;
+
+      expect([result.code, outcomes(result), mutation!.failed]).toEqual([
+        1,
+        [['a', 'void']],
+        [],
+      ]);
+      expect(mutation!.voided).toEqual([
+        'tests/math.node.test.ts > clamp should clamp low',
+      ]);
+      expect(mutation!.unrun[mutation!.voided[0]!]!.join('\n')).toContain(
+        'src/math.ts',
+      );
+    },
+    TIMEOUT,
+  );
+
+  it(
+    "should read a survivor whose rows don't run as void",
+    async () => {
+      const result = await mutate(
+        fileOf([
+          {
+            name: 'math does not load',
+            group: 'other',
+            edits: UNLOADABLE,
+            expect: { survives: 'no row reads the parse' },
+          },
+        ]),
+      );
+
+      expect([result.code, outcomes(result)]).toEqual([1, [['a', 'void']]]);
+      expect(result.report!.legs[0]!.mutations[0]!.voided).toHaveLength(7);
+    },
+    TIMEOUT,
+  );
+
+  it(
     'should judge each engine by its own expectation when it gives one',
     async () => {
       const result = await mutate(
@@ -545,6 +617,41 @@ describe('mutator run, engines', () => {
         1,
         [GREET.name],
       ]);
+    },
+    TIMEOUT,
+  );
+
+  it(
+    "should flag a difference between engines that another engine's own expectation doesn't explain",
+    async () => {
+      const name = "c's greeting changes";
+      const result = await mutate(
+        fileOf(
+          [
+            {
+              name,
+              group: 'engine',
+              edits: [
+                {
+                  file: 'src/math.ts',
+                  text: "return engine === 'a'",
+                  replacement: "return engine === 'c' ? 'hi' : engine === 'a'",
+                },
+              ],
+              expect: { fails: [{ file: TEST_FILE, row: 'should greet' }] },
+              byEngine: {
+                a: {
+                  expect: { survives: "a's branch is unchanged" },
+                  reason: 'the edit takes another branch in a',
+                },
+              },
+            },
+          ],
+          ['a', 'b', 'c'],
+        ),
+      );
+
+      expect([result.code, differing([result.report!])]).toEqual([1, [name]]);
     },
     TIMEOUT,
   );

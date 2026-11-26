@@ -11,10 +11,19 @@ export type Row = Readonly<{
   messages?: readonly string[];
 }>;
 
+/** One Vitest run's rows, and why each test file that has a message failed. */
+export type VitestRun = Readonly<{
+  rows: readonly Row[];
+  /** The first lines of the message of each test file that failed as a whole. */
+  errors: Readonly<Record<string, readonly string[]>>;
+}>;
+
 /**
- * `as expected`: every selected row failed, or no row failed for _survives_.
- * `missed`: a selected row passed. `caught`: _survives_ was expected and rows
- * failed. `void`: the unmutated run already fails a selected row.
+ * A row has a verdict with a mutation when it passed unmutated and ran with the
+ * mutation. `as expected`: every selected row failed, or no row failed for
+ * _survives_. `missed`: a selected row passed. `caught`: _survives_ was
+ * expected and rows failed. `void`: a selected row, or for _survives_ a row
+ * that passed unmutated, has no verdict.
  */
 export type Outcome = 'as expected' | 'missed' | 'caught' | 'void';
 
@@ -23,17 +32,23 @@ export type MutationResult = Readonly<{
   group: Group;
   /** The expectation that applies in this engine. */
   expect: Expectation;
-  /** Why this engine's expectation differs from the mutation's, if it does. */
+  /**
+   * Why this engine's expectation differs from the mutation's, when the
+   * mutation gives this engine one of its own.
+   */
   engineReason?: string;
-  /** Whether the mutation states an expectation of its own for any engine. */
-  hasEngineExpectations: boolean;
   outcome: Outcome;
-  /** Rows that ran unmutated and passed, and fail or don't run with the mutation. */
+  /** Rows that passed unmutated and fail with the mutation. */
   failed: readonly string[];
   /** Selected rows that passed with the mutation. */
   missed: readonly string[];
-  /** Selected rows that the unmutated run already fails. */
+  /** The rows without a verdict that make the outcome _void_. */
   voided: readonly string[];
+  /**
+   * Rows that passed unmutated and didn't run with the mutation, each with the
+   * reason that Vitest gave for its test file.
+   */
+  unrun: Readonly<Record<string, readonly string[]>>;
   /** Failure messages of the rows in `failed`, by row. */
   messages: Readonly<Record<string, readonly string[]>>;
 }>;
@@ -48,8 +63,12 @@ export type Leg = Readonly<{
 }>;
 
 export type Report = Readonly<{
+  /** The mutation file's path in its repository. */
   file: string;
+  /** The commit whose code ran. */
   commit: string;
+  /** The commit of the checkout that the file and the runner came from. */
+  fileCommit?: string;
   legs: readonly Leg[];
 }>;
 
@@ -71,38 +90,66 @@ export function covered(
 
 type Judgement = Pick<
   MutationResult,
-  'outcome' | 'failed' | 'missed' | 'voided' | 'messages'
+  'outcome' | 'failed' | 'missed' | 'voided' | 'unrun' | 'messages'
 >;
 
+/** Vitest's reason that a row didn't run, from its test file's message. */
+const reasonOf = (
+  row: Row | undefined,
+  errors: VitestRun['errors'],
+  file: string,
+): readonly string[] =>
+  row
+    ? ['the row was skipped']
+    : (errors[file] ?? ['Vitest reported no row of its file']);
+
 /**
- * Compares a mutated run with the unmutated one. A row that ran and passed
- * unmutated fails when the mutated run fails it or doesn't run it, as when the
- * mutation stops its test file from loading.
+ * Compares a mutated run with the unmutated one. A row has a verdict when it
+ * passed unmutated and ran with the mutation, so neither a row that fails
+ * unmutated nor one that the mutation stops from running counts as failed or
+ * as passed.
  */
 export function judge(
   expect: Expectation,
   baseline: readonly Row[],
-  mutated: readonly Row[],
+  mutated: VitestRun,
 ): Judgement {
-  const after = new Map(mutated.map((row) => [rowKey(row), row]));
-  const failedRows = baseline.filter(
-    (row) =>
-      row.status === 'passed' && after.get(rowKey(row))?.status !== 'passed',
-  );
+  const after = new Map(mutated.rows.map((row) => [rowKey(row), row]));
+  const failedRows: Row[] = [];
+  const unrun: Record<string, readonly string[]> = {};
+
+  for (const row of baseline.filter(({ status }) => status === 'passed')) {
+    const key = rowKey(row);
+    const next = after.get(key);
+
+    if (next?.status === 'failed') {
+      failedRows.push(next);
+    } else if (next?.status !== 'passed') {
+      unrun[key] = reasonOf(next, mutated.errors, row.file);
+    }
+  }
+
   const failed = failedRows.map(rowKey);
   const messages = Object.fromEntries(
-    failedRows.map((row) => {
-      const key = rowKey(row);
-      return [key, after.get(key)?.messages ?? ['the row did not run']];
-    }),
+    failedRows.flatMap((row) =>
+      row.messages ? [[rowKey(row), row.messages]] : [],
+    ),
   );
 
   if ('survives' in expect) {
+    const voided = Object.keys(unrun);
+
     return {
-      outcome: failed.length === 0 ? 'as expected' : 'caught',
+      outcome:
+        failed.length > 0
+          ? 'caught'
+          : voided.length > 0
+            ? 'void'
+            : 'as expected',
       failed,
       missed: [],
-      voided: [],
+      voided,
+      unrun,
       messages,
     };
   }
@@ -112,9 +159,9 @@ export function judge(
       covered(selector, baseline).map((row) => [rowKey(row), row]),
     ),
   );
-  const voided = [...selected.values()]
-    .filter((row) => row.status === 'failed')
-    .map(rowKey);
+  const voided = [...selected]
+    .filter(([key, row]) => row.status === 'failed' || key in unrun)
+    .map(([key]) => key);
   const failedSet = new Set(failed);
   const missed = [...selected.keys()].filter(
     (key) => !voided.includes(key) && !failedSet.has(key),
@@ -126,6 +173,7 @@ export function judge(
     failed,
     missed,
     voided,
+    unrun,
     messages,
   };
 }
@@ -159,27 +207,33 @@ function merge(reports: readonly Report[]): Merged {
 
 /**
  * Whether a mutation fails a different set of rows in one engine than in
- * another, counting only the rows that ran unmutated in each engine compared.
- * An expectation of its own for an engine gives the reason, so it doesn't.
+ * another, counting only the rows that have a verdict in each engine compared.
+ * An engine with an expectation of its own has the reason for its difference,
+ * so only the engines whose expectation is the mutation's are compared.
  */
 export function differs(
   byEngine: ReadonlyMap<string, MutationResult>,
   rows: ReadonlyMap<string, readonly Row[]>,
 ): boolean {
-  const engines = [...byEngine.keys()];
+  const engines = [...byEngine]
+    .filter(([, result]) => result.engineReason === undefined)
+    .map(([engine]) => engine);
 
-  if (
-    engines.length < 2 ||
-    [...byEngine.values()].some((result) => result.hasEngineExpectations)
-  ) {
+  if (engines.length < 2) {
     return false;
   }
 
-  const ranIn = engines.map(
-    (engine) => new Set((rows.get(engine) ?? []).filter(ran).map(rowKey)),
-  );
-  const common = [...ranIn[0]!].filter((key) =>
-    ranIn.every((set) => set.has(key)),
+  const verdicts = engines.map((engine) => {
+    const { unrun } = byEngine.get(engine)!;
+    return new Set(
+      (rows.get(engine) ?? [])
+        .filter((row) => row.status === 'passed')
+        .map(rowKey)
+        .filter((key) => !(key in unrun)),
+    );
+  });
+  const common = [...verdicts[0]!].filter((key) =>
+    verdicts.every((set) => set.has(key)),
   );
   const sets = engines.map((engine) => {
     const failed = new Set(byEngine.get(engine)!.failed);
@@ -211,7 +265,7 @@ export function summarize(reports: readonly Report[]): Summary {
   const lines = [
     `# Mutations: ${[...new Set(reports.map(({ file }) => file))].join(', ')}`,
     '',
-    `At ${[...new Set(reports.map(({ commit }) => commit))].join(', ')}, in ${engines.join(', ')}.`,
+    `The code at ${[...new Set(reports.map(({ commit }) => commit))].join(', ')}, the file and the runner at ${[...new Set(reports.map(({ fileCommit }) => fileCommit ?? 'no commit'))].join(', ')}, in ${engines.join(', ')}.`,
     '',
     ...engines.map((engine) => {
       const engineRows = rows.get(engine)!;
@@ -241,9 +295,21 @@ export function summarize(reports: readonly Report[]): Summary {
     for (const [engine, result] of byEngine) {
       ok &&= result.outcome === 'as expected';
 
+      const reason = (key: string): readonly string[] =>
+        result.unrun[key]!.map((line) => `    - ${line}`);
       const notes = [
         ...result.missed.map((key) => `  - missed: ${key}`),
-        ...result.voided.map((key) => `  - void, fails unmutated: ${key}`),
+        ...result.voided.flatMap((key) =>
+          key in result.unrun
+            ? [`  - void, did not run: ${key}`, ...reason(key)]
+            : [`  - void, fails unmutated: ${key}`],
+        ),
+        ...Object.keys(result.unrun)
+          .filter((key) => !result.voided.includes(key))
+          .flatMap((key) => [
+            `  - no verdict, did not run: ${key}`,
+            ...reason(key),
+          ]),
         ...result.failed.map((key) => `  - failed: ${key}`),
       ];
       const expectation =
