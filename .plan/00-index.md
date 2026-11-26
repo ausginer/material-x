@@ -7886,6 +7886,8 @@ Tier C, **open**, **ready** (the last note), pre-existing. Registered on 2026-11
 
 ## Questions
 
+**Dated 2026-11-26 by the architect: the implementer's _Visual baselines_ bullet is corrected, for the feature proof's `reviewer-1`** ([proof](reviews/icon-middle-1/feature-proof-claude.md), of `7ef948b2e`). Requested by the coordinator. The bullet said: _"The only `mx-icon`s in the visual suites are in `mx-top-app-bar`'s `lead` and `trail`, which are flex containers, so the icons are flex items."_ **What is so:** the visual suites have `mx-icon`s in three places: in `mx-top-app-bar`'s `lead` and `trail`, as flex items, and in the shadow roots of `mx-checkbox` and `mx-radio` (`checkbox.tpl.html`, `radio.tpl.html`), as grid items of their `inline-grid` hosts. `vertical-align` moves none of them. The proof reads their rects and pixels unchanged in the three engines, and the visual rows pass in CI. The conclusion stands: no visual baseline changes. The split button's `mx-icon` is in no visual suite. Nothing else in the note changes.
+
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
 
 `architect-test-execution-model-r4.md` §The local register carries forty-odd rows whose `Canonical` column reads `unassigned`. This closure assigns `RF-1`…`RF-22` over the findings a **review pass** produced, and stops there for a reason that is not arbitrary: `TE-D12`…`TE-D21` are decisions, and RD-1 keeps the kind letter separate precisely because **only the architect mints one**; `TE-F1`…`TE-F35` are the design and challenge passes' own findings, which no review pass owns and which a consolidator numbering them would be allocating on someone else's behalf.
