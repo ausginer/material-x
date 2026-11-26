@@ -1,0 +1,41 @@
+# The recheck's runs at 4cc69c603, one engine at a time, from packages/material-x. chain.sh then chain2.sh then chain3.sh. mutations.mjs.txt is mut.mjs with W4a and W4b added (mut2.mjs); the first chain ran mut.mjs, the same list without them.
+
+## chain.sh
+#!/bin/bash
+# The recheck's runs, one engine at a time, from packages/material-x at 4cc69c603.
+export T=$SCRATCH
+cd /workspaces/worktrees/d/packages/material-x || exit 1
+cp $T/proof-recheck.browser.test.ts tests/list/proof-recheck.browser.test.ts
+MX_TEST_ENGINES=chromium NO_COLOR=1 timeout 1500 aube exec -- vitest run -c vitest.config.ts --project 'browser*' --project 'spec*' tests/list --exclude 'tests/list/proof-*' --reporter=json --outputFile=$T/files-chromium.json > $T/files-chromium.log 2>&1
+for e in chromium firefox webkit; do
+  SAVE=1 node $T/mut.mjs $e "no mutation;W4: the rules on a bare mx-icon too" tests/list/proof-recheck.browser.test.ts > $T/probe-$e.txt 2>&1
+  node $T/mut.mjs $e all tests/list/sortable-list.browser.test.ts > $T/mut-$e.txt 2>&1
+done
+rm -f tests/list/proof-recheck.browser.test.ts
+git -C /workspaces/worktrees/d status --short
+echo done
+
+## chain2.sh
+#!/bin/bash
+export T=$SCRATCH
+cd /workspaces/worktrees/d/packages/material-x || exit 1
+cp $T/proof-recheck.browser.test.ts tests/list/proof-recheck.browser.test.ts
+for e in chromium firefox webkit; do
+  SAVE=1 node $T/mut2.mjs $e "W4a: the grid rule on a bare mx-icon too;W4b: the lead line-height on a bare mx-icon too;without the handle rule" tests/list/proof-recheck.browser.test.ts > $T/probe2-$e.txt 2>&1
+  node $T/mut2.mjs $e "W4a: the grid rule on a bare mx-icon too;W4b: the lead line-height on a bare mx-icon too" tests/list/sortable-list.browser.test.ts > $T/mut2-$e.txt 2>&1
+done
+rm -f tests/list/proof-recheck.browser.test.ts
+git -C /workspaces/worktrees/d status --short
+echo done
+
+## chain3.sh
+#!/bin/bash
+export T=$SCRATCH
+cd /workspaces/worktrees/d/packages/material-x || exit 1
+cp $T/proof-shot.browser.test.ts tests/list/proof-shot.browser.test.ts
+for e in chromium firefox webkit; do
+  mkdir -p $T/shot; T=$T/shot SAVE=1 node $T/mut2.mjs $e "no mutation;W4a: the grid rule on a bare mx-icon too;W4b: the lead line-height on a bare mx-icon too" tests/list/proof-shot.browser.test.ts > $T/shot-$e.txt 2>&1
+done
+rm -f tests/list/proof-shot.browser.test.ts
+git -C /workspaces/worktrees/d status --short
+echo done

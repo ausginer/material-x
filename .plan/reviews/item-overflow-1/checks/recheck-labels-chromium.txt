@@ -1,0 +1,121 @@
+# chromium 158.0.8127.18, part labels
+240px mx-list-item none Two words | main: item 240x60 content 95.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+240px mx-list-item none Two words | now: item 240x60 content 95.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+240px mx-list-item none Download | main: item 240x60 content 100.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+240px mx-list-item none Download | now: item 240x60 content 100.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+240px mx-list-item video Two words | main: item 240x76 content 41.5 button 100.9x40 past 42.4, label Two words 16px high, out of the button 0, out of the item 0
+240px mx-list-item video Two words | now: item 240x76 content 13.5 button 70.5x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+240px mx-list-item video Download | main: item 240x76 content 41.5 button 95.8x40 past 37.3, label Download 16px high, out of the button 0, out of the item 0
+240px mx-list-item video Download | now: item 240x76 content 0 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+240px mx-list-item large video Two words | main: item 240x88 content 51.8 button 100.9x40 past 66.7, label Two words 16px high, out of the button 0, out of the item 0
+240px mx-list-item large video Two words | now: item 240x88 content 0 button 70.5x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+240px mx-list-item large video Download | main: item 240x88 content 51.8 button 95.8x40 past 61.6, label Download 16px high, out of the button 0, out of the item 0
+240px mx-list-item large video Download | now: item 240x88 content 0 button 95.8x40 past 9.8, label Download 16px high, out of the button 0, out of the item 0
+240px mx-list-button-item none Two words | main: item 240x60 content 95.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+240px mx-list-button-item none Two words | now: item 240x60 content 95.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+240px mx-list-button-item none Download | main: item 240x60 content 100.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+240px mx-list-button-item none Download | now: item 240x60 content 100.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+240px mx-list-button-item video Two words | main: item 240x76 content 41.5 button 100.9x40 past 42.4, label Two words 16px high, out of the button 0, out of the item 0
+240px mx-list-button-item video Two words | now: item 240x76 content 13.5 button 70.5x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+240px mx-list-button-item video Download | main: item 240x76 content 41.5 button 95.8x40 past 37.3, label Download 16px high, out of the button 0, out of the item 0
+240px mx-list-button-item video Download | now: item 240x76 content 0 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+240px mx-list-button-item large video Two words | main: item 240x88 content 51.8 button 100.9x40 past 66.7, label Two words 16px high, out of the button 0, out of the item 0
+240px mx-list-button-item large video Two words | now: item 240x88 content 0 button 70.5x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+240px mx-list-button-item large video Download | main: item 240x88 content 51.8 button 95.8x40 past 61.6, label Download 16px high, out of the button 0, out of the item 0
+240px mx-list-button-item large video Download | now: item 240x88 content 0 button 95.8x40 past 9.8, label Download 16px high, out of the button 0, out of the item 0
+260px mx-list-item none Two words | main: item 260x60 content 115.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+260px mx-list-item none Two words | now: item 260x60 content 115.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+260px mx-list-item none Download | main: item 260x60 content 120.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+260px mx-list-item none Download | now: item 260x60 content 120.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+260px mx-list-item video Two words | main: item 260x76 content 41.5 button 100.9x40 past 22.4, label Two words 16px high, out of the button 0, out of the item 0
+260px mx-list-item video Two words | now: item 260x76 content 33.5 button 70.5x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+260px mx-list-item video Download | main: item 260x76 content 41.5 button 95.8x40 past 17.3, label Download 16px high, out of the button 0, out of the item 0
+260px mx-list-item video Download | now: item 260x76 content 8.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+260px mx-list-item large video Two words | main: item 260x88 content 51.8 button 100.9x40 past 46.7, label Two words 16px high, out of the button 0, out of the item 0
+260px mx-list-item large video Two words | now: item 260x88 content 19.5 button 70.5x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+260px mx-list-item large video Download | main: item 260x88 content 51.8 button 95.8x40 past 41.6, label Download 16px high, out of the button 0, out of the item 0
+260px mx-list-item large video Download | now: item 260x88 content 0 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+260px mx-list-button-item none Two words | main: item 260x60 content 115.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+260px mx-list-button-item none Two words | now: item 260x60 content 115.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+260px mx-list-button-item none Download | main: item 260x60 content 120.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+260px mx-list-button-item none Download | now: item 260x60 content 120.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+260px mx-list-button-item video Two words | main: item 260x76 content 41.5 button 100.9x40 past 22.4, label Two words 16px high, out of the button 0, out of the item 0
+260px mx-list-button-item video Two words | now: item 260x76 content 33.5 button 70.5x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+260px mx-list-button-item video Download | main: item 260x76 content 41.5 button 95.8x40 past 17.3, label Download 16px high, out of the button 0, out of the item 0
+260px mx-list-button-item video Download | now: item 260x76 content 8.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+260px mx-list-button-item large video Two words | main: item 260x88 content 51.8 button 100.9x40 past 46.7, label Two words 16px high, out of the button 0, out of the item 0
+260px mx-list-button-item large video Two words | now: item 260x88 content 19.5 button 70.5x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+260px mx-list-button-item large video Download | main: item 260x88 content 51.8 button 95.8x40 past 41.6, label Download 16px high, out of the button 0, out of the item 0
+260px mx-list-button-item large video Download | now: item 260x88 content 0 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+280px mx-list-item none Two words | main: item 280x60 content 135.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+280px mx-list-item none Two words | now: item 280x60 content 135.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+280px mx-list-item none Download | main: item 280x60 content 140.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+280px mx-list-item none Download | now: item 280x60 content 140.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+280px mx-list-item video Two words | main: item 280x76 content 41.5 button 100.9x40 past 2.4, label Two words 16px high, out of the button 0, out of the item 0
+280px mx-list-item video Two words | now: item 280x76 content 42 button 82x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+280px mx-list-item video Download | main: item 280x76 content 41.5 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+280px mx-list-item video Download | now: item 280x76 content 28.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+280px mx-list-item large video Two words | main: item 280x88 content 51.8 button 100.9x40 past 26.7, label Two words 16px high, out of the button 0, out of the item 0
+280px mx-list-item large video Two words | now: item 280x88 content 39.5 button 70.5x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+280px mx-list-item large video Download | main: item 280x88 content 51.8 button 95.8x40 past 21.6, label Download 16px high, out of the button 0, out of the item 0
+280px mx-list-item large video Download | now: item 280x88 content 14.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+280px mx-list-button-item none Two words | main: item 280x60 content 135.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+280px mx-list-button-item none Two words | now: item 280x60 content 135.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+280px mx-list-button-item none Download | main: item 280x60 content 140.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+280px mx-list-button-item none Download | now: item 280x60 content 140.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+280px mx-list-button-item video Two words | main: item 280x76 content 41.5 button 100.9x40 past 2.4, label Two words 16px high, out of the button 0, out of the item 0
+280px mx-list-button-item video Two words | now: item 280x76 content 37.2 button 86.8x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+280px mx-list-button-item video Download | main: item 280x76 content 41.5 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+280px mx-list-button-item video Download | now: item 280x76 content 28.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+280px mx-list-button-item large video Two words | main: item 280x88 content 51.8 button 100.9x40 past 26.7, label Two words 16px high, out of the button 0, out of the item 0
+280px mx-list-button-item large video Two words | now: item 280x88 content 37.2 button 72.8x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+280px mx-list-button-item large video Download | main: item 280x88 content 51.8 button 95.8x40 past 21.6, label Download 16px high, out of the button 0, out of the item 0
+280px mx-list-button-item large video Download | now: item 280x88 content 14.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+300px mx-list-item none Two words | main: item 300x60 content 155.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+300px mx-list-item none Two words | now: item 300x60 content 155.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+300px mx-list-item none Download | main: item 300x60 content 160.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+300px mx-list-item none Download | now: item 300x60 content 160.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+300px mx-list-item video Two words | main: item 300x76 content 43.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+300px mx-list-item video Two words | now: item 300x76 content 45 button 99x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+300px mx-list-item video Download | main: item 300x76 content 48.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+300px mx-list-item video Download | now: item 300x76 content 48.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+300px mx-list-item large video Two words | main: item 300x88 content 51.8 button 100.9x40 past 6.7, label Two words 16px high, out of the button 0, out of the item 0
+300px mx-list-item large video Two words | now: item 300x88 content 45 button 85x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+300px mx-list-item large video Download | main: item 300x88 content 51.8 button 95.8x40 past 1.6, label Download 16px high, out of the button 0, out of the item 0
+300px mx-list-item large video Download | now: item 300x88 content 34.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+300px mx-list-button-item none Two words | main: item 300x60 content 155.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+300px mx-list-button-item none Two words | now: item 300x60 content 155.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+300px mx-list-button-item none Download | main: item 300x60 content 160.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+300px mx-list-button-item none Download | now: item 300x60 content 160.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+300px mx-list-button-item video Two words | main: item 300x76 content 43.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+300px mx-list-button-item video Two words | now: item 300x76 content 43.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+300px mx-list-button-item video Download | main: item 300x76 content 48.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+300px mx-list-button-item video Download | now: item 300x76 content 48.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+300px mx-list-button-item large video Two words | main: item 300x88 content 51.8 button 100.9x40 past 6.7, label Two words 16px high, out of the button 0, out of the item 0
+300px mx-list-button-item large video Two words | now: item 300x88 content 40.2 button 89.8x40 past 0, label Two /words 36px high, out of the button 0, out of the item 0
+300px mx-list-button-item large video Download | main: item 300x88 content 51.8 button 95.8x40 past 1.6, label Download 16px high, out of the button 0, out of the item 0
+300px mx-list-button-item large video Download | now: item 300x88 content 34.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+320px mx-list-item none Two words | main: item 320x60 content 175.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+320px mx-list-item none Two words | now: item 320x60 content 175.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+320px mx-list-item none Download | main: item 320x60 content 180.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+320px mx-list-item none Download | now: item 320x60 content 180.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+320px mx-list-item video Two words | main: item 320x76 content 63.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+320px mx-list-item video Two words | now: item 320x76 content 63.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+320px mx-list-item video Download | main: item 320x76 content 68.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+320px mx-list-item video Download | now: item 320x76 content 68.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+320px mx-list-item large video Two words | main: item 320x88 content 51.8 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+320px mx-list-item large video Two words | now: item 320x88 content 49.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+320px mx-list-item large video Download | main: item 320x88 content 54.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+320px mx-list-item large video Download | now: item 320x88 content 54.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+320px mx-list-button-item none Two words | main: item 320x60 content 175.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+320px mx-list-button-item none Two words | now: item 320x60 content 175.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+320px mx-list-button-item none Download | main: item 320x60 content 180.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+320px mx-list-button-item none Download | now: item 320x60 content 180.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+320px mx-list-button-item video Two words | main: item 320x76 content 63.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+320px mx-list-button-item video Two words | now: item 320x76 content 63.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+320px mx-list-button-item video Download | main: item 320x76 content 68.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+320px mx-list-button-item video Download | now: item 320x76 content 68.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+320px mx-list-button-item large video Two words | main: item 320x88 content 51.8 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+320px mx-list-button-item large video Two words | now: item 320x88 content 49.1 button 100.9x40 past 0, label Two words 16px high, out of the button 0, out of the item 0
+320px mx-list-button-item large video Download | main: item 320x88 content 54.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0
+320px mx-list-button-item large video Download | now: item 320x88 content 54.2 button 95.8x40 past 0, label Download 16px high, out of the button 0, out of the item 0

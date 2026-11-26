@@ -1,0 +1,55 @@
+# Mutations of the two style files at df577d7df, one at a time, against tests/list/sortable-list.browser.test.ts in the browser project (probes/mutations.mjs.txt). Chromium all; Firefox and WebKit the engine-neutral ones.
+## no mutation | chromium | tests/list/sortable-list.browser.test.ts | 0 failed, 176 passed
+## without the handle rule | chromium | tests/list/sortable-list.browser.test.ts | 6 failed, 170 passed
+   mx-sortable-list touch in lead should propose a move in a touch drag by a span with text
+   mx-sortable-list touch in lead should propose a move in a touch drag by a span with an mx-icon
+   mx-sortable-list touch in lead should propose a move in a touch drag by an mx-icon-button
+   mx-sortable-list touch in trail should propose a move in a touch drag by a span with text
+   mx-sortable-list touch in trail should propose a move in a touch drag by a span with an mx-icon
+   mx-sortable-list touch in trail should propose a move in a touch drag by an mx-icon-button
+## the slot display: contents | chromium | tests/list/sortable-list.browser.test.ts | 6 failed, 170 passed
+   mx-sortable-list touch in lead should propose a move in a touch drag by an mx-icon
+   mx-sortable-list touch in lead should propose a move in a touch drag by a span with an mx-icon
+   mx-sortable-list touch in lead should propose a move in a touch drag by a native button with an mx-icon
+   mx-sortable-list touch in trail should propose a move in a touch drag by an mx-icon
+   mx-sortable-list touch in trail should propose a move in a touch drag by a span with an mx-icon
+   mx-sortable-list touch in trail should propose a move in a touch drag by a native button with an mx-icon
+## without the hidden guard | chromium | tests/list/sortable-list.browser.test.ts | 1 failed, 175 passed
+   mx-sortable-list handle box should keep a hidden handle hidden
+## the handle rule !important | chromium | tests/list/sortable-list.browser.test.ts | 1 failed, 175 passed
+   mx-sortable-list handle box should keep a page's display on a handle
+## own: the handle inline | chromium | tests/list/sortable-list.browser.test.ts | 10 failed, 166 passed
+   mx-sortable-list touch in lead should propose a move in a touch drag by a span with text
+   mx-sortable-list touch in lead should propose a move in a touch drag by an mx-icon
+   mx-sortable-list touch in lead should propose a move in a touch drag by a span with an mx-icon
+   mx-sortable-list touch in lead should propose a move in a touch drag by an mx-icon-button
+   mx-sortable-list touch in lead should propose a move in a touch drag by a native button with an mx-icon
+   mx-sortable-list touch in trail should propose a move in a touch drag by a span with text
+   mx-sortable-list touch in trail should propose a move in a touch drag by an mx-icon
+   mx-sortable-list touch in trail should propose a move in a touch drag by a span with an mx-icon
+   mx-sortable-list touch in trail should propose a move in a touch drag by an mx-icon-button
+   mx-sortable-list touch in trail should propose a move in a touch drag by a native button with an mx-icon
+## own: the handle rule in lead only | chromium | tests/list/sortable-list.browser.test.ts | 3 failed, 173 passed
+   mx-sortable-list touch in trail should propose a move in a touch drag by a span with text
+   mx-sortable-list touch in trail should propose a move in a touch drag by a span with an mx-icon
+   mx-sortable-list touch in trail should propose a move in a touch drag by an mx-icon-button
+## own: until-found hidden too | chromium | tests/list/sortable-list.browser.test.ts | 0 failed, 176 passed
+## own: the slot without the rule | chromium | tests/list/sortable-list.browser.test.ts | 6 failed, 170 passed
+   mx-sortable-list touch in lead should propose a move in a touch drag by an mx-icon
+   mx-sortable-list touch in lead should propose a move in a touch drag by a span with an mx-icon
+   mx-sortable-list touch in lead should propose a move in a touch drag by a native button with an mx-icon
+   mx-sortable-list touch in trail should propose a move in a touch drag by an mx-icon
+   mx-sortable-list touch in trail should propose a move in a touch drag by a span with an mx-icon
+   mx-sortable-list touch in trail should propose a move in a touch drag by a native button with an mx-icon
+## no mutation | firefox | tests/list/sortable-list.browser.test.ts | 0 failed, 164 passed
+## without the hidden guard | firefox | tests/list/sortable-list.browser.test.ts | 1 failed, 163 passed
+   mx-sortable-list handle box should keep a hidden handle hidden
+## the handle rule !important | firefox | tests/list/sortable-list.browser.test.ts | 1 failed, 163 passed
+   mx-sortable-list handle box should keep a page's display on a handle
+## own: until-found hidden too | firefox | tests/list/sortable-list.browser.test.ts | 0 failed, 164 passed
+## no mutation | webkit | tests/list/sortable-list.browser.test.ts | 0 failed, 164 passed
+## without the hidden guard | webkit | tests/list/sortable-list.browser.test.ts | 1 failed, 163 passed
+   mx-sortable-list handle box should keep a hidden handle hidden
+## the handle rule !important | webkit | tests/list/sortable-list.browser.test.ts | 1 failed, 163 passed
+   mx-sortable-list handle box should keep a page's display on a handle
+## own: until-found hidden too | webkit | tests/list/sortable-list.browser.test.ts | 0 failed, 164 passed

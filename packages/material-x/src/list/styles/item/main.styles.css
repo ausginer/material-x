@@ -61,6 +61,30 @@ slot:has-slotted {
 }
 
 /*
+ * `touch-action` applies to no inline or `display: contents` box, so a handle
+ * such as a `span` or an `mx-icon-button` would let a touch pan. The grid
+ * centers the handle's content, which an inline-level `mx-icon` stands on the
+ * baseline of otherwise. An `mx-icon` handle is already `inline-block`, and
+ * the grid would move its glyph. A page's own `display` on the handle wins, and
+ * `hidden` still hides it.
+ */
+:is(.lead, .trail)::slotted([data-handle]:not(
+  mx-icon,
+  [hidden]:not([hidden='until-found' i])
+)) {
+  display: inline-grid;
+  place-items: center;
+}
+
+/*
+ * The `lead` slot's `line-height: 0` would make a text handle's line 0 high,
+ * and its focus indicator would cross the text.
+ */
+.lead::slotted([data-handle]:not(mx-icon)) {
+  line-height: normal;
+}
+
+/*
  * The consumer's element, so a page's own rule on it wins. The element's own
  * `:host` rule doesn't.
  */
@@ -69,14 +93,19 @@ slot:has-slotted {
   outline-offset: var(--_handle-focus-indicator-outline-offset);
 }
 
+/*
+ * The label starts from a part of the item, so a trailing child that can get
+ * narrower leaves it that room. The part isn't a minimum: beside a trailing
+ * child that can't get narrower, the label yields.
+ */
 .content {
-  flex: 1 1 auto;
+  flex: 1 1 15%;
+  min-inline-size: 0;
   display: flex;
   flex-direction: column;
 }
 
-.lead,
-.trail {
+.lead {
   flex: 0 0 min-content;
   min-inline-size: 0;
 }
@@ -183,8 +212,14 @@ slot:has-slotted {
   }
 }
 
-/* It clips nothing, so a control's focus indicator shows around it. */
+/*
+ * It takes nearly all of the shrinking, down to its narrowest content. It clips
+ * nothing, so a control's focus indicator shows around it.
+ */
 .trail {
+  flex: 0 1000 auto;
+  min-inline-size: min-content;
+  max-inline-size: 50%;
   align-content: center;
   margin-inline-start: var(--_between-space);
 
@@ -196,7 +231,8 @@ slot:has-slotted {
     font-weight: var(--_trailing-supporting-text-weight);
     line-height: var(--_trailing-supporting-text-line-height);
     letter-spacing: var(--_trailing-supporting-text-tracking);
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   &::slotted(mx-icon),

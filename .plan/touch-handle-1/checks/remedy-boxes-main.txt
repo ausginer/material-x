@@ -1,0 +1,138 @@
+# Boxes and screenshots, main (6aa5330e3) against the remedy, by probes/boxes.mjs and probes/compare.mjs, Chromium, device scale 1
+# 158.0.8127.18 / 158.0.8127.18
+rects mx-list-item-lead-span-text: before {"target":[20,20,300,56],"handle":[36,39,9.34,17],"handleDisplay":"inline","icons":[]}
+  after {"target":[20,20,300,56],"handle":[36,39,9.34,18],"handleDisplay":"inline-grid","icons":[]}
+rects mx-list-item-lead-mx-icon: same
+rects mx-list-item-lead-span-mx-icon: before {"target":[20,20,300,56],"handle":[36,42,16,17],"handleDisplay":"inline","icons":[[36,40,16,16]]}
+  after {"target":[20,20,300,56],"handle":[36,40,16,16],"handleDisplay":"inline-grid","icons":[[36,40,16,16]]}
+rects mx-list-item-lead-mx-icon-button: before {"target":[20,20,300,60],"handle":[36,30,40,40],"handleDisplay":"contents","icons":[[44,38,24,24]]}
+  after {"target":[20,20,300,60],"handle":[36,30,40,40],"handleDisplay":"inline-grid","icons":[[44,38,24,24]]}
+rects mx-list-item-lead-button-text: before {"target":[20,20,300,56],"handle":[36,37.5,23.78,21],"handleDisplay":"inline-block","icons":[]}
+  after {"target":[20,20,300,56],"handle":[36,37.5,23.78,21],"handleDisplay":"inline-grid","icons":[]}
+rects mx-list-item-lead-button-mx-icon: before {"target":[20,20,300,56],"handle":[36,36.83,29.33,22.33],"handleDisplay":"inline-block","icons":[[44,39.83,13.33,13.33]]}
+  after {"target":[20,20,300,56],"handle":[36,38.33,29.33,19.33],"handleDisplay":"inline-grid","icons":[[44,41.33,13.33,13.33]]}
+rects mx-list-item-trail-span-text: before {"target":[20,20,300,56],"handle":[297.28,42,6.72,12],"handleDisplay":"inline","icons":[]}
+  after {"target":[20,20,300,56],"handle":[297.28,40,6.72,16],"handleDisplay":"inline-grid","icons":[]}
+rects mx-list-item-trail-mx-icon: same
+rects mx-list-item-trail-span-mx-icon: before {"target":[20,20,300,56],"handle":[293,42,11,12],"handleDisplay":"inline","icons":[[293,41,11,11]]}
+  after {"target":[20,20,300,56],"handle":[293,42.5,11,11],"handleDisplay":"inline-grid","icons":[[293,42.5,11,11]]}
+rects mx-list-item-trail-mx-icon-button: before {"target":[20,20,300,60],"handle":[264,30,40,40],"handleDisplay":"contents","icons":[[272,38,24,24]]}
+  after {"target":[20,20,300,60],"handle":[264,30,40,40],"handleDisplay":"inline-grid","icons":[[272,38,24,24]]}
+rects mx-list-item-trail-button-text: before {"target":[20,20,300,56],"handle":[281.28,37,22.72,22],"handleDisplay":"inline-block","icons":[]}
+  after {"target":[20,20,300,56],"handle":[281.28,37,22.72,22],"handleDisplay":"inline-grid","icons":[]}
+rects mx-list-item-trail-button-mx-icon: before {"target":[20,20,300,56],"handle":[277,37,27,22],"handleDisplay":"inline-block","icons":[[285,41,11,11]]}
+  after {"target":[20,20,300,56],"handle":[277,39.5,27,17],"handleDisplay":"inline-grid","icons":[[285,42.5,11,11]]}
+rects mx-list-button-item-lead-span-text: before {"target":[20,20,300,56],"handle":[36,39,9.34,17],"handleDisplay":"inline","icons":[]}
+  after {"target":[20,20,300,56],"handle":[36,39,9.34,18],"handleDisplay":"inline-grid","icons":[]}
+rects mx-list-button-item-lead-mx-icon: same
+rects mx-list-button-item-lead-span-mx-icon: before {"target":[20,20,300,56],"handle":[36,42,16,17],"handleDisplay":"inline","icons":[[36,40,16,16]]}
+  after {"target":[20,20,300,56],"handle":[36,40,16,16],"handleDisplay":"inline-grid","icons":[[36,40,16,16]]}
+rects mx-list-button-item-lead-mx-icon-button: before {"target":[20,20,300,60],"handle":[36,30,40,40],"handleDisplay":"contents","icons":[[44,38,24,24]]}
+  after {"target":[20,20,300,60],"handle":[36,30,40,40],"handleDisplay":"inline-grid","icons":[[44,38,24,24]]}
+rects mx-list-button-item-lead-button-text: before {"target":[20,20,300,56],"handle":[36,37.5,23.78,21],"handleDisplay":"inline-block","icons":[]}
+  after {"target":[20,20,300,56],"handle":[36,37.5,23.78,21],"handleDisplay":"inline-grid","icons":[]}
+rects mx-list-button-item-lead-button-mx-icon: before {"target":[20,20,300,56],"handle":[36,36.83,29.33,22.33],"handleDisplay":"inline-block","icons":[[44,39.83,13.33,13.33]]}
+  after {"target":[20,20,300,56],"handle":[36,38.33,29.33,19.33],"handleDisplay":"inline-grid","icons":[[44,41.33,13.33,13.33]]}
+rects mx-list-button-item-trail-span-text: before {"target":[20,20,300,56],"handle":[297.28,42,6.72,12],"handleDisplay":"inline","icons":[]}
+  after {"target":[20,20,300,56],"handle":[297.28,40,6.72,16],"handleDisplay":"inline-grid","icons":[]}
+rects mx-list-button-item-trail-mx-icon: same
+rects mx-list-button-item-trail-span-mx-icon: before {"target":[20,20,300,56],"handle":[293,42,11,12],"handleDisplay":"inline","icons":[[293,41,11,11]]}
+  after {"target":[20,20,300,56],"handle":[293,42.5,11,11],"handleDisplay":"inline-grid","icons":[[293,42.5,11,11]]}
+rects mx-list-button-item-trail-mx-icon-button: before {"target":[20,20,300,60],"handle":[264,30,40,40],"handleDisplay":"contents","icons":[[272,38,24,24]]}
+  after {"target":[20,20,300,60],"handle":[264,30,40,40],"handleDisplay":"inline-grid","icons":[[272,38,24,24]]}
+rects mx-list-button-item-trail-button-text: before {"target":[20,20,300,56],"handle":[281.28,37,22.72,22],"handleDisplay":"inline-block","icons":[]}
+  after {"target":[20,20,300,56],"handle":[281.28,37,22.72,22],"handleDisplay":"inline-grid","icons":[]}
+rects mx-list-button-item-trail-button-mx-icon: before {"target":[20,20,300,56],"handle":[277,37,27,22],"handleDisplay":"inline-block","icons":[[285,41,11,11]]}
+  after {"target":[20,20,300,56],"handle":[277,39.5,27,17],"handleDisplay":"inline-grid","icons":[[285,42.5,11,11]]}
+rects icon-alone: same
+rects button-icon: same
+rects icon-button: same
+rects fab: same
+pixels button-icon.png: same
+pixels fab.png: same
+pixels icon-alone.png: same
+pixels icon-button.png: same
+pixels mx-list-button-item-lead-button-mx-icon-focus.png: 307 differ
+pixels mx-list-button-item-lead-button-mx-icon.png: 163 differ
+pixels mx-list-button-item-lead-button-text-focus.png: 125 differ
+pixels mx-list-button-item-lead-button-text.png: same
+pixels mx-list-button-item-lead-mx-icon-button-focus.png: 24 differ
+pixels mx-list-button-item-lead-mx-icon-button.png: same
+pixels mx-list-button-item-lead-mx-icon-focus.png: 161 differ
+pixels mx-list-button-item-lead-mx-icon.png: same
+pixels mx-list-button-item-lead-span-mx-icon-focus.png: 299 differ
+pixels mx-list-button-item-lead-span-mx-icon.png: same
+pixels mx-list-button-item-lead-span-text-focus.png: 156 differ
+pixels mx-list-button-item-lead-span-text.png: same
+pixels mx-list-button-item-trail-button-mx-icon-focus.png: 559 differ
+pixels mx-list-button-item-trail-button-mx-icon.png: 235 differ
+pixels mx-list-button-item-trail-button-text-focus.png: same
+pixels mx-list-button-item-trail-button-text.png: same
+pixels mx-list-button-item-trail-mx-icon-button-focus.png: 4 differ
+pixels mx-list-button-item-trail-mx-icon-button.png: same
+pixels mx-list-button-item-trail-mx-icon-focus.png: 118 differ
+pixels mx-list-button-item-trail-mx-icon.png: same
+pixels mx-list-button-item-trail-span-mx-icon-focus.png: 228 differ
+pixels mx-list-button-item-trail-span-mx-icon.png: 38 differ
+pixels mx-list-button-item-trail-span-text-focus.png: 112 differ
+pixels mx-list-button-item-trail-span-text.png: same
+pixels mx-list-item-lead-button-mx-icon-focus.png: 307 differ
+pixels mx-list-item-lead-button-mx-icon.png: 163 differ
+pixels mx-list-item-lead-button-text-focus.png: same
+pixels mx-list-item-lead-button-text.png: same
+pixels mx-list-item-lead-mx-icon-button-focus.png: same
+pixels mx-list-item-lead-mx-icon-button.png: same
+pixels mx-list-item-lead-mx-icon-focus.png: same
+pixels mx-list-item-lead-mx-icon.png: same
+pixels mx-list-item-lead-span-mx-icon-focus.png: 138 differ
+pixels mx-list-item-lead-span-mx-icon.png: same
+pixels mx-list-item-lead-span-text-focus.png: 32 differ
+pixels mx-list-item-lead-span-text.png: same
+pixels mx-list-item-trail-button-mx-icon-focus.png: 550 differ
+pixels mx-list-item-trail-button-mx-icon.png: 235 differ
+pixels mx-list-item-trail-button-text-focus.png: same
+pixels mx-list-item-trail-button-text.png: same
+pixels mx-list-item-trail-mx-icon-button-focus.png: same
+pixels mx-list-item-trail-mx-icon-button.png: same
+pixels mx-list-item-trail-mx-icon-focus.png: same
+pixels mx-list-item-trail-mx-icon.png: same
+pixels mx-list-item-trail-span-mx-icon-focus.png: 110 differ
+pixels mx-list-item-trail-span-mx-icon.png: 38 differ
+pixels mx-list-item-trail-span-text-focus.png: 112 differ
+pixels mx-list-item-trail-span-text.png: same
+
+# Noise: two runs of the remedy
+# 158.0.8127.18 / 158.0.8127.18
+pixels mx-list-button-item-lead-button-mx-icon-focus.png: 116 differ
+pixels mx-list-button-item-lead-button-text-focus.png: 118 differ
+pixels mx-list-button-item-lead-mx-icon-button-focus.png: 118 differ
+pixels mx-list-button-item-lead-mx-icon-focus.png: 8 differ
+pixels mx-list-button-item-lead-span-mx-icon-focus.png: 8 differ
+pixels mx-list-button-item-lead-span-text-focus.png: 118 differ
+pixels mx-list-button-item-trail-button-mx-icon-focus.png: 9 differ
+pixels mx-list-button-item-trail-button-text-focus.png: 9 differ
+pixels mx-list-button-item-trail-mx-icon-button-focus.png: 1 differ
+pixels mx-list-button-item-trail-mx-icon-focus.png: 118 differ
+pixels mx-list-button-item-trail-span-mx-icon-focus.png: 118 differ
+pixels mx-list-button-item-trail-span-text-focus.png: 8 differ
+
+# W4, the rule on a bare mx-icon too, against the remedy
+# 158.0.8127.18 / 158.0.8127.18
+rects mx-list-item-lead-mx-icon: before {"target":[20,20,300,56],"handle":[36,38,20,20],"handleDisplay":"inline-block","icons":[[36,38,20,20]]}
+  after {"target":[20,20,300,56],"handle":[36,38,20,20],"handleDisplay":"inline-grid","icons":[[36,38,20,20]]}
+rects mx-list-item-trail-mx-icon: before {"target":[20,20,300,56],"handle":[284,38,20,20],"handleDisplay":"inline-block","icons":[[284,38,20,20]]}
+  after {"target":[20,20,300,56],"handle":[284,38,20,20],"handleDisplay":"inline-grid","icons":[[284,38,20,20]]}
+rects mx-list-button-item-lead-mx-icon: before {"target":[20,20,300,56],"handle":[36,38,20,20],"handleDisplay":"inline-block","icons":[[36,38,20,20]]}
+  after {"target":[20,20,300,56],"handle":[36,38,20,20],"handleDisplay":"inline-grid","icons":[[36,38,20,20]]}
+rects mx-list-button-item-trail-mx-icon: before {"target":[20,20,300,56],"handle":[284,38,20,20],"handleDisplay":"inline-block","icons":[[284,38,20,20]]}
+  after {"target":[20,20,300,56],"handle":[284,38,20,20],"handleDisplay":"inline-grid","icons":[[284,38,20,20]]}
+pixels mx-list-button-item-lead-button-mx-icon-focus.png: 116 differ
+pixels mx-list-button-item-lead-button-text-focus.png: 118 differ
+pixels mx-list-button-item-lead-mx-icon-button-focus.png: 118 differ
+pixels mx-list-button-item-lead-mx-icon-focus.png: 8 differ
+pixels mx-list-button-item-lead-span-mx-icon-focus.png: 15 differ
+pixels mx-list-button-item-lead-span-text-focus.png: 118 differ
+pixels mx-list-button-item-trail-button-text-focus.png: 9 differ
+pixels mx-list-button-item-trail-mx-icon-button-focus.png: 1 differ
+pixels mx-list-button-item-trail-mx-icon-focus.png: 118 differ
+pixels mx-list-button-item-trail-span-mx-icon-focus.png: 118 differ

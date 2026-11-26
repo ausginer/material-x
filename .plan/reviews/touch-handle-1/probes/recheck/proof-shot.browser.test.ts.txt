@@ -1,0 +1,39 @@
+// Recheck of RF-145 at 4cc69c603: a screenshot of a static item whose handle is a bare mx-icon, at rest and
+// focused, as base64 lines printed by a throwing afterAll.
+import { afterAll, it } from 'vitest';
+import { page, server, userEvent } from 'vitest/browser';
+import '../../src/icon/icon.ts';
+import '../../src/list/list-item.ts';
+import '../../src/list/sortable-list.ts';
+import { nextFrame, whenFontsReady } from '../browser.ts';
+
+const OUT: string[] = [];
+afterAll(() => {
+  throw new Error(`\nPROOF\n${OUT.join('\n')}\nEND`);
+});
+for (const slot of ['lead', 'trail'])
+  for (const focus of [false, true])
+    it(`${slot} ${focus ? 'focus' : 'rest'}`, async () => {
+      const list = document.createElement('mx-sortable-list');
+      list.style.setProperty('--_drag-duration', '0s');
+      const item = document.createElement('mx-list-item');
+      const icon = document.createElement('mx-icon');
+      icon.textContent = 'drag_indicator';
+      icon.dataset['handle'] = '';
+      icon.slot = slot;
+      item.append(icon, 'A');
+      list.append(item);
+      const frame = document.createElement('div');
+      frame.style.cssText = 'padding: 12px; inline-size: 300px; background: white';
+      frame.append(list);
+      document.body.append(frame);
+      await whenFontsReady();
+      await nextFrame();
+      if (focus) {
+        await userEvent.keyboard('{Tab}');
+        await nextFrame();
+      }
+      const shot = await page.screenshot({ element: frame, save: false });
+      OUT.push(`${server.browser} shot | ${slot} ${focus ? 'focus' : 'rest'} | ${document.activeElement === icon} | ${shot}`);
+      frame.remove();
+    });

@@ -1,5 +1,5 @@
 import { Bool } from '@ydinjs/core/attribute.js';
-import { useARIA } from '@ydinjs/core/controllers/useARIA.js';
+import { setOwnARIA, useARIA } from '@ydinjs/core/controllers/useARIA.js';
 import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
 import type { Composed } from '@ydinjs/core/traits/composition.js';
@@ -44,6 +44,7 @@ export type ListInteractiveItemCore = InstanceType<
 export function useInteractiveListItemCore(
   host: ListInteractiveItemCore,
   template: HTMLTemplateElement,
+  current: 'page' | 'true',
 ): HTMLButtonElement | HTMLAnchorElement {
   const target = useListItemCore(host, [interactiveBoxStyles], template, {
     delegatesFocus: true,
@@ -55,6 +56,7 @@ export function useInteractiveListItemCore(
   useAttributes(host, {
     selected: via(Bool, (_, newValue) => {
       toggleState(internals(host), 'selected', newValue);
+      setOwnARIA(target, 'aria-current', newValue ? current : null);
     }),
     disabled: via(Bool, (_, newValue) => {
       toggleState(internals(host), 'disabled', newValue);

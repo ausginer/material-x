@@ -1,0 +1,22 @@
+# RD-58 (a) recheck at 4012b5bb1, webkit, by the reviewer: node .plan/reviews/axe-checks-1/probes/recheck-mutations.mjs webkit <report> [names]
+## the template's aria-hidden on the trailing icon removed | webkit | 0 failed, 110 passed, 92 skipped
+## the icon's slot not hidden (RF-137) | webkit | 2 failed, 108 passed, 92 skipped
+   mx-icon should hide its slot
+      __VITEST_EXTEND_ASSERTION__@http://127.0.0.1:23316/node_modules/.vite/vitest/eaa3b71eacde83d5e54d5c8d7e8c35eea767a7d1/deps/index.CZzC1gGg-BLmOKDDB.js:2462:68
+   mx-icon should hide its slot after the slot has its nodes
+      @[native code]
+## useARIA's call out of ButtonCore (witness 2) | webkit | 7 failed, 103 passed, 92 skipped
+   mx-split-button secondarylabel should name the trailing button
+      @[native code]
+   mx-split-button secondarylabel should name the trailing button after it is set as a property
+      @http://127.0.0.1:23316/workspaces/worktrees/h/packages/material-x/tests/button/split-button.browser.test.ts:65:73
+   mx-split-button secondarylabel should rename the trailing button when it changes
+      @http://127.0.0.1:23316/workspaces/worktrees/h/packages/material-x/tests/button/split-button.browser.test.ts:72:73
+   mx-split-button secondarylabel should leave the trailing button without a name when it is removed
+      @http://127.0.0.1:23316/workspaces/worktrees/h/packages/material-x/tests/button/split-button.browser.test.ts:81:62
+   mx-split-button open should be collapsed on the trailing button from the first render
+      @http://127.0.0.1:23316/workspaces/worktrees/h/packages/material-x/tests/button/split-button.browser.test.ts:98:76
+   mx-split-button open should be expanded on the trailing button from the first render
+      @http://127.0.0.1:23316/workspaces/worktrees/h/packages/material-x/tests/button/split-button.browser.test.ts:103:76
+   mx-split-button open should be on the trailing button after each change
+      @http://127.0.0.1:23316/workspaces/worktrees/h/packages/material-x/tests/button/split-button.browser.test.ts:118:27
