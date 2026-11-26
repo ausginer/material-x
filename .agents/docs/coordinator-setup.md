@@ -34,7 +34,7 @@ The coordinator reads a role session's context size, and its own, from a file th
 - **The owner's status line script writes it,** with these lines after its `input=$(cat)`. A run that Claude Code cancels leaves the previous file whole, because the lines write a temporary file and rename it:
 
   ```bash
-  # Session context for the material-x coordinator: one file per session name.
+  # Session context for the coordinator: one file per session name.
   ctx_name=$(echo "$input" | jq -r '.session_name // empty' | tr '/' '_')
   if [ -n "$ctx_name" ]; then
     ctx_dir=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/ctx
@@ -58,7 +58,7 @@ The coordinator reads a role session's context size, and its own, from a file th
 
 - **A reading is valid when it was written after the coordinator sent the task.** It may be one reply behind the closing message. An older file, or none, is no reading: the session has no name, hasn't run its status line since the lines were added, or runs on another machine.
 - **A clear shows at once.** The status line runs when `/clear` is done, and the file then has a new `session_id` and a `total_input_tokens` of 0. `/clear` keeps the session's name, so the file keeps its name.
-- **Limits.** A Claude Code upgrade that renames a payload field writes `null`, and nothing checks the format. A cancelled run can leave a `.tmp.*` file in `ctx/`, which nothing reads.
+- **Limits.** A Claude Code upgrade that renames a payload field writes `null`, and nothing checks the format. A cancelled run can leave a `.tmp.*` file in `ctx/`, which nothing reads. **The file is keyed by the session's name alone,** across every project that the owner's Claude Code runs: any named session writes one, and a session of another project with the same name replaces an `Mx …` file. Its `cwd` and `session_id` show the replacement.
 
 ## Start a role session
 

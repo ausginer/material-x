@@ -2975,6 +2975,12 @@ Both came in at `a07739742` (#25), with no record. The plan's _Why_ paragraphs g
 - **Telling without holding inside a unit.** The next task would reach the session before the clear.
 - **A tracked status line in the project's settings, a tracked writer called by his script, and the transcript** (the plan's SC-2).
 
+**Dated 2026-11-26 by the architect: two amendments of [coordinator-setup.md](../.agents/docs/coordinator-setup.md) §Context readings, approved by the owner,** proposed by Mx Architect Explainer and relayed by the coordinator. His words: _"Ага, одобряю"_ ("Yes, I approve"). No property changes but 7, which gains a limit.
+
+- **The block's comment line is the owner's:** _"Session context for the coordinator: one file per session name."_ It said _"for the material-x coordinator"_. He removed the name on purpose: his script is global, and it writes a file for every named session, not only for this repository's.
+- **Property 7 gains:** the file is keyed by the session's name alone, across every project that the owner's Claude Code runs. A session of another project with the same name replaces an `Mx …` file, and its `cwd` and `session_id` show it. Nothing repairs it now.
+- **Read the same day:** the owner's `statusline-command.sh` has the lines, with that comment. `ctx/` has a file for each of six live `Mx` sessions, each with its `cwd`, its `session_id` and its token count, one of them at 0.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
