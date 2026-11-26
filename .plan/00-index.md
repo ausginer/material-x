@@ -4986,6 +4986,13 @@ Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi
 - **Required property:** `parseMs` returns milliseconds for a `<time>` in either unit: `0.25s` and `250ms` both give 250. It throws on a value that has no number, as today. **Witness:** a row that gives a private duration in `ms` fails at `5448c4fd6`.
 - **Plan needed:** no. **Size:** _small_.
 
+**Dated 2026-11-26 by the implementer: the repair is implemented on `material-x/parse-ms-1`,** from `d6f6cf60b`, in Chromium (`RD-62`). `parseMs` scales a value by 1,000 unless it ends in `ms`, and it still throws a `CSSVariableError` on a value with no number.
+
+- **Rows:** `packages/material-x/tests/core/utils/fns.browser.test.ts` reads `0.25s`, `250ms`, `0s`, `0ms`, `1.5s` and `99ms`, and throws on `''`, `auto` and `ms`. The neighbors' timing row in `tests/list/sortable-list.browser.test.ts` now runs with `0.25s` and with `250ms`.
+- **Witness:** at `d6f6cf60b`, the `250ms` and `99ms` rows of `parseMs` fail (250000 and 99000), and so does the neighbors' `250ms` row (duration 250000). The other rows pass.
+- **Consumers don't change:** each value of the four properties in material-x's compiled sheets is in seconds: the ripple's `0.15s` and `0.5s`, the landing's `0.65s` and the layout animation's `0.5s` ([reading](parse-ms-1/checks/durations.txt)). Before and after the repair, `parseMs` gives the same milliseconds for each of them.
+- **Checks:** material-x's browser project passes in Chromium (1425 rows). Lint and typecheck are clean.
+
 #### RF-153 — material-x's node tests build with a private-property list that may be stale
 
 Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from observation 1 of #310's [feature proof](reviews/sortable-displacement-1/feature-proof-claude.md#observations), relayed by the coordinator. `RF-152` is the entry before this one. Read at `c2ea0dcbe`.
