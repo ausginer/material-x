@@ -2979,20 +2979,23 @@ describe('mx-sortable-list neighbors', () => {
       ]);
     });
 
-    it("should time the neighbor's animation by the list's private properties", async () => {
-      const [list, [a, b]] = await createList(['A', 'B', 'C'], {
-        layoutAnimation: 'tokens',
-      });
-      list.style.setProperty('--_layout-animation-duration', '0.25s');
-      list.style.setProperty('--_layout-animation-easing', 'linear');
-      commitOnReorder(list);
+    it.each(['0.25s', '250ms'])(
+      "should time the neighbor's animation by the list's private properties, with a duration of %s",
+      async (duration) => {
+        const [list, [a, b]] = await createList(['A', 'B', 'C'], {
+          layoutAnimation: 'tokens',
+        });
+        list.style.setProperty('--_layout-animation-duration', duration);
+        list.style.setProperty('--_layout-animation-easing', 'linear');
+        commitOnReorder(list);
 
-      await moveDown(a!);
+        await moveDown(a!);
 
-      expect(layoutAnimationsOf(b!).map(timingOf)).toEqual([
-        { duration: 250, easing: 'linear' },
-      ]);
-    });
+        expect(layoutAnimationsOf(b!).map(timingOf)).toEqual([
+          { duration: 250, easing: 'linear' },
+        ]);
+      },
+    );
 
     it.each([
       ['without a page rule', {}],

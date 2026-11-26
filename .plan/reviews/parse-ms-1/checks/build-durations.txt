@@ -1,0 +1,17 @@
+# Each declaration of parseMs's four properties in material-x's production build, at 4fcc0a457.
+# Built with the package's tsdown config into a scratch directory (outDir changed; exports, publint, dts and sourcemaps off), with the private-property list in node_modules/.cache/css at the time:
+#   --_ripple-duration --mx-ip, --_ripple-drift-duration --mx-ir, --_drag-duration --mx-fa, --_layout-animation-duration --mx-fc
+# grep -rnoE -- '--mx-<name>\b[^;}"`]*' over the built .js files:
+core/animations/ripple/ripple.js:30:--mx-ip
+core/animations/ripple/styles/main.css.js:3:--mx-ip:.15s
+core/animations/ripple/ripple.js:32:--mx-ir
+core/animations/ripple/styles/main.css.js:3:--mx-ir:.5s
+list/sortable-list.js:31:--mx-fa
+list/styles/item/main.css.js:3:--mx-fa) var(--mx-fb)
+list/styles/item/main.css.js:3:--mx-fa) var(--mx-fb)!important
+list/styles/sortable/main.css.js:3:--mx-fa:.65s
+list/sortable-list.js:36:--mx-fc
+list/styles/sortable/main.css.js:3:--mx-fc:.5s
+# Every <number>ms in the built files (grep -rnoE '[0-9.]+ms\b'), with its context:
+core/animations/ripple/styles/main.css.js:3:;transition:opacity 15ms linear,ba
+# The build has two such times in that one transition, opacity 15ms and background-color 15ms. parseMs reads neither.
