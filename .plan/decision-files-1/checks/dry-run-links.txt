@@ -1,9 +1,9 @@
-# Relative links of tracked and new Markdown files that don't resolve, by probes/links-resolve.mjs, at c7b7c0621 and on the dry run's tree. The same 37 targets: the two in RD-3 and RD-4 are in their files after the move, rewritten from there.
+# Relative links of tracked and new Markdown files that don't resolve, by probes/links-resolve.mjs, at cdbf8c757 and on the dry run's tree. The same 37 targets: the two in RD-3 and RD-4 are in their files after the move, rewritten from there.
 
 ## Before
 {
  "files": 515,
- "links": 7097,
+ "links": 7101,
  "broken": 37
 }
 .plan/00-index.md:63 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
@@ -46,7 +46,7 @@ packages/drag/.plan/publish-mangle-report.md:153 ../build/rename-properties.ts
 ## After
 {
  "files": 672,
- "links": 7102,
+ "links": 7106,
  "broken": 37
 }
 .plan/decisions/RD-3.md:3 ../../packages/drag2/.plan/reviews/architecture/request-application-claude.md

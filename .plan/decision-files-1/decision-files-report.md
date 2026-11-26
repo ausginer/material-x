@@ -30,34 +30,35 @@
 
 ## The dry run
 
-At `c7b7c0621`, with `main` at `4b7e6e181` merged and rule 5's third row, in a scratch clone, not committed ([reading](checks/dry-run.txt), [every link it classified](checks/dry-run-classified.tsv)). The plan's table, read at `6aa5330e3`, against the dry run:
+At `cdbf8c757`, with `main` at `4b7e6e181` merged, rule 5's third row and Mx Architect B's ruling on the last stop, in a scratch clone, not committed ([reading](checks/dry-run.txt), [every link it classified](checks/dry-run-classified.tsv)). The plan's table, read at `6aa5330e3`, against the dry run:
 
 | What | Plan | Dry run |
 | --- | --: | --: |
 | Entries `RD`, `DRD`, `DRO` | 62, 72, 21 | 64, 72, 21, with #297's `RD-63` and `RD-64` |
 | Bytes | 499,595 and 533,569 | 519,533 and 533,956 |
 | Relative links inside the entries, and fragment links | 592 and 1 | 597 and 1, with the 121 of the status rows: 718 |
-| Rule 5, a moved entry's fragment | 4 | 5, with the index's own |
+| Rule 5, a moved entry's fragment | 4 | 6, with the index's own and the ruled link |
 | Rule 5, another fragment | 4 | 4 |
 | Rule 5, the link's text names one identifier | — | 16 |
 | Rule 5, the line names one identifier | 61 | 55 |
-| Rule 5, the line names several identifiers | 75 | 68 |
+| Rule 5, the line names several identifiers | 75 | 68, with the plan's quotation below |
 | Rule 5, unchanged | 209 | 206 |
 | Status rows | 72 | 72 |
 
-The bytes differ by one per entry from the plan's probe, which counts a line break at the end of each entry, and by what `main` added since. **No link is left to a person.** `.plan/00-index.md:1375`, which the script reports, is code: `static [Symbol.hasInstance](o)`, in `RD-26`, and isn't a link.
+The bytes differ by one per entry from the plan's probe, which counts a line break at the end of each entry, and by what `main` added since. **The script leaves no link to a person.** It reports the links in code and keeps them: `.plan/00-index.md:1375`, `static [Symbol.hasInstance](o)` in `RD-26`, and this report's own quotations of the link below.
 
 **What changed from the first dry run,** at `e2a0e05eb` ([every link](checks/dry-run-changed.txt), keyed by file and line text, because the merge moved the index's lines):
 
 - **11 links get a new target by the third row,** each the file of the identifier that its text names: `.agents/docs/test-architecture.md:160` (`RD-2`), `.plan/card-1/card-plan.md:3` (`RD-53`), `.plan/list-sortable-1/list-sortable-plan.md:3` (`RD-31`) and `:9` (`RD-31` and `drag:DRD-70`), `.plan/reviews/card-1/feature-proof-claude.md:3` (`RD-53`), `.plan/slider-1/slider-plan.md:3` (`RD-55`), `.plan/top-app-bar-1/top-app-bar-plan.md:3` (`RD-54`), `.plan/trait-decorators-1/trait-migration-plan.md:5` (`RD-26`), `.plan/trait-private-fields-1/trait-private-fields-plan.md:7` (`RD-33`), and `packages/drag/.plan/displacement-1/displacement-plan.md:3` (`DRD-72`). Five of them went to a directory before, and six were unchanged, the three that the first run left to a person among them.
 - **5 links keep their target,** and the third row decides them instead of the line's one identifier.
-- **One link changes because `main` changed its line, and the rules get it wrong** (stop): `.plan/findings-on-github-1/findings-on-github-plan.md:3`, ``RD-56` states what holds [before and after the cut-over](../00-index.md)``. The link means `RD-56`. At `e2a0e05eb` the line named only `RD-56`, so it went to `../decisions/RD-56.md`. `main` added `RD-63` and `RD-64` to the line, and the link's text names no identifier, so it now goes to `../decisions/`. The script does what the rules say. A rule that reads the sentence isn't one the script can apply, so this line is read by hand, as the plan's rule 5 says of a rule that is wrong for a line.
+- **One link changed because `main` changed its line: decided.** `.plan/findings-on-github-1/findings-on-github-plan.md:3`, ``RD-56` states what holds [before and after the cut-over](../00-index.md)``. With `RD-63` and `RD-64` added to its line, rule 5 sent it to `../decisions/`, though it means `RD-56`. **Mx Architect B ruled at `cdbf8c757`:** the link carries `RD-56`'s fragment, `#rd-56--a-finding-lives-in-one-github-issue-whose-body-is-its-contract-and-the-registers-hold-decisions`, so rule 5's first row sends it to `../decisions/RD-56.md`, with no change to the script. The dry run at `cdbf8c757` does so ([changes](checks/dry-run-changed.txt)).
+- **A new link, and the rules make it a misquotation** (stop): `.plan/decision-files-1/decision-files-plan.md:55`, Mx Architect B's note at `cdbf8c757`, quotes the line above as it was, in link syntax: ``_"`RD-56` states what holds [before and after the cut-over](../00-index.md)."_``. The quoted link resolves to the index and its line names `RD-56`, `RD-63` and `RD-64`, so rule 5's fifth row sends it to `../decisions/`, and the quotation no longer reads as the line did. The script does what the rules say. The text is the architect's, and this report changes nothing in it. Writing the quotation in code, as this report does, takes it out of the move.
 
 **The checks on the dry run's tree:**
 
-- **`RD-64` property 2's witness** ([reading](checks/dry-run-witness.txt), [probe](probes/witness.mjs)): for each of the 157 identifiers, `entry.sh` at `c7b7c0621` and on the dry run's tree print the same text with each link target masked and the status paragraph left out. 597 link targets differ, and 72 status paragraphs are added. No identifier differs in anything else.
+- **`RD-64` property 2's witness** ([reading](checks/dry-run-witness.txt), [probe](probes/witness.mjs)): for each of the 157 identifiers, `entry.sh` at `cdbf8c757` and on the dry run's tree print the same text with each link target masked and the status paragraph left out. 597 link targets differ, and 72 status paragraphs are added. No identifier differs in anything else.
 - **Relative links** ([reading](checks/dry-run-links.txt), [probe](probes/links-resolve.mjs)): 37 don't resolve before and 37 after, the same 37 targets, all older than this unit. Two of them are in `RD-3` and `RD-4`, and after the move they are in their files, rewritten from there. The count of links grows by 5: the three sections' sentences, the fragment of `RD-59` and the index's own fragment, which were same-file links before.
-- `entry.sh --duplicates` passes. The script run again on its committed output changes no file. `oxfmt --check` passes on the 289 changed and new Markdown files.
+- `entry.sh --duplicates` passes. The script run again on its committed output changes no file. `oxfmt --check` passes on the 290 changed and new Markdown files.
 
 **A scratch worktree, against `AGENTS.md`.** The first dry run used a `git worktree add` in the session's scratch directory, which `agent-workflow.md` forbids without the owner's word. It was removed, and every reading above was made again in a scratch clone.
 
@@ -71,5 +72,5 @@ The bytes differ by one per entry from the plan's probe, which counts a line bre
 
 ## Open
 
-- **`.plan/findings-on-github-1/findings-on-github-plan.md:3`,** above, for the architect: by hand, to `../decisions/RD-56.md`, or as the rules give it.
+- **`.plan/decision-files-1/decision-files-plan.md:55`,** the quotation above, for the architect.
 - Items 5 to 7, after #293 and #298 merge.

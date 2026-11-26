@@ -1,4 +1,4 @@
-# RD-64 property 2's witness on the dry run: entry.sh at c7b7c0621 against the dry run's tree, by probes/witness.mjs, every moved identifier.
+# RD-64 property 2's witness on the dry run: entry.sh at cdbf8c757 against the dry run's tree, by probes/witness.mjs, every moved identifier.
 {
  "compared": 157,
  "linkTargetsChanged": 597,

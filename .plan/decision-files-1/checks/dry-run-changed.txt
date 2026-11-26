@@ -23,3 +23,8 @@ packages/drag/.plan/displacement-1/displacement-plan.md:3	unchanged, (kept)	text
 
 ## A line that main's merge changed, with the same outcome (1)
 .plan/findings-on-github-1/findings-on-github-plan.md:3	toFile, ../decisions/RD-56.md	toDir, ../decisions/
+
+## From the dry run at c7b7c0621 to the dry run at cdbf8c757
+
+.plan/findings-on-github-1/findings-on-github-plan.md:3	toDir, ../decisions/	fragMoved, ../decisions/RD-56.md	(Mx Architect B's ruling: the link carries RD-56's fragment)
+.plan/decision-files-1/decision-files-plan.md:55	(new line)	toDir, ../decisions/	(Mx Architect B's note quotes the old link in link syntax)

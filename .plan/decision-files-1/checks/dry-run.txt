@@ -1,4 +1,4 @@
-# Dry run of probes/move.mjs at c7b7c0621 (main at 4b7e6e181 merged), in a scratch clone, not committed. Run on 2026-11-26 by the implementer, with rule 5's third row of Mx Architect B's note at 57f3e6cac.
+# Dry run of probes/move.mjs at cdbf8c757, in a scratch clone, not committed. Run on 2026-11-26 by the implementer, after Mx Architect B's ruling on findings-on-github-plan.md:3 at cdbf8c757.
 # node .plan/decision-files-1/probes/move.mjs --classified dry-run-classified.tsv
 
 {
@@ -17,28 +17,29 @@
  "insideRewritten": 718,
  "insideAbsolute": 18,
  "elsewhere": {
-  "fragMoved": 5,
+  "fragMoved": 6,
   "fragOther": 4,
   "textFile": 16,
   "toFile": 55,
   "toDir": 68,
   "unchanged": 206
  },
- "elsewhereTotal": 354,
- "elsewhereFiles": 283,
+ "elsewhereTotal": 355,
+ "elsewhereFiles": 284,
  "sameIndexFragments": 1,
  "filesWritten": 157,
- "filesChanged": 289
+ "filesChanged": 290
 }
-Left to a person (1):
+Left to a person (2):
   .plan/00-index.md:1375: a link in code, o; kept
+  .plan/decision-files-1/decision-files-report.md:54: a link in code, ../00-index.md; kept
 
 # The tree after it:
 # .scripts/entry.sh --duplicates
 no duplicated address in drag, repo
-# oxfmt --check on the 289 changed and new Markdown files
+# oxfmt --check on the 290 changed and new Markdown files
 All matched files use the correct format.
-Finished in 73ms on 289 files using 12 threads.
+Finished in 72ms on 290 files using 12 threads.
 # The script again, on its own output, committed: rerun changed: 0 files
  "filesChanged": 0
-No line is left to a person.
+Left to a person (1):
