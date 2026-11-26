@@ -5752,6 +5752,8 @@ No timing was taken.
 
 **Dated 2026-11-25, by the architect, on the owner's direction:** `repo:RD-62` keeps an implementer's check in Chromium and runs a feature proof in Chromium, Firefox and WebKit. A feature proof of drag runs `browser` and `shipped` in each, on the files that the unit changes or tests. Its local WebKit and Firefox results are evidence, which the last note's _reproduction_ doesn't say.
 
+**Dated 2026-11-26, by the architect, on the owner's direction, a trial:** by `repo:RD-62` property 4 as amended, a feature proof of drag reads the unmutated pass of `browser` and `shipped` in Firefox and WebKit from `verify`'s run on its head, whose `firefox` and `webkit` jobs run both projects. It runs them unmutated in Chromium, and its mutations in the engines that `repo:RD-62` property 5 names, locally. The last note's _runs `browser` and `shipped` in each_ is read so.
+
 #### DRO-19 — The code the tests run is the code the user receives
 
 **Decided by the owner on 2026-11-15,** relayed by the coordinator to the architect on `drag2/removal` at `02990b9f4`. **The library code that drag's tests run must be the library code that consumers receive.** A `__DEV__` or similar define is acceptable in test tooling, and in a bench build of an earlier revision. A difference between the library code that is tested and the library code that is shipped is not acceptable.
