@@ -1,0 +1,41 @@
+## N. tests: ['tests/nothing'], which matches no test file
+exit 3
+mutator: unmutated, a: Vitest exited with 1 and reported no failed row:
+JSON report written to /tmp/mxe/p3/p3/tmp/mutator-report-v5rTys/report.json
+no report
+Vitest alone:
+Vitest exit 1
+{"files":0,"success":false}
+
+## H. an unhandled error in a row that passes, committed before the run
+exit 3
+mutator: unmutated, a: Vitest exited with 1 and reported no failed row:
+JSON report written to /tmp/mxe/p3/p3/tmp/mutator-report-ED0Loa/report.json
+no report
+
+## N and H with the tool at 0cc0d9516, before the fix
+N:
+exit 2
+mutator: selectors that cover no row
+  - clamp ignores its low bound, a: tests/math.node.test.ts > should clamp low covers no row that ran
+no report
+H:
+exit 0
+mutator: clamp ignores its low bound, a
+{"outcomes":["as expected"]}
+The code at 9423fc8b20b4af660fa30655da0d29bf3f7fcc14, the file and the runner at no commit, in a.
+
+## C. the file, the config and the runner committed after the fixture, then the config modified
+clean:
+exit 0
+mutator: clamp ignores its low bound, a
+{"fileCommit":"eed71c4c4dbe2c0a54ca76bdcc12eec94c1baf16","outcomes":["as expected"]}
+The code at eed71c4c4dbe2c0a54ca76bdcc12eec94c1baf16, the file and the runner at eed71c4c4dbe2c0a54ca76bdcc12eec94c1baf16, in a.
+config modified ( M mutator.config.ts):
+exit 0
+mutator: clamp ignores its low bound, a
+{"outcomes":["as expected"]}
+The code at eed71c4c4dbe2c0a54ca76bdcc12eec94c1baf16, the file and the runner at no commit that holds them as they ran, in a.
+HEAD: eed71c4c4dbe2c0a54ca76bdcc12eec94c1baf16
+
+left in TMPDIR: []
