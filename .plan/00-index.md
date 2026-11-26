@@ -4996,6 +4996,12 @@ Tier A, **open**, **ready**, not this unit's. Registered on 2026-11-26 by the ar
 - **Row 3 stays on `mx-list-item` alone.** Property 2 says that the list writes no `user-select` on an item outside a drag. The rule doesn't depend on the item's kind, and the witness, the rule on every item, fails row 3. What a short press selects in a button or a link is the engine's own behavior: a button item's press selects `I` in WebKit and nothing in Chromium, and a link item's press selects nothing in either. A row of those kinds would read the engine, not the list.
 - **Not read, and not owed:** why a link item's press selects nothing in WebKit, while its drag extends a selection.
 
+**Dated 2026-11-26 by the implementer: the repair is implemented on `material-x/drag-selection-1`,** from `42db3f321`. The rule is in `packages/material-x/src/list/styles/sortable/main.styles.css`, and the build prints both properties. The eight rows are in `packages/material-x/tests/list/sortable-list.browser.test.ts`, describe _"mx-sortable-list text selection"_. A comment above `mx-list-button-item`'s rows 1 and 2 says that they have no witness.
+
+- **Witnesses,** WebKit with Chromium beside it ([reading](drag-selection-1/checks/witnesses.txt)): without the rule, WebKit fails rows 1 and 2 for `mx-list-item` and `mx-list-link-item`, and row 4, and Chromium passes all eight. With the rule on `::slotted(*)`, row 3 fails in both. With the rule, all eight pass in both.
+- **Checks:** `tests/list` passes in Chromium (286) and WebKit (272, 14 skipped). Lint and typecheck are clean. Firefox is CI's.
+- **Sizes** ([reading](drag-selection-1/checks/sizes.txt)): `list/sortable-list` goes from 9.94 to 9.95 kB, and `complete` from 26.89 to 26.91 kB. No other composition changes.
+
 #### RF-152 — `parseMs` reads a duration in milliseconds as seconds
 
 Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from the implementer's point 4 in `RD-60`'s unit, relayed by the coordinator. `RF-151` is the entry before this one. Read at `5448c4fd6`.
