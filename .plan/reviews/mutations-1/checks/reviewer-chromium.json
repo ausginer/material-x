@@ -1,252 +1,249 @@
 {
- "file": ".plan/reviews/mutations-1/reviewer.mutations.ts",
- "commit": "9a65f1a89e278ab4e972d953b001aba49e9406a2",
- "legs": [
-  {
-   "engine": "chromium",
-   "shard": [
-    1,
-    1
-   ],
-   "rows": [
+  "file": ".plan/reviews/mutations-1/reviewer.mutations.ts",
+  "commit": "9a65f1a89e278ab4e972d953b001aba49e9406a2",
+  "legs": [
     {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, refusals should refuse each stale edit by name before anything runs",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, refusals should refuse a selector that covers no row before any mutation runs",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, the invoking checkout should leave the checkout and the temporary directory as they were after a run",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, the invoking checkout should leave them as they were after a run that fails midway",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, an existing checkout should run in the checkout that --workdir names and make no worktree",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, a copy that an earlier run left should remove a locked copy whose process no longer runs",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read a mutation that fails every selected row as expected",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read a selected row that passes as missed and fail the run",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read a survivor that fails rows as caught",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read a survivor that fails no row as expected",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read a selected row that fails unmutated as void",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should judge each engine by its own expectation when it gives one",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should run in a browser project",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, engines should flag a mutation that fails other rows in another engine",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, engines should not flag a row that another engine skips",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, restore should restore each mutation before the next one runs",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, rebuilds should rebuild after a matching edit and after its restore",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, rebuilds should not rebuild for an edit that doesn't match",
-     "status": "passed"
+      "engine": "chromium",
+      "shard": [1, 1],
+      "rows": [
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, refusals should refuse each stale edit by name before anything runs",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, refusals should refuse a selector that covers no row before any mutation runs",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the invoking checkout should leave the checkout and the temporary directory as they were after a run",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the invoking checkout should leave them as they were after a run that fails midway",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, an existing checkout should run in the checkout that --workdir names and make no worktree",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, a copy that an earlier run left should remove a locked copy whose process no longer runs",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a mutation that fails every selected row as expected",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a selected row that passes as missed and fail the run",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a survivor that fails rows as caught",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a survivor that fails no row as expected",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a selected row that fails unmutated as void",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should judge each engine by its own expectation when it gives one",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should run in a browser project",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, engines should flag a mutation that fails other rows in another engine",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, engines should not flag a row that another engine skips",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, restore should restore each mutation before the next one runs",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, rebuilds should rebuild after a matching edit and after its restore",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, rebuilds should not rebuild for an edit that doesn't match",
+          "status": "passed"
+        }
+      ],
+      "mutations": [
+        {
+          "name": "a selected row that passes is never missed",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should read a selected row that passes as missed"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a selected row that passes as missed and fail the run"
+          ],
+          "missed": [],
+          "voided": [],
+          "messages": {
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a selected row that passes as missed and fail the run": [
+              "AssertionError: expected [ +0, [ [ 'a', 'as expected' ] ] ] to deeply equal [ 1, [ [ 'a', 'missed' ] ] ]",
+              "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:399:47",
+              "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ]
+          }
+        },
+        {
+          "name": "nothing is read as expected",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should read a mutation that fails every selected row as expected"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, the invoking checkout should leave the checkout and the temporary directory as they were after a run",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, an existing checkout should run in the checkout that --workdir names and make no worktree",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, a copy that an earlier run left should remove a locked copy whose process no longer runs",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a mutation that fails every selected row as expected",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge each engine by its own expectation when it gives one",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should run in a browser project",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, restore should restore each mutation before the next one runs",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, rebuilds should rebuild after a matching edit and after its restore"
+          ],
+          "missed": [],
+          "voided": [],
+          "messages": {
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, the invoking checkout should leave the checkout and the temporary directory as they were after a run": [
+              "AssertionError: expected [ 1, 'unchanged', [] ] to deeply equal [ +0, 'unchanged', [] ]",
+              "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:271:61",
+              "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, an existing checkout should run in the checkout that --workdir names and make no worktree": [
+              "AssertionError: expected [ 1, [ [ 'a', 'missed' ] ], …(1) ] to deeply equal [ Array(3) ]",
+              "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:322:61",
+              "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, a copy that an earlier run left should remove a locked copy whose process no longer runs": [
+              "AssertionError: expected [ 1, [] ] to deeply equal [ +0, [] ]",
+              "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:364:47",
+              "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a mutation that fails every selected row as expected": [
+              "AssertionError: expected [ [ 'a', 'missed' ] ] to deeply equal [ [ 'a', 'as expected' ] ]",
+              "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:375:55",
+              "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge each engine by its own expectation when it gives one": [
+              "AssertionError: expected [ 1, [ [ 'a', 'missed' ], …(1) ], [] ] to deeply equal [ +0, …(2) ]",
+              "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:491:10",
+              "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should run in a browser project": [
+              "AssertionError: expected [ [ 'chromium', 'missed' ] ] to deeply equal [ [ 'chromium', 'as expected' ] ]",
+              "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:532:32",
+              "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, restore should restore each mutation before the next one runs": [
+              "AssertionError: expected [ [ 'a', 'missed' ], …(1) ] to deeply equal [ [ 'a', 'as expected' ], …(1) ]",
+              "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:598:32",
+              "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, rebuilds should rebuild after a matching edit and after its restore": [
+              "AssertionError: expected [ 3, [ [ 'a', 'missed' ] ] ] to deeply equal [ 3, [ [ 'a', 'as expected' ] ] ]",
+              "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:624:49",
+              "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ]
+          }
+        },
+        {
+          "name": "a survivor is always caught",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should read a survivor that fails no row as expected"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a survivor that fails no row as expected",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge each engine by its own expectation when it gives one",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, restore should restore each mutation before the next one runs"
+          ],
+          "missed": [],
+          "voided": [],
+          "messages": {
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a survivor that fails no row as expected": [
+              "AssertionError: expected [ [ 'a', 'caught' ] ] to deeply equal [ [ 'a', 'as expected' ] ]",
+              "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:437:32",
+              "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge each engine by its own expectation when it gives one": [
+              "AssertionError: expected [ 1, …(2) ] to deeply equal [ +0, …(2) ]",
+              "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:491:10",
+              "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, restore should restore each mutation before the next one runs": [
+              "AssertionError: expected [ [ 'a', 'as expected' ], …(1) ] to deeply equal [ [ 'a', 'as expected' ], …(1) ]",
+              "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:598:32",
+              "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ]
+          }
+        },
+        {
+          "name": "--workdir is ignored",
+          "group": "mechanism",
+          "expect": {
+            "survives": "The row reads the outcome, the invoking checkout and the temporary directory's listing, and a copy in place of the workdir leaves the same three"
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [],
+          "missed": [],
+          "voided": [],
+          "messages": {}
+        }
+      ]
     }
-   ],
-   "mutations": [
-    {
-     "name": "a selected row that passes is never missed",
-     "group": "mechanism",
-     "expect": {
-      "fails": [
-       {
-        "file": "packages/mutator/tests/mutator.node.test.ts",
-        "row": "should read a selected row that passes as missed"
-       }
-      ]
-     },
-     "hasEngineExpectations": false,
-     "outcome": "as expected",
-     "failed": [
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a selected row that passes as missed and fail the run"
-     ],
-     "missed": [],
-     "voided": [],
-     "messages": {
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a selected row that passes as missed and fail the run": [
-       "AssertionError: expected [ +0, [ [ 'a', 'as expected' ] ] ] to deeply equal [ 1, [ [ 'a', 'missed' ] ] ]",
-       "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:399:47",
-       "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ]
-     }
-    },
-    {
-     "name": "nothing is read as expected",
-     "group": "mechanism",
-     "expect": {
-      "fails": [
-       {
-        "file": "packages/mutator/tests/mutator.node.test.ts",
-        "row": "should read a mutation that fails every selected row as expected"
-       }
-      ]
-     },
-     "hasEngineExpectations": false,
-     "outcome": "as expected",
-     "failed": [
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, the invoking checkout should leave the checkout and the temporary directory as they were after a run",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, an existing checkout should run in the checkout that --workdir names and make no worktree",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, a copy that an earlier run left should remove a locked copy whose process no longer runs",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a mutation that fails every selected row as expected",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge each engine by its own expectation when it gives one",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should run in a browser project",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, restore should restore each mutation before the next one runs",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, rebuilds should rebuild after a matching edit and after its restore"
-     ],
-     "missed": [],
-     "voided": [],
-     "messages": {
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, the invoking checkout should leave the checkout and the temporary directory as they were after a run": [
-       "AssertionError: expected [ 1, 'unchanged', [] ] to deeply equal [ +0, 'unchanged', [] ]",
-       "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:271:61",
-       "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, an existing checkout should run in the checkout that --workdir names and make no worktree": [
-       "AssertionError: expected [ 1, [ [ 'a', 'missed' ] ], …(1) ] to deeply equal [ Array(3) ]",
-       "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:322:61",
-       "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, a copy that an earlier run left should remove a locked copy whose process no longer runs": [
-       "AssertionError: expected [ 1, [] ] to deeply equal [ +0, [] ]",
-       "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:364:47",
-       "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a mutation that fails every selected row as expected": [
-       "AssertionError: expected [ [ 'a', 'missed' ] ] to deeply equal [ [ 'a', 'as expected' ] ]",
-       "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:375:55",
-       "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge each engine by its own expectation when it gives one": [
-       "AssertionError: expected [ 1, [ [ 'a', 'missed' ], …(1) ], [] ] to deeply equal [ +0, …(2) ]",
-       "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:491:10",
-       "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should run in a browser project": [
-       "AssertionError: expected [ [ 'chromium', 'missed' ] ] to deeply equal [ [ 'chromium', 'as expected' ] ]",
-       "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:532:32",
-       "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, restore should restore each mutation before the next one runs": [
-       "AssertionError: expected [ [ 'a', 'missed' ], …(1) ] to deeply equal [ [ 'a', 'as expected' ], …(1) ]",
-       "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:598:32",
-       "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, rebuilds should rebuild after a matching edit and after its restore": [
-       "AssertionError: expected [ 3, [ [ 'a', 'missed' ] ] ] to deeply equal [ 3, [ [ 'a', 'as expected' ] ] ]",
-       "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:624:49",
-       "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ]
-     }
-    },
-    {
-     "name": "a survivor is always caught",
-     "group": "mechanism",
-     "expect": {
-      "fails": [
-       {
-        "file": "packages/mutator/tests/mutator.node.test.ts",
-        "row": "should read a survivor that fails no row as expected"
-       }
-      ]
-     },
-     "hasEngineExpectations": false,
-     "outcome": "as expected",
-     "failed": [
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a survivor that fails no row as expected",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge each engine by its own expectation when it gives one",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, restore should restore each mutation before the next one runs"
-     ],
-     "missed": [],
-     "voided": [],
-     "messages": {
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a survivor that fails no row as expected": [
-       "AssertionError: expected [ [ 'a', 'caught' ] ] to deeply equal [ [ 'a', 'as expected' ] ]",
-       "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:437:32",
-       "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge each engine by its own expectation when it gives one": [
-       "AssertionError: expected [ 1, …(2) ] to deeply equal [ +0, …(2) ]",
-       "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:491:10",
-       "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, restore should restore each mutation before the next one runs": [
-       "AssertionError: expected [ [ 'a', 'as expected' ], …(1) ] to deeply equal [ [ 'a', 'as expected' ], …(1) ]",
-       "    at /tmp/mutator-c4ARU3/copy/packages/mutator/tests/mutator.node.test.ts:598:32",
-       "    at async file:///tmp/mutator-c4ARU3/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ]
-     }
-    },
-    {
-     "name": "--workdir is ignored",
-     "group": "mechanism",
-     "expect": {
-      "survives": "The row reads the outcome, the invoking checkout and the temporary directory's listing, and a copy in place of the workdir leaves the same three"
-     },
-     "hasEngineExpectations": false,
-     "outcome": "as expected",
-     "failed": [],
-     "missed": [],
-     "voided": [],
-     "messages": {}
-    }
-   ]
-  }
- ]
+  ]
 }

@@ -1,4 +1,22 @@
-{ "runs":[{"dir":".","tests":["tests/math"]}], "engines":["a"], "mutations":[
- {"name":"math.ts no longer parses","group":"mechanism",
-  "edits":[{"file":"src/math.ts","text":"export function unused","replacement":"export function unused(((("}],
-  "expect":{"fails":[{"file":"tests/math.node.test.ts","row":"should clamp low"}]}} ]}
+{
+  "runs": [{ "dir": ".", "tests": ["tests/math"] }],
+  "engines": ["a"],
+  "mutations": [
+    {
+      "name": "math.ts no longer parses",
+      "group": "mechanism",
+      "edits": [
+        {
+          "file": "src/math.ts",
+          "text": "export function unused",
+          "replacement": "export function unused(((("
+        }
+      ],
+      "expect": {
+        "fails": [
+          { "file": "tests/math.node.test.ts", "row": "should clamp low" }
+        ]
+      }
+    }
+  ]
+}
