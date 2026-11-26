@@ -1039,17 +1039,17 @@ describe('useRovingTabindex', () => {
     });
 
     describe("hidden and shown by a page's display", () => {
-      it('should keep the tab stop', async () => {
+      it('should not give the tab stop to the item', async () => {
         const [, items] = await mountThree();
 
         items[0].style.display = 'block';
         items[0].hidden = true;
         await nextFrame();
 
-        expectTabStop(items, items[0]);
+        expectTabStop(items, items[1]);
       });
 
-      it('should take focus from an arrow key', async () => {
+      it('should pass the item on an arrow key', async () => {
         const [, items] = await mountThree();
 
         items[1].style.display = 'block';
@@ -1058,9 +1058,49 @@ describe('useRovingTabindex', () => {
         items[0].focus();
         await userEvent.setup().keyboard('{ArrowRight}');
 
-        expect(document.activeElement).toBe(items[1]);
+        expect(document.activeElement).toBe(items[2]);
       });
     });
+
+    describe.each(['ancestor', 'host'] as const)(
+      'hidden while the %s is hidden',
+      (where) => {
+        it('should give the tab stop to the next item once the host is shown', async () => {
+          // A `display: contents` host, as a component whose own element is
+          // the box. In a subtree that isn't rendered, an engine can keep its
+          // former computed `display` after `hidden` is set.
+          class ContentsItem extends TestItem {
+            constructor() {
+              super();
+              this.attachShadow({ mode: 'open' }).innerHTML =
+                '<style>:host { display: contents; } :host([hidden]) { display: none; }</style>';
+            }
+          }
+          defineCE(nameCE(), ContentsItem);
+          const ancestor = document.createElement('div');
+          const host = createHost();
+          const items = ['first', 'second', 'third'].map((value) => {
+            const item = new ContentsItem();
+            item.value = value;
+            return item;
+          });
+          document.body.append(ancestor);
+          ancestor.append(host);
+          host.append(...items);
+          await nextFrame();
+          const hiding = where === 'host' ? host : ancestor;
+
+          hiding.hidden = true;
+          await nextFrame();
+          items[0]!.hidden = true;
+          await nextFrame();
+          hiding.hidden = false;
+          await nextFrame();
+
+          expectTabStop(items, items[1]);
+        });
+      },
+    );
   });
 
   describe('keyboard navigation', () => {

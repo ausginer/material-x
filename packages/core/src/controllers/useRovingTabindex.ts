@@ -80,15 +80,21 @@ class RovingItems {
   }
 
   /**
-   * Items that can take focus: enabled, and not `display: none`.
+   * Items that can take focus: enabled, without the `hidden` attribute, and not
+   * `display: none`.
    *
-   * The `hidden` attribute doesn't decide, because a page's own `display` can
-   * show a hidden item. The computed `display` is empty while the host is out of
-   * the document, and the item counts then.
+   * An item with `hidden` is out even where a page's own `display` shows it.
+   * The attribute is read first because it is never stale: an engine can keep
+   * the former computed `display` in a subtree that isn't rendered. The computed
+   * `display` is empty while the host is out of the document, and the item
+   * counts then.
    */
   get eligible(): readonly Item[] {
     return this.#items.filter(
-      (item) => !item.disabled && getComputedStyle(item).display !== 'none',
+      (item) =>
+        !item.disabled &&
+        !item.hidden &&
+        getComputedStyle(item).display !== 'none',
     );
   }
 
@@ -240,8 +246,9 @@ function hasKeyModifier(event: KeyboardEvent): boolean {
  * `Valuable` on top of `ControlledElement`. Elements that do not match that
  * contract are ignored.
  *
- * An item is eligible while it is enabled and its computed `display` isn't
- * `none`. The controller keeps exactly one eligible item tabbable, or none when
+ * An item is eligible while it is enabled, has no `hidden` attribute, and its
+ * computed `display` isn't `none`. An item with `hidden` is out even where a
+ * page's own style shows it. The controller keeps exactly one eligible item tabbable, or none when
  * there is no eligible item, and handles `Home`,
  * `End`, and arrow-key navigation with wrap-around semantics.
  *

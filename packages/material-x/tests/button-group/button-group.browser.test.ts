@@ -381,6 +381,35 @@ describe('mx-connected-button-group with members that cannot take focus', () => 
     },
   );
 
+  it('should be entered at the second member when the first is hidden while an ancestor is hidden', async () => {
+    const ancestor = document.createElement('div');
+    document.body.append(ancestor);
+    const group = createConnected(['one', 'two', 'three']);
+    ancestor.append(group);
+    await nextFrame();
+    const members = [...group.children] as HTMLElement[];
+
+    ancestor.hidden = true;
+    await nextFrame();
+    members[0]!.hidden = true;
+    await nextFrame();
+    ancestor.hidden = false;
+    await nextFrame();
+    const ends = members.map((member) => [
+      member.hasAttribute('data-first'),
+      member.hasAttribute('data-last'),
+    ]);
+
+    expect([await tabInto(group), ends]).toEqual([
+      members[1],
+      [
+        [false, false],
+        [true, false],
+        [false, true],
+      ],
+    ]);
+  });
+
   it('should move past a hidden member with an arrow key', async () => {
     const group = createConnected(['one', 'two', 'three']);
     await nextFrame();

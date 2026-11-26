@@ -7053,6 +7053,27 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 
 **`RF-134` (#291)** marks the ends in RTL with the same `data-first` and `data-last`, so it is unaffected. Its sheet's edit is beside this unit's, and the second to reach `main` merges it.
 
+**Dated 2026-11-26 by the implementer: the ruling of 2026-11-26 is implemented on `core/roving-hidden-1`, from `ec9969500`, and not closed.** Requested by the coordinator. Developed and witnessed in Chromium, and the rows of the hidden ancestor also in WebKit, in their two files only, under `RD-62`.
+
+- **The hook (item 1):** `eligible` reads `disabled`, then `hidden`, and the computed `display` only for an item that passes both. Its comment and the hook's JSDoc state property 1 as amended. The read at the connect stays, as the ruling accepts.
+- **The group (item 2):** the ends are the first and the last member without `hidden`, written with `toggleAttribute`, so a mark is written only where it changes. No computed style is read, and nothing is read at the connect.
+- **One choice that the list doesn't name:** the group's `MutationObserver` observes from the constructor and is never disconnected, as the hook's is. `useMutationObserver` disconnects while the group is out, so with the connect's read gone, a member hidden while the group is out isn't heard. The row _"should be right in a group that was changed while out"_ is the one that fails with it. The group's code is 40 B less than at `810cffceb`.
+- **The page (item 3):** the sentence is replaced as the list says.
+- **Rows (items 4 and 5):** the three rows of item 4 changed as listed. Added: core's two rows of the hidden ancestor and of the hidden host (97 in the file), the material-x row of the hidden ancestor in `button-group.browser.test.ts`, and the row of `:not(:defined)` in `button-group-late-switch.browser.test.ts`, whose second member module is `mx-button`. **Core's two rows need an item whose host is `display: contents` with `:host([hidden]) { display: none }`,** the shape of a material-x member. With the plain test item, WebKit reads `none` and the rows are blind there too. The rows define that item.
+- **Witnesses (item 6)** ([reading](roving-hidden-1/checks/witnesses-ends.txt), [probe](roving-hidden-1/probes/witness-ends.mjs)). Without a mutation, core's 97 and material-x's 142 pass in Chromium, and the two files' 97 and 30 in WebKit.
+
+  | Mutation | Engine | Core rows that fail | material-x rows that fail |
+  | --- | --- | --- | --- |
+  | `hidden` not read by the hook | Chromium | 2, of item 4 | 0 |
+  | `hidden` not read by the hook | WebKit | 4: item 4's and the hidden ancestor's and host's | 1, the hidden ancestor |
+  | The group of `810cffceb`, its ends by the computed `display` | Chromium | 0 | 2: `:not(:defined)`, and the page's `display` of item 4 |
+  | The ends not marked at a change of `hidden` | Chromium | 0 | 5, the hidden ancestor among them |
+  | The group's observer only while it is connected | Chromium | 0 | 1, changed while out |
+
+- **The cost (item 7)** ([reading](roving-hidden-1/checks/cost-ends.txt), [probe](roving-hidden-1/probes/cost-ends.sh), with the proof's probe), Chromium, at a load of 11 to 20 on 12 cores. Two series of three, the first with this unit before `main` and the second with `main` first. **The head's median over `main`'s is 0.41 to 2.13, and 8 of the 36 pairs are above 1.5:** in the first series, the groups' three rows of its second run (1.76 to 1.83) and four rows of its third (1.58 to 2.13); in the second, the 20 groups of its second run (1.53, 13.0 against 8.5 ms). Summed over each series' runs, the groups are 1.34 and 0.97 of `main`, and the split buttons 0.91 and 0.74. The proof read 3.4 to 7.5 at `810cffceb`. So the property, as read here, isn't met for every pair. I didn't find the cause of the pairs above 1.5, and they aren't in the same rows in the two series. The recheck reads the cost again.
+- **Size, Brotli** ([reading](roving-hidden-1/checks/sizes-ends.txt)): `button-group/connected-button-group` 4042 at `main`, 4187 at `810cffceb`, 4147 now (+105 over `main`); `button/split-button` 7766, 7887, 7872 (+106); `complete` 25869, 26035, 26016 (+147). No other row of the 36 moves, and none is over its limit.
+- **Checks:** core's suite (396 rows) and the 10 material-x files that use the group (277 rows), in Chromium; the format, lint and typecheck of each changed file, core and material-x; the root format check and `git diff --check`. One ESLint `prefer-destructuring` error on a new line of the group was fixed by rewriting the line. **Not run:** Firefox, WebKit beyond the two files, material-x's full suite, the docs build, and the size gate's own recipe; the table above reads the same rows with `just size-reading`.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

@@ -1,6 +1,4 @@
-import { useConnected } from '@ydinjs/core/controllers/useConnected.js';
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
-import { useMutationObserver } from '@ydinjs/core/controllers/useMutationObserver.js';
 import { useRovingTabindex } from '@ydinjs/core/controllers/useRovingTabindex.js';
 import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
 import {
@@ -88,31 +86,26 @@ export default class ConnectedButtonGroup extends ConnectedButtonGroupConstructo
     });
 
     const slot = this.shadowRoot!.querySelector('slot')!;
+    // The ends read no style, so a member that a page's style alone hides or
+    // shows doesn't move them. A mark is written only where it changes.
     const markEnds = () => {
       // The slot's elements, without the text and comment nodes between them.
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion
       const elements = slot.assignedElements() as HTMLElement[];
+      const shown = elements.filter((element) => !element.hidden);
+      const [first] = shown;
+      const last = shown.at(-1);
 
-      elements.forEach((element) => {
-        delete element.dataset['first'];
-        delete element.dataset['last'];
-      });
-
-      // A page's own `display` can show a hidden member.
-      const shown = elements.filter(
-        (element) => getComputedStyle(element).display !== 'none',
-      );
-
-      if (shown[0]) {
-        shown[0].dataset['first'] = '';
-        shown.at(-1)!.dataset['last'] = '';
+      for (const element of elements) {
+        element.toggleAttribute('data-first', element === first);
+        element.toggleAttribute('data-last', element === last);
       }
     };
 
     useSlot(this, slot, markEnds);
-    // While the group was out, no member had a computed `display`.
-    useConnected(this, markEnds);
-    useMutationObserver(this, markEnds, {
+    // It observes for the group's whole life, so a member's `hidden` that
+    // changes while the group is out is heard, and the connect reads nothing.
+    new MutationObserver(markEnds).observe(this, {
       attributeFilter: ['hidden'],
       subtree: true,
     });

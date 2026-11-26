@@ -373,7 +373,7 @@ describe('mx-connected-button-group corners with hidden members', () => {
     await expectEnds(members, 1, 1);
   });
 
-  it("should count a hidden member that a page's display shows", async () => {
+  it("should pass over a hidden member that a page's display shows", async () => {
     const [group, members] = createMembers();
     members[0]!.style.display = 'contents';
     document.body.append(group);
@@ -381,6 +381,6 @@ describe('mx-connected-button-group corners with hidden members', () => {
 
     members[0]!.hidden = true;
 
-    await expectEnds(members, 0, 3);
+    await expectEnds(members, 1, 3);
   });
 });
