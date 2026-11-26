@@ -7428,6 +7428,23 @@ Tier A, **open**, **ready, with `RF-145`'s unit** (the last note), pre-existing.
 - **Limit:** the emulated swipe lifts the item before the pan cancels it, and the phone shows no lift. The text doesn't promise that there is none. A lift that a person sees on a device is an observation of its own.
 - **Size:** _small_, with `RF-145`, whose size stays _medium_. `RF-145`'s properties don't change.
 
+#### RF-147 — An `mx-icon` inline in a page's text stands on the text's baseline, off its center
+
+Tier C, **open**, **waiting on the owner** (Q1), pre-existing. Registered on 2026-11-26 by the architect, on `repo/axe-checks-1`, from #299, which the owner asked to register, relayed by the coordinator. The observation is `RF-145`'s note of 2026-11-26 on the focused handles (`material-x/touch-handle-1`, #296). `RF-146` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **What happens:** `mx-icon`'s host is `display: inline-block` with `overflow: hidden` (`icon.ctr.css`), so by CSS its baseline is its bottom margin edge. Inline in a line of text, its bottom stands on the text's baseline, and the space of the text's descenders is below it: the icon sits higher than the text around it. Read in Chromium on #296's branch, `material-x/touch-handle-1`, in its `.plan/touch-handle-1/checks/remedy-boxes.txt`, which merges with it: in a `span` of 11 px text with a 16 px line, an 11 px icon has 0 px above it and 5 below. In a native button with its own text styles, a 13 px icon has 3 above and 6 below, on `main` too.
+- **Where it shows:** wherever a page puts an `mx-icon` in its own text or in an inline element of its own. **Where it doesn't:** in the package's own elements, where the icon is a flex or grid item, which `vertical-align` doesn't move: `RF-145`'s boxes reading has `mx-button`, `mx-icon-button` and `mx-fab` unchanged. A sortable handle centers its content by `RF-145`'s remedy.
+- **Why it is a problem:** an icon beside text looks misplaced, by up to its text's descender. The owner has fought it often, in his words. No Material token states where an inline icon stands.
+- **Required property:** an `mx-icon` inline in a line of text, at its text's size, stands where Q1 says, within 1 px at 24 px, in each engine at `RD-20`'s floor. The boxes of `mx-icon` in the package's own elements don't change, and no visual baseline changes.
+- **Q1, for the owner — where does an inline icon stand?**
+  - **(a) Its middle on the middle of the text's lowercase letters,** CSS's `vertical-align: middle`. Defined by the font's x-height, so the same rule in every font. **Recommended,** because it needs no number of its own.
+  - **(b) Its middle on the middle of the text's line,** which suits text in capitals and numerals. A fixed offset, such as `-0.125em`, comes near it for most fonts, and only near.
+  - **(c) As today,** on the baseline, with a sentence in `icon.mdx` that says so and how a page moves it.
+- **Candidates, not read:** a `vertical-align` on the host for (a) or (b); `overflow: visible`, which would put the baseline at the glyph's own, and changes what a large glyph may paint outside its box.
+- **Rows,** the three engines: an icon inline in text, at the text's size, at two sizes, measured against the text's box as Q1 defines it. **Witness:** each fails on `main`. The boxes of `RF-145`'s reading for the package's elements are unchanged.
+- **Not read:** Safari, a page's own font, an icon with a size other than its text's, an SVG in `mx-icon`.
+- **Plan needed:** no, once Q1 is answered. **Size:** _small_.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
