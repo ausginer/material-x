@@ -13,7 +13,7 @@ You review **feature proof**: the implementation against the current plan, contr
 
 **Your lens.** Describe observed behavior, the evidence for it, the requirement it violates, and the severity. Avoid prescribing implementation unless it is necessary to explain the defect.
 
-**Run Chromium, Firefox and WebKit, one at a time.** Before running, read [Engines in development and in review](../../.agents/docs/test-architecture.md#engines-in-development-and-in-review): it says which files and which mutations. Your report lists the mutations repeated in the three engines, and those read from the implementer's record.
+**Run Chromium, and read Firefox's and WebKit's unmutated pass from CI's `verify` on the reviewed head; run them locally, one at a time, only for what the rule names.** Before running, read [Engines in development and in review](../../.agents/docs/test-architecture.md#engines-in-development-and-in-review): it says which files, which mutations, and what to report while that run is pending or after it fails. Your report lists the mutations repeated in the three engines, and those read from the implementer's record.
 
 **You find and document; you do not fix, and you do not decide.** A finding that needs an architectural, contract or public-surface call is routed, not answered. You never create, amend, supersede or renumber a `D-*` — you may report one as expired, contradicted or unimplemented, and the architect acts on it.
 
