@@ -12,10 +12,10 @@ index 928f0527a..03be21212 100644
  ### Writes and temporary work
  
 diff --git a/.agents/docs/findings.md b/.agents/docs/findings.md
-index 673469b2a..51e0301a9 100644
+index 673469b2a..851a58683 100644
 --- a/.agents/docs/findings.md
 +++ b/.agents/docs/findings.md
-@@ -9,20 +9,22 @@ A finding with the label is one issue, from its observation to its closure.
+@@ -9,20 +9,24 @@ A finding with the label is one issue, from its observation to its closure.
  ## Address
  
  - **The address is `#N`,** and `ausginer/material-x#N` outside the repository.
@@ -37,32 +37,43 @@ index 673469b2a..51e0301a9 100644
  Without a revision, the tool prints the current one. A writer, or the coordinator that writes the prompt, learns `M` that way.
  
 -The body alone is the contract. An amendment explains a change and isn't a source. No other comment is part of the contract.
-+The body is the contract, with the properties of the decisions that it names. An amendment explains a change and isn't a source. No other comment is part of the contract.
++The body is the contract, with the properties of the decisions that it names. An amendment explains a change and isn't a source. No other comment is part of the contract. A link is for people: the contract is the address, read at the pinned commit.
++
++**Where a property of the body contradicts one of a decision that it names,** the body applies to what the repair must do. A role that finds such a contradiction stops, or, in a review, judges by the body and reports it. The architect amends the wrong text.
  
  **Only text by `Lodin`, the owner's account, with the architect's stamp is the contract.** A stamp isn't a proof, because every agent writes as that account.
  
-@@ -37,11 +39,13 @@ The body alone is the contract. An amendment explains a change and isn't a sourc
+@@ -37,16 +41,20 @@ The body alone is the contract. An amendment explains a change and isn't a sourc
  
  ## Required property
  
 -1. <a property, and its witness where one is owed>
-+<the decision's address, the numbers of its properties and, until it is on `main`, its branch; then their witnesses>
++<the decision's address and the link to its file, and the numbers of its properties; then their witnesses>
 +
 +1. <a property that no decision states, and its witness where one is owed>
  
  ## Evidence
  
 -Read at `<sha>`. <a few lines, or paths with the pull request that carries them>
-+Read at `<sha>`. <a few lines, or a branch and the paths on it>
++<a few lines, each with the commit it was read at, or a branch and the paths on it>
  
  ## Not read
  
-@@ -55,9 +59,26 @@ Revision 0
+ ## Questions
+ 
++<a question of the body; or a decision's address and a link to it, whose label is the question's number and plain words>
++
+ Revision 0
+ 
+ — ARCHITECT
+@@ -55,9 +63,37 @@ Revision 0
  - **`Revision N`** is the number of the last amendment, and 0 at registration.
  - **The description** is bounded as an issue's description is in [`work-queue.md`](work-queue.md#issues).
  - **The first four headings are always present.** _Not read_ and _Questions_ are present only when they have something.
 -- **A question** has its options, the recommendation and, once there is one, the answer.
 +- **A question** has its options, the recommendation and, once there is one, the answer. A question about a decision is in the decision.
++- **A property can be read alone.** It names the state that it requires, and doesn't point to another sentence's state with _so_ or _the same_. A property that owes text names the document, the place and what the text says.
++- **Each reading names the commit that it was read at.** One commit at the head of _Evidence_ doesn't cover readings of others.
  - **The tier** is the label `tier:A`, `tier:B` or `tier:C`, and nothing else states it.
  
 +## A finding with a decision
@@ -72,20 +83,29 @@ index 673469b2a..51e0301a9 100644
 +| Text | Its place |
 +| --- | --- |
 +| What happens, why it is a problem, the evidence | The body |
-+| A property that a decision states | The decision. _Required property_ names it and restates nothing of it |
-+| The witness of such a property, and a property that no decision states | The body |
-+| A question about the decision, its options, the recommendation and the answer | The decision. _Questions_ has the reference alone, such as `drag:DRD-72 Q1`, and says nothing of an answer |
++| A property that a decision states, and a number that the property or an answer fixes, such as a size ceiling | The decision. _Required property_ names it and restates nothing of it |
++| The witness of such a property, and a property that no decision states | The body. A decision or a plan names no witness that the body doesn't have |
++| A question about the decision, its options, the recommendation and the answer | The decision. _Questions_ has its address and a link whose label is the question's number and plain words, such as `` `drag:DRD-72`, [Q1: is the cost accepted?](<its file's URL>) ``, and no option and no answer |
 +| Any other question | The body. It stays there when its answer makes a decision, and the decision names it |
-+| The design, the readings and the work list | The plan. It restates no property and no answer |
++| The design, the readings and the work list | The plan. It restates no property, no answer and no witness |
 +
-+- **A decision is named by its qualified address,** or by its file and its number in a plan. It is never named by a heading fragment.
++- **A decision is named by its qualified address,** or by its file and its number in a plan, and the body [links](#links) its file. It is never named by a heading fragment.
 +- **A change of the decision amends the finding only when it makes the body's text false.** An answer that leaves the body true adds no revision and no amendment.
 +- **Whoever changes or supersedes a decision** searches the open findings for its address ([Searching](#searching)), and amends each body that no longer holds.
++
++## Links
++
++A link in an issue is a whole URL on GitHub, to a file and never to a heading fragment. A decision, a plan and evidence are linked:
++
++- **to `main`,** when the file is there;
++- **to the unit's branch,** while the file is only there. When the finding is still open after that branch merges, the architect amends the link to `main`.
++
++The acceptance links its commit. The commit stays on GitHub after the branch is deleted, because the pull request's head keeps it.
 +
  ## The amendment
  
  Each change of the body is one comment:
-@@ -67,7 +88,7 @@ Each change of the body is one comment:
+@@ -67,7 +103,7 @@ Each change of the body is one comment:
  
  <what changed, why, and whose answer or review asked for it>
  
@@ -94,7 +114,7 @@ index 673469b2a..51e0301a9 100644
  
  — ARCHITECT
  ```
-@@ -91,12 +112,15 @@ The coordinator sets the package or `repo` label and removes `unregistered`, as
+@@ -91,12 +127,15 @@ The coordinator sets the package or `repo` label and removes `unregistered`, as
  
  ## Amending
  
@@ -114,7 +134,7 @@ index 673469b2a..51e0301a9 100644
  
  A change of tier is an amendment, and the body then has a new revision with no other change.
  
-@@ -117,25 +141,25 @@ A repair that stops is started again from the beginning. A finding that the tool
+@@ -117,25 +156,25 @@ A repair that stops is started again from the beginning. A finding that the tool
  
  - **The architect alone** writes the body, the amendments, the `tier:` label, the lock and the acceptance.
  - **The coordinator** writes the rest, as `work-queue.md` says, and never the body. The architect amends a description that no longer holds.
@@ -129,12 +149,12 @@ index 673469b2a..51e0301a9 100644
  - **When the repair follows at once,** the evidence is on the unit's branch, in `.plan/<unit>/` or the package's `.plan/`, and merges with the repair.
  - **When the finding waits,** the evidence goes by a pull request of its own.
 -- **The issue cites evidence by path, and by the pull request that carries it.** The path resolves on `main` after the merge, and in the pull request before it.
-+- **The issue cites evidence by branch and path.** The path resolves on the branch before the merge, and on `main` after it. The issue's timeline has the pull request, because its description says `Closes #N`, or `Refs #N` for evidence that merges without the repair.
++- **The issue cites evidence by branch and path,** and [links](#links) it. The path resolves on the branch before the merge, and on `main` after it. The issue's timeline has the pull request, because its description says `Closes #N`, or `Refs #N` for evidence that merges without the repair.
  
  ## Closing
  
 -Before the merge, the architect reads the issue's other comments, as before an amendment, and then comments _Accepted for closure at `<sha>`, revision N_ with what the acceptance rests on. A later amendment needs a new acceptance. The pull request says `Closes #N`, and the rest is [`work-queue.md`'s](work-queue.md#closing). Without a pull request, the acceptance comes before the coordinator's closing comment.
-+Before the merge, the architect reads the issue's other comments, as before an amendment, and then comments _Accepted for closure at `<sha>`, revision N_ with what the acceptance rests on. That commit also fixes the text of the decisions that the body names. A later amendment needs a new acceptance, and so does a later change of one of those properties. The pull request says `Closes #N`, and the rest is [`work-queue.md`'s](work-queue.md#closing). Without a pull request, the acceptance comes before the coordinator's closing comment.
++Before the merge, the architect reads the issue's other comments, as before an amendment, and then comments _Accepted for closure at `<sha>`, revision N_ with what the acceptance rests on, and links the decisions at that commit. That commit also fixes the text of the decisions that the body names. A later amendment needs a new acceptance, and so does a later change of one of those properties. The pull request says `Closes #N`, and the rest is [`work-queue.md`'s](work-queue.md#closing). Without a pull request, the acceptance comes before the coordinator's closing comment.
  
  The issue's state is the finding's status. A finding that comes back is the same issue: the coordinator reopens it, and the architect amends it.
  
