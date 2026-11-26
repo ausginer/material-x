@@ -2,7 +2,9 @@
  * The one build of this package per Vitest run, as the node project's global
  * setup, for the tests that read the published files.
  *
- * It runs what `just build-lib` runs, `tsdown`, which writes the package root.
+ * It runs what `just build-prepare` and `just build-lib` run: it collects the
+ * sheets' private properties, which mangling reads, from the tree under test,
+ * then runs `tsdown`, which writes the package root.
  * Vitest runs every project's global setup before any file starts, so no test
  * reads the tree during the build. A project evaluates this module in its own
  * module runner, so the first one to run it starts the build and keeps it on the
@@ -27,17 +29,8 @@ declare module 'vitest' {
 const ROOT = resolve(import.meta.dirname, '../..');
 const BUILD = Symbol.for('@ydinjs/material-x: the build of this run');
 
-/** Runs the build, and resolves with its failure, or `null` when it exits 0. */
-function build(): Promise<string | null> {
-  const command = [
-    'aube',
-    'exec',
-    '--',
-    'tsdown',
-    '--config',
-    'tsdown.config.ts',
-  ];
-
+/** Runs `command`, and resolves with its failure, or `null` when it exits 0. */
+function run(command: readonly string[]): Promise<string | null> {
   return new Promise((done) => {
     const child = spawn(command[0]!, command.slice(1), { cwd: ROOT });
     let output = '';
@@ -61,6 +54,24 @@ function build(): Promise<string | null> {
       );
     });
   });
+}
+
+/** Runs the build, and resolves with its failure, or `null` when it succeeds. */
+async function build(): Promise<string | null> {
+  const failure = await run(['node', '../../.scripts/css/collect-props.ts']);
+
+  if (failure) {
+    return failure;
+  }
+
+  return await run([
+    'aube',
+    'exec',
+    '--',
+    'tsdown',
+    '--config',
+    'tsdown.config.ts',
+  ]);
 }
 
 export async function setup(project: TestProject): Promise<void> {

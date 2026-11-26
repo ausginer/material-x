@@ -1,0 +1,10 @@
+# RF-153's witness, from packages/material-x on d6f6cf60b. Each run: `aube exec just build-prepare` (a list collected from the tree), then
+#   printf '\n:host {\n  --_rf153-witness: 0;\n}\n' >> src/list/styles/sortable/main.styles.css
+# so the list lacks a property that a sheet now has, then `aube exec vitest run --project node`, then the sheet restored.
+## at d6f6cf60b
+Error: Property --_rf153-witness is not collected.
+ Test Files  3 failed (3)
+      Tests  no tests
+## with the repair
+ Test Files  3 passed (3)
+      Tests  38 passed (38)

@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -uo pipefail
+S="${1:?}"
+WT=/workspaces/worktrees/g
+PKG="${WT:?}/packages/material-x"
+LIST="${WT:?}/node_modules/.cache/css/css-private-props.json"
+SHEET="${PKG:?}/src/list/styles/sortable/main.styles.css"
+SETUP="${PKG:?}/tests/support/build-package.node.ts"
+ICON="${PKG:?}/src/icon/icon.ts"
+cp "${LIST:?}" "${S:?}/list.orig"; cp "${SHEET:?}" "${S:?}/sheet.orig"; cp "${SETUP:?}" "${S:?}/setup.orig"; cp "${ICON:?}" "${S:?}/icon.orig"
+restore() { chmod 644 "${LIST:?}" 2>/dev/null; cp "${S:?}/sheet.orig" "${SHEET:?}"; cp "${S:?}/setup.orig" "${SETUP:?}"; cp "${S:?}/icon.orig" "${ICON:?}"; }
+finish() { restore; cp "${S:?}/list.orig" "${LIST:?}"; git -C "${WT:?}" status --short; }
+trap finish EXIT
+cd "${PKG:?}"
+node_run() { # $1 label
+  local out="${S:?}/run-$1.txt"; local t0=$(date +%s%3N)
+  aube exec vitest run -c vitest.config.ts --project node > "$out" 2>&1; local rc=$?
+  echo "## $1 rc=$rc $(( $(date +%s%3N) - t0 )) ms"
+  sed 's/\x1b\[[0-9;]*m//g' "$out" | grep -E "^(Error|TypeError|SyntaxError)|exited with|did not start|not collected|EACCES|ENOENT|Test Files|Tests  " | sort | uniq -c | head -12
+}
+prepare() { aube exec just build-prepare > /dev/null 2>&1 || echo "build-prepare failed"; }
+witness() { printf '\n:host {\n  --_rf153-witness: 0;\n}\n' >> "${SHEET:?}"; }
+
+restore; node_run p0-head-clean
+restore; prepare; witness; git -C "${WT:?}" show d6f6cf60b:packages/material-x/tests/support/build-package.node.ts > "${SETUP:?}"; node_run p1-witness-base-setup
+restore; prepare; witness; node_run p2-witness-head-setup
+grep -c -- '--_rf153-witness' "${LIST:?}" | sed 's/^/p2 list has witness: /'
+restore; prepare; cp "${LIST:?}" "${S:?}/list.fresh"
+node -e 'const f=process.argv[1],j=JSON.parse(require("fs").readFileSync(f,"utf8")),k=Object.keys(j),t=j[k[0]];j[k[0]]=j[k[1]];j[k[1]]=t;require("fs").writeFileSync(f,JSON.stringify(j,null,2))' "${LIST:?}"
+cmp -s "${LIST:?}" "${S:?}/list.fresh" && echo "p3 swap did nothing" || echo "p3 list swapped before run"
+node_run p3-swapped-head-setup
+cmp -s "${LIST:?}" "${S:?}/list.fresh" && echo "p3 list after run equals a fresh collection" || echo "p3 list after run DIFFERS from a fresh collection"
+restore; prepare; chmod 444 "${LIST:?}"; node_run p4-collect-fails-head-setup; chmod 644 "${LIST:?}"
+restore; prepare; printf '\nexport const rf153Probe = ;\n' >> "${ICON:?}"; node_run p5-tsdown-fails-head-setup
+restore; prepare; mv "${LIST:?}" "${S:?}/list.moved"; node_run p6-missing-list-head-setup; [ -e "${LIST:?}" ] && echo "p6 list exists after run" || echo "p6 list still missing after run"; mv -f "${S:?}/list.moved" "${LIST:?}"
+restore; node_run p7-head-clean-again

@@ -5023,6 +5023,12 @@ Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi
 - **Not read:** whether `build-prepare`'s run time matters to the project's setup, and the other packages' node setups, whose builds don't mangle these names.
 - **Plan needed:** no. **Size:** _small_.
 
+**Dated 2026-11-26 by the implementer: the repair is implemented on `material-x/node-build-props-1`,** from `d6f6cf60b`. The node project's global setup, `packages/material-x/tests/support/build-package.node.ts`, now runs what `just build-prepare` runs, `.scripts/css/collect-props.ts`, and then `tsdown`. A failure of either is provided as the build's failure, as before.
+
+- **Witness** ([reading](node-build-props-1/checks/witness.txt)): a list collected by `build-prepare`, then a private property added to the sortable sheet. At `d6f6cf60b`, the project's three files fail with _"Property `--_rf153-witness` is not collected"_. With the repair, its 38 rows pass.
+- **Run time** ([reading](node-build-props-1/checks/times.txt)): the collection takes 0.6 to 0.8 s, and `tsdown` 2.2 to 2.4 s. A run of the node project takes 5.8 to 6.1 s with the repair and 5.2 to 5.7 s without it, so about half a second more. It doesn't matter for the setup.
+- **Checks:** the node project passes (38 rows). Lint and typecheck are clean. Typecheck needed drag rebuilt in the slot: its built types predated `RD-60`.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
