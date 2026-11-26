@@ -1,0 +1,24 @@
+# node .plan/decision-files-1/probes/links.mjs, at 6aa5330e3 (origin/main), 2026-11-26, by the architect
+{
+ "moved": 155,
+ "insideRel": 592,
+ "insideFrag": 1,
+ "insideAbs": 18,
+ "toIndexInside": 1,
+ "elseToIndex": 353,
+ "elseToIndexFrag": 8,
+ "elseFiles": 282,
+ "toDir": 75,
+ "unchanged": 209,
+ "toFile": 61,
+ "fragMoved": 4,
+ "fragOther": 4
+}
+
+# Entry bytes, from each moved heading to the next heading of level 1 to 4
+.plan/00-index.md 499595
+packages/drag/.plan/00-index.md 533569
+RD entries: 62
+DRD entries: 72
+DRO entries: 21
+Decision status rows: 72
