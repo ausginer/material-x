@@ -1,0 +1,25 @@
+# just size in packages/material-x (size-limit, Brotli), at 5e188e4b3, and with src/list/sortable-list.ts and the two list tokens.ts files of origin/main 7ac961122 in the tree. The rows that differ are marked *.
+# composition | main's three files | head
+button-group/button-group | 3.1 kB | 3.1 kB
+button-group/connected-button-group | 4.19 kB | 4.19 kB
+button/button | 4.95 kB | 4.94 kB  *
+button/icon-button | 5.22 kB | 5.21 kB  *
+button/link-button | 4.92 kB | 4.91 kB  *
+button/split-button | 7.9 kB | 7.89 kB  *
+button/switch-button | 5.55 kB | 5.54 kB  *
+button/switch-icon-button | 5.95 kB | 5.94 kB  *
+card/card | 1.35 kB | 1.35 kB
+checkbox/checkbox | 4.32 kB | 4.32 kB
+complete | 26.31 kB | 26.89 kB  *
+fab/fab | 4.21 kB | 4.21 kB
+icon/icon | 712 B | 712 B
+list/list | 625 B | 584 B  *
+list/list-button-item | 5.03 kB | 5.01 kB  *
+list/list-item | 2.85 kB | 2.85 kB
+list/list-link-item | 5.23 kB | 5.19 kB  *
+list/sortable-list | 9.35 kB | 9.94 kB  *
+radio/radio | 3.87 kB | 3.87 kB
+slider/slider | 4.04 kB | 4.04 kB
+text-field/multiline-text-field | 4.56 kB | 4.56 kB
+text-field/text-field | 8.63 kB | 8.64 kB  *
+top-app-bar/top-app-bar | 1.39 kB | 1.39 kB

@@ -1,0 +1,6 @@
+# Chromium at 5e188e4b3, unmutated: tests/list and the files that import the list, browser, spec and node projects. The two node files first failed on a stale private-props cache (tsdown without build-prepare); after 'just build-prepare' they pass.
+ Test Files  2 failed | 12 passed (14)
+      Tests  1153 passed (1153)
+## after build-prepare: the two node files
+ Test Files  2 passed (2)
+      Tests  33 passed (33)
