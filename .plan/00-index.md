@@ -4993,6 +4993,13 @@ Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi
 - **Consumers don't change:** each value of the four properties in material-x's compiled sheets is in seconds: the ripple's `0.15s` and `0.5s`, the landing's `0.65s` and the layout animation's `0.5s` ([reading](parse-ms-1/checks/durations.txt)). Before and after the repair, `parseMs` gives the same milliseconds for each of them.
 - **Checks:** material-x's browser project passes in Chromium (1425 rows). Lint and typecheck are clean.
 
+**Dated 2026-11-26 by the architect, on `material-x/parse-ms-1`: the required property covers a unit in capitals, so the implementer owes a check that ignores the unit's case.** Requested by the coordinator, on `reviewer-1` of the [feature proof](reviews/parse-ms-1/feature-proof-claude.md#reviewer-1-a-time-with-its-unit-in-capitals-still-reads-1000-times-too-long) of `4fcc0a457`.
+
+- **Ruling:** _"a `<time>` in either unit"_ names the CSS type, and [CSS Values 4](https://www.w3.org/TR/css-values-4/#dimensions) makes a unit identifier ASCII case-insensitive. So `250MS` and `250Ms` are `<time>`s in milliseconds, and each engine computes them as `0.25s` ([spellings](reviews/parse-ms-1/checks/spellings.txt)). `parseMs` owes 250 for each.
+- **Why:** reading them as seconds would leave the defect that this entry registers: a value is right only because lightningcss prints units in lowercase, and nothing records that. The case of the unit isn't a defensive check against invalid usage, since the value is valid CSS. The cost is one case fold per read.
+- **Rejected:** the register saying that `parseMs` reads lowercase units only. That would document a limit that costs as many words as the fix and would still depend on the printer.
+- **What the implementer owes:** `parseMs` reads the unit regardless of case. Rows in `tests/core/utils/fns.browser.test.ts` read `250MS` and `250Ms` as 250, `0.25S` as 250, and throw on `MS`. **Witness:** the `250MS` and `250Ms` rows fail at `4fcc0a457` (250000). `0.25S` and `MS` already pass there, so they fix the contract and don't witness the change. Nothing else in the entry changes.
+
 #### RF-153 — material-x's node tests build with a private-property list that may be stale
 
 Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from observation 1 of #310's [feature proof](reviews/sortable-displacement-1/feature-proof-claude.md#observations), relayed by the coordinator. `RF-152` is the entry before this one. Read at `c2ea0dcbe`.
