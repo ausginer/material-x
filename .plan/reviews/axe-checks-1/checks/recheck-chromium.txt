@@ -1,0 +1,98 @@
+# RD-58 (a) recheck at 4012b5bb1, chromium, by the reviewer: node .plan/reviews/axe-checks-1/probes/recheck-mutations.mjs chromium <report> [names]
+## no mutation | chromium | 0 failed, 202 passed, 0 skipped
+   tests/axe.browser.test.ts: 71 passed
+   tests/traits-baseline.browser.test.ts: 1 passed
+   tests/button/split-button.browser.test.ts: 59 passed
+   tests/icon/icon.browser.test.ts: 21 passed
+   tests/button-group/button-group-focus.spec.browser.test.ts: 50 passed
+## the template's aria-hidden on the trailing icon removed | chromium | 1 failed, 201 passed, 0 skipped
+   axe-core mx-split-button should have exactly its listed violations: without secondarylabel
+      AssertionError: Listed: button-name at mx-split-button > mx-icon-button > button (repo:RD-58): expected [] to deeply equal [ Array(1) ]
+## the icon's slot not hidden (RF-137) | chromium | 19 failed, 183 passed, 0 skipped
+   mx-icon should hide its slot
+      Error: expect(element).toHaveAttribute("aria-hidden", "true") // element.getAttribute("aria-hidden") === "true"
+   mx-icon should hide its slot after the slot has its nodes
+      AssertionError: expected [ [ 'childList', null ] ] to deeply equal [ [ 'childList', null ], …(1) ]
+   mx-icon accessibility tree should leave the name of mx-button as its label alone
+      AssertionError: expected { names: [ 'archive Save' ], …(1) } to deeply equal { names: [ 'Save' ], …(1) }
+   mx-icon accessibility tree should leave the name of mx-link-button as its label alone
+      AssertionError: expected { names: [ 'archive Save' ], …(1) } to deeply equal { names: [ 'Save' ], …(1) }
+   mx-icon accessibility tree should leave the name of mx-switch-button as its label alone
+      AssertionError: expected { names: [ 'archive Save' ], …(1) } to deeply equal { names: [ 'Save' ], …(1) }
+   mx-icon accessibility tree should leave the name of extended mx-fab as its label alone
+      AssertionError: expected { names: [ 'archive Save' ], …(1) } to deeply equal { names: [ 'Save' ], …(1) }
+   mx-icon accessibility tree should leave the name of mx-list-button-item as its label alone
+      AssertionError: expected { …(2) } to deeply equal { names: [ 'Save' ], …(1) }
+   mx-icon accessibility tree should leave the name of mx-list-link-item as its label alone
+      AssertionError: expected { …(2) } to deeply equal { names: [ 'Save' ], …(1) }
+   mx-icon accessibility tree should leave the name of mx-text-field as its label alone
+      AssertionError: expected { Object (names, hasIconText) } to deeply equal { names: [ 'Save' ], …(1) }
+   mx-icon accessibility tree should leave the name of mx-split-button's leading button as its label alone
+      AssertionError: expected { …(2) } to deeply equal { names: [ 'Save', 'More' ], …(1) }
+   mx-icon accessibility tree mx-icon-button with the icon alone should take its name from its aria-label
+      AssertionError: expected { Object (names, hasIconText) } to deeply equal { names: [ 'Save' ], …(1) }
+   mx-icon accessibility tree mx-icon-button with the icon alone should have no name without an aria-label
+      AssertionError: expected { names: [ 'archive' ], …(1) } to deeply equal { names: [ '' ], hasIconText: false }
+   mx-icon accessibility tree mx-switch-icon-button with the icon alone should take its name from its aria-label
+      AssertionError: expected { Object (names, hasIconText) } to deeply equal { names: [ 'Save' ], …(1) }
+   mx-icon accessibility tree mx-switch-icon-button with the icon alone should have no name without an aria-label
+      AssertionError: expected { names: [ 'archive' ], …(1) } to deeply equal { names: [ '' ], hasIconText: false }
+   mx-icon accessibility tree mx-fab with the icon alone should take its name from its aria-label
+      AssertionError: expected { Object (names, hasIconText) } to deeply equal { names: [ 'Save' ], …(1) }
+   mx-icon accessibility tree mx-fab with the icon alone should have no name without an aria-label
+      AssertionError: expected { names: [ 'archive' ], …(1) } to deeply equal { names: [ '' ], hasIconText: false }
+   mx-icon accessibility tree should name a control by the label of a named icon
+      AssertionError: expected { names: [ 'Draft Save' ], …(1) } to deeply equal { names: [ 'Draft Save' ], …(1) }
+   mx-icon accessibility tree should expose no text alone
+      AssertionError: expected '{"ignored":false,"role":"generic","na…' not to contain 'archive'
+   mx-icon accessibility tree should expose no text in a static list item
+      AssertionError: expected '{"ignored":false,"role":"generic","na…' not to contain 'archive'
+## useARIA's call out of ButtonCore (witness 2) | chromium | 24 failed, 178 passed, 0 skipped
+   axe-core mx-button should have exactly its listed violations: icon only
+      AssertionError: Listed: none: expected [ 'button-name at mx-button > button' ] to deeply equal []
+   axe-core mx-icon-button should have exactly its listed violations: enabled
+      AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   axe-core mx-icon-button should have exactly its listed violations: disabled
+      AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   axe-core mx-switch-icon-button should have exactly its listed violations: off
+      AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   axe-core mx-switch-icon-button should have exactly its listed violations: on
+      AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   axe-core mx-switch-icon-button should have exactly its listed violations: required with an error
+      AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   axe-core mx-split-button should have exactly its listed violations: closed
+      AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   axe-core mx-split-button should have exactly its listed violations: open
+      AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   axe-core mx-split-button should have exactly its listed violations: disabled
+      AssertionError: Listed: none: expected [ Array(1) ] to deeply equal []
+   axe-core mx-list-button-item should have exactly its listed violations: with a trailing control
+      AssertionError: Listed: nested-interactive at mx-list-button-item > button (repo:RF-144): expected [ …(2) ] to deeply equal [ Array(1) ]
+   axe-core mx-top-app-bar should have exactly its listed violations: with controls
+      AssertionError: Listed: none: expected [ …(2) ] to deeply equal []
+   mx-split-button secondarylabel should name the trailing button
+      AssertionError: expected null to be 'More' // Object.is equality
+   mx-split-button secondarylabel should name the trailing button after it is set as a property
+      AssertionError: expected null to be 'More' // Object.is equality
+   mx-split-button secondarylabel should rename the trailing button when it changes
+      AssertionError: expected null to be 'Other' // Object.is equality
+   mx-split-button secondarylabel should leave the trailing button without a name when it is removed
+      AssertionError: expected [ null, null ] to deeply equal [ 'More', null ]
+   mx-split-button open should be collapsed on the trailing button from the first render
+      AssertionError: expected null to be 'false' // Object.is equality
+   mx-split-button open should be expanded on the trailing button from the first render
+      AssertionError: expected null to be 'true' // Object.is equality
+   mx-split-button open should be on the trailing button after each change
+      AssertionError: expected [ null, null, null ] to deeply equal [ 'true', 'false', 'true' ]
+   mx-split-button accessibility tree should expose the label as the trailing button name
+      AssertionError: expected [ { name: 'Save', …(1) }, …(1) ] to deeply equal [ { name: 'Save', …(1) }, …(1) ]
+   mx-split-button accessibility tree should expose the trailing button as expanded with open
+      AssertionError: expected [ { name: 'Save', …(1) }, …(1) ] to deeply equal [ { name: 'Save', …(1) }, …(1) ]
+   mx-split-button accessibility tree should expose no name of the trailing button without a label
+      AssertionError: expected [ { name: 'Save', …(1) }, …(1) ] to deeply equal [ { name: 'Save', …(1) }, …(1) ]
+   mx-icon accessibility tree should leave the name of mx-split-button's leading button as its label alone
+      AssertionError: expected { names: [ 'Save', '' ], …(1) } to deeply equal { names: [ 'Save', 'More' ], …(1) }
+   mx-icon accessibility tree mx-icon-button with the icon alone should take its name from its aria-label
+      AssertionError: expected { names: [ '' ], hasIconText: false } to deeply equal { names: [ 'Save' ], …(1) }
+   mx-icon accessibility tree mx-switch-icon-button with the icon alone should take its name from its aria-label
+      AssertionError: expected { names: [ '' ], hasIconText: false } to deeply equal { names: [ 'Save' ], …(1) }
