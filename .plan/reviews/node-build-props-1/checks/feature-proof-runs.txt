@@ -1,0 +1,56 @@
+# RF-153 feature proof, read at 776fad3db (material-x/node-build-props-1, PR #316), slot g, 2026-11-26. Nothing else ran in the slot.
+# The probe is feature-proof-probe.sh.txt, run as: probe.sh <scratch dir>. From packages/material-x, each step runs
+#   aube exec vitest run -c vitest.config.ts --project node
+# and the summary counts the distinct error and result lines in its output. Every edited file is restored from a copy;
+# the list is restored byte for byte at the end, and git status was clean after.
+#   p0, p7  the head, unchanged
+#   p1      a list from build-prepare, then --_rf153-witness appended to the sortable sheet, with the setup of d6f6cf60b
+#   p2      the same, with the head's setup; then: does the list name the witness?
+#   p3      a list from build-prepare whose first two short names are swapped (a stale mapping, no missing name), head's setup;
+#           then: does the list after the run equal the fresh one?
+#   p4      the list file chmod 444, so only the collection fails (tsdown only reads it), head's setup
+#   p5      a syntax error appended to src/icon/icon.ts, which the collection doesn't import, so only tsdown fails, head's setup
+#   p6      the list moved away, head's setup
+
+## p0-head-clean rc=0 6302 ms
+      1       Tests  38 passed (38)
+      1  Test Files  3 passed (3)
+## p1-witness-base-setup rc=1 3295 ms
+      1       Tests  no tests
+      1  Test Files  3 failed (3)
+      1 Error: Property --_rf153-witness is not collected.
+      1 Error: aube exec -- tsdown --config tsdown.config.ts exited with 1
+## p2-witness-head-setup rc=0 6345 ms
+      1       Tests  38 passed (38)
+      1  Test Files  3 passed (3)
+p2 list has witness: 1
+p3 list swapped before run
+## p3-swapped-head-setup rc=0 5893 ms
+      1       Tests  38 passed (38)
+      1  Test Files  3 passed (3)
+p3 list after run equals a fresh collection
+## p4-collect-fails-head-setup rc=1 2338 ms
+      1       Tests  no tests
+      1   code: 'EACCES',
+      1  Test Files  3 failed (3)
+      1 Error: node ../../.scripts/css/collect-props.ts exited with 1
+      1 [Error: EACCES: permission denied, open '/workspaces/worktrees/g/node_modules/.cache/css/css-private-props.json'] {
+## p5-tsdown-fails-head-setup rc=1 4617 ms
+      1       Tests  no tests
+      1  Test Files  3 failed (3)
+      1 Error: aube exec -- tsdown --config tsdown.config.ts exited with 1
+## p6-missing-list-head-setup rc=1 863 ms
+      1 Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/g/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/g/packages/vite-custom-element-assets/index.js
+p6 list still missing after run
+## p7-head-clean-again rc=0 5601 ms
+      1       Tests  38 passed (38)
+      1  Test Files  3 passed (3)
+
+## p8: the list moved away, from packages/drag: aube exec vitest run -c vitest.config.ts --project 'node*'; restored after
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/g/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/g/packages/vite-custom-element-assets/index.js
+
+## CI: verify run 45884043443 on 776fad3db00e3be213528e03b8ccf7a8fab018bb, conclusion success; job chromium 140130477666
+ ✓  node/material-x  tests/package-entries.node.test.ts (22 tests) 133ms
+ ✓  node/material-x  tests/list/list-item-opacity-tokens.node.test.ts (11 tests) 5ms
+ ✓  node/material-x  tests/support/visual-contracts.node.test.ts (5 tests) 473ms

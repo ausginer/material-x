@@ -1,0 +1,12 @@
+# RF-151's repair, read by the architect at d6f6cf60b with the implementer's uncommitted rows in the tree.
+# The probe (probes/off-list.browser.test.ts.txt) was appended to a copy of tests/list/sortable-list.browser.test.ts, run with
+#   MX_TEST_ENGINES=<engine> aube exec vitest run -c vitest.config.ts --project 'browser*' <copy> -t "zz selection"
+# from packages/material-x, and removed. It presses B's text in a 240 px list, drags onto C, then moves the held pointer
+# onto a paragraph to the right of the list, reads the document's selection, drops, and reads it again. The page doesn't commit.
+# (B) is this rule appended to src/list/styles/sortable/main.styles.css, then restored:
+#   ::slotted(:state(drag)) { -webkit-user-select: none; user-select: none; }
+base webkit:   {"during":"e text","after":"e text"}
+base chromium: {"during":"","after":""}
+B webkit:      {"during":"","after":""}
+B chromium:    {"during":"","after":""}
+# The implementer's three rows with (B), same run: webkit and chromium pass rows 1 to 3. At base, webkit fails rows 1 and 2.
