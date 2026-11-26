@@ -5034,6 +5034,19 @@ Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi
 - **Not read:** Firefox, WebKit, the deployed site, contrast ratios, the `ZoomedContext` and `CustomPlaceholder` stories' own surfaces beyond the shared classes.
 - **Plan needed:** no. **Size:** _small_.
 
+#### RF-156 — With no private-property list, no package's Vitest run starts, and the error names a cache file
+
+Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `repo/register-observations-10`, from `reviewer-1` of #316's [feature proof](reviews/node-build-props-1/feature-proof-claude.md#reviewer-1--with-no-list-no-packages-vitest-run-starts), requested by the coordinator. `RF-155` is the entry before this one. Read at `6588c7361`.
+
+- **What happens:** in a tree without `node_modules/.cache/css/css-private-props.json`, a package's Vitest run ends before any project starts, with _"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '…/node_modules/.cache/css/css-private-props.json' imported from …/vite-custom-element-assets/index.js"_. The proof read it in material-x and drag ([runs](reviews/node-build-props-1/checks/feature-proof-runs.txt), p6 and p8). The architect read it again in drag, with `aube exec just test tests/stories.browser.test.ts` in slot b, as a _Startup Error_ with the same message.
+- **The cause, by reading:** `packages/vite-custom-element-assets/src/index.ts` and `src/css/css.ts` import the list at module load, with a top-level `await import`. `.scripts/vite-config.ts` imports that package, `.scripts/vitest-config.ts` imports `vite-config.ts`, and every package's `vitest.config.ts` imports `vitest-config.ts`: core, tproc, vite-traits-plugin, material-x, box-quad and drag. So loading the config fails before any global setup, and `RF-153`'s repair, which collects the list in material-x's node setup, never runs. Only `just build-prepare` (`.scripts/css/collect-props.ts`) writes the list.
+- **Why it is a problem:** it is `RF-153`'s first half in another form. A local run in a fresh tree fails for a reason that isn't the code, in a package such as drag whose build doesn't use the list, and the error names a cache file, not the step that writes it. A package's `just test <file>`, which `test-architecture.md` names for one file in an engine, doesn't run the collection.
+- **Tier C:** no consumer observes it, and no instrument gives a wrong result, because the run doesn't start. CI is unaffected: the root `just test` runs `build:prepare` first. #316's repair doesn't cause it and doesn't make it worse.
+- **Required property:** in a tree with no list, a package's Vitest run either starts, with each project's result as in a tree that has one, or fails before any project with an error that names the step that writes the list. A browser project, which doesn't mangle, doesn't need the list's contents. **Witness:** with the list moved away, `just test` in drag and in material-x either starts or names that step. At `6588c7361` both end with the module error above.
+- **Not decided:** whether the repair makes the run start or only names the step. Either meets the property. Starting is the more useful, because a fresh tree then needs nothing before its first run.
+- **Not read:** core, tproc, vite-traits-plugin and box-quad, which the proof lists by reading. A build, `just build-lib`, in a tree with no list.
+- **Plan needed:** no. **Size:** _small_.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
