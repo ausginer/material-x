@@ -2659,7 +2659,7 @@ Tier A, **closed 2026-11-24** on `core/remove-moved-1` (below), pre-existing sin
 
 #### RF-117 — `createEventNotifier` and `DEFAULT_EVENT_INIT` are a factory for events that a plain `Event` states
 
-Tier C, **open**. Registered on 2026-11-23 by the architect, on `repo/register-observations-8`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the deletion (`RD-52` has his words). `RF-116` is on `main` and is the highest `RF-` on any branch on `origin`, so this is the next free number. Each claim below was read at `04047237e`.
+Tier C, **closed 2026-11-26** by #321, on `material-x/use-sortable-1`, at its merge (the last note). Before closure: open. Registered on 2026-11-23 by the architect, on `repo/register-observations-8`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the deletion (`RD-52` has his words). `RF-116` is on `main` and is the highest `RF-` on any branch on `origin`, so this is the next free number. Each claim below was read at `04047237e`.
 
 - **What is there:** `@ydinjs/core/utils/DOM.js` exports `createEventNotifier`, `DEFAULT_EVENT_INIT`, `EventDefinitions` and `EventNotifier`. It has two configured notifiers, core's in `useRovingTabindex.ts` and material-x's `notify` in `core/utils/events.ts`.
   - **Five calls,** for seven dispatches: `SwitchCore` (`input`, `change`), `split-button` (`secondaryaction`), `CheckableCore` (`change`), `TextFieldCore` (`change`), and `useRovingTabindex` (`input`, `change`).
@@ -2685,9 +2685,16 @@ Tier C, **open**. Registered on 2026-11-23 by the architect, on `repo/register-o
 - **No file that this entry reads has changed since `04047237e`:** core's `utils/DOM.ts`, its `README.md` and `tests/utils/DOM.browser.test.ts`, and material-x's `core/utils/events.ts`. The five calls and the seven dispatches are the ones listed above. Each of the six files has a row that reads `composed`. `ReorderEvent` still passes `DEFAULT_EVENT_INIT`. The registry still answers 404 for both packages. `CONTRIBUTING.md` still has no bullet of `RD-52`, so property 5 is still owed.
 - **`core/utils/events.ts` keeps `useClickActivation` and `useFormActivation`.** Moving `useClickActivation` to core is a later item that the owner approved, and not this entry's.
 
+**Dated 2026-11-26 by the implementer: implemented, and closed by #321,** on `material-x/use-sortable-1`, from `7eac994eb` (this branch's merge of `main` at `a36f577f8`), in Chromium (`RD-62`). The commit is `e67e120bb`.
+
+- **Properties 1 to 3:** the four exports, their four rows and the README's example leave core. `toggleState` stays in the example. `notify` leaves `core/utils/events.ts`, which keeps `useClickActivation` and `useFormActivation`. Each dispatch is a plain `Event` that states its flags. A flag that is `false` is the platform's default, so it isn't written, as in `RD-52`'s example. `ReorderEvent` passes `{ bubbles: true, cancelable: true, composed: true }`. No alias is kept.
+- **Property 4 and the witness:** each flag of each of the eight sites (seven dispatches and `ReorderEvent`), flipped one at a time, fails at least one row of the site's file. All 24 do ([reading](use-sortable-1/checks/event-flags.txt), [probe](use-sortable-1/probes/event-flags.mjs)). No row was edited. Core's rows pass (390), and so do material-x's browser rows (1423).
+- **Property 5:** `CONTRIBUTING.md`, Part I, _Shape_, has `RD-52`'s bullet in its wording, and the change record has its row.
+- **Sizes** ([reading](use-sortable-1/checks/sizes-rf117.txt)): no row grows. `complete` goes from 26.91 to 26.77 kB, and the switch, checkbox, radio, split-button, connected-button-group and text-field rows lose 50 to 70 B each.
+
 #### RF-118 — `mx-sortable-list`'s constructor mixes the state of four lifetimes, and retains removed items
 
-Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-8`, from Mx Architect Explainer, relayed by the coordinator. `RF-117` is the entry before this one, so this is the next free number. Read at `04047237e`.
+Tier C, **closed 2026-11-26** by #321, on `material-x/use-sortable-1`, at its merge (the last note). Before closure: open. Pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-8`, from Mx Architect Explainer, relayed by the coordinator. `RF-117` is the entry before this one, so this is the next free number. Read at `04047237e`.
 
 - **What is there:** one closure in `SortableList`'s constructor holds the state of the element (`items`, the slot, the config), of a connection (`controller`), of a drag (`dragged`) and of a proposal (`others`, `commit`). It is about 150 lines, and the protocol with `@ydinjs/drag` is the largest part of it.
 - **The retention, by reading:** `onReorder` writes `others`, `isAtSlot` reads it for `onEnd` and for the wait, and nothing clears it. So the list keeps the other items of its last proposal, with those that the consumer has since removed, until the next proposal. They are removed elements held by a live list, and the count is bounded by one proposal. `commit` is cleared when the wait is done, also when the controller is destroyed, because the destruction aborts the verdict's signal. Not measured.
@@ -2739,6 +2746,18 @@ Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
   - **The later items that the owner approved,** among them moving `parseMs` to core, change the hook's imports when they come. They aren't this unit's.
 - **Size:** `list/sortable-list` is 9.94 kB after `RD-60`. The acceptance's size reading is against the base of this unit.
 - **Ready,** after `RF-117` and on its branch. The two entries are one pull request, which closes #207 and #208.
+
+**Dated 2026-11-26 by the implementer: implemented, and closed by #321,** on `material-x/use-sortable-1`, after `RF-117`, in Chromium (`RD-62`). The commit is `5472eba5b`.
+
+- **Properties 1, 2, 5 and 7:** the constructor is `super(); useListCore(this, [sortableStyles]); useSortable(this);`. `src/list/useSortable.ts` exports `useSortable(host: ControlledElement): void`, with no options, and owns everything that the amended property 2 lists. `onStart`'s `getComputedStyle(dragged).getPropertyValue('--_level')` keeps its comment.
+- **Property 3:** `createProposal` returns one object per `reorder`, which holds the request, the other items, `isAtSlot`, and `wait(signal)` with its timer and signal. `commit()` checks the slot only during the wait, and is inert before and after it. `proposal` replaces `others` and `commit`. `onEnd` reads it and then clears it, and the disconnect clears it, since destruction calls no `onEnd`. A disconnect inside the `reorder` handler clears it before the wait starts. The wait still ends, when the deferred destruction aborts the signal.
+- **Property 4:** `ReorderEvent` and `ReorderEventInit` are in `src/list/reorder-event.ts`, and `sortable-list.ts` re-exports both.
+- **Property 6:** only `sortable-list.ts` imports the hook. The node row _"should reach @ydinjs/drag from list/sortable-list"_ and the rows that no other entry reaches drag pass (38 rows).
+- **No behavior change:** material-x's browser rows pass unedited (1423). The registration order is the amended one: `useCSSProps(LAYOUT_CSS_PROPS)`, `useCSSProps(DRAG_CSS_PROPS)`, `useProvider`, `use(host, …)`. `useAriaNotifyPolyfill` and `useSlot` keep their places.
+- **Readings** ([manifest](use-sortable-1/checks/manifest.txt)):
+  - `react.d.ts` is byte-identical.
+  - In `custom-elements.json`, `src/list/sortable-list.ts` no longer declares the `ReorderEvent` class. It exports `ReorderEvent` and `ReorderEventInit` from `./reorder-event.ts`, which the manifest doesn't list, because it lists only `files.json`'s runtime entrypoints. The `reorder` event's description doesn't change. No document or script reads the class from the manifest. This is an observation for the architect, and the unit doesn't change the manifest's configuration.
+- **Size** ([reading](use-sortable-1/checks/sizes-rf118.txt)): `list/sortable-list` goes from 9.94 to 10 kB, and `complete` from 26.77 to 26.84 kB, against `e67e120bb`. No other row changes. The hook's single call site is kept under §2.1, as the boundary between the element's public API and the drag protocol.
 
 #### RF-119 — A control in a disabled fieldset isn't disabled
 
