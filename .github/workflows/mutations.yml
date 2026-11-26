@@ -19,8 +19,8 @@
 # engines and fails on any outcome other than _as expected_ and on any mutation
 # that differs between engines. A leg that refuses the file in its engine fails
 # the summary, which names it, and running it again refuses it again. A leg
-# that fails for another reason outside the tests fails the summary too; run it
-# again.
+# that fails for another reason outside the tests, such as a browser that
+# doesn't start, fails the summary too; run it again.
 name: mutations
 
 on:

@@ -97,7 +97,32 @@ The 18 rows of `9a65f1a89` are described in [after the feature proof](#after-the
   - _a row that one engine skips counts_ fails the row of a file that doesn't load in one engine;
   - _nothing rebuilds_ fails _after a run that fails midway_.
 
+## After the recheck
+
+**The [recheck](../reviews/mutations-1/feature-proof-recheck-claude.md)'s four findings, by the implementer, on 2026-11-26,** on `repo/mutations-1` from `bf08f711d`. Requested by the coordinator. The code, the rows and the witnesses are at `0ec97ff3f`. The package has 30 rows.
+
+- **`recheck-1`, a browser that doesn't start.** Vitest then exits with 1, prints the reason on its standard error, and its JSON lists the file as passed with no row. `runVitest` now keeps that output as the run's `failure` when Vitest exits non-zero and neither a failed row nor a test file's message reports why. The stack frames are left out, so the reason fits in the lines kept.
+  - **Unmutated:** the run fails with 3, with Vitest's output, and isn't a refusal. In CI, the leg uploads no report, and the summary says _run it again_. The engine failed, not the file, and the next run may start it. No ruling was needed: `RD-65`'s CLI gives 2 to a refusal of the file and 3 to any other failure. The CLI's header now says so.
+  - **With a mutation:** each row that didn't run reads _void_, with Vitest's output as its reason in the report and the summary.
+- **`recheck-2`, a local run's file commit.** `fileCommit` is set only when one checkout holds the file, the config and the tool's own source, and `git status --ignored` shows none of them modified, new or ignored. Otherwise the summary says _"the file and the runner at no commit that holds them as they ran"_. A CI leg's `.mutator/` checkout holds all three and is clean, so a dispatched run reads as before. No ruling was needed: `RD-66` property 1 names the commit that the file and the runner came from, and the new form names one only when that is true.
+- **`recheck-3`, rows for the summary.** The helper now writes the summary and can commit the file and the config, and also a copy of the tool's source, in a second commit after the fixture's. New rows:
+  - The code at `HEAD~1`, the file, the config and the runner at `HEAD`: the summary names both commits, and the report's `fileCommit` is `HEAD`.
+  - The same with the file modified after its commit: no commit.
+  - The file and the config committed, and the runner from the package's own checkout: no commit.
+  - The summary prints the first reason under the row, for a test file that doesn't load, for a skipped row and for a browser that doesn't start.
+  - A survivor whose row the mutation skips (`it.skip`) reads _void_, with _the row was skipped_.
+- **`recheck-1`'s rows:** a mutation of the fixture's config that stops its browser from starting reads _void_ with Vitest's output, and the same edit committed before the run makes the run exit with 3, not 2.
+- **`recheck-4`.** `parseArgs` runs inside `main`, so an unknown option exits with 3, as a failure outside the tests. New row: `--workdir .` exits with 3 and names the option.
+- **The workflow** is unchanged, except that its header names a browser that doesn't start as a failure outside the tests.
+- **A short `TMPDIR`:** the rows and the witnesses ran with `TMPDIR=/tmp` and a directory directly under it, as the recheck advises.
+
+**The witnesses, in Chromium:**
+
+- **Run 5, at `0ec97ff3f`** ([summary](checks/mutator-chromium-5.md), [report](checks/mutator-chromium-5.json)): 30 rows unmutated, and **every outcome of the 32 _as expected_**, the recheck's three mutations among them. The ten new witnesses fail their rows: the file's commit as the code's fails the three commit rows, and the summary without the reason fails the three rows that read it. The summary's first line names `0ec97ff3f` for the file and the runner, which held them as they ran. Nothing named `mutator-*` was left in the temporary directory, and no worktree.
+
 ## Checks
+
+**After the recheck:** `packages/mutator`: format, lint and typecheck, and its 30 rows. The witnesses above, run 5. The workflow's `oxfmt --check`. **Not run:** the workflow on GitHub.
 
 **After the feature proof:** `packages/mutator`: format, lint and typecheck, and its 23 rows. The witnesses above, run 4 with no worktree and no `mutator-*` directory left after it. The workflow's YAML parses and `oxfmt --check` passes on it. **Not run:** the workflow on GitHub.
 
