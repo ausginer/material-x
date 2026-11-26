@@ -1,0 +1,6 @@
+#!/bin/bash
+# swap.sh main|head: the unit's two style files
+cd /workspaces/worktrees/d || exit 1
+F="packages/material-x/src/icon/styles/icon.ctr.css packages/material-x/src/list/styles/item/main.styles.css"
+case $1 in main) for f in $F; do git show d20c47bda:$f > $f; done;; head) git checkout -q HEAD -- $F;; esac
+git status --short

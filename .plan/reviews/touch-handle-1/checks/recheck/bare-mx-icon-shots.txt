@@ -1,0 +1,25 @@
+# A static item in mx-sortable-list with a bare mx-icon handle (drag_indicator), at rest and focused by Tab, screenshot of its 324x80 frame at device scale 1 (proof-shot), unmutated against W4a and W4b, pixels that differ (cmp.mjs). 'focused true' is document.activeElement === the handle.
+chromium | W4a | lead rest | focused false | 324x80 | 0 pixels differ
+chromium | W4a | lead focus | focused true | 324x80 | 0 pixels differ
+chromium | W4a | trail rest | focused false | 324x80 | 0 pixels differ
+chromium | W4a | trail focus | focused true | 324x80 | 0 pixels differ
+chromium | W4b | lead rest | focused false | 324x80 | 119 pixels differ
+chromium | W4b | lead focus | focused true | 324x80 | 119 pixels differ
+chromium | W4b | trail rest | focused false | 324x80 | 0 pixels differ
+chromium | W4b | trail focus | focused true | 324x80 | 0 pixels differ
+firefox | W4a | lead rest | focused false | 324x80 | 0 pixels differ
+firefox | W4a | lead focus | focused true | 324x80 | 0 pixels differ
+firefox | W4a | trail rest | focused false | 324x80 | 0 pixels differ
+firefox | W4a | trail focus | focused true | 324x80 | 0 pixels differ
+firefox | W4b | lead rest | focused false | 324x80 | 119 pixels differ
+firefox | W4b | lead focus | focused true | 324x80 | 119 pixels differ
+firefox | W4b | trail rest | focused false | 324x80 | 0 pixels differ
+firefox | W4b | trail focus | focused true | 324x80 | 0 pixels differ
+webkit | W4a | lead rest | focused false | 324x80 | 0 pixels differ
+webkit | W4a | lead focus | focused true | 324x80 | 0 pixels differ
+webkit | W4a | trail rest | focused false | 324x80 | 0 pixels differ
+webkit | W4a | trail focus | focused true | 324x80 | 0 pixels differ
+webkit | W4b | lead rest | focused false | 324x80 | 119 pixels differ
+webkit | W4b | lead focus | focused true | 324x80 | 119 pixels differ
+webkit | W4b | trail rest | focused false | 324x80 | 0 pixels differ
+webkit | W4b | trail focus | focused true | 324x80 | 0 pixels differ

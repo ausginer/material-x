@@ -1,0 +1,70 @@
+# The focused handles, by probes/remedy-boxes.mjs on a build of main with rules adopted, Chromium 158.0.8127.18, read by the architect on 2026-11-26 at 58133523a
+# handle: [x, y, width, height]; gaps: the inner mx-icon's distance from the handle's top and bottom edges
+# F, the candidate: :is(.lead, .trail)::slotted([data-handle]:not(mx-icon, [hidden]:not([hidden="until-found" i]))) { display: inline-grid; place-items: center; } .lead::slotted([data-handle]:not(mx-icon)) { line-height: normal; }
+# Static item only. E, not adopted: the same for every handle, mx-icon too. It moves the glyph in a bare mx-icon handle.
+
+## main
+lead-span-text         inline       line-height 0px     [36,39,9.34,17]              
+lead-mx-icon           inline-block line-height 20px    [36,38,20,20]                
+lead-span-mx-icon      inline       line-height 0px     [36,43,16,17]                gaps -3/4
+lead-mx-icon-button    contents     line-height 0px     [0,0,0,0]                    gaps 38/-62
+lead-button-mx-icon    inline-block line-height normal  [36,36.83,29.33,22.33]       gaps 3/6
+trail-span-text        inline       line-height 16px    [297.28,42,6.72,12]          
+trail-mx-icon          inline-block line-height 20px    [284,38,20,20]               
+trail-span-mx-icon     inline       line-height 16px    [293,42,11,12]               gaps -2/3
+trail-mx-icon-button   contents     line-height 16px    [0,0,0,0]                    gaps 38/-62
+trail-button-text      inline-block line-height 16px    [281.28,37,22.72,22]         
+
+## head
+lead-span-text         inline-block line-height 0px     [36,48,9.34,0]               
+lead-mx-icon           inline-block line-height 20px    [36,38,20,20]                
+lead-span-mx-icon      inline-block line-height 0px     [36,40,16,16]                gaps 0/0
+lead-mx-icon-button    inline-block line-height 0px     [36,30,40,40]                gaps 8/8
+lead-button-mx-icon    inline-block line-height normal  [36,36.83,29.33,22.33]       gaps 3/6
+trail-span-text        inline-block line-height 16px    [297.28,40,6.72,16]          
+trail-mx-icon          inline-block line-height 20px    [284,38,20,20]               
+trail-span-mx-icon     inline-block line-height 16px    [293,40,11,16]               gaps 0/5
+trail-mx-icon-button   inline-block line-height 16px    [264,30,40,40]               gaps 8/8
+trail-button-text      inline-block line-height 16px    [281.28,37,22.72,22]         
+
+## E
+lead-span-text         inline-grid  line-height normal  [36,39,9.34,18]              
+lead-mx-icon           inline-grid  line-height normal  [36,38,20,20]                
+lead-span-mx-icon      inline-grid  line-height normal  [36,40,16,16]                gaps 0/0
+lead-mx-icon-button    inline-grid  line-height normal  [36,30,40,40]                gaps 8/8
+lead-button-mx-icon    inline-grid  line-height normal  [36,38.33,29.33,19.33]       gaps 3/3
+trail-span-text        inline-grid  line-height 16px    [297.28,40,6.72,16]          
+trail-mx-icon          inline-grid  line-height 20px    [284,38,20,20]               
+trail-span-mx-icon     inline-grid  line-height 16px    [293,42.5,11,11]             gaps 0/0
+trail-mx-icon-button   inline-grid  line-height 16px    [264,30,40,40]               gaps 8/8
+trail-button-text      inline-grid  line-height 16px    [281.28,37,22.72,22]         
+
+## F
+lead-span-text         inline-grid  line-height normal  [36,39,9.34,18]              
+lead-mx-icon           inline-block line-height 20px    [36,38,20,20]                
+lead-span-mx-icon      inline-grid  line-height normal  [36,40,16,16]                gaps 0/0
+lead-mx-icon-button    inline-grid  line-height normal  [36,30,40,40]                gaps 8/8
+lead-button-mx-icon    inline-grid  line-height normal  [36,38.33,29.33,19.33]       gaps 3/3
+trail-span-text        inline-grid  line-height 16px    [297.28,40,6.72,16]          
+trail-mx-icon          inline-block line-height 20px    [284,38,20,20]               
+trail-span-mx-icon     inline-grid  line-height 16px    [293,42.5,11,11]             gaps 0/0
+trail-mx-icon-button   inline-grid  line-height 16px    [264,30,40,40]               gaps 8/8
+trail-button-text      inline-grid  line-height 16px    [281.28,37,22.72,22]         
+
+## Pixels of the focused screenshots, head against F, of the ten cases read, at a device scale of 4. Nothing at rest was read
+pixels mx-list-item-lead-button-mx-icon-focus.png: 4563 differ
+pixels mx-list-item-lead-mx-icon-button-focus.png: same
+pixels mx-list-item-lead-mx-icon-focus.png: same
+pixels mx-list-item-lead-span-mx-icon-focus.png: same
+pixels mx-list-item-lead-span-text-focus.png: 4224 differ
+pixels mx-list-item-trail-button-text-focus.png: same
+pixels mx-list-item-trail-mx-icon-button-focus.png: same
+pixels mx-list-item-trail-mx-icon-focus.png: same
+pixels mx-list-item-trail-span-mx-icon-focus.png: 3270 differ
+pixels mx-list-item-trail-span-text-focus.png: same
+
+## Pixels, head against E
+pixels mx-list-item-lead-button-mx-icon-focus.png: 4563 differ
+pixels mx-list-item-lead-mx-icon-focus.png: 989 differ
+pixels mx-list-item-lead-span-text-focus.png: 4224 differ
+pixels mx-list-item-trail-span-mx-icon-focus.png: 3270 differ

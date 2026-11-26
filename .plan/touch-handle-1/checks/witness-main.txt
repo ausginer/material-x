@@ -1,0 +1,18 @@
+# Chromium 158.0.8127.18. The rows of tests/list/sortable-list.browser.test.ts that match 'touch|handle box', with the two CSS files of the change at origin/main (d20c47bda) and the rest of the branch.
+✓ |browser (chromium)| mx-sortable-list disabled items > should keep the touch-action that the page writes on a handle after the claim
+✓ |browser (chromium)| mx-sortable-list handle box > should keep a page's display on a handle
+✓ |browser (chromium)| mx-sortable-list handle box > should keep a hidden handle hidden
+× |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by a span with text
+× |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by an mx-icon
+× |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by a span with an mx-icon
+× |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by an mx-icon-button
+× |browser (chromium)| mx-sortable-list touch > in lead > should propose a move in a touch drag by a native button with an mx-icon
+× |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by a span with text
+× |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by an mx-icon
+× |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by a span with an mx-icon
+× |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by an mx-icon-button
+× |browser (chromium)| mx-sortable-list touch > in trail > should propose a move in a touch drag by a native button with an mx-icon
+✓ |browser (chromium)| mx-sortable-list touch > should propose nothing in a swipe on a mx-list-item without a handle
+✓ |browser (chromium)| mx-sortable-list touch > should propose nothing in a swipe on a mx-list-button-item without a handle
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+Tests  10 failed | 5 passed | 161 skipped (176)

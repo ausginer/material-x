@@ -1,0 +1,20 @@
+// Pixels that differ between the screenshots of two runs of proof-shot, per engine and case.
+import { readFileSync, readdirSync } from 'node:fs';
+import { createRequire } from 'node:module';
+const { PNG } = createRequire('/workspaces/worktrees/d/package.json')('pngjs');
+const dir = process.argv[2];
+const shots = (file) => Object.fromEntries(readFileSync(file, 'utf8').split('\n').filter((l) => / shot \| /.test(l)).filter((l, i, a) => a.indexOf(l) === i)
+  .map((l) => { const [head, mid, active, b64] = l.split(' | '); return [mid, { active, png: PNG.sync.read(Buffer.from(b64.trim(), 'base64')) }]; }));
+for (const e of ['chromium', 'firefox', 'webkit']) {
+  const base = shots(`${dir}/${e}-no-mutation.out`);
+  for (const m of ['W4a-the-grid-rule-on-a-bare-mx-icon-too', 'W4b-the-lead-line-height-on-a-bare-mx-icon-too']) {
+    const other = shots(`${dir}/${e}-${m}.out`);
+    for (const [k, { active, png }] of Object.entries(base)) {
+      const o = other[k].png;
+      let n = 0;
+      if (o.width !== png.width || o.height !== png.height) n = -1;
+      else for (let i = 0; i < png.data.length; i += 4) if (png.data.readUInt32BE(i) !== o.data.readUInt32BE(i)) n += 1;
+      console.log(`${e} | ${m.slice(0, 3)} | ${k} | focused ${active} | ${png.width}x${png.height} | ${n} pixels differ`);
+    }
+  }
+}

@@ -1,0 +1,16 @@
+# 2026-11-26, Claude Code 2.1.332. The writer (writer-lines.sh) run on each captured payload, in order, with CLAUDE_CONFIG_DIR set to a scratch directory. After each run: the files in ctx/ and the one file.
+Mx Probe Statusline.json
+{"session_name":"Mx Probe Statusline","session_id":"58a74a0c-9913-4df4-9233-2b90c4fadec3","transcript_path":"/agents/claude/projects/-workspaces-worktrees-b/58a74a0c-9913-4df4-9233-2b90c4fadec3.jsonl","cwd":"/workspaces/worktrees/b","context_window":{"total_input_tokens":0,"context_window_size":1000000,"used_percentage":null}}
+Mx Probe Statusline.json
+{"session_name":"Mx Probe Statusline","session_id":"58a74a0c-9913-4df4-9233-2b90c4fadec3","transcript_path":"/agents/claude/projects/-workspaces-worktrees-b/58a74a0c-9913-4df4-9233-2b90c4fadec3.jsonl","cwd":"/workspaces/worktrees/b","context_window":{"total_input_tokens":45200,"context_window_size":1000000,"used_percentage":5}}
+Mx Probe Statusline.json
+{"session_name":"Mx Probe Statusline","session_id":"e84bc56f-f66b-4b96-9f3c-6b7773402ca1","transcript_path":"/agents/claude/projects/-workspaces-worktrees-b/e84bc56f-f66b-4b96-9f3c-6b7773402ca1.jsonl","cwd":"/workspaces/worktrees/b","context_window":{"total_input_tokens":0,"context_window_size":1000000,"used_percentage":null}}
+Mx Probe Statusline.json
+{"session_name":"Mx Probe Statusline","session_id":"e84bc56f-f66b-4b96-9f3c-6b7773402ca1","transcript_path":"/agents/claude/projects/-workspaces-worktrees-b/e84bc56f-f66b-4b96-9f3c-6b7773402ca1.jsonl","cwd":"/workspaces/worktrees/b","context_window":{"total_input_tokens":51200,"context_window_size":1000000,"used_percentage":5}}
+# A payload with no session_name writes no file; ctx/ after it:
+Mx Probe Statusline.json
+# 50 runs of the writer, then 50 runs of the owner's current statusline-command.sh, on payload 4:
+real	0m0.735s
+real	0m0.935s
+# file size:
+400
