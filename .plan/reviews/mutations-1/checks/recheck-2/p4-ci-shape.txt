@@ -1,0 +1,19 @@
+A=ddc73ae536b9657fdd9a4cc1051b42e9f0389fa1 RUNNER=2ee92803b8b8a5110317004a27c2f7b2c007f06d
+
+## 1. The leg's form: node .mutator/packages/mutator/src/cli.ts, every file clean
+exit 0
+{"file":"mutations.ts","commit":"ddc73ae536b9657fdd9a4cc1051b42e9f0389fa1","fileCommit":"2ee92803b8b8a5110317004a27c2f7b2c007f06d","outcome":"as expected"}
+The code at ddc73ae536b9657fdd9a4cc1051b42e9f0389fa1, the file and the runner at 2ee92803b8b8a5110317004a27c2f7b2c007f06d, in a.
+
+## 2. The same, with .mutator/mutations.ts modified
+.mutator status: [ M mutations.ts]
+exit 0
+{"file":"mutations.ts","commit":"ddc73ae536b9657fdd9a4cc1051b42e9f0389fa1","fileCommit":null,"outcome":"as expected"}
+The code at ddc73ae536b9657fdd9a4cc1051b42e9f0389fa1, the file and the runner at no commit that holds them as they ran, in a.
+
+## 3. Clean again, the tool from /workspaces/worktrees/e instead
+exit 0
+{"file":"mutations.ts","commit":"ddc73ae536b9657fdd9a4cc1051b42e9f0389fa1","fileCommit":null,"outcome":"as expected"}
+The code at ddc73ae536b9657fdd9a4cc1051b42e9f0389fa1, the file and the runner at no commit that holds them as they ran, in a.
+
+left in TMPDIR: []
