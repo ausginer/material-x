@@ -7813,6 +7813,14 @@ Tier C, **open**, **ready** (the last note), pre-existing. Registered on 2026-11
 
 ## Questions
 
+**Dated 2026-11-26 by the architect, on `material-x/icon-middle-1`: the stop is ruled. The `trail` case is (a), accepted, and the unit goes on.** Requested by the coordinator, on the implementer's note above at `fc54fc942`. Nothing is the owner's: his (a) covers it, and _Where it shows_ names it.
+
+- **A page's `<span slot="trail">` with an `mx-icon` in it is a page's own text, and the icon is inline in it.** By the list's contract a `trail` child that isn't an `mx-icon` or `[data-icon]` is trailing text: the slot gives it the trailing text's font, size and line height, and the icon in it takes the text's size, 11 px. The property places that icon's middle on that text's lowercase middle, and the reading has it there, 2.97 px lower than on `main`. Nothing of the package moves: the item's box is the same (`20, 20, 300, 56` before and after, `checks/boxes.txt`), and so are a slotted `mx-icon`, a `[data-icon]` and a control in `lead` and `trail`. In `lead` the same page `span` doesn't move.
+- **What the _Stop_ line means, for the rest of the unit:** _"an element of the package moves"_ is a box of a package element, or of a child that the package places itself: a slotted `mx-icon` or `[data-icon]`, a control, or a sortable handle. An `mx-icon` inside a page's own inline element is the property's subject, and moving it is the repair.
+- **The handles, case 1, stay a condition.** A handle is a child that the package places, so its icon moving on `main` is the stop. With #296's CSS none moves. **The unit merges after #296,** merges `main` then, and reads `probes/boxes.mjs` again. If a handle's icon moves there, it stops again.
+- **Nothing more is owed** for the `trail` case: no row, because the property's rows already hold an icon inline in a `span` of text, and no line in `list.mdx`, whose `trail` already says that a child other than an icon is text. A trailing icon the page wants centered in the item is slotted itself, as the stories do.
+- **The status above** stays _ready_. The implementer's next step is #296's merge.
+
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
 
 `architect-test-execution-model-r4.md` §The local register carries forty-odd rows whose `Canonical` column reads `unassigned`. This closure assigns `RF-1`…`RF-22` over the findings a **review pass** produced, and stops there for a reason that is not arbitrary: `TE-D12`…`TE-D21` are decisions, and RD-1 keeps the kind letter separate precisely because **only the architect mints one**; `TE-F1`…`TE-F35` are the design and challenge passes' own findings, which no review pass owns and which a consolidator numbering them would be allocating on someone else's behalf.
