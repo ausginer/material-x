@@ -1,0 +1,11 @@
+# just size at 8bed561de, Brotli bytes, main then the candidate; the rows that differ. One reading of each.
+15,16c15,16
+<  name : list/list-button-item 	 size : 4898
+<  name : list/list-link-item 	 size : 5121
+---
+>  name : list/list-button-item 	 size : 4922
+>  name : list/list-link-item 	 size : 5125
+23c23
+<  name : complete 	 size : 25879
+---
+>  name : complete 	 size : 25797

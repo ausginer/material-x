@@ -1,0 +1,6 @@
+candidate chromium  Test Files  7 passed (7)
+candidate chromium       Tests  409 passed (409)
+candidate firefox  Test Files  7 passed (7)
+candidate firefox       Tests  397 passed | 2 skipped (399)
+candidate webkit  Test Files  7 passed (7)
+candidate webkit       Tests  407 passed | 2 skipped (409)
