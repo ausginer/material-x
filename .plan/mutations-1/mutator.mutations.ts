@@ -328,6 +328,9 @@ const config: MutationFile = {
       expect: {
         fails: [
           row(
+            'should wait for a command that a signal stops before it removes the copy',
+          ),
+          row(
             'should stop its Vitest and leave nothing after SIGTERM to the tool alone',
           ),
         ],
@@ -346,7 +349,7 @@ const config: MutationFile = {
       expect: {
         fails: [
           row(
-            'should stop its Vitest and leave nothing after SIGTERM to the tool alone',
+            'should wait for a command that a signal stops before it removes the copy',
           ),
         ],
       },

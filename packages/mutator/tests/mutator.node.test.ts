@@ -95,6 +95,8 @@ async function processesIn(dir: string): Promise<number> {
 
 type MutateOptions = Readonly<{
   rebuildCommand?: readonly string[];
+  /** A command that the setup runs after the fixture's own. */
+  setup?: readonly string[];
   prepare?(repo: string, temp: string): Promise<void>;
   /** A signal sent to the tool's process alone when its log has `after`. */
   interrupt?: Readonly<{ signal: NodeJS.Signals; after: string }>;
@@ -108,6 +110,7 @@ async function mutate(
   file: MutationFile,
   {
     rebuildCommand = ['node', 'build.ts'],
+    setup,
     prepare,
     interrupt,
   }: MutateOptions = {},
@@ -138,6 +141,7 @@ async function mutate(
       setup: [
         ['ln', '-s', NODE_MODULES, 'node_modules'],
         ['node', 'build.ts'],
+        ...(setup ? [setup] : []),
       ],
       engines: {
         a: { env: { FIXTURE_ENGINE: 'a' } },
@@ -357,6 +361,43 @@ describe('mutator run, the invoking checkout', () => {
         result.leftovers,
         result.processes,
       ]).toEqual([143, undefined, 'unchanged', [], 0]);
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'should wait for a command that a signal stops before it removes the copy',
+    async () => {
+      // Once it prints its line, SIGTERM makes it write into the copy half a
+      // second later, recreating the copy's directory if it is gone. It ends by
+      // itself after 5 s.
+      const lingering = [
+        'node',
+        '-e',
+        [
+          "const { mkdirSync, writeFileSync } = require('node:fs');",
+          "const { join } = require('node:path');",
+          'const dir = process.cwd();',
+          "process.on('SIGTERM', () => setTimeout(() => {",
+          '  mkdirSync(dir, { recursive: true });',
+          "  writeFileSync(join(dir, 'late'), '');",
+          '  process.exit(1);',
+          '}, 500));',
+          'setTimeout(() => process.exit(0), 5000);',
+          "console.log('lingering');",
+        ].join('\n'),
+      ];
+      const result = await mutate(fileOf([CLAMP]), {
+        setup: lingering,
+        interrupt: { signal: 'SIGTERM', after: 'lingering\n' },
+      });
+
+      expect([
+        result.code,
+        result.state,
+        result.leftovers,
+        result.processes,
+      ]).toEqual([143, 'unchanged', [], 0]);
     },
     TIMEOUT,
   );
