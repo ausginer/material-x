@@ -1,0 +1,4 @@
+# RF-152's reading, at 5448c4fd6: node .plan/sortable-displacement-1/probes/lightningcss-time.mjs
+input: :host{--a:500ms;--b:150ms;--c:100ms;--d:99ms;--e:50ms;--f:0ms;--g:2s}
+minify=false: :host { --a: .5s; --b: .15s; --c: .1s; --d: 99ms; --e: 50ms; --f: 0s; --g: 2s; }
+minify=true: :host{--a:.5s;--b:.15s;--c:.1s;--d:99ms;--e:50ms;--f:0s;--g:2s}

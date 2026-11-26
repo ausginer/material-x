@@ -3317,7 +3317,7 @@ Tier A, **closed on 2026-11-24** (the last note), pre-existing. Before closure: 
   - **(b) The footprint fades in, by a transition on opacity.** Read: with 200 ms, the footprint's frames in the story's commit and the next task's have an opacity of at most 0.026, and not 0.16, in the three engines, by `@keyframes` or by `@starting-style`, and a slow commit still shows the footprint. It needs nothing from drag. It costs that a pointer drag's footprint fades in again at each slot, because drag re-inserts the placeholder to move it. That part wasn't drawn.
   - (c) No footprint and no flight: the item jumps, as with `reduce`. The user has to find it.
   - (d) The placeholder stays as it is.
-- **The neighbors aren't animated** in either case. `RD-31` doesn't adopt `layoutAnimation`.
+- **The neighbors aren't animated** in either case. `RD-31` doesn't adopt `layoutAnimation`. (**Superseded 2026-11-26 by `RD-60`,** at the merge of #266's unit: the neighbors are animated by `layoutAnimation`, for both kinds.)
 - **How the list tells a command: drag tells it,** by `drag:DRD-71`, `onStart`'s second argument. Amended 2026-11-24, as the last paragraph says.
   1. At each `onStart`, the list sets a custom state of its own to whether the kind is `'command'`. The footprint's rule doesn't paint while the list has it.
   2. **Nothing clears it,** because every `onStart` writes it, and a placeholder exists only within an operation: drag inserts it just before `onStart` and removes it at release. So a pointer drag after a command, after a destruction or after a reconnect starts with the state off, before anything paints.
@@ -4961,6 +4961,40 @@ Tier B, **open**, cause not read, pre-existing. Registered on 2026-11-26 by the 
 - **The direction, for the unit that takes it:** first make the row's failure say which value differed, with the frames read. Then repeat it in WebKit beside a load, as `RF-60`'s reproduction did.
 - **Not read:** CI's history of the row, Chromium and Firefox under the same load, Safari.
 - **Plan needed:** no. **Size:** _not known yet._
+
+#### RF-151 — In WebKit, a mouse drag of a list item highlights its text
+
+Tier A, **open**, **ready**, not this unit's. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from the implementer's side observation in `RD-60`'s unit, relayed by the coordinator. `RF-150` is the entry before this one. Read at `5448c4fd6`, on one screenshot.
+
+- **What was observed:** the unit's probe lifts `B` of an `mx-sortable-list` of four `mx-list-item`s without handles, with `commands.pointerPress` and two `pointerMove`s, and screenshots the list while the item is held over `C`. In WebKit, the text _"xt"_ of the lifted item is highlighted under the pointer ([screenshot](sortable-displacement-1/checks/shots/webkit-overshoot-pointer.png), [probe](sortable-displacement-1/probes/shots.browser.test.ts.txt), _"overshoot, pointer drop"_). In Chromium and Firefox, the same frame has no highlight.
+- **What drag does:** its kernel clears the selection when a drag activates (`packages/drag/src/kernel/session.ts`, `#move`). It never prevents a press, and `draggable`'s JSDoc tells the consumer to give the handle `user-select: none` for text. An item without a handle is its own handle, and `mx-sortable-list` writes no `user-select` on it. `RF-146` property 3 decided that, for touch. So WebKit extends a selection after the activation, as the mouse moves.
+- **Why it is a problem:** the user sees a text selection on the item they are moving, which no other engine shows and nothing in the list's documentation promises.
+- **Not this unit's,** by reading: `RD-60`'s unit changes no input, selection or `user-select` code. **Not read at the base.**
+- **Required property:** in each engine, while a mouse drags an item without a handle, and after its drop, no text of the list is selected. A press without a drag still selects text as it does today, unless the repair decides otherwise and says so. **Witness:** a row in `browser`, in each engine, by real mouse input, that reads the document's selection during the drag and after the drop, and fails in WebKit at `5448c4fd6`.
+- **For the unit that takes it:** the repair amends `RF-146` property 3 if it writes `user-select` on an item. Whether WebKit reports this highlight through `getSelection()` decides whether the row can read it, or needs a screenshot.
+- **Not read:** Safari, an item with a handle, the button and link items, the selection after the drop, whether `getSelection()` reports the highlight.
+- **Plan needed:** no. **Size:** _small_.
+
+#### RF-152 — `parseMs` reads a duration in milliseconds as seconds
+
+Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from the implementer's point 4 in `RD-60`'s unit, relayed by the coordinator. `RF-151` is the entry before this one. Read at `5448c4fd6`.
+
+- **What happens:** `parseMs` in `packages/material-x/src/core/utils/fns.ts` returns `parseFloat(value) * 1000`, whatever the value's unit, so `250ms` reads as 250,000 ms. It has done so since `b140ce683`. It reads the ripple's two durations, the sortable list's landing since `RF-109` (#199), and the list's layout animation since `RD-60`.
+- **Why the values are right today:** each value that reaches it is a tproc motion token, which tproc writes in milliseconds, such as `500ms`. lightningcss, which every material-x sheet passes through, prints a time of 100 ms or more in seconds, minified or not, and keeps `99ms` and `50ms` as they are ([reading](sortable-displacement-1/checks/lightningcss-time.txt), [probe](sortable-displacement-1/probes/lightningcss-time.mjs)). tproc's shortest motion duration is 150 ms. The properties are private, and no public property feeds them.
+- **Why it is a problem:** the function is right because of a printer's choice that nothing records. A token under 100 ms, or a value that doesn't pass through lightningcss, gives a duration 1,000 times too long, with no error.
+- **Tier C:** no consumer reads a wrong duration, and no row relies on it.
+- **Required property:** `parseMs` returns milliseconds for a `<time>` in either unit: `0.25s` and `250ms` both give 250. It throws on a value that has no number, as today. **Witness:** a row that gives a private duration in `ms` fails at `5448c4fd6`.
+- **Plan needed:** no. **Size:** _small_.
+
+#### RF-153 — material-x's node tests build with a private-property list that may be stale
+
+Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from observation 1 of #310's [feature proof](reviews/sortable-displacement-1/feature-proof-claude.md#observations), relayed by the coordinator. `RF-152` is the entry before this one. Read at `c2ea0dcbe`.
+
+- **What happens:** the node project's global setup, `packages/material-x/tests/support/build-package.node.ts`, runs `tsdown` alone, which is `just build-lib`. Mangling reads `node_modules/.cache/css/css-private-props.json`, which only `just build-prepare` (`.scripts/css/collect-props.ts`) writes. In a tree whose sheets have a private property that the list lacks, the build fails with _"Property `--_layout-animation-duration` is not collected"_. Every file of the project then fails, as the proof saw in its slot before it ran `build-prepare`. A tree whose sheets changed without a new name builds with the old list's short names, which differ from what a fresh list gives.
+- **Why it is a problem:** a local run of the node rows, which implementers and proofs make, can fail for a reason that isn't the code, and nothing in the error names `build-prepare`. Or the rows can read a build that `just build` and CI wouldn't make from the same tree. CI isn't affected, because it builds first.
+- **Required property:** the build that the node project reads is made from a property list collected from the tree under test, so that a local run of the project gives the result that CI gives on the same tree. **Witness:** with a stale list, after a private property is added to a sheet, the project's rows pass, and they fail at `c2ea0dcbe`.
+- **Not read:** whether `build-prepare`'s run time matters to the project's setup, and the other packages' node setups, whose builds don't mangle these names.
+- **Plan needed:** no. **Size:** _small_.
 
 ## Questions
 

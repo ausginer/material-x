@@ -666,7 +666,7 @@ Core's rows in `tests/traits/reorderable.browser.test.ts` at `e4b0e475d`:
 - **Grab mode in this unit.** The owner deferred it (Q5). `drag:DRD-70` keeps the proposal, not in force.
 - **Passing the event to `handle(item, event)`** so that pointer and keyboard can differ. With drag's ordinary model, the same rule serves both, and `data-drag-ignore` covers nested controls.
 - **Making the list mark nested controls `data-drag-ignore` itself.** The list can't know which of a consumer's controls use arrow keys, and drag's attribute is the consumer's.
-- **`layoutAnimation` for the displaced rows.** Today's rows don't animate. Adding it is a separate choice, with its bytes.
+- **`layoutAnimation` for the displaced rows.** Today's rows don't animate. Adding it is a separate choice, with its bytes. (**Superseded 2026-11-26 by `repo:RD-60`,** at the merge of #266's unit: that choice is made.)
 - **Moving core's synthetic-host rows into material-x unchanged.** They test a trait that no longer exists, through a host that isn't the component.
 - **`handle-only`.** The owner retired it after Q6: a handle's presence makes its item drag only by the handle ([Q6](#q6-a-handle-less-item-takes-focus)).
 - **A list-level switch between handles and no handles.** Whether an item has `[data-handle]` already says it, per item.

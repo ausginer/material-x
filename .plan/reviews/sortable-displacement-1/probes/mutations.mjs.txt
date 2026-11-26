@@ -1,0 +1,84 @@
+// RD-60 feature proof: each mutation in turn against tests/list/sortable-list.browser.test.ts,
+// in one engine; every file is restored after each run, and at the end.
+// Run from the repository root: node mutations.mjs <engine> <scratch report> [names...]
+import { spawnSync } from 'node:child_process';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
+
+const [engine, report, ...only] = process.argv.slice(2);
+const ROOT = 'packages/material-x';
+const LIST = `${ROOT}/src/list/sortable-list.ts`;
+const SORTABLE = `${ROOT}/src/list/styles/sortable/tokens.ts`;
+const DEFAULT = `${ROOT}/src/list/styles/default/tokens.ts`;
+const TEST = `${ROOT}/tests/list/sortable-list.browser.test.ts`;
+// drag's build, which material-x imports through drag's exports.
+const DRAG = 'packages/drag/sortable/layout-animation.js';
+const FILES = [LIST, SORTABLE, DEFAULT, TEST, DRAG];
+const original = new Map(FILES.map((file) => [file, readFileSync(file, 'utf8')]));
+
+function edit(file, from, to) {
+  const text = readFileSync(file, 'utf8');
+  if (text.split(from).length !== 2) throw new Error(`not once in ${file}: ${from}`);
+  writeFileSync(file, text.replace(from, to));
+}
+
+const DISPLACEMENT = `      displacement: layoutAnimation({
+        timing: useCSSProps(this, LAYOUT_CSS_PROPS),
+      }),
+`;
+const DRAG_TOKENS = `  'drag.duration': motionEffects['expressive.slow-spatial.duration'],
+  'drag.easing': motionEffects['expressive.slow-spatial'],
+`;
+
+const MUTATIONS = [
+  ['none', () => {}],
+  // The implementer's, which remove a property's mechanism.
+  ['displacement removed', () => edit(LIST, DISPLACEMENT, '')],
+  ['timing left out', () => edit(LIST, DISPLACEMENT, '      displacement: layoutAnimation(),\n')],
+  ["the landing's pair in the layout animation's place", () => {
+    edit(SORTABLE, "motionEffects['expressive.default-spatial.duration']", "motionEffects['expressive.slow-spatial.duration']");
+    edit(SORTABLE, "'layout-animation.easing': motionEffects['expressive.default-spatial']", "'layout-animation.easing': motionEffects['expressive.slow-spatial']");
+  }],
+  ['the four properties left in the default list sheet', () => {
+    edit(SORTABLE, "    .append('default', SPECIAL_TOKENS)\n", '');
+    edit(SORTABLE, 'const SPECIAL_TOKENS = {', 'export const SPECIAL_TOKENS = {');
+    edit(DEFAULT, "import { t, type TokenPackage } from '@ydinjs/tproc/index.js';", "import { t, type TokenPackage } from '@ydinjs/tproc/index.js';\nimport { SPECIAL_TOKENS } from '../sortable/tokens.ts';");
+    edit(DEFAULT, '    .adjustTokens(fixFullShape)\n', "    .adjustTokens(fixFullShape)\n    .append('default', SPECIAL_TOKENS)\n");
+  }],
+  ['--_drag-duration and --_drag-easing removed from the sortable sheet', () => edit(SORTABLE, DRAG_TOKENS, '')],
+  ['row 4 without the emulation', () => {
+    edit(TEST, 'await commands.emulateReducedMotion(reduced);', 'void reduced;');
+    edit(TEST, 'await commands.emulateReducedMotion(!reduced);', '');
+    edit(TEST, `    it('should place the neighbor of a key move in the next frame', async () => {
+      await emulate(true);`, `    it('should place the neighbor of a key move in the next frame', async () => {`);
+    edit(TEST, `    it('should place the neighbor of a pointer drag in the next frame', async () => {
+      await emulate(true);`, `    it('should place the neighbor of a pointer drag in the next frame', async () => {`);
+  }],
+  // The architect's, row 6's witness.
+  ["the landing's timing reads the neighbors' properties", () => edit(LIST, 'timing: useCSSProps(this, DRAG_CSS_PROPS)', 'timing: useCSSProps(this, LAYOUT_CSS_PROPS)')],
+  // Mine.
+  ["own: the neighbors' timing reads the landing's properties", () => edit(LIST, 'timing: useCSSProps(this, LAYOUT_CSS_PROPS),\n      }),', 'timing: useCSSProps(this, DRAG_CSS_PROPS),\n      }),')],
+  ["own: drag's layout animation ignores the preference", () => edit(DRAG, 'element.ownerDocument.defaultView.matchMedia("(prefers-reduced-motion: reduce)").matches ? null : this.#timing()', 'this.#timing()')],
+  ["own: the neighbors' easing is linear", () => edit(LIST, 'timing: useCSSProps(this, LAYOUT_CSS_PROPS),\n      }),', "timing: ((read) => () => ({ ...read(), easing: 'linear' }))(useCSSProps(this, LAYOUT_CSS_PROPS)),\n      }),")],
+];
+
+const restore = () => { for (const [file, text] of original) writeFileSync(file, text); };
+try {
+  for (const [name, mutate] of MUTATIONS) {
+    if (only.length && !only.includes(name)) continue;
+    mutate();
+    rmSync(report, { force: true });
+    spawnSync('aube', ['exec', 'vitest', 'run', '-c', 'vitest.config.ts', '--project', 'browser*', '--reporter=json', `--outputFile=${report}`, 'tests/list/sortable-list.browser.test.ts'],
+      { cwd: ROOT, env: { ...process.env, NO_COLOR: '1', MX_TEST_ENGINES: engine }, encoding: 'utf8', maxBuffer: 1e8 });
+    restore();
+    let parsed;
+    try { parsed = JSON.parse(readFileSync(report, 'utf8')); } catch { console.log(`## ${name} | ${engine} | no report`); continue; }
+    const { numFailedTests, numPassedTests, numPendingTests, testResults } = parsed;
+    console.log(`## ${name} | ${engine} | ${numFailedTests} failed, ${numPassedTests} passed, ${numPendingTests} skipped`);
+    for (const { assertionResults, message } of testResults) {
+      if (message) console.log(`   file: ${message.split('\n')[0]}`);
+      for (const { status, fullName } of assertionResults) if (status === 'failed') console.log(`   ${fullName}`);
+    }
+  }
+} finally {
+  restore();
+}

@@ -1,4 +1,5 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
+import motionEffects from '@ydinjs/tproc/default/motion-effects.js';
 import { t, type TokenPackage } from '@ydinjs/tproc/index.js';
 import {
   createAllowedTokensSelector,
@@ -10,6 +11,14 @@ const SET_NAME = 'md.comp.list.reorder';
 
 /** The path of the tokens that the lifted item takes. */
 const LIFTED = 'lifted';
+
+const SPECIAL_TOKENS = {
+  'drag.duration': motionEffects['expressive.slow-spatial.duration'],
+  'drag.easing': motionEffects['expressive.slow-spatial'],
+  'layout-animation.duration':
+    motionEffects['expressive.default-spatial.duration'],
+  'layout-animation.easing': motionEffects['expressive.default-spatial'],
+};
 
 /**
  * A lifted item in a pointer drag. A rule of the list's tree outranks the
@@ -50,6 +59,7 @@ export const reorderTokens: ReadonlySignal<TokenPackage> = computed(() =>
     .set(SET_NAME)
     .group(groupReorderTokens)
     .select(allowedTokensSelector)
+    .append('default', SPECIAL_TOKENS)
     .renderDeclarations((path, declarations) => ({
       path,
       declarations,
