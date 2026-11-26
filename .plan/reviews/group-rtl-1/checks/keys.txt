@@ -1,0 +1,13 @@
+Arrow keys of a connected group under CSS direction: rtl on an ancestor, no dir, at 71b839f4a (probe: probes/keys-probe.browser.test.ts.txt)
+## chromium exit 0
+positions 1200 1143 1076
+ArrowRight from x=1143 to x=1200 (one)
+ArrowLeft from x=1143 to x=1076 (three)
+## firefox exit 0
+positions 1200 1143 1076
+ArrowRight from x=1143 to x=1200 (one)
+ArrowLeft from x=1143 to x=1076 (three)
+## webkit exit 0
+positions 1200 1143 1076
+ArrowRight from x=1143 to x=1200 (one)
+ArrowLeft from x=1143 to x=1076 (three)
