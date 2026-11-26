@@ -1,0 +1,35 @@
+Timings for the mutations-1 plan, read on 2026-11-26 by the architect in slot b
+(devcontainer, Linux, Playwright's Chromium 1254, Firefox 1572, WebKit 2388,
+headless), at origin/main 6aa5330e3. Transcribed from the terminal; each line is
+Vitest's own summary, and `real` is the shell's `time`.
+
+One Vitest start in each engine, a small file
+(packages/material-x: MX_TEST_ENGINES=<engine> aube exec -- vitest run -c vitest.config.ts tests/icon/icon.browser)
+  chromium  Tests 21 passed (21)               Duration 6.30s (tests 41%, import 38%, worker 18%, setup 3%)
+  firefox   Tests 4 passed | 17 skipped (21)   Duration 6.02s (import 42%, worker 33%, tests 19%, setup 6%)
+  webkit    Tests 4 passed | 17 skipped (21)   Duration 5.82s (import 54%, worker 27%, tests 12%, setup 7%)
+
+The files of a sample unit, RF-142 (disabled-item-1): tests/list/sortable-list
+(sortable-list.browser and sortable-list.spec.browser)
+  chromium  Tests 198 passed (198)  Duration 51.54s (tests 94%, worker 4%, import 2%)  real 0m53.837s
+  firefox   Tests 188 passed (188)  Duration 57.87s (tests 93%, worker 4%, import 2%)
+  webkit    Tests 198 passed (198)  Duration 54.71s (tests 92%, worker 5%, import 3%)
+
+RF-142's lists: the implementer's runner (.plan/disabled-item-1/probes/mutate.mjs)
+has 14 mutations and the unmutated run; the review's
+(.plan/reviews/disabled-item-1/probes/mutations.mjs) has 14 and the unmutated
+run, read in Chromium only (.plan/reviews/disabled-item-1/checks/mutations.txt).
+
+A scratch copy at a commit, in the scratchpad, removed afterwards
+  git worktree add --detach <dir> HEAD   real 0m1.718s
+  aube install                           real 0m9.759s
+  aube exec just _test-builds            real 0m20.159s
+  then the small file in chromium        Duration 12.49s, real 0m15.956s (first run in the copy)
+  Without _test-builds, the copy's first run fails at startup:
+    Error: Failed to resolve entry for package "@ydinjs/vite-custom-element-assets".
+
+CI, verify run 45783133390 (material-x/icon-name-1), job wall times
+  chromium 8m21s, firefox 11m42s, webkit 5m42s, whole run 12m19s
+
+Mutation counts in feature proofs, from their text (grep '[0-9]+ mutations'):
+  12, 14, 16, 18, 21, 22, 23, 24, 26 in most; 60 in one; 915 in drag's generated set.
