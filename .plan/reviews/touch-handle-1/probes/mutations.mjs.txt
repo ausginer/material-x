@@ -1,0 +1,41 @@
+// The proof's mutations of RF-145: one at a time in a style file, runs a test file in the browser project, restores.
+// Run from packages/material-x: node mut.mjs <engine> <names separated by ;|all> <test file>
+import { spawnSync } from 'node:child_process';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+const ITEM = 'src/list/styles/item/main.styles.css';
+const ICON = 'src/icon/styles/icon.ctr.css';
+const RULE = ":is(.lead, .trail)::slotted([data-handle]:not(\n  [hidden]:not([hidden='until-found' i])\n)) {\n  display: inline-block;\n}";
+const M = [
+  ['no mutation'],
+  // The implementer's
+  ['without the handle rule', ITEM, RULE, ''],
+  ['the slot display: contents', ICON, 'slot {\n  display: inline;\n}', 'slot {\n  display: contents;\n}'],
+  ['without the hidden guard', ITEM, ":not(\n  [hidden]:not([hidden='until-found' i])\n)", ''],
+  ['the handle rule !important', ITEM, 'display: inline-block;\n}', 'display: inline-block !important;\n}'],
+  // The proof's own
+  ['own: the handle inline', ITEM, 'display: inline-block;\n}', 'display: inline;\n}'],
+  ['own: the handle rule in lead only', ITEM, ":is(.lead, .trail)::slotted([data-handle]:not(", ".lead::slotted([data-handle]:not("],
+  ['own: until-found hidden too', ITEM, ":not(\n  [hidden]:not([hidden='until-found' i])\n)", ':not([hidden])'],
+  ['own: the slot without the rule', ICON, 'slot {\n  display: inline;\n}', ''],
+];
+const [engine, names, file] = process.argv.slice(2);
+const files = [ITEM, ICON];
+const source = Object.fromEntries(files.map((f) => [f, readFileSync(f, 'utf8')]));
+const restore = () => { for (const [f, t] of Object.entries(source)) writeFileSync(f, t); };
+const out = `${process.env.T}/mut-${process.pid}.json`;
+try {
+  for (const [name, f, from, to] of M) {
+    if (names !== 'all' && !names.split(';').includes(name)) continue;
+    if (f) {
+      if (source[f].split(from).length !== 2) throw new Error(`not one match: ${name}`);
+      writeFileSync(f, source[f].replace(from, () => to));
+    }
+    spawnSync('aube', ['exec', '--', 'vitest', 'run', '-c', 'vitest.config.ts', '--project', 'browser*', file, '--reporter=json', `--outputFile=${out}`],
+      { env: { ...process.env, MX_TEST_ENGINES: engine, NO_COLOR: '1' }, encoding: 'utf8', timeout: 900_000 });
+    restore();
+    const json = existsSync(out) ? JSON.parse(readFileSync(out, 'utf8')) : null;
+    rmSync(out, { force: true });
+    console.log(`## ${name} | ${engine} | ${file} | ${json?.numTotalTests ? `${json.numFailedTests} failed, ${json.numPassedTests} passed` : 'no result'}`);
+    for (const t of json?.testResults.flatMap((x) => x.assertionResults) ?? []) if (t.status === 'failed') console.log(`   ${t.fullName}`);
+  }
+} finally { restore(); }
