@@ -2003,7 +2003,7 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 - **The items' writes travel in the context's value,** because only a sortable list runs them, and an item in a plain list doesn't carry them (`CONTRIBUTING.md` §7). The item hands the value its own elements, so the link is still context alone.
 - **A static item's host is its control,** because `RF-68` folds its inner element into the host, which then has a box and takes focus.
 
-**Not adopted:** a side-effect import or a function, drag as a regular dependency, a `reorderable` attribute on `mx-sortable-list`, grab mode in this unit (deferred by the owner), `handle(item, event)`, `layoutAnimation`, copying core's synthetic-host rows, `handle-only` (retired after Q6), a list-level handle switch, and `aria-roledescription` or `aria-grabbed` to say that an item moves. The plan's [Not adopted](list-sortable-1/list-sortable-plan.md#not-adopted) gives the reasons.
+**Not adopted:** a side-effect import or a function, drag as a regular dependency, a `reorderable` attribute on `mx-sortable-list`, grab mode in this unit (deferred by the owner), `handle(item, event)`, `layoutAnimation` (**superseded 2026-11-26 by `RD-60`,** at the merge of #266's unit), copying core's synthetic-host rows, `handle-only` (retired after Q6), a list-level handle switch, and `aria-roledescription` or `aria-grabbed` to say that an item moves. The plan's [Not adopted](list-sortable-1/list-sortable-plan.md#not-adopted) gives the reasons.
 
 **What the seventh amendment, of 2026-11-21, replaced.**
 
@@ -2805,6 +2805,49 @@ The unit of #266 quotes and amends both, on its own branch.
 - (c) The landing's `expressive.slow-spatial`, 650 ms, which follows the item, and makes the neighbors as slow as it.
 
 **Plan needed:** no, beyond this entry. **Size:** _medium_. **Order:** after `drag:DRD-72` and `RF-129` (#261), whose sheet it uses.
+
+**Dated 2026-11-26 by the architect, on `material-x/sortable-displacement-1`: this entry is #266's record, the owner's change is read against it, and the rows are made exact. Q1 is asked again, because his change takes a pair outside its options.** Requested by the coordinator. `main` at `5d867401f` is the base. #266's _"Record: none yet"_ is stale: the address is `repo:RD-60`, and no other is minted. **The order is met:** `drag:DRD-72` is on `main`. `layout-animation.ts` takes `timing` and reads the preference at each report (`drag:DRI-22`). `RF-129`'s sheet is `list/styles/sortable`.
+
+**The owner's change,** uncommitted, against `e457ed209`, in 3 files, which the implementer commits as the owner's:
+
+- **Property 1 holds,** by reading: `displacement: layoutAnimation({ timing: useCSSProps(this, LAYOUT_CSS_PROPS) })` in the one composition, for pointer and keyboard.
+- **Property 2 holds but for the pair.** One `useCSSProps` call, apart from the landing's, reads `--_layout-animation-duration` and `--_layout-animation-easing` from the sortable sheet's `:host`. **The pair is `expressive.default-effects`,** 200 ms and `cubic-bezier(0.34, 0.8, 0.34, 1)`, and not property 2's starting `expressive.fast-spatial` (Q1).
+- **It also moves the landing's two properties,** `--_drag-duration` and `--_drag-easing`, from the default list sheet, which `ListCore` adopts for `mx-list` and `mx-sortable-list`, to the sortable sheet's `:host`. **Accepted:** it is `RF-129`'s rule that `mx-list` pays nothing for sorting. A sortable list's items inherit both from its host, and the item's elevation transition (`list/styles/item/main.styles.css`) reads them there. In `mx-list` that transition's variables are unset, so it has none, and nothing there is lifted.
+- **Property 5 isn't in the change:** the element's JSDoc is owed by the implementer.
+
+**Material's guidance on the pair,** read on 2026-11-26 at m3.material.io, _Motion › How it works_: spatial springs are for what moves on the screen, such as position, size, rotation and corners, and they may overshoot. Effects springs are for color and opacity, and don't overshoot. A neighbor's move changes its position, so Material gives it a spatial pair. The store's `md.comp.list.reorder` has no motion token: its 12 tokens are colors and a shape. In the store, `md.sys.motion.spring.default.effects` has damping 1 and stiffness 1600. tproc's `default/motion-effects.ts` is hand-written, and its `expressive.default-effects` is that spring's cubic-bezier.
+
+**Q1, asked again of the owner — which timing do the neighbors take?** It is property 2's final value, by his eye. His change picks a pair that the question didn't offer, and departs from Material's rule. So the record doesn't take the change as his answer until he says it is.
+
+- **(a) `expressive.default-effects`, 200 ms, as in his change.** It has no overshoot and is the shortest. The record states that it departs from Material's spatial rule for movement.
+- **(b) `standard.fast-spatial`, 350 ms, `cubic-bezier(0.27, 1.06, 0.18, 1)`. Recommended** if he chose (a) to avoid the bounce: it is Material's spatial family for movement, with almost no overshoot.
+- **(c) `expressive.fast-spatial`, 350 ms,** property 2's start and the press's pair, with a visible overshoot. Only this one needs the read of a row's overshoot frame over its neighbor that this entry asks for.
+- If he chose (a) for its speed, no spatial pair is that short, and (a) is the answer.
+- **Nothing else waits on the answer:** it is two lines of `sortable/tokens.ts`. The rows below read the pair from the tokens, so they don't change with it. It is answered before the merge.
+
+**Rows,** in `browser`, in Chromium, Firefox and WebKit, with real input. In each, the list is `A`, `B`, `C`, and the neighbor is the row that a write displaces. _Animated_ means the neighbor has one running animation from the list. Its drawn top in the first frame after the write is off its layout top by the write's distance, within 1 px. At the animation's end it is at its layout top, and it has no running animation. The file is the implementer's choice.
+
+1. **A key move:** `ArrowDown` on `A` with a page that commits in `reorder`. `B` is animated.
+2. **A pointer drop:** a slow move onto `B`, then a flick of a few steps onto `C`. The rows that the drop's last resolution displaced are animated, and those that a resolution during the drag displaced are too.
+3. **A return:** `Escape` during a pointer drag, a move refused by `preventDefault` by pointer and by key, a page that commits 100 ms after `reorder`, and one that never commits, with the 500 ms fallback. The neighbors are animated back to their places, where they jump today (property 4).
+4. **Reduced motion,** by `emulateReducedMotion`, which isn't available in Safari. With `reduce`, the neighbor of a key move and of a pointer drop is at its layout top in the first frame after the write, and has no running animation. Then the preference changes between two moves, both ways, and the second move follows the new preference.
+5. **The timing,** in two rows. Without a page rule, the neighbor's animation has the duration and easing that tproc gives the chosen pair: the row imports `@ydinjs/tproc/default/motion-effects.js` and doesn't repeat a literal. With `--_layout-animation-duration` and `--_layout-animation-easing` set on the list, the animation has those.
+6. **The landing is the landing's:** with no page rule, the landing's duration and a lifted item's elevation transition are the `expressive.slow-spatial` pair's, in a sortable list. With `--_layout-animation-duration` set, they don't change.
+7. **`mx-list` carries none of it:** on an `mx-list` host, `--_layout-animation-duration`, `--_layout-animation-easing`, `--_drag-duration` and `--_drag-easing` compute to nothing, and on an `mx-sortable-list` host they compute to the tokens' values.
+8. **The rows that are there keep their meaning:** a row that reads a row's place after a move, and that zeroes the landing with `--_drag-duration: 0s` today, zeroes the layout animation as well, or waits for it. Property 4's rows pass unchanged: the command's placeholder, the colors, the announcement, the handles and focus. `RF-150`'s flaky row is read as that entry says, and its flake isn't this unit's.
+
+**Witnesses,** each saved, in the three engines, by the same rows that fail in each:
+
+- `displacement` removed: rows 1 to 3 and 5 fail, and so does row 4's move without the preference. Row 4's moves with it, and rows 6 and 7, pass.
+- `timing` left out, so drag's 160 ms `ease-out` applies: row 5 fails.
+- The landing's pair in the layout animation's place: rows 5 and 6 fail.
+- The four properties left in the default list sheet: row 7 fails.
+- `--_drag-duration` and `--_drag-easing` removed from the sortable sheet: rows 6 and 7 fail.
+- Row 4 without the emulation: it fails.
+
+**Read, not as rows:** the moved item's focus indicator while its neighbor animates, because an animated `translate` makes a stacking context (`RF-125`), on a screenshot in each engine. The overshoot frame only if Q1 is (c).
+
+**Also owed:** the element's JSDoc by property 5. Sizes by `just size` against property 6's estimate, with a reading well above it returned. The amendments of `RD-31` and `RF-127` are made on this branch by this note. `CONTRIBUTING.md` and the docs are unchanged but for the JSDoc. **A feature proof is owed,** in the three engines, because what a user sees changes. **Size:** _medium_. **Stop** and return if a row reads differently in an engine, or if a witness fails no row.
 
 #### RD-61 — In `mx-sortable-list`, the user can't reorder a disabled item
 
@@ -6342,7 +6385,7 @@ Tier A, **closed on 2026-11-24** (the last note), pre-existing. Before closure: 
   - **(b) The footprint fades in, by a transition on opacity.** Read: with 200 ms, the footprint's frames in the story's commit and the next task's have an opacity of at most 0.026, and not 0.16, in the three engines, by `@keyframes` or by `@starting-style`, and a slow commit still shows the footprint. It needs nothing from drag. It costs that a pointer drag's footprint fades in again at each slot, because drag re-inserts the placeholder to move it. That part wasn't drawn.
   - (c) No footprint and no flight: the item jumps, as with `reduce`. The user has to find it.
   - (d) The placeholder stays as it is.
-- **The neighbors aren't animated** in either case. `RD-31` doesn't adopt `layoutAnimation`.
+- **The neighbors aren't animated** in either case. `RD-31` doesn't adopt `layoutAnimation`. (**Superseded 2026-11-26 by `RD-60`,** at the merge of #266's unit: the neighbors are animated by `layoutAnimation`, for both kinds.)
 - **How the list tells a command: drag tells it,** by `drag:DRD-71`, `onStart`'s second argument. Amended 2026-11-24, as the last paragraph says.
   1. At each `onStart`, the list sets a custom state of its own to whether the kind is `'command'`. The footprint's rule doesn't paint while the list has it.
   2. **Nothing clears it,** because every `onStart` writes it, and a placeholder exists only within an operation: drag inserts it just before `onStart` and removes it at release. So a pointer drag after a command, after a destruction or after a reconnect starts with the state off, before anything paints.
