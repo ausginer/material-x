@@ -1,3 +1,4 @@
+import motionEffects from '@ydinjs/tproc/default/motion-effects.js';
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { commands, server, userEvent } from 'vitest/browser';
 import '../../src/button/icon-button.ts';
@@ -7,7 +8,7 @@ import '../../src/list/list-item.ts';
 import '../../src/list/list-link-item.ts';
 import '../../src/list/list.ts';
 import { ReorderEvent } from '../../src/list/sortable-list.ts';
-import { nextFrame, whenFontsReady } from '../browser.ts';
+import { nextFrame, resolveComputed, whenFontsReady } from '../browser.ts';
 import { TAB } from '../focus-indicator.ts';
 
 type ListTag = 'mx-list' | 'mx-sortable-list';
@@ -19,6 +20,12 @@ type ListOptions = Readonly<{
   handles?: boolean;
   /** Keeps the token's landing duration instead of a zero one. */
   tokenLanding?: boolean;
+  /**
+   * The neighbors' layout animation: zero by default, an hour of linear motion
+   * with `'slow'`, so that a frame moves a row by nothing, or the tokens'
+   * timing with `'tokens'`.
+   */
+  layoutAnimation?: 'slow' | 'tokens';
 }>;
 
 const DESCRIPTION = 'Use the arrow keys to move';
@@ -53,12 +60,20 @@ async function createList(
     item = 'mx-list-item',
     handles = false,
     tokenLanding = false,
+    layoutAnimation,
   }: ListOptions = {},
 ): Promise<readonly [HTMLElement, readonly HTMLElement[]]> {
   const list = document.createElement(tag);
 
   if (!tokenLanding) {
     list.style.setProperty('--_drag-duration', '0s');
+  }
+
+  if (layoutAnimation === 'slow') {
+    list.style.setProperty('--_layout-animation-duration', '3600s');
+    list.style.setProperty('--_layout-animation-easing', 'linear');
+  } else if (!layoutAnimation) {
+    list.style.setProperty('--_layout-animation-duration', '0s');
   }
 
   const items = labels.map((label) => createItem(item, label, handles));
@@ -222,6 +237,7 @@ describe('ReorderEvent', () => {
     const root = outer.attachShadow({ mode: 'open' });
     const list = document.createElement('mx-sortable-list');
     list.style.setProperty('--_drag-duration', '0s');
+    list.style.setProperty('--_layout-animation-duration', '0s');
     const [a, b] = [
       createItem('mx-list-item', 'A', false),
       createItem('mx-list-item', 'B', false),
@@ -1979,7 +1995,7 @@ describe('mx-sortable-list definition order', () => {
     const items = labels
       .map((label) => `<mx-list-item>${label}</mx-list-item>`)
       .join('');
-    frame.srcdoc = `<mx-sortable-list style="--_drag-duration:0s">${items}</mx-sortable-list>
+    frame.srcdoc = `<mx-sortable-list style="--_drag-duration:0s;--_layout-animation-duration:0s">${items}</mx-sortable-list>
 <script type="module">
 for (const url of ${JSON.stringify(urls)}) await import(url);
 document.body.dataset.ready = '';
@@ -2524,6 +2540,453 @@ describe('mx-sortable-list handle box', () => {
       text.left >= box.left,
       text.right <= box.right,
     ]).toEqual([true, true, true, true]);
+  });
+});
+
+describe('mx-sortable-list neighbors', () => {
+  type RowRead = Readonly<{ animations: number; off: number }>;
+
+  /** The list's own animations of `row`, without its CSS transitions. */
+  function layoutAnimationsOf(row: HTMLElement): readonly Animation[] {
+    return row
+      .getAnimations()
+      .filter(
+        (animation) =>
+          !(animation instanceof CSSTransition) &&
+          !(animation instanceof CSSAnimation),
+      );
+  }
+
+  /** Where `row` is drawn, from its list's top. */
+  function topOf(row: HTMLElement): number {
+    return (
+      row.getBoundingClientRect().top -
+      row.parentElement!.getBoundingClientRect().top
+    );
+  }
+
+  /**
+   * How many of the list's animations `row` runs, and how far from `top` it is
+   * drawn, which is 0 within 1 px.
+   */
+  function readRow(row: HTMLElement, top: number): RowRead {
+    const off = topOf(row) - top;
+
+    return {
+      animations: layoutAnimationsOf(row).length,
+      off: Math.abs(off) <= 1 ? 0 : off,
+    };
+  }
+
+  /** Ends the rows' animations, so that each row is drawn at its layout top. */
+  function finish(...rows: readonly HTMLElement[]): void {
+    for (const row of rows) {
+      for (const animation of layoutAnimationsOf(row)) {
+        animation.finish();
+      }
+    }
+  }
+
+  /** Lifts `item` and moves it onto `over` without releasing. */
+  async function dragOver(
+    item: HTMLElement,
+    over: HTMLElement,
+    steps = 8,
+  ): Promise<void> {
+    const [x] = await lift(visualOf(item));
+    await commands.pointerMove(x, centerOf(visualOf(over))[1] + 10, steps);
+    await nextFrame();
+  }
+
+  /** Focuses `item` and presses ArrowDown. */
+  async function moveDown(item: HTMLElement): Promise<void> {
+    item.focus();
+    await userEvent.keyboard('{ArrowDown}');
+    await nextFrame();
+  }
+
+  const MOVING: RowRead = { animations: 1, off: 0 };
+  const PLACED: RowRead = { animations: 0, off: 0 };
+
+  /** A three-row list with an hour-long animation, and each row's top. */
+  async function createSlow(): Promise<
+    readonly [HTMLElement, readonly HTMLElement[], readonly number[]]
+  > {
+    const [list, items] = await createList(['A', 'B', 'C'], {
+      layoutAnimation: 'slow',
+    });
+
+    return [list, items, items.map(topOf)];
+  }
+
+  describe('motion', () => {
+    it('should animate the neighbor of a key move from its place to the new one', async () => {
+      const [list, [a, b], [slotA, slotB]] = await createSlow();
+      commitOnReorder(list);
+
+      await moveDown(a!);
+      const moving = readRow(b!, slotB!);
+      finish(b!);
+
+      expect([moving, readRow(b!, slotA!)]).toEqual([MOVING, PLACED]);
+    });
+
+    it('should animate the rows that a slow pointer move and a flick displace', async () => {
+      const [list, [a, b, c], [slotA, slotB, slotC]] = await createSlow();
+      commitOnReorder(list);
+
+      await dragOver(a!, b!, 30);
+      const slow = readRow(b!, slotB!);
+      await commands.pointerMove(
+        centerOf(visualOf(a!))[0],
+        centerOf(visualOf(c!))[1] + 10,
+        2,
+      );
+      await nextFrame();
+      const flick = readRow(c!, slotC!);
+      await commands.pointerRelease();
+      await whenSettled(list, a!);
+      finish(b!, c!);
+
+      expect([
+        slow,
+        flick,
+        readRow(b!, slotA!),
+        readRow(c!, slotB!),
+        order(list),
+      ]).toEqual([MOVING, MOVING, PLACED, PLACED, ['B', 'C', 'A']]);
+    });
+
+    it('should keep animating the neighbor of a key move that the page commits 100 ms later', async () => {
+      const [list, [a, b], [slotA, slotB]] = await createSlow();
+      list.addEventListener('reorder', (event) => {
+        const { item, next } = event as ReorderEvent;
+        setTimeout(() => {
+          list.insertBefore(item, next);
+        }, 100);
+      });
+
+      await moveDown(a!);
+      const moving = readRow(b!, slotB!);
+      await whenSettled(list, a!);
+      const committed = readRow(b!, slotB!);
+      finish(b!);
+
+      expect([moving, committed, readRow(b!, slotA!), order(list)]).toEqual([
+        MOVING,
+        MOVING,
+        PLACED,
+        ['B', 'A', 'C'],
+      ]);
+    });
+  });
+
+  describe('return', () => {
+    it('should animate the neighbor back on Escape in a pointer drag', async () => {
+      const [list, [a, b], [slotA, slotB]] = await createSlow();
+      commitOnReorder(list);
+      await dragOver(a!, b!);
+      finish(b!);
+
+      await userEvent.keyboard('{Escape}');
+      await nextFrame();
+      const back = readRow(b!, slotA!);
+      await commands.pointerRelease();
+      await whenSettled(list, a!);
+      finish(b!);
+
+      expect([back, readRow(b!, slotB!), order(list)]).toEqual([
+        MOVING,
+        PLACED,
+        ['A', 'B', 'C'],
+      ]);
+    });
+
+    it('should animate the neighbor back when the page refuses a pointer drop', async () => {
+      const [list, [a, b], [slotA, slotB]] = await createSlow();
+      list.addEventListener('reorder', (event) => event.preventDefault());
+      await dragOver(a!, b!);
+      finish(b!);
+
+      await commands.pointerRelease();
+      await nextFrame();
+      const back = readRow(b!, slotA!);
+      await whenSettled(list, a!);
+      finish(b!);
+
+      expect([back, readRow(b!, slotB!), order(list)]).toEqual([
+        MOVING,
+        PLACED,
+        ['A', 'B', 'C'],
+      ]);
+    });
+
+    // The key move and its return are in one task, so the neighbor is never
+    // drawn away from its place.
+    it('should keep the neighbor of a refused key move in its place', async () => {
+      const [list, [a, b], [, slotB]] = await createSlow();
+      list.addEventListener('reorder', (event) => event.preventDefault());
+
+      await moveDown(a!);
+
+      expect([readRow(b!, slotB!).off, order(list)]).toEqual([
+        0,
+        ['A', 'B', 'C'],
+      ]);
+    });
+
+    it.each(['key', 'pointer'])(
+      'should animate the neighbor back when the page never commits a %s move',
+      async (input) => {
+        const [list, [a, b], [slotA, slotB]] = await createSlow();
+
+        if (input === 'key') {
+          await moveDown(a!);
+        } else {
+          await dragOnto(visualOf(a!), visualOf(b!));
+        }
+        finish(b!);
+        await expect
+          .poll(() => layoutAnimationsOf(b!).length, { timeout: 2000 })
+          .toBe(1);
+        const back = readRow(b!, slotA!);
+        await whenSettled(list, a!);
+        finish(b!);
+
+        expect([back, readRow(b!, slotB!), order(list)]).toEqual([
+          MOVING,
+          PLACED,
+          ['A', 'B', 'C'],
+        ]);
+      },
+    );
+  });
+
+  describe.skipIf(server.provider !== 'playwright')('reduced motion', () => {
+    async function emulate(reduced: boolean): Promise<void> {
+      await commands.emulateReducedMotion(reduced);
+      onTestFinished(async () => {
+        await commands.emulateReducedMotion(false);
+      });
+    }
+
+    it('should place the neighbor of a key move in the next frame', async () => {
+      await emulate(true);
+      const [list, [a, b], [slotA]] = await createSlow();
+      commitOnReorder(list);
+
+      await moveDown(a!);
+
+      expect(readRow(b!, slotA!)).toEqual(PLACED);
+    });
+
+    it('should place the neighbor of a pointer drag in the next frame', async () => {
+      await emulate(true);
+      const [list, [a, b], [slotA]] = await createSlow();
+      commitOnReorder(list);
+
+      await dragOver(a!, b!);
+      const read = readRow(b!, slotA!);
+      await commands.pointerRelease();
+      await whenSettled(list, a!);
+
+      expect(read).toEqual(PLACED);
+    });
+
+    it.each([
+      ['on', false, MOVING, PLACED],
+      ['off', true, PLACED, MOVING],
+    ] as const)(
+      'should follow the preference turned %s between two moves',
+      async (_, reduced, first, second) => {
+        await emulate(reduced);
+        const [list, [a, b, c], [slotA, slotB, slotC]] = await createSlow();
+        commitOnReorder(list);
+
+        await moveDown(a!);
+        const one = readRow(b!, reduced ? slotA! : slotB!);
+        finish(b!);
+        await whenSettled(list, a!);
+        await commands.emulateReducedMotion(!reduced);
+        await moveDown(a!);
+        const two = readRow(c!, reduced ? slotC! : slotB!);
+
+        expect([one, two]).toEqual([first, second]);
+      },
+    );
+  });
+
+  describe('timing', () => {
+    type Timing = Readonly<{ duration: unknown; easing: string }>;
+
+    /** The browser's serialization of an easing. */
+    function easingOf(value: string): string {
+      return new KeyframeEffect(null, null, { easing: value }).getTiming()
+        .easing!;
+    }
+
+    function timingOf(animation: Animation): Timing {
+      const { duration, easing } = animation.effect!.getTiming();
+
+      return { duration, easing: easing! };
+    }
+
+    /** The timing of a tokens pair in `motionEffects`, as an animation has it. */
+    function pairOf(name: 'default-spatial' | 'slow-spatial'): Timing {
+      return {
+        duration: Number.parseFloat(
+          motionEffects[`expressive.${name}.duration`],
+        ),
+        easing: easingOf(motionEffects[`expressive.${name}`]),
+      };
+    }
+
+    /** The lifted item's elevation transition and the landing's timing. */
+    async function readLanding(
+      neighbors: Readonly<Record<string, string>>,
+    ): Promise<readonly [elevation: Timing, landing: readonly Timing[]]> {
+      const [list, [a, b]] = await createList(['A', 'B', 'C'], {
+        tokenLanding: true,
+        layoutAnimation: 'tokens',
+      });
+      for (const [name, value] of Object.entries(neighbors)) {
+        list.style.setProperty(name, value);
+      }
+      commitOnReorder(list);
+      const visual = visualOf(a!);
+      const landing: Timing[] = [];
+      const animate = visual.animate.bind(visual);
+      // The landing's flight, and not the elevation that it holds meanwhile.
+      visual.animate = (keyframes, options) => {
+        const animation = animate(keyframes, options);
+        if (JSON.stringify(keyframes).includes('translate')) {
+          landing.push(timingOf(animation));
+        }
+        return animation;
+      };
+
+      await dragOver(a!, b!);
+      const { transitionDuration, transitionTimingFunction } = getComputedStyle(
+        a!,
+      );
+      await commands.pointerRelease();
+      await whenSettled(list, a!);
+
+      return [
+        { duration: transitionDuration, easing: transitionTimingFunction },
+        landing,
+      ];
+    }
+
+    it("should time the neighbor's animation by the tokens' pair", async () => {
+      const [list, [a, b]] = await createList(['A', 'B', 'C'], {
+        layoutAnimation: 'tokens',
+      });
+      commitOnReorder(list);
+
+      await moveDown(a!);
+
+      expect(layoutAnimationsOf(b!).map(timingOf)).toEqual([
+        pairOf('default-spatial'),
+      ]);
+    });
+
+    it("should time the neighbor's animation by the list's private properties", async () => {
+      const [list, [a, b]] = await createList(['A', 'B', 'C'], {
+        layoutAnimation: 'tokens',
+      });
+      list.style.setProperty('--_layout-animation-duration', '0.25s');
+      list.style.setProperty('--_layout-animation-easing', 'linear');
+      commitOnReorder(list);
+
+      await moveDown(a!);
+
+      expect(layoutAnimationsOf(b!).map(timingOf)).toEqual([
+        { duration: 250, easing: 'linear' },
+      ]);
+    });
+
+    it.each([
+      ['without a page rule', {}],
+      [
+        "with the neighbors' private properties set",
+        {
+          '--_layout-animation-duration': '0.25s',
+          '--_layout-animation-easing': 'linear',
+        },
+      ],
+    ] as const)(
+      "should time the landing and the lifted item's elevation by the landing's pair, %s",
+      async (_, neighbors) => {
+        expect(await readLanding(neighbors)).toEqual([
+          {
+            duration: resolveComputed(
+              'transition-duration',
+              motionEffects['expressive.slow-spatial.duration'],
+            ),
+            easing: resolveComputed(
+              'transition-timing-function',
+              motionEffects['expressive.slow-spatial'],
+            ),
+          },
+          [pairOf('slow-spatial')],
+        ]);
+      },
+    );
+  });
+
+  describe('private properties', () => {
+    const PROPERTIES = [
+      [
+        '--_drag-duration',
+        'transition-duration',
+        'expressive.slow-spatial.duration',
+      ],
+      [
+        '--_drag-easing',
+        'transition-timing-function',
+        'expressive.slow-spatial',
+      ],
+      [
+        '--_layout-animation-duration',
+        'transition-duration',
+        'expressive.default-spatial.duration',
+      ],
+      [
+        '--_layout-animation-easing',
+        'transition-timing-function',
+        'expressive.default-spatial',
+      ],
+    ] as const;
+
+    /** The four properties as `tag`'s host computes them. */
+    async function readHost(tag: ListTag): Promise<readonly string[]> {
+      const list = document.createElement(tag);
+      list.append(createItem('mx-list-item', 'A', false));
+      document.body.append(list);
+      await nextFrame();
+      const style = getComputedStyle(list);
+
+      return PROPERTIES.map(([name]) => style.getPropertyValue(name).trim());
+    }
+
+    it('should give an mx-list host none of them', async () => {
+      expect(await readHost('mx-list')).toEqual(['', '', '', '']);
+    });
+
+    it("should give an mx-sortable-list host the tokens' values", async () => {
+      const read = await readHost('mx-sortable-list');
+
+      expect(
+        PROPERTIES.map(([, property], i) =>
+          resolveComputed(property, read[i]!),
+        ),
+      ).toEqual(
+        PROPERTIES.map(([, property, token]) =>
+          resolveComputed(property, motionEffects[token]),
+        ),
+      );
+    });
   });
 });
 

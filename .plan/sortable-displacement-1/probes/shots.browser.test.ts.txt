@@ -1,0 +1,125 @@
+// RD-60's reads, not rows: the overshoot frame of a neighbor, and the moved item's focus
+// indicator while its neighbor animates. Each animation of the page is paused at one time.
+import { it } from 'vitest';
+import { commands, page, server, userEvent } from 'vitest/browser';
+import '../../src/list/list-item.ts';
+import '../../src/list/list.ts';
+import '../../src/list/sortable-list.ts';
+import type { ReorderEvent } from '../../src/list/sortable-list.ts';
+import { nextFrame } from '../browser.ts';
+import { coveredIndicator } from '../focus-indicator.ts';
+
+async function make(labels: readonly string[]): Promise<readonly [HTMLElement, HTMLElement[]]> {
+  const list = document.createElement('mx-sortable-list');
+  list.style.width = '320px';
+  const items = labels.map((label) => {
+    const item = document.createElement('mx-list-item');
+    item.append(`Item ${label} with some text`);
+    return item;
+  });
+  list.append(...items);
+  document.body.append(list);
+  list.addEventListener('reorder', (event) => {
+    const { item, next } = event as ReorderEvent;
+    list.insertBefore(item, next);
+  });
+  await nextFrame();
+  return [list, items];
+}
+
+const listed = (row: HTMLElement): Animation[] =>
+  row.getAnimations().filter((a) => !(a instanceof CSSTransition) && !(a instanceof CSSAnimation));
+
+/** Every running animation of the page, its landing's in the shadow trees too, paused at `t`. */
+function pauseAt(t: number): void {
+  for (const animation of document.getAnimations()) {
+    animation.pause();
+    animation.currentTime = t;
+  }
+}
+
+function box(element: Element): DOMRect {
+  return element.getBoundingClientRect();
+}
+
+/** The time at which `row` is drawn furthest past `slotTop`, upward, and by how far. */
+function furthest(row: HTMLElement, slotTop: number): readonly [number, number] {
+  const [animation] = listed(row);
+  const duration = Number(animation!.effect!.getTiming().duration);
+  let best = [0, Number.NEGATIVE_INFINITY] as [number, number];
+
+  for (let t = 0; t <= duration; t += 2) {
+    pauseAt(t);
+    const past = slotTop - box(row).top;
+    if (past > best[1]) best = [t, past];
+  }
+
+  return best;
+}
+
+function overlap(a: DOMRect, b: DOMRect): number {
+  return Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+}
+
+const center = (element: Element): readonly [number, number] => {
+  const { left, top, width, height } = box(element);
+  return [left + width / 2, top + height / 2];
+};
+
+async function shot(list: HTMLElement, name: string): Promise<void> {
+  await nextFrame();
+  await page.screenshot({ element: list, path: `__shots__/${server.browser}-${name}.png` });
+}
+
+async function note(name: string, text: string): Promise<void> {
+  await commands.writeFile(`__shots__/${server.browser}-${name}.txt`, text);
+}
+
+it('overshoot, key move', async () => {
+  const [list, [a, b, c]] = await make(['A', 'B', 'C', 'D']);
+  const slot1 = box(b!).top;
+  b!.focus();
+  await userEvent.keyboard('{ArrowDown}');
+  const [t, past] = furthest(c!, slot1);
+  pauseAt(t);
+  const visual = b!.shadowRoot!.querySelector('.host') ?? b!;
+  await note('overshoot-key', `t=${t}ms past=${past.toFixed(2)}px overA=${overlap(box(c!), box(a!)).toFixed(2)}px overMoved=${overlap(box(c!), box(visual)).toFixed(2)}px`);
+  await shot(list, 'overshoot-key');
+});
+
+it('overshoot, pointer drop', async () => {
+  const [list, [a, b, c]] = await make(['A', 'B', 'C', 'D']);
+  const slot1 = box(b!).top;
+  const [x, y] = center(b!);
+  await commands.pointerPress(x, y);
+  await commands.pointerMove(x, y + 12, 3);
+  await commands.pointerMove(x, center(c!)[1] + 10, 8);
+  await nextFrame();
+  const [t, past] = furthest(c!, slot1);
+  pauseAt(t);
+  await note('overshoot-pointer', `t=${t}ms past=${past.toFixed(2)}px overA=${overlap(box(c!), box(a!)).toFixed(2)}px overMoved=${overlap(box(c!), box(b!)).toFixed(2)}px`);
+  await shot(list, 'overshoot-pointer');
+  for (const animation of document.getAnimations()) animation.play();
+  await commands.pointerRelease();
+});
+
+for (const t of [100, 250, 400]) {
+  it(`focus indicator at ${t} ms`, async () => {
+    const [list, [, b, c]] = await make(['A', 'B', 'C']);
+    const before = document.createElement('button');
+    list.before(before);
+    before.focus();
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    before.remove();
+    // C is focused by keyboard; ArrowUp moves it above B, which slides down under it.
+    await userEvent.keyboard('{ArrowUp}');
+    pauseAt(t);
+    const visual = (c!.shadowRoot!.querySelector('.host') ?? c!) as HTMLElement;
+    const { painted, covered } = await coveredIndicator(list, { box: visual, side: 'bottom' }, [b!]);
+    await note(`focus-${t}`, `focused=${document.activeElement === c} outline=${getComputedStyle(visual).outlineStyle} painted=${painted} covered=${covered} bAnimations=${listed(b!).length}`);
+    pauseAt(t);
+    await shot(list, `focus-${t}`);
+  });
+}

@@ -138,6 +138,11 @@ const SortableListConstructor: Composed<
  *   `mx-list-item`. `--md-list-item-container-color` still overrides the
  *   container color. A page's popover rule that sets other properties, such as
  *   `box-shadow`, applies to the item while it is lifted.
+ * - **Neighbors.** The items that a move pushes aside slide to their new
+ *   places, in a pointer drag and a key move, and slide back when the move is
+ *   cancelled, refused or never committed. The slide animates each item's
+ *   `translate`, added to the item's own. With
+ *   `prefers-reduced-motion: reduce`, they move at once.
  * - **Nested controls.** A control inside an item without a handle that uses
  *   the arrow keys itself, such as a text field or a slider, needs a
  *   `data-drag-ignore` attribute. Otherwise its arrow keys move the item.
