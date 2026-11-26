@@ -1,6 +1,6 @@
 # Combined review of the ownership and composition work: round summary
 
-**Reviewed tree:** `b01a0283d` on `drag/feature-composition`, range `d7e7b0d3a..b01a0283d`. The production code is `50ed18a17`'s; the later commits change only `.plan/`. All three passes read that commit with a clean tree. **Binding sources:** [`contract.md`](../../contract.md) and [`00-index.md`](../../00-index.md), `DRD-14` to `DRD-38` as amended. **Handover:** [`callback-list-completion-assessment.md`](../../callback-list-completion-assessment.md) §6, with the owner's correction below.
+**Reviewed tree:** `b01a0283d` on `drag/feature-composition`, range `d7e7b0d3a..b01a0283d`. The production code is `50ed18a17`'s; the later commits change only `.plan/`. All three passes read that commit with a clean tree. **Binding sources:** [`contract.md`](../../contract.md) and [`00-index.md`](../../decisions/), `DRD-14` to `DRD-38` as amended. **Handover:** [`callback-list-completion-assessment.md`](../../callback-list-completion-assessment.md) §6, with the owner's correction below.
 
 **Subject:** `packages/drag` outside `.plan/`, the owner's refactors in the range, and the related changes outside the package: the root `eslint.config.ts`, `.oxlintrc.json`, `.oxfmtrc.json`, `.scripts/vitest-config.ts`, `package-lock.json`, `packages/box-quad/tests/local-delta.browser.test.ts`, `packages/drag2` at `147abd54c` and `b499eaee0`, and the interface conversion `d8d57383e`. Devcontainer and unrelated tooling work (`.devcontainer/`, `.gitignore`, `.scripts/cl.sh`) are outside the round.
 

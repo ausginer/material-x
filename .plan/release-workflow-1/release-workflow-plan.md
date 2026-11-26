@@ -1,6 +1,6 @@
 # Releasing `@ydinjs` packages: one workflow, staged on npm with provenance, approved by the owner
 
-**The decision** is `RD-27` in the [register](../00-index.md#rd-27--each-ydinjs-package-is-released-by-one-workflow-that-stages-it-on-npm-with-provenance-for-the-owner-to-approve-and-box-quads-first-release-is-100). This plan holds the design, the owner's steps, the implementer's tasks with their proofs, and the questions for the owner, which he answered on 2026-11-20. It was written by the architect on `repo/release-workflow-1`, from `origin/main` at `d69e3ddbc`, on the coordinator's task of 2026-11-20.
+**The decision** is `RD-27` in the [register](../decisions/RD-27.md). This plan holds the design, the owner's steps, the implementer's tasks with their proofs, and the questions for the owner, which he answered on 2026-11-20. It was written by the architect on `repo/release-workflow-1`, from `origin/main` at `d69e3ddbc`, on the coordinator's task of 2026-11-20.
 
 **Where it comes from:**
 

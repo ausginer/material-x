@@ -2,7 +2,7 @@
 
 **Files were read at:** `b1579efd6`, then `f8acb005b` for the [re-review](#re-review-at-f8acb005b), (`repo/trait-decorator-1`, PR #85), in two scratch worktrees of my own. **Diff reviewed:** `d69e3ddbc` to `b1579efd6`.
 
-**Governing records:** `repo:RD-26` and its three amendments of 2026-11-20 in [`00-index.md`](../../00-index.md); the [`@trait` plan](../../trait-decorator-1/trait-decorator-plan.md) with its proofs 1 to 12 and the load-stage section; the [`@attributes` plan](../../attributes-decorator-1/attributes-decorator-plan.md); P45 to P48; and the implementer's [report](../../trait-decorator-1/trait-decorator-report.md). Fix 2 is out of scope, because the owner dropped it.
+**Governing records:** `repo:RD-26` and its three amendments of 2026-11-20 in [`00-index.md`](../../decisions/RD-26.md); the [`@trait` plan](../../trait-decorator-1/trait-decorator-plan.md) with its proofs 1 to 12 and the load-stage section; the [`@attributes` plan](../../attributes-decorator-1/attributes-decorator-plan.md); P45 to P48; and the implementer's [report](../../trait-decorator-1/trait-decorator-report.md). Fix 2 is out of scope, because the owner dropped it.
 
 **Lens:** feature proof. Each claim below is my own reading or my own run ([transcript](checks/feature-proof.txt)). Nothing is repaired, and no record is amended.
 

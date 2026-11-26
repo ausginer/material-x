@@ -4,7 +4,7 @@
 
 **Governing records:**
 
-- **`DRD-63` property 2, as revised on 2026-11-14,** in [`00-index.md`](00-index.md);
+- **`DRD-63` property 2, as revised on 2026-11-14,** in [`00-index.md`](decisions/DRD-63.md);
 - `DRD-35` properties 1 and 7, and `DRD-37` property 4, as `DRD-63` amends them;
 - the [recheck assessment](class-refactor-recheck-assessment.md) §2 and §3;
 - the [recheck](reviews/owner-class-refactor-remediation/recheck-reviewer.md)'s `class-refactor-recheck-1`, and its [probe](reviews/owner-class-refactor-remediation/recheck-reviewer-probes/wrong-receiver.ts.txt);

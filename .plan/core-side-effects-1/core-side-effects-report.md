@@ -1,6 +1,6 @@
 # `@ydinjs/core` declares `"sideEffects": false`: implementation report
 
-**Implemented 2026-11-20 by the implementer** on `core/side-effects-1`, at the [plan](core-side-effects-plan.md) at `ddb70b49f`, with `origin/main` at `e4b0e475d` merged (no change: the branch was already on it). `RD-30` in [`00-index.md`](../00-index.md) records the decision. The owner approved the unit, relayed by the coordinator: _"Да, запускаем!"_ ("Yes, let's go!").
+**Implemented 2026-11-20 by the implementer** on `core/side-effects-1`, at the [plan](core-side-effects-plan.md) at `ddb70b49f`, with `origin/main` at `e4b0e475d` merged (no change: the branch was already on it). `RD-30` in [`00-index.md`](../decisions/RD-30.md) records the decision. The owner approved the unit, relayed by the coordinator: _"Да, запускаем!"_ ("Yes, let's go!").
 
 ## What changed
 

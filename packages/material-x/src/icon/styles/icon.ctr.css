@@ -16,6 +16,13 @@
   white-space: nowrap;
   word-wrap: normal;
   writing-mode: horizontal-tb;
+  /*
+   * An `inline-block` with `overflow: hidden` has its bottom edge as its
+   * baseline, so in a line of text it would stand above the descenders. Its
+   * middle stands on the middle of the text's lowercase letters instead. A flex
+   * or grid item ignores it.
+   */
+  vertical-align: middle;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizelegibility;
   -moz-osx-font-smoothing: grayscale;

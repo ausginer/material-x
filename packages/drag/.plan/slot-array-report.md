@@ -1,6 +1,6 @@
 # Slot array report
 
-**Handoff:** [`slot-array-handoff.md`](slot-array-handoff.md), at `8f18d2f67` on `drag/size`. **Governing record:** `DRD-58` in [`00-index.md`](00-index.md).
+**Handoff:** [`slot-array-handoff.md`](slot-array-handoff.md), at `8f18d2f67` on `drag/size`. **Governing record:** `DRD-58` in [`00-index.md`](decisions/DRD-58.md).
 
 **Status: returned at item 1 step 1.** WebKit doesn't launch after the browser install. This is the handoff's first return condition. No source, test or build file changed. Item 1 steps 2 to 10 and items 2 to 5 didn't run.
 

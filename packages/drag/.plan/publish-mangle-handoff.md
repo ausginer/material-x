@@ -7,7 +7,7 @@
 
 **Governing records:**
 
-- `DRD-56` in [`00-index.md`](00-index.md), properties 1 to 9. This is `DRO-15` step 3, on the owner's answer of 2026-11-13;
+- `DRD-56` in [`00-index.md`](decisions/), properties 1 to 9. This is `DRO-15` step 3, on the owner's answer of 2026-11-13;
 - `DRD-54` and `DRD-55`: the consumer project and the gate, which read the build that this unit changes;
 - `DRD-51` properties 1, 3 and 4, as amended: readings, the stopped campaigns, and runtime checks;
 - [`property-mangling-exploration.md`](property-mangling-exploration.md) §1 and §5: the tool, and what delivery needs;

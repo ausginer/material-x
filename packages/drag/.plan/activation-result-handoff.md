@@ -1,6 +1,6 @@
 # Activation result handoff
 
-**One bounded unit for one implementer.** It implements `DRD-30` in [`00-index.md`](00-index.md): `activate` returns the behavior's operation, which holds the hooks from `start` to `end`. Steps receive that operation, and the `Drag` loses `state`. `sortable` and `freeDrag` become a behavior class and an operation class each. The required behavior is in [`contract.md`](contract.md), whose public surface, DRI-3, DRI-8, DRI-9 and DRI-18 already state it. The evidence behind the decision is [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md) §2.
+**One bounded unit for one implementer.** It implements `DRD-30` in [`00-index.md`](decisions/DRD-30.md): `activate` returns the behavior's operation, which holds the hooks from `start` to `end`. Steps receive that operation, and the `Drag` loses `state`. `sortable` and `freeDrag` become a behavior class and an operation class each. The required behavior is in [`contract.md`](contract.md), whose public surface, DRI-3, DRI-8, DRI-9 and DRI-18 already state it. The evidence behind the decision is [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md) §2.
 
 **Base:** `drag/production` at the commit that carries the report of the `DRF-3` repair ([`operation-lifetime-assessment.md`](operation-lifetime-assessment.md) §3). **If that repair hasn't landed, stop and return.** This unit doesn't do it.
 

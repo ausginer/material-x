@@ -2,7 +2,7 @@
 
 **Read at:** `03d1449e2` on `drag/feature-composition`. That commit carries [`gesture-receiver-report.md`](gesture-receiver-report.md). The implementation is `fd7ae3e43`, and the handoff's base is `c492e713e` with the owner's edit ([`owner-edit.diff.txt`](probes/gesture-receiver/owner-edit.diff.txt)).
 
-**Governing records:** `DRD-34` in [`00-index.md`](00-index.md), [`gesture-receiver-handoff.md`](gesture-receiver-handoff.md), and the contract's public surface, DRI-6 to DRI-10 and DRI-17.
+**Governing records:** `DRD-34` in [`00-index.md`](decisions/DRD-34.md), [`gesture-receiver-handoff.md`](gesture-receiver-handoff.md), and the contract's public surface, DRI-6 to DRI-10 and DRI-17.
 
 **Method:** a reading of `git diff c492e713e fd7ae3e43` under `src/`, `tests/` and `README.md`, and of the report. Some checks were repeated (§4). Everything else in §4 is the implementer's result, and it is marked as reported.
 

@@ -6,7 +6,7 @@
 
 **Governing records:**
 
-- **`DRD-63`, properties 1 to 7,** in [`00-index.md`](00-index.md), and what it amends: `DRD-35` property 7, `DRD-37` property 4, `DRD-34` property 8 and `DRD-61` property 6;
+- **`DRD-63`, properties 1 to 7,** in [`00-index.md`](decisions/), and what it amends: `DRD-35` property 7, `DRD-37` property 4, `DRD-34` property 8 and `DRD-61` property 6;
 - **`DRO-13`;**
 - **`DRD-60` property 2;**
 - **`DRD-52`'s development check;**

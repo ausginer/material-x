@@ -1,6 +1,6 @@
 # Callback list completion report
 
-**Input:** `drag/feature-composition` at `cd69d1149`, which carries [`callback-list-completion-handoff.md`](callback-list-completion-handoff.md), with the owner's uncommitted `CallbackList` edit in the working tree. **Governing records:** `DRD-36`, `DRD-37`, `DRD-38` and `DRO-12` in [`00-index.md`](00-index.md), `DRD-35` as those amend it, §Disposition of the callback list report, and [`contract.md`](contract.md).
+**Input:** `drag/feature-composition` at `cd69d1149`, which carries [`callback-list-completion-handoff.md`](callback-list-completion-handoff.md), with the owner's uncommitted `CallbackList` edit in the working tree. **Governing records:** `DRD-36`, `DRD-37`, `DRD-38` and `DRO-12` in [`00-index.md`](00-index.md#disposition-of-the-callback-list-report), `DRD-35` as those amend it, §Disposition of the callback list report, and [`contract.md`](contract.md).
 
 **Base check:** both steps succeeded before any edit.
 

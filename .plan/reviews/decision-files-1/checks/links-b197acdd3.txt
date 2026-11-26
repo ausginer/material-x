@@ -1,0 +1,47 @@
+# probes/links.mjs <clone> b197acdd3
+{
+ "rev": "b197acdd3",
+ "files": 524,
+ "links": 7274,
+ "broken": 37,
+ "fragmentsIntoRecordsNamingNoHeading": 1
+}
+.plan/00-index.md:63 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:79 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:3097 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:3097 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:3103 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:3103 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:3109 ../packages/drag2/.plan/reviews/fin-review2/verification-restored-recheck-claude.md
+.plan/00-index.md:3109 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:3147 ../packages/drag2/.plan/reviews/fin-review2/verification-regressions-recheck-claude.md
+.plan/00-index.md:3147 ../packages/drag2/.plan/reviews/architecture/request-application-claude.md
+.plan/00-index.md:6438 handle-focus-1/checks/remediation-witnesses-repeat.txt
+.plan/aria-own-value-1/aria-own-value-plan.md:155 .plan/aria-own-value-1/checks/size-noise.txt
+.plan/aube-isolated-1/aube-isolated-report.md:64 aube-isolated-1/aube-isolated-report.md
+.plan/aube-isolated-1/aube-isolated-report.md:64 aube-isolated-1/checks/isolated-reading.txt
+.plan/declarations-check-1/declarations-check-handoff.md:25 declarations-check-1/declarations-check-handoff.md
+.plan/declarations-check-1/declarations-check-handoff.md:25 declarations-check-1/checks/rf54-mapped-brand-probe.txt
+.plan/declarations-check-1/declarations-check-handoff.md:43 declarations-check-1/declarations-check-handoff.md
+.plan/host-has-fallback-1/host-has-fallback-handoff.md:64 host-has-fallback-1/host-has-fallback-handoff.md
+.plan/host-has-fallback-1/host-has-fallback-handoff.md:64 host-has-fallback-1/checks/rf40-reading.txt
+.plan/host-has-fallback-1/host-has-fallback-handoff.md:64 host-has-fallback-1/host-has-fallback-handoff.md#item-1-the-tests
+.plan/slider-1/slider-plan.md:568 slider-1/slider-plan.md#the-rechecks-rulings
+packages/box-quad/.plan/plan.md:5 ../../drag2/.plan/plan.md
+packages/box-quad/.plan/plan.md:13 contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:14 ../../drag2/.plan/contract/00-index.md
+packages/box-quad/.plan/plan.md:15 contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:16 contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:18 contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:23 ../../drag2/.plan/measurements/budget-rebases.md
+packages/box-quad/.plan/plan.md:65 contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:66 contract/05-cache-semantics.md
+packages/box-quad/.plan/plan.md:296 ../../drag2/.plan/measurements/budget-rebases.md
+packages/box-quad/.plan/reviews/03-C-correctness-review.md:5 ../contract/03-failure-table.md:27
+packages/drag/.plan/architecture-plan.md:50 ../../drag2/.plan/reentrancy-redesign-brief.md
+packages/drag/.plan/mangle-selection-report.md:140 measurements/2026-11-13-selection-rect-index/
+packages/drag/.plan/publish-mangle-report.md:142 ../build/property-names.json
+packages/drag/.plan/publish-mangle-report.md:143 ../build/generate-property-names.ts
+packages/drag/.plan/publish-mangle-report.md:153 ../build/rename-properties.ts
+-- fragments
+packages/drag/.plan/unit-layout-exploration.md:182 00-index.md#drf-38--two-consumer-tests-count-heap-instances-by-class-name-which-the-minified-build-renames

@@ -372,3 +372,152 @@ describe('entry.sh --duplicates', () => {
     ]);
   });
 });
+
+describe('entry.sh with a decisions directory', () => {
+  const roots: string[] = [];
+
+  const fixture = async (
+    documents: Readonly<Record<string, string>>,
+  ): Promise<string> => {
+    const root = await createFixture(documents);
+    roots.push(root);
+    return root;
+  };
+
+  afterAll(async () => {
+    await Promise.all(
+      roots.map(
+        async (root) => await rm(root, { recursive: true, force: true }),
+      ),
+    );
+  });
+
+  it('should resolve an entry of a decisions file in each scope', async () => {
+    const root = await fixture({
+      '.plan/00-index.md': '#### RF-1 — Finding\n',
+      '.plan/decisions/RD-1.md': '#### RD-1 — Repository\n\nOne.\n',
+      'packages/drag/.plan/00-index.md': '#### DRF-1 — Finding\n',
+      'packages/drag/.plan/decisions/DRD-1.md': '#### DRD-1 — Drag\n\nTwo.\n',
+    });
+
+    const results = await Promise.all(
+      ['repo:RD-1', 'drag:DRD-1'].map(async (address) => {
+        const { code, out } = await run(root, [address]);
+        return [code, out];
+      }),
+    );
+
+    expect(results).toEqual([
+      [0, '#### RD-1 — Repository\n\nOne.\n'],
+      [0, '#### DRD-1 — Drag\n\nTwo.\n'],
+    ]);
+  });
+
+  it('should refuse an id claimed in an index and in a decisions file', async () => {
+    const root = await fixture({
+      '.plan/decisions/RD-1.md': '#### RD-1 — Repository\n',
+    });
+
+    const [lookup, duplicates] = await Promise.all([
+      run(root, ['repo:RD-1']),
+      run(root, ['--duplicates']),
+    ]);
+
+    expect([lookup.code, duplicates.code]).toEqual([1, 1]);
+    expect(lookup.err).toContain('duplicated local id in repo: RD-1');
+    expect(duplicates.err).toContain(
+      'repo:RD-1\n  .plan/00-index.md:1\n  .plan/decisions/RD-1.md:1',
+    );
+  });
+
+  it('should read the index alone at a commit without the directory', async () => {
+    const root = await fixture({});
+    await git(root, ['add', '.']);
+    await git(root, [
+      '-c',
+      'user.name=fixture',
+      '-c',
+      'user.email=fixture@example.invalid',
+      'commit',
+      '-qm',
+      'fixture',
+    ]);
+    await mkdir(join(root, '.plan/decisions'));
+    await writeFile(
+      join(root, '.plan/decisions/RD-1.md'),
+      '#### RD-1 — Repository\n',
+    );
+
+    const [atHead, tree] = await Promise.all([
+      run(root, ['--duplicates', 'HEAD']),
+      run(root, ['--duplicates']),
+    ]);
+
+    expect([atHead.code, atHead.out, tree.code]).toEqual([
+      0,
+      'no duplicated address in drag, repo\n',
+      1,
+    ]);
+    expect(tree.err).toContain(
+      'repo:RD-1\n  .plan/00-index.md:1\n  .plan/decisions/RD-1.md:1',
+    );
+  });
+
+  it('should refuse a decision heading in an index once a decisions file exists', async () => {
+    const root = await fixture({
+      '.plan/00-index.md': '#### RF-1 — Finding\n\n#### RD-2 — Second\n',
+      '.plan/decisions/RD-1.md': '#### RD-1 — Repository\n',
+    });
+    await git(root, ['add', '.']);
+    await git(root, [
+      '-c',
+      'user.name=fixture',
+      '-c',
+      'user.email=fixture@example.invalid',
+      'commit',
+      '-qm',
+      'fixture',
+    ]);
+
+    const results = await Promise.all([
+      run(root, ['--duplicates']),
+      run(root, ['--duplicates', 'HEAD']),
+    ]);
+
+    expect(results).toEqual(
+      Array(2).fill({
+        code: 1,
+        out: '',
+        err: 'decisions outside .plan/decisions/: a decision is a file of its own there\nrepo:RD-2\n  .plan/00-index.md:3\n',
+      }),
+    );
+  });
+
+  it("should refuse only drag's decision families outside its decisions files", async () => {
+    const root = await fixture({
+      'packages/drag/.plan/00-index.md':
+        '#### DRF-1 — Finding\n\n#### DRO-2 — Owner\n',
+      'packages/drag/.plan/decisions/DRD-1.md': '#### DRD-1 — Drag\n',
+    });
+
+    expect(await run(root, ['--duplicates'])).toEqual({
+      code: 1,
+      out: '',
+      err: 'decisions outside .plan/decisions/: a decision is a file of its own there\ndrag:DRO-2\n  .plan/00-index.md:3\n',
+    });
+  });
+
+  it('should read the index alone in a working tree without the directory', async () => {
+    const root = await fixture({});
+
+    const [lookup, duplicates] = await Promise.all([
+      run(root, ['repo:RD-1']),
+      run(root, ['--duplicates']),
+    ]);
+
+    expect([lookup, duplicates]).toEqual([
+      { code: 0, out: '#### RD-1 — Repository\n\n\n', err: '' },
+      { code: 0, out: 'no duplicated address in drag, repo\n', err: '' },
+    ]);
+  });
+});

@@ -1,0 +1,24 @@
+#### RD-5 — The record resolver is repository tooling, and a retired scope resolves at its final commit
+
+**Decided 2026-11-15** by the architect, on the owner's decision to delete `@ydinjs/drag2` (`drag:DRO-17`, `drag:DRD-64`). **Unimplemented:** [`drag2-retirement-handoff.md`](../../packages/drag/.plan/drag2-retirement-handoff.md) item 3 implements it.
+
+**The resolver moves to `.scripts/entry.sh` and `.scripts/entry.ts`, with the same address syntax and the same three refusals.** It resolves `repo` and `drag` from the working tree. **`drag2` becomes a retired scope, read at `0870abd75` and never from the working tree.** Its current-state documents are what they were: `.plan/contract/*.md` and `.plan/obligations.md`. A `drag2:` address resolves to the bytes it resolved to at that commit. A clone that doesn't hold the commit gets an error that names it. That error differs from the three refusals, because its repair is fetching history and not correcting the address.
+
+**The bare `D-`, `F-`, `Q-` and `I-` series stay closed to every other scope** (`RD-1`). They are retired with drag2's register, and no scope allocates them again. A retired series that some scope reused would make a `drag2:` citation ambiguous.
+
+**Why the resolver moves, and why it isn't deleted with drag2.** It already resolves `repo` and `drag`. Outside drag2, 13 files cite 16 `drag2:` addresses, and 159 record files name drag2 about 1,900 times, mostly by path. So the resolver is repository tooling that lives in drag2 for historical reasons. Deleting it would leave `CONTRIBUTING.md` §Reading one entry of a record with no tool to name.
+
+**Why a retired scope reads a commit and doesn't refuse.** Its record no longer changes, so one commit holds all of it, and `0870abd75` is on `main`, which keeps it reachable. A refusal would turn every `drag2:` citation into one that only someone who knows the commit can follow. Reading at the commit costs one row and two `git` calls. A copy of the register in the tree was rejected: it keeps 1.6 MB of a deleted package as a second current-state copy, which `documentation.md` §1 rules out.
+
+**The resolver keeps its own entry reading.** It was shared with `tests/ledger.ts` so that drag2's record tests and the resolver read an entry the same way. Those tests leave with drag2, so the resolver is the one reader, and the reading is the `####` heading and the `#{1,4}` terminator that `CONTRIBUTING.md` states.
+
+**Withdrawn with drag2, in the instruments' terms:**
+
+- `references.node.test.ts`: citations in drag2's normative tree resolve.
+- `decisions.node.test.ts`: drag2's register is complete, unique, and consistent with its status table.
+- `coverage.node.test.ts` and `docs.node.test.ts`: drag2's coverage ledger and its documentation rows.
+- `.scripts/decision-status.ts` and `.scripts/corpus-equivalence.ts`: drag2's status projection and its corpus check.
+
+Each one checked only drag2's record, which is frozen at `0870abd75`. The checks they ran there stand as their last result, and nothing in the tree has the property any longer. **No other record had these checks.** `repo` and `drag` keep only the resolver's duplicate refusal. Links in Markdown outside drag2 had no instrument before, and have none now (`documentation.md` §7).
+
+**Consequences carried elsewhere,** all in the handoff's item 2: `CONTRIBUTING.md` §Reading one entry of a record, `documentation.md` §7 and §9, `handoff.md` §Markdown, `agent-workflow.md`, `review-findings.md` and `coordinator.md`. `RD-4` holds through drag's `DRAG_NODE_BUILD`, the same mechanism with drag's build. Its text, which names drag2's setup as the only one, isn't rewritten.

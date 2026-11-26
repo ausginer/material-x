@@ -2,7 +2,7 @@
 
 **Pass:** `reviewer` (feature proof). **Commit read:** `b01a0283d` on `drag/feature-composition`, with a clean tree. The production code is `50ed18a17`'s, and the later commits change only `.plan/`. **Range:** `d7e7b0d3a..b01a0283d`.
 
-**Binding sources:** [`contract.md`](../../contract.md) and [`00-index.md`](../../00-index.md), `DRD-14` to `DRD-38` as amended. The handover is [`callback-list-completion-assessment.md`](../../callback-list-completion-assessment.md) §6, with the owner's correction that `DRO-7` and `DRO-8` are accepted.
+**Binding sources:** [`contract.md`](../../contract.md) and [`00-index.md`](../../decisions/), `DRD-14` to `DRD-38` as amended. The handover is [`callback-list-completion-assessment.md`](../../callback-list-completion-assessment.md) §6, with the owner's correction that `DRO-7` and `DRO-8` are accepted.
 
 ## Scope
 
