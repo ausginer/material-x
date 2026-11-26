@@ -1,0 +1,14 @@
+#!/bin/bash
+# eng.sh <engine>: the trees of the built head, the rows, the implementer's witnesses, the proof's own mutations.
+L=/tmp/claude-1000/-workspaces-worktrees-b/e64c54e5-c6df-4cae-91a9-3ec47d1d631e/scratchpad/l
+AXE=/workspaces/worktrees/.aube/cache/virtual-store/v1/axe-core@4.14.1-70c6097ff65a92a8/node_modules/axe-core/axe.min.js
+e=${1:?}
+cd /workspaces/worktrees/g/packages/material-x || exit 1
+AXE=$AXE timeout 600 node ../../.plan/list-selected-1/probes/selected.mjs $e > $L/trees-$e.txt 2>&1
+MX_TEST_ENGINES=$e NO_COLOR=1 timeout 1200 aube exec -- vitest run -c vitest.config.ts tests/list tests/aria-own-value tests/traits-baseline --reporter=json --outputFile=$L/mx-$e.json > $L/mx-$e.log 2>&1
+cd ../core && MX_TEST_ENGINES=$e NO_COLOR=1 timeout 1200 aube exec -- vitest run -c vitest.config.ts --reporter=json --outputFile=$L/core-$e.json > $L/core-$e.log 2>&1
+cd /workspaces/worktrees/g
+timeout 1800 node .plan/list-selected-1/probes/mutate.mjs $e $L/w-$e.json > $L/wit-$e.txt 2>&1
+timeout 1800 node $L/own.mjs $e $L/o-$e.json > $L/own-$e.txt 2>&1
+git status --short
+echo done $e

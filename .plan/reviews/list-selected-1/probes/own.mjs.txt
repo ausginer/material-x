@@ -1,0 +1,29 @@
+// The proof's own mutations of RF-132, one at a time, against the selection rows; the sources are restored.
+// Run from the repository root: node own.mjs <engine> <scratch report>
+import { spawnSync } from 'node:child_process';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
+const [engine, report] = process.argv.slice(2);
+const CORE = 'packages/material-x/src/list/ListInteractiveItemCore.ts';
+const text = readFileSync(CORE, 'utf8');
+const ARIA = '  useARIA(host, target);\n';
+const WRITE = "      setOwnARIA(target, 'aria-current', newValue ? current : null);\n";
+const M = [
+  ['the selection written before useARIA', () => text.replace(ARIA, '').replace('  return target;\n', `${ARIA}\n  return target;\n`)],
+  ['a disabled item says nothing', () => text.replace(WRITE, "      setOwnARIA(target, 'aria-current', newValue && !host.disabled ? current : null);\n")],
+  ['the selection written once, at the first change', () => text.replace(WRITE, "      if (!target.hasAttribute('aria-current')) setOwnARIA(target, 'aria-current', newValue ? current : null);\n")],
+  ['the value written on the host', () => text.replace(WRITE, "      setOwnARIA(host, 'aria-current', newValue ? current : null);\n")],
+];
+try {
+  for (const [name, make] of M) {
+    const next = make();
+    if (next === text) throw new Error(`no change: ${name}`);
+    writeFileSync(CORE, next);
+    rmSync(report, { force: true });
+    spawnSync('aube', ['exec', 'vitest', 'run', '-c', 'vitest.config.ts', '--reporter=json', `--outputFile=${report}`, 'tests/list', 'tests/aria-own-value', 'tests/traits-baseline'],
+      { cwd: 'packages/material-x', env: { ...process.env, NO_COLOR: '1', MX_TEST_ENGINES: engine }, encoding: 'utf8', maxBuffer: 1e8 });
+    writeFileSync(CORE, text);
+    const { numFailedTests, numPassedTests, testResults } = JSON.parse(readFileSync(report, 'utf8'));
+    console.log(`## ${name} | ${engine} | ${numFailedTests} failed, ${numPassedTests} passed`);
+    for (const { assertionResults } of testResults) for (const { status, fullName } of assertionResults) if (status === 'failed') console.log(`   ${fullName}`);
+  }
+} finally { writeFileSync(CORE, text); }

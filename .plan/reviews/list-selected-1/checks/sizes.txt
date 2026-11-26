@@ -1,0 +1,5 @@
+# just size-reading at 0d88cace2 and with the four sources of ee0afea12 (main), Brotli. The rows that move:
+material-x list/list-button-item main 4968 | head 4928 (-40) | limit null
+material-x list/list-link-item main 5146 | head 5172 (+26) | limit null
+material-x complete main 25924 | head 25908 (-16) | limit null
+36 rows, over a limit at the head: 0

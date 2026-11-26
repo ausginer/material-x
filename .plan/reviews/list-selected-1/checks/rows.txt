@@ -1,0 +1,9 @@
+# The affected files at 0d88cace2, one engine at a time: material-x's tests/list, aria-own-value and traits-baseline (browser and spec projects), and core's whole suite.
+chromium material-x: 9 files, 428 passed, 0 failed, 0 skipped
+chromium core: 28 files, 362 passed, 0 failed, 0 skipped
+firefox material-x: 9 files, 416 passed, 0 failed, 2 skipped
+firefox core: 28 files, 362 passed, 0 failed, 0 skipped
+webkit material-x: 9 files, 425 passed, 1 failed, 2 skipped
+   failed: mx-sortable-list drop zone should paint the drop zone in each frame while the commit of a pointer drop is pending
+webkit core: 28 files, 362 passed, 0 failed, 0 skipped
+# The WebKit row that failed, alone, three times at a load of 14 to 17 on 12 cores, '-t drop zone': 11 passed each time.
