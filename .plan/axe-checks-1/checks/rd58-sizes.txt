@@ -1,0 +1,4 @@
+# just size (size-limit, Brotli bytes), packages/material-x, at 75966eb9a's template and at c7863961e. Rows that move:
+button/split-button: 7858 -> 7880 (+22)
+complete: 26158 -> 26138 (-20)
+Every other row of 23 is unchanged. No row has a limit, and just size passes.

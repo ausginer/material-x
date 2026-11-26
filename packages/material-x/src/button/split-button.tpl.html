@@ -7,6 +7,13 @@
     aria-expanded="false"
     exportparts="impl:trailing-impl"
   >
-    <mx-icon>keyboard_arrow_down</mx-icon>
+    <!--
+      mx-icon already hides its slot, so in the browsers this attribute changes
+      no name. axe-core doesn't apply a hidden slot to a name (accname 1.2, step
+      2F.3) and would name the button by the icon's ligature, so without it an
+      axe audit doesn't report a split button without secondarylabel. It stays
+      harmless once axe-core implements the step.
+    -->
+    <mx-icon aria-hidden="true">keyboard_arrow_down</mx-icon>
   </mx-icon-button>
 </mx-connected-button-group>

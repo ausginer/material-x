@@ -1,0 +1,113 @@
+// Probe for RD-57's plan: axe-core over each element and state, one fixture at a time.
+import axe from 'axe-core';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import files from '../files.json' with { type: 'json' };
+const INTERNALS = true as boolean;
+import { nextFrame } from './browser.ts';
+
+if (new URLSearchParams(location.search).has('x') || INTERNALS) { const m = new WeakMap<object, ElementInternals>(); const a = HTMLElement.prototype.attachInternals; HTMLElement.prototype.attachInternals = function attachInternals(): ElementInternals { const i = a.call(this); m.set(this, i); return i; }; Object.assign(globalThis, { _elementInternals: m }); }
+const entries = import.meta.glob<unknown>('../src/**/*.ts');
+for (const entry of files.runtime) await entries[`../src/${entry}.ts`]!();
+
+const CASES: ReadonlyArray<readonly [string, string]> = [
+  ['mx-button', '<mx-button>Go</mx-button>'],
+  ['mx-button disabled', '<mx-button disabled>Go</mx-button>'],
+  ['mx-button icon-only named', '<mx-button aria-label=Go><mx-icon slot=icon>check</mx-icon></mx-button>'],
+  ['mx-link-button', '<mx-link-button href="#x">Go</mx-link-button>'],
+  ['mx-link-button disabled', '<mx-link-button href="#x" disabled>Go</mx-link-button>'],
+  ['mx-icon-button', '<mx-icon-button aria-label=Edit><mx-icon>check</mx-icon></mx-icon-button>'],
+  ['mx-icon-button disabled', '<mx-icon-button disabled aria-label=Edit><mx-icon>check</mx-icon></mx-icon-button>'],
+  ['mx-switch-button off', '<mx-switch-button>On</mx-switch-button>'],
+  ['mx-switch-button on', '<mx-switch-button checked>On</mx-switch-button>'],
+  ['mx-switch-button disabled', '<mx-switch-button disabled>On</mx-switch-button>'],
+  ['mx-switch-button error required', '<mx-switch-button error required>On</mx-switch-button>'],
+  ['mx-switch-icon-button off', '<mx-switch-icon-button aria-label=Like><mx-icon>check</mx-icon></mx-switch-icon-button>'],
+  ['mx-switch-icon-button on', '<mx-switch-icon-button checked aria-label=Like><mx-icon>check</mx-icon></mx-switch-icon-button>'],
+  ['mx-switch-icon-button error required', '<mx-switch-icon-button error required aria-label=Like><mx-icon>check</mx-icon></mx-switch-icon-button>'],
+  ['mx-split-button', '<mx-split-button secondarylabel="More options">Go</mx-split-button>'],
+  ['mx-split-button open', '<mx-split-button open secondarylabel="More options">Go</mx-split-button>'],
+  ['mx-split-button disabled', '<mx-split-button disabled secondarylabel="More options">Go</mx-split-button>'],
+  ['mx-split-button unnamed secondary', '<mx-split-button>Go</mx-split-button>'],
+  ['mx-button-group', '<mx-button-group aria-label=View><mx-button>A</mx-button><mx-button>B</mx-button></mx-button-group>'],
+  ['mx-connected-button-group', '<mx-connected-button-group aria-label=View><mx-switch-button value=a checked>A</mx-switch-button><mx-switch-button value=b>B</mx-switch-button></mx-connected-button-group>'],
+  ['mx-card', '<mx-card>Card</mx-card>'],
+  ['mx-checkbox', '<mx-checkbox aria-label=C></mx-checkbox>'],
+  ['mx-checkbox checked', '<mx-checkbox checked aria-label=C></mx-checkbox>'],
+  ['mx-checkbox indeterminate', '<mx-checkbox indeterminate aria-label=C></mx-checkbox>'],
+  ['mx-checkbox disabled', '<mx-checkbox disabled aria-label=C></mx-checkbox>'],
+  ['mx-checkbox error required', '<mx-checkbox error required aria-label=C></mx-checkbox>'],
+  ['mx-checkbox label for', '<label for=c>C</label><mx-checkbox id=c></mx-checkbox>'],
+  ['mx-radio', '<mx-radio aria-label=R></mx-radio>'],
+  ['mx-radio checked', '<mx-radio checked aria-label=R></mx-radio>'],
+  ['mx-radio disabled', '<mx-radio disabled aria-label=R></mx-radio>'],
+  ['mx-radio error required', '<mx-radio error required aria-label=R></mx-radio>'],
+  ['mx-fab', '<mx-fab aria-label=Add><mx-icon slot=icon>check</mx-icon></mx-fab>'],
+  ['mx-fab extended open', '<mx-fab extended=open><mx-icon slot=icon>check</mx-icon>Add</mx-fab>'],
+  ['mx-fab extended closed', '<mx-fab extended=closed aria-label=Add><mx-icon slot=icon>check</mx-icon>Add</mx-fab>'],
+  ['mx-fab disabled', '<mx-fab disabled aria-label=Add><mx-icon slot=icon>check</mx-icon></mx-fab>'],
+  ['mx-icon', '<mx-icon>check</mx-icon>'],
+  ['mx-icon aria-hidden', '<mx-icon aria-hidden=true>check</mx-icon>'],
+  ['mx-list items', '<mx-list><mx-list-item>Item</mx-list-item></mx-list>'],
+  ['mx-list-button-item', '<mx-list><mx-list-button-item>Item</mx-list-button-item></mx-list>'],
+  ['mx-list-button-item selected', '<mx-list><mx-list-button-item selected>Item</mx-list-button-item></mx-list>'],
+  ['mx-list-button-item disabled', '<mx-list><mx-list-button-item disabled>Item</mx-list-button-item></mx-list>'],
+  ['mx-list-link-item', '<mx-list><mx-list-link-item href="#x">Item</mx-list-link-item></mx-list>'],
+  ['mx-list-link-item selected', '<mx-list><mx-list-link-item href="#x" selected>Item</mx-list-link-item></mx-list>'],
+  ['mx-list-link-item disabled', '<mx-list><mx-list-link-item href="#x" disabled>Item</mx-list-link-item></mx-list>'],
+  ['mx-sortable-list item', '<mx-sortable-list><mx-list-item>A</mx-list-item><mx-list-item>B</mx-list-item></mx-sortable-list>'],
+  ['mx-sortable-list handle', '<mx-sortable-list><mx-list-item><mx-icon data-handle slot=lead aria-label="Move A">drag_handle</mx-icon>A</mx-list-item></mx-sortable-list>'],
+  ['mx-sortable-list handle unnamed', '<mx-sortable-list><mx-list-item><span data-handle slot=lead><mx-icon aria-hidden=true>drag_handle</mx-icon></span>A</mx-list-item></mx-sortable-list>'],
+  ['mx-sortable-list button item', '<mx-sortable-list><mx-list-button-item>A</mx-list-button-item><mx-list-button-item disabled>B</mx-list-button-item></mx-sortable-list>'],
+  ['mx-sortable-list handle in disabled button item', '<mx-sortable-list><mx-list-button-item disabled><span data-handle slot=lead aria-label="Move A">=</span>A</mx-list-button-item></mx-sortable-list>'],
+  ['mx-sortable-list handle in button item', '<mx-sortable-list><mx-list-button-item><span data-handle slot=lead aria-label="Move A">=</span>A</mx-list-button-item></mx-sortable-list>'],
+  ['mx-sortable-list handle named by the component', '<mx-sortable-list><mx-list-item><mx-icon data-handle slot=lead>check</mx-icon>A</mx-list-item></mx-sortable-list>'],
+  ['mx-list-item in a ul-less div', '<mx-list-item>Item</mx-list-item>'],
+  ['mx-list empty', '<mx-list></mx-list>'],
+  ['mx-list with a page div child', '<mx-list><div>X</div></mx-list>'],
+  ['mx-slider', '<mx-slider value=40><span slot=label>Volume</span></mx-slider>'],
+  ['mx-slider aria-label', '<mx-slider value=40 aria-label=Volume></mx-slider>'],
+  ['mx-slider valuetext', '<mx-slider value=40 valuetext="40 percent"><span slot=label>Volume</span></mx-slider>'],
+  ['mx-slider disabled', '<mx-slider value=40 disabled><span slot=label>Volume</span></mx-slider>'],
+  ['mx-slider error', '<mx-slider value=40 error><span slot=label>Volume</span></mx-slider>'],
+  ['mx-text-field', '<mx-text-field value=v><span slot=label>Name</span></mx-text-field>'],
+  ['mx-text-field aria-label', '<mx-text-field aria-label=Name></mx-text-field>'],
+  ['mx-text-field outlined', '<mx-text-field outlined value=v><span slot=label>Name</span></mx-text-field>'],
+  ['mx-text-field error required support counter', '<mx-text-field error required value=v><span slot=label>Name</span><span slot=support>Bad</span><span slot=counter>1/9</span></mx-text-field>'],
+  ['mx-text-field disabled', '<mx-text-field disabled value=v><span slot=label>Name</span></mx-text-field>'],
+  ['mx-text-field readonly', '<mx-text-field readonly value=v><span slot=label>Name</span></mx-text-field>'],
+  ['mx-multiline-text-field', '<mx-multiline-text-field value=v><span slot=label>Name</span></mx-multiline-text-field>'],
+  ['mx-multiline-text-field error required support', '<mx-multiline-text-field error required value=v><span slot=label>Name</span><span slot=support>Bad</span></mx-multiline-text-field>'],
+  ['mx-multiline-text-field disabled', '<mx-multiline-text-field disabled value=v><span slot=label>Name</span></mx-multiline-text-field>'],
+  ['mx-top-app-bar', '<mx-top-app-bar><mx-icon-button slot=lead aria-label=Menu><mx-icon>check</mx-icon></mx-icon-button><h1>Head</h1><mx-icon-button slot=trail aria-label=More><mx-icon>check</mx-icon></mx-icon-button></mx-top-app-bar>'],
+  ['witness: unnamed mx-icon-button', '<mx-icon-button></mx-icon-button>'],
+  ['witness: unnamed mx-text-field', '<mx-text-field></mx-text-field>'],
+  ['witness: bad aria on host', '<mx-button aria-selected=true>Go</mx-button>'],
+  ['witness: unnamed mx-link-button', '<mx-link-button href="#x"></mx-link-button>'],
+];
+
+const out: string[] = [];
+const pad = (ms: number): string => ms.toFixed(0).padStart(4);
+let total = 0;
+afterAll(() => {
+  throw new Error(`AXE ${axe.version}\n${out.join('\n')}\nTOTAL axe.run ms ${total.toFixed(0)} in ${CASES.length} cases`);
+});
+beforeAll(() => { document.documentElement.lang = 'en'; });
+
+describe('probe', () => {
+  it.each(CASES)('%s', async (name, html) => {
+    const root = document.createElement('div');
+    root.innerHTML = html;
+    document.body.append(root);
+    await nextFrame(); await nextFrame();
+    const fmt = (rs: axe.Result[]): string => rs.flatMap((r) => r.nodes.map((n) => `${r.id}@${JSON.stringify(n.target)}`)).join(' ');
+    const t = performance.now();
+    const result = await axe.run(root);
+    const a = performance.now() - t; total += a;
+    const t2 = performance.now();
+    const noContrast = await axe.run(root, { rules: { 'color-contrast': { enabled: false } } });
+    const b = performance.now() - t2;
+    const inner = [...result.passes, ...result.violations].filter((r) => r.nodes.some((n) => n.target.length > 0)).map((r) => r.id);
+    out.push(`${pad(a)} ${pad(b)} ${name}\n      violations: ${fmt(result.violations) || '-'}\n      incomplete: ${fmt(result.incomplete) || '-'}\n      passes: ${inner.join(',')}`);
+    expect(noContrast.violations.length).toBeLessThan(99);
+  });
+});

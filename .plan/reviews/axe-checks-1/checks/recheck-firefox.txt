@@ -1,0 +1,22 @@
+# RD-58 (a) recheck at 4012b5bb1, firefox, by the reviewer: node .plan/reviews/axe-checks-1/probes/recheck-mutations.mjs firefox <report> [names]
+## the template's aria-hidden on the trailing icon removed | firefox | 0 failed, 110 passed, 92 skipped
+## the icon's slot not hidden (RF-137) | firefox | 2 failed, 108 passed, 92 skipped
+   mx-icon should hide its slot
+      JestExtendError@http://127.0.0.1:23316/node_modules/.vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/index.CZzC1gGg-BLmOKDDB.js?v=8f29ce29:2443:3
+   mx-icon should hide its slot after the slot has its nodes
+      @http://127.0.0.1:23316/workspaces/worktrees/h/packages/material-x/tests/icon/icon.browser.test.ts?import&browserv=1795686208493:51:80
+## useARIA's call out of ButtonCore (witness 2) | firefox | 7 failed, 103 passed, 92 skipped
+   mx-split-button secondarylabel should name the trailing button
+      @http://127.0.0.1:23316/workspaces/worktrees/h/packages/material-x/tests/button/split-button.browser.test.ts?import&browserv=1795686226243:59:69
+   mx-split-button secondarylabel should name the trailing button after it is set as a property
+      @http://127.0.0.1:23316/workspaces/worktrees/h/packages/material-x/tests/button/split-button.browser.test.ts?import&browserv=1795686226243:65:69
+   mx-split-button secondarylabel should rename the trailing button when it changes
+      @http://127.0.0.1:23316/workspaces/worktrees/h/packages/material-x/tests/button/split-button.browser.test.ts?import&browserv=1795686226243:72:69
+   mx-split-button secondarylabel should leave the trailing button without a name when it is removed
+      @http://127.0.0.1:23316/workspaces/worktrees/h/packages/material-x/tests/button/split-button.browser.test.ts?import&browserv=1795686226243:81:55
+   mx-split-button open should be collapsed on the trailing button from the first render
+      @http://127.0.0.1:23316/workspaces/worktrees/h/packages/material-x/tests/button/split-button.browser.test.ts?import&browserv=1795686226243:98:72
+   mx-split-button open should be expanded on the trailing button from the first render
+      @http://127.0.0.1:23316/workspaces/worktrees/h/packages/material-x/tests/button/split-button.browser.test.ts?import&browserv=1795686226243:103:72
+   mx-split-button open should be on the trailing button after each change
+      @http://127.0.0.1:23316/workspaces/worktrees/h/packages/material-x/tests/button/split-button.browser.test.ts?import&browserv=1795686226243:118:20

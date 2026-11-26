@@ -2671,7 +2671,7 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 #### RD-57 — axe-core checks material-x's elements in the browser tests, supplementary, with each known violation listed by rule and target
 
-**Decided 2026-11-24 by the architect, on `repo/accessibility-findings-1`,** from Mx Architect Explainer's proposal, relayed by the coordinator. The owner approved its registration with the branch's other items: _"Да, отличный анализ, пасиба! Кидай всё"_ ("Yes, great analysis, thanks! Send it all"). That covers registration and not the design. `RD-56` (`repo/findings-on-github-1`) is the highest `RD-` on any branch on `origin`, so this is the next free number. **Unimplemented:** a short plan comes first.
+**Decided 2026-11-24 by the architect, on `repo/accessibility-findings-1`,** from Mx Architect Explainer's proposal, relayed by the coordinator. The owner approved its registration with the branch's other items: _"Да, отличный анализ, пасиба! Кидай всё"_ ("Yes, great analysis, thanks! Send it all"). That covers registration and not the design. `RD-56` (`repo/findings-on-github-1`) is the highest `RD-` on any branch on `origin`, so this is the next free number. **Status: implemented** on `repo/axe-checks-1`, as the last dated note here says.
 
 **The dependency is approved by the owner,** the same day in chat, relayed by the coordinator: _"Согласие на axe-core сразу даю, зря что ли инициировал"_ ("I give my consent to axe-core right away, I didn't start this for nothing"). It is a development dependency only. axe-core 4.14.1 is MPL-2.0 and its manifest has no `dependencies` (read).
 
@@ -2690,6 +2690,38 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 **Order:** it waits for nothing. It is most useful before `RF-132` and `RF-94`, whose repairs then change its list. **Size:** _large_, because a plan comes first. The plan is short.
 
+**Dated 2026-11-25 by the architect, on `repo/axe-checks-1`: planned, and ready for an implementer.** The [plan](axe-checks-1/axe-checks-plan.md) settles what this entry left to it. Read again at `8bed561de`: the same two violations, with `RF-132`'s also on an item that was selected and no longer is, and a third, `nested-interactive` (`RF-144`). The list starts with those three owners. Chromium alone, at about 6.5 s locally. The dependency is in material-x's `devDependencies`. The roles that a host has through `ElementInternals` aren't seen by axe's rules, which is a limit beside those above. Nothing is the owner's to answer.
+
+**Dated 2026-11-25 by the implementer, on `repo/axe-checks-1`: implemented,** in `packages/material-x/tests/axe.browser.test.ts`, with `main` at `ee0afea12`. 68 rows for 22 elements, the standing row and the coverage row: 70 of 70 pass in Chromium. 15 rows have a violation: `RF-94` 10, `RF-132` 2 and `RF-144` 3. The added time is 4.9 to 8.2 s in five pairs at a load under 6 ([readings](axe-checks-1/checks/implementation-time.txt)). Witnesses 1 to 5 fail as they should ([readings](axe-checks-1/checks/witnesses.txt), [script](axe-checks-1/probes/witnesses.mjs)). Witness 6 is read in Chromium alone. Its Firefox and WebKit half is CI's, by the owner's rule of Chromium only locally, and the unit closes on `verify`'s jobs. Departures from the plan, the first ruled on by the architect, relayed by the coordinator:
+
+- **A hidden icon in a control.** In the probe's fixtures the icon is exposed, and its ligature text names the control after it loses its `aria-label`, so witness 2 failed in the split button's rows alone. The icons in the controls are `aria-hidden="true"`, within property 2. Witness 2 then fails in 11 rows. When `RF-137` lands, the attribute is redundant, and whichever unit lands second may remove it with witness 2 again.
+- **Witness 2b, added:** the FAB calls `useARIA` itself. Without that call, its _icon only_ and _disabled_ rows fail with `button-name`, and _extended and closed_ has its own text.
+- **`RF-144` has three rows,** not two: the third is a handle in a disabled button item, which the probe has. Each target is the item's button with a control in it.
+- **The lockfile** nests axe-core 4.14.1 under `packages/material-x`.
+
+**Dated 2026-11-26 by the architect: the feature proof's two findings are accepted, and `main` is merged.** Requested by the coordinator. Read: the [feature proof](reviews/axe-checks-1/feature-proof-claude.md) of `d20c356bd` with its readings, and `RF-137` as it is on `main` (#292). Nothing was probed again. No property of this entry changes, and nothing is the owner's here. `RD-58`'s note has a question for him.
+
+- **`reviewer-1`, accepted.** axe-core 4.14.1 doesn't apply the `aria-hidden` that `RF-137` sets on an `mx-icon`'s shadow slot. So it names a control by the icon's text, where the browsers give the control no name ([reading](reviews/axe-checks-1/checks/icon-names-chromium.txt)).
+  - **The note above is wrong in its last sentence:** _"When `RF-137` lands, the attribute is redundant, and whichever unit lands second may remove it with witness 2 again."_ **The fixtures' `aria-hidden` on an icon in a control stays.** It is what lets axe see a control that has lost its name. With `RF-137` and without the attribute, witness 2 fails none of its 11 control rows ([reading](reviews/axe-checks-1/checks/with-rf137-witness2-chromium.txt)).
+  - **A limit of the check, beside the role through `ElementInternals`:** axe names an `mx-icon` by its text, however the icon hides it. An icon-only control without a name is held by `RF-137`'s tree rows, not by this check, as property 1 says of any rule engine.
+  - `RF-137`'s _Not read_ and `RD-58`'s reason said otherwise. Each has a note.
+- **`reviewer-2`, accepted, by the row's name.** No `mx-icon` handle with a ligature reads as unnamed to axe when the component names nothing, so no fixture of that form can hold the component's name. The row's state becomes _with an icon as a handle and no label of the page's_, which is what it checks: the ARIA rules on an icon that is a handle. The component's name of a handle is held by `sortable-list.browser`'s rows, which read `aria-label` `Reorder`, and in this file by the row _with a handle that the component names_, a `span` whose icon is hidden, which fails without it.
+- **The merge of `main`** is the architect's, in the commit that has this note. It conflicted at the end of _Findings_ alone: `RF-144` here, `RF-143`'s notes and `RF-145` and `RF-146` on `main`. Both sides are kept, with `RF-144` in its place by number.
+- **Owed by the implementer,** in `tests/axe.browser.test.ts`, and no other file:
+  1. The header's bullet on icons gives this reason: axe takes an `mx-icon`'s text into the control's name although the icon's slot is hidden from the browsers' trees, so an icon in a control is `aria-hidden`, or the control's lost name isn't reported. _Limits_ gains: axe names an `mx-icon` by its text.
+  2. The row's state of `reviewer-2`.
+  3. On the merged tree, in Chromium: the 70 rows pass, and witness 2 with the fixtures as they are fails its 11 control rows. The reading is committed.
+- **No recheck is owed:** text and a state's name, and one reading of a witness that the coordinator reads in the report.
+
+**Dated 2026-11-26 by the implementer, on `repo/axe-checks-1`: items 1 and 2 are in, and item 3 reads 8 rows where it expects 11.** Requested by the coordinator. Chromium alone (`RD-62`), on the merged tree ([reading](axe-checks-1/checks/merged-witness2.txt); `witnesses.mjs` now takes a name prefix, so `2.` runs witness 2 alone).
+
+- **Items 1 and 2:** the header's icon bullet gives the reason above, _Limits_ says that axe names an `mx-icon` by its text, and the row's state is _with an icon as a handle and no label of the page's_.
+- **The file:** 70 of 70 pass.
+- **Witness 2 fails 8 of the 11 control rows.** The split button's three, _closed_, _open_ and _disabled_, pass. Its trailing button's icon is in the split button's own template, `<mx-icon>keyboard_arrow_down</mx-icon>`, and no fixture can hide it. So axe names that button by the ligature, as `reviewer-1` reads of any `mx-icon`. With `aria-hidden="true"` on that icon in a probe edit of the template, reverted after the run, witness 2 fails 11, and the three again report `button-name` at `mx-split-button > mx-icon-button > button`.
+- **Not decided here:** whether the split button's rows stay without the witness (its names are held by `RF-136`'s rows) or the template's icon is hidden. The second changes source outside this file, which the triage excludes. That is the architect's.
+
+**Dated 2026-11-26 by the implementer: item 3 reads 11 rows,** with `RD-58`'s (a) at `c7863961e`, requested by the coordinator. Witness 2, `useARIA`'s call out of `ButtonCore`, fails the 11 control rows and no other, the split button's three among them ([reading](axe-checks-1/checks/witness2-rd58.txt)). It replaces the [reading of 8](axe-checks-1/checks/merged-witness2.txt). The cause and the repair are in `RD-58`'s note.
+
 #### RD-58 — A page names the split button's trailing button with `secondarylabel`, and `open` is its expanded state
 
 **Decided 2026-11-25 by the architect, on `material-x/split-button-names-1`,** on the owner's answer of 2026-11-24 to `RF-136`'s Q1, (a). In chat, relayed by the coordinator: _"Q1-Q3: (a), да на RF-138 и RF-140"_ ("Q1-Q3: (a), yes to RF-138 and RF-140"). `RD-57` is the highest `RD-` on any branch on `origin`, so this is the next free number. The [contract](#rf-136--the-split-buttons-trailing-button-is-named-by-its-icons-ligature-cant-be-given-a-name-and-doesnt-expose-open) is in `RF-136`.
@@ -2701,6 +2733,32 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 **Why.** The host has two buttons and one name, so the name of one of them needs a place of its own, beside `secondaryaction`. A default would be an English string in every bundle, and a page in another language that forgets the attribute would not see that it did. An unnamed button is reported by axe-core's `button-name` (`RD-57`).
 
 **Costs.** One more attribute. Every page that has a split button sets it, and one that doesn't has an unnamed button, where today it is named by a ligature. The inner `mx-icon-button` has the name and the state on its own node too, which is `RF-94`'s.
+
+**Dated 2026-11-26 by the architect: the last sentence of _Why_ is false since `RF-137`,** from `RD-57`'s feature proof (`reviewer-1`), requested by the coordinator. It said: _"An unnamed button is reported by axe-core's `button-name` (`RD-57`)."_ `RF-137`'s unit took the `aria-hidden` off the template's icon, because `mx-icon` now hides its own text. The browsers then give the trailing button no name, and the split button's row _should expose no name of the trailing button without a label_ holds it. axe-core doesn't apply the icon's hidden slot, and names the button `keyboard_arrow_down`, so a page whose audit is axe-core's doesn't see that it forgot the attribute. No property changes.
+
+**Q1, for the owner — does the template hide its icon again, so that axe-core reports a split button without `secondarylabel`?**
+
+- **(a) Yes. Recommended.** One attribute in the split button's template, and a row in `RD-57`'s check: the split button without `secondarylabel` reports `button-name`, listed under this entry. The reason above is then true again for a page that audits with axe-core. The icon is hidden twice in the browsers, which changes no name.
+- **(b) No.** The page learns it from the documentation, which says that the attribute is required, and from the browser's own tree.
+
+**Dated 2026-11-26 by the architect: Q1 is answered by the owner, (a),** relayed by the coordinator, after the architect's reading: _"окей, тогда давай (a)"_ ("okay, then let's do (a)"). The reading he answered: with `RF-137`, Chromium, Firefox and WebKit give the trailing button no name, and axe-core 4.14.1 names it `keyboard_arrow_down` ([Chromium](reviews/icon-name-1/checks/names-chromium.txt), [Firefox](reviews/icon-name-1/checks/names-firefox.txt), [WebKit](reviews/icon-name-1/checks/names-webkit.txt), _split, trailing_; [axe](reviews/axe-checks-1/checks/icon-names-chromium.txt)). The browsers do what [accname 1.2](https://www.w3.org/TR/accname-1.2/) defines: step 2F.3 makes a slot's assigned nodes its rendered children, and step 2A gives a hidden node the empty string, so a hidden slot adds nothing to the name. axe-core doesn't implement that step. No axe-core issue about it was found. **Filing one is on the owner's list, for later.** With this answer the last sentence of _Why_ is true again.
+
+**Owed by the implementer, on `repo/axe-checks-1`** (#293):
+
+1. **`split-button.tpl.html`:** `aria-hidden="true"` on the trailing button's `<mx-icon>`, with a comment that gives the reason: axe-core doesn't apply `mx-icon`'s hidden slot (accname 1.2, step 2F.3), so without the attribute an axe audit doesn't report a split button without `secondarylabel`. The comment also says that the attribute is redundant in the browsers, and stays harmless if axe implements the step.
+2. **A row in `tests/axe.browser.test.ts`:** `mx-split-button` without `secondarylabel`, whose listed violation is `button-name` at its trailing button, owned by `repo:RD-58`. **Witness:** without item 1, the row fails, because the listed violation is gone.
+3. **`RD-57`'s witness 2,** on the tree with item 1: it fails all 11 control rows, the split button's three among them. The implementer's reading of 8 above is then replaced by a new one, committed.
+4. **Unchanged, and run:** the split button's own rows, among them _should expose no name of the trailing button without a label_, and `RF-137`'s icon rows. The size gate, for one attribute.
+5. **A bounded recheck is owed,** as `RD-62` property 6 says, of what this changes: the new row and its witness, and the split button's rows in the three engines.
+
+**Dated 2026-11-26 by the implementer: (a) is implemented on `repo/axe-checks-1`, at `c7863961e`,** requested by the coordinator. Chromium alone (`RD-62`), with `@ydinjs/core` and material-x rebuilt.
+
+- **Item 1:** in `split-button.tpl.html`, the trailing button's `<mx-icon>` has `aria-hidden="true"`, with an HTML comment that gives the reason. The template's minifier drops comments, so the comment ships no bytes.
+- **Item 2:** in `tests/axe.browser.test.ts`, the row _mx-split-button, without secondarylabel_ lists `button-name` at `mx-split-button > mx-icon-button > button`, owned by `repo:RD-58`. **Witness:** without the attribute, that row fails, because axe reports nothing, and no other row does ([reading](axe-checks-1/checks/rd58-witness.txt)).
+- **Item 3:** `RD-57`'s witness 2 fails the 11 control rows ([reading](axe-checks-1/checks/witness2-rd58.txt)), as `RD-57`'s note says.
+- **Item 4:** `tests/axe.browser.test.ts`, `tests/button/split-button.browser.test.ts`, with _should expose no name of the trailing button without a label_, and `tests/icon/icon.browser.test.ts` pass, 151 rows. **Size, Brotli** ([reading](axe-checks-1/checks/rd58-sizes.txt)): `button/split-button` 7858 to 7880 (+22), and `complete` 26158 to 26138 (−20). No other row moves, none has a limit, and `just size` passes.
+- **`RD-59`'s heading is restored,** as Mx Architect authorized, relayed by the coordinator. `75966eb9a` had joined it to the end of item 5 above, so `repo:RD-59` didn't resolve and `repo:RD-58` printed `RD-59`'s text as its own. The heading is the line at `75966eb9a^`, and `RD-59` is identical to its text there. Nothing else of that commit changes.
+- **Checks:** format, lint and the typecheck of material-x. **Not run:** Firefox and WebKit, which the bounded recheck of item 5 runs, and the visual project.
 
 #### RD-59 — `mx-icon` hides its content from assistive technology
 
@@ -7045,6 +7103,8 @@ Tier A, **open**, **ready** (the last note), pre-existing. Registered on 2026-11
 - **Not run:** WebKit, Firefox's rows and witnesses, the visual project, so _no visual baseline changes_ is the runner's, Safari, a screen reader, the declarations' typecheck, speed.
 - **Next:** the feature proof.
 
+**Dated 2026-11-26 by the architect: the _Not read_ line on `RD-57`'s check is read, and it is false.** It said that after the repair, _"its `button-name` and `link-name` would then report an icon-only control with no label."_ They don't. axe-core 4.14.1 doesn't apply the `aria-hidden` that this repair sets on the icon's slot, and names the control by the icon's text, read by `RD-57`'s feature proof (`reviewer-1`, [reading](reviews/axe-checks-1/checks/icon-names-chromium.txt), on `repo/axe-checks-1` until it merges). This entry's property is held by its own rows over each engine's tree, which is what `RD-57` property 1 asks of a component's contract. No property changes. `RD-57` and `RD-58` have notes.
+
 #### RF-138 — A disabled split button isn't disabled
 
 Tier A, **closed on 2026-11-25** (the last note), pre-existing. Before closure: open. Registered on 2026-11-24 by the architect, on `repo/records-batch-1`, from `RF-136`'s reading, whose rows for a disabled split button differed between the engines. `RF-137` is the entry before this one. Run at `4e2972514`, on the built elements, in Playwright's Chromium 158, Firefox 159 and WebKit 27.2 ([reading](records-batch-1/checks/split-disabled.txt), [probe](records-batch-1/probes/split-disabled.mjs)).
@@ -7631,6 +7691,19 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 
 **Ready for the recheck** by the same reviewer, as the ruling says, with this property for the cost.
 
+#### RF-144 — A control in a slot of `mx-list-button-item` or `mx-list-link-item` is inside the item's button or link
+
+Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `repo/axe-checks-1`, from the readings of `RD-57`'s plan. `RF-143` is the highest `RF-` on any branch on `origin` (`core/hidden-1`), so this is the next free number. Read at `8bed561de` in Chromium, Firefox and WebKit ([readings](axe-checks-1/checks/nested.txt), [probe](axe-checks-1/probes/nested.browser.test.ts.txt)).
+
+- **What happens:** the item's slots are inside its `<button>` or `<a>`. A focusable control in a slot, a sortable handle, an `mx-icon-button` or a native button, is then inside the item's control. axe-core 4.14.1 reports `nested-interactive` on the button item, in the three engines, and nothing on the link item. In Chromium's tree the nested control is exposed inside the item's button or link, and the item's name takes the control's: `Move A A`, `A More`.
+- **Why it is a problem:** `list.mdx` says that a `trail` slot takes a control, _the same in the three items_, and that a `data-handle` child is an item's handle. So a page that follows it meets this. HTML doesn't allow interactive content in a `<button>` or an `<a>`, and a button's descendants are presentational to some assistive technology.
+- **Not a problem:** an `mx-list-item`, whose controls are beside its content, and an `mx-list-item` with a handle.
+- **Required property:** a control in a slot of an interactive item has its own place in the accessibility tree, outside the item's button or link, and doesn't change the item's name; or the documentation says which slots and which elements are supported. Which of the two is the plan's to say.
+- **Not established:** the trees of Firefox and WebKit, and what a screen reader announces.
+- **Interaction:** `RD-57`'s list names the button item's lines, and a repair removes them. `RF-142` doesn't touch it.
+- **Plan needed:** yes, by the architect. It changes the items' structure.
+- **Size:** _large_.
+
 #### RF-145 — In Chromium, touch doesn't reorder an item by most handles, `mx-icon` among them
 
 Tier A, **open**, **ready**, pre-existing. Registered on 2026-11-25 by the architect, on `material-x/disabled-item-1`, from an observation of #278's feature proof, requested by the coordinator. `RF-144` is the highest `RF-` on any branch on `origin` (`repo/axe-checks-1`), so this is the next free number. Read in Chromium 158 by CDP touch, on the built elements of `754e2089f`, an enabled item, static and button, in `lead` and `trail` ([reading](inline-handle-1/checks/touch.txt), [probe](inline-handle-1/probes/touch.mjs)), and without the package ([reading](inline-handle-1/checks/slot-text.txt), [probe](inline-handle-1/probes/slot-text.mjs)). `main` wasn't run; its `touch-action` line is the same.
@@ -7700,6 +7773,33 @@ Tier A, **open**, **ready, with `RF-145`'s unit** (the last note), pre-existing.
 - **Row,** `browser`, in Chromium, by CDP touch, beside `RF-145`'s: a swipe that starts on an enabled item without a handle, static and button, proposes nothing. **Witness:** `touch-action: none` on the item fails it, as in the [reading](inline-handle-1/checks/no-handle.txt).
 - **Limit:** the emulated swipe lifts the item before the pan cancels it, and the phone shows no lift. The text doesn't promise that there is none. A lift that a person sees on a device is an observation of its own.
 - **Size:** _small_, with `RF-145`, whose size stays _medium_. `RF-145`'s properties don't change.
+
+#### RF-147 — An `mx-icon` inline in a page's text stands on the text's baseline, off its center
+
+Tier C, **open**, **ready** (the last note), pre-existing. Registered on 2026-11-26 by the architect, on `repo/axe-checks-1`, from #299, which the owner asked to register, relayed by the coordinator. The observation is `RF-145`'s note of 2026-11-26 on the focused handles (`material-x/touch-handle-1`, #296). `RF-146` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+- **What happens:** `mx-icon`'s host is `display: inline-block` with `overflow: hidden` (`icon.ctr.css`), so by CSS its baseline is its bottom margin edge. Inline in a line of text, its bottom stands on the text's baseline, and the space of the text's descenders is below it: the icon sits higher than the text around it. Read in Chromium on #296's branch, `material-x/touch-handle-1`, in its `.plan/touch-handle-1/checks/remedy-boxes.txt`, which merges with it: in a `span` of 11 px text with a 16 px line, an 11 px icon has 0 px above it and 5 below. In a native button with its own text styles, a 13 px icon has 3 above and 6 below, on `main` too.
+- **Where it shows:** wherever a page puts an `mx-icon` in its own text or in an inline element of its own. **Where it doesn't:** in the package's own elements, where the icon is a flex or grid item, which `vertical-align` doesn't move: `RF-145`'s boxes reading has `mx-button`, `mx-icon-button` and `mx-fab` unchanged. A sortable handle centers its content by `RF-145`'s remedy.
+- **Why it is a problem:** an icon beside text looks misplaced, by up to its text's descender. The owner has fought it often, in his words. No Material token states where an inline icon stands.
+- **Required property:** an `mx-icon` inline in a line of text, at its text's size, stands where Q1 says, within 1 px at 24 px, in each engine at `RD-20`'s floor. The boxes of `mx-icon` in the package's own elements don't change, and no visual baseline changes.
+- **Q1, for the owner — where does an inline icon stand?**
+  - **(a) Its middle on the middle of the text's lowercase letters,** CSS's `vertical-align: middle`. Defined by the font's x-height, so the same rule in every font. **Recommended,** because it needs no number of its own.
+  - **(b) Its middle on the middle of the text's line,** which suits text in capitals and numerals. A fixed offset, such as `-0.125em`, comes near it for most fonts, and only near.
+  - **(c) As today,** on the baseline, with a sentence in `icon.mdx` that says so and how a page moves it.
+- **Candidates, not read:** a `vertical-align` on the host for (a) or (b); `overflow: visible`, which would put the baseline at the glyph's own, and changes what a large glyph may paint outside its box.
+- **Rows,** the three engines: an icon inline in text, at the text's size, at two sizes, measured against the text's box as Q1 defines it. **Witness:** each fails on `main`. The boxes of `RF-145`'s reading for the package's elements are unchanged.
+- **Not read:** Safari, a page's own font, an icon with a size other than its text's, an SVG in `mx-icon`.
+- **Plan needed:** no, once Q1 is answered. **Size:** _small_.
+
+**Dated 2026-11-26 by the architect: Q1 is answered by the owner, (a),** relayed by the coordinator: _"(a)"_. An inline icon's middle stands on the middle of its text's lowercase letters. **Ready** for an implementer, in a unit of its own, on a branch from `main` after #293 merges, because this entry is on #293's branch until then and the subject isn't that unit's. The status above said _"waiting on the owner (Q1)"_. The size stays _small_.
+
+- **The property, made exact:** in each engine at `RD-20`'s floor, the vertical middle of an `mx-icon` inline in a line of text is within 1 px of the text's baseline plus half its x-height, at 16 and 24 px. The x-height is measured independently of CSS's `middle`, for example by a canvas `measureText('x')` in the text's font, so the row doesn't assert the rule with itself.
+- **The candidate, and its form is the implementer's:** `vertical-align: middle` on the host in `icon.ctr.css`, with a comment that gives the reason: an `inline-block` with `overflow: hidden` stands on its bottom edge.
+- **Rows,** the three engines: the property at both sizes, in a `span` of text and in a native button with text. **Witness:** each fails on `main`.
+- **Unchanged, and read:** the boxes of `mx-icon` in `mx-button`, `mx-icon-button`, `mx-fab`, a list item's `lead` and `trail`, and a sortable handle, with `RF-145`'s probe (`material-x/touch-handle-1`'s `.plan/touch-handle-1/probes/boxes.mjs`, or a copy). In a slot whose line is 0 high, the icon's place shouldn't move, and the reading says whether it does.
+- **Visual baselines:** none is to change but where an icon stands in a line of text, such as the icon's own stories. Each one that changes is recorded by `RD-13` and shown to the owner before and after.
+- **Stop** and return if an element of the package moves, or the property doesn't hold in an engine.
+- **Feature proof:** owed, in the three engines.
 
 ## Questions
 
