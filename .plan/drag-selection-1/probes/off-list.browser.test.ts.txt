@@ -1,0 +1,30 @@
+describe('zz selection probe', () => {
+  it('off-list: no text selected when the held pointer leaves the list over page text', async () => {
+    const [list, [, b, c]] = await createList([
+      'Item A with some text',
+      'Item B with some text',
+      'Item C with some text',
+    ]);
+    list.style.width = '240px';
+    const p = document.createElement('p');
+    p.textContent = 'Page text beside the list, long enough to select';
+    p.style.cssText = `position:absolute;left:320px;top:${list.getBoundingClientRect().top + 60}px;margin:0;width:300px`;
+    document.body.append(p);
+    onTestFinished(() => p.remove());
+    document.getSelection()!.removeAllRanges();
+    const range = document.createRange();
+    range.selectNodeContents(b!.lastChild!);
+    const { left, top, width, height } = range.getBoundingClientRect();
+    const [x, y] = [left + width / 2, top + height / 2];
+    await commands.pointerPress(x, y);
+    await commands.pointerMove(x, y + 12, 3);
+    await commands.pointerMove(x, centerOf(visualOf(c!))[1] + 10, 8);
+    const pr = p.getBoundingClientRect();
+    await commands.pointerMove(pr.left + pr.width / 2, pr.top + pr.height / 2, 8);
+    await nextFrame();
+    const during = document.getSelection()!.toString();
+    await commands.pointerRelease();
+    await whenSettled(list, b!);
+    expect(JSON.stringify({ during, after: document.getSelection()!.toString() })).toBe('PROBE');
+  });
+});
