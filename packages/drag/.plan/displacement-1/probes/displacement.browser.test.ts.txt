@@ -1,0 +1,175 @@
+import { afterAll, describe, expect, it } from 'vitest'; import { server } from 'vitest/browser';
+import { ReorderResolution, type SortableConfig } from '../src/sortable.ts';
+import { landing } from '../src/sortable/landing.ts';
+import { layoutAnimation } from '../src/sortable/layout-animation.ts';
+import { xy } from '../src/sortable/xy.ts';
+import { basicSortable, commands, engine, faults, frames, makeList, onCleanup, rowsOf, wait } from './support/harness.ts';
+
+const D = 300;
+const H = [40, 60, 30, 50, 40, 40];
+const LA = (): SortableConfig['displacement'] => (layoutAnimation as any)({ duration: D, easing: 'linear', timing: () => ({ duration: D, easing: 'linear' }) });
+const lines: string[] = []; const out = (s: string): void => { lines.push(`${engine} | ${s}`); };
+
+function make(css = '', wrap = false): HTMLElement {
+  const list = makeList(6, document.body, `position:absolute;top:0;left:0;width:200px;${css}`);
+  rowsOf(list).forEach((r, i) => {
+    r.tabIndex = 0;
+    r.style.cssText = wrap
+      ? `box-sizing:border-box;margin:0;width:${[60, 90, 70, 60, 80, 60][i]}px;height:40px;touch-action:none;user-select:none`
+      : `box-sizing:border-box;margin:0;width:100px;height:${H[i]}px;touch-action:none;user-select:none`;
+  });
+  return list;
+}
+
+/** Frame-by-frame positions of every row, and whether a row moved in one frame by nearly all it travels. */
+function record(list: HTMLElement): () => string {
+  const rows = rowsOf(list);
+  const tracks: Array<Array<[number, number]>> = rows.map(() => []); const homes = list;
+  const anim: string[] = [];
+  const orig = Element.prototype.animate;
+  Element.prototype.animate = function (this: Element, ...a: any[]): Animation {
+    const k = a[0]?.[0]?.translate;
+    if (rows.includes(this as HTMLElement) && a[1]?.composite === 'add') anim.push(`${this.id}:${k}`);
+    return orig.apply(this, a as any);
+  };
+  let live = true;
+  const tick = (): void => {
+    if (!live) return;
+    rows.forEach((r, i) => { const b = r.getBoundingClientRect(); const h = homes.getBoundingClientRect(); tracks[i]!.push([b.left - h.left, b.top - h.top]); });
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  return () => {
+    live = false;
+    Element.prototype.animate = orig;
+    const verdict = tracks.map((t, i) => {
+      const xs = t.map((v) => v[0]); const ys = t.map((v) => v[1]);
+      let max = 0;
+      for (let k = 1; k < t.length; k += 1) { const d = Math.abs(ys[k]! - ys[k - 1]!) + Math.abs(xs[k]! - xs[k - 1]!); if (d > max) max = d; }
+      return max > 12 ? `${rows[i]!.id}:jump${Math.round(max)}` : max > 0.5 ? `${rows[i]!.id}:smooth` : '';
+    }).filter(Boolean).join(' ');
+    return `${verdict || 'still'} || animate ${anim.join(' ') || '-'}`;
+  };
+}
+
+async function key(list: HTMLElement, id: string, k = 'ArrowDown'): Promise<void> {
+  list.querySelector<HTMLElement>(`#${id}`)!.focus();
+  await frames(2);
+  await commands.keyPress(k);
+}
+async function slow(list: HTMLElement, id: string, dy: number): Promise<void> {
+  const r = list.querySelector(`#${id}`)!.getBoundingClientRect();
+  await commands.pointerMove(r.left + 20, r.top + 10);
+  await commands.pointerDown();
+  await commands.pointerMove(r.left + 20, r.top + 10 + dy, 25);
+  await wait(D + 150);
+}
+async function flick(list: HTMLElement, id: string, dy: number, dx = 0): Promise<void> {
+  const r = list.querySelector(`#${id}`)!.getBoundingClientRect();
+  await commands.pointerMove(r.left + 20, r.top + 10);
+  await commands.pointerDown();
+  // one sample and the release in one task, as a very quick drop
+  const el = list.querySelector(`#${id}`)!;
+  void el;
+  await commands.pointerMove(r.left + 20 + dx, r.top + 10 + dy, 1);
+  await commands.pointerUp();
+}
+
+type Case = Readonly<{ name: string; run(list: HTMLElement): Promise<void>; cfg?: Partial<SortableConfig>; wrap?: boolean; css?: string }>;
+const accept = { onReorder: ({ item, next }: any) => { const l = item.parentElement; l.insertBefore(item, next); return ReorderResolution.accept(); } };
+const later = { onReorder: ({ item, next }: any) => new Promise<any>((res) => { setTimeout(() => { item.parentElement.insertBefore(item, next); res(ReorderResolution.accept()); }, 100); }) };
+const never = { onReorder: () => new Promise<any>((res) => { setTimeout(() => { res(ReorderResolution.accept()); }, 400); }) };
+const reject = { onReorder: () => ReorderResolution.reject() };
+const rejectLater = { onReorder: () => new Promise<any>((res) => { setTimeout(() => { res(ReorderResolution.reject()); }, 400); }) };
+// A commit that moves the neighbor and not the item, as a keyed renderer may.
+const movesNeighbor = { onReorder: ({ item, from, to }: any) => { const l: HTMLElement = item.parentElement; const rs = rowsOf(l); if (to > from) { for (let i = to; i > from; i -= 1) l.insertBefore(rs[i]!, item); } else { l.insertBefore(item, rs[to]!); } return ReorderResolution.accept(); } };
+const L = { landing: landing({ duration: D }) };
+
+const cases: Case[] = [
+  { name: 'key, commit at once', run: (l) => key(l, 'r0'), cfg: { ...accept, ...L } },
+  { name: 'key up, commit at once', run: (l) => key(l, 'r2', 'ArrowUp'), cfg: { ...accept, ...L } },
+  { name: 'key, commit after 100', run: (l) => key(l, 'r0'), cfg: { ...later, ...L } },
+  { name: 'key, commit moves the neighbor', run: (l) => key(l, 'r0'), cfg: { ...movesNeighbor, ...L } },
+  { name: 'key, rejected at once', run: (l) => key(l, 'r0'), cfg: { ...reject, ...L } },
+  { name: 'key, rejected after 400', run: (l) => key(l, 'r0'), cfg: { ...rejectLater, ...L } },
+  { name: 'key, accepted after 400 and never committed', run: (l) => key(l, 'r0'), cfg: { ...never, ...L } },
+  { name: 'key, no landing', run: (l) => key(l, 'r0'), cfg: accept },
+  { name: 'key, rejected after 400, no landing', run: (l) => key(l, 'r0'), cfg: rejectLater },
+  { name: 'key, flex gap', run: (l) => key(l, 'r0'), cfg: { ...accept, ...L }, css: 'display:flex;flex-direction:column;gap:10px;' },
+  { name: 'slow pointer', run: async (l) => { await slow(l, 'r0', 120); await commands.pointerUp(); }, cfg: { ...accept, ...L } },
+  { name: 'flick', run: (l) => flick(l, 'r0', 130), cfg: { ...accept, ...L } },
+  { name: 'flick, no landing', run: (l) => flick(l, 'r0', 130), cfg: accept },
+  { name: 'flick, rejected after 400', run: (l) => flick(l, 'r0', 130), cfg: { ...rejectLater, ...L } },
+  { name: 'escape after slow', run: async (l) => { await slow(l, 'r0', 120); await commands.keyPress('Escape'); await wait(D); await commands.pointerUp(); }, cfg: { ...accept, ...L } },
+  { name: 'escape after slow, no landing', run: async (l) => { await slow(l, 'r0', 120); await commands.keyPress('Escape'); await wait(D); await commands.pointerUp(); }, cfg: accept },
+  { name: 'escape right after a move', run: async (l) => { const r = l.querySelector('#r0')!.getBoundingClientRect(); await commands.pointerMove(20, r.top + 10); await commands.pointerDown(); await commands.pointerMove(20, r.top + 100, 4); await frames(2); await commands.keyPress('Escape'); await wait(D); await commands.pointerUp(); }, cfg: { ...accept, ...L } },
+  { name: 'key, onReorder throws', run: (l) => key(l, 'r0'), cfg: { onReorder: () => { throw new Error('no'); }, ...L } as any },
+  { name: 'key, rejected after 400 with a scroll at 150', run: async (l) => { await key(l, 'r0'); await wait(150); document.documentElement.scrollTop = 60; await wait(50); }, cfg: { ...rejectLater, ...L } },
+  { name: 'xy key, rejected after 400 with a scroll at 150', run: async (l) => { await key(l, 'r0'); await wait(150); document.documentElement.scrollTop = 60; await wait(50); }, cfg: { ...rejectLater, ...L, axis: xy() }, wrap: true, css: 'display:flex;flex-wrap:wrap;' },
+  { name: 'key, rejected after 400, the array cleared at 100', run: async (l) => { await key(l, 'r0'); }, cfg: { __clear: true, ...rejectLater, ...L } as any },
+  { name: 'key, scaled and rotated list', run: (l) => key(l, 'r0'), cfg: { ...accept, ...L }, css: 'transform:scale(.5);transform-origin:0 0;' },
+  { name: 'xy escape after slow', run: async (l) => { const r = l.querySelector('#r0')!.getBoundingClientRect(); await commands.pointerMove(r.left + 20, r.top + 10); await commands.pointerDown(); await commands.pointerMove(r.left + 120, r.top + 45, 10); await wait(D + 150); await commands.keyPress('Escape'); await wait(D); await commands.pointerUp(); }, cfg: { ...accept, ...L, axis: xy() }, wrap: true, css: 'display:flex;flex-wrap:wrap;' },
+  { name: 'cancel right after invalidate', run: async (l) => { await slow(l, 'r0', 120); (window as any).ctl.invalidate(); (window as any).ctl.requestCancel(); await wait(D); await commands.pointerUp(); }, cfg: { ...accept, ...L } },
+  { name: 'cancel a frame after invalidate', run: async (l) => { await slow(l, 'r0', 120); (window as any).ctl.invalidate(); await frames(3); await commands.pointerMove(21, 131); await frames(3); (window as any).ctl.requestCancel(); await wait(D); await commands.pointerUp(); }, cfg: { ...accept, ...L } },
+  { name: 'key, then key again at 100 ms', run: async (l) => { await key(l, 'r0'); await wait(100); await commands.keyPress('ArrowDown'); }, cfg: { ...accept, ...L } },
+  { name: 'key down, then up at 100 ms', run: async (l) => { await key(l, 'r0'); await wait(100); await commands.keyPress('ArrowUp'); }, cfg: { ...accept, ...L } },
+  { name: 'xy key', run: (l) => key(l, 'r0'), cfg: { ...accept, ...L, axis: xy() }, wrap: true, css: 'display:flex;flex-wrap:wrap;' },
+  { name: 'xy flick', run: (l) => flick(l, 'r0', 40, 60), cfg: { ...accept, ...L, axis: xy() }, wrap: true, css: 'display:flex;flex-wrap:wrap;' },
+  { name: 'xy key rejected after 400', run: (l) => key(l, 'r0'), cfg: { ...rejectLater, ...L, axis: xy() }, wrap: true, css: 'display:flex;flex-wrap:wrap;' },
+];
+
+describe('PROBE', () => { afterAll(async () => { await server.commands.writeFile('../zz-out-' + engine + '.txt', lines.join('\n')); });
+  it.each(cases)('$name', async ({ name, run, cfg, wrap = false, css = '' }) => {
+    const list = make(css, wrap);
+    const arr = rowsOf(list); document.body.style.minHeight = '3000px'; onCleanup(() => { document.body.style.minHeight = ''; document.documentElement.scrollTop = 0; });
+    (window as any).ctl = basicSortable(list, { items: () => ((cfg as any)?.__clear ? arr : rowsOf(list)), displacement: LA(), ...cfg } as any);
+    if ((cfg as any)?.__clear) setTimeout(() => { arr.length = 0; }, 350);
+    await frames(3);
+    const stop = record(list);
+    await frames(2);
+    await run(list);
+    await wait(D + 600);
+    out(`${name} | ${stop()} | ${rowsOf(list).map((r) => r.id).join('')}${faults.length ? ` | FAULTS ${faults.map((f) => f.message).join()}` : ''}`);
+    faults.length = 0;
+    expect(true).toBe(true);
+  }, 30000);
+
+  it('reads of getBoundingClientRect in a key move, with and without displacement', async () => {
+    for (const [label, disp] of [['with', LA()], ['without', undefined]] as const) {
+      for (const axis of [undefined, xy()]) {
+        const list = make(axis ? 'display:flex;flex-wrap:wrap;' : '', Boolean(axis));
+        basicSortable(list, { items: () => rowsOf(list), ...(disp ? { displacement: disp } : {}), ...(axis ? { axis } : {}), ...accept, ...L } as any);
+        await frames(2);
+        list.querySelector<HTMLElement>('#r0')!.focus();
+        const orig = Element.prototype.getBoundingClientRect; let n = 0;
+        Element.prototype.getBoundingClientRect = function (this: Element) { n += 1; return orig.call(this); };
+        await commands.keyPress('ArrowDown');
+        Element.prototype.getBoundingClientRect = orig;
+        const keyReads = n; await wait(D + 100);
+        const one = async (esc: boolean): Promise<number> => { const r = rowsOf(list)[0]!; const b = r.getBoundingClientRect(); await commands.pointerMove(b.left + 10, b.top + 10); await commands.pointerDown(); await commands.pointerMove(b.left + 10, b.top + 120, 8); await wait(D + 100); let k = 0; Element.prototype.getBoundingClientRect = function (this: Element) { k += 1; return orig.call(this); }; if (esc) await commands.keyPress('Escape'); else await commands.pointerUp(); Element.prototype.getBoundingClientRect = orig; await wait(D + 100); if (esc) await commands.pointerUp(); await wait(50); return k; };
+        const drop = await one(false); const esc = await one(true);
+        out(`reads ${label} ${axis ? 'xy' : 'y'}: key ${keyReads}, drop after a resolved move ${drop}, Escape ${esc}`);
+        await wait(D + 100);
+        list.remove();
+      }
+    }
+  }, 30000);
+
+  it('a row in flight that is then moved by key', async () => {
+    const list = make();
+    basicSortable(list, { items: () => rowsOf(list), displacement: LA(), ...accept, ...L } as any);
+    const r = list.querySelector('#r0')!.getBoundingClientRect();
+    await commands.pointerMove(20, r.top + 10); await commands.pointerDown();
+    await commands.pointerMove(20, r.top + 60, 6); await frames(2);
+    await commands.pointerUp();
+    const b = list.querySelector<HTMLElement>('#r1')!;
+    const t0 = b.getBoundingClientRect().top; const carried = b.getAnimations().length;
+    b.focus();
+    const tops: number[] = [];
+    b.addEventListener('beforetoggle', () => { tops.push(b.getBoundingClientRect().top); }, { once: true });
+    await commands.keyPress('ArrowDown');
+    for (let i = 0; i < 25; i += 1) { tops.push(Math.round(b.getBoundingClientRect().top)); await frames(1); }
+    out(`grab in flight: carried ${carried} before ${Math.round(t0)} then ${tops.map(Math.round).join(',')}`);
+    await wait(D);
+  }, 30000);
+});

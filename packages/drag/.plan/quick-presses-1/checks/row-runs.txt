@@ -1,0 +1,99 @@
+# quick-presses and pairs, consumer/webkit, at 2c83c7bc0. 'first' is the row itself, traced. Other sessions ran on the machine; the load is /proc/loadavg of 12 CPUs.
+
+== run.sh 60, no pinning
+     60 PROBE first pass 
+    600 PROBE later pass 
+    600 PROBE unawaited pass 
+load before: 11.09 7.09 5.49 3/5216 57384
+load after: 10.47 7.37 5.64 5/5057 58841
+first row, ms for both presses (min, median, max): 8 16 48
+
+== run.sh 40, cpus 0-3
+     40 PROBE first pass 
+    400 PROBE later pass 
+    400 PROBE unawaited pass 
+load before: 9.87 7.29 5.63 1/5022 59241
+load after: 8.80 7.22 5.64 5/5046 60019
+first row, ms for both presses (min, median, max): 9 15 33
+
+== run.sh 40, cpus 0-1
+     40 PROBE first pass 
+    400 PROBE later pass 
+    400 PROBE unawaited pass 
+load before: 8.80 7.22 5.64 8/5053 60083
+load after: 8.84 7.38 5.74 18/5058 61289
+first row, ms for both presses (min, median, max): 10 27 52
+
+== run.sh 40, cpu 0
+     40 PROBE first pass 
+    400 PROBE later pass 
+    400 PROBE unawaited pass 
+load before: 8.84 7.38 5.74 16/5058 61347
+load after: 8.85 7.57 5.88 10/5237 62811
+first row, ms for both presses (min, median, max): 24 44 94
+
+== run.sh 60, cpus 10-11 with six busy loops on them
+     60 PROBE first pass 
+    600 PROBE later pass 
+    600 PROBE unawaited pass 
+load before: 9.18 7.68 5.93 8/5232 63058
+load after: 16.62 11.68 7.67 10/5056 66891
+first row, ms for both presses (min, median, max): 60 94 179
+
+== pairs.sh 40 y-geometry, cpus 8-11
+      1 PROBE first FAIL 
+     39 PROBE first pass 
+load before: 2.06 5.37 6.76 1/4955 123351
+load after: 3.47 5.05 6.52 3/4977 124388
+first row, ms for both presses (min, median, max): 6 13 29
+
+== pairs.sh 30 y-geometry, cpus 10-11, 1
+      1 PROBE first FAIL 
+     29 PROBE first pass 
+load before: 4.24 6.31 6.75 1/4873 135754
+load after: 3.99 5.74 6.50 4/4757 136736
+first row, ms for both presses (min, median, max): 8 15 46
+
+== pairs.sh 30 y-geometry, cpus 10-11, 2
+      1 PROBE first FAIL 
+     29 PROBE first pass 
+load before: 3.99 5.74 6.50 2/4759 136898
+load after: 7.74 6.34 6.63 8/5028 140810
+first row, ms for both presses (min, median, max): 12 29 57
+
+== pairs.sh 30 y-geometry, cpus 10-11, 3
+      1 PROBE first FAIL 
+     29 PROBE first pass 
+load before: 7.74 6.34 6.63 9/5019 140973
+load after: 6.77 6.72 6.75 3/4903 142110
+first row, ms for both presses (min, median, max): 13 30 89
+
+== WITH key-press-ack.diff: pairs.sh 30 y-geometry, cpus 10-11, 1
+     30 PROBE first pass 
+load before: 4.90 6.24 6.59 3/4964 145053
+load after: 6.58 6.73 6.75 3/4938 146830
+first row, ms for both presses (min, median, max): 16 48 125
+
+== WITH key-press-ack.diff: pairs.sh 30 y-geometry, cpus 10-11, 2
+     30 PROBE first pass 
+load before: 6.58 6.73 6.75 5/4944 146995
+load after: 5.12 6.28 6.59 8/4993 149114
+first row, ms for both presses (min, median, max): 21 40 95
+
+== WITH key-press-ack.diff: pairs.sh 30 y-geometry, cpus 10-11, 3
+     30 PROBE first pass 
+load before: 5.12 6.28 6.59 19/4991 149276
+load after: 15.69 9.73 7.80 2/4845 150634
+first row, ms for both presses (min, median, max): 27 45 83
+
+== WITH key-press-ack.diff: pairs.sh 30 y-geometry, cpus 10-11, 4
+     30 PROBE first pass 
+load before: 15.69 9.73 7.80 3/4854 150799
+load after: 7.54 8.51 7.54 4/4869 153842
+first row, ms for both presses (min, median, max): 14 29 84
+
+== WITH key-press-ack.diff: pairs.sh 30 y-geometry, cpus 10-11, 5
+     30 PROBE first pass 
+load before: 7.54 8.51 7.54 3/4860 154004
+load after: 11.16 9.26 7.89 6/5018 161499
+first row, ms for both presses (min, median, max): 20 36 67

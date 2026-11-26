@@ -1,0 +1,52 @@
+# chromium; firefox and webkit read the same, line for line
+focused before its definition: mx-switch-icon-button
+before | late first, default: late:null b:0 c:-1
+before | late first, value b: late:null b:0 c:-1
+before | late first, value late: late:null b:0
+before | late first and disabled: late:null b:0
+before | value c, focus moved to b, then left: late:null b:0 c:-1
+before | b, late; a ready one is put first later: new:0 b:-1 late:null
+before | late alone; a ready one is put first later: new:0 late:null
+before | late first; a ready one is put first later: new:0 late:null b:-1
+before | never defined first: x-never:null b:0 late:null
+before | late with a tabindex of its own, focused before its definition: b:0 late:0
+before | value c, focus moved to b, then left; two late: l1:null b:0 c:-1 l2:null
+before | no value, focus moved to c, then left; late first: late:null b:-1 c:0
+before | focus on b, late first: late:null b:0 c:-1
+after | late first, default: late:0 b:-1 c:-1
+after | late first, value b: late:-1 b:0 c:-1
+after | late first, value late: late:0 b:-1
+after | late first and disabled: late:-1 b:0
+after | value c, focus moved to b, then left: late:-1 b:-1 c:0
+after | b, late; a ready one is put first later: new:0 b:-1 late:-1
+after | late alone; a ready one is put first later: new:0 late:-1
+after | late first; a ready one is put first later: new:0 late:-1 b:-1
+after | never defined first: x-never:null b:0 late:-1
+after | late with a tabindex of its own, focused before its definition: b:0 late:-1
+after | value c, focus moved to b, then left; two late: l1:-1 b:-1 c:0 l2:-1
+after | no value, focus moved to c, then left; late first: late:-1 b:-1 c:0
+after | focus on b, late first: late:-1 b:0 c:-1
+active b, events []
+ArrowLeft: active late, late:0 b:-1 c:-1, events [focusout b,focusin late,input late,change late]
+clones while out: x:0 y:-1, defined true,true
+connected and focused on y in one task: x:-1 y:0, active y
+clones appended, connected and focused on n in one task: m:-1 n:0, active n
+added and focused in one task: a:-1 b:-1 n:0
+then blurred, and one put first: first:-1 a:-1 b:-1 n:0
+then removed and put back: first:0 a:-1 b:-1 n:-1
+value b, one added and focused in one task: a:-1 b:0 n:-1, active n
+ArrowLeft: active b, a:-1 b:0 n:-1, events [focusout n,focusin b]
+blurred, and the value matches none: a:-1 b:0 n:-1
+value c, then none, no focus: a:0 b:-1 c:-1
+focus on b and left, value c: a:-1 b:-1 c:0
+then none: a:-1 b:0 c:-1
+then one put first: first:-1 a:-1 b:0 c:-1
+then the group out and in: first:-1 a:-1 b:0 c:-1
+then b disabled, and a value set: first:0 a:-1 b:-1 c:-1
+a late subclass first: l:0 a:-1 b:-1 c:-1
+Tab enters at l
+ArrowRight: a, l:-1 a:0 b:-1 c:-1
+Tab: after
+one put first while focus is out: n:-1 l:-1 a:0 b:-1 c:-1
+Shift+Tab: a
+click on b: n:-1 l:-1 a:-1 b:0 c:-1, active b

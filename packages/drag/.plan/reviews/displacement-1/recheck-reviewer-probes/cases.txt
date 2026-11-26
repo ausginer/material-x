@@ -1,0 +1,22 @@
+# proof-cases at 9b36f075e, the plain item on y() and xy(), with a landing and without: the count of each kind of line, then the JUMP lines. 'the array empty' is the observation that the architect ruled isn't of the operation (DRD-72, the last ruling, 7).
+## chromium
+      4 JUMP
+    184 ok
+JUMP chromium y none item :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0 | anims 0 | r0r1r2r3r4r5 | start,canceled |  | shell 88.1
+JUMP chromium y none item landing :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0 | anims 0 | r0r1r2r3r4r5 | start,canceled |  | shell 34.3
+JUMP chromium xy none item :: absent r2, the array empty | jump 155.24 r3@1 | moved 155.2 | anims 0 | r0r1r2r3r4r5 | start,canceled |  | shell 92.6
+JUMP chromium xy none item landing :: absent r2, the array empty | jump 155.24 r3@1 | moved 155.2 | anims 0 | r0r1r2r3r4r5 | start,canceled |  | shell 36.2
+## firefox
+      4 JUMP
+    184 ok
+JUMP firefox y none item :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0 | anims 0 | r0r1r2r3r4r5 | start,canceled |  | shell 88.1
+JUMP firefox y none item landing :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0 | anims 0 | r0r1r2r3r4r5 | start,canceled |  | shell 35.7
+JUMP firefox xy none item :: absent r2, the array empty | jump 155.24 r3@1 | moved 155.2 | anims 0 | r0r1r2r3r4r5 | start,canceled |  | shell 92.6
+JUMP firefox xy none item landing :: absent r2, the array empty | jump 155.24 r3@1 | moved 155.2 | anims 0 | r0r1r2r3r4r5 | start,canceled |  | shell 37.5
+## webkit
+      4 JUMP
+    184 ok
+JUMP webkit y none item :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0 | anims 0 | r0r1r2r3r4r5 | start,canceled |  | shell 88.1
+JUMP webkit y none item landing :: absent r2, the array empty | jump 30.00 r3@1 | moved 30.0 | anims 0 | r0r1r2r3r4r5 | start,canceled |  | shell 63.1
+JUMP webkit xy none item :: absent r2, the array empty | jump 155.24 r3@1 | moved 155.2 | anims 0 | r0r1r2r3r4r5 | start,canceled |  | shell 92.6
+JUMP webkit xy none item landing :: absent r2, the array empty | jump 155.24 r3@1 | moved 155.2 | anims 0 | r0r1r2r3r4r5 | start,canceled |  | shell 37.5

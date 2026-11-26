@@ -1,0 +1,64 @@
+# main
+button-group/connected-button-group, minified by rolldown: 14052, Brotli 3907
+ten items, nine removed; the group stays: 0 of 9 alive
+the same, with an element that is never defined in the group: 0 of 9 alive
+one by one: 100 items added and removed, beside an element that is never defined: 0 of 100 alive
+a removed group with ready items: 0 of 1 alive
+a removed group with an element that is never defined: 0 of 1 alive
+a removed group whose late item is defined afterward: 0 of 1 alive
+# subject
+button-group/connected-button-group, minified by rolldown: 14441, Brotli 4057
+ten items, nine removed; the group stays: 9 of 9 alive
+the same, with an element that is never defined in the group: 9 of 9 alive
+one by one: 100 items added and removed, beside an element that is never defined: 100 of 100 alive
+a removed group with ready items: 0 of 1 alive
+a removed group with an element that is never defined: 1 of 1 alive
+a removed group whose late item is defined afterward: 0 of 1 alive
+# plain
+button-group/connected-button-group, minified by rolldown: 14280, Brotli 3974
+ten items, nine removed; the group stays: 0 of 9 alive
+the same, with an element that is never defined in the group: 0 of 9 alive
+one by one: 100 items added and removed, beside an element that is never defined: 0 of 100 alive
+a removed group with ready items: 0 of 1 alive
+a removed group with an element that is never defined: 1 of 1 alive
+a removed group whose late item is defined afterward: 0 of 1 alive
+# current
+button-group/connected-button-group, minified by rolldown: 14311, Brotli 3983
+ten items, nine removed; the group stays: 0 of 9 alive
+the same, with an element that is never defined in the group: 0 of 9 alive
+one by one: 100 items added and removed, beside an element that is never defined: 0 of 100 alive
+a removed group with ready items: 0 of 1 alive
+a removed group with an element that is never defined: 1 of 1 alive
+a removed group whose late item is defined afterward: 0 of 1 alive
+# settled
+button-group/connected-button-group, minified by rolldown: 14305, Brotli 3993
+ten items, nine removed; the group stays: 0 of 9 alive
+the same, with an element that is never defined in the group: 0 of 9 alive
+one by one: 100 items added and removed, beside an element that is never defined: 0 of 100 alive
+a removed group with ready items: 0 of 1 alive
+a removed group with an element that is never defined: 1 of 1 alive
+a removed group whose late item is defined afterward: 0 of 1 alive
+# unforgotten
+button-group/connected-button-group, minified by rolldown: 14272, Brotli 3991
+ten items, nine removed; the group stays: 0 of 9 alive
+the same, with an element that is never defined in the group: 0 of 9 alive
+one by one: 100 items added and removed, beside an element that is never defined: 0 of 100 alive
+a removed group with ready items: 0 of 1 alive
+a removed group with an element that is never defined: 1 of 1 alive
+a removed group whose late item is defined afterward: 0 of 1 alive
+# plainHeard
+button-group/connected-button-group, minified by rolldown: 14447, Brotli 4047
+ten items, nine removed; the group stays: 0 of 9 alive
+the same, with an element that is never defined in the group: 0 of 9 alive
+one by one: 100 items added and removed, beside an element that is never defined: 0 of 100 alive
+a removed group with ready items: 0 of 1 alive
+a removed group with an element that is never defined: 1 of 1 alive
+a removed group whose late item is defined afterward: 0 of 1 alive
+# currentHeard
+button-group/connected-button-group, minified by rolldown: 14478, Brotli 4051
+ten items, nine removed; the group stays: 0 of 9 alive
+the same, with an element that is never defined in the group: 0 of 9 alive
+one by one: 100 items added and removed, beside an element that is never defined: 0 of 100 alive
+a removed group with ready items: 0 of 1 alive
+a removed group with an element that is never defined: 1 of 1 alive
+a removed group whose late item is defined afterward: 0 of 1 alive

@@ -1,0 +1,123 @@
+# The callers probe of slot-listener-1 in WebKit, `main` and the subject. Each line is one run.
+## The subject, three runs at a time on a loaded machine
+subject 1: 0 differ, 126 same; differing cases:
+subject 2: 9 differ, 117 same; differing cases:  3 bar headline add ; 3 bar lead removed ; 3 bar lead, trail add ;
+subject 3: 0 differ, 126 same; differing cases:
+subject 4: 0 differ, 126 same; differing cases:
+subject 5: 0 differ, 126 same; differing cases:
+subject 6: 9 differ, 117 same; differing cases:  3 bar headline add ; 3 bar lead removed ; 3 bar lead, trail add ;
+subject 7: 0 differ, 126 same; differing cases:
+subject 8: 0 differ, 126 same; differing cases:
+subject 9: 0 differ, 126 same; differing cases:
+subject 10: 0 differ, 126 same; differing cases:
+subject 11: 0 differ, 126 same; differing cases:
+subject 12: 0 differ, 126 same; differing cases:
+## The subject, alone, limit 900 s (runs 20 to 25). "eager": with JSC_thresholdForOptimizeAfterWarmUp=20, ...AfterLongWarmUp=20 and JSC_thresholdForFTLOptimizeAfterWarmUp=100
+subject 20: 0 differ, 126 same; differing cases:
+subject 21: 0 differ, 126 same; differing cases:
+subject 22: 0 differ, 126 same; differing cases:
+subject 23: 0 differ, 126 same; differing cases:
+subject 24: 0 differ, 126 same; differing cases:
+subject 25: 0 differ, 126 same; differing cases:
+eager 1: 0 differ, 126 same; differing cases:
+eager 2: 0 differ, 126 same; differing cases:
+eager 3: 0 differ, 126 same; differing cases:
+## main (e57c9f074), runs 1 and 5 two at a time, the others alone. The nine are the cases that RF-141 repairs
+main 1: 9 differ, 117 same; differing cases:  3 cg child cloned from a template, added ; 3 cg children cloned from a template ; 3 cg first replaced by a template clone ;
+main 5: 9 differ, 117 same; differing cases:  3 cg child cloned from a template, added ; 3 cg children cloned from a template ; 3 cg first replaced by a template clone ;
+main 20: 9 differ, 117 same; differing cases:  3 cg child cloned from a template, added ; 3 cg children cloned from a template ; 3 cg first replaced by a template clone ;
+main 21: 9 differ, 117 same; differing cases:  3 cg child cloned from a template, added ; 3 cg children cloned from a template ; 3 cg first replaced by a template clone ;
+main 22: 9 differ, 117 same; differing cases:  3 cg child cloned from a template, added ; 3 cg children cloned from a template ; 3 cg first replaced by a template clone ;
+main 23: 9 differ, 117 same; differing cases:  3 cg child cloned from a template, added ; 3 cg children cloned from a template ; 3 cg first replaced by a template clone ;
+main 24: 9 differ, 117 same; differing cases:  3 cg child cloned from a template, added ; 3 cg children cloned from a template ; 3 cg first replaced by a template clone ;
+main 25: 9 differ, 117 same; differing cases:  3 cg child cloned from a template, added ; 3 cg children cloned from a template ; 3 cg first replaced by a template clone ;
+main 26: 9 differ, 117 same; differing cases:  3 cg child cloned from a template, added ; 3 cg children cloned from a template ; 3 cg first replaced by a template clone ;
+main 27: 9 differ, 117 same; differing cases:  3 cg child cloned from a template, added ; 3 cg children cloned from a template ; 3 cg first replaced by a template clone ;
+main 28: 9 differ, 117 same; differing cases:  3 cg child cloned from a template, added ; 3 cg children cloned from a template ; 3 cg first replaced by a template clone ;
+main 29: 9 differ, 117 same; differing cases:  3 cg child cloned from a template, added ; 3 cg children cloned from a template ; 3 cg first replaced by a template clone ;
+main 30: 9 differ, 117 same; differing cases:  3 cg child cloned from a template, added ; 3 cg children cloned from a template ; 3 cg first replaced by a template clone ;
+main 31: 9 differ, 117 same; differing cases:  3 cg child cloned from a template, added ; 3 cg children cloned from a template ; 3 cg first replaced by a template clone ;
+## The instrumented probe (callers-stores), the subject, completed runs
+storesubject-webkit-1: 0 differ, 0 stores that disagree
+storesubject-webkit-10: 0 differ, 0 stores that disagree
+storesubject-webkit-11: 0 differ, 0 stores that disagree
+storesubject-webkit-2: 0 differ, 0 stores that disagree
+storesubject-webkit-4: 0 differ, 0 stores that disagree
+storesubject-webkit-5: 0 differ, 0 stores that disagree
+storesubject-webkit-7: 0 differ, 0 stores that disagree
+storesubject-webkit-8: 0 differ, 0 stores that disagree
+## The short probe (callers-fast), main
+stale listings: 0 of 1512; {}
+stale listings: 0 of 1512; {}
+## Run 2 of the subject, its differing readings
+bar lead, trail add | out: DIFFERS
+   right mx-top-app-bar[]{has-lead,has-trail,has-default}</>1232x64
+   got   mx-list-item[]{has-trail,has-default}</>1232x56
+   right  h1[]{}</>1202x28
+   got    b[]{}</>4x13
+   right  i[]{}</>6x28
+   got   #slot[class=lead]{}</>0x0 0px
+--
+bar lead, trail add | late: DIFFERS
+   right mx-top-app-bar[]{has-lead,has-trail,has-default}</>1232x64
+   got   mx-list-item[]{has-trail,has-default}</>1232x56
+   right  h1[]{}</>1202x28
+   got    b[]{}</>4x13
+   right  i[]{}</>6x28
+   got   #slot[class=lead]{}</>0x0 0px
+--
+bar lead, trail add | lateUndone: DIFFERS
+   right mx-top-app-bar[]{has-lead,has-trail,has-default}</>1232x64
+   got   mx-list-item[]{has-trail,has-default}</>1232x56
+   right  h1[]{}</>1202x28
+   got    b[]{}</>4x13
+   right  i[]{}</>6x28
+   got   #slot[class=lead]{}</>0x0 0px
+--
+bar lead removed | out: DIFFERS
+   right mx-top-app-bar[]{has-default}</>1232x64
+   got   mx-list-item[]{has-trail,has-default}</>1232x56
+   right  h1[]{}</>1200x28
+   got    b[]{}</>4x13
+   right #slot[class=headline has-slotted]{}</>1200x28 0px
+   got   #div[class=content]{}</>1184x24
+--
+bar lead removed | late: DIFFERS
+   right mx-top-app-bar[]{has-default}</>1232x64
+   got   mx-list-item[]{has-trail,has-default}</>1232x56
+   right  h1[]{}</>1200x28
+   got    b[]{}</>4x13
+   right #slot[class=headline has-slotted]{}</>1200x28 0px
+   got   #div[class=content]{}</>1184x24
+--
+bar lead removed | lateUndone: DIFFERS
+   right mx-top-app-bar[]{has-default}</>1232x64
+   got   mx-list-item[]{has-trail,has-default}</>1232x56
+   right  h1[]{}</>1200x28
+   got    b[]{}</>4x13
+   right #slot[class=headline has-slotted]{}</>1200x28 0px
+   got   #div[class=content]{}</>1184x24
+--
+bar headline add | out: DIFFERS
+   right mx-top-app-bar[]{has-default}</>1232x64
+   got   mx-list-item[]{has-trail,has-default}</>1232x56
+   right  h1[]{}</>1200x28
+   got    b[]{}</>4x13
+   right #slot[class=headline has-slotted]{}</>1200x28 0px
+   got   #div[class=content]{}</>1184x24
+--
+bar headline add | late: DIFFERS
+   right mx-top-app-bar[]{has-default}</>1232x64
+   got   mx-list-item[]{has-trail,has-default}</>1232x56
+   right  h1[]{}</>1200x28
+   got    b[]{}</>4x13
+   right #slot[class=headline has-slotted]{}</>1200x28 0px
+   got   #div[class=content]{}</>1184x24
+--
+bar headline add | lateUndone: DIFFERS
+   right mx-top-app-bar[]{has-default}</>1232x64
+   got   mx-list-item[]{has-trail,has-default}</>1232x56
+   right  h1[]{}</>1200x28
+   got    b[]{}</>4x13
+   right #slot[class=headline has-slotted]{}</>1200x28 0px
+   got   #div[class=content]{}</>1184x24

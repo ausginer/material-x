@@ -1,0 +1,225 @@
+diff --git a/packages/drag/src/sortable/axis.ts b/packages/drag/src/sortable/axis.ts
+index f599c22bf..549cd2789 100644
+--- a/packages/drag/src/sortable/axis.ts
++++ b/packages/drag/src/sortable/axis.ts
+@@ -24,6 +24,8 @@ export interface DisplacementSink extends Retirable {
+    * rebuild, and a row never jumps back.
+    */
+   displaced(element: HTMLElement): boolean;
++  /** Ends what a running animation applies to `element`. */
++  release(element: HTMLElement): void;
+ }
+ 
+ export type DisplacementInstaller = () => DisplacementSink;
+@@ -58,6 +60,10 @@ export interface InsertionGeometry extends Invalidatable, Retirable {
+    * row, and the drop has no later frame to correct it.
+    */
+   confirm(query: AxisQuery, context: AxisContext): void;
++  /** Before the placeholder leaves gap `from` outside a resolution. */
++  depart(query: AxisQuery, context: AxisContext, from: number, collect: boolean): void;
++  /** After it: the gap is read from the DOM. */
++  arrive(query: AxisQuery, context: AxisContext): void;
+   /** The committed move landed: keep the cache true and report what moved. */
+   moved(query: AxisQuery, context: AxisContext): void;
+ }
+diff --git a/packages/drag/src/sortable/behavior.ts b/packages/drag/src/sortable/behavior.ts
+index 889c72b4f..999bf329d 100644
+--- a/packages/drag/src/sortable/behavior.ts
++++ b/packages/drag/src/sortable/behavior.ts
+@@ -142,6 +142,8 @@ export class SortableBehavior implements Behavior<
+     // First, so that its release is the operation's first disposer and runs last.
+     const lift = this.#lifter.acquire(drag, state.visual, state.box);
+ 
++    this.displacement?.release(drag.item);
++
+     // The second pull closes the window between admission and activation, in
+     // which foreign code runs: a press before its threshold, and a command
+     // through the lift's popover events. An item that left, or a command whose
+diff --git a/packages/drag/src/sortable/layout-animation.ts b/packages/drag/src/sortable/layout-animation.ts
+index 2d2d2f8b5..3e93b5dff 100644
+--- a/packages/drag/src/sortable/layout-animation.ts
++++ b/packages/drag/src/sortable/layout-animation.ts
+@@ -119,6 +119,11 @@ class LayoutAnimationSink implements DisplacementSink {
+     this.#running.set(element, record);
+   }
+ 
++  release(element: HTMLElement): void {
++    const held = this.#running.get(element);
++    if (held) { this.#running.delete(element); held.animation.cancel(); }
++  }
++
+   displaced(element: HTMLElement): boolean {
+     const held = this.#running.get(element);
+ 
+diff --git a/packages/drag/src/sortable/linear-shift.ts b/packages/drag/src/sortable/linear-shift.ts
+index bf9b947ff..31c637560 100644
+--- a/packages/drag/src/sortable/linear-shift.ts
++++ b/packages/drag/src/sortable/linear-shift.ts
+@@ -126,6 +126,37 @@ export class LinearShift implements Invalidatable, Retirable {
+     this.#lastGap = gap;
+   }
+ 
++  depart(query: { snapshot: CollectionSnapshot; item: HTMLElement; insertion: { index: number } }, context: AxisContext, from: number, collect: boolean): void {
++    if (collect) {
++      this.invalidate();
++      this.#index.collect(query.snapshot, query.item, context.placeholder, from);
++      this.#snapshotVersion = query.snapshot.version;
++      const lo = from < query.insertion.index ? from : query.insertion.index;
++      this.#index.restart(lo);
++      this.#index.measure(lo, lo + 1, context.box, context.displacement);
++    } else if (this.#snapshotVersion !== query.snapshot.version || this.#index.count === 0) {
++      this.#dirty = true;
++      return;
++    } else {
++      // Which side the placeholder leaves to isn't known yet: both neighbors.
++      this.#index.restart(from > 0 ? from - 1 : 0);
++      this.#index.measure(from > 0 ? from - 1 : 0, Math.min(from + 1, this.#index.count), context.box, context.displacement);
++      this.#rowDistance = -1;
++    }
++    this.#dirty = false;
++    this.#lastGap = from;
++  }
++
++  arrive(query: { snapshot: CollectionSnapshot }, context: AxisContext): void {
++    const gap = this.#index.gapOf(context.placeholder);
++    if (this.#dirty || this.#lastGap === gap) return;
++    const first = this.#lastGap < gap ? this.#lastGap : this.#lastGap - 1;
++    const delta = this.#index.travel(first, context.box, context.displacement);
++    const lo = this.#lastGap < gap ? this.#lastGap : gap;
++    const hi = this.#lastGap < gap ? gap : this.#lastGap;
++    for (let i = lo; i < hi; i += 1) context.displacement!.report(this.#index.item(i), 0, -delta, context.space);
++  }
++
+   /**
+    * After a committed move: has the cache shift the crossed slots to the geometry
+    * the DOM write just produced, marks the placeholder stale, and reports the span
+diff --git a/packages/drag/src/sortable/operation.ts b/packages/drag/src/sortable/operation.ts
+index 884ee9ee1..d936a2e7c 100644
+--- a/packages/drag/src/sortable/operation.ts
++++ b/packages/drag/src/sortable/operation.ts
+@@ -124,7 +124,14 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+     );
+ 
+     this.#request = request;
++    const reports = this.#context.displacement && !placeholderAt(this.#context.placeholder, this.#query.insertion);
++    if (reports && !isPointerOperation) {
++      this.#behavior.axis.depart(this.#query, this.#context, this.#home.index, true);
++    }
+     movePlaceholder(this.#context.placeholder, this.#query.insertion);
++    if (reports) {
++      this.#behavior.axis.moved(this.#query, this.#context);
++    }
+ 
+     if (isPointerOperation) {
+       this.#lift.translate(
+@@ -142,6 +149,19 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+   settle(outcome: Outcome<ReorderResolution>): void {
+     const recovery = this.#recordResult(outcome);
+ 
++    if (this.#context.displacement && recovery !== RECOVERY_IMMEDIATE) {
++      const { placeholder } = this.#context;
++      const { item } = this.#query;
++      const anchor = this.#home.after ?? this.#home.before;
++      const home = recovery === RECOVERY_HOME;
++      if (placeholder.isConnected && placeholder.parentElement === item.parentElement && item.isConnected &&
++        (home ? anchor && anchor.parentNode === placeholder.parentNode && !placeholderAt(placeholder, this.#home) : placeholder.nextElementSibling !== item)) {
++        this.#behavior.axis.depart(this.#query, this.#context, this.#request || this.#direction === null ? this.#query.insertion.index : this.#home.index, false);
++        if (home) movePlaceholder(placeholder, this.#home); else item.before(placeholder);
++        this.#behavior.axis.arrive(this.#query, this.#context);
++      }
++    }
++
+     if (this.#behavior.landing && recovery !== RECOVERY_IMMEDIATE) {
+       // Called once: it moves the placeholder and then reads layout.
+       const { left, top } = this.#landingTarget(recovery);
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index 1177e0792..5dba0dabe 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -290,6 +290,20 @@ export class RectIndex implements Invalidatable, Retirable {
+     );
+   }
+ 
++  /** The collected slots, without the collection: an empty window at `slot`. */
++  restart(slot: number): void {
++    this.#first = slot;
++    this.#end = slot;
++    this.#dirty = false;
++  }
++
++  /** The gap the placeholder is in, by DOM order among the collected slots. */
++  gapOf(placeholder: HTMLElement): number {
++    let i = 0;
++    while (i < this.count && (placeholder.compareDocumentPosition(this.#items[i]!) & 2) !== 0) i += 1;
++    return i;
++  }
++
+   /** One flag, because any reason for staleness forces the same full rebuild. */
+   invalidate(): void {
+     this.#dirty = true;
+diff --git a/packages/drag/src/sortable/xy.ts b/packages/drag/src/sortable/xy.ts
+index 117e0606d..25b19952a 100644
+--- a/packages/drag/src/sortable/xy.ts
++++ b/packages/drag/src/sortable/xy.ts
+@@ -62,6 +62,7 @@ class XYAxisGeometry implements InsertionGeometry {
+       context.displacement,
+     );
+     this.#last = query.insertion.index;
++    this.#version = query.snapshot.version;
+ 
+     const dxAnchor = query.pointerX - this.#index.at(PLACEHOLDER, CENTER_X);
+     const dyAnchor = query.pointerY - this.#index.at(PLACEHOLDER, CENTER_Y);
+@@ -109,6 +110,34 @@ class XYAxisGeometry implements InsertionGeometry {
+     }
+   }
+ 
++  #version = -1;
++
++  depart(query: AxisQuery, context: AxisContext, from: number, collect: boolean): void {
++    if (collect) {
++      this.#index.invalidate();
++      this.#index.collect(query.snapshot, query.item, context.placeholder, 0);
++      this.#version = query.snapshot.version;
++    } else if (this.#version !== query.snapshot.version || this.#index.count === 0) {
++      this.#last = -1;
++      return;
++    }
++    this.#index.restart(0);
++    this.#index.measure(0, this.#index.count, context.box, context.displacement);
++    this.#last = from;
++  }
++
++  arrive(query: AxisQuery, context: AxisContext): void {
++    if (this.#last < 0) return;
++    this.#index.retain();
++    this.#index.restart(0);
++    this.#index.measure(0, this.#index.count, context.box, context.displacement);
++    for (let i = 0; i < this.#index.count; i += 1) {
++      const dx = this.#index.retained(i, LEFT) - this.#index.at(i, LEFT);
++      const dy = this.#index.retained(i, TOP) - this.#index.at(i, TOP);
++      if (dx !== 0 || dy !== 0) context.displacement!.report(this.#index.item(i), dx, dy, context.space);
++    }
++  }
++
+   moved(query: AxisQuery, context: AxisContext): void {
+     // Taken before the refresh below rewrites the count.
+     const held = this.#index.count;
+diff --git a/packages/drag/src/sortable/y.ts b/packages/drag/src/sortable/y.ts
+index 9d95ea5e7..d4ab88476 100644
+--- a/packages/drag/src/sortable/y.ts
++++ b/packages/drag/src/sortable/y.ts
+@@ -90,6 +90,14 @@ class YAxisGeometry implements InsertionGeometry {
+     }
+   }
+ 
++  depart(query: AxisQuery, context: AxisContext, from: number, collect: boolean): void {
++    this.#shift.depart(query, context, from, collect);
++  }
++
++  arrive(query: AxisQuery, context: AxisContext): void {
++    this.#shift.arrive(query, context);
++  }
++
+   moved(query: AxisQuery, context: AxisContext): void {
+     this.#shift.moved(query.insertion.index, query.snapshot, context);
+   }

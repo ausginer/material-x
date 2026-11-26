@@ -28,7 +28,9 @@ const ListButtonItemConstructor: Composed<
  * @summary Interactive list items trigger actions with native button behavior.
  *
  * @attr {boolean} selected - Applies selected visual state.
- * @attr {boolean} disabled - Disables interaction.
+ * @attr {boolean} disabled - Disables interaction. In `mx-sortable-list`,
+ *   the user can't reorder the item. Controls in the item's slots aren't
+ *   disabled.
  *
  * @slot - Primary label text.
  * @slot lead - Leading icon, avatar, or image.

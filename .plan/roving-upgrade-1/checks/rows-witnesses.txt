@@ -1,0 +1,33 @@
+## no mutation | chromium | packages/core | 65 passed (65)
+## no mutation | chromium | packages/material-x | 30 passed (30)
+## only the first focus recorded | chromium | packages/core | 1 failed | 64 passed (65)
+   useRovingTabindex > slot and tab stop management > should keep the tab stop that the last focus chose when an item is put first
+## only the first focus recorded | chromium | packages/material-x | 30 passed (30)
+## the former choice preferred at a read | chromium | packages/core | 1 failed | 64 passed (65)
+   useRovingTabindex > slot and tab stop management > with an item focused in the task that adds it > should give the tab stop to it when focus chose another earlier
+## the former choice preferred at a read | chromium | packages/material-x | 30 passed (30)
+## a focused item recorded without the check that it is enabled | chromium | packages/core | 1 failed | 64 passed (65)
+   useRovingTabindex > slot and tab stop management > with an item focused in the task that adds it > should keep the tab stop that focus chose earlier when the added item is disabled
+## a focused item recorded without the check that it is enabled | chromium | packages/material-x | 30 passed (30)
+## no mutation | firefox | packages/core | 65 passed (65)
+## no mutation | firefox | packages/material-x | 30 passed (30)
+## only the first focus recorded | firefox | packages/core | 1 failed | 64 passed (65)
+   useRovingTabindex > slot and tab stop management > should keep the tab stop that the last focus chose when an item is put first
+## only the first focus recorded | firefox | packages/material-x | 30 passed (30)
+## the former choice preferred at a read | firefox | packages/core | 1 failed | 64 passed (65)
+   useRovingTabindex > slot and tab stop management > with an item focused in the task that adds it > should give the tab stop to it when focus chose another earlier
+## the former choice preferred at a read | firefox | packages/material-x | 30 passed (30)
+## a focused item recorded without the check that it is enabled | firefox | packages/core | 1 failed | 64 passed (65)
+   useRovingTabindex > slot and tab stop management > with an item focused in the task that adds it > should keep the tab stop that focus chose earlier when the added item is disabled
+## a focused item recorded without the check that it is enabled | firefox | packages/material-x | 30 passed (30)
+## no mutation | webkit | packages/core | 65 passed (65)
+## no mutation | webkit | packages/material-x | 30 passed (30)
+## only the first focus recorded | webkit | packages/core | 1 failed | 64 passed (65)
+   useRovingTabindex > slot and tab stop management > should keep the tab stop that the last focus chose when an item is put first
+## only the first focus recorded | webkit | packages/material-x | 30 passed (30)
+## the former choice preferred at a read | webkit | packages/core | 1 failed | 64 passed (65)
+   useRovingTabindex > slot and tab stop management > with an item focused in the task that adds it > should give the tab stop to it when focus chose another earlier
+## the former choice preferred at a read | webkit | packages/material-x | 30 passed (30)
+## a focused item recorded without the check that it is enabled | webkit | packages/core | 1 failed | 64 passed (65)
+   useRovingTabindex > slot and tab stop management > with an item focused in the task that adds it > should keep the tab stop that focus chose earlier when the added item is disabled
+## a focused item recorded without the check that it is enabled | webkit | packages/material-x | 30 passed (30)

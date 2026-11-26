@@ -73,8 +73,8 @@ const MEDIA_STYLES: CSSProperties = {
 
 const IMAGE_STYLES: CSSProperties = {
   blockSize: '160px',
-  borderStartStartRadius: '12px',
-  borderStartEndRadius: '12px',
+  borderStartStartRadius: 'inherit',
+  borderStartEndRadius: 'inherit',
   background: 'linear-gradient(135deg, #b2dfdb, #004d40)',
 };
 
