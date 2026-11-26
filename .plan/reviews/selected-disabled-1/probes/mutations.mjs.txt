@@ -1,0 +1,31 @@
+// RF-149's proof: the rows of list-item-selected without a mutation, then under each mutation, one at a time; the source is restored.
+// Run from the repository root: node mut.mjs <engine> <scratch report>
+import { spawnSync } from 'node:child_process';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
+const [engine, report] = process.argv.slice(2);
+const CORE = 'packages/material-x/src/list/ListInteractiveItemCore.ts';
+const FILE = 'tests/list/list-item-selected.browser.test.ts';
+const text = readFileSync(CORE, 'utf8');
+const WRITE = "      setOwnARIA(target, 'aria-current', newValue ? current : null);\n";
+const swap = (line) => () => text.replace(WRITE, line);
+const M = [
+  ['none', () => text],
+  ["#288's: a disabled item says nothing", swap("      setOwnARIA(target, 'aria-current', newValue && !host.disabled ? current : null);\n")],
+  ['own: a disabled item says nothing when selected before the connect', swap("      setOwnARIA(target, 'aria-current', newValue && !(host.disabled && !host.isConnected) ? current : null);\n")],
+  ['own: a disabled item says nothing when selected after the connect', swap("      setOwnARIA(target, 'aria-current', newValue && !(host.disabled && host.isConnected) ? current : null);\n")],
+  ['own: a disabled item also says aria-selected', swap(`${WRITE}      if (host.disabled) target.setAttribute('aria-selected', String(newValue));\n`)],
+];
+try {
+  for (const [name, make] of M) {
+    const next = make();
+    if (name !== 'none' && next === text) throw new Error(`no change: ${name}`);
+    writeFileSync(CORE, next);
+    rmSync(report, { force: true });
+    spawnSync('aube', ['exec', 'vitest', 'run', '-c', 'vitest.config.ts', '--reporter=json', `--outputFile=${report}`, FILE],
+      { cwd: 'packages/material-x', env: { ...process.env, NO_COLOR: '1', MX_TEST_ENGINES: engine }, encoding: 'utf8', maxBuffer: 1e8 });
+    writeFileSync(CORE, text);
+    const { numFailedTests, numPassedTests, testResults } = JSON.parse(readFileSync(report, 'utf8'));
+    console.log(`## ${name} | ${engine} | ${numFailedTests} failed, ${numPassedTests} passed`);
+    for (const { assertionResults } of testResults) for (const { status, fullName, failureMessages } of assertionResults) if (status === "failed") console.log(`   ${fullName}\n      ${failureMessages[0].split("\n")[0]}`);
+  }
+} finally { writeFileSync(CORE, text); }
