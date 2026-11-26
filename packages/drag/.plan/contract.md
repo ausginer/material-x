@@ -33,7 +33,7 @@
 | `free-drag/bounds.js`, `free-drag/landing.js` | `bounds`, `landing` |
 | `free-drag/drop-targets.js` | `dropTargets` |
 
-Each landing entry also exports the types `Landing`, `LandingOptions` and `LandingTimingContext`. `free-drag/drop-targets.js` exports the types `DropTargets`, `DropTargetTracker`, `DropTargetDrag` and `DropTargetsOptions`. `free-drag.js` exports the types that `freeDrag`'s options, request and results name, including `DragAxis`, `FreeDragSubject` and `ResolveHome`.
+Each landing entry also exports the types `Landing`, `LandingOptions` and `LandingTimingContext`. `sortable/layout-animation.js` exports the type `LayoutAnimationOptions`, whose one option is `timing`: `() => Readonly<{ duration: number; easing: string }>`, 160 ms and `ease-out` without it (DRI-22). `free-drag/drop-targets.js` exports the types `DropTargets`, `DropTargetTracker`, `DropTargetDrag` and `DropTargetsOptions`. `free-drag.js` exports the types that `freeDrag`'s options, request and results name, including `DragAxis`, `FreeDragSubject` and `ResolveHome`.
 
 **A type that a published signature names is exported from an entry,** so a consumer can name every type it is given or must supply. The exception is the `axis` and `displacement` slots' installer types, which are not published (`DRD-39`).
 
@@ -284,7 +284,7 @@ The library's `landing()` is additive and has these properties. A third-party `L
 
 - **An admission's array** is read only within that admission.
 - **The retained array.** The operation keeps the array from activation, or from its last rebase, until the drop. Before the drop, the library may read it in any step it runs for the drag: a frame, a pointer event, the activation, and a command's drop. That includes reading it right after a consumer callback returns.
-- **What never reads it:** applying a cancel, `Escape`, a verdict or destruction. A landing at home uses the item's gap saved from the pull that is the operation's collection, at activation or at the last rebase. After the drop, the library doesn't read the array.
+- **What never reads it:** applying a cancel, `Escape`, a verdict or destruction. A landing at home uses the item's gap saved from the pull that is the operation's collection, at activation or at the last rebase. After the drop, the library doesn't read the array. **With `displacement`,** the operation keeps a list of its own of the rows, without the item, from the activation's pull and from each rebase, and a return measures those. It ends with the operation. Without `displacement` the library keeps no such list.
 
 **Consistency.** Between drags, during a press, and from the drop on, the consumer may change its array however it likes. From activation until the drop, it changes the collection in one of two ways:
 
@@ -303,6 +303,22 @@ During a drag, `invalidate()` re-reads the collection. A surviving gap rebases. 
 #### DRI-15 — Placeholder integrity
 
 A placeholder that removes or moves itself, or takes the list with it, ends the activation clean with a fault and no `onStart`. An anchor that leaves the container cancels the drag and reports the fault. The placeholder is `aria-hidden` and mirrors the item's slot.
+
+#### DRI-22 — Displacement
+
+With `displacement` composed, each row that a placeholder write of the library displaces is reported once, with the distance that the write moved it, in viewport units, whatever made the write: a resolution, a pointer drop's last resolution, a command or a return. It holds for `y()` and `xy()`, with a landing and without.
+
+- **A return.** An operation that ends with the placeholder away from where the item goes moves it there at `settle`, before the landing's target is read, and reports the rows. The place is home for a cancel, a rejection and a fault. It is the item's own place for an accepted item that isn't beside the placeholder, and for an item that left the collection. The visual's path doesn't change.
+- **A commit that moves the rows around the placeholder,** such as one that appends every row in its new order, draws no row away from where it was drawn when its verdict comes in the same task: the return reads the rows with the placeholder at the gap of the drop. So does a rejection after which the page has put the rows back. When a frame draws such a commit before its verdict, the rows may jump.
+- **The order in a drop:** after the request is built and before the verdict is asked.
+- **What isn't reported:** a destruction, and a return with no place to go, which is one whose anchor left the container, or whose placeholder or item the consumer moved out of it or removed. The rows may then jump once, and the return adds no fault.
+- **An item lifted while its own row animation runs** is drawn where it was, and the animation ends there. A press that is declined ends none.
+- **`layoutAnimation`'s animations** outlive the operation, and destruction cancels them. They are true through the consumer's commit and the placeholder's release, also when the commit moves the row's own node.
+- **Timing.** `timing` is called when a row's animation starts, its values are copied, and a throw is a fault (DRI-7), after which the operation's rows may jump and slide.
+- **Reduced motion.** With `prefers-reduced-motion: reduce`, read at each report, the row starts no animation and its running one ends. `timing` isn't called then.
+- **A commit after the verdict accepted** is a move of the consumer's own. The rows are sent to the item's own place by the return, and the commit then moves them, so they may be drawn up to the commit's distance away and slide. `onReorder` commits first and then accepts.
+- **Limit: the placeholder's footprint.** The placeholder has the lifted visual's size and nothing more. Rows may jump, also to another line with `xy()`, by what the lift, the commit or the release move by themselves: in a list whose rows have margins that the placeholder hasn't, and where the visual isn't the item and the item has a footprint of its own. A consumer gives `[data-drag-placeholder]` the rows' margins (`DRF-57`).
+- **Limit.** In Firefox, a return while a scroll that the page itself anchors hasn't settled may be reported short.
 
 ### Geometry and cost
 
@@ -323,7 +339,7 @@ Every coordinate conversion in this package and its examples uses `@ydinjs/box-q
 
 #### DRI-17 — Hot path
 
-The kernel allocates nothing per pointer sample. The lift's `translate` allocates only the CSS string it writes. A sample reads no layout. The spatial search is coalesced to a frame. No consumer callback runs per sample unless a behavior makes one. `sortable` measures a landing target only when a landing is composed. **A capability** called on a sample reads no layout and allocates nothing, and coalesces any spatial search to a frame.
+The kernel allocates nothing per pointer sample. The lift's `translate` allocates only the CSS string it writes. A sample reads no layout. The spatial search is coalesced to a frame. No consumer callback runs per sample unless a behavior makes one. `sortable` measures a landing target only when a landing is composed. It measures rows for a command's drop and for a return only when a displacement is composed: before and after the placeholder's write, the rows that the write crosses with `y()`, and every row with `xy()`. A composition without one reads, copies and measures nothing for it. **A capability** called on a sample reads no layout and allocates nothing, and coalesces any spatial search to a frame.
 
 #### DRI-18 — Custom behaviors get the same guarantees
 
@@ -372,6 +388,8 @@ With `targets: dropTargets({ targets })`:
 
 | Date | Entry | Change |
 | --- | --- | --- |
+| 2026-11-25 | Public surface, `DRI-14`, `DRI-17`, `DRI-22` | **Added:** `DRI-22`, that every row move that the library makes is reported with `displacement`, that `layoutAnimation` takes a `timing` and honors reduced motion, the rows that the operation keeps, and what a command and a return measure. **Changed:** `layoutAnimation`'s options are `timing` alone. They used to be `duration` and `easing`, and its animations didn't change with reduced motion. A command, a drop whose last resolution moved the gap, and a return used to report nothing. `DRD-72`, #265 |
+| 2026-11-25 | `DRI-22` | **Added,** after the feature proof: a commit that moves the rows around the placeholder, the limit of the placeholder's footprint, and what a throw of `timing` shows. `DRD-72`, #265 |
 | 2026-11-24 | Public surface | **Added:** `sortable`'s `onStart` takes a second argument, the operation's kind, and `sortable.js` exports its type `SortableOperationKind`. It used to take the item alone. The row of `sortable.js` also names the types it already exported. `DRD-71` |
 | 2026-11-15 | Public surface | **Changed:** a member of a controller, of a `Lifter` or of a `Drag` is called on its object, and the contract makes no statement about calling one detached. `cancelLanding` is passed to `use` with the lifter as its receiver. It used to say that `DraggableController`'s methods may depend on the controller as their receiver, and that the members of the `sortable` and `freeDrag` controllers and `Lifter.cancelLanding` work when detached. `DRD-69` |
 | 2026-11-15 | `DRI-6` | **Removed:** development builds no longer count refused events. The suite counts them from outside the library, against the source and the published build. It used to say that development builds count each event a running pass refuses once. `DRD-67` |

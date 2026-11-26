@@ -2659,6 +2659,8 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 
 **Dated 2026-11-25 by the architect: the owner approved stage 3 the same day,** relayed by the coordinator: _"да на этап 3"_ ("yes to stage 3"). The second row of the table is in force with its exception. The coordinator created the labels `tier:A`, `tier:B` and `tier:C`. The trial is the next new finding that a unit repairs at once, and the coordinator names it. None is named yet, so each new finding still goes to its register unless the coordinator says otherwise. The status above said _"Stages 1 and 2 are approved to start, and stage 3, the trial, isn't. Stage 1 is on `main` (#244, `8663d722b`), and stage 2 merges with #250 (the last note)."_ No property changes.
 
+**Dated 2026-11-25 by the architect, from the trial (#265): which text governs where a finding's body and a decision that it names differ. The body does, for what the repair must do.** The decision gives the form and the public surface, and doesn't narrow the body. A role that finds a difference stops, or judges by the body and reports it if it is a review, and the architect amends the wrong text. `findings.md` doesn't say this: it says that the body alone is the contract, and that a decision in a register is named by the body. **Stage 4 adds the sentence to its _The body_,** and the trial report names the case: #265 property 1 and `drag:DRD-72` property 1, found by the feature proof after the implementation and one ruling had passed over it. Until then #265 says it in its own body, at `r4`. No property changes.
+
 #### RD-57 — axe-core checks material-x's elements in the browser tests, supplementary, with each known violation listed by rule and target
 
 **Decided 2026-11-24 by the architect, on `repo/accessibility-findings-1`,** from Mx Architect Explainer's proposal, relayed by the coordinator. The owner approved its registration with the branch's other items: _"Да, отличный анализ, пасиба! Кидай всё"_ ("Yes, great analysis, thanks! Send it all"). That covers registration and not the design. `RD-56` (`repo/findings-on-github-1`) is the highest `RD-` on any branch on `origin`, so this is the next free number. **Unimplemented:** a short plan comes first.
@@ -2703,6 +2705,38 @@ So the cost above, _"a new word beside `mx-button`'s `color`"_, is the specifica
 **Why.** A ligature is the font's input and nobody sees it, so a screen reader's _edit Save_ says something that isn't on the page. A page that has to hide each icon will miss one, and no page, story or snippet of the package does so today.
 
 **Costs.** An icon-only control that relies on its ligature loses its name. An SVG or a text with a meaning inside an `mx-icon` is hidden too. Each icon has one more element, whose speed wasn't measured.
+
+#### RD-60 — `mx-sortable-list` moves its neighbors smoothly, by drag's `layoutAnimation` with Material's timing
+
+**Decided 2026-11-25 by the architect, on `drag/displacement-1`,** from Mx Architect Explainer's message, whose sending the owner approved, relayed by the coordinator. For #266, which isn't a tier finding. **Unimplemented. It follows `drag:DRD-72` (#265), and waits for it on `main`.** Before it, the list would have the same keyboard defect in its own elements. `RD-58` and `RD-59` are on `material-x/split-button-names-1`, so this is the next free number. The owner's observation is in `DRD-72`. His answer about the timing: _"Скорее, он должен задаваться извне, с неким дефолтом. В mx-sortable-list это будет M3"_ ("Rather, it should be given from outside, with some default. In `mx-sortable-list` it will be M3").
+
+**What it supersedes:**
+
+- `RD-31`'s _Not adopted_ of `layoutAnimation`, and the list plan's bullet of it. Their reason was that today's rows don't animate and that adding it is a separate choice. This is that choice.
+- `RF-127`'s _"The neighbors aren't animated in either case. `RD-31` doesn't adopt `layoutAnimation`."_
+
+The unit of #266 quotes and amends both, on its own branch.
+
+**Properties.**
+
+1. **`mx-sortable-list` composes `displacement: layoutAnimation({ timing })`,** for pointer and keyboard alike. It isn't a property or an attribute of the element.
+2. **The timing is Material's, read from private custom properties of the list's own sheet,** as `--_drag-duration` is, through one `useCSSProps` call apart from the landing's. They are in the sheet that only `mx-sortable-list` adopts (`RF-129`'s, `list/styles/sortable`), so `mx-list` pays nothing. They start at the `expressive.fast-spatial` pair, 350 ms and `cubic-bezier(0.42, 1.67, 0.21, 0.9)`, and not at the landing's 650 ms. The pair overshoots, as the press's does. **The final value is the owner's, by his eye, on a story** (Q1).
+3. **No motion under `prefers-reduced-motion: reduce`,** by `drag:DRD-72` property 9. The list's own code does nothing about it, so `RF-107`'s visitor and its list-first order don't meet it: the animation is the script's, and no sheet has a transition of it.
+4. **What else the list shows doesn't change:** the command's hidden placeholder and the resting colors (`RF-127`, `RF-129`), the reorder colors, the elevation and its duration, the landing, the announcement, the handles, focus. A refused move and one that the page never commits (the 500 ms fallback) return the neighbors smoothly, by drag, where they jump back today.
+5. **No public surface is added.** The JSDoc of the element says that the neighbors move, in its _Lift_ text's neighborhood, and that the preference stops it.
+6. **Only `list/sortable-list` and `complete` grow.** The list's composition costs about 0.42 kB of Brotli above drag's own unit in a reading with a candidate, and drag's unit 0.23 kB, so `list/sortable-list` goes from 8.94 to about 9.59 kB and `complete` from 25.64 to about 26.3 ([reading](../packages/drag/.plan/displacement-1/checks/sizes.txt)). `RF-129`'s +136 B isn't in it. `RD-31`'s unit had a bound of 9,600 B in its report, which no row holds the list to now (`RD-24`). With `RF-129` and this unit the list passes it.
+
+**Rows,** each in Chromium, Firefox and WebKit, with real input: a key move, a slow pointer move, a flick, `Escape`, a refused move by pointer and by key, the page that commits after 100 ms and the one that never does, and a change of the preference between two moves. Each reads the neighbor's drawn position at the first frame and its place at the end. With the preference, the neighbor is in its place in the next frame, and nothing is left running. `canEmulateReducedMotion` excludes Safari from that one. One row reads the timing: a private property's value on the list changes the animation's duration. **Witness:** with `displacement` removed, every row but the preference's fails.
+
+**What is read before the unit:** the frame of a row that overshoots over a neighbor, and the focus indicator of a row that is moving, because an animated `translate` makes a stacking context (`RF-125`). Neither is read.
+
+**Q1, for the owner, at the unit's end, on the story — which Material timing is it?**
+
+- **(a) `expressive.fast-spatial`, 350 ms. The start, and the recommendation until he has seen it:** it is the pair of the press and of the small moves.
+- (b) `standard.fast-spatial`, 350 ms, the same time with almost no overshoot.
+- (c) The landing's `expressive.slow-spatial`, 650 ms, which follows the item, and makes the neighbors as slow as it.
+
+**Plan needed:** no, beyond this entry. **Size:** _medium_. **Order:** after `drag:DRD-72` and `RF-129` (#261), whose sheet it uses.
 
 #### RD-61 — In `mx-sortable-list`, the user can't reorder a disabled item
 

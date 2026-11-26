@@ -1,0 +1,14 @@
+Brotli, at fcbd26a4d, by packages/drag/bench/size: main, the candidate (candidate-sink), the head. Every other row: 0
+sortable + y   6538  6773 (+235)  6689 (+151)
+sortable + xy  6506  6715 (+209)  6641 (+135)
+complete       7156  7516 (+360)  7489 (+333)
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+draggable + lift                11677 min   4362 gz   3932 br  9 modules
+example: resize handle           9496 min   3607 gz   3265 br  9 modules
+example: drop zone              13287 min   5058 gz   4570 br  11 modules
+example: canvas group            9487 min   3573 gz   3261 br  9 modules
+freeDrag                        15271 min   5526 gz   4984 br  15 modules
+freeDrag + bounds + landing     16629 min   6041 gz   5465 br  17 modules
+sortable + y                    21462 min   7400 gz   6689 br  20 modules
+sortable + xy                   21153 min   7359 gz   6641 br  19 modules
+complete                        23795 min   8292 gz   7489 br  22 modules

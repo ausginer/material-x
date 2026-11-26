@@ -1,0 +1,555 @@
+# chromium  15:53:54 up 1 day, 20:37,  0 users,  load average: 17.83, 9.65, 7.61
+## no mutation | chromium | 85 passed, 0 failed
+## the report of drop() removed | chromium | 45 passed, 40 failed
+   #265 the rows that y() displaces should be drawn where they were after a drop whose last resolution moves the gap
+   #265 the rows that y() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move up
+   #265 the rows that y() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move up
+   #265 the rows that y() displaces should keep their animations through the commit and the release
+   #265 the rows that xy() displaces should be drawn where they were after a drop whose last resolution moves the gap
+   #265 the rows that xy() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move up
+   #265 the rows that xy() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move up
+   #265 the rows that xy() displaces should keep their animations through the commit and the release
+   #265 a row move should start from the distance that the flow moved the row
+   #265 a row move should be reported before onReorder
+   #265 a row move should be followed by another from where the row is drawn
+   #265 a row lifted while its animation runs should be drawn where it was, with its animation ended
+   #265 a row lifted while its animation runs should keep its animation when the press activates nothing
+   #265 timing should be called when an animation starts, and give its values
+   #265 timing should be 160 ms and ease-out without one
+   #265 timing should end the operation with a fault when it throws
+   #265 prefers-reduced-motion should end a running animation at the next report
+   #265 prefers-reduced-motion should start animations again once the preference is gone
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a key move
+   #265 the rects that an operation reads xy(), with displacement: true should be as many in a key move
+## a pointer drop's report removed | chromium | 83 passed, 2 failed
+   #265 the rows that y() displaces should be drawn where they were after a drop whose last resolution moves the gap
+   #265 the rows that xy() displaces should be drawn where they were after a drop whose last resolution moves the gap
+## a command's report removed | chromium | 47 passed, 38 failed
+   #265 the rows that y() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move up
+   #265 the rows that y() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move up
+   #265 the rows that y() displaces should keep their animations through the commit and the release
+   #265 the rows that xy() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move up
+   #265 the rows that xy() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move up
+   #265 the rows that xy() displaces should keep their animations through the commit and the release
+   #265 a row move should start from the distance that the flow moved the row
+   #265 a row move should be reported before onReorder
+   #265 a row move should be followed by another from where the row is drawn
+   #265 a row lifted while its animation runs should be drawn where it was, with its animation ended
+   #265 a row lifted while its animation runs should keep its animation when the press activates nothing
+   #265 timing should be called when an animation starts, and give its values
+   #265 timing should be 160 ms and ease-out without one
+   #265 timing should end the operation with a fault when it throws
+   #265 prefers-reduced-motion should end a running animation at the next report
+   #265 prefers-reduced-motion should start animations again once the preference is gone
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a key move
+   #265 the rects that an operation reads xy(), with displacement: true should be as many in a key move
+## the report of the return removed | chromium | 49 passed, 36 failed
+   #265 the rows that y() displaces with landing should be drawn where they were after Escape
+   #265 the rows that y() displaces with landing should be drawn where they were after requestCancel
+   #265 the rows that y() displaces with landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that y() displaces with landing should be drawn where they were after a later rejection
+   #265 the rows that y() displaces with landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that y() displaces with landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that y() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces without landing should be drawn where they were after Escape
+   #265 the rows that y() displaces without landing should be drawn where they were after requestCancel
+   #265 the rows that y() displaces without landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that y() displaces without landing should be drawn where they were after a later rejection
+   #265 the rows that y() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that y() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that y() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces with landing should be drawn where they were after Escape
+   #265 the rows that xy() displaces with landing should be drawn where they were after requestCancel
+   #265 the rows that xy() displaces with landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that xy() displaces with landing should be drawn where they were after a later rejection
+   #265 the rows that xy() displaces with landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces with landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should be drawn where they were after Escape
+   #265 the rows that xy() displaces without landing should be drawn where they were after requestCancel
+   #265 the rows that xy() displaces without landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that xy() displaces without landing should be drawn where they were after a later rejection
+   #265 the rows that xy() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+   #265 a row move should hold the rows after a cancel of a drag whose collection grew among them
+   #265 a row move should hold the rows when the item leaves the collection and stays in the list
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a cancel
+   #265 the rects that an operation reads xy(), with displacement: true should be as many in a cancel
+## the return only with a landing | chromium | 67 passed, 18 failed
+   #265 the rows that y() displaces without landing should be drawn where they were after Escape
+   #265 the rows that y() displaces without landing should be drawn where they were after requestCancel
+   #265 the rows that y() displaces without landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that y() displaces without landing should be drawn where they were after a later rejection
+   #265 the rows that y() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that y() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that y() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should be drawn where they were after Escape
+   #265 the rows that xy() displaces without landing should be drawn where they were after requestCancel
+   #265 the rows that xy() displaces without landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that xy() displaces without landing should be drawn where they were after a later rejection
+   #265 the rows that xy() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+   #265 a row move should hold the rows after a cancel of a drag whose collection grew among them
+   #265 a row move should hold the rows when the item leaves the collection and stays in the list
+## the fault's return removed | chromium | 81 passed, 4 failed
+   #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+## an accepted item's return removed | chromium | 81 passed, 4 failed
+   #265 the rows that y() displaces with landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that y() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces with landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces without landing should be drawn where they were after an accepted move that is never committed
+## the row's release at the activation removed | chromium | 84 passed, 1 failed
+   #265 a row lifted while its animation runs should be drawn where it was, with its animation ended
+## the row's release before the activation can decline | chromium | 84 passed, 1 failed
+   #265 a row lifted while its animation runs should keep its animation when the press activates nothing
+## the preference not read | chromium | 80 passed, 5 failed
+   #265 prefers-reduced-motion should start no animation in a key move of y()
+   #265 prefers-reduced-motion should start no animation in a key move of xy()
+   #265 prefers-reduced-motion should start no animation in a pointer drag
+   #265 prefers-reduced-motion should not call timing
+   #265 prefers-reduced-motion should end a running animation at the next report
+## the preference read once | chromium | 80 passed, 5 failed
+   #265 prefers-reduced-motion should start no animation in a key move of y()
+   #265 prefers-reduced-motion should start no animation in a key move of xy()
+   #265 prefers-reduced-motion should start no animation in a pointer drag
+   #265 prefers-reduced-motion should not call timing
+   #265 prefers-reduced-motion should end a running animation at the next report
+## timing called under the preference | chromium | 84 passed, 1 failed
+   #265 prefers-reduced-motion should not call timing
+## the array read after the drop | chromium | 81 passed, 4 failed
+   #265 the rows that y() displaces with landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that y() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces with landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+## the rows not kept at a rebase | chromium | 84 passed, 1 failed
+   #265 a row move should hold the rows after a cancel of a drag whose collection grew among them
+## an absent item returned home | chromium | 84 passed, 1 failed
+   #265 a row move should hold the rows when the item leaves the collection and stays in the list
+## a lost anchor not checked | chromium | 84 passed, 1 failed
+   #265 a return that has no place to go should start no animation and add no fault when the anchor left the container
+## a lost item not checked | chromium | 84 passed, 1 failed
+   #265 a return that has no place to go should start no animation and add no fault when the item was removed
+## y() reads every row | chromium | 83 passed, 2 failed
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a key move
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a cancel
+# firefox  15:58:34 up 1 day, 20:42,  0 users,  load average: 3.50, 5.35, 6.26
+## no mutation | firefox | 85 passed, 0 failed
+## the report of drop() removed | firefox | 45 passed, 40 failed
+   #265 the rows that y() displaces should be drawn where they were after a drop whose last resolution moves the gap
+   #265 the rows that y() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move up
+   #265 the rows that y() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move up
+   #265 the rows that y() displaces should keep their animations through the commit and the release
+   #265 the rows that xy() displaces should be drawn where they were after a drop whose last resolution moves the gap
+   #265 the rows that xy() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move up
+   #265 the rows that xy() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move up
+   #265 the rows that xy() displaces should keep their animations through the commit and the release
+   #265 a row move should start from the distance that the flow moved the row
+   #265 a row move should be reported before onReorder
+   #265 a row move should be followed by another from where the row is drawn
+   #265 a row lifted while its animation runs should be drawn where it was, with its animation ended
+   #265 a row lifted while its animation runs should keep its animation when the press activates nothing
+   #265 timing should be called when an animation starts, and give its values
+   #265 timing should be 160 ms and ease-out without one
+   #265 timing should end the operation with a fault when it throws
+   #265 prefers-reduced-motion should end a running animation at the next report
+   #265 prefers-reduced-motion should start animations again once the preference is gone
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a key move
+   #265 the rects that an operation reads xy(), with displacement: true should be as many in a key move
+## a pointer drop's report removed | firefox | 83 passed, 2 failed
+   #265 the rows that y() displaces should be drawn where they were after a drop whose last resolution moves the gap
+   #265 the rows that xy() displaces should be drawn where they were after a drop whose last resolution moves the gap
+## a command's report removed | firefox | 47 passed, 38 failed
+   #265 the rows that y() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move up
+   #265 the rows that y() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move up
+   #265 the rows that y() displaces should keep their animations through the commit and the release
+   #265 the rows that xy() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move up
+   #265 the rows that xy() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move up
+   #265 the rows that xy() displaces should keep their animations through the commit and the release
+   #265 a row move should start from the distance that the flow moved the row
+   #265 a row move should be reported before onReorder
+   #265 a row move should be followed by another from where the row is drawn
+   #265 a row lifted while its animation runs should be drawn where it was, with its animation ended
+   #265 a row lifted while its animation runs should keep its animation when the press activates nothing
+   #265 timing should be called when an animation starts, and give its values
+   #265 timing should be 160 ms and ease-out without one
+   #265 timing should end the operation with a fault when it throws
+   #265 prefers-reduced-motion should end a running animation at the next report
+   #265 prefers-reduced-motion should start animations again once the preference is gone
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a key move
+   #265 the rects that an operation reads xy(), with displacement: true should be as many in a key move
+## the report of the return removed | firefox | 49 passed, 36 failed
+   #265 the rows that y() displaces with landing should be drawn where they were after Escape
+   #265 the rows that y() displaces with landing should be drawn where they were after requestCancel
+   #265 the rows that y() displaces with landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that y() displaces with landing should be drawn where they were after a later rejection
+   #265 the rows that y() displaces with landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that y() displaces with landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that y() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces without landing should be drawn where they were after Escape
+   #265 the rows that y() displaces without landing should be drawn where they were after requestCancel
+   #265 the rows that y() displaces without landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that y() displaces without landing should be drawn where they were after a later rejection
+   #265 the rows that y() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that y() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that y() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces with landing should be drawn where they were after Escape
+   #265 the rows that xy() displaces with landing should be drawn where they were after requestCancel
+   #265 the rows that xy() displaces with landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that xy() displaces with landing should be drawn where they were after a later rejection
+   #265 the rows that xy() displaces with landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces with landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should be drawn where they were after Escape
+   #265 the rows that xy() displaces without landing should be drawn where they were after requestCancel
+   #265 the rows that xy() displaces without landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that xy() displaces without landing should be drawn where they were after a later rejection
+   #265 the rows that xy() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+   #265 a row move should hold the rows after a cancel of a drag whose collection grew among them
+   #265 a row move should hold the rows when the item leaves the collection and stays in the list
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a cancel
+   #265 the rects that an operation reads xy(), with displacement: true should be as many in a cancel
+## the return only with a landing | firefox | 67 passed, 18 failed
+   #265 the rows that y() displaces without landing should be drawn where they were after Escape
+   #265 the rows that y() displaces without landing should be drawn where they were after requestCancel
+   #265 the rows that y() displaces without landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that y() displaces without landing should be drawn where they were after a later rejection
+   #265 the rows that y() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that y() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that y() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should be drawn where they were after Escape
+   #265 the rows that xy() displaces without landing should be drawn where they were after requestCancel
+   #265 the rows that xy() displaces without landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that xy() displaces without landing should be drawn where they were after a later rejection
+   #265 the rows that xy() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+   #265 a row move should hold the rows after a cancel of a drag whose collection grew among them
+   #265 a row move should hold the rows when the item leaves the collection and stays in the list
+## the fault's return removed | firefox | 81 passed, 4 failed
+   #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+## an accepted item's return removed | firefox | 81 passed, 4 failed
+   #265 the rows that y() displaces with landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that y() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces with landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces without landing should be drawn where they were after an accepted move that is never committed
+## the row's release at the activation removed | firefox | 84 passed, 1 failed
+   #265 a row lifted while its animation runs should be drawn where it was, with its animation ended
+## the row's release before the activation can decline | firefox | 84 passed, 1 failed
+   #265 a row lifted while its animation runs should keep its animation when the press activates nothing
+## the preference not read | firefox | 80 passed, 5 failed
+   #265 prefers-reduced-motion should start no animation in a key move of y()
+   #265 prefers-reduced-motion should start no animation in a key move of xy()
+   #265 prefers-reduced-motion should start no animation in a pointer drag
+   #265 prefers-reduced-motion should not call timing
+   #265 prefers-reduced-motion should end a running animation at the next report
+## the preference read once | firefox | 80 passed, 5 failed
+   #265 prefers-reduced-motion should start no animation in a key move of y()
+   #265 prefers-reduced-motion should start no animation in a key move of xy()
+   #265 prefers-reduced-motion should start no animation in a pointer drag
+   #265 prefers-reduced-motion should not call timing
+   #265 prefers-reduced-motion should end a running animation at the next report
+## timing called under the preference | firefox | 84 passed, 1 failed
+   #265 prefers-reduced-motion should not call timing
+## the array read after the drop | firefox | 81 passed, 4 failed
+   #265 the rows that y() displaces with landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that y() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces with landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+## the rows not kept at a rebase | firefox | 84 passed, 1 failed
+   #265 a row move should hold the rows after a cancel of a drag whose collection grew among them
+## an absent item returned home | firefox | 84 passed, 1 failed
+   #265 a row move should hold the rows when the item leaves the collection and stays in the list
+## a lost anchor not checked | firefox | 84 passed, 1 failed
+   #265 a return that has no place to go should start no animation and add no fault when the anchor left the container
+## a lost item not checked | firefox | 84 passed, 1 failed
+   #265 a return that has no place to go should start no animation and add no fault when the item was removed
+## y() reads every row | firefox | 83 passed, 2 failed
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a key move
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a cancel
+# webkit  16:03:28 up 1 day, 20:47,  0 users,  load average: 3.10, 3.85, 5.33
+## no mutation | webkit | 85 passed, 0 failed
+## the report of drop() removed | webkit | 45 passed, 40 failed
+   #265 the rows that y() displaces should be drawn where they were after a drop whose last resolution moves the gap
+   #265 the rows that y() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move up
+   #265 the rows that y() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move up
+   #265 the rows that y() displaces should keep their animations through the commit and the release
+   #265 the rows that xy() displaces should be drawn where they were after a drop whose last resolution moves the gap
+   #265 the rows that xy() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move up
+   #265 the rows that xy() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move up
+   #265 the rows that xy() displaces should keep their animations through the commit and the release
+   #265 a row move should start from the distance that the flow moved the row
+   #265 a row move should be reported before onReorder
+   #265 a row move should be followed by another from where the row is drawn
+   #265 a row lifted while its animation runs should be drawn where it was, with its animation ended
+   #265 a row lifted while its animation runs should keep its animation when the press activates nothing
+   #265 timing should be called when an animation starts, and give its values
+   #265 timing should be 160 ms and ease-out without one
+   #265 timing should end the operation with a fault when it throws
+   #265 prefers-reduced-motion should end a running animation at the next report
+   #265 prefers-reduced-motion should start animations again once the preference is gone
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a key move
+   #265 the rects that an operation reads xy(), with displacement: true should be as many in a key move
+## a pointer drop's report removed | webkit | 83 passed, 2 failed
+   #265 the rows that y() displaces should be drawn where they were after a drop whose last resolution moves the gap
+   #265 the rows that xy() displaces should be drawn where they were after a drop whose last resolution moves the gap
+## a command's report removed | webkit | 47 passed, 38 failed
+   #265 the rows that y() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that y() displaces with landing should be drawn where they were after a key move up
+   #265 the rows that y() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that y() displaces without landing should be drawn where they were after a key move up
+   #265 the rows that y() displaces should keep their animations through the commit and the release
+   #265 the rows that xy() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that xy() displaces with landing should be drawn where they were after a key move up
+   #265 the rows that xy() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed at once
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed after 100 ms
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move that is committed by moving the neighbor's node
+   #265 the rows that xy() displaces without landing should be drawn where they were after a key move up
+   #265 the rows that xy() displaces should keep their animations through the commit and the release
+   #265 a row move should start from the distance that the flow moved the row
+   #265 a row move should be reported before onReorder
+   #265 a row move should be followed by another from where the row is drawn
+   #265 a row lifted while its animation runs should be drawn where it was, with its animation ended
+   #265 a row lifted while its animation runs should keep its animation when the press activates nothing
+   #265 timing should be called when an animation starts, and give its values
+   #265 timing should be 160 ms and ease-out without one
+   #265 timing should end the operation with a fault when it throws
+   #265 prefers-reduced-motion should end a running animation at the next report
+   #265 prefers-reduced-motion should start animations again once the preference is gone
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a key move
+   #265 the rects that an operation reads xy(), with displacement: true should be as many in a key move
+## the report of the return removed | webkit | 49 passed, 36 failed
+   #265 the rows that y() displaces with landing should be drawn where they were after Escape
+   #265 the rows that y() displaces with landing should be drawn where they were after requestCancel
+   #265 the rows that y() displaces with landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that y() displaces with landing should be drawn where they were after a later rejection
+   #265 the rows that y() displaces with landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that y() displaces with landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that y() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces without landing should be drawn where they were after Escape
+   #265 the rows that y() displaces without landing should be drawn where they were after requestCancel
+   #265 the rows that y() displaces without landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that y() displaces without landing should be drawn where they were after a later rejection
+   #265 the rows that y() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that y() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that y() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces with landing should be drawn where they were after Escape
+   #265 the rows that xy() displaces with landing should be drawn where they were after requestCancel
+   #265 the rows that xy() displaces with landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that xy() displaces with landing should be drawn where they were after a later rejection
+   #265 the rows that xy() displaces with landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces with landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces with landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should be drawn where they were after Escape
+   #265 the rows that xy() displaces without landing should be drawn where they were after requestCancel
+   #265 the rows that xy() displaces without landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that xy() displaces without landing should be drawn where they were after a later rejection
+   #265 the rows that xy() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+   #265 a row move should hold the rows after a cancel of a drag whose collection grew among them
+   #265 a row move should hold the rows when the item leaves the collection and stays in the list
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a cancel
+   #265 the rects that an operation reads xy(), with displacement: true should be as many in a cancel
+## the return only with a landing | webkit | 67 passed, 18 failed
+   #265 the rows that y() displaces without landing should be drawn where they were after Escape
+   #265 the rows that y() displaces without landing should be drawn where they were after requestCancel
+   #265 the rows that y() displaces without landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that y() displaces without landing should be drawn where they were after a later rejection
+   #265 the rows that y() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that y() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that y() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should be drawn where they were after Escape
+   #265 the rows that xy() displaces without landing should be drawn where they were after requestCancel
+   #265 the rows that xy() displaces without landing should be drawn where they were after a cancel right after invalidate
+   #265 the rows that xy() displaces without landing should be drawn where they were after a later rejection
+   #265 the rows that xy() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces without landing should stay where they are after a rejection at once
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+   #265 a row move should hold the rows after a cancel of a drag whose collection grew among them
+   #265 a row move should hold the rows when the item leaves the collection and stays in the list
+## the fault's return removed | webkit | 81 passed, 4 failed
+   #265 the rows that y() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that y() displaces without landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces with landing should stay where they are after an onReorder that throws
+   #265 the rows that xy() displaces without landing should stay where they are after an onReorder that throws
+## an accepted item's return removed | webkit | 81 passed, 4 failed
+   #265 the rows that y() displaces with landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that y() displaces without landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces with landing should be drawn where they were after an accepted move that is never committed
+   #265 the rows that xy() displaces without landing should be drawn where they were after an accepted move that is never committed
+## the row's release at the activation removed | webkit | 84 passed, 1 failed
+   #265 a row lifted while its animation runs should be drawn where it was, with its animation ended
+## the row's release before the activation can decline | webkit | 84 passed, 1 failed
+   #265 a row lifted while its animation runs should keep its animation when the press activates nothing
+## the preference not read | webkit | 80 passed, 5 failed
+   #265 prefers-reduced-motion should start no animation in a key move of y()
+   #265 prefers-reduced-motion should start no animation in a key move of xy()
+   #265 prefers-reduced-motion should start no animation in a pointer drag
+   #265 prefers-reduced-motion should not call timing
+   #265 prefers-reduced-motion should end a running animation at the next report
+## the preference read once | webkit | 80 passed, 5 failed
+   #265 prefers-reduced-motion should start no animation in a key move of y()
+   #265 prefers-reduced-motion should start no animation in a key move of xy()
+   #265 prefers-reduced-motion should start no animation in a pointer drag
+   #265 prefers-reduced-motion should not call timing
+   #265 prefers-reduced-motion should end a running animation at the next report
+## timing called under the preference | webkit | 84 passed, 1 failed
+   #265 prefers-reduced-motion should not call timing
+## the array read after the drop | webkit | 81 passed, 4 failed
+   #265 the rows that y() displaces with landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that y() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces with landing should be drawn where they were after a return when the consumer emptied its array
+   #265 the rows that xy() displaces without landing should be drawn where they were after a return when the consumer emptied its array
+## the rows not kept at a rebase | webkit | 84 passed, 1 failed
+   #265 a row move should hold the rows after a cancel of a drag whose collection grew among them
+## an absent item returned home | webkit | 84 passed, 1 failed
+   #265 a row move should hold the rows when the item leaves the collection and stays in the list
+## a lost anchor not checked | webkit | 84 passed, 1 failed
+   #265 a return that has no place to go should start no animation and add no fault when the anchor left the container
+## a lost item not checked | webkit | 84 passed, 1 failed
+   #265 a return that has no place to go should start no animation and add no fault when the item was removed
+## y() reads every row | webkit | 83 passed, 2 failed
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a key move
+   #265 the rects that an operation reads y(), with displacement: true should be as many in a cancel
