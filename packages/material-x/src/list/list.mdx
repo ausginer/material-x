@@ -68,8 +68,8 @@ export const usageSnippet = `<mx-list>
 
 `mx-sortable-list` renders and styles like `mx-list`, takes the same items, and lets the user reorder them by pointer and keyboard. Import it from its own entry, `@ydinjs/material-x/list/sortable-list.js`, and install `@ydinjs/drag`, an optional peer dependency. A list that doesn't sort carries no drag code.
 
-- An item with a `data-handle` child drags only by its handle, by pointer and keyboard. The list makes the handle a focusable _Reorder_ button.
-- An item without a handle drags by its whole surface. A static `mx-list-item` without a handle becomes a tab stop in the sortable list only.
+- An item with a `data-handle` child drags only by its handle, by pointer and keyboard. The list makes the handle a focusable _Reorder_ button. The handle is an `inline-block` box unless the page sets its `display`.
+- A mouse drags an item without a handle by its whole surface, as does a pen that the browser doesn't scroll with. A finger on it scrolls instead, so give the items of a list that is used by touch a handle. A static `mx-list-item` without a handle becomes a tab stop in the sortable list only.
 - The user can't reorder an item with `disabled`, by pointer or by keyboard, and other items move past it. Its handle isn't a tab stop and has `aria-disabled`. Disabling an item doesn't end a move that has begun. Other controls in the item stay enabled, dimmed with the item, and are the page's to disable.
 - An arrow key moves the focused item, or the item of the focused handle, one slot. Mark a nested control that uses arrow keys itself, such as a text field, with `data-drag-ignore`.
 - Each move fires a cancelable `reorder` event with `item`, `from`, `to`, `previous` and `next`. The list never moves an item: commit the move, for example with `list.insertBefore(event.item, event.next)`, in the handler or in a later render, or call `preventDefault()` to reject it.

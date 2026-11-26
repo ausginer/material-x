@@ -61,6 +61,17 @@ slot:has-slotted {
 }
 
 /*
+ * `touch-action` applies to no inline or `display: contents` box, so a handle
+ * such as a `span` or an `mx-icon-button` would let a touch pan. A page's own
+ * `display` on the handle wins, and `hidden` still hides it.
+ */
+:is(.lead, .trail)::slotted([data-handle]:not(
+  [hidden]:not([hidden='until-found' i])
+)) {
+  display: inline-block;
+}
+
+/*
  * The consumer's element, so a page's own rule on it wins. The element's own
  * `:host` rule doesn't.
  */

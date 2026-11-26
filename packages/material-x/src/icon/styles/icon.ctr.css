@@ -20,3 +20,11 @@
   text-rendering: optimizelegibility;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/*
+ * Chromium gives a text in a `display: contents` slot no touch action of the
+ * host, so a touch on it pans even where the host has `touch-action: none`.
+ */
+slot {
+  display: inline;
+}
