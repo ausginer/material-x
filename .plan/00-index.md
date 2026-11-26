@@ -3317,7 +3317,7 @@ Tier A, **closed on 2026-11-24** (the last note), pre-existing. Before closure: 
   - **(b) The footprint fades in, by a transition on opacity.** Read: with 200 ms, the footprint's frames in the story's commit and the next task's have an opacity of at most 0.026, and not 0.16, in the three engines, by `@keyframes` or by `@starting-style`, and a slow commit still shows the footprint. It needs nothing from drag. It costs that a pointer drag's footprint fades in again at each slot, because drag re-inserts the placeholder to move it. That part wasn't drawn.
   - (c) No footprint and no flight: the item jumps, as with `reduce`. The user has to find it.
   - (d) The placeholder stays as it is.
-- **The neighbors aren't animated** in either case. `RD-31` doesn't adopt `layoutAnimation`.
+- **The neighbors aren't animated** in either case. `RD-31` doesn't adopt `layoutAnimation`. (**Superseded 2026-11-26 by `RD-60`,** at the merge of #266's unit: the neighbors are animated by `layoutAnimation`, for both kinds.)
 - **How the list tells a command: drag tells it,** by `drag:DRD-71`, `onStart`'s second argument. Amended 2026-11-24, as the last paragraph says.
   1. At each `onStart`, the list sets a custom state of its own to whether the kind is `'command'`. The footprint's rule doesn't paint while the list has it.
   2. **Nothing clears it,** because every `onStart` writes it, and a placeholder exists only within an operation: drag inserts it just before `onStart` and removes it at release. So a pointer drag after a command, after a destruction or after a reconnect starts with the state off, before anything paints.
