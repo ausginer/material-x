@@ -24,7 +24,7 @@ import {
   BUTTON_GROUP_ELEMENTS,
 } from '../button-group/button-group-context.ts';
 import type { FocusForwarding } from '../core/traits/focus-forwarding.ts';
-import { notify, useClickActivation } from '../core/utils/events.ts';
+import { useClickActivation } from '../core/utils/events.ts';
 import { useContext } from '../core/utils/useContext.ts';
 import { useButtonCore, type ButtonCoreTraits } from './ButtonCore.ts';
 
@@ -118,7 +118,10 @@ export function useSwitchCore(
     host,
     {
       command() {
-        notify(host, 'input', 'change');
+        host.dispatchEvent(
+          new Event('input', { bubbles: true, composed: true }),
+        );
+        host.dispatchEvent(new Event('change', { bubbles: true }));
       },
     },
     target,

@@ -11,7 +11,7 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
-import { DEFAULT_EVENT_INIT, toggleState } from '@ydinjs/core/utils/DOM.js';
+import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { landing } from '@ydinjs/drag/sortable/landing.js';
 import { layoutAnimation } from '@ydinjs/drag/sortable/layout-animation.js';
 import { y } from '@ydinjs/drag/sortable/y.js';
@@ -78,7 +78,7 @@ export class ReorderEvent extends Event {
   declare readonly next: HTMLElement | null;
 
   constructor(init: ReorderEventInit) {
-    super('reorder', DEFAULT_EVENT_INIT);
+    super('reorder', { bubbles: true, cancelable: true, composed: true });
     Object.assign(this, init);
   }
 }

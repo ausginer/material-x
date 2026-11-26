@@ -11,68 +11,6 @@ export type SiblingUpdateCallback = (sibling?: HTMLElement) => void;
 export type ExistingSiblingUpdateCallback = (sibling: HTMLElement) => void;
 
 /**
- * Default initialization for events dispatched by notifiers created with
- * {@link createEventNotifier}.
- *
- * @remarks Event-specific definitions override these values.
- */
-export const DEFAULT_EVENT_INIT: Readonly<EventInit> = {
-  bubbles: true,
-  composed: true,
-  cancelable: true,
-};
-
-/**
- * Event initialization overrides keyed by event name.
- *
- * @typeParam T - Event names accepted by the configured notifier.
- */
-export type EventDefinitions<T extends string> = Readonly<
-  Record<T, Readonly<EventInit>>
->;
-
-/**
- * Dispatches configured events on a target.
- *
- * @remarks Events are created immediately before dispatch and dispatched in
- * the order provided.
- *
- * @typeParam T - Event names accepted by the notifier.
- * @param target - Target on which to dispatch the events.
- * @param types - Event names to create and dispatch in order.
- */
-export type EventNotifier<T extends string> = (
-  target: EventTarget,
-  ...types: readonly T[]
-) => void;
-
-/**
- * Creates a type-safe notifier from event initialization definitions.
- *
- * @remarks Each notification creates a fresh {@link Event}. Definitions are
- * merged over {@link DEFAULT_EVENT_INIT}, allowing individual events to
- * override bubbling, composition, or cancellation behavior.
- *
- * @typeParam T - Event names defined by `definitions`.
- * @param definitions - Initialization overrides keyed by event name.
- * @returns A notifier restricted to the configured event names.
- */
-export function createEventNotifier<T extends string>(
-  definitions: EventDefinitions<T>,
-): EventNotifier<T> {
-  return (target, ...types) => {
-    for (const type of types) {
-      target.dispatchEvent(
-        new Event(type, {
-          ...DEFAULT_EVENT_INIT,
-          ...definitions[type],
-        }),
-      );
-    }
-  };
-}
-
-/**
  * Adds or removes a custom state from `ElementInternals.states`.
  *
  * @param internals - Host internals whose state set should be updated.
