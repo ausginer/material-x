@@ -1,0 +1,49 @@
+## no mutation | chromium | 193 passed, 0 failed
+## aria-disabled isn't watched | chromium | 193 passed, 0 failed
+## the state observer is never disconnected | chromium | 193 passed, 0 failed
+## a disabled control keeps its description | chromium | 191 passed, 2 failed
+   mx-sortable-list disabled items mx-list-button-item should describe the control of an item without a handle only while it is enabled
+   mx-sortable-list disabled items mx-list-link-item should describe the control of an item without a handle only while it is enabled
+## a disabled handle keeps its description | chromium | 189 passed, 4 failed
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+## a disabled handle keeps its touch-action | chromium | 189 passed, 4 failed
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+## a disabled handle loses its role | chromium | 189 passed, 4 failed
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+## a disabled handle loses its name | chromium | 189 passed, 4 failed
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+## the item's own value isn't written again | chromium | 191 passed, 2 failed
+   mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled
+   mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled
+## a page's touch-action is removed | chromium | 193 passed, 0 failed
+## an item without a handle is admitted | chromium | 189 passed, 4 failed
+   mx-sortable-list disabled items mx-list-button-item should propose nothing in a pointer drag without a handle
+   mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on a page's control in an item without a handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing in a pointer drag without a handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on a page's control in an item without a handle
+## an item with a handle is admitted | chromium | 187 passed, 6 failed
+   mx-sortable-list disabled items mx-list-button-item should propose nothing in a pointer drag by its handle
+   mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on its focused handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing in a pointer drag by its handle
+   mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on its focused handle
+   mx-sortable-list disabled items should keep focus on a span handle that has it, and move with it again once enabled
+   mx-sortable-list disabled items should keep focus on a button handle that has it, and move with it again once enabled
+## a disabled item leaves the collection | chromium | 191 passed, 2 failed
+   mx-sortable-list disabled items mx-list-button-item should let an enabled item move past it
+   mx-sortable-list disabled items mx-list-link-item should let an enabled item move past it
+## a press whose item is disabled before the lift is canceled | chromium | 193 passed, 0 failed
+## a pending commit is refused when the item is disabled in its handler | chromium | 191 passed, 2 failed
+   mx-sortable-list disabled items disabled in its reorder handler should be moved by an arrow key
+   mx-sortable-list disabled items disabled in its reorder handler should be moved by a drop

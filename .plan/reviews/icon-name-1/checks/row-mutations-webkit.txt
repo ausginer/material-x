@@ -1,0 +1,17 @@
+## no mutation | webkit | 0 failed, 59 passed
+## the value is false | webkit | 1 failed, 58 passed
+   mx-icon should hide its slot
+## at the connect | webkit | 1 failed, 58 passed
+   mx-icon should hide its slot
+## by the reflected property | webkit | 0 failed, 59 passed
+## display: block | webkit | 1 failed, 58 passed
+   mx-icon should give its slot a box
+## display: inline-block | webkit | 1 failed, 58 passed
+   mx-icon should give its slot a box
+## display: contents | webkit | 1 failed, 58 passed
+   mx-icon should give its slot a box
+## display: none | webkit | 1 failed, 58 passed
+   mx-icon should give its slot a box
+## the slot in a span of display: contents, hidden by the constructor | webkit | 1 failed, 58 passed
+   mx-icon should hide its slot
+## the split button's icon hidden again | webkit | 0 failed, 59 passed

@@ -1,0 +1,10 @@
+# Brotli bytes, the size gate's recipe in each package, from the trees named. The candidates aren't final code.
+drag                    main 6538 / 6506 / 7156 (sortable + y / sortable + xy / complete)
+drag  candidate-axis    6901 / 6759 / 7526  (+363 / +253 / +370)
+drag  candidate-sink    6773 / 6715 / 7516  (+235 / +209 / +360)
+drag  every other row   0 in both
+material-x              list/sortable-list, complete, as size-limit prints them (kB)
+main                    8.94, 25.64
+candidate-sink before its last change, the list unchanged                          9.17, 25.9
+candidate-sink, the list composing layoutAnimation(350, ease)  9.59, 26.3
+list/list 686 B and list/list-item 2.73 kB in each

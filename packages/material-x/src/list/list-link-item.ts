@@ -36,7 +36,9 @@ const ListLinkItemConstructor: Composed<
  *
  * @attr {boolean} selected - Applies selected visual state, and sets the link's
  *   own `aria-current="page"`. An `aria-current` of the host comes first.
- * @attr {boolean} disabled - Disables navigation and focus.
+ * @attr {boolean} disabled - Disables navigation and focus. In
+ *   `mx-sortable-list`, the user can't reorder the item. Controls in the item's
+ *   slots aren't disabled.
  * @attr {string} href - Link destination URL.
  * @attr {string} target - Navigation target (for example `_blank`).
  *

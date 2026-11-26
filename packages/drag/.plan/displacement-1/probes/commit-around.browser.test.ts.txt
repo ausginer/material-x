@@ -1,0 +1,164 @@
+// The proof's proof-append.browser.test.ts with more commits. Run as tests/<name>.browser.test.ts from packages/drag, with VITE_SETS='[{"axis":"y","env":"none","vis":"item"},{"axis":"xy","env":"none","vis":"item"}]'.
+// Feature proof of #265 r3: the first frames of each case, with row animations of an hour, so that
+// any change of a row's drawn center from one frame to the next is a jump. Prints one line a case.
+import { afterAll, describe, it } from 'vitest';
+import { landing } from '../src/sortable/landing.ts';
+import { layoutAnimation } from '../src/sortable/layout-animation.ts';
+import { xy } from '../src/sortable/xy.ts';
+import { y } from '../src/sortable/y.ts';
+import { ReorderResolution, sortable, type SortableController } from '../src/sortable.ts';
+import { commands, engine, faultMessages, frames, onCleanup, wait } from './support/harness.ts';
+
+const OUT: string[] = [];
+afterAll(() => { throw new Error(`\nPROOF\n${OUT.join('\n')}\nEND`); });
+const HOUR = 3_600_000;
+type Env = 'none' | 'scale' | 'rot' | 'zoom' | 'scroll';
+type Vis = 'item' | 'child' | 'shell' | 'shellbox';
+type Axis = 'y' | 'xy';
+type Opt = { axis: Axis; env: Env; vis: Vis; land: boolean; css?: string; rowCss?: string };
+let log: string[] = [];
+let list: HTMLElement;
+let controller: SortableController;
+const R = (): HTMLElement[] => [...list.children].filter((e) => !e.hasAttribute('data-drag-placeholder')) as HTMLElement[];
+const $ = (id: string): HTMLElement => document.querySelector<HTMLElement>(`#${id}`)!;
+const c = (e: Element): [number, number] => { const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+const rowAnims = (): Animation[] => [...list.children].flatMap((e) => e.getAnimations()).filter((a) => a.effect!.getTiming().duration === HOUR);
+const finish = (): void => { for (const a of rowAnims()) a.finish(); };
+const half = (): void => { for (const a of rowAnims()) a.currentTime = HOUR / 2; };
+const order = (): string => R().map((r) => r.id).join('');
+
+const PH = document.createElement('style'); document.head.append(PH);
+function build(o: Opt, config: any = {}): void {
+  PH.textContent = o.rowCss?.includes('/*ph*/') ? '[data-drag-placeholder]{margin-bottom:8px}' : '';
+  log = [];
+  const outer = document.createElement('div');
+  outer.style.cssText = `position:absolute;top:30px;left:60px;transform-origin:0 0;${
+    o.env === 'scale' ? 'transform:scale(.75,1.25);' : o.env === 'rot' ? 'transform:rotate(15deg) scale(.8);' : o.env === 'zoom' ? 'zoom:1.5;' : ''}`;
+  list = document.createElement('div');
+  list.id = 'list';
+  list.style.cssText = o.axis === 'xy' ? 'display:flex;flex-wrap:wrap;width:220px;align-content:flex-start;' : 'width:120px;';
+  list.style.cssText += o.css ?? '';
+  for (let i = 0; i < 6; i += 1) {
+    const r = document.createElement('div');
+    r.id = `r${i}`; r.tabIndex = 0;
+    r.style.cssText = `touch-action:none;user-select:none;box-sizing:border-box;${o.rowCss ?? ''}`;
+    const w = o.axis === 'xy' ? [60, 90, 70, 60, 80, 50][i] : 100;
+    const h = o.axis === 'xy' ? 40 : [40, 60, 30, 50, 40, 36][i];
+    if (o.vis === 'item') { r.style.width = `${w}px`; r.style.height = `${h}px`; }
+    else { const k = document.createElement('div'); k.className = 'k'; k.style.cssText = `width:${w}px;height:${h}px`; r.append(k); if (o.vis !== 'child') r.style.padding = '6px'; }
+    list.append(r);
+  }
+  outer.append(list); document.body.append(outer);
+  controller = sortable(list, {
+    items: () => R(),
+    axis: o.axis === 'xy' ? xy() : y(),
+    displacement: layoutAnimation({ timing: () => ({ duration: HOUR, easing: 'linear' }) }),
+    ...(o.land ? { landing: landing({ duration: 80 }) } : {}),
+    ...(o.vis === 'item' ? {} : { visual: (i: HTMLElement) => i.firstElementChild as HTMLElement }),
+    ...(o.vis === 'shellbox' ? { box: (i: HTMLElement) => i } : {}),
+    onStart() { log.push('start'); },
+    onReorder({ item, next }) { list.insertBefore(item, next); return ReorderResolution.accept(); },
+    onEnd(r: any) { log.push(r.type); },
+    ...config,
+  } as any);
+  onCleanup(() => controller.requestDestroy());
+}
+
+/** Samples each frame. `jump` is the greatest change of a row between two samples. */
+function trace(item: HTMLElement, withShell = false) {
+  const rows = R().filter((r) => r !== item);
+  const start = new Map(rows.map((r) => [r, c(r)]));
+  let last = new Map(start); let shell = c(item); let shellJump = 0;
+  let jump = 0; let at = ''; let n = 0; let live = true;
+  const sample = (): void => {
+    n += 1;
+    for (const r of rows) {
+      if (!r.isConnected) continue;
+      const p = c(r); const q = last.get(r)!; const d = Math.hypot(p[0] - q[0], p[1] - q[1]);
+      if (d > jump) { jump = d; at = `${r.id}@${n}`; }
+      last.set(r, p);
+    }
+    const s = c(item); shellJump = Math.max(shellJump, Math.hypot(s[0] - shell[0], s[1] - shell[1])); shell = s;
+  };
+  const step = (): void => { if (live) { sample(); requestAnimationFrame(step); } };
+  requestAnimationFrame(step);
+  return {
+    rebase(): void { last = new Map(rows.map((r) => [r, c(r)])); },
+    stop(tag: string): void {
+      sample(); live = false;
+      const left = rowAnims().length;
+      finish();
+      const moved = Math.max(...rows.filter((r) => r.isConnected).map((r) => { const a = start.get(r)!; const b = c(r); return Math.hypot(a[0] - b[0], a[1] - b[1]); }));
+      OUT.push(`${jump < 1 ? 'ok  ' : 'JUMP'} ${engine} ${tag} | jump ${jump.toFixed(2)} ${jump < 1 ? '' : at} | moved ${moved.toFixed(1)} | anims ${left} | ${order()} | ${log.join()} | ${faultMessages().join(';')}${withShell ? ` | shell ${shellJump.toFixed(1)}` : ''}${list.querySelector('[data-drag-placeholder]') ? ' | PLACEHOLDER LEFT' : ''}`);
+    },
+  };
+}
+const key = async (id: string, k: string): Promise<void> => { $(id).focus(); await commands.keyPress(k); };
+async function hold(id: string, to: string, rest = true): Promise<void> {
+  const [sx, sy] = c($(id)); const [tx, ty] = c($(to));
+  await commands.pointerMove(sx, sy); await commands.pointerDown();
+  await commands.pointerMove(sx + 6, sy + 6, 2); await frames();
+  await commands.pointerMove(tx + 3, ty + 3, 3); await frames(3);
+  if (rest) finish();
+}
+const defer = () => { const { promise, resolve, reject } = Promise.withResolvers<any>(); return { fn: () => promise, resolve, reject }; };
+const A = () => ReorderResolution.accept(); const X = () => ReorderResolution.reject();
+const before: any = ({ item, next }: any) => { list.insertBefore(item, next); return A(); };
+const after: any = ({ item, previous }: any) => { if (previous) previous.after(item); else list.prepend(item); return A(); };
+const neighbors: any = ({ item, from, to }: any) => { const r = R(); if (to > from) for (const m of r.slice(from + 1, to + 1)) item.before(m); else item.after(...r.slice(to, from)); return A(); };
+const toEnd: any = ({ item }: any) => { list.append(item); return A(); };
+
+type Case = [string, (o: Opt, tag: string) => Promise<void>];
+const K = (name: string, id: string, k: string, cfg: () => any, w = 60): Case => [name, async (o, tag) => {
+  build(o, cfg()); const t = trace($(id), true); await key(id, k); await wait(w); await frames(3); t.stop(tag);
+}];
+const pend = (name: string, id: string, k: string, mode: 'rest' | 'mid', then: (d: any) => void, w = 60): Case => [name, async (o, tag) => {
+  const d = defer(); build(o, { onReorder: d.fn }); await key(id, k); await frames(3);
+  if (mode === 'rest') finish(); else half();
+  const t = trace($(id), true); then(d); await wait(w); await frames(3); t.stop(tag);
+}];
+const P = (name: string, id: string, to: string, mode: 'rest' | 'mid', act: (d: any) => unknown, cfg: any = {}): Case => [name, async (o, tag) => {
+  const d = defer(); build(o, { ...(cfg.defer ? { onReorder: d.fn } : {}), ...(cfg.c ?? {}) }); await hold(id, to, false);
+  if (mode === 'rest') finish(); else half();
+  const t = trace($(id), true); await act(d); await wait(60); await frames(3); t.stop(tag);
+}];
+const flick = (name: string, id: string, to: string, cfg: () => any, then?: (d: any) => void): Case => [name, async (o, tag) => {
+  const d = defer(); build(o, then ? { onReorder: d.fn } : cfg());
+  const [sx, sy] = c($(id)); const [tx, ty] = c($(to)); const native = requestAnimationFrame;
+  await commands.pointerMove(sx, sy); await commands.pointerDown(); await commands.pointerMove(sx + 6, sy + 6, 2); await frames(3);
+  const t = trace($(id), true);
+  // The library's own frame is withheld, and the trace's goes on.
+  globalThis.requestAnimationFrame = ((f: any) => (/insertion|requestStep|step/iu.test(String(f)) && !String(f).includes('sample') ? 0 : native(f))) as any;
+  globalThis.requestAnimationFrame = (() => 0) as any;
+  await commands.pointerMove(tx + 3, ty + 3); await commands.pointerUp();
+  globalThis.requestAnimationFrame = native;
+  await frames(3); if (then) { then(d); await wait(30); await frames(3); } t.stop(tag);
+}];
+let gone = false;
+const all: any = ({ item, from, to }: any) => { const o = R(); o.splice(from, 1); o.splice(to, 0, item); for (const r of o) list.append(r); return A(); };
+const CASES: Case[] = [
+  K('key down, every row appended in order', 'r1', 'ArrowDown', () => ({ onReorder: all })),
+  K('key up, every row appended in order', 'r3', 'ArrowUp', () => ({ onReorder: all })),
+  K('key down, every row appended at 50 ms', 'r1', 'ArrowDown', () => ({ onReorder: async (q: any) => { await wait(50); return all(q); } }), 160),
+  P('drop, every row appended in order', 'r0', 'r3', 'rest', () => commands.pointerUp(), { c: { onReorder: (q: any) => all(q) } }),
+  P('drop up, every row appended in order', 'r4', 'r1', 'rest', () => commands.pointerUp(), { c: { onReorder: (q: any) => all(q) } }),
+  K('key down, all, then fails: old order appended, rejected at 50', 'r1', 'ArrowDown', () => ({ onReorder: async (q: any) => { const o = R(); all(q); await wait(50); for (const r of o) list.append(r); return X(); } }), 160),
+  K('key down, old order appended, rejected at once', 'r1', 'ArrowDown', () => ({ onReorder: () => { for (const r of R()) list.append(r); return X(); } })),
+  P('drop, old order appended, rejected', 'r0', 'r3', 'rest', () => commands.pointerUp(), { c: { onReorder: () => { for (const r of R()) list.append(r); return X(); } } }),
+  P('drop mid row, old order appended, rejected', 'r2', 'r4', 'rest', () => commands.pointerUp(), { c: { onReorder: () => { for (const r of R()) list.append(r); return X(); } } }),
+  P('drop, all appended then throws', 'r2', 'r4', 'rest', () => commands.pointerUp(), { c: { onReorder: (q: any) => { for (const r of R()) list.append(r); throw new Error('x'); } } }),
+  P('drop, server order (one before), appended', 'r0', 'r3', 'rest', () => commands.pointerUp(), { c: { onReorder: ({ item }: any) => { const o = R().filter((r) => r !== item); o.splice(1, 0, item); for (const r of o) list.append(r); return A(); } } }),
+  P('drop, prepend all reversed', 'r0', 'r3', 'rest', () => commands.pointerUp(), { c: { onReorder: ({ item, from, to }: any) => { const o = R(); o.splice(from, 1); o.splice(to, 0, item); list.prepend(...o); return A(); } } }),
+  P('drop, replaceChildren', 'r0', 'r3', 'rest', () => commands.pointerUp(), { c: { onReorder: ({ from, to, item }: any) => { const o = R(); o.splice(from, 1); o.splice(to, 0, item); list.replaceChildren(...o); return A(); } } }),
+  K('key, replaceChildren', 'r1', 'ArrowDown', () => ({ onReorder: ({ from, to, item }: any) => { const o = R(); o.splice(from, 1); o.splice(to, 0, item); list.replaceChildren(...o); return A(); } })),
+  K('cancel in onStart of a key', 'r1', 'ArrowDown', () => ({ onStart: () => { controller.requestCancel(); } })),
+  K('key down, all at once, accepted at 50', 'r1', 'ArrowDown', () => ({ onReorder: async (q: any) => { all(q); await wait(50); return A(); } }), 160),
+  P('drop, all at once, accepted at 50', 'r0', 'r3', 'rest', () => commands.pointerUp(), { c: { onReorder: async (q: any) => { all(q); await wait(30); return A(); } } }),
+  P('drop, server order first, appended', 'r2', 'r4', 'rest', () => commands.pointerUp(), { c: { onReorder: ({ item }: any) => { const o = [item, ...R().filter((r) => r !== item)]; for (const r of o) list.append(r); return A(); } } }),
+  flick('flick down, every row appended in order', 'r0', 'r3', () => ({ onReorder: all })),
+];
+const SETS: Opt[] = JSON.parse((import.meta as any).env.VITE_SETS ?? '[]');
+for (const o of SETS) for (const land of [false, true]) {
+  const name = `${o.axis} ${o.env} ${o.vis}${o.css ? ' list{' + o.css + '}' : ''}${o.rowCss ? ' row{' + o.rowCss + '}' : ''}${land ? ' landing' : ''}`;
+  describe(name, () => { for (const [n, f] of CASES) it(n, () => f({ ...o, land }, `${name} :: ${n}`)); });
+}

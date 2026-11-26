@@ -19,7 +19,7 @@ export const declaration = getDeclarationByTag(TAG);
 export const summary = declaration?.summary?.trim();
 
 export const importSnippet = "import '@ydinjs/material-x/fab/fab.js';";
-export const usageSnippet = `<mx-fab>
+export const usageSnippet = `<mx-fab aria-label="Add">
   <mx-icon slot="icon">add</mx-icon>
 </mx-fab>`;
 
@@ -81,7 +81,7 @@ Use the live example below to inspect interaction states:
 
 ## Accessibility
 
-- **Name:** Provide accessible text when icon alone is ambiguous (e.g. `aria-label`).
+- **Name:** Always set `aria-label` on a FAB that has only an icon. The icon's content isn't part of the name, so without it the FAB has no name.
 - **Keyboard:** Focusable and activatable using native button interaction.
 - **Focus indicator:** Uses shared focus treatment from core button primitives.
 - **Disabled:** `disabled` prevents activation.

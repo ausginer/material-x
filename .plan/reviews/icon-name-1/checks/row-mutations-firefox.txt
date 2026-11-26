@@ -1,0 +1,17 @@
+## no mutation | firefox | 0 failed, 59 passed
+## the value is false | firefox | 1 failed, 58 passed
+   mx-icon should hide its slot
+## at the connect | firefox | 1 failed, 58 passed
+   mx-icon should hide its slot
+## by the reflected property | firefox | 0 failed, 59 passed
+## display: block | firefox | 1 failed, 58 passed
+   mx-icon should give its slot a box
+## display: inline-block | firefox | 1 failed, 58 passed
+   mx-icon should give its slot a box
+## display: contents | firefox | 1 failed, 58 passed
+   mx-icon should give its slot a box
+## display: none | firefox | 1 failed, 58 passed
+   mx-icon should give its slot a box
+## the slot in a span of display: contents, hidden by the constructor | firefox | 1 failed, 58 passed
+   mx-icon should hide its slot
+## the split button's icon hidden again | firefox | 0 failed, 59 passed

@@ -29,7 +29,9 @@ const ListButtonItemConstructor: Composed<
  * @attr {boolean} selected - Applies selected visual state, and sets the
  *   button's own `aria-current="true"`. An `aria-current` of the host comes
  *   first.
- * @attr {boolean} disabled - Disables interaction.
+ * @attr {boolean} disabled - Disables interaction. In `mx-sortable-list`,
+ *   the user can't reorder the item. Controls in the item's slots aren't
+ *   disabled.
  *
  * @slot - Primary label text.
  * @slot lead - Leading icon, avatar, or image.

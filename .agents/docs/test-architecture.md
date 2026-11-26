@@ -153,13 +153,42 @@ When token sources intentionally change: review tag/profile selection and proven
 
 ## CI policy
 
-Every push to `main` and every pull request that is not a draft must be gated on: formatting, linting, typechecking; every package's node and declaration tests, tproc's included; behavior and accessibility browser tests and spec-contract browser tests, each in Chromium, Firefox and Playwright's WebKit, on Linux and headless; the curated Chromium visual suite; the docs site, built and loaded in Chromium. CI runs on plain GitHub-hosted runners. Chromium, Firefox and WebKit are the builds the locked `playwright` package pins. Real Safari runs outside the gate, in `.github/workflows/safari.yml`: weekly, and by hand on any branch, tag or commit. No rule requires it, and a failing scheduled run opens or comments on an issue labelled `safari`. Its Safari is the one a named macOS runner ships, and it isn't pinned (`repo:RD-12`). Local runs are Chromium only by default, without the visual suite; Firefox, WebKit and visual results are read in CI, and a change that only Safari can see starts the Safari workflow on its branch (`repo:RD-13` property 8). The gate uploads screenshot actual/diff artifacts on failure and never writes, updates or approves a baseline; a separate recording workflow proposes baselines in a pull request (`repo:RD-13`).
+Every push to `main` and every pull request that is not a draft must be gated on: formatting, linting, typechecking; every package's node and declaration tests, tproc's included; behavior and accessibility browser tests and spec-contract browser tests, each in Chromium, Firefox and Playwright's WebKit, on Linux and headless; the curated Chromium visual suite; the docs site, built and loaded in Chromium. CI runs on plain GitHub-hosted runners. Chromium, Firefox and WebKit are the builds the locked `playwright` package pins. Real Safari runs outside the gate, in `.github/workflows/safari.yml`: weekly, and by hand on any branch, tag or commit. No rule requires it, and a failing scheduled run opens or comments on an issue labelled `safari`. Its Safari is the one a named macOS runner ships, and it isn't pinned (`repo:RD-12`). An implementer's local runs are Chromium only; a review's run the three engines ([below](#engines-in-development-and-in-review)). Visual results are read only in CI, and a change that only Safari can see starts the Safari workflow on its branch (`repo:RD-13` property 8). The gate uploads screenshot actual/diff artifacts on failure and never writes, updates or approves a baseline; a separate recording workflow proposes baselines in a pull request (`repo:RD-13`).
 
 Size, allocation and speed checks are outside the gate: CI reports them, and a pull request gets a comment showing how sizes changed, but they never fail the build. Coverage from the Chromium run is uploaded to Codecov. Coverage reports are diagnostic; a global percentage is not a substitute for the contract categories above.
 
 **The gate is on.** `.github/workflows/verify.yml` runs on every push to `main` and every pull request that is not a draft, in the pinned visual environment, and the ruleset on `main` requires its `verify` check, so a pull request whose `verify` fails can't merge. The record: [`repo:RD-2`](../../.plan/00-index.md); the design: `repo:RD-6` to `repo:RD-9`, `repo:RD-12`, `repo:RD-13` and `repo:RD-14`. The same workflow deploys the docs build it loaded to GitHub Pages, from `main` only.
 
 Scheduled or manual jobs may add the full visual state matrix, dark/contrast theme expansion, RTL/zoom/forced-colors/reduced-motion resilience, and targeted accessibility-tree or manual AT validation.
+
+## Engines in development and in review
+
+Development runs in Chromium, a review runs in the three engines, and CI runs the whole suite in each (`repo:RD-62`).
+
+- **An implementer runs Chromium:** rows, suites, witnesses and probes. CI runs every row in Chromium, Firefox and WebKit.
+- **The exception is a row that can't show its property in Chromium,** because the defect or the code path exists only in another engine, or the row has an engine condition. That row and its witness run in the engines that show it, that file only. Reproducing a CI failure is the same.
+- **The implementer doesn't wait for CI.** The report names the head, and says that `verify` is pending or gives its result. A failure returns to the implementer. Nothing is accepted or proposed for merging until `verify` passes on its head, and a reduced run counts (`repo:RD-15`). A unit whose subject is CI, the harness or an engine's configuration reads CI before it reports.
+- **A feature proof reads the unmutated pass in Firefox and WebKit from CI, and runs the rest locally.** The affected files are the test files that the unit adds or changes and the files that test the source it changes.
+  - **From CI:** `verify`'s full run on the reviewed head, or on the last commit before it that changed more than records. The review names the run, and the affected files pass in its `firefox` and `webkit` jobs.
+  - **Locally,** one engine at a time with nothing else running: the affected files unmutated in Chromium, the mutations below in the three engines, and the reviewer's own probes in the engines that their question is about.
+  - **When the run is pending,** the review does the rest and reports it pending. Its verdict for Firefox and WebKit waits for that run, and the gate above reads it before anything is accepted.
+  - **When it fails,** a failure of a row in the affected files is the review's finding, reproduced in its engine, that file only. Any other failure is named in the report, and the affected files' results are read from the job's log. A run that didn't reach them gives the review no pass in that engine until a run on its head does.
+
+  It doesn't repeat the whole suite. The local runs and the named run are the review's evidence. Visual stays CI's. This is a trial, from 2026-11-26.
+
+- **The mutations that a feature proof repeats in the three engines:**
+  - for each required property, the one that removes its mechanism;
+  - each whose mechanism engines implement differently, such as focus and Tab, selectors with a fallback, the accessibility tree, forms and restoration, pointer and touch, top layer and popover, scrolling, layout rounding, animation and timers, custom element and slot timing;
+  - each that survived, was called equivalent, or that the reviewer doubts.
+
+  The others are read from the implementer's Chromium record, and the report lists both groups. A mutation that a row catches in one engine and not in another is a finding, unless the row or the contract says why.
+
+- **A recheck** does the same for what the remediation changed.
+- **A unit with no feature proof** has CI's three engines for its rows and Chromium for its witnesses, and its record says so. A contract that changes source, with a property whose mechanism engines implement differently, asks for a feature proof.
+- **A contract** says _Rows_ and _Witness_ with no engine, and names one only where one engine alone shows the property. In a contract that already says _in the three engines_, that is the review's for witnesses and affected files, and CI's for rows. A closing condition is met the same way. Runs already made stand.
+- **A reading whose question is about engines** runs in those engines, whoever makes it.
+
+To run one file in another engine: `MX_TEST_ENGINES=firefox aube exec just test <file>` in the package, or `webkit`. The devcontainer installs Playwright's Chromium and WebKit, and not Firefox ([#285](https://github.com/ausginer/material-x/issues/285)): until it does, install it in the container with `aube exec playwright install firefox`.
 
 ## Implementation roadmap
 
