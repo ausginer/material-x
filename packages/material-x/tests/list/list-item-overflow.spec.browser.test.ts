@@ -43,6 +43,8 @@ const WIDE_BUTTON =
   '<mx-button slot="trail">A button with a label that is very wide</mx-button>';
 const FIXED =
   '<span slot="trail" style="display: block; inline-size: 120px; block-size: 24px"></span>';
+const FIXED_200 =
+  '<span slot="trail" style="display: block; inline-size: 200px; block-size: 24px"></span>';
 const VIDEO = '<video slot="lead"></video>';
 const LARGE_VIDEO = `${VIDEO}<span slot="overline">Over</span><span slot="support">Support</span>`;
 const IMAGE =
@@ -160,6 +162,44 @@ function past(item: Item): number {
       right - outer.right,
     ]),
   );
+}
+
+/** The number of lines that the text in `element` is laid out in. */
+function lines(element: Element): number {
+  const range = document.createRange();
+  range.selectNodeContents(element);
+
+  return linesOf(range);
+}
+
+function linesOf(range: Range): number {
+  return new Set(
+    [...range.getClientRects()]
+      .filter(({ width }) => width > 0)
+      .map(({ top }) => Math.round(top)),
+  ).size;
+}
+
+/** The number of lines that each word of `element`'s text is laid out in. */
+function linesOfWords(element: Element): readonly number[] {
+  const text = element.firstChild!;
+
+  return [...text.textContent!.matchAll(/\S+/gu)].map(({ index, 0: word }) => {
+    const range = document.createRange();
+    range.setStart(text, index);
+    range.setEnd(text, index + word.length);
+
+    return linesOf(range);
+  });
+}
+
+/** Where a box starts and ends, from the item's start in its direction. */
+function extent({ box }: Item, rect: DOMRect): readonly [number, number] {
+  const outer = box.getBoundingClientRect();
+
+  return getComputedStyle(box).direction === 'rtl'
+    ? [outer.right - rect.right, outer.right - rect.left]
+    : [rect.left - outer.left, rect.right - outer.left];
 }
 
 function widths(elements: readonly Element[]): readonly number[] {
@@ -281,4 +321,106 @@ describe.each(SETTINGS)('$tag texts in $direction', ({ tag, direction }) => {
       });
     },
   );
+
+  it("should end a short text at the item's end and give the label the rest", async () => {
+    const item = await createItem(tag, direction, `Label${trail('12:30')}`);
+    const [text] = childrenOf(item, 'trail');
+    const shadow = item.element.shadowRoot!;
+    const slot = shadow.querySelector('.trail')!;
+    const [, contentEnd] = extent(item, partOf(item, 'content'));
+    const [textStart, textEnd] = extent(item, text!.getBoundingClientRect());
+    const itemEnd =
+      item.box.getBoundingClientRect().width -
+      Number.parseFloat(getComputedStyle(item.box).paddingInlineEnd) -
+      Number.parseFloat(getComputedStyle(slot).marginInlineEnd);
+    const between =
+      Number.parseFloat(
+        getComputedStyle(shadow.querySelector('.content')!).marginInlineEnd,
+      ) + Number.parseFloat(getComputedStyle(slot).marginInlineStart);
+
+    expect(Math.abs(textEnd - itemEnd)).toBeLessThanOrEqual(1);
+    expect(Math.abs(textStart - between - contentEnd)).toBeLessThanOrEqual(1);
+  });
+
+  // Between 41 and 49 % of the item's content width.
+  it.each([
+    ['a text', trail('Some text of nearly half')],
+    ['a button', '<mx-button slot="trail">Send it to them</mx-button>'],
+  ])(
+    'should keep the width and one line of %s of nearly half of the item',
+    async (_, child) => {
+      const item = await createItem(tag, direction, `Label${child}`);
+      const wide = await createItem(tag, direction, `Label${child}`, 1000);
+      const [own] = childrenOf(wide, 'trail');
+      const [kept] = childrenOf(item, 'trail');
+      const ownWidth = own!.getBoundingClientRect().width;
+      const share = ownWidth / contentSize(item);
+
+      expect({
+        isNearlyHalf: share > 0.41 && share < 0.49,
+        width: kept!.getBoundingClientRect().width,
+        lines: lines(item.element.querySelector('[slot="trail"]')!),
+      }).toEqual({ isNearlyHalf: true, width: ownWidth, lines: 1 });
+    },
+  );
+
+  it('should keep a fixed child wider than half of the item in it', async () => {
+    expect(
+      past(await createItem(tag, direction, `Label${FIXED_200}`)),
+    ).toBeLessThanOrEqual(SUBPIXEL);
+  });
+
+  it("should keep the large video's width beside a fixed child", async () => {
+    const item = await createItem(
+      tag,
+      direction,
+      `${LARGE_VIDEO}Label${FIXED}`,
+    );
+    const [video] = childrenOf(item, 'lead');
+
+    expect(partOf(item, 'lead').width).toBeCloseTo(
+      video!.getBoundingClientRect().width,
+      0,
+    );
+  });
 });
+
+// A control's label breaks between its words and not inside them.
+describe.each(
+  SETTINGS.filter(({ tag }) => tag !== 'mx-list-link-item').flatMap((setting) =>
+    [240, 280, 300].map((width) => ({ ...setting, width })),
+  ),
+)(
+  '$tag control beside a video in $direction, $width px',
+  ({ tag, direction, width }) => {
+    it('should keep the width and one line of a button of one word', async () => {
+      const html = `${VIDEO}Label<mx-button slot="trail">Download</mx-button>`;
+      const item = await createItem(tag, direction, html, width);
+      const wide = await createItem(tag, direction, html, 1000);
+      const [button] = childrenOf(item, 'trail');
+
+      expect({
+        width: button!.getBoundingClientRect().width,
+        lines: lines(item.element.querySelector('mx-button')!),
+      }).toEqual({
+        width: childrenOf(wide, 'trail')[0]!.getBoundingClientRect().width,
+        lines: 1,
+      });
+    });
+
+    it('should break a button of two words between them', async () => {
+      const item = await createItem(
+        tag,
+        direction,
+        `${VIDEO}Label<mx-button slot="trail">Two words</mx-button>`,
+        width,
+      );
+      const button = item.element.querySelector('mx-button')!;
+
+      expect({
+        hasAtMostTwoLines: lines(button) <= 2,
+        words: linesOfWords(button),
+      }).toEqual({ hasAtMostTwoLines: true, words: [1, 1] });
+    });
+  },
+);

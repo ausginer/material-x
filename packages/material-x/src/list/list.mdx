@@ -101,7 +101,7 @@ Use the live example below to inspect selected state, disabled state, and slotte
   - `overline` slot: overline text.
   - `default` slot: primary label text.
   - `support` slot: supporting text below the label.
-  - `trail` slot: trailing icon, control, or text. A text that is too long wraps in at most half of the item. A control wider than half of the item is made narrower. In a narrow list, a control beside a wide leading child may be made narrower too.
+  - `trail` slot: trailing icon, control, or text. A text that is too long wraps in at most half of the item. A control wider than half of the item is made narrower. In a narrow list, a control beside a wide leading child may be made narrower too, but never narrower than its longest word. A control of a page's own breaks inside its words unless the page sets `overflow-wrap: normal` on it. In a list as wide as its contents, a text wider than half of the item wraps too, so give such a list a width. Trailing children are side by side while together they fit in half of the item, and wrap to another line beyond that.
 
 ## Theming
 
