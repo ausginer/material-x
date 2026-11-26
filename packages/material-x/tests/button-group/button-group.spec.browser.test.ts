@@ -270,3 +270,117 @@ describe.each(GROUP_SIZE_CASES)(
     });
   },
 );
+
+describe('mx-connected-button-group corners with hidden members', () => {
+  const testCase = GROUP_SIZE_CASES.find(({ name }) => name === 'small')!;
+
+  function createMembers(...hidden: readonly number[]) {
+    const group = document.createElement('mx-connected-button-group');
+    const members = ['one', 'two', 'three', 'four'].map((label, index) => {
+      const member = document.createElement('mx-button');
+      member.textContent = label;
+      member.hidden = hidden.includes(index);
+      return member;
+    });
+    group.append(...members);
+
+    return [group, members] as const;
+  }
+
+  /** The corners of the members from `first` to `last`, as they should be. */
+  async function expectEnds(
+    members: readonly HTMLElement[],
+    first: number,
+    last: number,
+  ): Promise<void> {
+    const read = async (token: string) =>
+      await expectedRadius(
+        testCase.connectedContract,
+        'default',
+        token,
+        members[first]!,
+      );
+    const inner = await read('inner-corner.corner-size');
+    const outer = await read('container.shape');
+    const shown = members.slice(first, last + 1);
+
+    expect(await Promise.all(shown.map(readCorners))).toEqual(
+      shown.map((_, index) => {
+        const start = index === 0 ? outer : inner;
+        const end = index === shown.length - 1 ? outer : inner;
+
+        return [start, end, end, start];
+      }),
+    );
+  }
+
+  it('should be outer on the first and the last shown member in the markup', async () => {
+    const [group, members] = createMembers(0, 3);
+    document.body.append(group);
+
+    await expectEnds(members, 1, 2);
+  });
+
+  it('should move to the next members when the ends are hidden', async () => {
+    const [group, members] = createMembers();
+    document.body.append(group);
+    await nextFrame();
+
+    members[0]!.hidden = true;
+    members[3]!.hidden = true;
+
+    await expectEnds(members, 1, 2);
+  });
+
+  it('should move back when the ends are shown again', async () => {
+    const [group, members] = createMembers(0, 3);
+    document.body.append(group);
+    await nextFrame();
+
+    members[0]!.hidden = false;
+    members[3]!.hidden = false;
+
+    await expectEnds(members, 0, 3);
+  });
+
+  it('should be right in a group that was built while out', async () => {
+    const [group, members] = createMembers(0, 3);
+    await nextFrame();
+
+    document.body.append(group);
+
+    await expectEnds(members, 1, 2);
+  });
+
+  it('should be right in a group that was changed while out', async () => {
+    const [group, members] = createMembers();
+    document.body.append(group);
+    await nextFrame();
+    group.remove();
+    members[0]!.hidden = true;
+    members[3]!.hidden = true;
+    await nextFrame();
+
+    document.body.append(group);
+
+    await expectEnds(members, 1, 2);
+  });
+
+  it('should all be outer on the only shown member', async () => {
+    const [group, members] = createMembers(0, 2, 3);
+    document.body.append(group);
+
+    await expectEnds(members, 1, 1);
+  });
+
+  it("should pass over a hidden member that a page's display shows", async () => {
+    const [group, members] = createMembers();
+    members[0]!.style.display = 'contents';
+    document.body.append(group);
+    await nextFrame();
+
+    members[0]!.hidden = true;
+
+    await expectEnds(members, 1, 3);
+  });
+});

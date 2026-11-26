@@ -1,0 +1,264 @@
+## head, chromium
+chromium group hidden | hidden same task | stop while unrendered b
+chromium group hidden | hidden same task | stop b | tab b back b | ends bd
+chromium group hidden | hidden later | stop while unrendered b
+chromium group hidden | hidden later | stop b | tab b back b | ends bd
+chromium group hidden | disabled same task | stop while unrendered b
+chromium group hidden | disabled same task | stop b | tab b back b | ends ad
+chromium group hidden | disabled later | stop while unrendered b
+chromium group hidden | disabled later | stop b | tab b back b | ends ad
+chromium group hidden | display:none same task | stop while unrendered a
+chromium group hidden | display:none same task | stop a | tab body back side | ends bd
+chromium group hidden | display:none later | stop while unrendered a
+chromium group hidden | display:none later | stop a | tab body back side | ends bd
+chromium ancestor hidden | hidden same task | stop while unrendered b
+chromium ancestor hidden | hidden same task | stop b | tab b back b | ends bd
+chromium ancestor hidden | hidden later | stop while unrendered b
+chromium ancestor hidden | hidden later | stop b | tab b back b | ends bd
+chromium ancestor hidden | disabled same task | stop while unrendered b
+chromium ancestor hidden | disabled same task | stop b | tab b back b | ends ad
+chromium ancestor hidden | disabled later | stop while unrendered b
+chromium ancestor hidden | disabled later | stop b | tab b back b | ends ad
+chromium ancestor hidden | display:none same task | stop while unrendered a
+chromium ancestor hidden | display:none same task | stop a | tab body back side | ends ad
+chromium ancestor hidden | display:none later | stop while unrendered a
+chromium ancestor hidden | display:none later | stop a | tab body back side | ends ad
+chromium ancestor display | hidden same task | stop while unrendered b
+chromium ancestor display | hidden same task | stop b | tab b back b | ends bd
+chromium ancestor display | hidden later | stop while unrendered b
+chromium ancestor display | hidden later | stop b | tab b back b | ends bd
+chromium ancestor display | disabled same task | stop while unrendered b
+chromium ancestor display | disabled same task | stop b | tab b back b | ends ad
+chromium ancestor display | disabled later | stop while unrendered b
+chromium ancestor display | disabled later | stop b | tab b back b | ends ad
+chromium ancestor display | display:none same task | stop while unrendered a
+chromium ancestor display | display:none same task | stop a | tab body back side | ends ad
+chromium ancestor display | display:none later | stop while unrendered a
+chromium ancestor display | display:none later | stop a | tab body back side | ends ad
+chromium details closed | hidden same task | stop while unrendered b
+chromium details closed | hidden same task | stop b | tab b back b | ends bd
+chromium details closed | hidden later | stop while unrendered b
+chromium details closed | hidden later | stop b | tab b back b | ends bd
+chromium details closed | disabled same task | stop while unrendered b
+chromium details closed | disabled same task | stop b | tab b back b | ends ad
+chromium details closed | disabled later | stop while unrendered b
+chromium details closed | disabled later | stop b | tab b back b | ends ad
+chromium details closed | display:none same task | stop while unrendered a
+chromium details closed | display:none same task | stop a | tab body back details | ends ad
+chromium details closed | display:none later | stop while unrendered a
+chromium details closed | display:none later | stop a | tab body back details | ends ad
+chromium content-visibility | hidden same task | stop while unrendered b
+chromium content-visibility | hidden same task | stop b | tab b back b | ends bd
+chromium content-visibility | hidden later | stop while unrendered b
+chromium content-visibility | hidden later | stop b | tab b back b | ends bd
+chromium content-visibility | disabled same task | stop while unrendered b
+chromium content-visibility | disabled same task | stop b | tab b back b | ends ad
+chromium content-visibility | disabled later | stop while unrendered b
+chromium content-visibility | disabled later | stop b | tab b back b | ends ad
+chromium content-visibility | display:none same task | stop while unrendered a
+chromium content-visibility | display:none same task | stop a | tab body back body | ends ad
+chromium content-visibility | display:none later | stop while unrendered a
+chromium content-visibility | display:none later | stop a | tab body back body | ends ad
+chromium built in a display none ancestor | stop b | tab b back b | ends bd
+chromium shown again in a display none ancestor | stop a | tab a back a | ends ad
+chromium added in a display none ancestor | stop a | tab a back a | ends ad
+chromium raw: an element with a :host([hidden]) rule in a display:none parent: before contents, after hidden none then none
+chromium raw: a member, after hidden none then none, a frame later none
+## head, firefox
+firefox group hidden | hidden same task | stop while unrendered b
+firefox group hidden | hidden same task | stop b | tab b back b | ends bd
+firefox group hidden | hidden later | stop while unrendered b
+firefox group hidden | hidden later | stop b | tab b back b | ends bd
+firefox group hidden | disabled same task | stop while unrendered b
+firefox group hidden | disabled same task | stop b | tab b back b | ends ad
+firefox group hidden | disabled later | stop while unrendered b
+firefox group hidden | disabled later | stop b | tab b back b | ends ad
+firefox group hidden | display:none same task | stop while unrendered a
+firefox group hidden | display:none same task | stop a | tab body back body | ends bd
+firefox group hidden | display:none later | stop while unrendered a
+firefox group hidden | display:none later | stop a | tab side back body | ends bd
+firefox ancestor hidden | hidden same task | stop while unrendered b
+firefox ancestor hidden | hidden same task | stop b | tab b back b | ends bd
+firefox ancestor hidden | hidden later | stop while unrendered b
+firefox ancestor hidden | hidden later | stop b | tab b back b | ends bd
+firefox ancestor hidden | disabled same task | stop while unrendered b
+firefox ancestor hidden | disabled same task | stop b | tab b back b | ends ad
+firefox ancestor hidden | disabled later | stop while unrendered b
+firefox ancestor hidden | disabled later | stop b | tab b back b | ends ad
+firefox ancestor hidden | display:none same task | stop while unrendered a
+firefox ancestor hidden | display:none same task | stop a | tab side back body | ends ad
+firefox ancestor hidden | display:none later | stop while unrendered a
+firefox ancestor hidden | display:none later | stop a | tab side back body | ends ad
+firefox ancestor display | hidden same task | stop while unrendered b
+firefox ancestor display | hidden same task | stop b | tab b back b | ends bd
+firefox ancestor display | hidden later | stop while unrendered b
+firefox ancestor display | hidden later | stop b | tab b back b | ends bd
+firefox ancestor display | disabled same task | stop while unrendered b
+firefox ancestor display | disabled same task | stop b | tab b back b | ends ad
+firefox ancestor display | disabled later | stop while unrendered b
+firefox ancestor display | disabled later | stop b | tab b back b | ends ad
+firefox ancestor display | display:none same task | stop while unrendered a
+firefox ancestor display | display:none same task | stop a | tab side back body | ends ad
+firefox ancestor display | display:none later | stop while unrendered a
+firefox ancestor display | display:none later | stop a | tab side back body | ends ad
+firefox details closed | hidden same task | stop while unrendered b
+firefox details closed | hidden same task | stop b | tab b back b | ends bd
+firefox details closed | hidden later | stop while unrendered b
+firefox details closed | hidden later | stop b | tab b back b | ends bd
+firefox details closed | disabled same task | stop while unrendered b
+firefox details closed | disabled same task | stop b | tab b back b | ends ad
+firefox details closed | disabled later | stop while unrendered b
+firefox details closed | disabled later | stop b | tab b back b | ends ad
+firefox details closed | display:none same task | stop while unrendered a
+firefox details closed | display:none same task | stop a | tab side back details | ends ad
+firefox details closed | display:none later | stop while unrendered a
+firefox details closed | display:none later | stop a | tab body back details | ends ad
+firefox content-visibility | hidden same task | stop while unrendered b
+firefox content-visibility | hidden same task | stop b | tab b back b | ends bd
+firefox content-visibility | hidden later | stop while unrendered b
+firefox content-visibility | hidden later | stop b | tab b back b | ends bd
+firefox content-visibility | disabled same task | stop while unrendered b
+firefox content-visibility | disabled same task | stop b | tab b back b | ends ad
+firefox content-visibility | disabled later | stop while unrendered b
+firefox content-visibility | disabled later | stop b | tab b back b | ends ad
+firefox content-visibility | display:none same task | stop while unrendered a
+firefox content-visibility | display:none same task | stop a | tab side back body | ends ad
+firefox content-visibility | display:none later | stop while unrendered a
+firefox content-visibility | display:none later | stop a | tab side back body | ends ad
+firefox built in a display none ancestor | stop b | tab b back b | ends bd
+firefox shown again in a display none ancestor | stop a | tab a back a | ends ad
+firefox added in a display none ancestor | stop a | tab a back a | ends ad
+firefox raw: an element with a :host([hidden]) rule in a display:none parent: before contents, after hidden none then none
+firefox raw: a member, after hidden none then none, a frame later none
+## head, webkit
+webkit group hidden | hidden same task | stop while unrendered a
+webkit group hidden | hidden same task | stop a | tab body back body | ends bd
+webkit group hidden | hidden later | stop while unrendered a
+webkit group hidden | hidden later | stop a | tab body back body | ends bd
+webkit group hidden | disabled same task | stop while unrendered b
+webkit group hidden | disabled same task | stop b | tab b back b | ends ad
+webkit group hidden | disabled later | stop while unrendered b
+webkit group hidden | disabled later | stop b | tab b back b | ends ad
+webkit group hidden | display:none same task | stop while unrendered a
+webkit group hidden | display:none same task | stop a | tab body back body | ends bd
+webkit group hidden | display:none later | stop while unrendered a
+webkit group hidden | display:none later | stop a | tab body back body | ends bd
+webkit ancestor hidden | hidden same task | stop while unrendered a
+webkit ancestor hidden | hidden same task | stop a | tab body back body | ends ad
+webkit ancestor hidden | hidden later | stop while unrendered a
+webkit ancestor hidden | hidden later | stop a | tab body back body | ends ad
+webkit ancestor hidden | disabled same task | stop while unrendered b
+webkit ancestor hidden | disabled same task | stop b | tab b back b | ends ad
+webkit ancestor hidden | disabled later | stop while unrendered b
+webkit ancestor hidden | disabled later | stop b | tab b back b | ends ad
+webkit ancestor hidden | display:none same task | stop while unrendered a
+webkit ancestor hidden | display:none same task | stop a | tab body back body | ends ad
+webkit ancestor hidden | display:none later | stop while unrendered a
+webkit ancestor hidden | display:none later | stop a | tab body back body | ends ad
+webkit ancestor display | hidden same task | stop while unrendered a
+webkit ancestor display | hidden same task | stop a | tab body back body | ends ad
+webkit ancestor display | hidden later | stop while unrendered a
+webkit ancestor display | hidden later | stop a | tab body back body | ends ad
+webkit ancestor display | disabled same task | stop while unrendered b
+webkit ancestor display | disabled same task | stop b | tab b back b | ends ad
+webkit ancestor display | disabled later | stop while unrendered b
+webkit ancestor display | disabled later | stop b | tab b back b | ends ad
+webkit ancestor display | display:none same task | stop while unrendered a
+webkit ancestor display | display:none same task | stop a | tab body back body | ends ad
+webkit ancestor display | display:none later | stop while unrendered a
+webkit ancestor display | display:none later | stop a | tab body back body | ends ad
+webkit details closed | hidden same task | stop while unrendered b
+webkit details closed | hidden same task | stop b | tab b back b | ends bd
+webkit details closed | hidden later | stop while unrendered b
+webkit details closed | hidden later | stop b | tab b back b | ends bd
+webkit details closed | disabled same task | stop while unrendered b
+webkit details closed | disabled same task | stop b | tab b back b | ends ad
+webkit details closed | disabled later | stop while unrendered b
+webkit details closed | disabled later | stop b | tab b back b | ends ad
+webkit details closed | display:none same task | stop while unrendered a
+webkit details closed | display:none same task | stop a | tab body back details | ends ad
+webkit details closed | display:none later | stop while unrendered a
+webkit details closed | display:none later | stop a | tab body back details | ends ad
+webkit content-visibility | hidden same task | stop while unrendered b
+webkit content-visibility | hidden same task | stop b | tab b back b | ends bd
+webkit content-visibility | hidden later | stop while unrendered b
+webkit content-visibility | hidden later | stop b | tab b back b | ends bd
+webkit content-visibility | disabled same task | stop while unrendered b
+webkit content-visibility | disabled same task | stop b | tab b back b | ends ad
+webkit content-visibility | disabled later | stop while unrendered b
+webkit content-visibility | disabled later | stop b | tab b back b | ends ad
+webkit content-visibility | display:none same task | stop while unrendered a
+webkit content-visibility | display:none same task | stop a | tab body back body | ends ad
+webkit content-visibility | display:none later | stop while unrendered a
+webkit content-visibility | display:none later | stop a | tab body back body | ends ad
+webkit built in a display none ancestor | stop b | tab b back b | ends bd
+webkit shown again in a display none ancestor | stop b | tab b back b | ends bd
+webkit added in a display none ancestor | stop a | tab a back a | ends ad
+webkit raw: an element with a :host([hidden]) rule in a display:none parent: before contents, after hidden contents then contents
+webkit raw: a member, after hidden contents then contents, a frame later contents
+## main's sources, webkit
+webkit group hidden | hidden same task | stop while unrendered a
+webkit group hidden | hidden same task | stop a | tab body back body | ends ad
+webkit group hidden | hidden later | stop while unrendered a
+webkit group hidden | hidden later | stop a | tab body back body | ends ad
+webkit group hidden | disabled same task | stop while unrendered a
+webkit group hidden | disabled same task | stop a | tab body back body | ends ad
+webkit group hidden | disabled later | stop while unrendered a
+webkit group hidden | disabled later | stop a | tab body back body | ends ad
+webkit group hidden | display:none same task | stop while unrendered a
+webkit group hidden | display:none same task | stop a | tab body back body | ends ad
+webkit group hidden | display:none later | stop while unrendered a
+webkit group hidden | display:none later | stop a | tab body back body | ends ad
+webkit ancestor hidden | hidden same task | stop while unrendered a
+webkit ancestor hidden | hidden same task | stop a | tab body back body | ends ad
+webkit ancestor hidden | hidden later | stop while unrendered a
+webkit ancestor hidden | hidden later | stop a | tab body back body | ends ad
+webkit ancestor hidden | disabled same task | stop while unrendered a
+webkit ancestor hidden | disabled same task | stop a | tab body back body | ends ad
+webkit ancestor hidden | disabled later | stop while unrendered a
+webkit ancestor hidden | disabled later | stop a | tab body back body | ends ad
+webkit ancestor hidden | display:none same task | stop while unrendered a
+webkit ancestor hidden | display:none same task | stop a | tab body back body | ends ad
+webkit ancestor hidden | display:none later | stop while unrendered a
+webkit ancestor hidden | display:none later | stop a | tab body back body | ends ad
+webkit ancestor display | hidden same task | stop while unrendered a
+webkit ancestor display | hidden same task | stop a | tab body back body | ends ad
+webkit ancestor display | hidden later | stop while unrendered a
+webkit ancestor display | hidden later | stop a | tab body back body | ends ad
+webkit ancestor display | disabled same task | stop while unrendered a
+webkit ancestor display | disabled same task | stop a | tab body back body | ends ad
+webkit ancestor display | disabled later | stop while unrendered a
+webkit ancestor display | disabled later | stop a | tab body back body | ends ad
+webkit ancestor display | display:none same task | stop while unrendered a
+webkit ancestor display | display:none same task | stop a | tab body back body | ends ad
+webkit ancestor display | display:none later | stop while unrendered a
+webkit ancestor display | display:none later | stop a | tab body back body | ends ad
+webkit details closed | hidden same task | stop while unrendered a
+webkit details closed | hidden same task | stop a | tab body back details | ends ad
+webkit details closed | hidden later | stop while unrendered a
+webkit details closed | hidden later | stop a | tab body back details | ends ad
+webkit details closed | disabled same task | stop while unrendered a
+webkit details closed | disabled same task | stop a | tab body back details | ends ad
+webkit details closed | disabled later | stop while unrendered a
+webkit details closed | disabled later | stop a | tab body back details | ends ad
+webkit details closed | display:none same task | stop while unrendered a
+webkit details closed | display:none same task | stop a | tab body back details | ends ad
+webkit details closed | display:none later | stop while unrendered a
+webkit details closed | display:none later | stop a | tab body back details | ends ad
+webkit content-visibility | hidden same task | stop while unrendered a
+webkit content-visibility | hidden same task | stop a | tab body back body | ends ad
+webkit content-visibility | hidden later | stop while unrendered a
+webkit content-visibility | hidden later | stop a | tab body back body | ends ad
+webkit content-visibility | disabled same task | stop while unrendered a
+webkit content-visibility | disabled same task | stop a | tab body back body | ends ad
+webkit content-visibility | disabled later | stop while unrendered a
+webkit content-visibility | disabled later | stop a | tab body back body | ends ad
+webkit content-visibility | display:none same task | stop while unrendered a
+webkit content-visibility | display:none same task | stop a | tab body back body | ends ad
+webkit content-visibility | display:none later | stop while unrendered a
+webkit content-visibility | display:none later | stop a | tab body back body | ends ad
+webkit built in a display none ancestor | stop a | tab body back body | ends ad
+webkit shown again in a display none ancestor | stop a | tab a back a | ends ad
+webkit added in a display none ancestor | stop n | tab body back body | ends nd
+webkit raw: an element with a :host([hidden]) rule in a display:none parent: before contents, after hidden contents then contents
+webkit raw: a member, after hidden contents then contents, a frame later contents

@@ -1,0 +1,65 @@
+# The recheck at 1d2c5e0b8: the ruling's witnesses with the recheck's copy of witness-ends.mjs (probes/recheck-witness.mjs.txt), core's hook file and the 11 material-x files that use the group, in every engine, one at a time.
+## no mutation | chromium | packages/core | 0 failed, 97 passed
+## no mutation | chromium | packages/material-x | 0 failed, 277 passed
+## hidden not read by the hook | chromium | packages/core | 2 failed, 95 passed
+   useRovingTabindex items that cannot take focus hidden and shown by a page's display should not give the tab stop to the item
+   useRovingTabindex items that cannot take focus hidden and shown by a page's display should pass the item on an arrow key
+## hidden not read by the hook | chromium | packages/material-x | 0 failed, 277 passed
+## the group of 810cffceb, its ends by the computed display | chromium | packages/core | 0 failed, 97 passed
+## the group of 810cffceb, its ends by the computed display | chromium | packages/material-x | 2 failed, 275 passed
+   mx-connected-button-group defined before its members should mark the ends where a page hides the members until they are defined
+   mx-connected-button-group corners with hidden members should pass over a hidden member that a page's display shows
+## the ends not marked at a change of hidden | chromium | packages/core | 0 failed, 97 passed
+## the ends not marked at a change of hidden | chromium | packages/material-x | 5 failed, 272 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden while an ancestor is hidden
+   mx-connected-button-group corners with hidden members should move to the next members when the ends are hidden
+   mx-connected-button-group corners with hidden members should move back when the ends are shown again
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+   mx-connected-button-group corners with hidden members should pass over a hidden member that a page's display shows
+## the group observing only while connected | chromium | packages/core | 0 failed, 97 passed
+## the group observing only while connected | chromium | packages/material-x | 1 failed, 276 passed
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+## no mutation | firefox | packages/core | 0 failed, 97 passed
+## no mutation | firefox | packages/material-x | 0 failed, 273 passed
+## hidden not read by the hook | firefox | packages/core | 2 failed, 95 passed
+   useRovingTabindex items that cannot take focus hidden and shown by a page's display should not give the tab stop to the item
+   useRovingTabindex items that cannot take focus hidden and shown by a page's display should pass the item on an arrow key
+## hidden not read by the hook | firefox | packages/material-x | 0 failed, 273 passed
+## the group of 810cffceb, its ends by the computed display | firefox | packages/core | 0 failed, 97 passed
+## the group of 810cffceb, its ends by the computed display | firefox | packages/material-x | 2 failed, 271 passed
+   mx-connected-button-group defined before its members should mark the ends where a page hides the members until they are defined
+   mx-connected-button-group corners with hidden members should pass over a hidden member that a page's display shows
+## the ends not marked at a change of hidden | firefox | packages/core | 0 failed, 97 passed
+## the ends not marked at a change of hidden | firefox | packages/material-x | 5 failed, 268 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden while an ancestor is hidden
+   mx-connected-button-group corners with hidden members should move to the next members when the ends are hidden
+   mx-connected-button-group corners with hidden members should move back when the ends are shown again
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+   mx-connected-button-group corners with hidden members should pass over a hidden member that a page's display shows
+## the group observing only while connected | firefox | packages/core | 0 failed, 97 passed
+## the group observing only while connected | firefox | packages/material-x | 1 failed, 272 passed
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+## no mutation | webkit | packages/core | 0 failed, 97 passed
+## no mutation | webkit | packages/material-x | 0 failed, 273 passed
+## hidden not read by the hook | webkit | packages/core | 4 failed, 93 passed
+   useRovingTabindex items that cannot take focus hidden and shown by a page's display should not give the tab stop to the item
+   useRovingTabindex items that cannot take focus hidden and shown by a page's display should pass the item on an arrow key
+   useRovingTabindex items that cannot take focus hidden while the ancestor is hidden should give the tab stop to the next item once the host is shown
+   useRovingTabindex items that cannot take focus hidden while the host is hidden should give the tab stop to the next item once the host is shown
+## hidden not read by the hook | webkit | packages/material-x | 1 failed, 272 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden while an ancestor is hidden
+## the group of 810cffceb, its ends by the computed display | webkit | packages/core | 0 failed, 97 passed
+## the group of 810cffceb, its ends by the computed display | webkit | packages/material-x | 3 failed, 270 passed
+   mx-connected-button-group defined before its members should mark the ends where a page hides the members until they are defined
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden while an ancestor is hidden
+   mx-connected-button-group corners with hidden members should pass over a hidden member that a page's display shows
+## the ends not marked at a change of hidden | webkit | packages/core | 0 failed, 97 passed
+## the ends not marked at a change of hidden | webkit | packages/material-x | 5 failed, 268 passed
+   mx-connected-button-group with members that cannot take focus should be entered at the second member when the first is hidden while an ancestor is hidden
+   mx-connected-button-group corners with hidden members should move to the next members when the ends are hidden
+   mx-connected-button-group corners with hidden members should move back when the ends are shown again
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out
+   mx-connected-button-group corners with hidden members should pass over a hidden member that a page's display shows
+## the group observing only while connected | webkit | packages/core | 0 failed, 97 passed
+## the group observing only while connected | webkit | packages/material-x | 1 failed, 272 passed
+   mx-connected-button-group corners with hidden members should be right in a group that was changed while out

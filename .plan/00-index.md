@@ -7203,6 +7203,116 @@ Tier A, **open**, pre-existing. Registered on 2026-11-25 by the architect, on `c
 - **Plan needed:** no. **Ready** for an implementer, after #269 and #270, on a branch of its own. Nothing is the owner's to answer.
 - **Size:** _medium_. One hook in core, the connected group, its page and their rows.
 
+**Dated 2026-11-25 by the implementer: implemented on `core/roving-hidden-1`, for #273, from `main` at `2485fb2df`, and not closed.** Requested by the coordinator. It is built on `RF-141`'s choice, whose last note replaces this entry's property 2's sentence about a first member that is shown again.
+
+- **The hook:** eligibility is `disabled` and the computed `display`, one `MutationObserver` hears the items' `hidden` and `disabled`, and the tab stop is chosen again at the connect. The observer is on each item of the last read, because a wider one would also choose again for a change inside an item or of the host's own `disabled`.
+- **The group:** its ends are marked by the computed `display`, at a slot change, at the connect, and after a change of `hidden`.
+- **One rule more than the direction names:** a member that is the only one shown is both ends. The former sheet gave it the last member's corners, so `::slotted([data-first][data-last])` has the outer corner on all sides. Property 4 asks for it. A group with one member had the same corners before.
+- **Engines: Chromium, on the owner's ruling of 2026-11-25,** relayed by the coordinator, that development runs in Chromium and the review in the three engines. It came while the witnesses ran. Finished before it: the rows in the three engines, the witnesses in Chromium and Firefox, and in WebKit the first five mutations. The WebKit run was ended, and the sources and core's build are restored.
+- **Rows:** 30 in core's `useRovingTabindex` (95 in all), three in `button-group.browser.test.ts` and seven in `button-group.spec.browser.test.ts`. They pass in Chromium, Firefox and WebKit. **Witnesses,** Chromium ([reading](roving-hidden-1/checks/witnesses.txt), [probe](roving-hidden-1/probes/mutate.mjs)):
+
+  | Change | Core rows that fail, of 95 | material-x, of 140 |
+  | --- | --- | --- |
+  | The hook, the group and the sheet of `main` | 21 | 8 |
+  | The hook of `main` | 21 | 3 |
+  | The group of `main` | 0 | 5 |
+  | `item.hidden` in place of the computed `display` | 3, with the page's `display` | 0 |
+  | No `display` in the hook | 15 | 2 |
+  | No `disabled` in the hook | 12 | 1 |
+  | `hidden` not heard by the hook | 5 | 1 |
+  | `disabled` not heard by the hook | 5 | 1 |
+  | Items that left still heard | 2 | 1, of the pressed corners |
+  | The items of a read of more than three not heard | 2 | 0 |
+  | No choice at the connect | 2 | 0 |
+  | The group's ends by `hidden` | 0 | 1 |
+  | The group's ends without `display` | 0 | 5 |
+  | The ends not marked at the connect | 0 | 2 |
+  | `hidden` not heard by the group | 0 | 2 |
+  | No rule for the only member | 0 | 1 |
+
+  The nine new core rows that `main`'s hook passes say what must not change: the first item shown or enabled again, the choice of focus kept when it is, an item that left, the page's `display`, and `disabled` in a group built while out. The two such rows of the corners are the ends shown again and the page's `display`. Core's rows fail alike in Firefox, and in WebKit as far as it ran.
+
+- **Intermittent, not this unit's rows:** a row of the pressed inner corners failed once in Chromium and twice in Firefox, each under another mutation of the hook, which doesn't reach it. Those rows passed in every run without a mutation. The cause wasn't read, and other sessions ran on the machine.
+- **Size, Brotli** ([reading](roving-hidden-1/checks/sizes.txt)): `button-group/connected-button-group` 4042 to 4187 (+145), `button/split-button` 7766 to 7887 (+121), `complete` 25869 to 26035 (+166). No other row of the 23 moves, and the gate passes.
+- **Checks:** core's projects (394 rows) and material-x's (2044 rows and 2 expected failures) in Chromium, without the visual one; root format check, typecheck, lint and the size gate. After them, one JSDoc paragraph of the group moved, and only format, lint and typecheck of material-x ran again. **Not run:** the docs build, the two other engines' full suites, and what the entry lists as not read.
+
+**Dated 2026-11-26 by the architect: the [feature proof](reviews/roving-hidden-1/feature-proof-claude.md) of `810cffceb` is ruled, and properties 1 and 4 are amended,** requested by the coordinator. The three findings are accepted. My own reading is of the end marks by CSS alone, in the three engines one at a time ([reading](roving-hidden-1/checks/ruling-ends.txt), [probe](roving-hidden-1/probes/ruling-ends.mjs), [again after frames](roving-hidden-1/probes/ruling-ends-frames.mjs)). The rest is the proof's readings.
+
+**One cause behind two findings: the computed `display` is read where an attribute already decides.** WebKit keeps a stale `display` in a subtree that isn't rendered (`reviewer-1`), and an undefined member that a page hides has `display: none` with no change to hear when it is defined (`reviewer-2`). The group's reads of computed style, between its writes of the marks, are the cost (`reviewer-3`), by the proof's attribution. Where the page used `hidden`, the attribute gives the right answer in each case without a read.
+
+**The contract now:**
+
+- **Property 1, in place of its second sentence** (_"`hidden` alone doesn't decide: a page's own `display` can show the member, and it is then one like the others"_): **a member with the `hidden` attribute is out, whatever a page's style does with it.** The computed `display` still decides for a member without `hidden`, so a page's own `display: none` still keeps the keys from it. A page that shows a hidden member has a member that the keys don't reach. The author declared it irrelevant, and the group's page says to hide a member with `hidden`. Keeping the computed `display` as the only test leaves the unit's own finding open in WebKit, for correct use, in an inactive panel.
+- **Property 4, in place of its first sentence:** the outer corners are on the first and the last member **without the `hidden` attribute**, after a slot change or a change of a member's `hidden`. The ends read no computed style, so they need no read at the connect. A member that a page's style alone hides or shows doesn't move the corners. That is visual only, because the tab stop and the keys follow property 1.
+- **Not adopted: ends by CSS alone,** `::slotted(:nth-child(1 of :not([hidden])))` and its `:nth-last-child` twin. They match in the three engines when the group is built, also in RTL and with undefined members. In WebKit, a change of a sibling's `hidden` isn't matched again, also two frames later, so every end stays unmarked until something else changes the group.
+- **Not adopted: the group's reads kept, written only where a mark changes.** It would keep a page's style for the corners, which the ends don't need. `reviewer-2` would still need the group to hear a definition, which only the hook hears, and `reviewer-1`'s corners would stay stale in WebKit.
+
+**Triage:**
+
+- **`reviewer-1`: accepted, pre-existing.** Answered by property 1 as amended: the observer hears `hidden`, and the attribute isn't stale. **The limit that stays, WebKit's, accepted:** a member that is shown again while its group isn't rendered still reads `display: none` there. It isn't given the tab stop back at that change, and the next choice gives it. Another member keeps the tab stop meanwhile, so Tab still enters the group, on another member than the value's when the value names it. The entry and the hook's JSDoc say nothing of it, as of any engine's defect, and this note records it.
+- **`reviewer-2`: accepted, this unit's regression.** Answered by property 4 as amended: an undefined member that a page hides has no `hidden`, so it is an end before and after its definition.
+- **`reviewer-3`: accepted, this unit's. A group without a hidden member may not cost this:** each `mx-split-button` has one, and its members are never hidden. With the group's ends of `main` and this unit's hook, the proof reads `main`'s times in Chromium, so the hook's reads at the connect are accepted. **Required property:** in Chromium, connecting 20, 100 and 300 groups of four, and as many split buttons, in one task, each median of seven is at most 1.5 times `main`'s, read in turn with `main`, three times. It is a reading, not a row, because a row can't hold a time on a loaded machine.
+- **The departure, the only shown member with four outer corners, and a group of one with them too:** accepted, as the proof accepts it.
+- **It isn't the owner's.** The changes are of a unit that isn't on `main`, and core has no release. A page that shows a hidden member is the only one that sees a difference, and its own markup contradicts itself there.
+
+**The list:**
+
+1. **The hook:** an item with the `hidden` attribute isn't eligible. The computed `display` is read only for an item that is enabled and not hidden. The hook's JSDoc and the comment on `eligible` state property 1 as amended.
+2. **The group:** the ends are marked by `hidden` at a slot change and at a change of a member's `hidden`. The read at the connect and the reads of computed style go. A mark is written only where it changes, so a slot change that changes no end writes nothing. That is how to write it, not a required property. The group's JSDoc already says _"isn't hidden"_.
+3. **`connected-button-group.mdx`,** the sentence after _"Hide a member with its `hidden` attribute."_: a hidden member stays out of the group's order even where a page's style shows it. When a style alone hides or shows a member, the tab stop follows at the group's next change, and the outer corners don't follow it.
+4. **Rows that change:** core's two rows _"hidden and shown by a page's display"_ now say that a hidden item that a page's `display` shows isn't the tab stop, and that an arrow key passes it. material-x's _"should count a hidden member that a page's display shows"_ now says that the ends pass over it. Core's row _"should skip an item on an arrow key that a style alone hides"_ stays.
+5. **Rows added:**
+   - In core: an item hidden while the host's ancestor has `hidden` isn't the tab stop, and the next item is, after the ancestor is shown. The same with `hidden` on the host.
+   - In material-x: a group in a `hidden` ancestor, its first member hidden, then the ancestor shown: Tab reaches the second member, and the ends are on the second and the last.
+   - In material-x: a page with `:not(:defined) { display: none }`, the group defined before its members: after their definition, the ends are on the first and the last.
+6. **Witnesses:** `hidden` not read by the hook, which fails the core and material-x rows of the hidden ancestor in WebKit, and core's rows of item 4 in each engine; the group's ends by the computed `display`, as at `810cffceb`, which fails the `:not(:defined)` row in Chromium and the material-x row of item 4; the ends not marked at a change of `hidden`. The rows of the hidden ancestor are blind in Chromium, which reads `none` there. They are witnessed in WebKit, under `RD-62`, in those two files only.
+7. **The cost reading** of `reviewer-3` in Chromium, with the proof's [probe](reviews/roving-hidden-1/probes/proof-cost.browser.test.ts.txt), recorded with the unit.
+
+**Checks owed:** the affected rows in Chromium, the witnesses there and in WebKit as item 6 says, the size table, typecheck, lint and the root format check.
+
+**Recheck:** targeted, by the same reviewer, in the three engines: the proof's readings of the group while it isn't rendered and of a late definition, the cost in turn with `main` in each engine, the sizes, and the new witnesses. Nothing else of the proof is read again.
+
+**`RF-134` (#291)** marks the ends in RTL with the same `data-first` and `data-last`, so it is unaffected. Its sheet's edit is beside this unit's, and the second to reach `main` merges it.
+
+**Dated 2026-11-26 by the implementer: the ruling of 2026-11-26 is implemented on `core/roving-hidden-1`, from `ec9969500`, and not closed.** Requested by the coordinator. Developed and witnessed in Chromium, and the rows of the hidden ancestor also in WebKit, in their two files only, under `RD-62`.
+
+- **The hook (item 1):** `eligible` reads `disabled`, then `hidden`, and the computed `display` only for an item that passes both. Its comment and the hook's JSDoc state property 1 as amended. The read at the connect stays, as the ruling accepts.
+- **The group (item 2):** the ends are the first and the last member without `hidden`, written with `toggleAttribute`, so a mark is written only where it changes. No computed style is read, and nothing is read at the connect.
+- **One choice that the list doesn't name:** the group's `MutationObserver` observes from the constructor and is never disconnected, as the hook's is. `useMutationObserver` disconnects while the group is out, so with the connect's read gone, a member hidden while the group is out isn't heard. The row _"should be right in a group that was changed while out"_ is the one that fails with it. The group's code is 40 B less than at `810cffceb`.
+- **The page (item 3):** the sentence is replaced as the list says.
+- **Rows (items 4 and 5):** the three rows of item 4 changed as listed. Added: core's two rows of the hidden ancestor and of the hidden host (97 in the file), the material-x row of the hidden ancestor in `button-group.browser.test.ts`, and the row of `:not(:defined)` in `button-group-late-switch.browser.test.ts`, whose second member module is `mx-button`. **Core's two rows need an item whose host is `display: contents` with `:host([hidden]) { display: none }`,** the shape of a material-x member. With the plain test item, WebKit reads `none` and the rows are blind there too. The rows define that item.
+- **Witnesses (item 6)** ([reading](roving-hidden-1/checks/witnesses-ends.txt), [probe](roving-hidden-1/probes/witness-ends.mjs)). Without a mutation, core's 97 and material-x's 142 pass in Chromium, and the two files' 97 and 30 in WebKit.
+
+  | Mutation | Engine | Core rows that fail | material-x rows that fail |
+  | --- | --- | --- | --- |
+  | `hidden` not read by the hook | Chromium | 2, of item 4 | 0 |
+  | `hidden` not read by the hook | WebKit | 4: item 4's and the hidden ancestor's and host's | 1, the hidden ancestor |
+  | The group of `810cffceb`, its ends by the computed `display` | Chromium | 0 | 2: `:not(:defined)`, and the page's `display` of item 4 |
+  | The ends not marked at a change of `hidden` | Chromium | 0 | 5, the hidden ancestor among them |
+  | The group's observer only while it is connected | Chromium | 0 | 1, changed while out |
+
+- **The cost (item 7)** ([reading](roving-hidden-1/checks/cost-ends.txt), [probe](roving-hidden-1/probes/cost-ends.sh), with the proof's probe), Chromium, at a load of 11 to 20 on 12 cores. Two series of three, the first with this unit before `main` and the second with `main` first. **The head's median over `main`'s is 0.41 to 2.13, and 8 of the 36 pairs are above 1.5:** in the first series, the groups' three rows of its second run (1.76 to 1.83) and four rows of its third (1.58 to 2.13); in the second, the 20 groups of its second run (1.53, 13.0 against 8.5 ms). Summed over each series' runs, the groups are 1.34 and 0.97 of `main`, and the split buttons 0.91 and 0.74. The proof read 3.4 to 7.5 at `810cffceb`. So the property, as read here, isn't met for every pair. I didn't find the cause of the pairs above 1.5, and they aren't in the same rows in the two series. The recheck reads the cost again.
+- **Size, Brotli** ([reading](roving-hidden-1/checks/sizes-ends.txt)): `button-group/connected-button-group` 4042 at `main`, 4187 at `810cffceb`, 4147 now (+105 over `main`); `button/split-button` 7766, 7887, 7872 (+106); `complete` 25869, 26035, 26016 (+147). No other row of the 36 moves, and none is over its limit.
+- **Checks:** core's suite (396 rows) and the 10 material-x files that use the group (277 rows), in Chromium; the format, lint and typecheck of each changed file, core and material-x; the root format check and `git diff --check`. One ESLint `prefer-destructuring` error on a new line of the group was fixed by rewriting the line. **Not run:** Firefox, WebKit beyond the two files, material-x's full suite, the docs build, and the size gate's own recipe; the table above reads the same rows with `just size-reading`.
+
+**Dated 2026-11-26 by the architect: the cost of `e8be2ba17` is ruled met, and `reviewer-3`'s required property is replaced,** requested by the coordinator. Read from the implementer's [reading](roving-hidden-1/checks/cost-ends.txt), with no run of my own.
+
+**The property as written can't be met by any head on this machine, `main` included.** In the same reading, `main`'s own median for one row differs between its runs by up to 2.83 times in the first series and 2.21 in the second, so a single pair over 1.5 says nothing about the head. What `reviewer-3` found was 3.4 to 7.5 times, in every row. Summed over each series, the head is 1.34 and 0.97 of `main` for the groups and 0.91 and 0.74 for the split buttons, so that finding is gone.
+
+**The property now, in place of** _"each median of seven is at most 1.5 times `main`'s, read in turn with `main`, three times"_: in Chromium, connecting 20, 100 and 300 groups of four, and as many split buttons, in one task, read in two series of three runs in turn with `main`, one with the head first and one with `main` first. **Summed over a series' runs, the groups' times and the split buttons' times are each at most 1.5 times `main`'s, in both series.** A single pair above it isn't a finding. The 1.34 of the groups in the first series is within it, and a cost of that size is the hook's read at the connect, which the ruling accepts.
+
+- **Met at `e8be2ba17`:** 1.34 and 0.97, 0.91 and 0.74.
+- **The recheck** reads it the same way, in Chromium, Firefox and WebKit, one engine at a time.
+
+**The two choices that the list didn't name are confirmed:**
+
+- **The group's observer, for its whole life.** The hook's observer does the same. The group holds it and its callback through the registration on its own node, so nothing outlives the group. While out, a change of `hidden` writes marks and reads no style. With the connect's read gone, an observer that stops while out would leave property 3 to nothing.
+- **Core's rows of the hidden ancestor and host, with a `display: contents` item and `:host([hidden]) { display: none }`.** WebKit's stale `display` is of that shape, as the proof and the [ruling's reading](roving-hidden-1/checks/ruling-ends.txt) read it. A plain item reads `none` there, so a row with it would show nothing in any engine. The row has to show the defect, and the shape is the material-x member's.
+
+**Sizes:** +105, +106 and +147 B over `main`, each less than at `810cffceb`. Accepted.
+
+**Ready for the recheck** by the same reviewer, as the ruling says, with this property for the cost.
+
 #### RF-145 — In Chromium, touch doesn't reorder an item by most handles, `mx-icon` among them
 
 Tier A, **open**, **ready**, pre-existing. Registered on 2026-11-25 by the architect, on `material-x/disabled-item-1`, from an observation of #278's feature proof, requested by the coordinator. `RF-144` is the highest `RF-` on any branch on `origin` (`repo/axe-checks-1`), so this is the next free number. Read in Chromium 158 by CDP touch, on the built elements of `754e2089f`, an enabled item, static and button, in `lead` and `trail` ([reading](inline-handle-1/checks/touch.txt), [probe](inline-handle-1/probes/touch.mjs)), and without the package ([reading](inline-handle-1/checks/slot-text.txt), [probe](inline-handle-1/probes/slot-text.mjs)). `main` wasn't run; its `touch-action` line is the same.

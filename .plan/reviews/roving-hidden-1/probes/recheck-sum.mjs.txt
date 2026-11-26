@@ -1,0 +1,16 @@
+// sum.mjs <cost file>: per series, the sums of the groups' and the split buttons' medians, head over main.
+import { readFileSync } from 'node:fs';
+let series = '';
+const sums = {};
+for (const line of readFileSync(process.argv[2], 'utf8').split('\n')) {
+  if (line.startsWith('## ')) { series = line.slice(3); continue; }
+  const m = /^\d+ (head|main) load [\d.]+ \| (.*)$/u.exec(line);
+  if (!m) continue;
+  for (const [, kind, , ms] of m[2].matchAll(/(groups|split) (\d+): ([\d.]+) ms/gu)) {
+    const k = `${series}|${kind}`;
+    sums[k] ??= { head: 0, main: 0 };
+    sums[k][m[1]] += Number(ms);
+  }
+}
+for (const [k, { head, main }] of Object.entries(sums))
+  console.log(`${k.replace('|', ' | ')} | head ${head.toFixed(1)} ms, main ${main.toFixed(1)} ms | ${(head / main).toFixed(2)}`);
