@@ -1,0 +1,542 @@
+# proof-props.browser.test.ts. The rect counts of 'chromium (src)' include the suite's oracle; 'uninstrumented' has none, for both sides.
+## chromium (src)
+chromium 7 y key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+chromium 7 y reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y drop {"rect":7,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 y Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y hold(ROUGH) reads 52
+chromium 7 y DISP key {"rect":3,"offset":2,"style":6,"mm":1,"cmp":9,"anim":1} pulls 2 reads 55
+chromium 7 y DISP reject after the drop {"rect":2,"offset":0,"style":0,"mm":1,"cmp":9,"anim":1} pulls 0 reads 0
+chromium 7 y DISP accept, no commit, after the drop {"rect":2,"offset":0,"style":0,"mm":1,"cmp":10,"anim":1} pulls 0 reads 0
+chromium 7 y DISP drop {"rect":7,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 y DISP Escape {"rect":6,"offset":0,"style":0,"mm":3,"cmp":9,"anim":3} pulls 0 reads 0
+chromium 7 y DISP drop, reject after {"rect":6,"offset":0,"style":0,"mm":3,"cmp":9,"anim":3} pulls 0 reads 0
+chromium 7 y DISP hold(ROUGH) reads 61
+chromium 7 y landing key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+chromium 7 y landing reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y landing accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y landing drop {"rect":8,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 y landing Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 y landing drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 y landing hold(ROUGH) reads 52
+chromium 7 y landing DISP key {"rect":4,"offset":2,"style":7,"mm":2,"cmp":9,"anim":3} pulls 2 reads 55
+chromium 7 y landing DISP reject after the drop {"rect":3,"offset":0,"style":0,"mm":1,"cmp":9,"anim":1} pulls 0 reads 0
+chromium 7 y landing DISP accept, no commit, after the drop {"rect":3,"offset":0,"style":0,"mm":1,"cmp":10,"anim":1} pulls 0 reads 0
+chromium 7 y landing DISP drop {"rect":8,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 y landing DISP Escape {"rect":7,"offset":0,"style":1,"mm":4,"cmp":9,"anim":5} pulls 0 reads 0
+chromium 7 y landing DISP drop, reject after {"rect":7,"offset":0,"style":1,"mm":4,"cmp":9,"anim":5} pulls 0 reads 0
+chromium 7 y landing DISP hold(ROUGH) reads 61
+chromium 7 xy key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+chromium 7 xy reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 xy Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy hold(ROUGH) reads 38
+chromium 7 xy DISP key {"rect":11,"offset":2,"style":6,"mm":1,"cmp":0,"anim":1} pulls 2 reads 55
+chromium 7 xy DISP reject after the drop {"rect":10,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+chromium 7 xy DISP accept, no commit, after the drop {"rect":10,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+chromium 7 xy DISP drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 xy DISP Escape {"rect":10,"offset":0,"style":0,"mm":3,"cmp":0,"anim":3} pulls 0 reads 0
+chromium 7 xy DISP drop, reject after {"rect":10,"offset":0,"style":0,"mm":3,"cmp":0,"anim":3} pulls 0 reads 0
+chromium 7 xy DISP hold(ROUGH) reads 47
+chromium 7 xy landing key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+chromium 7 xy landing reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy landing accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy landing drop {"rect":2,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 xy landing Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 xy landing drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 xy landing hold(ROUGH) reads 38
+chromium 7 xy landing DISP key {"rect":12,"offset":2,"style":7,"mm":2,"cmp":0,"anim":3} pulls 2 reads 55
+chromium 7 xy landing DISP reject after the drop {"rect":11,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+chromium 7 xy landing DISP accept, no commit, after the drop {"rect":11,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+chromium 7 xy landing DISP drop {"rect":2,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 xy landing DISP Escape {"rect":11,"offset":0,"style":1,"mm":4,"cmp":0,"anim":5} pulls 0 reads 0
+chromium 7 xy landing DISP drop, reject after {"rect":11,"offset":0,"style":1,"mm":4,"cmp":0,"anim":5} pulls 0 reads 0
+chromium 7 xy landing DISP hold(ROUGH) reads 47
+chromium ok   natural y linear key frames 50 moved 60.0 back 0.00 over speed 0.0 left 0 r0r2r1r3r4r5 start,accepted
+chromium ok   natural y linear key key frames 58 moved 60.0 back 0.00 over speed 0.0 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+chromium ok   natural y linear reject mid frames 49 moved 24.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+chromium ok   natural y linear Escape mid frames 50 moved 18.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+chromium ok   natural y linear Escape landing frames 51 moved 60.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+chromium ok   natural y linear reject at once frames 50 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+chromium ok   natural y ease-out key frames 50 moved 60.0 back 0.00 over speed 0.0 left 0 r0r2r1r3r4r5 start,accepted
+chromium ok   natural y ease-out key key frames 58 moved 60.0 back 0.00 over speed 0.0 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+chromium ok   natural y ease-out reject mid frames 49 moved 34.3 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+chromium ok   natural y ease-out Escape mid frames 51 moved 26.7 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+chromium ok   natural y ease-out Escape landing frames 51 moved 60.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+chromium ok   natural y ease-out reject at once frames 50 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+chromium ok   natural xy linear key frames 50 moved 90.0 back 0.00 over speed 0.0 left 0 r0r2r1r3r4r5 start,accepted
+chromium ok   natural xy linear key key frames 58 moved 136.0 back 0.00 over speed 0.0 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+chromium ok   natural xy linear reject mid frames 49 moved 36.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+chromium ok   natural xy linear Escape mid frames 51 moved 36.2 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+chromium ok   natural xy linear Escape landing frames 51 moved 136.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+chromium ok   natural xy linear reject at once frames 50 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+chromium ok   natural xy ease-out key frames 51 moved 90.0 back 0.00 over speed 0.0 left 0 r0r2r1r3r4r5 start,accepted
+chromium ok   natural xy ease-out key key frames 58 moved 136.0 back 0.00 over speed 0.0 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+chromium ok   natural xy ease-out reject mid frames 49 moved 51.4 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+chromium ok   natural xy ease-out Escape mid frames 51 moved 54.5 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+chromium ok   natural xy ease-out Escape landing frames 51 moved 136.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+chromium ok   natural xy ease-out reject at once frames 51 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+JUMP chromium timing throws at call 1 y | jump 50.00 r2@2 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,canceled | once
+JUMP chromium timing throws in a return, call 1 y | jump 50.00 r2@1 | moved 50.0 | anims 0 | r0r1r2r3r4r5 | start,rejected | return
+JUMP chromium timing throws at call 1 xy | jump 155.24 r2@1 | moved 0.0 | anims 3 | r0r1r2r3r4r5 | start,canceled | once
+JUMP chromium timing throws in a return, call 1 xy | jump 155.24 r2@1 | moved 155.2 | anims 0 | r0r1r2r3r4r5 | start,rejected | return
+JUMP chromium timing throws at call 2 xy | jump 10.00 r4@1 | moved 0.0 | anims 3 | r0r1r2r3r4r5 | start,canceled | once
+JUMP chromium timing throws in a return, call 2 xy | jump 10.00 r4@1 | moved 155.2 | anims 1 | r0r1r2r3r4r5 | start,rejected | return
+chromium timing called with 0:LayoutAnimationSink
+chromium destroy in timing: row animations left 0 placeholder false
+chromium destroy while pending: animations 3 then 0 placeholder false start
+chromium destroy after the end: animations 1 then 0
+chromium reduced: Escape y animations 3, kept by the change itself 3, after the return 0 start,canceled
+chromium reduced: drag y animations 0 timing calls before 0, after the preference is gone 1
+chromium reduced: Escape xy animations 3, kept by the change itself 3, after the return 0 start,canceled
+chromium reduced: drag xy animations 0 timing calls before 0, after the preference is gone 1
+chromium scroll page key disp true | jump 65.0 r0 | scroll 345 345 > 280,280,280,280,280,280,280,280
+chromium scroll page key disp false | jump 65.0 r0 | scroll 345 345 > 280,280,280,280,280,280,280,280
+chromium scroll page escape disp true | jump 60.0 r0 | scroll 345 285 > 345,345,345,345,345,345,345,345
+chromium scroll page escape disp false | jump 60.0 r0 | scroll 345 285 > 345,345,345,345,345,345,345,345
+chromium scroll page reject disp true | jump 60.0 r0 | scroll 345 280 > 340,340,340,340,340,340,340
+chromium scroll page reject disp false | jump 60.0 r0 | scroll 345 280 > 340,340,340,340,340,340,340
+chromium scroll box key disp true | jump 65.0 r0 | scroll 345 345 > 280,280,280,280,280,280,280,280
+chromium scroll box key disp false | jump 65.0 r0 | scroll 345 345 > 280,280,280,280,280,280,280,280
+chromium scroll box escape disp true | jump 60.0 r0 | scroll 345 285 > 345,345,345,345,345,345,345,345
+chromium scroll box escape disp false | jump 60.0 r0 | scroll 345 285 > 345,345,345,345,345,345,345,345
+chromium scroll box reject disp true | jump 60.0 r0 | scroll 345 280 > 340,340,340,340,340,340,340
+chromium scroll box reject disp false | jump 60.0 r0 | scroll 345 280 > 340,340,340,340,340,340,340
+chromium press and release y states running moved 0.00
+chromium press and release xy states running moved 0.00
+## chromium, main's source
+chromium 7 y key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+chromium 7 y reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y drop {"rect":2,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 y Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y hold(ROUGH) reads 24
+chromium 7 y DISP key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+chromium 7 y DISP reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y DISP accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y DISP drop {"rect":2,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 y DISP Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y DISP drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y DISP hold(ROUGH) reads 24
+chromium 7 y landing key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+chromium 7 y landing reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y landing accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y landing drop {"rect":3,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 y landing Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 y landing drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 y landing hold(ROUGH) reads 24
+chromium 7 y landing DISP key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+chromium 7 y landing DISP reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y landing DISP accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y landing DISP drop {"rect":3,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 y landing DISP Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 y landing DISP drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 y landing DISP hold(ROUGH) reads 24
+chromium 7 xy key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+chromium 7 xy reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 xy Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy hold(ROUGH) reads 38
+chromium 7 xy DISP key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+chromium 7 xy DISP reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy DISP accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy DISP drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 xy DISP Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy DISP drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy DISP hold(ROUGH) reads 38
+chromium 7 xy landing key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+chromium 7 xy landing reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy landing accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy landing drop {"rect":2,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 xy landing Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 xy landing drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 xy landing hold(ROUGH) reads 38
+chromium 7 xy landing DISP key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+chromium 7 xy landing DISP reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy landing DISP accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy landing DISP drop {"rect":2,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 xy landing DISP Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 xy landing DISP drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 xy landing DISP hold(ROUGH) reads 38
+chromium JUMP natural y linear key frames 50 moved 60.0 back 0.00 over speed 36.0 left 0 r0r2r1r3r4r5 start,accepted
+chromium JUMP natural y linear key key frames 58 moved 60.0 back 0.00 over speed 35.4 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+chromium JUMP natural y linear reject mid frames 50 moved 60.0 back 0.00 over speed 42.7 left 0 r0r1r2r3r4r5 start,rejected
+chromium JUMP natural y linear Escape mid frames 50 moved 44.0 back 30.00 over speed 38.2 left 0 r0r1r2r3r4r5 start,canceled
+chromium JUMP natural y linear Escape landing frames 51 moved 60.0 back 0.00 over speed 39.5 left 0 r0r1r2r3r4r5 start,canceled
+chromium ok   natural y linear reject at once frames 50 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+chromium JUMP natural y ease-out key frames 50 moved 60.0 back 0.00 over speed 35.4 left 0 r0r2r1r3r4r5 start,accepted
+chromium JUMP natural y ease-out key key frames 59 moved 60.0 back 0.00 over speed 35.5 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+chromium JUMP natural y ease-out reject mid frames 50 moved 60.0 back 0.00 over speed 42.8 left 0 r0r1r2r3r4r5 start,rejected
+chromium JUMP natural y ease-out Escape mid frames 50 moved 36.0 back 14.65 over speed 38.7 left 0 r0r1r2r3r4r5 start,canceled
+chromium JUMP natural y ease-out Escape landing frames 51 moved 60.0 back 0.00 over speed 36.4 left 0 r0r1r2r3r4r5 start,canceled
+chromium ok   natural y ease-out reject at once frames 50 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+chromium JUMP natural xy linear key frames 50 moved 90.0 back 0.00 over speed 65.6 left 0 r0r2r1r3r4r5 start,accepted
+chromium JUMP natural xy linear key key frames 58 moved 136.0 back 0.00 over speed 110.7 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+chromium JUMP natural xy linear reject mid frames 50 moved 90.0 back 0.00 over speed 72.5 left 0 r0r1r2r3r4r5 start,rejected
+chromium JUMP natural xy linear Escape mid frames 50 moved 95.2 back 58.96 over speed 112.7 left 0 r0r1r2r3r4r5 start,canceled
+chromium JUMP natural xy linear Escape landing frames 51 moved 136.0 back 0.00 over speed 110.9 left 0 r0r1r2r3r4r5 start,canceled
+chromium ok   natural xy linear reject at once frames 50 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+chromium JUMP natural xy ease-out key frames 50 moved 90.0 back 0.00 over speed 65.3 left 0 r0r2r1r3r4r5 start,accepted
+chromium JUMP natural xy ease-out key key frames 58 moved 136.0 back 0.00 over speed 110.6 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+chromium JUMP natural xy ease-out reject mid frames 50 moved 90.0 back 0.00 over speed 72.8 left 0 r0r1r2r3r4r5 start,rejected
+chromium JUMP natural xy ease-out Escape mid frames 51 moved 75.5 back 21.01 over speed 112.0 left 0 r0r1r2r3r4r5 start,canceled
+chromium JUMP natural xy ease-out Escape landing frames 51 moved 136.0 back 0.00 over speed 110.9 left 0 r0r1r2r3r4r5 start,canceled
+chromium ok   natural xy ease-out reject at once frames 50 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+chromium scroll page key disp true | jump 65.0 r0 | scroll 345 345 > 280,280,280,280,280,280,280,280
+chromium scroll page key disp false | jump 65.0 r0 | scroll 345 345 > 280,280,280,280,280,280,280,280
+chromium scroll page escape disp true | jump 60.0 r0 | scroll 345 285 > 345,345,345,345,345,345,345,345
+chromium scroll page escape disp false | jump 60.0 r0 | scroll 345 285 > 345,345,345,345,345,345,345,345
+chromium scroll page reject disp true | jump 60.0 r0 | scroll 345 280 > 340,340,340,340,340,340,340
+chromium scroll page reject disp false | jump 60.0 r0 | scroll 345 280 > 340,340,340,340,340,340,340
+chromium scroll box key disp true | jump 65.0 r0 | scroll 345 345 > 280,280,280,280,280,280,280,280
+chromium scroll box key disp false | jump 65.0 r0 | scroll 345 345 > 280,280,280,280,280,280,280,280
+chromium scroll box escape disp true | jump 60.0 r0 | scroll 345 285 > 345,345,345,345,345,345,345,345
+chromium scroll box escape disp false | jump 60.0 r0 | scroll 345 285 > 345,345,345,345,345,345,345,345
+chromium scroll box reject disp true | jump 60.0 r0 | scroll 345 280 > 340,340,340,340,340,340,340
+chromium scroll box reject disp false | jump 60.0 r0 | scroll 345 280 > 340,340,340,340,340,340,340
+chromium press and release y states  moved 0.00
+chromium press and release xy states  moved 0.00
+## uninstrumented, the head's source
+chromium 7 y key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+chromium 7 y reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y drop {"rect":2,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 y Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y hold(ROUGH) reads 24
+chromium 7 y DISP key {"rect":3,"offset":2,"style":6,"mm":1,"cmp":9,"anim":1} pulls 2 reads 55
+chromium 7 y DISP reject after the drop {"rect":2,"offset":0,"style":0,"mm":1,"cmp":9,"anim":1} pulls 0 reads 0
+chromium 7 y DISP accept, no commit, after the drop {"rect":2,"offset":0,"style":0,"mm":1,"cmp":10,"anim":1} pulls 0 reads 0
+chromium 7 y DISP drop {"rect":2,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 y DISP Escape {"rect":6,"offset":0,"style":0,"mm":3,"cmp":9,"anim":3} pulls 0 reads 0
+chromium 7 y DISP drop, reject after {"rect":6,"offset":0,"style":0,"mm":3,"cmp":9,"anim":3} pulls 0 reads 0
+chromium 7 y DISP hold(ROUGH) reads 33
+chromium 7 y landing key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+chromium 7 y landing reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y landing accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y landing drop {"rect":3,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 y landing Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 y landing drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 y landing hold(ROUGH) reads 24
+chromium 7 y landing DISP key {"rect":4,"offset":2,"style":7,"mm":2,"cmp":9,"anim":3} pulls 2 reads 55
+chromium 7 y landing DISP reject after the drop {"rect":3,"offset":0,"style":0,"mm":1,"cmp":9,"anim":1} pulls 0 reads 0
+chromium 7 y landing DISP accept, no commit, after the drop {"rect":3,"offset":0,"style":0,"mm":1,"cmp":10,"anim":1} pulls 0 reads 0
+chromium 7 y landing DISP drop {"rect":3,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 y landing DISP Escape {"rect":7,"offset":0,"style":1,"mm":4,"cmp":9,"anim":5} pulls 0 reads 0
+chromium 7 y landing DISP drop, reject after {"rect":7,"offset":0,"style":1,"mm":4,"cmp":9,"anim":5} pulls 0 reads 0
+chromium 7 y landing DISP hold(ROUGH) reads 33
+chromium 7 xy key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+chromium 7 xy reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 xy Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy hold(ROUGH) reads 38
+chromium 7 xy DISP key {"rect":11,"offset":2,"style":6,"mm":1,"cmp":0,"anim":1} pulls 2 reads 55
+chromium 7 xy DISP reject after the drop {"rect":10,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+chromium 7 xy DISP accept, no commit, after the drop {"rect":10,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+chromium 7 xy DISP drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 xy DISP Escape {"rect":10,"offset":0,"style":0,"mm":3,"cmp":0,"anim":3} pulls 0 reads 0
+chromium 7 xy DISP drop, reject after {"rect":10,"offset":0,"style":0,"mm":3,"cmp":0,"anim":3} pulls 0 reads 0
+chromium 7 xy DISP hold(ROUGH) reads 47
+chromium 7 xy landing key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+chromium 7 xy landing reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy landing accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy landing drop {"rect":2,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 xy landing Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 xy landing drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 xy landing hold(ROUGH) reads 38
+chromium 7 xy landing DISP key {"rect":12,"offset":2,"style":7,"mm":2,"cmp":0,"anim":3} pulls 2 reads 55
+chromium 7 xy landing DISP reject after the drop {"rect":11,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+chromium 7 xy landing DISP accept, no commit, after the drop {"rect":11,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+chromium 7 xy landing DISP drop {"rect":2,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 xy landing DISP Escape {"rect":11,"offset":0,"style":1,"mm":4,"cmp":0,"anim":5} pulls 0 reads 0
+chromium 7 xy landing DISP drop, reject after {"rect":11,"offset":0,"style":1,"mm":4,"cmp":0,"anim":5} pulls 0 reads 0
+chromium 7 xy landing DISP hold(ROUGH) reads 47
+## uninstrumented, main's source
+chromium 7 y key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+chromium 7 y reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y drop {"rect":2,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 y Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y hold(ROUGH) reads 24
+chromium 7 y DISP key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+chromium 7 y DISP reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y DISP accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y DISP drop {"rect":2,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 y DISP Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y DISP drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y DISP hold(ROUGH) reads 24
+chromium 7 y landing key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+chromium 7 y landing reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y landing accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y landing drop {"rect":3,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 y landing Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 y landing drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 y landing hold(ROUGH) reads 24
+chromium 7 y landing DISP key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+chromium 7 y landing DISP reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y landing DISP accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 y landing DISP drop {"rect":3,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 y landing DISP Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 y landing DISP drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 y landing DISP hold(ROUGH) reads 24
+chromium 7 xy key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+chromium 7 xy reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 xy Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy hold(ROUGH) reads 38
+chromium 7 xy DISP key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+chromium 7 xy DISP reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy DISP accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy DISP drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+chromium 7 xy DISP Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy DISP drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy DISP hold(ROUGH) reads 38
+chromium 7 xy landing key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+chromium 7 xy landing reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy landing accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy landing drop {"rect":2,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 xy landing Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 xy landing drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 xy landing hold(ROUGH) reads 38
+chromium 7 xy landing DISP key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+chromium 7 xy landing DISP reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy landing DISP accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+chromium 7 xy landing DISP drop {"rect":2,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+chromium 7 xy landing DISP Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 xy landing DISP drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+chromium 7 xy landing DISP hold(ROUGH) reads 38
+## firefox
+firefox 7 y key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+firefox 7 y reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+firefox 7 y accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+firefox 7 y drop {"rect":7,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+firefox 7 y Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+firefox 7 y drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+firefox 7 y hold(ROUGH) reads 52
+firefox 7 y DISP key {"rect":3,"offset":2,"style":6,"mm":1,"cmp":9,"anim":1} pulls 2 reads 55
+firefox 7 y DISP reject after the drop {"rect":2,"offset":0,"style":0,"mm":1,"cmp":9,"anim":1} pulls 0 reads 0
+firefox 7 y DISP accept, no commit, after the drop {"rect":2,"offset":0,"style":0,"mm":1,"cmp":10,"anim":1} pulls 0 reads 0
+firefox 7 y DISP drop {"rect":7,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+firefox 7 y DISP Escape {"rect":6,"offset":0,"style":0,"mm":3,"cmp":9,"anim":3} pulls 0 reads 0
+firefox 7 y DISP drop, reject after {"rect":6,"offset":0,"style":0,"mm":3,"cmp":9,"anim":3} pulls 0 reads 0
+firefox 7 y DISP hold(ROUGH) reads 61
+firefox 7 y landing key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+firefox 7 y landing reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+firefox 7 y landing accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+firefox 7 y landing drop {"rect":8,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+firefox 7 y landing Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+firefox 7 y landing drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+firefox 7 y landing hold(ROUGH) reads 52
+firefox 7 y landing DISP key {"rect":4,"offset":2,"style":7,"mm":2,"cmp":9,"anim":3} pulls 2 reads 55
+firefox 7 y landing DISP reject after the drop {"rect":3,"offset":0,"style":0,"mm":1,"cmp":9,"anim":1} pulls 0 reads 0
+firefox 7 y landing DISP accept, no commit, after the drop {"rect":3,"offset":0,"style":0,"mm":1,"cmp":10,"anim":1} pulls 0 reads 0
+firefox 7 y landing DISP drop {"rect":8,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+firefox 7 y landing DISP Escape {"rect":7,"offset":0,"style":1,"mm":4,"cmp":9,"anim":5} pulls 0 reads 0
+firefox 7 y landing DISP drop, reject after {"rect":7,"offset":0,"style":1,"mm":4,"cmp":9,"anim":5} pulls 0 reads 0
+firefox 7 y landing DISP hold(ROUGH) reads 61
+firefox 7 xy key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+firefox 7 xy reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+firefox 7 xy accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+firefox 7 xy drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+firefox 7 xy Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+firefox 7 xy drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+firefox 7 xy hold(ROUGH) reads 38
+firefox 7 xy DISP key {"rect":11,"offset":2,"style":6,"mm":1,"cmp":0,"anim":1} pulls 2 reads 55
+firefox 7 xy DISP reject after the drop {"rect":10,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+firefox 7 xy DISP accept, no commit, after the drop {"rect":10,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+firefox 7 xy DISP drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+firefox 7 xy DISP Escape {"rect":10,"offset":0,"style":0,"mm":3,"cmp":0,"anim":3} pulls 0 reads 0
+firefox 7 xy DISP drop, reject after {"rect":10,"offset":0,"style":0,"mm":3,"cmp":0,"anim":3} pulls 0 reads 0
+firefox 7 xy DISP hold(ROUGH) reads 47
+firefox 7 xy landing key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+firefox 7 xy landing reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+firefox 7 xy landing accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+firefox 7 xy landing drop {"rect":2,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+firefox 7 xy landing Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+firefox 7 xy landing drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+firefox 7 xy landing hold(ROUGH) reads 38
+firefox 7 xy landing DISP key {"rect":12,"offset":2,"style":7,"mm":2,"cmp":0,"anim":3} pulls 2 reads 55
+firefox 7 xy landing DISP reject after the drop {"rect":11,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+firefox 7 xy landing DISP accept, no commit, after the drop {"rect":11,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+firefox 7 xy landing DISP drop {"rect":2,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+firefox 7 xy landing DISP Escape {"rect":11,"offset":0,"style":1,"mm":4,"cmp":0,"anim":5} pulls 0 reads 0
+firefox 7 xy landing DISP drop, reject after {"rect":11,"offset":0,"style":1,"mm":4,"cmp":0,"anim":5} pulls 0 reads 0
+firefox 7 xy landing DISP hold(ROUGH) reads 47
+firefox ok   natural y linear key frames 50 moved 60.0 back 0.00 over speed 0.0 left 0 r0r2r1r3r4r5 start,accepted
+firefox ok   natural y linear key key frames 57 moved 60.0 back 0.00 over speed 0.0 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+firefox ok   natural y linear reject mid frames 49 moved 24.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+firefox ok   natural y linear Escape mid frames 50 moved 18.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+firefox ok   natural y linear Escape landing frames 51 moved 60.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+firefox ok   natural y linear reject at once frames 49 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+firefox ok   natural y ease-out key frames 49 moved 60.0 back 0.00 over speed 0.0 left 0 r0r2r1r3r4r5 start,accepted
+firefox ok   natural y ease-out key key frames 58 moved 60.0 back 0.00 over speed 0.0 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+firefox ok   natural y ease-out reject mid frames 49 moved 31.8 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+firefox ok   natural y ease-out Escape mid frames 50 moved 26.7 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+firefox ok   natural y ease-out Escape landing frames 51 moved 60.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+firefox ok   natural y ease-out reject at once frames 50 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+firefox ok   natural xy linear key frames 49 moved 90.0 back 0.00 over speed 0.0 left 0 r0r2r1r3r4r5 start,accepted
+firefox ok   natural xy linear key key frames 56 moved 136.0 back 0.00 over speed 0.0 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+firefox ok   natural xy linear reject mid frames 49 moved 33.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+firefox ok   natural xy linear Escape mid frames 50 moved 36.4 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+firefox ok   natural xy linear Escape landing frames 51 moved 136.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+firefox ok   natural xy linear reject at once frames 50 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+firefox ok   natural xy ease-out key frames 50 moved 90.0 back 0.00 over speed 0.0 left 0 r0r2r1r3r4r5 start,accepted
+firefox ok   natural xy ease-out key key frames 57 moved 136.0 back 0.00 over speed 0.0 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+firefox ok   natural xy ease-out reject mid frames 49 moved 47.7 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+firefox ok   natural xy ease-out Escape mid frames 50 moved 54.7 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+firefox ok   natural xy ease-out Escape landing frames 51 moved 136.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+firefox ok   natural xy ease-out reject at once frames 50 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+JUMP firefox timing throws at call 1 y | jump 50.00 r2@1 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,canceled | once
+JUMP firefox timing throws in a return, call 1 y | jump 50.00 r2@1 | moved 50.0 | anims 0 | r0r1r2r3r4r5 | start,rejected | return
+JUMP firefox timing throws at call 1 xy | jump 155.24 r2@1 | moved 0.0 | anims 3 | r0r1r2r3r4r5 | start,canceled | once
+JUMP firefox timing throws in a return, call 1 xy | jump 155.24 r2@1 | moved 155.2 | anims 0 | r0r1r2r3r4r5 | start,rejected | return
+JUMP firefox timing throws at call 2 xy | jump 10.00 r4@1 | moved 0.0 | anims 3 | r0r1r2r3r4r5 | start,canceled | once
+JUMP firefox timing throws in a return, call 2 xy | jump 10.00 r4@1 | moved 155.2 | anims 1 | r0r1r2r3r4r5 | start,rejected | return
+firefox timing called with 0:LayoutAnimationSink
+firefox destroy in timing: row animations left 0 placeholder false
+firefox destroy while pending: animations 3 then 0 placeholder false start
+firefox destroy after the end: animations 1 then 0
+firefox reduced: Escape y animations 3, kept by the change itself 3, after the return 0 start,canceled
+firefox reduced: drag y animations 0 timing calls before 0, after the preference is gone 1
+firefox reduced: Escape xy animations 3, kept by the change itself 3, after the return 0 start,canceled
+firefox reduced: drag xy animations 0 timing calls before 0, after the preference is gone 1
+firefox scroll page key disp true | jump 60.0 r0 | scroll 345 345 > 285,285,285,285,285,285,285,285
+firefox scroll page key disp false | jump 60.0 r2 | scroll 345 345 > 345,345,345,345,345,345,345,345
+firefox scroll page escape disp true | jump 60.0 r0 | scroll 345 285 > 345,345,345,345,345,345,345,345
+firefox scroll page escape disp false | jump 60.0 r2 | scroll 345 285 > 285,285,285,285,285,285,285,285
+firefox scroll page reject disp true | jump 60.0 r0 | scroll 345 285 > 345,345,345,345,345,345,345
+firefox scroll page reject disp false | jump 60.0 r2 | scroll 345 345 > 345,345,345,345,345,345,345
+firefox scroll box key disp true | jump 60.0 r0 | scroll 345 345 > 285,285,285,285,285,285,285,285
+firefox scroll box key disp false | jump 60.0 r2 | scroll 345 345 > 345,345,345,345,345,345,345,345
+firefox scroll box escape disp true | jump 60.0 r0 | scroll 345 285 > 345,345,345,345,345,345,345,345
+firefox scroll box escape disp false | jump 60.0 r2 | scroll 345 285 > 285,285,285,285,285,285,285,285
+firefox scroll box reject disp true | jump 60.0 r0 | scroll 345 285 > 345,345,345,345,345,345,345
+firefox scroll box reject disp false | jump 60.0 r2 | scroll 345 345 > 345,345,345,345,345,345,345
+firefox press and release y states running moved 0.00
+firefox press and release xy states running moved 0.00
+## webkit (its four 'Escape mid' lines have frames before the Escape)
+webkit 7 y key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+webkit 7 y reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+webkit 7 y accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+webkit 7 y drop {"rect":7,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+webkit 7 y Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+webkit 7 y drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+webkit 7 y hold(ROUGH) reads 24
+webkit 7 y DISP key {"rect":3,"offset":2,"style":6,"mm":1,"cmp":9,"anim":1} pulls 2 reads 55
+webkit 7 y DISP reject after the drop {"rect":2,"offset":0,"style":0,"mm":1,"cmp":9,"anim":1} pulls 0 reads 0
+webkit 7 y DISP accept, no commit, after the drop {"rect":2,"offset":0,"style":0,"mm":1,"cmp":10,"anim":1} pulls 0 reads 0
+webkit 7 y DISP drop {"rect":7,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+webkit 7 y DISP Escape {"rect":6,"offset":0,"style":0,"mm":3,"cmp":9,"anim":3} pulls 0 reads 0
+webkit 7 y DISP drop, reject after {"rect":6,"offset":0,"style":0,"mm":3,"cmp":9,"anim":3} pulls 0 reads 0
+webkit 7 y DISP hold(ROUGH) reads 33
+webkit 7 y landing key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+webkit 7 y landing reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+webkit 7 y landing accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+webkit 7 y landing drop {"rect":8,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+webkit 7 y landing Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+webkit 7 y landing drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+webkit 7 y landing hold(ROUGH) reads 24
+webkit 7 y landing DISP key {"rect":4,"offset":2,"style":7,"mm":2,"cmp":9,"anim":3} pulls 2 reads 55
+webkit 7 y landing DISP reject after the drop {"rect":3,"offset":0,"style":0,"mm":1,"cmp":9,"anim":1} pulls 0 reads 0
+webkit 7 y landing DISP accept, no commit, after the drop {"rect":3,"offset":0,"style":0,"mm":1,"cmp":10,"anim":1} pulls 0 reads 0
+webkit 7 y landing DISP drop {"rect":8,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+webkit 7 y landing DISP Escape {"rect":7,"offset":0,"style":1,"mm":4,"cmp":9,"anim":5} pulls 0 reads 0
+webkit 7 y landing DISP drop, reject after {"rect":7,"offset":0,"style":1,"mm":4,"cmp":9,"anim":5} pulls 0 reads 0
+webkit 7 y landing DISP hold(ROUGH) reads 33
+webkit 7 xy key {"rect":1,"offset":2,"style":6,"mm":0,"cmp":0,"anim":0} pulls 2 reads 46
+webkit 7 xy reject after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+webkit 7 xy accept, no commit, after the drop {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+webkit 7 xy drop {"rect":6,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+webkit 7 xy Escape {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+webkit 7 xy drop, reject after {"rect":0,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+webkit 7 xy hold(ROUGH) reads 24
+webkit 7 xy DISP key {"rect":11,"offset":2,"style":6,"mm":1,"cmp":0,"anim":1} pulls 2 reads 55
+webkit 7 xy DISP reject after the drop {"rect":10,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+webkit 7 xy DISP accept, no commit, after the drop {"rect":10,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+webkit 7 xy DISP drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0}
+webkit 7 xy DISP Escape {"rect":10,"offset":0,"style":0,"mm":3,"cmp":0,"anim":3} pulls 0 reads 0
+webkit 7 xy DISP drop, reject after {"rect":10,"offset":0,"style":0,"mm":3,"cmp":0,"anim":3} pulls 0 reads 0
+webkit 7 xy DISP hold(ROUGH) reads 47
+webkit 7 xy landing key {"rect":2,"offset":2,"style":7,"mm":1,"cmp":0,"anim":2} pulls 2 reads 46
+webkit 7 xy landing reject after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+webkit 7 xy landing accept, no commit, after the drop {"rect":1,"offset":0,"style":0,"mm":0,"cmp":0,"anim":0} pulls 0 reads 0
+webkit 7 xy landing drop {"rect":7,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+webkit 7 xy landing Escape {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+webkit 7 xy landing drop, reject after {"rect":1,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2} pulls 0 reads 0
+webkit 7 xy landing hold(ROUGH) reads 24
+webkit 7 xy landing DISP key {"rect":12,"offset":2,"style":7,"mm":2,"cmp":0,"anim":3} pulls 2 reads 55
+webkit 7 xy landing DISP reject after the drop {"rect":11,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+webkit 7 xy landing DISP accept, no commit, after the drop {"rect":11,"offset":0,"style":0,"mm":1,"cmp":0,"anim":1} pulls 0 reads 0
+webkit 7 xy landing DISP drop {"rect":2,"offset":0,"style":1,"mm":1,"cmp":0,"anim":2}
+webkit 7 xy landing DISP Escape {"rect":11,"offset":0,"style":1,"mm":4,"cmp":0,"anim":5} pulls 0 reads 0
+webkit 7 xy landing DISP drop, reject after {"rect":11,"offset":0,"style":1,"mm":4,"cmp":0,"anim":5} pulls 0 reads 0
+webkit 7 xy landing DISP hold(ROUGH) reads 47
+webkit ok   natural y linear key frames 51 moved 60.0 back 0.00 over speed 0.0 left 0 r0r2r1r3r4r5 start,accepted
+webkit ok   natural y linear key key frames 59 moved 60.0 back 0.00 over speed 0.0 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+webkit ok   natural y linear reject mid frames 50 moved 23.2 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+webkit JUMP natural y linear Escape mid frames 52 moved 13.6 back 1.92 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+webkit ok   natural y linear Escape landing frames 51 moved 60.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+webkit ok   natural y linear reject at once frames 51 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+webkit ok   natural y ease-out key frames 51 moved 60.0 back 0.00 over speed 0.0 left 0 r0r2r1r3r4r5 start,accepted
+webkit ok   natural y ease-out key key frames 59 moved 60.0 back 0.00 over speed 0.0 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+webkit ok   natural y ease-out reject mid frames 50 moved 33.1 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+webkit JUMP natural y ease-out Escape mid frames 51 moved 20.7 back 2.71 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+webkit ok   natural y ease-out Escape landing frames 51 moved 60.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+webkit ok   natural y ease-out reject at once frames 52 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+webkit ok   natural xy linear key frames 50 moved 90.0 back 0.00 over speed 0.0 left 0 r0r2r1r3r4r5 start,accepted
+webkit ok   natural xy linear key key frames 58 moved 136.0 back 0.00 over speed 0.0 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+webkit ok   natural xy linear reject mid frames 49 moved 32.4 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+webkit JUMP natural xy linear Escape mid frames 52 moved 30.7 back 4.35 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+webkit ok   natural xy linear Escape landing frames 50 moved 136.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+webkit ok   natural xy linear reject at once frames 52 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+webkit ok   natural xy ease-out key frames 50 moved 90.0 back 0.00 over speed 0.0 left 0 r0r2r1r3r4r5 start,accepted
+webkit ok   natural xy ease-out key key frames 59 moved 136.0 back 0.00 over speed 0.0 left 0 r0r2r3r1r4r5 start,accepted,start,accepted
+webkit ok   natural xy ease-out reject mid frames 51 moved 50.7 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+webkit JUMP natural xy ease-out Escape mid frames 49 moved 54.8 back 7.08 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+webkit ok   natural xy ease-out Escape landing frames 50 moved 136.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+webkit ok   natural xy ease-out reject at once frames 50 moved 0.0 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,rejected
+JUMP webkit timing throws at call 1 y | jump 50.00 r2@2 | moved 0.0 | anims 1 | r0r1r2r3r4r5 | start,canceled | once
+JUMP webkit timing throws in a return, call 1 y | jump 50.00 r2@1 | moved 50.0 | anims 0 | r0r1r2r3r4r5 | start,rejected | return
+JUMP webkit timing throws at call 1 xy | jump 155.24 r2@1 | moved 0.0 | anims 3 | r0r1r2r3r4r5 | start,canceled | once
+JUMP webkit timing throws in a return, call 1 xy | jump 155.24 r2@1 | moved 155.2 | anims 0 | r0r1r2r3r4r5 | start,rejected | return
+JUMP webkit timing throws at call 2 xy | jump 10.00 r5@2 | moved 0.0 | anims 3 | r0r1r2r3r4r5 | start,canceled | once
+JUMP webkit timing throws in a return, call 2 xy | jump 10.00 r4@1 | moved 155.2 | anims 1 | r0r1r2r3r4r5 | start,rejected | return
+webkit timing called with 0:LayoutAnimationSink
+webkit destroy in timing: row animations left 0 placeholder false
+webkit destroy while pending: animations 3 then 0 placeholder false start
+webkit destroy after the end: animations 1 then 0
+webkit reduced: Escape y animations 3, kept by the change itself 3, after the return 0 start,canceled
+webkit reduced: drag y animations 0 timing calls before 0, after the preference is gone 1
+webkit reduced: Escape xy animations 3, kept by the change itself 3, after the return 0 start,canceled
+webkit reduced: drag xy animations 0 timing calls before 0, after the preference is gone 1
+webkit scroll page key disp true | jump 60.0 r0 | scroll 345 345 > 285,285,285,285,285,285,285,285
+webkit scroll page key disp false | jump 65.0 r0 | scroll 345 345 > 280,280,280,280,280,280,280,280
+webkit scroll page escape disp true | jump 0.0 r2 | scroll 345 285 > 285,285,285,285,285,285,285,285
+webkit scroll page escape disp false | jump 60.0 r2 | scroll 345 285 > 285,285,285,285,285,285,285,285,285
+webkit scroll page reject disp true | jump 60.0 r0 | scroll 345 280 > 340,340,340,340,340,340,340
+webkit scroll page reject disp false | jump 60.0 r2 | scroll 345 345 > 345,345,345,345,345,345,345
+webkit scroll box key disp true | jump 65.0 r0 | scroll 345 345 > 280,280,280,280,280,280,280,280
+webkit scroll box key disp false | jump 65.0 r0 | scroll 345 345 > 280,280,280,280,280,280,280,280,280
+webkit scroll box escape disp true | jump 0.0 r2 | scroll 345 285 > 285,285,285,285,285,285,285
+webkit scroll box escape disp false | jump 60.0 r2 | scroll 345 285 > 285,285,285,285,285,285,285,285,285
+webkit scroll box reject disp true | jump 60.0 r0 | scroll 345 280 > 340,340,340,340,340,340,340
+webkit scroll box reject disp false | jump 60.0 r2 | scroll 345 340 > 340,340,340,340,340,340,340
+webkit press and release y states running moved 0.00
+webkit press and release xy states running moved 0.00
+## webkit, 'Escape mid' from the Escape on
+webkit ok   natural y linear Escape mid frames 50 moved 13.2 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+webkit ok   natural y ease-out Escape mid frames 51 moved 20.7 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+webkit ok   natural xy linear Escape mid frames 50 moved 30.5 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled
+webkit ok   natural xy ease-out Escape mid frames 51 moved 47.3 back 0.00 over speed 0.0 left 0 r0r1r2r3r4r5 start,canceled

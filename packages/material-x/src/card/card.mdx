@@ -67,7 +67,7 @@ Omit `variant` for the filled card.
 
 ### Full-bleed media
 
-Set `--md-card-padding` to `0` for content that reaches the container's edge. The card does not clip its content, so that focus rings and popups stay visible. Round the corners of full-bleed media yourself.
+Set `--md-card-padding` to `0` for content that reaches the container's edge. The card does not clip its content, so that focus rings and popups stay visible. Round the corners of full-bleed media by inheriting the card's: on a direct child of the card, `border-start-start-radius: inherit` takes the card's corner. The card promises this for its direct children only, and an inset element needs a smaller radius of its own.
 
 <Canvas of={Stories.FullBleedMedia} />
 

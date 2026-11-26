@@ -306,6 +306,69 @@ describe('mx-card public CSS overrides', () => {
   });
 });
 
+describe("mx-card content's corners", () => {
+  function createInheritingContent(
+    overrides: Readonly<Record<string, string>> = {},
+  ): Element {
+    const content = createCard(FILLED, overrides)
+      .firstElementChild as HTMLElement;
+    content.style.borderStartStartRadius = 'inherit';
+    content.style.borderStartEndRadius = 'inherit';
+    return content;
+  }
+
+  it('should inherit the token of the container shape', async () => {
+    const values = await resolveTokens(FILLED.contract, 'container.shape');
+    const shape = values['container.shape'];
+
+    expect(corners(createInheritingContent())).toEqual([
+      shape,
+      shape,
+      '0px',
+      '0px',
+    ]);
+  });
+
+  it.each([
+    ['one value', '20px', ['20px', '20px', '0px', '0px']],
+    ['four values', '1px 2px 3px 4px', ['1px', '2px', '0px', '0px']],
+  ])(
+    'should inherit --md-card-container-shape with %s',
+    (_, shape, expected) => {
+      expect(
+        corners(
+          createInheritingContent({ '--md-card-container-shape': shape }),
+        ),
+      ).toEqual(expected);
+    },
+  );
+
+  it("should inherit a page's border-radius on the card", () => {
+    addPageRule('mx-card { border-radius: 7px; }');
+
+    expect(corners(createInheritingContent())).toEqual([
+      '7px',
+      '7px',
+      '0px',
+      '0px',
+    ]);
+  });
+
+  it('should be square without a declaration', () => {
+    const content = createCard(FILLED).firstElementChild!;
+
+    expect(corners(content)).toEqual(Array.from({ length: 4 }, () => '0px'));
+  });
+
+  it("should be a nested card's own", () => {
+    const card = createCard(FILLED, { '--md-card-container-shape': '20px' });
+    const nested = createCard(FILLED, { '--md-card-container-shape': '5px' });
+    card.append(nested);
+
+    expect(corners(nested)).toEqual(Array.from({ length: 4 }, () => '5px'));
+  });
+});
+
 describe('mx-card content', () => {
   it('should fill a card that a grid stretches', () => {
     const card = createCard(FILLED);
@@ -342,6 +405,33 @@ describe('mx-card content', () => {
       block: outer.top + card.clientHeight - inner.bottom,
     }).toEqual({ scrolled: true, inline: PADDING, block: PADDING });
   });
+
+  it.each([
+    ['grid', 'display: grid; grid-template-columns: 1fr 1fr;', ''],
+    ['flex', 'display: flex;', 'flex: 1;'],
+  ])(
+    "should be laid out by a page's %s on the card",
+    (_, layout, contentLayout) => {
+      const card = createCard(FILLED);
+      card.style.cssText = `inline-size: 232px; ${layout}`;
+      const first = card.firstElementChild as HTMLElement;
+      first.style.cssText = `block-size: 40px; ${contentLayout}`;
+      const second = first.cloneNode() as HTMLElement;
+      card.append(second);
+      const outer = card.getBoundingClientRect();
+
+      expect(
+        [first, second].map((content) => {
+          const { left, top, width } = content.getBoundingClientRect();
+
+          return [left - outer.left, top - outer.top, width];
+        }),
+      ).toEqual([
+        [PADDING, PADDING, 100],
+        [PADDING + 100, PADDING, 100],
+      ]);
+    },
+  );
 
   it("should keep its content's margins inside", () => {
     const card = createCard(FILLED, { '--md-card-padding': '0' });

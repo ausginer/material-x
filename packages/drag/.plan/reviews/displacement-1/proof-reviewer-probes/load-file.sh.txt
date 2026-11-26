@@ -1,0 +1,14 @@
+#!/bin/bash
+# load.sh <file> <label> : the two rows, twenty vitest runs beside six busy processes, Chromium, source project
+S=/tmp/claude-1000/-workspaces-worktrees-b/e64c54e5-c6df-4cae-91a9-3ec47d1d631e/scratchpad/p
+cd /workspaces/worktrees/f/packages/drag || exit 1
+pids=(); for i in 1 2 3 4 5 6; do ( while :; do :; done ) & pids+=($!); done
+trap 'kill "${pids[@]}" 2>/dev/null' EXIT
+for i in $(seq 1 20); do
+  rm -f "$S/l.json"
+  MX_TEST_ENGINES=chromium aube exec -- vitest run -c vitest.config.ts --project 'browser*' "$1" --reporter=json --outputFile="$S/l.json" >/dev/null 2>&1
+  node -e '
+const j=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));const a=j.testResults.flatMap(f=>f.assertionResults).filter(t=>t.status!=="pending"&&t.status!=="skipped");
+console.log(process.argv[2],"run",process.argv[3],"load",require("os").loadavg()[0].toFixed(1),"passed",a.filter(t=>t.status==="passed").length,"failed",a.filter(t=>t.status==="failed").length);
+for(const t of a)for(const m of t.failureMessages??[])console.log("   MESSAGE",t.fullName,m);' "$S/l.json" "$2" "$i"
+done

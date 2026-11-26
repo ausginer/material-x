@@ -1,6 +1,10 @@
 /** What an axis rule and a displacement sink are, for `y()`, `xy()` and sortable. */
 import type { Space } from '@ydinjs/box-quad';
-import type { CollectionSnapshot, Insertion } from './domain.ts';
+import type {
+  CollectionSnapshot,
+  Insertion,
+  ReorderRequest,
+} from './domain.ts';
 import type { Invalidatable } from './invalidatable.ts';
 import type { Retirable } from './retirable.ts';
 
@@ -24,6 +28,22 @@ export interface DisplacementSink extends Retirable {
    * rebuild, and a row never jumps back.
    */
   displaced(element: HTMLElement): boolean;
+  /**
+   * Moves the placeholder into `insertion` where no resolution measured the move,
+   * and reports each of `rows` that it displaced. It reads the rows before and
+   * after its write: every row, or, when `isLinear`, those it crosses. With a
+   * `request`, the consumer may have moved the rows around the placeholder since the
+   * drop, and the rows are read from the request's gap.
+   */
+  relocate(
+    rows: readonly HTMLElement[],
+    isLinear: boolean,
+    insertion: Insertion,
+    context: AxisContext,
+    request: ReorderRequest | null,
+  ): void;
+  /** Ends the animation that displaces `element`, if any. */
+  release(element: HTMLElement): void;
 }
 
 export type DisplacementInstaller = () => DisplacementSink;
@@ -50,6 +70,8 @@ export type AxisContext = Readonly<{
 }>;
 
 export interface InsertionGeometry extends Invalidatable, Retirable {
+  /** Whether a placeholder move displaces only the rows it crosses. */
+  readonly isLinear: boolean;
   /** A new gap, or `null` when the committed one still wins. */
   resolve(query: AxisQuery, context: AxisContext): Insertion | null;
   /**

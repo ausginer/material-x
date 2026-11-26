@@ -53,7 +53,9 @@ function build(options: FixtureOptions = {}): HTMLElement[] {
   options.extras?.(root);
   basicSortable(root, {
     items: () => items,
-    displacement: layoutAnimation({ duration: DURATION }),
+    displacement: layoutAnimation({
+      timing: () => ({ duration: DURATION, easing: 'ease-out' }),
+    }),
     ...options.config,
   });
   return items;
