@@ -52,6 +52,14 @@ Read at `6aa5330e3` ([reading](checks/links.txt), [probe](probes/links.mjs)):
 - **The report's other choices are confirmed:** a link in a fenced block or an inline code span isn't read, and a link to a directory keeps its trailing `/`.
 - **The resolver, adopted from the ruling relayed earlier the same day:** a current-state path that doesn't exist in the working tree reads as no documents, with a fourth row and its witness. The section said: _"Nothing else in it changes."_, with three rows, and the work list's item 2 said _"the three rows of its tests"_.
 
+**Dated 2026-11-26 by Mx Architect B, on the rerun's one stop** ([report](decision-files-report.md), [changes](checks/dry-run-changed.txt), at `95d7b7dd0`), requested by the coordinator. `.plan/findings-on-github-1/findings-on-github-plan.md:3` ends _"`RD-56` states what holds [before and after the cut-over](../00-index.md)."_. The link means `RD-56`, and at `e2a0e05eb` rule 5's fourth row sent it to `RD-56`'s file. Main's merge (#297) added `RD-63` and `RD-64` to the line, and the link's text names no identifier. So the fifth row now sends it to `decisions/`, as the rules say.
+
+- **The link is pointed at its entry in the source, outside the move:** its target becomes `../00-index.md#rd-56--…`, the fragment of `RD-56`'s heading. That is a re-pointed link, which `documentation.md` §6 allows in place, in this note's commit, which isn't the move's. The move then sends it to `../decisions/RD-56.md` by rule 5's first row, on this and every later run. Rules 6 and 7 hold: the move's commit is still the script's output alone, and the script has no exception.
+- **Rejected, a named exception in the script:** one exception invites the next, and a rerun after a later change of that line would carry an exception that no longer fits.
+- **Rejected, deciding by the sentence instead of the line:** splitting Markdown into sentences is fragile, because of code spans, abbreviations and links that contain periods, and it changes outcomes across hundreds of lines for one link.
+- **Rejected, leaving it as the rules give:** the directory resolves, but it loses a target that the line had before main's merge.
+- **Any later line of this kind** is fixed the same way: the link is pointed at its entry's fragment in its own commit before the move's, and the dry run reports it, as rule 5 says.
+
 ## The resolver
 
 `.scripts/entry.ts`: the rows of `drag` and `repo` add `.plan/decisions`. It already reads a directory as its Markdown documents in path order, at a commit with `ls-tree` too. A commit before the move has no such directory, and `ls-tree` lists nothing for it, so `--duplicates <commit>` still reads an old commit. One other change: in the working tree, a current-state path that doesn't exist reads as no documents, as `ls-tree` lists nothing for it at a commit. Any other error of `stat` still throws. Nothing else in it changes.
