@@ -4898,6 +4898,8 @@ Tier A, **open**, **ready, with `RF-145`'s unit** (the last note), pre-existing.
 
 **Dated 2026-11-26 by the implementer: (a) is implemented with `RF-145`, on its branch.** The candidate text is in `sortable-list.ts`'s JSDoc and in `list.mdx`'s second bullet, as the table says. No code changes for (a). The row, Chromium only: a swipe on an enabled `mx-list-item` and `mx-list-button-item` without a handle proposes nothing, 2 rows. **Witness:** with `touch-action: none` on each item, both fail ([reading](touch-handle-1/checks/mutations.txt)). They pass at `d20c47bda` too, as nothing changes there.
 
+**Dated 2026-11-26 by the architect: property 3 is amended by `RF-151`'s repair,** on `material-x/drag-selection-1`. It is now: _"No code changes for (a). `touch-action` isn't written on an item, and `user-select` is written on an item only while the item is in a drag, by `RF-151`."_ The text that it replaces is _"No code changes for (a). `touch-action` and `user-select` aren't written on an item."_ (a) doesn't change: a finger on an item without a handle still scrolls, and its text is selectable outside a drag.
+
 #### RF-147 — An `mx-icon` inline in a page's text stands on the text's baseline, off its center
 
 Tier C, **open**, **ready** (the last note), pre-existing. Registered on 2026-11-26 by the architect, on `repo/axe-checks-1`, from #299, which the owner asked to register, relayed by the coordinator. The observation is `RF-145`'s note of 2026-11-26 on the focused handles (`material-x/touch-handle-1`, #296). `RF-146` is the highest `RF-` on any branch on `origin`, so this is the next free number.
@@ -5006,6 +5008,31 @@ Tier A, **open**, **ready**, not this unit's. Registered on 2026-11-26 by the ar
 - **Not read:** Safari, an item with a handle, the button and link items, the selection after the drop, whether `getSelection()` reports the highlight.
 - **Plan needed:** no. **Size:** _small_.
 
+**Dated 2026-11-26 by the architect: the repair is on the list, by `user-select` on an item in a drag, and drag's kernel doesn't change,** on `material-x/drag-selection-1`, requested by the coordinator, read at `d6f6cf60b`. The implementer offered two repairs. (A) prevents each `pointermove` of an active drag in drag's kernel. (B) writes `user-select: none` on an item that is in a drag. The implementer's reading is that WebKit reports the highlight through `getSelection()`: the press's selection grows with each move after the kernel's `removeAllRanges` at the activation, and it stays after a drop that the page doesn't commit.
+
+- **(B) is chosen.** drag's contract already assigns text to the consumer. Its README and `draggable`'s JSDoc say to give the handle `user-select: none` for text, and `mx-sortable-list` is the consumer that didn't. (A) would change `drag:DRI-11`, _"Only the move that crosses the threshold is prevented"_, a guarantee to every consumer of drag, to repair one consumer. That needs the owner's word, and nothing here needs it.
+- **(B) covers more than the item, by reading:** in WebKit, with the press in the lifted item's text, a held pointer that leaves the list over a page paragraph selects nothing, during the drag and after the drop. Without (B) it selects `e text` ([reading](drag-selection-1/checks/off-list.txt), [probe](drag-selection-1/probes/off-list.browser.test.ts.txt)). Chromium selects nothing either way. The implementer's three rows pass with (B) in WebKit and Chromium.
+- **`RF-146` property 3 is amended,** in its own note: `user-select` is written on an item only while the item is in a drag.
+- **Required properties:**
+  1. An item in a pointer drag isn't selectable, nor is its content, whatever its kind: `mx-list-item`, `mx-list-button-item` and `mx-list-link-item`. One rule in the sortable sheet, `list/styles/sortable`, that `mx-list` doesn't adopt (`RF-129`).
+  2. An item that isn't in a drag keeps its `user-select`, so a press that moves less than the threshold still selects text (row 3).
+  3. drag doesn't change, and neither does `drag:DRI-11`.
+- **Rows,** `browser`, in each engine, by real mouse input: the implementer's three, with rows 1 and 2 for each of the three item kinds. Also **row 4:** the probe's case, in which the held pointer leaves the list over page text, with the selection read during the drag and after the drop. **Witnesses,** in WebKit: without the rule, rows 1, 2 and 4 fail. With the rule on every item, not only in a drag, row 3 fails. If a row reads differently in an engine, or for an item kind, the implementer stops and returns it.
+- **Not read:** Firefox, beyond CI. Safari. An item with a handle, whose handle is inside the item and so takes the rule with it. A link item's native drag, which `draggable="false"` already concerns (`drag:DRI-19`).
+- **Also owed:** sizes by `just size`, in which `list/sortable-list` grows by a few bytes. The list's JSDoc and `list.mdx` don't change, because they promise nothing about selection. A feature proof follows. **Size:** _small_.
+
+**Dated 2026-11-26 by the architect: the button item's rows stay without a witness, and row 3 stays on `mx-list-item`,** requested by the coordinator, on the implementer's return at `9ff1737ab`. The rule is `::slotted(:state(drag)) { -webkit-user-select: none; user-select: none; }`, with WebKit's prefix. With it, the 8 rows pass in WebKit and Chromium. In WebKit, without the rule, rows 1 and 2 fail for `mx-list-item` and `mx-list-link-item`, and row 4 fails too. **`mx-list-button-item` passes rows 1 and 2 without the rule.** With the rule on every item, row 3 fails in both engines.
+
+- **Rows 1 and 2 stay for `mx-list-button-item`,** as rows without a witness. Property 1 is the list's for every kind, and this kind holds it today because of WebKit: a drag that starts on a `<button>` doesn't extend the press's selection. The rows cost nothing, and they fail if a change of the item's control or of the engine brings the highlight back. The record says that they have no witness.
+- **Row 3 stays on `mx-list-item` alone.** Property 2 says that the list writes no `user-select` on an item outside a drag. The rule doesn't depend on the item's kind, and the witness, the rule on every item, fails row 3. What a short press selects in a button or a link is the engine's own behavior: a button item's press selects `I` in WebKit and nothing in Chromium, and a link item's press selects nothing in either. A row of those kinds would read the engine, not the list.
+- **Not read, and not owed:** why a link item's press selects nothing in WebKit, while its drag extends a selection.
+
+**Dated 2026-11-26 by the implementer: the repair is implemented on `material-x/drag-selection-1`,** from `42db3f321`. The rule is in `packages/material-x/src/list/styles/sortable/main.styles.css`, and the build prints both properties. The eight rows are in `packages/material-x/tests/list/sortable-list.browser.test.ts`, describe _"mx-sortable-list text selection"_. A comment above `mx-list-button-item`'s rows 1 and 2 says that they have no witness.
+
+- **Witnesses,** WebKit with Chromium beside it ([reading](drag-selection-1/checks/witnesses.txt)): without the rule, WebKit fails rows 1 and 2 for `mx-list-item` and `mx-list-link-item`, and row 4, and Chromium passes all eight. With the rule on `::slotted(*)`, row 3 fails in both. With the rule, all eight pass in both.
+- **Checks:** `tests/list` passes in Chromium (286) and WebKit (272, 14 skipped). Lint and typecheck are clean. Firefox is CI's.
+- **Sizes** ([reading](drag-selection-1/checks/sizes.txt)): `list/sortable-list` goes from 9.94 to 9.95 kB, and `complete` from 26.89 to 26.91 kB. No other composition changes.
+
 #### RF-152 — `parseMs` reads a duration in milliseconds as seconds
 
 Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `material-x/sortable-displacement-1`, from the implementer's point 4 in `RD-60`'s unit, relayed by the coordinator. `RF-151` is the entry before this one. Read at `5448c4fd6`.
@@ -5026,6 +5053,12 @@ Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi
 - **Required property:** the build that the node project reads is made from a property list collected from the tree under test, so that a local run of the project gives the result that CI gives on the same tree. **Witness:** with a stale list, after a private property is added to a sheet, the project's rows pass, and they fail at `c2ea0dcbe`.
 - **Not read:** whether `build-prepare`'s run time matters to the project's setup, and the other packages' node setups, whose builds don't mangle these names.
 - **Plan needed:** no. **Size:** _small_.
+
+**Dated 2026-11-26 by the implementer: the repair is implemented on `material-x/node-build-props-1`,** from `d6f6cf60b`. The node project's global setup, `packages/material-x/tests/support/build-package.node.ts`, now runs what `just build-prepare` runs, `.scripts/css/collect-props.ts`, and then `tsdown`. A failure of either is provided as the build's failure, as before.
+
+- **Witness** ([reading](node-build-props-1/checks/witness.txt)): a list collected by `build-prepare`, then a private property added to the sortable sheet. At `d6f6cf60b`, the project's three files fail with _"Property `--_rf153-witness` is not collected"_. With the repair, its 38 rows pass.
+- **Run time** ([reading](node-build-props-1/checks/times.txt)): the collection takes 0.6 to 0.8 s, and `tsdown` 2.2 to 2.4 s. A run of the node project takes 5.8 to 6.1 s with the repair and 5.2 to 5.7 s without it, so about half a second more. It doesn't matter for the setup.
+- **Checks:** the node project passes (38 rows). Lint and typecheck are clean. Typecheck needed drag rebuilt in the slot: its built types predated `RD-60`.
 
 ## Questions
 
