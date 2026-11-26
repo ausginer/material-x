@@ -1,6 +1,6 @@
 # Probe: a field read in place of a local, in two loops
 
-**By:** the architect, on 2026-11-15, at `988643dc9` on `drag/size-acceptance`. **For:** `drag:DRD-69` §The loop change's cost, in [`00-index.md`](../../00-index.md).
+**By:** the architect, on 2026-11-15, at `988643dc9` on `drag/size-acceptance`. **For:** `drag:DRD-69` §The loop change's cost, in [`00-index.md`](../../decisions/DRD-69.md).
 
 **Question:** `988643dc9` replaced locals that cached a private field with direct reads of the field inside loops. Does that cost time per iteration, at a resolution that `compare.ts` can't reach?
 

@@ -1,0 +1,54 @@
+#### RD-7 — Size, allocation and speed checks notify and never fail the build
+
+**Decided 2026-11-16 by the architect,** on O5 and O6 ([design](../ci-verification-1/ci-verification-design.md) §1). **Unimplemented:** [`ci-verification-handoff.md`](../ci-verification-1/ci-verification-handoff.md) implements it.
+
+**Implemented 2026-11-16** by pull request #27, squash-merged to `main` as `275ad0f5c`. `verify` passed on that push, run 43865448668.
+
+**Properties.**
+
+1. **What a measurement row is.** A row whose verdict compares a quantity with a budget, a ceiling or a control figure: bytes of a bundle, bytes allocated, or time elapsed. **A row that asserts behavior is not a measurement,** even if it counts. Examples are a retention check (_should not retain …_) and a deterministic work count that a contract invariant states, such as `drag:DRI-17`'s layout reads and spatial searches. Those rows stay in the gate.
+2. **Marking.** Each measurement row carries the Vitest tag `measurement`, which the shared factory declares. The gate's test jobs run with that tag filtered out. The measurement job runs only that tag. **A local `just test` runs every row, as it does today,** so `drag:DRD-68` property 5 stays true where it is stated: an over-ceiling row fails `npx just test` until the unit re-bases.
+3. **The rows at this decision.** In `packages/drag/tests/size.node.test.ts`, each composition's ceiling and control verdict. Its graph verdict (`present`, `absent`) is `drag:DRI-18`'s and stays in the gate, so each composition's row splits into a graph row and a ceiling row. The assertions themselves don't change. In `packages/drag/tests/hot-path.browser.test.ts`, the two rows that bound bytes allocated per sample. **No speed row exists.** The implementer confirms there are no others.
+4. **The measurement job is outside the gate.** `verify` doesn't need it. It concludes successfully whenever it ran to its report. An exceeded ceiling or a failing measurement row becomes a warning annotation and a line in the report, never a failed step. `continue-on-error` covers a crash, so even a broken measurement can't fail the workflow.
+5. **The size comment (O5).** It reports every row that the root `just size` measures (`box-quad`, `core` and `material-x` through size-limit, `drag` through `bench/size/measure.ts`): the reading at the head, the reading at the merge base of the head and the pull request's base branch, the difference, and the row's limit at the head. Brotli for every row, and gzip where the instrument reports it. Rows that exist at one side only are marked added or removed. **The pull request's run measures the head. The merge base's reading is the one that `main`'s own `verify` run for that commit took, with that tree's instruments, and kept as an artifact of the run. The pull request's run builds no base.** A merge base for which no reading is stored gives "no base reading", the report says that none is stored, and the head is still reported. **A lookup that fails** (an API error, a rate limit, a missing permission, or a download that fails after the reading was found) gives "no base reading" too, and the report says that the lookup failed, not that none is stored. **A run that looks up no base,** a push or a manual run, says nothing about a stored reading. (The two sentences that open in bold type were added by the architect's amendment of 2026-11-19, below. Until the owner's amendment of that day, the sentences before them read: _"Both sides are measured in the same job, on the same runner, each tree with its own instruments. … A base tree whose instruments cannot produce the machine-readable reading gives "no base reading", and the head is still reported."_ The amendment of 2026-11-16 had changed _"in the same image"_ to _"in the same job, on the same runner"_.) The comment is one per pull request, identified by a hidden marker and updated on each run. It is posted only when the pull request comes from this repository. Otherwise, and on a push or a manual run, the report goes to the job summary only.
+6. **The allocation result** is reported in the same comment and summary as each row's pass or fail, with its message.
+
+**Noted 2026-11-18 by the architect, not substantive:** property 5's parenthesis gains `material-x`, whose size-limit rows `RD-24` adds and which land with #68. Until then it read _"`box-quad` and `core` through size-limit"_. The rule doesn't change.
+
+**Dated 2026-11-18 by the architect:** the merge-base reading of property 5 has failed on every pull request since this decision was implemented, so no comment has shown a base or a difference. That is `RF-65`. **Closed 2026-11-19 by the architect:** `RF-65` is closed. #74's comment, on merge base `359c87f8a`, shows the base that `main`'s run stored and the difference for every row.
+
+**Amended 2026-11-19 by the owner: the merge base's reading is `main`'s own, kept as an artifact of its run, and a pull request doesn't build its base.** Relayed by the coordinator and recorded by the architect, on the [base-reading plan](../size-base-1/size-base-plan.md) for `RF-65` (issue #69) on `repo/size-base-1` at `ddbfbbdfd`. The owner had asked to keep `main`'s sizes in a store instead of building `main` again in every pull request, and he was ready to give up the comparison if no store worked. The plan weighed (a) a stored file, the wiki or an issue, (b) `main`'s own reading kept by CI, (c) no comparison, and (d) the repaired base build. The owner chose (b) with the workflow artifact: _"Yes, the artifact looks good. I could argue with the architect's conclusions or suggest fixes, like enabling the wiki and trying it, but why? If the artifact idea doesn't work out, we'll look again then."_ (translated).
+
+- **What changes:** property 5's base reading and the last bullet of **Why**. The comment, its rows, its marks, the fork rule and properties 1 to 4 and 6 don't change. So this is an amendment of `RD-7`, not a new decision.
+- **What it accepts:**
+  - No base, and a comment that says so, when `main`'s run for the merge base stored no reading. That happens when the run was reduced (`RD-15`), hadn't uploaded yet, crashed, or is older than the 90 days that the repository keeps an artifact, and when the merge base isn't a `main` commit.
+  - Two readings from two runs. A difference can include a change of the runner image or of Node's minor version between `main`'s run and the pull request's run.
+- **Unimplemented:** the plan's [repair](../size-base-1/size-base-plan.md#the-repair-for-b-with-the-artifact), properties 1 to 7, implements it on `repo/size-base-1`. `RF-65` closes on it. **Implemented** by #72, merged 2026-11-19 as `359c87f8a`. `main`'s push run 44456046120 stored the first reading, and #74's run 44457238397 compared with it (`RF-65`'s closure).
+- **It also amends `RD-6` property 9:** the measurement job adds `actions: read`. That was recorded later the same day, from `reviewer-1` below.
+
+**Amended 2026-11-19 by the architect, on `RF-65`'s [feature proof](../reviews/size-base-1/feature-proof-claude.md) at `11017eaac`,** relayed by the coordinator. Property 5 states two cases that the owner's amendment left implicit. The owner's choice doesn't change.
+
+- **`reviewer-1`, accepted, Tier C:** `RD-6` property 9 said that only `scope` adds `actions: read`. It is amended on this date.
+- **`reviewer-2`, a record statement:** a push run's or a manual run's summary said that _"`main`'s run for the merge base stored no size reading"_. That run looks up no merge base, and on a push to `main` it is the run that stores the reading. Property 5 now says that such a run says nothing about a stored reading. The plan's implementation note, _"A push run's summary says the same"_, doesn't meet it. The implementer repairs it.
+- **The proof's observation on a failed lookup: not acceptable, and repaired before #72 merges.** As implemented, an API error, a rate limit, a missing permission or a failed download gives the same notice and comment as a run that stored nothing.
+  - That makes property 5's _"the report says that none is stored"_ false whenever a stored reading exists and the lookup fails.
+  - If the lookup failed in every run, every comment would show "No base reading" as an expected absence. That is `RF-65`'s own failure mode, which went unnoticed from #27 to #68.
+  - The plan's _"naming an instrument's failure"_, not adopted, was about the reading script. A failing script still fails its step, and its log shows it. A failing lookup changes only the comment's sentence, so the sentence must tell the cases apart.
+  - **The required property** is property 5's sentence on a lookup that fails. A missing run, or a run whose artifact list has no unexpired `size-reading`, is a missing reading. Any call that fails is a failed lookup. The distinction doesn't depend on matching gh's error text. The job still succeeds in both cases (property 4).
+
+**Why.**
+
+- **A tag separates the rows without moving files,** and drag's size file holds graph rows that must keep gating. A separate project or file suffix would split `size.node.test.ts` across two files for the same compositions.
+- **Locally nothing changes.** `DRD-68` makes an over-ceiling row stop a drag unit before release. That is a rule about drag's units, which run locally. CI notifies, as O6 asks.
+- **The merge base, not the base branch's tip,** because the comment reports what this pull request changes, not what landed on `main` meanwhile.
+- **The merge base's reading is the one `main`'s own run took,** because `main` measures every commit it verifies already, and the owner didn't want a second build of `main` in every pull request. The reading then depends on an artifact of an earlier run, which can be missing or expired, and the comment says so when it is. (Until the amendment of 2026-11-19: _"**Measuring both sides in one job** depends on no artifact from an earlier run, which can be missing or expired."_)
+
+**Not adopted.**
+
+- **Building the merge base in each pull request's run,** which property 5 required until 2026-11-19 and which the plan's option (d) repaired. The owner didn't want `main` built again in every pull request.
+- **A committed file on `main`, the wiki, an issue, a cache entry, a third-party service, or no comparison:** the plan's [options](../size-base-1/size-base-plan.md#options) and [recommendation](../size-base-1/size-base-plan.md#recommendation).
+
+- **Speed checks on shared runners.** None exists, and a timing reading on a shared runner tells little. A later speed check enters CI as a measurement row or a step of the measurement job, under this decision.
+- **`pull_request_target` for fork comments.** It runs with write access next to the fork's code.
+
+**What this doesn't decide.** What governs drag's ceilings after release (`drag:DRD-68` property 6). If that rule makes a ceiling gate in CI, it amends this decision.

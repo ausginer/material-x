@@ -1,6 +1,6 @@
 # Performance window correction assessment
 
-**Read:** [`performance-window-correction-report.md`](performance-window-correction-report.md) at `566d4d29e`, on `drag/performance`, by the architect on 2026-11-12. **Code read:** `8d002529a`, the unit's last code commit, against `6e505dacf`. **Governing records:** `DRD-50`, `DRD-49`, `DRD-44` property 6, `DRD-40` property 4 and `DRO-4`, in [`00-index.md`](00-index.md). CONTRIBUTING Part II §0 and §14.
+**Read:** [`performance-window-correction-report.md`](performance-window-correction-report.md) at `566d4d29e`, on `drag/performance`, by the architect on 2026-11-12. **Code read:** `8d002529a`, the unit's last code commit, against `6e505dacf`. **Governing records:** `DRD-50`, `DRD-49`, `DRD-44` property 6, `DRD-40` property 4 and `DRO-4`, in [`00-index.md`](decisions/). CONTRIBUTING Part II §0 and §14.
 
 **Outcome:** `DRD-50` conforms.
 

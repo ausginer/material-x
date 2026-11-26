@@ -1,6 +1,6 @@
 # Mangle selection audit
 
-**Question:** which internal property declarations in `src` does the publish mangle leave unprefixed, although `DRD-56` property 1 admits them? **Base:** `436b105c6` on `drag/size`, whose `packages/drag/src`, `build/` and tests are `31f92f5a9`'s. Line numbers below are at that base. **Scope:** analysis only. No production code changes, and nothing ran in a browser. The architect audited the selection on 2026-11-13 at the owner's request. **Governing records:** `drag:DRD-56` properties 1 and 2, and `DRO-15` step 3. **Decided here:** `DRD-57` in [`00-index.md`](00-index.md). **Next:** [`mangle-selection-handoff.md`](mangle-selection-handoff.md).
+**Question:** which internal property declarations in `src` does the publish mangle leave unprefixed, although `DRD-56` property 1 admits them? **Base:** `436b105c6` on `drag/size`, whose `packages/drag/src`, `build/` and tests are `31f92f5a9`'s. Line numbers below are at that base. **Scope:** analysis only. No production code changes, and nothing ran in a browser. The architect audited the selection on 2026-11-13 at the owner's request. **Governing records:** `drag:DRD-56` properties 1 and 2, and `DRO-15` step 3. **Decided here:** `DRD-57` in [`00-index.md`](decisions/). **Next:** [`mangle-selection-handoff.md`](mangle-selection-handoff.md).
 
 **Outcome:**
 

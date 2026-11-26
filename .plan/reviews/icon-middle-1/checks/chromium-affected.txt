@@ -1,0 +1,11 @@
+# Chromium, at 7ef948b2e, unmutated: the affected files, in material-x's browser and spec projects.
+vitest run -c vitest.config.ts tests/icon/icon.browser.test.ts tests/top-app-bar/top-app-bar.spec.browser.test.ts tests/list/list-item.spec.browser.test.ts tests/list/list-item-overflow.spec.browser.test.ts tests/list/sortable-list.browser.test.ts
+
+ RUN  v5.1.0 /workspaces/worktrees/h/packages/material-x
+
+
+ Test Files  5 passed (5)
+      Tests  897 passed (897)
+   Start at  16:34:12
+   Duration  81.15s (tests 95%, import 3%, worker 2%)
+

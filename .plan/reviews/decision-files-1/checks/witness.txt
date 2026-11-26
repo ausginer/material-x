@@ -1,0 +1,21 @@
+# probes/witness.mjs <clone> b197acdd3 e94ab0e9b
+{
+ "ids": 157,
+ "sameExceptTargets": 157,
+ "differs": [],
+ "targetsChanged": 736,
+ "sameTarget": 735,
+ "rule5": {
+  "toFile": 0,
+  "toDir": 0,
+  "fragToFile": 0,
+  "kept": 1
+ },
+ "badTargets": [],
+ "statusParagraphs": 72,
+ "statusMismatch": [],
+ "absoluteKept": 22,
+ "relativeUnchanged": [
+  "RD-26: o"
+ ]
+}

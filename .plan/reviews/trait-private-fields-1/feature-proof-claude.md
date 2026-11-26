@@ -2,7 +2,7 @@
 
 **Files were read at:** `630b86ee2` (`repo/trait-private-fields-1`, PR #102), in a private worktree. **Diff reviewed:** `origin/main...630b86ee2`: `packages/vite-traits-plugin/src` and `tests`, and `.agents/docs/trait-flattener-plugin.md`. **Build identity was compared against** `bd1dee7df`, the `main` last merged into the branch (`dbf0ab8ae`).
 
-**Governing records:** the [plan](../../trait-private-fields-1/trait-private-fields-plan.md) at `23b9c71cf`; `RD-33` in [`00-index.md`](../../00-index.md); the [plugin document](../../../.agents/docs/trait-flattener-plugin.md); and the implementer's [report](../../trait-private-fields-1/trait-private-fields-report.md) with its [build-identity reading](../../trait-private-fields-1/checks/build-identity.txt).
+**Governing records:** the [plan](../../trait-private-fields-1/trait-private-fields-plan.md) at `23b9c71cf`; `RD-33` in [`00-index.md`](../../decisions/RD-33.md); the [plugin document](../../../.agents/docs/trait-flattener-plugin.md); and the implementer's [report](../../trait-private-fields-1/trait-private-fields-report.md) with its [build-identity reading](../../trait-private-fields-1/checks/build-identity.txt).
 
 **Lens:** feature proof. Each claim below is from my own reading of the tree or from my own probe, unless it says otherwise. Nothing is repaired, and no record is amended.
 

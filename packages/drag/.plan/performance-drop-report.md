@@ -1,6 +1,6 @@
 # Performance drop report
 
-**Input:** [`performance-drop-handoff.md`](performance-drop-handoff.md), carried by `093f31c7f` on `drag/performance`. **Governing records:** `DRD-47` in [`00-index.md`](00-index.md), with `DRD-46` property 8, `DRD-40` properties 4, 6 and 7, `DRD-44` property 6 and `DRD-45` property 9, and [`performance-plan.md`](performance-plan.md) §2 P3. **Base for comparison:** `packages/drag/src` at `566ebfc65`.
+**Input:** [`performance-drop-handoff.md`](performance-drop-handoff.md), carried by `093f31c7f` on `drag/performance`. **Governing records:** `DRD-47` in [`00-index.md`](decisions/), with `DRD-46` property 8, `DRD-40` properties 4, 6 and 7, `DRD-44` property 6 and `DRD-45` property 9, and [`performance-plan.md`](performance-plan.md) §2 P3. **Base for comparison:** `packages/drag/src` at `566ebfc65`.
 
 **Outcome: complete, confirmed.** The pointer drop confirms the axis cache against one row and measures every row only when that row moved or the cache is stale. "50 activate-and-drop cycles, 2000 items, no landing" is "faster" in `scriptUs`: −2,449 µs per cycle against an A/A bound of 409 µs, lower in all 7 rounds. No row is "slower" on any measure, and no layout count is above base. No return condition was met.
 

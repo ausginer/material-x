@@ -4,7 +4,7 @@
 
 **For:** one `implementer` unit on `drag/performance-resolution`, in the worktree `.claude/worktrees/drag-performance-resolution`. **Base:** the commit that carries this handoff. Its `packages/drag/src` is `a9c323f6a`'s, and its `bench/` is `a7b3851c1`'s.
 
-**Governing records:** `DRD-45`, and `DRD-44` as it amends, in [`00-index.md`](00-index.md). Also [`performance-sensitivity-assessment.md`](performance-sensitivity-assessment.md) §4 and §5. The previous unit is [`performance-sensitivity-handoff.md`](performance-sensitivity-handoff.md). Its [report](performance-sensitivity-report.md) and its probe, [`2026-11-11-sensitivity-probe.ts.txt`](measurements/2026-11-11-sensitivity-probe.ts.txt), are this unit's starting point.
+**Governing records:** `DRD-45`, and `DRD-44` as it amends, in [`00-index.md`](decisions/). Also [`performance-sensitivity-assessment.md`](performance-sensitivity-assessment.md) §4 and §5. The previous unit is [`performance-sensitivity-handoff.md`](performance-sensitivity-handoff.md). Its [report](performance-sensitivity-report.md) and its probe, [`2026-11-11-sensitivity-probe.ts.txt`](measurements/2026-11-11-sensitivity-probe.ts.txt), are this unit's starting point.
 
 **Goal:** after this unit, the architect can read each in-page gate row as page, clock or window, by `DRD-45` property 7's table. The architect can also tell whether the gauge's slower first run is its own warm-up, by property 8.
 

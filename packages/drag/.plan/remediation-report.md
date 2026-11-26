@@ -1,6 +1,6 @@
 # Remediation report
 
-**Input:** `drag/production` at `45f5034d8`, which carries [`remediation-handoff.md`](remediation-handoff.md) with the clarified three-round retained rule. The production source there is `d7e7b0d3a`'s. **Governing records:** [`contract.md`](contract.md), and `DRD-14` to `DRD-23` in [`00-index.md`](00-index.md).
+**Input:** `drag/production` at `45f5034d8`, which carries [`remediation-handoff.md`](remediation-handoff.md) with the clarified three-round retained rule. The production source there is `d7e7b0d3a`'s. **Governing records:** [`contract.md`](contract.md), and `DRD-14` to `DRD-23` in [`00-index.md`](decisions/).
 
 **Outcome:** steps 1 to 5 and 7 are implemented, and step 6 ran once. Commits, in order:
 

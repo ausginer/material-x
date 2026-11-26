@@ -1,6 +1,6 @@
 # The coordinator reads each role session's context size, and the owner clears it between units
 
-**Status: decided 2026-11-26 as `repo:RD-67`,** in [`.plan/00-index.md`](../00-index.md), on the owner's [answers](#questions-for-the-owner) of the same day. **Where this plan and `RD-67` differ, `RD-67` applies.** The documents changed in the same pull request: [coordinator-setup.md](../../.agents/docs/coordinator-setup.md) §Direct send step 5 and §Context readings, and [the coordinator's role definition](../../.claude/agents/coordinator.md) §Sessions. SC-4, SC-5, SC-6 and the section on idle compaction are amended below to the answers, and each amendment says what the text said. (**Amended 2026-11-26 by `RD-67`.** This paragraph began: _"**Status: proposed, waiting for the owner's answers**"_, and ended: _"The main architect mints them as one `RD` after the answers ([Identifiers](#identifiers)). Nothing outside this directory changes until then."_)
+**Status: decided 2026-11-26 as `repo:RD-67`,** in [`.plan/00-index.md`](../decisions/RD-67.md), on the owner's [answers](#questions-for-the-owner) of the same day. **Where this plan and `RD-67` differ, `RD-67` applies.** The documents changed in the same pull request: [coordinator-setup.md](../../.agents/docs/coordinator-setup.md) §Direct send step 5 and §Context readings, and [the coordinator's role definition](../../.claude/agents/coordinator.md) §Sessions. SC-4, SC-5, SC-6 and the section on idle compaction are amended below to the answers, and each amendment says what the text said. (**Amended 2026-11-26 by `RD-67`.** This paragraph began: _"**Status: proposed, waiting for the owner's answers**"_, and ended: _"The main architect mints them as one `RD` after the answers ([Identifiers](#identifiers)). Nothing outside this directory changes until then."_)
 
 Written by the architect on `repo/session-context-1`, from `origin/main` at `b523011b6`, on the coordinator's task of 2026-11-26. The labels `SC-1` to `SC-7` are local to this plan ([Identifiers](#identifiers)).
 
@@ -164,7 +164,7 @@ The explainer's proposal named only step 5. The role definition says the same as
 
 ## Identifiers
 
-`SC-1` to `SC-7` are this plan's. **They are minted as `repo:RD-67`,** in [`.plan/00-index.md`](../00-index.md), because `RD-64`'s unit, #302, hasn't landed. If #302 merges first, this branch writes the entry as `.plan/decisions/RD-67.md`, taking `main`'s side of the index conflict (`RD-64` property 7). `RD-66` (`repo/mutations-1`) was the highest `RD-` on any branch on `origin` at the minting, minted there after this plan was written.
+`SC-1` to `SC-7` are this plan's. **They are minted as `repo:RD-67`,** in [`.plan/00-index.md`](../decisions/RD-67.md), because `RD-64`'s unit, #302, hasn't landed. If #302 merges first, this branch writes the entry as `.plan/decisions/RD-67.md`, taking `main`'s side of the index conflict (`RD-64` property 7). `RD-66` (`repo/mutations-1`) was the highest `RD-` on any branch on `origin` at the minting, minted there after this plan was written.
 
 ## Questions for the owner
 

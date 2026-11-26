@@ -1,6 +1,6 @@
 # Ownership handoff
 
-**One bounded unit for one implementer.** It repairs the module split at `bb644d6d7` (`DRD-28`), gives the session its own end (`DRD-26`), and takes the lift out of the kernel, into the behavior's composition (`DRD-27`, as revised on 2026-11-07). The decisions are in [`00-index.md`](00-index.md), and the behavior owed is [`contract.md`](contract.md). **The costs aren't accepted.** This unit reports them for the owner's `DRO-7`.
+**One bounded unit for one implementer.** It repairs the module split at `bb644d6d7` (`DRD-28`), gives the session its own end (`DRD-26`), and takes the lift out of the kernel, into the behavior's composition (`DRD-27`, as revised on 2026-11-07). The decisions are in [`00-index.md`](decisions/), and the behavior owed is [`contract.md`](contract.md). **The costs aren't accepted.** This unit reports them for the owner's `DRO-7`.
 
 **Base:** `drag/production` at the commit that carries this file. It contains the owner's split at `bb644d6d7`, whose typecheck fails. Work on that branch.
 

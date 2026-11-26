@@ -2,7 +2,7 @@
 
 **Files were read at:** `85d11833c`, the head of #220 (`material-x/slider-1`), in slot `c`. The base is `origin/main` at `a4dee53d8`. Every run used a scratch copy of that tree with `@ydinjs/core` and `@ydinjs/material-x` rebuilt in it. Browsers: Playwright's Chromium 158, Firefox 159 and WebKit 27.2, headless, on Linux.
 
-**Subject:** the [plan](../../slider-1/slider-plan.md) (`SL-D1` to `SL-D9`, the tests it owes, the answered questions), `repo:RD-55` with its dated note in [`00-index.md`](../../00-index.md), the [report](../../slider-1/slider-report.md), and the diff `a4dee53d8...85d11833c`.
+**Subject:** the [plan](../../slider-1/slider-plan.md) (`SL-D1` to `SL-D9`, the tests it owes, the answered questions), `repo:RD-55` with its dated note in [`00-index.md`](../../decisions/RD-55.md), the [report](../../slider-1/slider-report.md), and the diff `a4dee53d8...85d11833c`.
 
 **Verdict: the element does what the plan says in the three engines, with three behaviors to settle, all tier A.** A press that becomes a scroll restores the number but not what the slider owned before it (`reviewer-1`). The shown value indicator gives a page scrollable overflow (`reviewer-2`). A negative value is drawn as `18-` in RTL (`reviewer-3`). The first is the one I would settle before the merge, because it loses a value that a script wrote. One row can't fail (`reviewer-5`, tier B). Nothing found changes the architecture or the public surface.
 

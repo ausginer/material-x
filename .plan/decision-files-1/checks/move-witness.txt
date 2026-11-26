@@ -1,0 +1,7 @@
+# RD-64 property 2's witness on the move: entry.sh at b197acdd3 (a scratch clone) against e94ab0e9b, by probes/witness.mjs, every moved identifier.
+{
+ "compared": 157,
+ "linkTargetsChanged": 615,
+ "statusParagraphs": 72,
+ "differ": []
+}

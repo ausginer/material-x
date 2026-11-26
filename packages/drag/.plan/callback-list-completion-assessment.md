@@ -2,7 +2,7 @@
 
 **Read at:** `36dbd55db` on `drag/feature-composition`. That commit carries [`callback-list-completion-report.md`](callback-list-completion-report.md). The implementation is `50ed18a17`, and the handoff's base is `cd69d1149` with the owner's insertion edit ([`insertion-edit.diff.txt`](probes/callback-list/insertion-edit.diff.txt)).
 
-**Governing records:** [`callback-list-completion-handoff.md`](callback-list-completion-handoff.md), and `DRD-35` to `DRD-38`, `DRO-12` and `DRO-13` in [`00-index.md`](00-index.md).
+**Governing records:** [`callback-list-completion-handoff.md`](callback-list-completion-handoff.md), and `DRD-35` to `DRD-38`, `DRO-12` and `DRO-13` in [`00-index.md`](decisions/).
 
 **Method:** a reading of `git diff cd69d1149 50ed18a17` under `src/`, `tests/`, `.plan/probes/` and the package's configuration, and of the report and its [raw output](measurements/2026-11-09-callback-list-completion.txt). Some checks were repeated (§5). Every other result in §5 is the implementer's, and it is marked as reported.
 

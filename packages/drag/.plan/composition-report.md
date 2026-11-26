@@ -1,6 +1,6 @@
 # Composition report
 
-**Input:** `drag/production` at `f91bd324a`, which carries [`composition-handoff.md`](composition-handoff.md). Its package source and tests equal `d4286ce64`'s. **Governing records:** [`contract.md`](contract.md), and `DRD-24`, `DRD-25` and `DRO-6` in [`00-index.md`](00-index.md).
+**Input:** `drag/production` at `f91bd324a`, which carries [`composition-handoff.md`](composition-handoff.md). Its package source and tests equal `d4286ce64`'s. **Governing records:** [`contract.md`](contract.md), and `DRD-24`, `DRD-25` and `DRO-6` in [`00-index.md`](decisions/).
 
 **Outcome:** item 1 landed in its class form, which adopts the session-owner prototype. §1a did not land. Item 2 landed. No stop condition was met, and nothing is returned. Commits, in order:
 

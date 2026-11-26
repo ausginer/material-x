@@ -1,0 +1,21 @@
+# Rule 6 rerun on each fix: node .plan/decision-files-1/probes/move.mjs, run from the root of a fresh clone at each fix commit, then git status --porcelain (empty: the script changes nothing). The last fix, reviewer-1, is read on the working tree before its commit: git diff before and after the run.
+
+## 1d8927fa9 [noci] repo: agent-workflow.md's link to the repository record opens its index (RD-64, reviewer-2)
+move.mjs exit 0
+git status: empty
+
+## 9a4d60505 [noci] repo: two change-record rows that name one decision open its file (RD-64, reviewer-4)
+move.mjs exit 0
+git status: empty
+
+## 02760f583 [noci] repo: eight links that cite a disposition of drag's index open that section (RD-64, reviewer-3)
+move.mjs exit 0
+git status: empty
+
+## 39082cd5c repo: the resolver's row 3 names the duplicate in its working tree, so a crash fails it (RD-64, reviewer-5)
+move.mjs exit 0
+git status: empty
+
+## reviewer-1, the working tree before its commit
+move.mjs exit 0
+git diff before fecd58843289, after fecd58843289; git status unchanged

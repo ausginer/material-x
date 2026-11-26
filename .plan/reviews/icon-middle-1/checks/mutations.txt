@@ -1,0 +1,199 @@
+# tests/icon/icon.browser.test.ts, one change at a time to icon.ctr.css's 'vertical-align: middle', at 7ef948b2e, one engine at a time with nothing else running (probes/mutations.sh.txt). Lines are vitest's, filtered; vitest groups failures with the same message under one AssertionError.
+
+## chromium: unmutated
+ Test Files  1 passed (1)
+      Tests  27 passed (27)
+(no vertical-align)
+## chromium: DELETE
+     × should stand its middle on the middle of the lowercase letters of a span 148ms
+     × should stand its middle on the middle of the lowercase letters of a native button 72ms
+     × should follow the x-height of the text 67ms
+     × should stand its middle on the middle of the lowercase letters of a span 72ms
+     × should stand its middle on the middle of the lowercase letters of a native button 78ms
+     × should follow the x-height of the text 67ms
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:123 > mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a span
+AssertionError: expected 3.5 to be less than or equal to 1
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:133 > mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a native button
+AssertionError: expected 3.5 to be less than or equal to 1
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 16px text > should follow the x-height of the text
+AssertionError: expected 2.3999999999999986 to be less than or equal to 1
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:123 > mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a span
+AssertionError: expected 5.5 to be less than or equal to 1
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:133 > mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a native button
+AssertionError: expected 5.5 to be less than or equal to 1
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 24px text > should follow the x-height of the text
+AssertionError: expected 3.6000000000000014 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  6 failed | 21 passed (27)
+25:  vertical-align: -0.125em;
+## chromium:   vertical-align: -0.125em;
+     × should stand its middle on the middle of the lowercase letters of a span 135ms
+     × should stand its middle on the middle of the lowercase letters of a native button 69ms
+     × should stand its middle on the middle of the lowercase letters of a span 70ms
+     × should stand its middle on the middle of the lowercase letters of a native button 67ms
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:123 > mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a span
+AssertionError: expected 1.5 to be less than or equal to 1
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:133 > mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a native button
+AssertionError: expected 1.5 to be less than or equal to 1
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:123 > mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a span
+AssertionError: expected 2.5 to be less than or equal to 1
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:133 > mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a native button
+AssertionError: expected 2.5 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  4 failed | 23 passed (27)
+25:  vertical-align: -0.25em;
+## chromium:   vertical-align: -0.25em;
+     × should follow the x-height of the text 149ms
+     × should follow the x-height of the text 70ms
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 16px text > should follow the x-height of the text
+AssertionError: expected 1.6000000000000014 to be less than or equal to 1
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 24px text > should follow the x-height of the text
+AssertionError: expected 2.3999999999999986 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  2 failed | 25 passed (27)
+25:  vertical-align: -0.2em;
+## chromium:   vertical-align: -0.2em;
+     × should follow the x-height of the text 156ms
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 24px text > should follow the x-height of the text
+AssertionError: expected 1.1968749999999986 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  1 failed | 26 passed (27)
+25:  vertical-align: text-bottom;
+## chromium:   vertical-align: text-bottom;
+     × should follow the x-height of the text 141ms
+     × should follow the x-height of the text 71ms
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 16px text > should follow the x-height of the text
+AssertionError: expected 2.6000000000000014 to be less than or equal to 1
+ FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 24px text > should follow the x-height of the text
+AssertionError: expected 4.399999999999999 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  2 failed | 25 passed (27)
+restored
+
+## firefox: unmutated
+ Test Files  1 passed (1)
+      Tests  10 passed | 17 skipped (27)
+(no vertical-align)
+## firefox: DELETE
+     × should stand its middle on the middle of the lowercase letters of a span 345ms
+     × should stand its middle on the middle of the lowercase letters of a native button 226ms
+     × should follow the x-height of the text 84ms
+     × should stand its middle on the middle of the lowercase letters of a span 219ms
+     × should stand its middle on the middle of the lowercase letters of a native button 127ms
+     × should follow the x-height of the text 117ms
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:123 > mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a span
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:123 > mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a span
+AssertionError: expected 3.5 to be less than or equal to 1
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:133 > mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a native button
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:133 > mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a native button
+AssertionError: expected 3.5 to be less than or equal to 1
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 16px text > should follow the x-height of the text
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 24px text > should follow the x-height of the text
+AssertionError: expected 2.3999999999999986 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  6 failed | 4 passed | 17 skipped (27)
+25:  vertical-align: -0.125em;
+## firefox:   vertical-align: -0.125em;
+     × should stand its middle on the middle of the lowercase letters of a span 185ms
+     × should stand its middle on the middle of the lowercase letters of a native button 207ms
+     × should stand its middle on the middle of the lowercase letters of a span 157ms
+     × should stand its middle on the middle of the lowercase letters of a native button 170ms
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:123 > mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a span
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:123 > mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a span
+AssertionError: expected 1.5 to be less than or equal to 1
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:133 > mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a native button
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:133 > mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a native button
+AssertionError: expected 1.5 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  4 failed | 6 passed | 17 skipped (27)
+25:  vertical-align: -0.25em;
+## firefox:   vertical-align: -0.25em;
+     × should follow the x-height of the text 164ms
+     × should follow the x-height of the text 75ms
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 16px text > should follow the x-height of the text
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 24px text > should follow the x-height of the text
+AssertionError: expected 1.6000000000000014 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 passed | 17 skipped (27)
+25:  vertical-align: -0.2em;
+## firefox:   vertical-align: -0.2em;
+     × should follow the x-height of the text 258ms
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 24px text > should follow the x-height of the text
+AssertionError: expected 1.200003051757811 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed | 17 skipped (27)
+25:  vertical-align: text-bottom;
+## firefox:   vertical-align: text-bottom;
+     × should follow the x-height of the text 143ms
+     × should follow the x-height of the text 75ms
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 16px text > should follow the x-height of the text
+ FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 24px text > should follow the x-height of the text
+AssertionError: expected 3.6000000000000014 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 passed | 17 skipped (27)
+restored
+
+## webkit: unmutated
+ Test Files  1 passed (1)
+      Tests  10 passed | 17 skipped (27)
+(no vertical-align)
+## webkit: DELETE
+     × should stand its middle on the middle of the lowercase letters of a span 158ms
+     × should stand its middle on the middle of the lowercase letters of a native button 74ms
+     × should follow the x-height of the text 79ms
+     × should stand its middle on the middle of the lowercase letters of a span 80ms
+     × should stand its middle on the middle of the lowercase letters of a native button 82ms
+     × should follow the x-height of the text 80ms
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:123 > mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a span
+AssertionError: expected 3.5 to be less than or equal to 1
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:133 > mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a native button
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:133 > mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a native button
+AssertionError: expected 3.5 to be less than or equal to 1
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 16px text > should follow the x-height of the text
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 24px text > should follow the x-height of the text
+AssertionError: expected 2.3999999999999986 to be less than or equal to 1
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:123 > mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a span
+AssertionError: expected 5.5 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  6 failed | 4 passed | 17 skipped (27)
+25:  vertical-align: -0.125em;
+## webkit:   vertical-align: -0.125em;
+     × should stand its middle on the middle of the lowercase letters of a span 168ms
+     × should stand its middle on the middle of the lowercase letters of a native button 80ms
+     × should stand its middle on the middle of the lowercase letters of a span 71ms
+     × should stand its middle on the middle of the lowercase letters of a native button 80ms
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:123 > mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a span
+AssertionError: expected 1.5 to be less than or equal to 1
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:133 > mx-icon inline in 16px text > should stand its middle on the middle of the lowercase letters of a native button
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:133 > mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a native button
+AssertionError: expected 1.5 to be less than or equal to 1
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:123 > mx-icon inline in 24px text > should stand its middle on the middle of the lowercase letters of a span
+AssertionError: expected 2.5 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  4 failed | 6 passed | 17 skipped (27)
+25:  vertical-align: -0.25em;
+## webkit:   vertical-align: -0.25em;
+     × should follow the x-height of the text 149ms
+     × should follow the x-height of the text 68ms
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 16px text > should follow the x-height of the text
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 24px text > should follow the x-height of the text
+AssertionError: expected 1.6000000000000014 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 passed | 17 skipped (27)
+25:  vertical-align: -0.2em;
+## webkit:   vertical-align: -0.2em;
+     × should follow the x-height of the text 197ms
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 24px text > should follow the x-height of the text
+AssertionError: expected 1.1968749999999986 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed | 17 skipped (27)
+25:  vertical-align: text-bottom;
+## webkit:   vertical-align: text-bottom;
+     × should follow the x-height of the text 198ms
+     × should follow the x-height of the text 73ms
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 16px text > should follow the x-height of the text
+ FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts:147 > mx-icon inline in 24px text > should follow the x-height of the text
+AssertionError: expected 2.6000000000000014 to be less than or equal to 1
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 passed | 17 skipped (27)
+restored

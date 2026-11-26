@@ -4,7 +4,7 @@
 
 **Governing records:**
 
-- `DRD-51` in [`00-index.md`](00-index.md): the amendment of §First unit item 2, and properties 1 to 4 with property 3 as amended;
+- `DRD-51` in [`00-index.md`](decisions/DRD-51.md): the amendment of §First unit item 2, and properties 1 to 4 with property 3 as amended;
 - [`size-pass-unit-assessment.md`](size-pass-unit-assessment.md) §3 and §4, which give the reasons;
 - [`performance-plan.md`](performance-plan.md) §3, on sequencing runs and waiting for them.
 

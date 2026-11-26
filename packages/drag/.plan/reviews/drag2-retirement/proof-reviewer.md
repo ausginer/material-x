@@ -8,7 +8,7 @@
 - **The reviewed range is `b376b356c..a5f028959`:** seven commits, listed in the [report](../../drag2-retirement-report.md) §Commits. drag2's deleted sources are read at `0870abd75`. `0870abd75..b376b356c` changes no file under `packages/drag2/` ([`commands.sh`](proof-reviewer-probes/commands.sh.txt)).
 - **Governing records:**
   - `drag:DRD-64`, `drag:DRO-17` and `drag:DRF-43`, in [`00-index.md`](../../00-index.md);
-  - `repo:RD-5`, in [`.plan/00-index.md`](../../../../../.plan/00-index.md);
+  - `repo:RD-5`, in [`.plan/00-index.md`](../../../../../.plan/decisions/RD-5.md);
   - the [assessment](../../drag2-retirement-assessment.md) and the [handoff](../../drag2-retirement-handoff.md);
   - the owner's constraint: TransformedStage is ported with the faithful lift only, with no lift-mode control.
 - **The report** is [`drag2-retirement-report.md`](../../drag2-retirement-report.md), with its evidence under [`probes/drag2-retirement/`](../../probes/drag2-retirement/).

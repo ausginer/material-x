@@ -1,0 +1,136 @@
+// RF-147 feature proof: boxes of mx-icon in the package's elements, main's icon.ctr.css against
+// the branch's, in one engine. The implementer's boxes.mjs cases, plus the package's elements
+// that place an mx-icon and that boxes.mjs doesn't read (checkbox, radio, split, switch and link
+// buttons, top app bar). Icons are read through open shadow roots too.
+// "main" is the branch's build with `vertical-align:middle;` removed from icon.ctr.css.js in the
+// bundle; "fix2" is a second run of the branch's build, the control for pixels.
+// Run from packages/material-x, with the packages built:
+//   node engines-boxes.mjs <chromium|firefox|webkit> <out-dir>
+import { mkdir, writeFile, readFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
+const require = createRequire(`${process.cwd()}/package.json`);
+const rootRequire = createRequire(`${process.cwd()}/../../package.json`);
+const { rolldown } = await import(rootRequire.resolve('rolldown'));
+const pw = require('playwright');
+const { PNG } = rootRequire('pngjs');
+const [engine, out] = process.argv.slice(2);
+await mkdir(out, { recursive: true });
+const entries = [
+  'list/list-item', 'list/list-button-item', 'list/sortable-list', 'list/list',
+  'text-field/text-field', 'icon/icon', 'button/icon-button', 'button/button', 'fab/fab',
+  'checkbox/checkbox', 'radio/radio', 'button/split-button', 'button/switch-button',
+  'button/link-button', 'top-app-bar/top-app-bar',
+];
+async function bundle(variant) {
+  let stripped = 0;
+  const build = await rolldown({
+    input: 'entry',
+    platform: 'browser',
+    plugins: [{
+      name: 'e',
+      resolveId: (id) => (id === 'entry' ? id : null),
+      load: (id) => id === 'entry'
+        ? entries.map((e) => `import ${JSON.stringify(`${process.cwd()}/${e}.js`)};`).join('')
+        : null,
+      transform: (code, id) => {
+        if (variant !== 'main' || !id.endsWith('/icon/styles/icon.ctr.css.js')) return null;
+        const next = code.replace('vertical-align:middle;', '');
+        stripped += next !== code ? 1 : 0;
+        return next;
+      },
+    }],
+  });
+  const { output } = await build.generate({ format: 'iife', name: 'mx' });
+  if (variant === 'main' && stripped !== 1) throw new Error(`stripped ${stripped}`);
+  const code = output.map((c) => c.code ?? '').join('\n').replaceAll('</script', '<\\/script');
+  if (variant === 'main' && code.includes('vertical-align:middle')) throw new Error('still there');
+  if (variant !== 'main' && !code.includes('vertical-align:middle')) throw new Error('fix missing');
+  return code;
+}
+const FONT = (await readFile('tests/support/fonts/material-symbols-subset.ttf')).toString('base64');
+const HANDLES = {
+  'span-text': (slot) => `<span data-handle slot="${slot}">≡</span>`,
+  'mx-icon': (slot) => `<mx-icon data-handle slot="${slot}">check</mx-icon>`,
+  'span-mx-icon': (slot) => `<span data-handle slot="${slot}"><mx-icon>check</mx-icon></span>`,
+  'mx-icon-button': (slot) => `<mx-icon-button data-handle slot="${slot}"><mx-icon>check</mx-icon></mx-icon-button>`,
+  'button-text': (slot) => `<button data-handle slot="${slot}">≡</button>`,
+  'button-mx-icon': (slot) => `<button data-handle slot="${slot}"><mx-icon>check</mx-icon></button>`,
+};
+const CASES = {};
+for (const item of ['mx-list-item', 'mx-list-button-item'])
+  for (const slot of ['lead', 'trail'])
+    for (const [name, html] of Object.entries(HANDLES))
+      CASES[`${item}-${slot}-${name}`] = `<mx-sortable-list style="display:block;inline-size:300px"><${item} id=target>${html(slot)}A</${item}></mx-sortable-list>`;
+CASES['icon-alone'] = '<span id=target style="display:inline-block;font-size:24px">a<mx-icon>check</mx-icon>b</span>';
+CASES['button-icon'] = '<mx-button id=target><mx-icon slot="icon">check</mx-icon>Label</mx-button>';
+CASES['icon-button'] = '<mx-icon-button id=target><mx-icon>check</mx-icon></mx-icon-button>';
+CASES['fab'] = '<mx-fab id=target><mx-icon>check</mx-icon></mx-fab>';
+CASES['fab-extended'] = '<mx-fab id=target extended="open"><mx-icon slot="icon">check</mx-icon>Label</mx-fab>';
+for (const item of ['mx-list-item', 'mx-list-button-item'])
+  CASES[`${item}-icons`] = `<mx-list style="display:block;inline-size:300px"><${item} id=target><mx-icon slot="lead">check</mx-icon>A<mx-icon slot="trail">check</mx-icon></${item}></mx-list>`;
+for (const item of ['mx-list-item', 'mx-list-button-item'])
+  for (const slot of ['lead', 'trail'])
+    CASES[`${item}-${slot}-page-span-mx-icon`] = `<mx-list style="display:block;inline-size:300px"><${item} id=target><span data-line slot="${slot}"><mx-icon>check</mx-icon></span>A</${item}></mx-list>`;
+CASES['text-field-icons'] = '<mx-text-field id=target><span slot="label">A</span><mx-icon slot="lead">check</mx-icon><mx-icon slot="trail">check</mx-icon></mx-text-field>';
+// Not in boxes.mjs.
+CASES['checkbox'] = '<mx-checkbox id=target></mx-checkbox>';
+CASES['checkbox-checked'] = '<mx-checkbox id=target checked></mx-checkbox>';
+CASES['checkbox-in-text'] = '<span style="font-size:16px">a<mx-checkbox id=target checked></mx-checkbox>b</span>';
+CASES['radio'] = '<mx-radio id=target></mx-radio>';
+CASES['radio-checked'] = '<mx-radio id=target checked></mx-radio>';
+CASES['split-button'] = '<mx-split-button id=target><mx-icon slot="icon">check</mx-icon>Label</mx-split-button>';
+CASES['switch-button'] = '<mx-switch-button id=target><mx-icon slot="icon">check</mx-icon>Label</mx-switch-button>';
+CASES['link-button'] = '<mx-link-button id=target href="#"><mx-icon slot="icon">check</mx-icon>Label</mx-link-button>';
+CASES['top-app-bar-icons'] = '<mx-top-app-bar id=target><mx-icon slot="lead">menu</mx-icon>Title<mx-icon slot="trail">check</mx-icon></mx-top-app-bar>';
+CASES['top-app-bar-icon-buttons'] = '<mx-top-app-bar id=target><mx-icon-button slot="lead"><mx-icon>menu</mx-icon></mx-icon-button>Title<mx-icon-button slot="trail"><mx-icon>check</mx-icon></mx-icon-button></mx-top-app-bar>';
+const browser = await pw[engine].launch();
+const version = `${engine} ${browser.version()}`;
+const results = {};
+for (const variant of ['fix', 'main', 'fix2']) {
+  const code = await bundle(variant);
+  const page = await browser.newPage({ viewport: { width: 400, height: 200 } });
+  const rects = {};
+  for (const [name, html] of Object.entries(CASES)) {
+    await page.setContent(`<!doctype html><style>@font-face{font-family:'Material Symbols Outlined';src:url(data:font/ttf;base64,${FONT})}body{margin:20px;font-family:sans-serif}*{animation:none!important;transition:none!important}</style>${html}<script>${code}</script>`);
+    await page.evaluate(() => document.fonts.load('24px "Material Symbols Outlined"'));
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    rects[name] = await page.evaluate(() => {
+      const r = (e) => {
+        const b = (e.shadowRoot?.querySelector('.host') ?? e).getBoundingClientRect();
+        return [b.x, b.y, b.width, b.height].map((v) => Math.round(v * 100) / 100);
+      };
+      const icons = [];
+      const walk = (root) => {
+        for (const e of root.querySelectorAll('*')) {
+          if (e.localName === 'mx-icon') icons.push(r(e));
+          if (e.shadowRoot) walk(e.shadowRoot);
+        }
+      };
+      walk(document);
+      const h = document.querySelector('[data-handle]');
+      return { target: r(document.querySelector('#target')), handle: h && r(h), icons };
+    });
+    const [x, y, w, hh] = rects[name].target;
+    await page.screenshot({ path: `${out}/${variant}-${name}.png`, clip: { x: Math.max(0, x - 8), y: Math.max(0, y - 8), width: w + 16, height: hh + 16 } });
+  }
+  results[variant] = rects;
+  await page.close();
+}
+await browser.close();
+const pixels = async (a, b, name) => {
+  const [p, q] = [PNG.sync.read(await readFile(`${out}/${a}-${name}.png`)), PNG.sync.read(await readFile(`${out}/${b}-${name}.png`))];
+  if (p.width !== q.width || p.height !== q.height) return `size ${p.width}x${p.height} -> ${q.width}x${q.height}`;
+  let n = 0;
+  for (let i = 0; i < p.data.length; i += 4) if (p.data.readUInt32BE(i) !== q.data.readUInt32BE(i)) n += 1;
+  return n === 0 ? 'same' : `${n} differ`;
+};
+const lines = [`# ${version}. main -> fix: rects, and pixels at rest. control: fix -> fix2 pixels.`];
+for (const name of Object.keys(CASES)) {
+  const [a, b] = [JSON.stringify(results.main[name]), JSON.stringify(results.fix[name])];
+  const px = await pixels('main', 'fix', name);
+  const ctl = await pixels('fix', 'fix2', name);
+  lines.push(`${name}: rects ${a === b ? 'same' : `main ${a}\n    fix  ${b}`}; pixels ${px}; control ${ctl}`);
+}
+await writeFile(`${out}/rects.json`, JSON.stringify({ version, ...results }, null, 1));
+await writeFile(`${out}/summary.txt`, `${lines.join('\n')}\n`);
+console.log(lines.join('\n'));

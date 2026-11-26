@@ -1,6 +1,6 @@
 # Performance sensitivity: assessment
 
-**Read:** [`performance-sensitivity-report.md`](performance-sensitivity-report.md) at `24cdadc48` on `drag/performance-resolution`, with its raw files under `measurements/`. **Governing records:** `DRD-44`, `DRD-43` and `DRD-40` in [`00-index.md`](00-index.md), and [`performance-resolution-assessment.md`](performance-resolution-assessment.md) §4. **Read by:** the architect, on 2026-11-11.
+**Read:** [`performance-sensitivity-report.md`](performance-sensitivity-report.md) at `24cdadc48` on `drag/performance-resolution`, with its raw files under `measurements/`. **Governing records:** `DRD-44`, `DRD-43` and `DRD-40` in [`00-index.md`](decisions/), and [`performance-resolution-assessment.md`](performance-resolution-assessment.md) §4. **Read by:** the architect, on 2026-11-11.
 
 **Outcome:**
 
@@ -109,7 +109,7 @@ None of this is an outcome.
 
 ## 5. Decision: `DRD-45`
 
-`DRD-45` in [`00-index.md`](00-index.md) decides five things:
+`DRD-45` in [`00-index.md`](decisions/DRD-45.md) decides five things:
 
 - The gauge test of `DRD-44` property 7 is withdrawn.
 - `DRD-44`'s outcome is final as not resolved, and the rerun is replaced.

@@ -1,6 +1,6 @@
 # Performance sensitivity report
 
-**Unit:** [`performance-sensitivity-handoff.md`](performance-sensitivity-handoff.md), one `implementer` unit on `drag/performance-resolution`. **Input revision:** `25b8c7a8f`. Its `src/` is `a9c323f6a`'s and its `bench/` is `a7b3851c1`'s. **Governing records:** `DRD-44`, `DRD-43`, `DRD-40` and `DRD-23`'s last bullet in [`00-index.md`](00-index.md).
+**Unit:** [`performance-sensitivity-handoff.md`](performance-sensitivity-handoff.md), one `implementer` unit on `drag/performance-resolution`. **Input revision:** `25b8c7a8f`. Its `src/` is `a9c323f6a`'s and its `bench/` is `a7b3851c1`'s. **Governing records:** `DRD-44`, `DRD-43`, `DRD-40` and `DRD-23`'s last bullet in [`00-index.md`](decisions/).
 
 **Outcome:** the probe ran in all four processes, U1, E1, U2 and E2, as one campaign. Every process exited 0, every row ran and every cycle ended. **No reading in any process is settled by `DRD-44` property 7, so no row has a settled round in any process.** This report gives the figures. It doesn't classify the outcome; the architect applies `DRD-44` property 8.
 

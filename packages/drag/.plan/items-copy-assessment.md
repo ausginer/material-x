@@ -1,6 +1,6 @@
 # The `items()` copies under CONTRIBUTING §1.1
 
-**Status, 2026-11-08: decided as `DRD-31`** in [`00-index.md`](00-index.md). The contract's `DRI-14` carries the consistency rule, and [`items-borrowing-handoff.md`](items-borrowing-handoff.md) implements it. The owner directed that the copies be removed, with the home gap saved at activation and at every rebase. This record is the evidence. Where it disagrees with `DRD-31` or `DRI-14`, those win.
+**Status, 2026-11-08: decided as `DRD-31`** in [`00-index.md`](decisions/DRD-31.md). The contract's `DRI-14` carries the consistency rule, and [`items-borrowing-handoff.md`](items-borrowing-handoff.md) implements it. The owner directed that the copies be removed, with the home gap saved at activation and at every rebase. This record is the evidence. Where it disagrees with `DRD-31` or `DRI-14`, those win.
 
 **Revisions:**
 

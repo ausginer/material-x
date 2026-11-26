@@ -128,7 +128,7 @@ Before updating a screenshot, inspect: the active tproc profile; contract ID and
 
 **A project's global setup does not throw for a failure it can foresee,** because Vitest ends the whole run for every project. It passes the failure to that project's files, which raise it, so one package's failed build leaves the others' results standing.
 
-**A run's verdict is its exit status.** A real close failure at a group boundary sets it whichever reporters are selected, but only Vitest's base reporter family prints the error: `default`, `minimal`, `verbose`, `dot` and `tree`. `json` reports rows and does not carry it, so its `success` can read true on a run that exits 1. **A route this repository tracks keeps a base-family reporter in its list and reads the exit status.** Every current route does. A reporter selected by hand elsewhere is allowed, and without a base-family reporter beside it may give only the exit status: [`repo:RD-3`](../../.plan/00-index.md).
+**A run's verdict is its exit status.** A real close failure at a group boundary sets it whichever reporters are selected, but only Vitest's base reporter family prints the error: `default`, `minimal`, `verbose`, `dot` and `tree`. `json` reports rows and does not carry it, so its `success` can read true on a run that exits 1. **A route this repository tracks keeps a base-family reporter in its list and reads the exit status.** Every current route does. A reporter selected by hand elsewhere is allowed, and without a base-family reporter beside it may give only the exit status: [`repo:RD-3`](../../.plan/decisions/RD-3.md).
 
 **Test watch and VS Code Continuous Run are retired**, and so is `vitest --watch` in any form for tests. A rerun would arrive in a process that has already released its browsers, so the modes that depend on one are withdrawn by intent rather than left to fail quietly. A second run raises before any module executes:
 
@@ -157,7 +157,7 @@ Every push to `main` and every pull request that is not a draft must be gated on
 
 Size, allocation and speed checks are outside the gate: CI reports them, and a pull request gets a comment showing how sizes changed, but they never fail the build. Coverage from the Chromium run is uploaded to Codecov. Coverage reports are diagnostic; a global percentage is not a substitute for the contract categories above.
 
-**The gate is on.** `.github/workflows/verify.yml` runs on every push to `main` and every pull request that is not a draft, in the pinned visual environment, and the ruleset on `main` requires its `verify` check, so a pull request whose `verify` fails can't merge. The record: [`repo:RD-2`](../../.plan/00-index.md); the design: `repo:RD-6` to `repo:RD-9`, `repo:RD-12`, `repo:RD-13` and `repo:RD-14`. The same workflow deploys the docs build it loaded to GitHub Pages, from `main` only.
+**The gate is on.** `.github/workflows/verify.yml` runs on every push to `main` and every pull request that is not a draft, in the pinned visual environment, and the ruleset on `main` requires its `verify` check, so a pull request whose `verify` fails can't merge. The record: [`repo:RD-2`](../../.plan/decisions/RD-2.md); the design: `repo:RD-6` to `repo:RD-9`, `repo:RD-12`, `repo:RD-13` and `repo:RD-14`. The same workflow deploys the docs build it loaded to GitHub Pages, from `main` only.
 
 Scheduled or manual jobs may add the full visual state matrix, dark/contrast theme expansion, RTL/zoom/forced-colors/reduced-motion resilience, and targeted accessibility-tree or manual AT validation.
 

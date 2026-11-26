@@ -1,6 +1,6 @@
 # Execution boundary report
 
-**Input:** `drag/production` at `2a07fd296`, which carries `DRD-32` and `DRO-9`. The source base is the owner's `8943f14e5`, unchanged at `2a07fd296`. **Governing records:** `DRD-32` §Implementation and `DRO-9` in [`00-index.md`](00-index.md), the [assessment](execution-boundary-assessment.md) §3, §4 and §7, and the prototype's [`kernel-v3.diff.txt`](probes/execution-boundary/kernel-v3.diff.txt).
+**Input:** `drag/production` at `2a07fd296`, which carries `DRD-32` and `DRO-9`. The source base is the owner's `8943f14e5`, unchanged at `2a07fd296`. **Governing records:** `DRD-32` §Implementation and `DRO-9` in [`00-index.md`](decisions/), the [assessment](execution-boundary-assessment.md) §3, §4 and §7, and the prototype's [`kernel-v3.diff.txt`](probes/execution-boundary/kernel-v3.diff.txt).
 
 **Outcome:** `DRD-32` landed in one commit, with no test edited. The suite passes in Chromium, Firefox and WebKit, and so does the per-sample test. Each of the four mutations makes its witness fail. **Every row is inside `DRO-9`'s approved figures.** The largest Brotli change is +20 B, and nothing is allocated per sample. No ceiling is re-based, and no timing was taken.
 

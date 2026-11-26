@@ -4,7 +4,7 @@
 
 **Governing records:**
 
-- `repo:RD-31` in [`00-index.md`](../../00-index.md), with its six amendments.
+- `repo:RD-31` in [`00-index.md`](../../decisions/RD-31.md), with its six amendments.
 - The [plan](../../list-sortable-1/list-sortable-plan.md): section 4, [How a static item takes focus](../../list-sortable-1/list-sortable-plan.md#how-a-static-item-takes-focus), [Where the sortable writes live](../../list-sortable-1/list-sortable-plan.md#where-the-sortable-writes-live), tasks 1 to 7, the stop conditions and the test map.
 - The [report](../../list-sortable-1/list-sortable-report.md), including _After `RF-69`_.
 

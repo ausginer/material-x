@@ -1,6 +1,6 @@
 # RectIndex access: assessment
 
-**Read:** [`rect-index-access-report.md`](rect-index-access-report.md) at `f788b2b80` on `drag/rect-index-ownership`, and the unit's source and test commit `010a9ef39`. **Governing records:** [`rect-index-access-handoff.md`](rect-index-access-handoff.md), and `DRD-61` and what it amends in [`00-index.md`](00-index.md). Assessed by the architect on 2026-11-13, in Chromium only.
+**Read:** [`rect-index-access-report.md`](rect-index-access-report.md) at `f788b2b80` on `drag/rect-index-ownership`, and the unit's source and test commit `010a9ef39`. **Governing records:** [`rect-index-access-handoff.md`](rect-index-access-handoff.md), and `DRD-61` and what it amends in [`00-index.md`](decisions/DRD-61.md). Assessed by the architect on 2026-11-13, in Chromium only.
 
 **Outcome: accepted.** `010a9ef39` implements `DRD-61`, and no return condition was met. The size readings equal the figures `DRD-61` recorded, and no verdict changes. Allocation falls on three of the five probes. That is a reduction in bytes allocated, and it shows nothing about speed. The timing check reads "no difference shown" in all three cases. That result is inconclusive, so a speed change in either direction is unmeasured.
 

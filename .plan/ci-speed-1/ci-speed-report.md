@@ -7,7 +7,7 @@
 
 The sections from _Item 4_ to _What wasn't verified_ are the report of the first stop. Each one that a later step changed carries a dated note.
 
-**Branch** `repo/ci-speed-1`, pull request [#31](https://github.com/ausginer/material-x/pull/31) (non-draft, open). The input was `183053ca6`. The head this report describes is the commit that adds it. **Governing records:** `repo:RD-12` as amended, `repo:RD-15` and `repo:RD-16`, in [`../00-index.md`](../00-index.md).
+**Branch** `repo/ci-speed-1`, pull request [#31](https://github.com/ausginer/material-x/pull/31) (non-draft, open). The input was `183053ca6`. The head this report describes is the commit that adds it. **Governing records:** `repo:RD-12` as amended, `repo:RD-15` and `repo:RD-16`, in [`../00-index.md`](../decisions/).
 
 ## Runs read
 

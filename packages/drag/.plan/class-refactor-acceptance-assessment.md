@@ -7,7 +7,7 @@
 
 **The governing records:**
 
-- `DRD-63` in [`00-index.md`](00-index.md), with property 2 as revised on 2026-11-14;
+- `DRD-63` in [`00-index.md`](decisions/DRD-63.md), with property 2 as revised on 2026-11-14;
 - what `DRD-63` amends: `DRD-35` properties 1 and 7, and `DRD-37` property 4;
 - the [recheck assessment](class-refactor-recheck-assessment.md), §4 (Q4) and §5 (what remains before acceptance);
 - the [follow-up handoff](class-refactor-receiver-handoff.md).

@@ -1,6 +1,6 @@
 # Every row move is animated — plan
 
-**Status: planned on 2026-11-25 by the architect, on `drag/displacement-1` from `main` at `e57c9f074`. Unimplemented. The owner accepted the cost the same day (Q1 (a)), so it is ready.** The finding is [#265](https://github.com/ausginer/material-x/issues/265), whose body is its contract. The decision is [`DRD-72`](../00-index.md). This document has the design, the readings and the work list. #266 follows it, by `repo:RD-60`.
+**Status: planned on 2026-11-25 by the architect, on `drag/displacement-1` from `main` at `e57c9f074`. Unimplemented. The owner accepted the cost the same day (Q1 (a)), so it is ready.** The finding is [#265](https://github.com/ausginer/material-x/issues/265), whose body is its contract. The decision is [`DRD-72`](../decisions/DRD-72.md). This document has the design, the readings and the work list. #266 follows it, by `repo:RD-60`.
 
 ## Readings
 

@@ -1,6 +1,6 @@
 # Feature proof: the release workflow (`RD-27`), PR #81
 
-**Read at** `e73411cf4` on `repo/release-workflow-1`, against the [release workflow plan](../../release-workflow-1/release-workflow-plan.md) and `RD-27` in the [register](../../00-index.md). Reviewer: Claude, a feature-proof pass that didn't implement the unit, on the coordinator's task of 2026-11-20. The probes are in [`checks/release-workflow-probes.txt`](checks/release-workflow-probes.txt).
+**Read at** `e73411cf4` on `repo/release-workflow-1`, against the [release workflow plan](../../release-workflow-1/release-workflow-plan.md) and `RD-27` in the [register](../../decisions/RD-27.md). Reviewer: Claude, a feature-proof pass that didn't implement the unit, on the coordinator's task of 2026-11-20. The probes are in [`checks/release-workflow-probes.txt`](checks/release-workflow-probes.txt).
 
 **Scope:**
 
