@@ -1,0 +1,137 @@
+// Probe for #322. Prints one line per case: what the item does at the drop.
+import { afterAll, describe, it } from 'vitest';
+import { landing } from '../src/sortable/landing.ts';
+import { layoutAnimation } from '../src/sortable/layout-animation.ts';
+import { xy } from '../src/sortable/xy.ts';
+import { ReorderResolution } from '../src/sortable.ts';
+import {
+  basicSortable,
+  commands,
+  faultMessages,
+  frames,
+  log,
+  makeList,
+  order,
+  row,
+  rowsOf,
+} from './support/harness.ts';
+
+const OUT: string[] = [];
+afterAll(() => {
+  throw new Error('\n' + OUT.join('\n'));
+});
+
+const LONG = 3_600_000;
+const pos = (e: HTMLElement): string => {
+  const r = e.getBoundingClientRect();
+  return `${Math.round(r.left)},${Math.round(r.top)}`;
+};
+const flights = (e: HTMLElement): number =>
+  e
+    .getAnimations()
+    .filter((a) => (a.effect as KeyframeEffect).composite === 'add').length;
+
+type Path = readonly (readonly [number, number])[];
+
+const PATHS: Record<string, Path> = {
+  // mx-sortable-list's case: sideways, the slot unchanged.
+  sideways: [
+    [30, 0],
+    [60, 0],
+  ],
+  // Away into another slot and back to the own one.
+  'away-and-back': [
+    [0, 30],
+    [0, 90],
+    [0, 4],
+  ],
+  // A drift within the own slot.
+  drift: [
+    [0, 10],
+    [6, 14],
+  ],
+  // Control: the next slot.
+  'next-slot': [
+    [0, 30],
+    [0, 60],
+  ],
+};
+
+async function run(
+  tag: string,
+  path: Path,
+  end: 'up' | 'escape',
+  extra: object,
+): Promise<void> {
+  const list = makeList(4, document.body, 'position:absolute;top:0;left:0;');
+  for (const e of rowsOf(list)) e.tabIndex = 0;
+  basicSortable(list, extra);
+
+  const item = row('r1');
+  const home = pos(item);
+  const b = item.getBoundingClientRect();
+  const x0 = b.left + 20;
+  const y0 = b.top + 20;
+
+  await commands.pointerMove(x0, y0);
+  await commands.pointerDown();
+  for (const [dx, dy] of path) {
+    await commands.pointerMove(x0 + dx, y0 + dy, 3);
+    await frames();
+  }
+
+  const dropped = pos(item);
+
+  if (end === 'up') {
+    await commands.pointerUp();
+  } else {
+    await commands.keyPress('Escape');
+    await commands.pointerUp();
+  }
+
+  const atRelease = `${pos(item)} flights=${flights(item)}`;
+  await frames(1);
+  const frame1 = `${pos(item)} flights=${flights(item)}`;
+
+  OUT.push(
+    `${tag} home=${home} dropped=${dropped} release=${atRelease} frame1=${frame1} order=${order(list)} log=${log.join('|')} faults=${faultMessages().join('|') || '-'}`,
+  );
+
+  for (const a of item.getAnimations()) a.finish();
+}
+
+const variants: Record<string, object> = {
+  'y()': {},
+  'y()+layoutAnimation': {
+    displacement: layoutAnimation({
+      timing: () => ({ duration: LONG, easing: 'linear' }),
+    }),
+  },
+  'xy()': { axis: xy() },
+};
+
+for (const [name, base] of Object.entries(variants)) {
+  describe(name, () => {
+    const extra = {
+      ...base,
+      landing: landing({ duration: LONG, easing: 'linear' }),
+    };
+
+    for (const [p, path] of Object.entries(PATHS)) {
+      it(`${p} drop`, async () => {
+        await run(`${name} ${p} drop`, path, 'up', extra);
+      });
+    }
+
+    it('sideways escape', async () => {
+      await run(`${name} sideways escape`, PATHS.sideways!, 'escape', extra);
+    });
+
+    it('sideways drop, rejecting', async () => {
+      await run(`${name} sideways drop rejecting`, PATHS.sideways!, 'up', {
+        ...extra,
+        onReorder: () => ReorderResolution.reject('no'),
+      });
+    });
+  });
+}
