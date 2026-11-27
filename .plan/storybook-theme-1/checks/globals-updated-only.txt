@@ -1,0 +1,65 @@
+# reviewer-2's remediation: GLOBALS_UPDATED is the preview's one mechanism (no decorator, no SET_GLOBALS listener, no globalTypes).
+# The feature proof's probes, unchanged (.plan/reviews/storybook-theme-1/probes/), with mutate.ts given one more mutation, listener-off,
+# which makes the GLOBALS_UPDATED listener a no-op. ENGINES=chromium (RD-62), storybook dev on port 6124, repo/storybook-theme-1 after
+# 5a85ec385 with the change, 2026-11-27. The baseline is the proof's unmutated runs in checks/mutations-raw.txt (be4f7eee2; only records
+# change from there to 4a2a80452), its Chromium lines, compared after collapsing runs of spaces.
+
+== none-theme: 28 lines, identical to the proof's Chromium none-theme run; check.sh: no line inconsistent with the URL's global
+== none-drag: 16 lines, identical to the proof's Chromium none-drag run
+== listener-off, through compare.sh against the none-theme run above:
+listener-off chromium lines=28 differ: A1(g=null,p=null,i=M7.78.,r=1) A2(g=theme:dark,p=null,i=M7.5.5,r=1) A3(g=theme:dark,p=null,i=M7.5.5,r=1) A4(g=theme:dark,p=null,i=M7.5.5,r=1) B1(g=theme:dark,p=null,i=M7.5.5,r=1) B2(g=theme:dark,p=null,i=M7.5.5,r=1) B3(g=theme:dark,p=null,i=M7.5.5,r=1) B4(g=null,p=null,i=M7.78.,r=1) B5(g=null,p=null,i=M7.78.,r=1) C1(g=null,p=null,i=M7.78.,r=1) C2(g=theme:dark,p=null,i=M7.5.5,r=1) C3(g=theme:dark,p=null,i=M7.5.5,r=1) C4(g=theme:dark,p=null,i=M7.5.5,r=1) C5(g=theme:dark,p=null,i=M7.5.5,r=1) C6(g=theme:dark,p=null,i=M7.5.5,r=1) C7(g=theme:dark,p=null,i=M7.5.5,r=1) C8(g=theme:dark,p=null,i=M7.5.5,r=1) D1(g=null,p=null,i=M7.78.,r=1) D2(g=theme:dark,p=null,i=M7.5.5,r=1) D3(g=theme:dark,p=null,i=M7.5.5,r=1) D4(g=theme:dark,p=null,i=M7.5.5,r=1) D5(g=null,p=null,i=M7.78.,r=1) D6(g=null,p=null,i=M7.78.,r=1) D7(g=theme:dark,p=null,i=M7.5.5,r=1) D8(g=theme:dark,p=null,i=M7.5.5,r=1) D9(g=null,p=null,i=M7.78.,r=1) D10(g=null,p=null,i=M7.78.,r=1) E1(g=theme:dark,p=null,i=M7.5.5,r=1) 
+
+# The none-theme run:
+== none-theme (.storybook/preview.ts)
+A: loaded light, toggled after the load
+chromium A1 loaded                                /story/box-quad--live-demo       globals=null        preview=light icon=M7.78. r=1
+chromium A2 toggled to dark                       /story/box-quad--live-demo       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium A3 sidebar to box-quad--nested-spaces    /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium A4 reloaded                              /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+B: loaded with globals=theme:dark
+chromium B1 loaded                                /story/box-quad--live-demo       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium B2 sidebar to box-quad--nested-spaces    /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium B3 reloaded                              /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium B4 toggled to light                      /story/box-quad--nested-spaces   globals=null        preview=light icon=M7.78. r=1
+chromium B5 sidebar to box-quad--pointer-delta    /story/box-quad--pointer-delta   globals=null        preview=light icon=M7.78. r=1
+C: a docs page's toggle
+chromium C1 loaded button-regular--docs           /docs/button-regular--docs       globals=null        preview=light icon=M7.78. r=1
+chromium C2 docs toggle to dark                   /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium C3 sidebar to button-icon                /docs/button-icon--docs          globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium C4 reloaded                              /docs/button-icon--docs          globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium C5 sidebar to button-icon--playground    /story/button-icon--playground   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium C6 sidebar to button-regular             /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium C7 docs toggle to light                  /docs/button-regular--docs       globals=null        preview=light icon=M7.78. r=1
+chromium C8 sidebar to button-icon--docs          /docs/button-icon--docs          globals=null        preview=light icon=M7.78. r=1
+D: a story's toolbar toggle, then docs pages and the storyless page
+chromium D1 loaded                                /story/box-quad--live-demo       globals=null        preview=light icon=M7.78. r=1
+chromium D2 toggled to dark                       /story/box-quad--live-demo       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium D3 sidebar to button-regular (docs)      /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium D4 reloaded                              /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium D5 toolbar to light on docs              /docs/button-regular--docs       globals=null        preview=light icon=M7.78. r=1
+chromium D6 sidebar to button-icon (docs)         /docs/button-icon--docs          globals=null        preview=light icon=M7.78. r=1
+chromium D7 toolbar to dark on docs               /docs/button-icon--docs          globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium D8 storyless page, URL from D7           /docs/reference-api--docs        globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium D9 toolbar to light, storyless           /docs/reference-api--docs        globals=null        preview=light icon=M7.78. r=1
+chromium D10 reloaded                             /docs/reference-api--docs        globals=null        preview=light icon=M7.78. r=1
+E: a new visit to the storyless page
+chromium E1 loaded with globals=theme:dark        /docs/reference-api--docs        globals=theme:dark  preview=dark icon=M7.5.5 r=1
+
+# The none-drag run:
+== none-drag (packages/drag/src/stories.module.css)
+chromium drag-custom-behavior--resize-handle      elements=4 unchanged=none
+chromium drag-free-drag--interactive              elements=4 unchanged=3:div.box box-shadow=color(srgb 0 0 0 / 0.3) 0px 1px 3px 0px
+chromium drag-free-drag--async-drop-confirmation  elements=5 unchanged=4:div.box box-shadow=color(srgb 0 0 0 / 0.3) 0px 1px 3px 0px
+chromium drag-free-drag--transformed-stage        elements=4 unchanged=3:div.box box-shadow=color(srgb 0 0 0 / 0.3) 0px 1px 3px 0px
+chromium drag-sortable--list                      elements=13 unchanged=3:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 5:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 7:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 9:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 11:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+chromium   light placeholder bg=color(srgb 0.243137 0.403922 0 / 0.08) border=rgb(62, 103, 0) dashed color=rgb(25, 29, 19)
+chromium   dark  placeholder bg=color(srgb 0.592157 0.85098 0.270588 / 0.08) border=rgb(151, 217, 69) dashed color=rgb(224, 228, 212)
+chromium drag-sortable--grid                      elements=11 unchanged=3:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 4:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 5:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 6:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 7:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 8:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 9:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 10:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+chromium   light placeholder bg=color(srgb 0.243137 0.403922 0 / 0.08) border=rgb(62, 103, 0) dashed color=rgb(25, 29, 19)
+chromium   dark  placeholder bg=color(srgb 0.592157 0.85098 0.270588 / 0.08) border=rgb(151, 217, 69) dashed color=rgb(224, 228, 212)
+chromium drag-sortable--custom-placeholder        elements=13 unchanged=3:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 5:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 7:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 9:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 11:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+chromium   light placeholder bg=rgb(204, 238, 161) border=rgb(62, 103, 0) solid color=rgb(81, 109, 47)
+chromium   dark  placeholder bg=rgb(54, 80, 22) border=rgb(151, 217, 69) solid color=rgb(163, 195, 123)
+chromium drag-sortable--zoomed-context            elements=14 unchanged=4:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 6:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 8:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 10:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 12:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+chromium   light placeholder bg=color(srgb 0.243137 0.403922 0 / 0.08) border=rgb(62, 103, 0) dashed color=rgb(25, 29, 19)
+chromium   dark  placeholder bg=color(srgb 0.592157 0.85098 0.270588 / 0.08) border=rgb(151, 217, 69) dashed color=rgb(224, 228, 212)
