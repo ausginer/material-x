@@ -1,0 +1,17 @@
+// Prints each amendment paragraph (one that opens with "**Amended") whose
+// status may be stale: it carries none of the answers and one of the phrases.
+import { readFileSync, readdirSync } from 'node:fs';
+import { join, basename } from 'node:path';
+const root = process.argv[2];
+const dirs = [join(root, '.plan/decisions'), join(root, 'packages/drag/.plan/decisions')];
+const re = /not yet|waits for|merges|isn.t merged|unmerged|not merged|until [^.]{0,60}lands|not implemented|isn.t implemented|unimplemented|ready for an implementer|not in force|implements it|is the unit/i;
+const answered = /\*\*Implemented|Implemented (by|at|in|on)|implemented (by|at|in|on)|merged 20|added 2026-11-27/;
+for (const dir of dirs) for (const name of readdirSync(dir).filter((n) => n.endsWith('.md')).sort()) {
+  const paras = readFileSync(join(dir, name), 'utf8').split(/\n\s*\n/);
+  paras.forEach((p, i) => {
+    if (i > 0 && /^\*\*Amended/.test(p) && re.test(p) && !answered.test(p)) {
+      const m = p.match(re);
+      console.log(`${basename(name, '.md')} ¶${i + 1}: ${p.slice(0, 110).replace(/\n/g, ' ')} … ${p.slice(Math.max(0, m.index - 80), m.index + 60).replace(/\n/g, ' ')}`);
+    }
+  });
+}

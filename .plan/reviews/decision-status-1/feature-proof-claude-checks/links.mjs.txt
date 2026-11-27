@@ -1,0 +1,21 @@
+// Checks the relative links and anchors of the given Markdown files: the target
+// exists, and a #fragment matches a GitHub-style heading slug in the target.
+import { readFileSync, existsSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+const slug = (h) => h.trim().toLowerCase().replace(/[^\p{L}\p{N} _-]/gu, '').replace(/ /g, '-');
+const slugs = (file) => new Set(readFileSync(file, 'utf8').split('\n').filter((l) => /^#{1,6} /.test(l)).map((l) => slug(l.replace(/^#+ /, ''))));
+let bad = 0, n = 0;
+for (const file of process.argv.slice(2)) {
+  const text = readFileSync(file, 'utf8');
+  for (const m of text.matchAll(/\]\(([^)\s]+)\)/g)) {
+    const link = m[1];
+    if (/^[a-z]+:/.test(link)) continue;
+    n++;
+    const [path, frag] = link.split('#');
+    const target = path ? resolve(dirname(file), path) : file;
+    let ok = existsSync(target);
+    if (ok && frag && target.endsWith('.md')) ok = slugs(target).has(frag);
+    if (!ok) { bad++; console.log(`BROKEN ${file}: ${link}`); }
+  }
+}
+console.log(`${n} relative links checked, ${bad} broken`);
