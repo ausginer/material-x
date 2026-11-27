@@ -1,0 +1,42 @@
+# RF-156 before: at 2b193971e, node_modules/.cache/css/css-private-props.json moved away, each package's aube exec just test and material-x's just build-lib. Run 2026-11-27 in slot b.
+== core: aube exec just test, no list
+failed to load config from /workspaces/worktrees/b/packages/core/vitest.config.ts
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/index.js
+  code: 'ERR_MODULE_NOT_FOUND',
+exit 1
+== tproc: aube exec just test, no list
+failed to load config from /workspaces/worktrees/b/packages/tproc/vitest.config.ts
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/index.js
+  code: 'ERR_MODULE_NOT_FOUND',
+exit 1
+== vite-traits-plugin: aube exec just test, no list
+failed to load config from /workspaces/worktrees/b/packages/vite-traits-plugin/vitest.config.ts
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/index.js
+  code: 'ERR_MODULE_NOT_FOUND',
+exit 1
+== box-quad: aube exec just test, no list
+failed to load config from /workspaces/worktrees/b/packages/box-quad/vitest.config.ts
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/index.js
+  code: 'ERR_MODULE_NOT_FOUND',
+exit 1
+== drag: aube exec just test, no list
+failed to load config from /workspaces/worktrees/b/packages/drag/vitest.config.ts
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/index.js
+  code: 'ERR_MODULE_NOT_FOUND',
+exit 1
+== material-x: aube exec just test, no list
+failed to load config from /workspaces/worktrees/b/packages/material-x/vitest.config.ts
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/index.js
+  code: 'ERR_MODULE_NOT_FOUND',
+exit 1
+== material-x: aube exec just build-lib, no list
+ ERROR  Error: Failed to load the config file. Try setting the --config-loader CLI flag to `tsx` or `unrun`.
+Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/index.js
+error: recipe `build-lib` failed on line 22 with exit code 1
+exit 1
