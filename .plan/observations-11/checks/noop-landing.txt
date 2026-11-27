@@ -1,0 +1,27 @@
+# The architect's probe, Chromium, 2026-11-27, at 085be1e2b: probes/noop-landing.browser.test.ts.txt, copied into packages/drag/tests/ and run with
+#   aube exec just test --project 'browser*' tests/zz-noop-landing.browser.test.ts
+# from packages/drag. Four 200 px rows of 40 px; r1 is pressed 20 px into its box. landing() with a one-hour linear flight, so the
+# first frames show where the flight starts. 'home' is r1's top-left at the grab, 'dropped' the last translated position, 'release'
+# r1's top-left right after pointerup (or Escape and pointerup), 'frame1' one frame later. 'flights' counts r1's additive animations.
+# 'rejecting' has an onReorder that rejects; the drop is on its own gap, so onReorder isn't asked. The afterAll throw prints the lines.
+
+y() sideways drop home=0,40 dropped=60,40 release=0,40 flights=0 frame1=0,40 flights=0 order=r0,r1,r2,r3 log=start|end:noop faults=-
+y() away-and-back drop home=0,40 dropped=0,44 release=0,40 flights=0 frame1=0,40 flights=0 order=r0,r1,r2,r3 log=start|end:noop faults=-
+y() drift drop home=0,40 dropped=6,54 release=0,40 flights=0 frame1=0,40 flights=0 order=r0,r1,r2,r3 log=start|end:noop faults=-
+y() next-slot drop home=0,40 dropped=0,100 release=0,100 flights=1 frame1=0,100 flights=1 order=r0,r2,r1,r3 log=start|end:accepted faults=-
+y() sideways escape home=0,40 dropped=60,40 release=60,40 flights=1 frame1=60,40 flights=1 order=r0,r1,r2,r3 log=start|end:canceled faults=-
+y() sideways drop rejecting home=0,40 dropped=60,40 release=0,40 flights=0 frame1=0,40 flights=0 order=r0,r1,r2,r3 log=start|end:noop faults=-
+y()+layoutAnimation sideways drop home=0,40 dropped=60,40 release=0,40 flights=0 frame1=0,40 flights=0 order=r0,r1,r2,r3 log=start|end:noop faults=-
+y()+layoutAnimation away-and-back drop home=0,40 dropped=0,44 release=0,40 flights=0 frame1=0,40 flights=0 order=r0,r1,r2,r3 log=start|end:noop faults=-
+y()+layoutAnimation drift drop home=0,40 dropped=6,54 release=0,40 flights=0 frame1=0,40 flights=0 order=r0,r1,r2,r3 log=start|end:noop faults=-
+y()+layoutAnimation next-slot drop home=0,40 dropped=0,100 release=0,100 flights=1 frame1=0,100 flights=1 order=r0,r2,r1,r3 log=start|end:accepted faults=-
+y()+layoutAnimation sideways escape home=0,40 dropped=60,40 release=60,40 flights=1 frame1=60,40 flights=1 order=r0,r1,r2,r3 log=start|end:canceled faults=-
+y()+layoutAnimation sideways drop rejecting home=0,40 dropped=60,40 release=0,40 flights=0 frame1=0,40 flights=0 order=r0,r1,r2,r3 log=start|end:noop faults=-
+xy() sideways drop home=0,40 dropped=60,40 release=0,40 flights=0 frame1=0,40 flights=0 order=r0,r1,r2,r3 log=start|end:noop faults=-
+xy() away-and-back drop home=0,40 dropped=0,44 release=0,40 flights=0 frame1=0,40 flights=0 order=r0,r1,r2,r3 log=start|end:noop faults=-
+xy() drift drop home=0,40 dropped=6,54 release=0,40 flights=0 frame1=0,40 flights=0 order=r0,r1,r2,r3 log=start|end:noop faults=-
+xy() next-slot drop home=0,40 dropped=0,100 release=0,100 flights=1 frame1=0,100 flights=1 order=r0,r2,r1,r3 log=start|end:accepted faults=-
+xy() sideways escape home=0,40 dropped=60,40 release=60,40 flights=1 frame1=60,40 flights=1 order=r0,r1,r2,r3 log=start|end:canceled faults=-
+xy() sideways drop rejecting home=0,40 dropped=60,40 release=0,40 flights=0 frame1=0,40 flights=0 order=r0,r1,r2,r3 log=start|end:noop faults=-
+
+# 18 tests passed; the file fails only by its afterAll throw.
