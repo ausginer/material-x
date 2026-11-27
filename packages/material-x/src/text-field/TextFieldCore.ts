@@ -44,7 +44,6 @@ import type { Valuable, ValuableProps } from '@ydinjs/core/traits/valuable.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';
 import { useHasSlottedPolyfill } from '../core/polyfills/has-slotted.ts';
-import { notify } from '../core/utils/events.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 import outlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };
@@ -244,7 +243,8 @@ export class TextFieldCore extends TextFieldCoreConstructor {
           this.#sync();
         },
         change: () => {
-          notify(this, 'change');
+          // A native `change` isn't composed, so the host fires its own.
+          this.dispatchEvent(new Event('change', { bubbles: true }));
         },
       },
       field,

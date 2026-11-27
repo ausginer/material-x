@@ -1710,7 +1710,7 @@ Tier B, **closed 2026-11-22** (below), pre-existing. Before closure: open. Regis
 
 #### RF-76 — A pointer drag doesn't lift `mx-list-link-item` in `mx-sortable-list` in Chromium and Firefox
 
-Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-3`, relayed by the coordinator. The implementer of #120 saw it while writing `RF-70`'s row, and the feature proof of #120 found it as `reviewer-1` in [`feature-proof-claude.md`](reviews/elevation-penumbra-1/feature-proof-claude.md#reviewer-1--a-pointer-drag-doesnt-lift-mx-list-link-item-in-chromium-and-firefox) at `a2663c481`, on `main` through #120 (merged as `0128548ff`). `RF-75` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read in the review's readings and in the code at `c08dbd7fc`, not run.
+Tier A, **closed 2026-11-27** by the pull request of `material-x/link-item-drag-1`, which says `Closes #128`, at its merge (the last note). Before closure: open. Pre-existing. Registered on 2026-11-22 by the architect, on `repo/register-observations-3`, relayed by the coordinator. The implementer of #120 saw it while writing `RF-70`'s row, and the feature proof of #120 found it as `reviewer-1` in [`feature-proof-claude.md`](reviews/elevation-penumbra-1/feature-proof-claude.md#reviewer-1--a-pointer-drag-doesnt-lift-mx-list-link-item-in-chromium-and-firefox) at `a2663c481`, on `main` through #120 (merged as `0128548ff`). `RF-75` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read in the review's readings and in the code at `c08dbd7fc`, not run.
 
 - **What happens:** in `mx-sortable-list`, a press on the surface of `mx-list-link-item href="#"` and a 12 px move give it the drag state in WebKit, and not in Chromium or Firefox. There, the shadow `<a class="host">` starts the browser's own drag, and the pointer gets `pointercancel`. `mx-list-item` and `mx-list-button-item` take the drag state in all three engines. The base of #120 behaves the same.
 - **Why it is a problem:** `mx-sortable-list` takes the same items as `mx-list`, and an item without a handle drags by its surface. `@ydinjs/drag` leaves native drag to its consumer (`packages/drag/.plan/contract.md`: _"Native drag is the consumer's"_). The consumer is material-x, because a page can't reach the anchor in the item's shadow root.
@@ -1725,6 +1725,15 @@ Tier A, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **The required property gains:** in each engine at `RD-20`'s floor, a link item with a handle lifts under a pointer drag of its handle. Releasing the drag doesn't follow the link.
 - **The rows gain** the handle. In `sortable-list.spec.browser.test.ts`, `LIFTED_ITEMS` no longer leaves Firefox out, and has a link item without a handle.
 - **Corrected here:** the entry's _What happens_ is of an item without a handle. `RF-129`'s _Not read_, _"a pointer drag doesn't lift one in Chromium or Firefox"_, holds without a handle alone.
+
+**Dated 2026-11-27 by the implementer: the cause is established, the repair is in, and the entry is closed,** on `material-x/link-item-drag-1`, from `085be1e2b`, requested by the coordinator. The [reading](link-item-drag-1/chromium-cause.md) has the tables and the probes.
+
+- **Cause in Chromium:** the `.host` rule in `packages/material-x/src/list/styles/item/interactive-box.styles.css` begins with `all: unset`. Chromium and WebKit turn `draggable="false"` into a presentational hint of `-webkit-user-drag: none`, and any author rule outranks a hint. So the review's anchor computed `-webkit-user-drag: auto`, and Chromium dragged the link. The shadow tree isn't part of it: an anchor with `draggable="false"` under `all: unset` drags in the light DOM too, and doesn't drag in a shadow root without the rule. Firefox reads the attribute itself. WebKit computes the same `auto`, and its driver starts no native drag.
+- **Repair,** with the means that drag's contract names: while a link item is in `mx-sortable-list`, `sortItem` sets `draggable="false"` on its anchor, and it removes it when the item leaves. `.host[draggable='false']` states `-webkit-user-drag: none` again after the `all: unset`. Cancelling `dragstart` also lifts the item in each engine, and isn't used, because it would be a second means beside the contract's.
+- **Rows:** in `tests/list/sortable-list.browser.test.ts`, _mx-sortable-list interactive item pointer_ lifts a button item and a link item by the surface and by a handle, keeps `location` after a released link item with and without a handle, and reads the anchor's `draggable` in the list and after the item moves into `mx-list`. In `sortable-list.spec.browser.test.ts`, `LIFTED_ITEMS` no longer leaves Firefox out, and it has a link item without a handle. `RF-70`'s row in `tests/core/elevation.spec.browser.test.ts` reads the link item at its dragged level, as it reads the button item, and the level-1 row in `mx-list` that stood in for it is gone.
+- **Witnesses:** at `085be1e2b`, with the rows, 28 rows fail and no other. In Chromium they are the surface rows of the link item: the lift, the anchor's `draggable`, the five spec rows of _a link item_, and the elevation row. In Firefox they are the surface and handle rows of each link item: the two lifts, the anchor's `draggable`, the fifteen spec rows of the three link items, and the elevation row. In WebKit only the anchor's `draggable` fails. With `sortItem`'s change and without the stylesheet rule, Chromium's surface lift of the link item fails and the other rows of the group pass. The two location rows pass at `085be1e2b` too, because no native drag there followed the link, so they fix the property and don't witness the change.
+- **Checks:** material-x's `browser` and `spec` projects pass in Chromium (2825 rows, and 2 expected failures). `tests/list/sortable-list.browser.test.ts`, `tests/list/sortable-list.spec.browser.test.ts` and `tests/core/elevation.spec.browser.test.ts` also pass in Firefox and WebKit locally (834 rows, 24 skipped), and CI reads them (`RD-62`). Format, lint and typecheck are clean; ESLint has no configuration for the `.css` file and skips it.
+- **Closed** at the merge of the pull request that carries this note, as [`work-queue.md`](../.agents/docs/work-queue.md#closing) asks. The status above said _"Tier A, **open**, pre-existing."_
 
 #### RF-77 — The elevated button and the list items draw their shadows in surface tint
 
@@ -2659,7 +2668,7 @@ Tier A, **closed 2026-11-24** on `core/remove-moved-1` (below), pre-existing sin
 
 #### RF-117 — `createEventNotifier` and `DEFAULT_EVENT_INIT` are a factory for events that a plain `Event` states
 
-Tier C, **open**. Registered on 2026-11-23 by the architect, on `repo/register-observations-8`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the deletion (`RD-52` has his words). `RF-116` is on `main` and is the highest `RF-` on any branch on `origin`, so this is the next free number. Each claim below was read at `04047237e`.
+Tier C, **closed 2026-11-26** by #321, on `material-x/use-sortable-1`, at its merge (the last note). Before closure: open. Registered on 2026-11-23 by the architect, on `repo/register-observations-8`, from Mx Architect Explainer, relayed by the coordinator. The owner approved the deletion (`RD-52` has his words). `RF-116` is on `main` and is the highest `RF-` on any branch on `origin`, so this is the next free number. Each claim below was read at `04047237e`.
 
 - **What is there:** `@ydinjs/core/utils/DOM.js` exports `createEventNotifier`, `DEFAULT_EVENT_INIT`, `EventDefinitions` and `EventNotifier`. It has two configured notifiers, core's in `useRovingTabindex.ts` and material-x's `notify` in `core/utils/events.ts`.
   - **Five calls,** for seven dispatches: `SwitchCore` (`input`, `change`), `split-button` (`secondaryaction`), `CheckableCore` (`change`), `TextFieldCore` (`change`), and `useRovingTabindex` (`input`, `change`).
@@ -2680,9 +2689,27 @@ Tier C, **open**. Registered on 2026-11-23 by the architect, on `repo/register-o
 - **Ready.**
 - **Size:** _small_.
 
+**Dated 2026-11-26 by the architect: re-read at `d6f6cf60b`, and it holds unchanged,** on `material-x/use-sortable-1`, requested by the coordinator. The owner approved the order on the same day: _"Ага, подтверждаю"_ ("Yes, I confirm"). After #314 (`RF-151`) merges, an implementer does this entry and then `RF-118`, on this branch.
+
+- **No file that this entry reads has changed since `04047237e`:** core's `utils/DOM.ts`, its `README.md` and `tests/utils/DOM.browser.test.ts`, and material-x's `core/utils/events.ts`. The five calls and the seven dispatches are the ones listed above. Each of the six files has a row that reads `composed`. `ReorderEvent` still passes `DEFAULT_EVENT_INIT`. The registry still answers 404 for both packages. `CONTRIBUTING.md` still has no bullet of `RD-52`, so property 5 is still owed.
+- **`core/utils/events.ts` keeps `useClickActivation` and `useFormActivation`.** Moving `useClickActivation` to core is a later item that the owner approved, and not this entry's.
+
+**Dated 2026-11-26 by the implementer: implemented, and closed by #321,** on `material-x/use-sortable-1`, from `7eac994eb` (this branch's merge of `main` at `a36f577f8`), in Chromium (`RD-62`). The commit is `e67e120bb`.
+
+- **Properties 1 to 3:** the four exports, their four rows and the README's example leave core. `toggleState` stays in the example. `notify` leaves `core/utils/events.ts`, which keeps `useClickActivation` and `useFormActivation`. Each dispatch is a plain `Event` that states its flags. A flag that is `false` is the platform's default, so it isn't written, as in `RD-52`'s example. `ReorderEvent` passes `{ bubbles: true, cancelable: true, composed: true }`. No alias is kept.
+- **Property 4 and the witness:** each flag of each of the eight sites (seven dispatches and `ReorderEvent`), flipped one at a time, fails at least one row of the site's file. All 24 do ([reading](use-sortable-1/checks/event-flags.txt), [probe](use-sortable-1/probes/event-flags.mjs)). No row was edited. Core's rows pass (390), and so do material-x's browser rows (1423).
+- **Property 5:** `CONTRIBUTING.md`, Part I, _Shape_, has `RD-52`'s bullet in its wording, and the change record has its row.
+- **Sizes** ([reading](use-sortable-1/checks/sizes-rf117.txt)): no row grows. `complete` goes from 26.91 to 26.77 kB, and the switch, checkbox, radio, split-button, connected-button-group and text-field rows lose 50 to 70 B each.
+
+**Dated 2026-11-27 by the architect: the witness's probe and reading are `e67e120bb`'s,** on `material-x/use-sortable-1`, from fp-1 of #321's [feature proof](reviews/use-sortable-1/feature-proof-claude.md#fp-1--the-units-committed-probe-stops-at-the-head-before-it-reaches-reorderevent), requested by the coordinator.
+
+- **The probe and the reading above ran at `e67e120bb`,** where `ReorderEvent` is declared in `src/list/sortable-list.ts`. `RF-118` moves the class to `src/list/reorder-event.ts` at `5472eba5b`, so from that commit the probe flips the other 21 flags and then stops at `ReorderEvent`'s site. Its header now says so.
+- **The probe stays as it ran,** as `RF-109`'s probes name the hook at the commits they read. Pointing it at the moved site would make it a different instrument from the one that wrote the reading. The reading is a captured transcript and isn't edited.
+- **At the head, the witness is the feature proof's:** its [script](reviews/use-sortable-1/probes/mutations.mjs.txt) reads `ReorderEvent`'s flags in `reorder-event.ts`, and all 24 flips fail rows in Chromium, Firefox and WebKit ([readings](reviews/use-sortable-1/checks/mutations.txt)).
+
 #### RF-118 — `mx-sortable-list`'s constructor mixes the state of four lifetimes, and retains removed items
 
-Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-8`, from Mx Architect Explainer, relayed by the coordinator. `RF-117` is the entry before this one, so this is the next free number. Read at `04047237e`.
+Tier C, **closed 2026-11-26** by #321, on `material-x/use-sortable-1`, at its merge (the last note). Before closure: open. Pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-8`, from Mx Architect Explainer, relayed by the coordinator. `RF-117` is the entry before this one, so this is the next free number. Read at `04047237e`.
 
 - **What is there:** one closure in `SortableList`'s constructor holds the state of the element (`items`, the slot, the config), of a connection (`controller`), of a drag (`dragged`) and of a proposal (`others`, `commit`). It is about 150 lines, and the protocol with `@ydinjs/drag` is the largest part of it.
 - **The retention, by reading:** `onReorder` writes `others`, `isAtSlot` reads it for `onEnd` and for the wait, and nothing clears it. So the list keeps the other items of its last proposal, with those that the consumer has since removed, until the next proposal. They are removed elements held by a live list, and the count is bounded by one proposal. `commit` is cleared when the wait is done, also when the controller is destroyed, because the destruction aborts the verdict's signal. Not measured.
@@ -2708,6 +2735,54 @@ Tier C, **open**, pre-existing. Registered on 2026-11-23 by the architect, on `r
 - **Depends on `RF-117`,** for `ReorderEvent`.
 - **Ready,** after `RF-117`.
 - **Size:** _medium_: one new hook module, one event module, the proposal object, and readings of the size, the manifest and the typings.
+
+**Dated 2026-11-26 by the architect: re-read at `d6f6cf60b`, with properties 1 and 2 and the registration order amended,** on `material-x/use-sortable-1`, requested by the coordinator, from Mx Architect Explainer's reading at the same commit. The owner approved the order on the same day (`RF-117`'s note). The finding, the retention and properties 3 to 7 hold as written. _Read at `04047237e`_ is now `d6f6cf60b`.
+
+- **What changed in `sortable-list.ts` since `04047237e`:** `RF-127` (#235) gives `onStart` the operation's kind, and the host's `command` state. `RF-129` (#261) has `useListCore` take the sortable sheet. `RF-128` and `RF-135` (#267) change the handles. `RF-142` (#278) gives no handle to a disabled item. `RF-145` and `RF-146` (#296) change the handle rule's touch path. `RD-60` (#310) adds the displacement, with its own `useCSSProps` call. The disconnect also clears the dragged item's `drag` state, and the provider reads the slot again for an item that upgrades after the last slot change.
+- **Property 1 is now:** _"The constructor is `super(); useListCore(this, [sortableStyles]); useSortable(this);`"_ It replaces _"`super(); useListCore(this); useSortable(this);`"_. The sheet's import stays in `sortable-list.ts`, as the element's styles, and the hook takes no sheet.
+- **Property 2 also gives the hook these, which `04047237e` didn't have:**
+  - `onStart`'s toggle of the host's `command` state (`RF-127`);
+  - the handle rule, `isDisabled(item) ? null : (handleOf(item) ?? item)` (`RF-142`);
+  - `displacement: layoutAnimation({ timing: useCSSProps(this, LAYOUT_CSS_PROPS) })` (`RD-60`);
+  - the two description constants, `DRAG_CSS_PROPS` and `LAYOUT_CSS_PROPS`, and `COMMIT_TIMEOUT`;
+  - the disconnect's clearing of the item's `drag` state.
+- **The registration order, which replaces the first bullet of _"No behavior change"_.** The controllers that register a lifecycle callback keep their order:
+  1. `useCSSProps(LAYOUT_CSS_PROPS)`, the displacement's;
+  2. `useCSSProps(DRAG_CSS_PROPS)`, the landing's;
+  3. `useProvider`, through `useEvents`;
+  4. the connection's `use(this, …)`.
+
+  `useCSSProps` registers through `useConnected` and clears its values at each connect. The displacement's call comes first because `displacement` comes before `landing` in the config's literal. The Explainer's reading had them the other way, and the code decides. `useListCore`, `useAriaNotifyPolyfill` and `useSlot` register no lifecycle callback. They write the shadow root, or add the slot's `slotchange` listener, in the constructor, and they keep their order too.
+
+- **The neighbors, at `d6f6cf60b`:**
+  - **`drag:DRF-55`** is still open, and what this entry says of it holds.
+  - **The open pull requests don't touch `sortable-list.ts`.** #314 (`RF-151`) adds a rule to the sortable sheet. #315 (`RF-152`) changes `parseMs`, which the hook imports, and not its signature. #316 (`RF-153`) changes the node tests' build. Each of them may merge before this unit or after it. #314 and #315 edit `sortable-list.browser.test.ts`, which this unit doesn't edit, except an import path.
+  - **`RF-103`, `RF-105` and `RF-109`** hold as this entry reads them. The displacement's timing is the result of `useCSSProps`, passed with no wrapper, as the landing's is.
+  - **The later items that the owner approved,** among them moving `parseMs` to core, change the hook's imports when they come. They aren't this unit's.
+- **Size:** `list/sortable-list` is 9.94 kB after `RD-60`. The acceptance's size reading is against the base of this unit.
+- **Ready,** after `RF-117` and on its branch. The two entries are one pull request, which closes #207 and #208.
+
+**Dated 2026-11-26 by the implementer: implemented, and closed by #321,** on `material-x/use-sortable-1`, after `RF-117`, in Chromium (`RD-62`). The commit is `5472eba5b`.
+
+- **Properties 1, 2, 5 and 7:** the constructor is `super(); useListCore(this, [sortableStyles]); useSortable(this);`. `src/list/useSortable.ts` exports `useSortable(host: ControlledElement): void`, with no options, and owns everything that the amended property 2 lists. `onStart`'s `getComputedStyle(dragged).getPropertyValue('--_level')` keeps its comment.
+- **Property 3:** `createProposal` returns one object per `reorder`, which holds the request, the other items, `isAtSlot`, and `wait(signal)` with its timer and signal. `commit()` checks the slot only during the wait, and is inert before and after it. `proposal` replaces `others` and `commit`. `onEnd` reads it and then clears it, and the disconnect clears it, since destruction calls no `onEnd`. A disconnect inside the `reorder` handler clears it before the wait starts. The wait still ends, when the deferred destruction aborts the signal.
+- **Property 4:** `ReorderEvent` and `ReorderEventInit` are in `src/list/reorder-event.ts`, and `sortable-list.ts` re-exports both.
+- **Property 6:** only `sortable-list.ts` imports the hook. The node row _"should reach @ydinjs/drag from list/sortable-list"_ and the rows that no other entry reaches drag pass (38 rows).
+- **No behavior change:** material-x's browser rows pass unedited (1423). The registration order is the amended one: `useCSSProps(LAYOUT_CSS_PROPS)`, `useCSSProps(DRAG_CSS_PROPS)`, `useProvider`, `use(host, …)`. `useAriaNotifyPolyfill` and `useSlot` keep their places.
+- **Readings** ([manifest](use-sortable-1/checks/manifest.txt)):
+  - `react.d.ts` is byte-identical.
+  - In `custom-elements.json`, `src/list/sortable-list.ts` no longer declares the `ReorderEvent` class. It exports `ReorderEvent` and `ReorderEventInit` from `./reorder-event.ts`, which the manifest doesn't list, because it lists only `files.json`'s runtime entrypoints. The `reorder` event's description doesn't change. No document or script reads the class from the manifest. This is an observation for the architect, and the unit doesn't change the manifest's configuration.
+- **Size** ([reading](use-sortable-1/checks/sizes-rf118.txt)): `list/sortable-list` goes from 9.94 to 10 kB, and `complete` from 26.77 to 26.84 kB, against `e67e120bb`. No other row changes. The hook's single call site is kept under §2.1, as the boundary between the element's public API and the drag protocol.
+
+**Dated 2026-11-27 by the architect: property 3 holds as written, and the proposal's `request` member goes,** on `material-x/use-sortable-1`, from fp-2 of #321's [feature proof](reviews/use-sortable-1/feature-proof-claude.md#fp-2--rf-118-property-3-asks-the-proposal-to-hold-the-request-and-nothing-reads-it-for-the-architect), read at `ae84ceaeb`, requested by the coordinator.
+
+- **_Holds_ in property 3 means the state that the object owns, and not its members.** The property lists the other items alongside the request, and the object holds those only in its closure, which the proof accepts. It holds the request the same way: `wait`'s check reads `request.item` and `request.to` from `createProposal`'s parameter. The property's wording stands, and is read so.
+- **So `Proposal.request` is a second copy of a fact that the operation already holds,** with no reader: `onEnd` reads `result.request`, and `wait` reads its parameter. `CONTRIBUTING.md` §5 removes it (_"cached aliases of objects already in operation state"_).
+- **Owed by the implementer, on this branch, before the merge:** remove `request` from the `Proposal` type and from `createProposal`'s returned object in `src/list/useSortable.ts`. Nothing else changes.
+  - **Witness:** material-x's typecheck passes, which it wouldn't if any code read the member. The browser rows of `sortable-list` pass unedited in Chromium, and CI's `verify` passes on the commit, as `RD-62` asks.
+  - **Sizes:** the `list/sortable-list` row is measured against `ae84ceaeb`, and any change is reported.
+  - **No new feature proof is owed.** The change deletes a member that the proof found unread, and the typecheck and the rows show that.
+- **The manifest, which the proof reads and the implementer routes here:** `custom-elements.json` lists `files.json`'s runtime entrypoints, so it has no `ReorderEvent` class, and `sortable-list.ts`'s exports point at the unlisted `./reorder-event.ts`. This isn't registered. No reader in the repository needs the class, the package isn't published, and `text-field.ts` already exports `TextFieldCore.ts`'s types the same way. Whether the manifest covers modules that aren't entrypoints is a question for the first release's manifest, if a consumer's tool needs it.
 
 #### RF-119 — A control in a disabled fieldset isn't disabled
 

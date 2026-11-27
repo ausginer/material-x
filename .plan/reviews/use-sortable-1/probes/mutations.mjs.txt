@@ -1,0 +1,82 @@
+// Feature proof of #321: mutations at 94167bb33, each run in Chromium, Firefox and WebKit
+// against the file that holds the site's rows. Run from the slot's root:
+//   node <this file> [flags|hook]
+// Each source is restored after its run.
+import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const core = 'packages/core';
+const mx = 'packages/material-x';
+const ENGINES = ['chromium', 'firefox', 'webkit'];
+
+const FLAG_SITES = [
+  ['useRovingTabindex input', core, 'src/controllers/useRovingTabindex.ts', 'tests/controllers/useRovingTabindex.browser.test.ts', "new Event('input', { bubbles: true, composed: true })"],
+  ['useRovingTabindex change', core, 'src/controllers/useRovingTabindex.ts', 'tests/controllers/useRovingTabindex.browser.test.ts', "new Event('change', { bubbles: true })"],
+  ['SwitchCore input', mx, 'src/button/SwitchCore.ts', 'tests/button/SwitchCore.browser.test.ts', "new Event('input', { bubbles: true, composed: true })"],
+  ['SwitchCore change', mx, 'src/button/SwitchCore.ts', 'tests/button/SwitchCore.browser.test.ts', "new Event('change', { bubbles: true })"],
+  ['CheckableCore change', mx, 'src/core/elements/CheckableCore.ts', 'tests/core/elements/CheckableCore.browser.test.ts', "new Event('change', { bubbles: true })"],
+  ['TextFieldCore change', mx, 'src/text-field/TextFieldCore.ts', 'tests/text-field/text-field.browser.test.ts', "new Event('change', { bubbles: true })"],
+  ['split-button secondaryaction', mx, 'src/button/split-button.ts', 'tests/button/split-button.browser.test.ts', "new Event('secondaryaction', { bubbles: true, composed: true })"],
+  ['ReorderEvent', mx, 'src/list/reorder-event.ts', 'tests/list/sortable-list.browser.test.ts', "super('reorder', { bubbles: true, cancelable: true, composed: true })"],
+];
+
+function flip(text, flag) {
+  const present = new RegExp(`${flag}: true`, 'u');
+  if (present.test(text)) return text.replace(present, `${flag}: false`);
+  return text.replace(/\{ /u, `{ ${flag}: true, `);
+}
+
+const MUTATIONS = [];
+for (const [name, pkg, file, test, text] of FLAG_SITES) {
+  for (const flag of ['bubbles', 'cancelable', 'composed']) {
+    MUTATIONS.push({ group: 'flags', name: `${name}, ${flag} flipped`, pkg, file, test, from: text, to: flip(text, flag) });
+  }
+}
+
+const HOOK = 'src/list/useSortable.ts';
+const LIST_TEST = 'tests/list/sortable-list.browser.test.ts';
+for (const [name, from, to] of [
+  ['H1 onEnd reads the proposal after clearing it', 'const ended = proposal;', 'const ended = { isAtSlot: () => true };'],
+  ['H2 onEnd tests the slot of `to` instead of `from`', 'result.request.from)', 'result.request.to)'],
+  ['H3 a slot change does not commit the proposal', '    proposal?.commit();\n', ''],
+  ['H4 the proposal keeps the moved item among the others', 'items.filter((other) => other !== request.item)', 'items'],
+  ['H5 the wait does not check the slot when it starts', '        check();\n      }),', '      }),'],
+  ['H6 the wait ignores its signal', "signal.addEventListener('abort', done, { once: true });", 'void signal;'],
+]) {
+  MUTATIONS.push({ group: 'hook', name, pkg: mx, file: HOOK, test: LIST_TEST, from, to });
+}
+
+function run(m) {
+  const projects = ENGINES.flatMap((e) => ['--project', e === 'chromium' ? 'browser' : `browser/${e}`]);
+  try {
+    execFileSync('aube', ['exec', 'vitest', 'run', ...projects, m.test, '--reporter=verbose'], {
+      cwd: m.pkg,
+      encoding: 'utf8',
+      stdio: 'pipe',
+      env: { ...process.env, MX_TEST_ENGINES: ENGINES.join(',') },
+      maxBuffer: 1 << 28,
+    });
+    return { failed: [], summary: 'passed' };
+  } catch (error) {
+    const out = String(error.stdout);
+    const failed = [...out.matchAll(/^\s+× (.+?)(?: \d+ms)?$/gmu)].map((x) => x[1]);
+    const summary = (out.match(/^\s+Tests\s+.+$/mu) ?? [String(error.stderr).slice(-400)])[0].trim();
+    return { failed, summary };
+  }
+}
+
+const groups = new Set(process.argv.slice(2));
+for (const m of MUTATIONS.filter((x) => groups.size === 0 || groups.has(x.group))) {
+  const path = `${m.pkg}/${m.file}`;
+  const source = readFileSync(path, 'utf8');
+  if (source.split(m.from).length !== 2) throw new Error(`${m.name}: text not found once`);
+  writeFileSync(path, source.replace(m.from, m.to));
+  try {
+    const { failed, summary } = run(m);
+    const per = ENGINES.map((e) => `${e} ${failed.filter((f) => f.includes(`(${e})`)).length}`).join(', ');
+    console.log(`## ${m.name}: ${failed.length} failed (${per}) — ${summary}`);
+    for (const f of failed) console.log(`  × ${f}`);
+  } finally {
+    writeFileSync(path, source);
+  }
+}

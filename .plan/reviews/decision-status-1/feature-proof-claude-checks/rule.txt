@@ -1,0 +1,18 @@
+# The rule against its own unit, read 2026-11-27.
+## 856db95cb committed at:
+2026-11-27T11:04:53Z
+## #329:
+#329 OPEN repo/decision-status-1 created 2026-11-27T11:05:13Z
+## RD-68's own status sentence:
+**Implemented** on `repo/decision-status-1`: the rule in [`documentation
+## Repository merge settings:
+{"allow_squash_merge":true,"delete_branch_on_merge":true}
+## AGENTS.md on opening the pull request:
+An agent may open the branch's pull request without being asked,** once a unit is finalized and pushed and the branch has no open pull request.
+## work-queue.md:
+- **Queue state and a description only:** the work item and a short description of it, its `Status` and its rank within that status, the slot and branch that hold it, and whether it is done. A decision, a reason, evidence or a tier stays in the record.
+- **The record holds no queue state.** A new record entry doesn't state an order, a priority or a schedule. _Lowest priority_, _unscheduled_ and _not urgent_ are the item's `Status`. A dated routing fact stays in the record, such as _routed to the owner_, and so does the architect's analysis of consequence and priority within a tier.
+## documentation.md §6, A decision's status, the sentences on the form:
+The implementer adds _"**Implemented** by #N"_ after the sentence, or _"on `<branch>`"_ while the pull request has no number yet, and says which part when the pull request implements only part.
+**The sentence names no merge:** no _"not yet merged"_, no _"when #N merges"_, and no merge commit.
+`#N` leads to the merge.

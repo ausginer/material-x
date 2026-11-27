@@ -23,7 +23,6 @@ import { DISABLEABLE_ATTRS } from '@ydinjs/core/traits/disableable.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import type { Simplify } from 'type-fest';
 import '../button-group/connected-button-group.ts';
-import { notify } from '../core/utils/events.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import './button.ts';
@@ -113,7 +112,9 @@ export default class SplitButton extends SplitButtonConstructor {
       {
         click: (event) => {
           event.stopPropagation();
-          notify(this, 'secondaryaction');
+          this.dispatchEvent(
+            new Event('secondaryaction', { bubbles: true, composed: true }),
+          );
         },
       },
       trailing,

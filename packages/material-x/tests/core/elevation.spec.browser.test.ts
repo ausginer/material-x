@@ -286,6 +286,11 @@ function createSortableList(tag: string): readonly HTMLElement[] {
   const items = ['A', 'B'].map((label) => {
     const item = document.createElement(tag);
     item.textContent = label;
+
+    if (tag === 'mx-list-link-item') {
+      item.setAttribute('href', '#');
+    }
+
     return item;
   });
   list.append(...items);
@@ -304,7 +309,11 @@ async function listShadowColor(): Promise<string | number> {
 }
 
 describe('mx-list items elevation layers', () => {
-  it.each(['mx-list-item', 'mx-list-button-item'] as const)(
+  it.each([
+    'mx-list-item',
+    'mx-list-button-item',
+    'mx-list-link-item',
+  ] as const)(
     'should draw the three elevation layers of the dragged level (%s)',
     async (tag) => {
       const [item] = createSortableList(tag);
@@ -324,25 +333,6 @@ describe('mx-list items elevation layers', () => {
       );
     },
   );
-
-  // A pointer drag doesn't lift a link item in Chromium or Firefox, and at
-  // level 0 every shadow colour serializes the same. So the row sets the level
-  // the other items are read at, and no transition, on the item in `mx-list`.
-  it('should draw the three elevation layers in its shadow colour at level 1 (mx-list-link-item)', async () => {
-    const item = document.createElement('mx-list-link-item');
-    item.setAttribute('href', '#');
-    item.textContent = 'A';
-    item.style.setProperty('--_level', '1');
-    item.style.setProperty('transition', 'none');
-    const list = document.createElement('mx-list');
-    list.append(item);
-    document.body.append(list);
-    await nextFrame();
-
-    expect(renderedLayers(boxOf(item))).toEqual(
-      await expectedLayers(1, await listShadowColor()),
-    );
-  });
 });
 
 /** The alpha of a computed `box-shadow`'s colour, 0 for `none`. */

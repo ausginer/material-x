@@ -1,0 +1,81 @@
+# Mutations of landing.browser.test.ts at ba5cc19b0, one engine at a time, 2026-11-27. M0 is unmutated. Script: mutate.sh.txt.
+M0 chromium exit=0       Tests  35 passed (35) failing-lines=0
+M2 chromium exit=1       Tests  1 failed | 34 passed (35) failing-lines=2
+M3 chromium exit=1       Tests  9 failed | 26 passed (35) failing-lines=18
+M4 chromium exit=1       Tests  1 failed | 34 passed (35) failing-lines=2
+M5 chromium exit=1       Tests  21 failed | 14 passed (35) failing-lines=42
+M6 chromium exit=0       Tests  35 passed (35) failing-lines=0
+M7 chromium exit=1       Tests  6 failed | 29 passed (35) failing-lines=12
+M0 firefox exit=0       Tests  35 passed (35) failing-lines=0
+M1 firefox exit=1       Tests  9 failed | 26 passed (35) failing-lines=18
+M2 firefox exit=1       Tests  1 failed | 34 passed (35) failing-lines=2
+M3 firefox exit=1       Tests  9 failed | 26 passed (35) failing-lines=18
+M4 firefox exit=1       Tests  1 failed | 34 passed (35) failing-lines=2
+M5 firefox exit=1       Tests  21 failed | 14 passed (35) failing-lines=42
+M6 firefox exit=0       Tests  35 passed (35) failing-lines=0
+M7 firefox exit=1       Tests  6 failed | 29 passed (35) failing-lines=12
+M0 webkit exit=0       Tests  35 passed (35) failing-lines=0
+M1 webkit exit=1       Tests  9 failed | 26 passed (35) failing-lines=18
+M2 webkit exit=1       Tests  1 failed | 34 passed (35) failing-lines=2
+M3 webkit exit=1       Tests  9 failed | 26 passed (35) failing-lines=18
+M4 webkit exit=1       Tests  1 failed | 34 passed (35) failing-lines=2
+M5 webkit exit=1       Tests  21 failed | 14 passed (35) failing-lines=42
+M6 webkit exit=0       Tests  35 passed (35) failing-lines=0
+M7 webkit exit=1       Tests  6 failed | 29 passed (35) failing-lines=12
+# M1 chromium (run first, alone):
+M1 chromium exit=1       Tests  9 failed | 26 passed (35)
+
+# Failing rows per mutation (identical in chromium, firefox and webkit; md5 of the sorted lists compared):
+## M1
+     × should land home from the drop position after a drag sideways, with y()
+     × should land home from the drop position after a drag into another slot and back, with y()
+     × should land home from the drop position after a drag within its slot, with y()
+     × should land home from the drop position after a drag sideways, with y() with a displacement
+     × should land home from the drop position after a drag into another slot and back, with y() with a displacement
+     × should land home from the drop position after a drag within its slot, with y() with a displacement
+     × should land home from the drop position after a drag sideways, with xy()
+     × should land home from the drop position after a drag into another slot and back, with xy()
+     × should land home from the drop position after a drag within its slot, with xy()
+## M2
+     × should still skip the landing for a fault
+## M3
+     × should land home from the drop position after a drag sideways, with y()
+     × should land home from the drop position after a drag into another slot and back, with y()
+     × should land home from the drop position after a drag within its slot, with y()
+     × should land home from the drop position after a drag sideways, with y() with a displacement
+     × should land home from the drop position after a drag into another slot and back, with y() with a displacement
+     × should land home from the drop position after a drag within its slot, with y() with a displacement
+     × should land home from the drop position after a drag sideways, with xy()
+     × should land home from the drop position after a drag into another slot and back, with xy()
+     × should land home from the drop position after a drag within its slot, with xy()
+## M4
+     × should start nothing when the visual is already where it lands
+## M5
+     × should land additively from where it was dropped
+     × should keep the landing through a press that never activates, and cancel at the next activation
+     × should stay above static siblings for the whole flight
+     × should stay above relative siblings for the whole flight
+     × should stay above z-index siblings for the whole flight
+     × should give a landing that `landing()` starts zero duration with reduced motion
+     × should keep timing a custom landing named
+     × should keep the timing values returned at the land call when the timing reuses its object
+     × should start a named landing when releasing the top layer throws, and let the outcome stand
+     × should start the landing from the axis-locked position, not the pointer
+     × should start the landing from the clamped position, not the pointer
+     × should start the landing from the moveTo position, not the pointer
+     × should land home from the drop position after a drag sideways, with y()
+     × should land home from the drop position after a drag into another slot and back, with y()
+     × should land home from the drop position after a drag within its slot, with y()
+     × should land home from the drop position after a drag sideways, with y() with a displacement
+     × should land home from the drop position after a drag into another slot and back, with y() with a displacement
+     × should land home from the drop position after a drag within its slot, with y() with a displacement
+     × should land home from the drop position after a drag sideways, with xy()
+     × should land home from the drop position after a drag into another slot and back, with xy()
+     × should land home from the drop position after a drag within its slot, with xy()
+## M7
+     × should land additively from where it was dropped
+     × should keep the landing through a press that never activates, and cancel at the next activation
+     × should stay above static siblings for the whole flight
+     × should stay above relative siblings for the whole flight
+     × should stay above z-index siblings for the whole flight
+     × should call a duration function with reduced motion, and still land at once

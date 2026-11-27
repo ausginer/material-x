@@ -1,21 +1,6 @@
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
 import type { Typeable } from '@ydinjs/core/traits/typeable.js';
-import {
-  createEventNotifier,
-  type EventNotifier,
-} from '@ydinjs/core/utils/DOM.js';
-
-export const notify: EventNotifier<'change' | 'input' | 'secondaryaction'> =
-  createEventNotifier({
-    input: { cancelable: false },
-    // `change` is not composed, so a native `change` fired inside the shadow
-    // tree never crosses the host boundary — we re-emit it here. `input` and
-    // `click` are composed and reach consumers on their own.
-    change: { cancelable: false, composed: false },
-    secondaryaction: { cancelable: false },
-  });
-
 /**
  * Delegates clicks originating directly on a custom-element host to its
  * internal native control.
