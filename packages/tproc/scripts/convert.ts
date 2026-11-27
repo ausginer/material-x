@@ -406,6 +406,12 @@ type Lookups = Readonly<{
     string,
     Readonly<{ table: string; ids: readonly string[] }>
   >;
+  /**
+   * The stored tree nodes that reference another design system. The store
+   * drops a node's value id, which is what says so, so the nodes are marked
+   * while they are read.
+   */
+  foreign: WeakSet<ReferenceTree>;
 }>;
 
 /** A converted token, and the child nodes whose value isn't in the store. */
@@ -419,6 +425,8 @@ type TokenConversion = readonly [
 class TableReader {
   readonly name: string;
   readonly system: RawObject;
+  /** The id prefix of the table's own design system, `designSystems/<id>/`. */
+  readonly designSystem: string;
   readonly tags: TagIndex;
   readonly #valuesByToken = new Map<string, RawObject[]>();
 
@@ -449,6 +457,7 @@ class TableReader {
     const version = this.object('-', system, 'version');
     this.ruled('-', version, 'version', 'system.version');
     this.string('-', version, 'versionName');
+    this.designSystem = `${parentId(this.string('-', version, 'name'), 'versions')}/`;
     for (const component of this.optionalArray('components')) {
       this.ruled('-', component, 'component', 'system.components');
     }
@@ -673,6 +682,7 @@ class TableReader {
     path: string,
     lookups: Lookups,
     unresolved: string[],
+    belowForeign = false,
   ): ReferenceTree {
     if (!isObject(node)) {
       refuse(this.name, token, path, 'is not an object');
@@ -681,8 +691,11 @@ class TableReader {
     const tokenName = this.string(token, node, 'tokenName');
 
     // A child node's value is one of its token's values. The root's is the
-    // entry's, which entry() reads.
+    // entry's, which entry() reads. A node whose value id names another design
+    // system, and every node below it, references a token that the store
+    // doesn't hold, so it has no value index and isn't checked.
     let value: number | undefined;
+    let foreign = belowForeign;
     if (path.endsWith('.childNodes')) {
       let id: string | undefined;
       if (node['value'] != null) {
@@ -690,14 +703,17 @@ class TableReader {
         this.ruled(token, record, 'nodeValue', `${path}.value`);
         id = this.optionalString(token, record, 'name');
       }
-      const index =
-        id == null
-          ? -1
-          : (lookups.values.get(tokenName)?.ids.indexOf(id) ?? -1);
-      if (index < 0) {
-        unresolved.push(tokenName);
-      } else {
-        value = index;
+      foreign ||= id != null && !id.startsWith(this.designSystem);
+      if (!foreign) {
+        const index =
+          id == null
+            ? -1
+            : (lookups.values.get(tokenName)?.ids.indexOf(id) ?? -1);
+        if (index < 0) {
+          unresolved.push(tokenName);
+        } else {
+          value = index;
+        }
       }
     }
 
@@ -716,7 +732,7 @@ class TableReader {
       refuse(this.name, token, `${path}.childNodes`, 'is not an array');
     }
 
-    return {
+    const stored: ReferenceTree = {
       tokenName,
       ...(value != null && { value }),
       ...(fieldNames && { fieldNames }),
@@ -728,10 +744,15 @@ class TableReader {
             `${path}.childNodes`,
             lookups,
             unresolved,
+            foreign,
           ),
         ),
       }),
     };
+    if (foreign) {
+      lookups.foreign.add(stored);
+    }
+    return stored;
   }
 
   entry(
@@ -1086,8 +1107,14 @@ function orphanSetName(raw: RawObject, token: StoredToken): string {
     : token.tokenName;
 }
 
+/**
+ * Refuses a reference that names no stored token. A reference into another
+ * design system isn't checked: a tree node in `foreign`, and a `values`
+ * reference that such a node of the same token names.
+ */
 function checkReferences(
   tokens: ReadonlyMap<string, Readonly<{ table: string; token: StoredToken }>>,
+  foreign: WeakSet<ReferenceTree>,
 ): void {
   const names = new Set(
     Iterator.from(tokens.values()).map(({ token }) => token.tokenName),
@@ -1105,8 +1132,25 @@ function checkReferences(
       }
     };
 
+    const foreignNames = new Set<string>();
+    const collect = (node: ReferenceTree): void => {
+      foreignNames.add(node.tokenName);
+      node.childNodes?.forEach(collect);
+    };
+    const walk = (node: ReferenceTree): void => {
+      if (foreign.has(node)) {
+        collect(node);
+        return;
+      }
+      check(node.tokenName, 'contextualReferenceTree.referenceTree');
+      node.childNodes?.forEach(walk);
+    };
+    for (const entry of token.contextualReferenceTree ?? []) {
+      walk(entry.referenceTree);
+    }
+
     for (const value of token.values) {
-      if (value.tokenName != null) {
+      if (value.tokenName != null && !foreignNames.has(value.tokenName)) {
         check(value.tokenName, 'values.tokenName');
       }
       for (const [property, { tokenName }] of Object.entries(
@@ -1116,14 +1160,6 @@ function checkReferences(
           check(tokenName, `values.customComposite.properties.${property}`);
         }
       }
-    }
-
-    const walk = (node: ReferenceTree): void => {
-      check(node.tokenName, 'contextualReferenceTree.referenceTree');
-      node.childNodes?.forEach(walk);
-    };
-    for (const entry of token.contextualReferenceTree ?? []) {
-      walk(entry.referenceTree);
     }
   }
 }
@@ -1300,9 +1336,11 @@ export function convert(
     }
     return values;
   };
+  const foreign = new WeakSet<ReferenceTree>();
   const provisional: Lookups = {
     groups,
     values: valuesOf(([first]) => first!.reader),
+    foreign,
   };
 
   const keptCopies = new Map<string, TableReader>();
@@ -1336,7 +1374,7 @@ export function convert(
   }
 
   const keptValues = valuesOf((_list, id) => keptCopies.get(id)!);
-  const lookups: Lookups = { groups, values: keptValues };
+  const lookups: Lookups = { groups, values: keptValues, foreign };
 
   const tokens = new Map<
     string,
@@ -1406,7 +1444,7 @@ export function convert(
     }
   }
 
-  checkReferences(tokens);
+  checkReferences(tokens, foreign);
 
   for (const [name, { table }] of tagGroups) {
     if (!Object.hasOwn(RENDERED_CONTEXT, name)) {
