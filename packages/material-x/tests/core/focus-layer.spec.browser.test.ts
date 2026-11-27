@@ -92,6 +92,20 @@ const CASES: readonly Case[] = [
       element.shadowRoot!.querySelector<HTMLElement>('.indicator')!,
     control: '.input',
   },
+  // Material's error state layer has no selection, so it is the same when
+  // checked.
+  {
+    name: 'mx-checkbox with error',
+    tag: 'mx-checkbox',
+    attributes: [['error', '']],
+    contract: 'checkbox.error',
+    focused: 'error.focus',
+    hovered: 'error.hover',
+    target: (element) => element,
+    indicator: (element) =>
+      element.shadowRoot!.querySelector<HTMLElement>('.indicator')!,
+    control: '.input',
+  },
   {
     name: 'mx-radio',
     tag: 'mx-radio',
@@ -145,6 +159,17 @@ const MAPPING_CASES: readonly MappingCase[] = [
     attributes: [[state, '']],
     contract: 'checkbox.default',
     focused: 'selected.focus',
+    control: '.input',
+  })),
+  ...(['checked', 'indeterminate'] as const).map((state): MappingCase => ({
+    name: `mx-checkbox ${state} with error`,
+    tag: 'mx-checkbox',
+    attributes: [
+      [state, ''],
+      ['error', ''],
+    ],
+    contract: 'checkbox.error',
+    focused: 'error.focus',
     control: '.input',
   })),
   {
