@@ -1,0 +1,18 @@
+# chromium 158.0.8127.18
+  plain: :disabled=false focus()=true formDisabledCallback=none
+  own: :disabled=true focus()=false formDisabledCallback=true
+  fieldset: :disabled=true focus()=false formDisabledCallback=true
+  Tab from #before: plain -> after -> 
+  after a click on each and Space: plain [keydown pointerdown click], own [pointerdown], fieldset [pointerdown]
+# firefox 159.0
+  plain: :disabled=false focus()=true formDisabledCallback=none
+  own: :disabled=true focus()=false formDisabledCallback=true
+  fieldset: :disabled=true focus()=false formDisabledCallback=true
+  Tab from #before: plain -> after -> 
+  after a click on each and Space: plain [keydown pointerdown click], own [pointerdown], fieldset [pointerdown]
+# webkit 27.2
+  plain: :disabled=false focus()=true formDisabledCallback=none
+  own: :disabled=true focus()=false formDisabledCallback=true
+  fieldset: :disabled=true focus()=false formDisabledCallback=true
+  Tab from #before: plain -> after -> 
+  after a click on each and Space: plain [keydown pointerdown click], own [pointerdown], fieldset [pointerdown]

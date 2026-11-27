@@ -1,0 +1,63 @@
+# chromium 158.0.8127.18
+  showPopover reads source: true
+  a open                         {"open":true,"field":[20,40,220,96],"menu":[20,96,220,240],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"a","events":"toggle:open"}
+  b open                         {"open":true,"field":[300,40,500,96],"menu":[300,96,500,240],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"b","events":"toggle:open"}
+  a after b opened               {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"b","events":"toggle:open toggle:closed"}
+  c open (bottom edge)           {"open":true,"field":[20,520,220,576],"menu":[20,280,220,520],"height":240,"scrollable":false,"hit":"x-opt of host","focused":"c","events":"toggle:open"}
+  d open (clipped scroller)      {"open":true,"field":[300,140,500,196],"menu":[300,196,500,436],"height":240,"scrollable":false,"hit":"x-opt of host","focused":"d","events":"toggle:open"}
+  e open (30 options)            {"open":true,"field":[20,260,220,316],"menu":[20,316,220,600],"height":284,"scrollable":true,"hit":"x-opt of host","focused":"e","events":"toggle:open"}
+  f open (rtl)                   {"open":true,"field":[580,140,780,196],"menu":[580,196,780,340],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"f","events":"toggle:open"}
+  g open (wide, ltr)             {"open":true,"field":[20,380,220,436],"menu":[20,332,320,380],"height":48,"scrollable":false,"hit":"x-opt of host","focused":"g","events":"toggle:open"}
+  h open (wide, rtl)             {"open":true,"field":[300,380,500,436],"menu":[300,332,600,380],"height":48,"scrollable":false,"hit":"x-opt of host","focused":"h","events":"toggle:open"}
+  i open (wide, inline end)      {"open":true,"field":[590,40,790,96],"menu":[490,96,790,144],"height":48,"scrollable":false,"hit":"x-opt of host","focused":"i","events":"toggle:open"}
+  a open again                   {"open":true,"field":[20,40,220,96],"menu":[20,96,220,240],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"a","events":"toggle:open toggle:closed toggle:open"}
+  a after page scroll 30         {"open":true,"field":[20,10,220,66],"menu":[20,66,220,210],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"a","events":"toggle:open toggle:closed toggle:open"}
+  a after resize                 {"open":true,"field":[20,40,220,96],"menu":[20,96,220,240],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"a","events":"toggle:open toggle:closed toggle:open"}
+  c open after resize            {"open":true,"field":[20,222,220,278],"menu":[20,278,220,500],"height":222,"scrollable":true,"hit":"x-opt of host","focused":"c","events":"toggle:open toggle:closed toggle:open"}
+  a after click outside          {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}
+  a after Escape                 {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"a","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}
+  a after click on own field     {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"a","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}
+  a, source: click on own field  {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"a","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}
+  a, source: click outside       {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}
+# firefox 159.0
+  showPopover reads source: true
+  a open                         {"open":true,"field":[20,40,220,96],"menu":[20,96,220,240],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"a","events":""}
+  b open                         {"open":true,"field":[300,40,500,96],"menu":[300,96,500,240],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"b","events":"toggle:open"}
+  a after b opened               {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"b","events":"toggle:open toggle:closed"}
+  c open (bottom edge)           {"open":true,"field":[20,520,220,576],"menu":[20,280,220,520],"height":240,"scrollable":false,"hit":"x-opt of host","focused":"c","events":"toggle:open"}
+  d open (clipped scroller)      {"open":true,"field":[300,140,500,196],"menu":[300,196,500,436],"height":240,"scrollable":false,"hit":"x-opt of host","focused":"d","events":"toggle:open"}
+  e open (30 options)            {"open":true,"field":[20,260,220,316],"menu":[20,316,220,600],"height":284,"scrollable":true,"hit":"x-opt of host","focused":"e","events":"toggle:open"}
+  f open (rtl)                   {"open":true,"field":[580,140,780,196],"menu":[560,196,760,340],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"f","events":"toggle:open"}
+  g open (wide, ltr)             {"open":true,"field":[20,380,220,436],"menu":[20,332,320,380],"height":48,"scrollable":false,"hit":"x-opt of host","focused":"g","events":"toggle:open"}
+  h open (wide, rtl)             {"open":true,"field":[300,380,500,436],"menu":[100,332,400,380],"height":48,"scrollable":false,"hit":"x-opt of host","focused":"h","events":"toggle:open"}
+  i open (wide, inline end)      {"open":true,"field":[590,40,790,96],"menu":[490,96,790,144],"height":48,"scrollable":false,"hit":"x-opt of host","focused":"i","events":"toggle:open"}
+  a open again                   {"open":true,"field":[20,40,220,96],"menu":[20,96,220,240],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"a","events":"toggle:open toggle:closed toggle:open"}
+  a after page scroll 30         {"open":true,"field":[20,10,220,66],"menu":[20,66,220,210],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"a","events":"toggle:open toggle:closed toggle:open"}
+  a after resize                 {"open":true,"field":[20,40,220,96],"menu":[20,96,220,240],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"a","events":"toggle:open toggle:closed toggle:open"}
+  c open after resize            {"open":true,"field":[20,222,220,278],"menu":[20,278,220,500],"height":222,"scrollable":true,"hit":"x-opt of host","focused":"c","events":"toggle:open toggle:closed toggle:open"}
+  a after click outside          {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}
+  a after Escape                 {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"a","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}
+  a after click on own field     {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"a","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}
+  a, source: click on own field  {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"a","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}
+  a, source: click outside       {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}
+# webkit 27.2
+  showPopover reads source: true
+  a open                         {"open":true,"field":[20,40,220,96],"menu":[20,96,220,240],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"a","events":"toggle:open"}
+  b open                         {"open":true,"field":[300,40,500,96],"menu":[300,96,500,240],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"b","events":"toggle:open"}
+  a after b opened               {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"b","events":"toggle:open toggle:closed"}
+  c open (bottom edge)           {"open":true,"field":[20,520,220,576],"menu":[20,576,220,600],"height":24,"scrollable":true,"hit":"x-opt of host","focused":"c","events":"toggle:open"}
+  d open (clipped scroller)      {"open":true,"field":[300,140,500,196],"menu":[300,196,500,436],"height":240,"scrollable":false,"hit":"x-opt of host","focused":"d","events":"toggle:open"}
+  e open (30 options)            {"open":true,"field":[20,260,220,316],"menu":[20,316,220,600],"height":284,"scrollable":true,"hit":"x-opt of host","focused":"e","events":"toggle:open"}
+  f open (rtl)                   {"open":true,"field":[580,140,780,196],"menu":[580,196,780,340],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"f","events":"toggle:open"}
+  g open (wide, ltr)             {"open":true,"field":[20,380,220,436],"menu":[20,436,320,484],"height":48,"scrollable":false,"hit":"x-opt of host","focused":"g","events":"toggle:open"}
+  h open (wide, rtl)             {"open":true,"field":[300,380,500,436],"menu":[300,436,600,484],"height":48,"scrollable":false,"hit":"x-opt of host","focused":"h","events":"toggle:open"}
+  i open (wide, inline end)      {"open":true,"field":[590,40,790,96],"menu":[490,96,790,144],"height":48,"scrollable":false,"hit":"x-opt of host","focused":"i","events":"toggle:open"}
+  a open again                   {"open":true,"field":[20,40,220,96],"menu":[20,96,220,240],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"a","events":"toggle:open toggle:closed toggle:open"}
+  a after page scroll 30         {"open":true,"field":[20,10,220,66],"menu":[20,66,220,210],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"a","events":"toggle:open toggle:closed toggle:open"}
+  a after resize                 {"open":true,"field":[20,40,220,96],"menu":[20,96,220,240],"height":144,"scrollable":false,"hit":"x-opt of host","focused":"a","events":"toggle:open toggle:closed toggle:open"}
+  c open after resize            {"open":true,"field":[20,222,220,278],"menu":[20,278,220,500],"height":222,"scrollable":true,"hit":"x-opt of host","focused":"c","events":"toggle:open toggle:closed toggle:open"}
+  a after click outside          {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}
+  a after Escape                 {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"a","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}
+  a after click on own field     {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"a","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}
+  a, source: click on own field  {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"a","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}
+  a, source: click outside       {"open":false,"field":[20,40,220,96],"menu":[0,0,0,0],"height":0,"scrollable":false,"hit":"body","focused":"","events":"toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed toggle:open toggle:closed"}

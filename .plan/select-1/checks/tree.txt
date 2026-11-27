@@ -1,0 +1,171 @@
+# chromium 158.0.8127.18
+  label activation: c1 focused=true host click=true; c2 focused=true host click=true
+  -- closed
+  c0 host aria combobox      {"role":"combobox","name":"N0","ignored":false,"value":"Banana","expanded":false,"haspopup":"listbox","dom":9,"parent":"form"}
+  c0 host aria listbox       {"role":"none","name":"","ignored":true,"dom":15,"parent":"combobox"}
+  c0 host aria option 2      {"role":"none","name":"","ignored":true,"dom":18,"parent":"none"}
+  c1 host for combobox       {"role":"combobox","name":"N1","ignored":false,"value":"Banana","expanded":false,"haspopup":"listbox","dom":25,"parent":"form"}
+  c1 host for listbox        {"role":"none","name":"","ignored":true,"dom":31,"parent":"combobox"}
+  c1 host for option 2       {"role":"none","name":"","ignored":true,"dom":34,"parent":"none"}
+  c2 host wrap combobox      {"role":"combobox","name":"N2","ignored":false,"value":"Banana","expanded":false,"haspopup":"listbox","dom":41,"parent":"LabelText"}
+  c2 host wrap listbox       {"role":"none","name":"","ignored":true,"dom":47,"parent":"combobox"}
+  c2 host wrap option 2      {"role":"none","name":"","ignored":true,"dom":50,"parent":"none"}
+  c3 host slot combobox      {"role":"combobox","name":"N3","ignored":false,"value":"N3Banana","expanded":false,"haspopup":"listbox","dom":55,"parent":"form"}
+  c3 host slot listbox       {"role":"none","name":"","ignored":true,"dom":62,"parent":"combobox"}
+  c3 host slot option 2      {"role":"none","name":"","ignored":true,"dom":65,"parent":"none"}
+  c4 shadow aria combobox    {"role":"combobox","name":"N4","ignored":false,"value":"Banana","expanded":false,"haspopup":"listbox","dom":75,"parent":"generic"}
+  c4 shadow aria listbox     {"role":"none","name":"","ignored":true,"dom":78,"parent":"generic"}
+  c4 shadow aria option 2    {"role":"none","name":"","ignored":true,"dom":81,"parent":"none"}
+  c5 shadow slot combobox    {"role":"combobox","name":"N5","ignored":false,"value":"Banana","expanded":false,"haspopup":"listbox","dom":91,"parent":"generic"}
+  c5 shadow slot listbox     {"role":"none","name":"","ignored":true,"dom":94,"parent":"generic"}
+  c5 shadow slot option 2    {"role":"none","name":"","ignored":true,"dom":97,"parent":"none"}
+  c6 host slot hide=label combobox {"role":"combobox","name":"N6","ignored":false,"value":"Banana","expanded":false,"haspopup":"listbox","dom":103,"parent":"form"}
+  c6 host slot hide=label listbox {"role":"none","name":"","ignored":true,"dom":110,"parent":"combobox"}
+  c6 host slot hide=label option 2 {"role":"none","name":"","ignored":true,"dom":113,"parent":"none"}
+  c7 host slot hide=both combobox {"role":"combobox","name":"N7","ignored":false,"expanded":false,"haspopup":"listbox","dom":119,"parent":"form"}
+  c7 host slot hide=both listbox {"role":"none","name":"","ignored":true,"dom":126,"parent":"combobox"}
+  c7 host slot hide=both option 2 {"role":"none","name":"","ignored":true,"dom":129,"parent":"none"}
+  native select              {"role":"combobox","name":"NN","ignored":false,"value":"Banana","expanded":false,"haspopup":"menu","dom":135,"parent":"form"}
+  native option 2            {"role":"option","name":"Banana","ignored":false,"dom":143,"selected":true,"parent":"MenuListPopup"}
+  reflection: c0 activedescendant reads x-opt; c1 activedescendant reads x-opt; c2 activedescendant reads x-opt; c3 activedescendant reads x-opt; c4 activedescendant reads x-opt; c5 activedescendant reads x-opt; c6 activedescendant reads x-opt; c7 activedescendant reads x-opt
+  -- open
+  c0 host aria combobox      {"role":"combobox","name":"N0","ignored":false,"value":"Banana Banana","expanded":true,"haspopup":"listbox","activedescendant":[18],"dom":9,"parent":"form"}
+  c0 host aria listbox       {"role":"listbox","name":"","ignored":false,"dom":15,"parent":"combobox"}
+  c0 host aria option 2      {"role":"option","name":"Banana","ignored":false,"dom":18,"selected":true,"parent":"listbox"}
+  c1 host for combobox       {"role":"combobox","name":"N1","ignored":false,"value":"Banana Banana","expanded":true,"haspopup":"listbox","activedescendant":[34],"dom":25,"parent":"form"}
+  c1 host for listbox        {"role":"listbox","name":"","ignored":false,"dom":31,"parent":"combobox"}
+  c1 host for option 2       {"role":"option","name":"Banana","ignored":false,"dom":34,"selected":true,"parent":"listbox"}
+  c2 host wrap combobox      {"role":"combobox","name":"N2","ignored":false,"value":"Banana","expanded":true,"haspopup":"listbox","activedescendant":[50],"dom":41,"parent":"LabelText"}
+  c2 host wrap listbox       {"role":"listbox","name":"","ignored":false,"dom":47,"parent":"combobox"}
+  c2 host wrap option 2      {"role":"option","name":"Banana","ignored":false,"dom":50,"selected":true,"parent":"none"}
+  c3 host slot combobox      {"role":"combobox","name":"N3","ignored":false,"value":"N3Banana Banana","expanded":true,"haspopup":"listbox","activedescendant":[65],"dom":55,"parent":"form"}
+  c3 host slot listbox       {"role":"listbox","name":"","ignored":false,"dom":62,"parent":"combobox"}
+  c3 host slot option 2      {"role":"option","name":"Banana","ignored":false,"dom":65,"selected":true,"parent":"listbox"}
+  c4 shadow aria combobox    {"role":"combobox","name":"N4","ignored":false,"value":"Banana","expanded":true,"haspopup":"listbox","activedescendant":[81],"dom":75,"parent":"generic"}
+  c4 shadow aria listbox     {"role":"listbox","name":"","ignored":false,"dom":78,"parent":"generic"}
+  c4 shadow aria option 2    {"role":"option","name":"Banana","ignored":false,"dom":81,"selected":true,"parent":"listbox"}
+  c5 shadow slot combobox    {"role":"combobox","name":"N5","ignored":false,"value":"Banana","expanded":true,"haspopup":"listbox","activedescendant":[97],"dom":91,"parent":"generic"}
+  c5 shadow slot listbox     {"role":"listbox","name":"","ignored":false,"dom":94,"parent":"generic"}
+  c5 shadow slot option 2    {"role":"option","name":"Banana","ignored":false,"dom":97,"selected":true,"parent":"listbox"}
+  c6 host slot hide=label combobox {"role":"combobox","name":"N6","ignored":false,"value":"Banana Banana","expanded":true,"haspopup":"listbox","activedescendant":[113],"dom":103,"parent":"form"}
+  c6 host slot hide=label listbox {"role":"listbox","name":"","ignored":false,"dom":110,"parent":"combobox"}
+  c6 host slot hide=label option 2 {"role":"option","name":"Banana","ignored":false,"dom":113,"selected":true,"parent":"listbox"}
+  c7 host slot hide=both combobox {"role":"combobox","name":"N7","ignored":false,"value":"Banana","expanded":true,"haspopup":"listbox","activedescendant":[129],"dom":119,"parent":"form"}
+  c7 host slot hide=both listbox {"role":"listbox","name":"","ignored":false,"dom":126,"parent":"combobox"}
+  c7 host slot hide=both option 2 {"role":"option","name":"Banana","ignored":false,"dom":129,"selected":true,"parent":"listbox"}
+  native select              {"role":"combobox","name":"NN","ignored":false,"value":"Banana","expanded":false,"haspopup":"menu","dom":135,"parent":"form"}
+  native option 2            {"role":"option","name":"Banana","ignored":false,"dom":143,"selected":true,"parent":"MenuListPopup"}
+# firefox 159.0
+  label activation: c1 focused=true host click=true; c2 focused=true host click=true
+  -- closed
+  c0 host aria combobox      {"description":"","accessibilityId":"9124f420-c4ab-4a4c-9a02-5f05d7ac737c","label":"N0","role":"combobox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":["9ec029cb-4b3e-475a-a95d-cc35a9550968"],"required":"false"}
+  c0 host aria listbox       {"accessible":null}
+  c0 host aria option 2      {"accessible":null}
+  c1 host for combobox       {"description":"","accessibilityId":"acfc4c8d-b54e-43e8-ab94-40ad208f2f48","label":"N1","role":"combobox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":["cf6a0a6c-faf5-4899-9b09-463b5d11a0bc"],"required":"false"}
+  c1 host for listbox        {"accessible":null}
+  c1 host for option 2       {"accessible":null}
+  c2 host wrap combobox      {"description":"","accessibilityId":"9b43a8d1-3bbd-4ea8-be81-8729673cf2d5","label":"N2","role":"combobox","parent":"50775c60-6193-4f59-a5ca-fae451b57c04","children":["9643de68-9ca4-450c-820e-e5a1b35cd543"],"required":"false"}
+  c2 host wrap listbox       {"accessible":null}
+  c2 host wrap option 2      {"accessible":null}
+  c3 host slot combobox      {"description":"","accessibilityId":"1c5d7d6a-3359-4f8a-b3ee-8546503b3f88","label":"N3","role":"combobox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":["26335d3a-997d-4426-a0af-df236753e99e","34922570-5236-4970-9e74-d1a67cff6c99"],"required":"false"}
+  c3 host slot listbox       {"accessible":null}
+  c3 host slot option 2      {"accessible":null}
+  c4 shadow aria combobox    {"description":"","accessibilityId":"14258577-3488-468a-997b-5b06d2674c50","label":"N4","role":"combobox","parent":"8d64af97-31c3-416a-85e2-8a758aa79c90","children":["8f72978f-d3a2-4c96-b3a1-c635e0f449b5"],"required":"false"}
+  c4 shadow aria listbox     {"accessible":null}
+  c4 shadow aria option 2    {"accessible":null}
+  c5 shadow slot combobox    {"description":"","accessibilityId":"7640ca12-942a-41aa-ac9a-93df959e5d5d","label":"N5","role":"combobox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":["fde1861a-f8b4-4db1-9f5d-4699f15aa084"],"required":"false"}
+  c5 shadow slot listbox     {"accessible":null}
+  c5 shadow slot option 2    {"accessible":null}
+  c6 host slot hide=label combobox {"description":"","accessibilityId":"106cc615-575d-449c-b933-29cb26ddc58c","label":"N6","role":"combobox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":["ea7c8c24-3d49-4c4a-a5dc-01cf472c11ed"],"required":"false"}
+  c6 host slot hide=label listbox {"accessible":null}
+  c6 host slot hide=label option 2 {"accessible":null}
+  c7 host slot hide=both combobox {"description":"","accessibilityId":"b166046c-3178-4ea1-9411-145834a6a1f3","label":"N7","role":"combobox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":[],"required":"false"}
+  c7 host slot hide=both listbox {"accessible":null}
+  c7 host slot hide=both option 2 {"accessible":null}
+  native select              {"description":"","accessibilityId":"92a17222-6ffb-445c-916f-9f3629a8fa7f","label":"NN","role":"combobox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":["acf87284-6ba6-45a6-8a42-4c614d23367a"],"required":"false"}
+  native option 2            {"description":"","accessibilityId":"6394f0f7-d93e-42dd-9f35-a888de60e6ed","label":"Banana","role":"option","parent":"acf87284-6ba6-45a6-8a42-4c614d23367a","children":[],"required":"false","selected":"true"}
+  reflection: c0 activedescendant reads x-opt; c1 activedescendant reads x-opt; c2 activedescendant reads x-opt; c3 activedescendant reads x-opt; c4 activedescendant reads x-opt; c5 activedescendant reads x-opt; c6 activedescendant reads x-opt; c7 activedescendant reads x-opt
+  -- open
+  c0 host aria combobox      {"description":"","accessibilityId":"9124f420-c4ab-4a4c-9a02-5f05d7ac737c","label":"N0","role":"combobox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":["9ec029cb-4b3e-475a-a95d-cc35a9550968","62eff26c-61e0-4344-bffc-9db66eaf12e1"],"required":"false"}
+  c0 host aria listbox       {"description":"","accessibilityId":"62eff26c-61e0-4344-bffc-9db66eaf12e1","label":null,"role":"listbox","parent":"9124f420-c4ab-4a4c-9a02-5f05d7ac737c","children":["11727a80-fc1d-4c14-b84f-b5e517f73684","47b3a243-19fa-4b0a-beda-da17c6ead531","832c2ca6-13c6-4ee8-bf8d-2733b4ebec0f"],"required":"false"}
+  c0 host aria option 2      {"description":"","accessibilityId":"47b3a243-19fa-4b0a-beda-da17c6ead531","label":"Banana","role":"option","parent":"62eff26c-61e0-4344-bffc-9db66eaf12e1","children":["84edeb19-e058-468a-8bd4-7fc30027a493"],"required":"false","selected":"true"}
+  c1 host for combobox       {"description":"","accessibilityId":"acfc4c8d-b54e-43e8-ab94-40ad208f2f48","label":"N1","role":"combobox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":["cf6a0a6c-faf5-4899-9b09-463b5d11a0bc","0d17e150-de05-443a-b4ff-11f536f1c691"],"required":"false"}
+  c1 host for listbox        {"description":"","accessibilityId":"0d17e150-de05-443a-b4ff-11f536f1c691","label":null,"role":"listbox","parent":"acfc4c8d-b54e-43e8-ab94-40ad208f2f48","children":["8ffacecb-5443-4213-b0f9-3764bcbe3b2f","d9a45da9-6c83-409f-9e7c-0b6774d42270","0d18e31c-6e32-4122-9b0f-e8e8bd692aac"],"required":"false"}
+  c1 host for option 2       {"description":"","accessibilityId":"d9a45da9-6c83-409f-9e7c-0b6774d42270","label":"Banana","role":"option","parent":"0d17e150-de05-443a-b4ff-11f536f1c691","children":["57e1c459-1a37-4555-a557-bb92f348ed24"],"required":"false","selected":"true"}
+  c2 host wrap combobox      {"description":"","accessibilityId":"9b43a8d1-3bbd-4ea8-be81-8729673cf2d5","label":"N2","role":"combobox","parent":"50775c60-6193-4f59-a5ca-fae451b57c04","children":["9643de68-9ca4-450c-820e-e5a1b35cd543","eaaed24c-9897-46c2-b065-c468ae7c6769"],"required":"false"}
+  c2 host wrap listbox       {"description":"","accessibilityId":"eaaed24c-9897-46c2-b065-c468ae7c6769","label":null,"role":"listbox","parent":"9b43a8d1-3bbd-4ea8-be81-8729673cf2d5","children":["1860f057-e6d6-4cb1-a03b-f537f4e54df2","a35de269-9e56-4af3-9af6-632954aad61a","f978d876-c37d-4396-966d-62a21992c594"],"required":"false"}
+  c2 host wrap option 2      {"description":"","accessibilityId":"a35de269-9e56-4af3-9af6-632954aad61a","label":"Banana","role":"option","parent":"eaaed24c-9897-46c2-b065-c468ae7c6769","children":["e4cb5f06-4bd5-491f-9b70-958d1fc976ec"],"required":"false","selected":"true"}
+  c3 host slot combobox      {"description":"","accessibilityId":"1c5d7d6a-3359-4f8a-b3ee-8546503b3f88","label":"N3","role":"combobox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":["26335d3a-997d-4426-a0af-df236753e99e","34922570-5236-4970-9e74-d1a67cff6c99","b9d39187-ee44-4dd9-8d4f-fadaa17f7e09"],"required":"false"}
+  c3 host slot listbox       {"description":"","accessibilityId":"b9d39187-ee44-4dd9-8d4f-fadaa17f7e09","label":null,"role":"listbox","parent":"1c5d7d6a-3359-4f8a-b3ee-8546503b3f88","children":["bbdd9773-2018-41e2-9b55-e3fcfee8bea0","0c6c4525-530c-4c23-9707-116eaac5007c","186e6281-49da-49c7-aa3f-4d0f5f8069b3"],"required":"false"}
+  c3 host slot option 2      {"description":"","accessibilityId":"0c6c4525-530c-4c23-9707-116eaac5007c","label":"Banana","role":"option","parent":"b9d39187-ee44-4dd9-8d4f-fadaa17f7e09","children":["5053a7df-47ad-48c6-a3a3-7e256e9bd2a1"],"required":"false","selected":"true"}
+  c4 shadow aria combobox    {"description":"","accessibilityId":"14258577-3488-468a-997b-5b06d2674c50","label":"N4","role":"combobox","parent":"8d64af97-31c3-416a-85e2-8a758aa79c90","children":["8f72978f-d3a2-4c96-b3a1-c635e0f449b5"],"required":"false"}
+  c4 shadow aria listbox     {"description":"","accessibilityId":"e38d6d15-7335-4b7b-a9fc-0d79e2b79d53","label":null,"role":"listbox","parent":"8d64af97-31c3-416a-85e2-8a758aa79c90","children":["5a29c2b4-db8a-442b-b166-2ab985e02c82","fb336ea8-4c58-4f02-a1ab-ffbdd92c22f2","86352b1c-1e38-465a-9f72-10ed1da58461"],"required":"false"}
+  c4 shadow aria option 2    {"description":"","accessibilityId":"fb336ea8-4c58-4f02-a1ab-ffbdd92c22f2","label":"Banana","role":"option","parent":"e38d6d15-7335-4b7b-a9fc-0d79e2b79d53","children":["a2d30457-d84f-44f2-968d-9af80ff760de"],"required":"false","selected":"true"}
+  c5 shadow slot combobox    {"description":"","accessibilityId":"7640ca12-942a-41aa-ac9a-93df959e5d5d","label":"N5","role":"combobox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":["fde1861a-f8b4-4db1-9f5d-4699f15aa084"],"required":"false"}
+  c5 shadow slot listbox     {"description":"","accessibilityId":"3f8403ec-b3f2-45e3-b779-7d6d534e9d17","label":null,"role":"listbox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":["7877b1b1-1fdd-42a0-9467-d507885a1e00","82f172a9-9fa5-4927-8be4-81b7b7025418","20eacde4-a80d-4bfb-b5f9-565245bc9cc3"],"required":"false"}
+  c5 shadow slot option 2    {"description":"","accessibilityId":"82f172a9-9fa5-4927-8be4-81b7b7025418","label":"Banana","role":"option","parent":"3f8403ec-b3f2-45e3-b779-7d6d534e9d17","children":["763afa51-78ea-409b-afdc-c7466c7ccc5f"],"required":"false","selected":"true"}
+  c6 host slot hide=label combobox {"description":"","accessibilityId":"106cc615-575d-449c-b933-29cb26ddc58c","label":"N6","role":"combobox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":["ea7c8c24-3d49-4c4a-a5dc-01cf472c11ed","db9d80b3-ca65-4380-b799-9cd3ce35bd91"],"required":"false"}
+  c6 host slot hide=label listbox {"description":"","accessibilityId":"db9d80b3-ca65-4380-b799-9cd3ce35bd91","label":null,"role":"listbox","parent":"106cc615-575d-449c-b933-29cb26ddc58c","children":["35007bca-e80d-4f75-8b07-a4afb6213306","ce3635e8-c309-4b4d-ad5b-acffee33972b","f64631ae-28fb-4084-8ea8-491666170fbe"],"required":"false"}
+  c6 host slot hide=label option 2 {"description":"","accessibilityId":"ce3635e8-c309-4b4d-ad5b-acffee33972b","label":"Banana","role":"option","parent":"db9d80b3-ca65-4380-b799-9cd3ce35bd91","children":["ecb22c9a-4324-48d4-bcfc-be86c115b380"],"required":"false","selected":"true"}
+  c7 host slot hide=both combobox {"description":"","accessibilityId":"b166046c-3178-4ea1-9411-145834a6a1f3","label":"N7","role":"combobox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":["be3cbdb7-74e3-4d6f-b5b3-ea5ac5d2d28e"],"required":"false"}
+  c7 host slot hide=both listbox {"description":"","accessibilityId":"be3cbdb7-74e3-4d6f-b5b3-ea5ac5d2d28e","label":null,"role":"listbox","parent":"b166046c-3178-4ea1-9411-145834a6a1f3","children":["97d8008b-2a64-4fc2-a141-cbed6fcbd97a","bffb333e-6bb3-45e0-ae0f-fc9b10dd6cea","7763ae52-21ea-4f58-9522-53141663cffa"],"required":"false"}
+  c7 host slot hide=both option 2 {"description":"","accessibilityId":"bffb333e-6bb3-45e0-ae0f-fc9b10dd6cea","label":"Banana","role":"option","parent":"be3cbdb7-74e3-4d6f-b5b3-ea5ac5d2d28e","children":["17590bea-74ce-4ad4-9690-f26d8391733b"],"required":"false","selected":"true"}
+  native select              {"description":"","accessibilityId":"92a17222-6ffb-445c-916f-9f3629a8fa7f","label":"NN","role":"combobox","parent":"aa23124a-cd5b-401d-b04b-6b1b452e5b1c","children":["acf87284-6ba6-45a6-8a42-4c614d23367a"],"required":"false"}
+  native option 2            {"description":"","accessibilityId":"6394f0f7-d93e-42dd-9f35-a888de60e6ed","label":"Banana","role":"option","parent":"acf87284-6ba6-45a6-8a42-4c614d23367a","children":[],"required":"false","selected":"true"}
+# webkit 27.2
+  label activation: c1 focused=true host click=true; c2 focused=true host click=true
+  -- closed
+  c0 host aria combobox      {"exists":true,"role":"combobox","name":"N0","expanded":false,"popup":true,"parent":"form"}
+  c0 host aria listbox       {"exists":true,"role":"listbox","name":"","ignored":true}
+  c0 host aria option 2      {"exists":false,"role":"","name":""}
+  c1 host for combobox       {"exists":true,"role":"combobox","name":"N1","expanded":false,"popup":true,"parent":"form"}
+  c1 host for listbox        {"exists":true,"role":"listbox","name":"","ignored":true}
+  c1 host for option 2       {"exists":true,"role":"option","name":"Banana","selected":true,"parent":"combobox"}
+  c2 host wrap combobox      {"exists":true,"role":"combobox","name":"N2","expanded":false,"popup":true,"parent":""}
+  c2 host wrap listbox       {"exists":true,"role":"listbox","name":"","ignored":true}
+  c2 host wrap option 2      {"exists":true,"role":"option","name":"Banana","selected":true,"parent":"combobox"}
+  c3 host slot combobox      {"exists":true,"role":"combobox","name":"N3","expanded":false,"popup":true,"parent":"form"}
+  c3 host slot listbox       {"exists":true,"role":"listbox","name":"","ignored":true}
+  c3 host slot option 2      {"exists":true,"role":"option","name":"Banana","selected":true,"parent":"combobox"}
+  c4 shadow aria combobox    {"exists":true,"role":"combobox","name":"N4","expanded":false,"popup":true,"parent":"group"}
+  c4 shadow aria listbox     {"exists":true,"role":"listbox","name":"","ignored":true}
+  c4 shadow aria option 2    {"exists":false,"role":"","name":""}
+  c5 shadow slot combobox    {"exists":true,"role":"combobox","name":"N5","expanded":false,"popup":true,"parent":"group"}
+  c5 shadow slot listbox     {"exists":true,"role":"listbox","name":"","ignored":true}
+  c5 shadow slot option 2    {"exists":false,"role":"","name":""}
+  c6 host slot hide=label combobox {"exists":true,"role":"combobox","name":"N6","expanded":false,"popup":true,"parent":"form"}
+  c6 host slot hide=label listbox {"exists":true,"role":"listbox","name":"","ignored":true}
+  c6 host slot hide=label option 2 {"exists":true,"role":"option","name":"Banana","selected":true,"parent":"combobox"}
+  c7 host slot hide=both combobox {"exists":true,"role":"combobox","name":"N7","expanded":false,"popup":true,"parent":"form"}
+  c7 host slot hide=both listbox {"exists":true,"role":"listbox","name":"","ignored":true}
+  c7 host slot hide=both option 2 {"exists":true,"role":"option","name":"Banana","selected":true,"parent":"combobox"}
+  native select              {"exists":true,"role":"button","name":"NN","expanded":false,"popup":true,"parent":"form"}
+  native option 2            {"exists":true,"role":"option","name":"","selected":true}
+  reflection: c0 activedescendant reads x-opt; c1 activedescendant reads x-opt; c2 activedescendant reads x-opt; c3 activedescendant reads x-opt; c4 activedescendant reads x-opt; c5 activedescendant reads x-opt; c6 activedescendant reads x-opt; c7 activedescendant reads x-opt
+  -- open
+  c0 host aria combobox      {"exists":true,"role":"combobox","name":"N0","expanded":true,"popup":true,"activedescendant":"option Banana","parent":"form"}
+  c0 host aria listbox       {"exists":true,"role":"listbox","name":"","parent":"combobox"}
+  c0 host aria option 2      {"exists":true,"role":"option","name":"Banana","selected":true,"parent":"listbox"}
+  c1 host for combobox       {"exists":true,"role":"combobox","name":"N1","expanded":true,"popup":true,"activedescendant":"option Banana","parent":"form"}
+  c1 host for listbox        {"exists":true,"role":"listbox","name":"","parent":"combobox"}
+  c1 host for option 2       {"exists":true,"role":"option","name":"Banana","selected":true,"parent":"listbox"}
+  c2 host wrap combobox      {"exists":true,"role":"combobox","name":"N2","expanded":true,"popup":true,"activedescendant":"option Banana","parent":""}
+  c2 host wrap listbox       {"exists":true,"role":"listbox","name":"","parent":"combobox"}
+  c2 host wrap option 2      {"exists":true,"role":"option","name":"Banana","selected":true,"parent":"listbox"}
+  c3 host slot combobox      {"exists":true,"role":"combobox","name":"N3","expanded":true,"popup":true,"activedescendant":"option Banana","parent":"form"}
+  c3 host slot listbox       {"exists":true,"role":"listbox","name":"","parent":"combobox"}
+  c3 host slot option 2      {"exists":true,"role":"option","name":"Banana","selected":true,"parent":"listbox"}
+  c4 shadow aria combobox    {"exists":true,"role":"combobox","name":"N4","expanded":true,"popup":true,"activedescendant":"option Banana","parent":"group"}
+  c4 shadow aria listbox     {"exists":true,"role":"listbox","name":"","parent":"group"}
+  c4 shadow aria option 2    {"exists":true,"role":"option","name":"Banana","selected":true,"parent":"listbox"}
+  c5 shadow slot combobox    {"exists":true,"role":"combobox","name":"N5","expanded":true,"popup":true,"activedescendant":"option Banana","parent":"group"}
+  c5 shadow slot listbox     {"exists":true,"role":"listbox","name":"","parent":"group"}
+  c5 shadow slot option 2    {"exists":true,"role":"option","name":"Banana","selected":true,"parent":"listbox"}
+  c6 host slot hide=label combobox {"exists":true,"role":"combobox","name":"N6","expanded":true,"popup":true,"activedescendant":"option Banana","parent":"form"}
+  c6 host slot hide=label listbox {"exists":true,"role":"listbox","name":"","parent":"combobox"}
+  c6 host slot hide=label option 2 {"exists":true,"role":"option","name":"Banana","selected":true,"parent":"listbox"}
+  c7 host slot hide=both combobox {"exists":true,"role":"combobox","name":"N7","expanded":true,"popup":true,"activedescendant":"option Banana","parent":"form"}
+  c7 host slot hide=both listbox {"exists":true,"role":"listbox","name":"","parent":"combobox"}
+  c7 host slot hide=both option 2 {"exists":true,"role":"option","name":"Banana","selected":true,"parent":"listbox"}
+  native select              {"exists":true,"role":"button","name":"NN","expanded":false,"popup":true,"parent":"form"}
+  native option 2            {"exists":true,"role":"option","name":"","selected":true}
