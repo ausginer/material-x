@@ -1,0 +1,13 @@
+#!/bin/bash
+# Lists, per engine, the theme-probe lines of a mutation that differ from the
+# unmutated run (mut-none-theme.txt) in globals, preview, icon or rendered.
+S=$(dirname "$0")
+norm() { grep -E '^(chromium|firefox|webkit) ' "$@" | sed -E 's/ +/ /g'; }
+for e in chromium firefox webkit; do
+  base=$(norm "$S/mut-none-theme.txt" | grep "^$e ")
+  diffs=$(diff <(echo "$base") <(norm "$S/mut-$1.txt" | grep "^$e ") | grep '^>' |
+    sed -E 's/^> [a-z]+ ([A-E][0-9]+) .* globals=([^ ]+) preview=([a-z]+) icon=(.{6}) r=([01]).*/\1(g=\2,p=\3,i=\4,r=\5)/')
+  n=$(norm "$S/mut-$1.txt" | grep -c "^$e ")
+  echo "$1 $e lines=$n differ: ${diffs:-none}" | tr '\n' ' '
+  echo
+done

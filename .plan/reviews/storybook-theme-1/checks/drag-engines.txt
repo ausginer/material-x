@@ -1,0 +1,50 @@
+# node probes/mutate.ts.txt none-drag (runs probes/drag-engines.ts.txt in each engine), against storybook dev (port 6124) on repo/storybook-theme-1 at be4f7eee2, Storybook 10.6.7, Playwright's Chromium, Firefox and WebKit one at a time, 2026-11-27
+# unchanged: each element's value that is the same in light and dark, transparent and none left out.
+chromium drag-custom-behavior--resize-handle      elements=4 unchanged=none
+chromium drag-free-drag--interactive              elements=4 unchanged=3:div.box box-shadow=color(srgb 0 0 0 / 0.3) 0px 1px 3px 0px
+chromium drag-free-drag--async-drop-confirmation  elements=5 unchanged=4:div.box box-shadow=color(srgb 0 0 0 / 0.3) 0px 1px 3px 0px
+chromium drag-free-drag--transformed-stage        elements=4 unchanged=3:div.box box-shadow=color(srgb 0 0 0 / 0.3) 0px 1px 3px 0px
+chromium drag-sortable--list                      elements=13 unchanged=3:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 5:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 7:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 9:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 11:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+chromium   light placeholder bg=color(srgb 0.243137 0.403922 0 / 0.08) border=rgb(62, 103, 0) dashed color=rgb(25, 29, 19)
+chromium   dark  placeholder bg=color(srgb 0.592157 0.85098 0.270588 / 0.08) border=rgb(151, 217, 69) dashed color=rgb(224, 228, 212)
+chromium drag-sortable--grid                      elements=11 unchanged=3:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 4:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 5:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 6:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 7:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 8:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 9:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 10:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+chromium   light placeholder bg=color(srgb 0.243137 0.403922 0 / 0.08) border=rgb(62, 103, 0) dashed color=rgb(25, 29, 19)
+chromium   dark  placeholder bg=color(srgb 0.592157 0.85098 0.270588 / 0.08) border=rgb(151, 217, 69) dashed color=rgb(224, 228, 212)
+chromium drag-sortable--custom-placeholder        elements=13 unchanged=3:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 5:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 7:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 9:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 11:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+chromium   light placeholder bg=rgb(204, 238, 161) border=rgb(62, 103, 0) solid color=rgb(81, 109, 47)
+chromium   dark  placeholder bg=rgb(54, 80, 22) border=rgb(151, 217, 69) solid color=rgb(163, 195, 123)
+chromium drag-sortable--zoomed-context            elements=14 unchanged=4:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 6:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 8:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 10:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 12:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+chromium   light placeholder bg=color(srgb 0.243137 0.403922 0 / 0.08) border=rgb(62, 103, 0) dashed color=rgb(25, 29, 19)
+chromium   dark  placeholder bg=color(srgb 0.592157 0.85098 0.270588 / 0.08) border=rgb(151, 217, 69) dashed color=rgb(224, 228, 212)
+firefox  drag-custom-behavior--resize-handle      elements=4 unchanged=none
+firefox  drag-free-drag--interactive              elements=4 unchanged=3:div.box box-shadow=color(srgb 0 0 0 / 0.3) 0px 1px 3px 0px
+firefox  drag-free-drag--async-drop-confirmation  elements=5 unchanged=4:div.box box-shadow=color(srgb 0 0 0 / 0.3) 0px 1px 3px 0px
+firefox  drag-free-drag--transformed-stage        elements=4 unchanged=3:div.box box-shadow=color(srgb 0 0 0 / 0.3) 0px 1px 3px 0px
+firefox  drag-sortable--list                      elements=13 unchanged=3:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 5:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 7:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 9:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 11:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+firefox    light placeholder bg=color(srgb 0.243137 0.403922 0 / 0.08) border=rgb(62, 103, 0) dashed color=rgb(25, 29, 19)
+firefox    dark  placeholder bg=color(srgb 0.592157 0.85098 0.270588 / 0.08) border=rgb(151, 217, 69) dashed color=rgb(224, 228, 212)
+firefox  drag-sortable--grid                      elements=11 unchanged=3:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 4:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 5:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 6:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 7:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 8:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 9:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 10:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+firefox    light placeholder bg=color(srgb 0.243137 0.403922 0 / 0.08) border=rgb(62, 103, 0) dashed color=rgb(25, 29, 19)
+firefox    dark  placeholder bg=color(srgb 0.592157 0.85098 0.270588 / 0.08) border=rgb(151, 217, 69) dashed color=rgb(224, 228, 212)
+firefox  drag-sortable--custom-placeholder        elements=13 unchanged=3:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 5:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 7:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 9:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 11:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+firefox    light placeholder bg=rgb(204, 238, 161) border=rgb(62, 103, 0) solid color=rgb(81, 109, 47)
+firefox    dark  placeholder bg=rgb(54, 80, 22) border=rgb(151, 217, 69) solid color=rgb(163, 195, 123)
+firefox  drag-sortable--zoomed-context            elements=14 unchanged=4:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 6:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 8:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 10:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 12:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+firefox    light placeholder bg=color(srgb 0.243137 0.403922 0 / 0.08) border=rgb(62, 103, 0) dashed color=rgb(25, 29, 19)
+firefox    dark  placeholder bg=color(srgb 0.592157 0.85098 0.270588 / 0.08) border=rgb(151, 217, 69) dashed color=rgb(224, 228, 212)
+webkit   drag-custom-behavior--resize-handle      elements=4 unchanged=none
+webkit   drag-free-drag--interactive              elements=4 unchanged=3:div.box box-shadow=color(srgb 0 0 0 / 0.3) 0px 1px 3px 0px
+webkit   drag-free-drag--async-drop-confirmation  elements=5 unchanged=4:div.box box-shadow=color(srgb 0 0 0 / 0.3) 0px 1px 3px 0px
+webkit   drag-free-drag--transformed-stage        elements=4 unchanged=3:div.box box-shadow=color(srgb 0 0 0 / 0.3) 0px 1px 3px 0px
+webkit   drag-sortable--list                      elements=13 unchanged=3:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 5:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 7:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 9:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 11:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+webkit     light placeholder bg=color(srgb 0.243137 0.403922 0 / 0.08) border=rgb(62, 103, 0) dashed color=rgb(25, 29, 19)
+webkit     dark  placeholder bg=color(srgb 0.592157 0.85098 0.270588 / 0.08) border=rgb(151, 217, 69) dashed color=rgb(224, 228, 212)
+webkit   drag-sortable--grid                      elements=11 unchanged=3:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 4:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 5:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 6:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 7:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 8:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 9:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 10:div.tile box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+webkit     light placeholder bg=color(srgb 0.243137 0.403922 0 / 0.08) border=rgb(62, 103, 0) dashed color=rgb(25, 29, 19)
+webkit     dark  placeholder bg=color(srgb 0.592157 0.85098 0.270588 / 0.08) border=rgb(151, 217, 69) dashed color=rgb(224, 228, 212)
+webkit   drag-sortable--custom-placeholder        elements=13 unchanged=3:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 5:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 7:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 9:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 11:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+webkit     light placeholder bg=rgb(204, 238, 161) border=rgb(62, 103, 0) solid color=rgb(81, 109, 47)
+webkit     dark  placeholder bg=rgb(54, 80, 22) border=rgb(151, 217, 69) solid color=rgb(163, 195, 123)
+webkit   drag-sortable--zoomed-context            elements=14 unchanged=4:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 6:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 8:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 10:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px; 12:div.row box-shadow=color(srgb 0 0 0 / 0.15) 0px 1px 2px 0px
+webkit     light placeholder bg=color(srgb 0.243137 0.403922 0 / 0.08) border=rgb(62, 103, 0) dashed color=rgb(25, 29, 19)
+webkit     dark  placeholder bg=color(srgb 0.592157 0.85098 0.270588 / 0.08) border=rgb(151, 217, 69) dashed color=rgb(224, 228, 212)

@@ -1,0 +1,102 @@
+# node probes/mutate.ts.txt none-theme (runs probes/theme-engines.ts.txt in each engine), against storybook dev (port 6124) on repo/storybook-theme-1 at be4f7eee2, Storybook 10.6.7, Playwright's Chromium, Firefox and WebKit one at a time, 2026-11-27
+# icon: M7.5.5 is the sun (shown in dark), M7.78. the moon (shown in light). r=1: the preview has rendered.
+A: loaded light, toggled after the load
+chromium A1 loaded                                /story/box-quad--live-demo       globals=null        preview=light icon=M7.78. r=1
+chromium A2 toggled to dark                       /story/box-quad--live-demo       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium A3 sidebar to box-quad--nested-spaces    /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium A4 reloaded                              /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+B: loaded with globals=theme:dark
+chromium B1 loaded                                /story/box-quad--live-demo       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium B2 sidebar to box-quad--nested-spaces    /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium B3 reloaded                              /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium B4 toggled to light                      /story/box-quad--nested-spaces   globals=null        preview=light icon=M7.78. r=1
+chromium B5 sidebar to box-quad--pointer-delta    /story/box-quad--pointer-delta   globals=null        preview=light icon=M7.78. r=1
+C: a docs page's toggle
+chromium C1 loaded button-regular--docs           /docs/button-regular--docs       globals=null        preview=light icon=M7.78. r=1
+chromium C2 docs toggle to dark                   /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium C3 sidebar to button-icon                /docs/button-icon--docs          globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium C4 reloaded                              /docs/button-icon--docs          globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium C5 sidebar to button-icon--playground    /story/button-icon--playground   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium C6 sidebar to button-regular             /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium C7 docs toggle to light                  /docs/button-regular--docs       globals=null        preview=light icon=M7.78. r=1
+chromium C8 sidebar to button-icon--docs          /docs/button-icon--docs          globals=null        preview=light icon=M7.78. r=1
+D: a story's toolbar toggle, then docs pages and the storyless page
+chromium D1 loaded                                /story/box-quad--live-demo       globals=null        preview=light icon=M7.78. r=1
+chromium D2 toggled to dark                       /story/box-quad--live-demo       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium D3 sidebar to button-regular (docs)      /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium D4 reloaded                              /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium D5 toolbar to light on docs              /docs/button-regular--docs       globals=null        preview=light icon=M7.78. r=1
+chromium D6 sidebar to button-icon (docs)         /docs/button-icon--docs          globals=null        preview=light icon=M7.78. r=1
+chromium D7 toolbar to dark on docs               /docs/button-icon--docs          globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium D8 storyless page, URL from D7           /docs/reference-api--docs        globals=theme:dark  preview=dark icon=M7.5.5 r=1
+chromium D9 toolbar to light, storyless           /docs/reference-api--docs        globals=null        preview=light icon=M7.78. r=1
+chromium D10 reloaded                             /docs/reference-api--docs        globals=null        preview=light icon=M7.78. r=1
+E: a new visit to the storyless page
+chromium E1 loaded with globals=theme:dark        /docs/reference-api--docs        globals=theme:dark  preview=dark icon=M7.5.5 r=1
+A: loaded light, toggled after the load
+firefox  A1 loaded                                /story/box-quad--live-demo       globals=null        preview=light icon=M7.78. r=1
+firefox  A2 toggled to dark                       /story/box-quad--live-demo       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  A3 sidebar to box-quad--nested-spaces    /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  A4 reloaded                              /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+B: loaded with globals=theme:dark
+firefox  B1 loaded                                /story/box-quad--live-demo       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  B2 sidebar to box-quad--nested-spaces    /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  B3 reloaded                              /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  B4 toggled to light                      /story/box-quad--nested-spaces   globals=null        preview=light icon=M7.78. r=1
+firefox  B5 sidebar to box-quad--pointer-delta    /story/box-quad--pointer-delta   globals=null        preview=light icon=M7.78. r=1
+C: a docs page's toggle
+firefox  C1 loaded button-regular--docs           /docs/button-regular--docs       globals=null        preview=light icon=M7.78. r=1
+firefox  C2 docs toggle to dark                   /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  C3 sidebar to button-icon                /docs/button-icon--docs          globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  C4 reloaded                              /docs/button-icon--docs          globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  C5 sidebar to button-icon--playground    /story/button-icon--playground   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  C6 sidebar to button-regular             /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  C7 docs toggle to light                  /docs/button-regular--docs       globals=null        preview=light icon=M7.78. r=1
+firefox  C8 sidebar to button-icon--docs          /docs/button-icon--docs          globals=null        preview=light icon=M7.78. r=1
+D: a story's toolbar toggle, then docs pages and the storyless page
+firefox  D1 loaded                                /story/box-quad--live-demo       globals=null        preview=light icon=M7.78. r=1
+firefox  D2 toggled to dark                       /story/box-quad--live-demo       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  D3 sidebar to button-regular (docs)      /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  D4 reloaded                              /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  D5 toolbar to light on docs              /docs/button-regular--docs       globals=null        preview=light icon=M7.78. r=1
+firefox  D6 sidebar to button-icon (docs)         /docs/button-icon--docs          globals=null        preview=light icon=M7.78. r=1
+firefox  D7 toolbar to dark on docs               /docs/button-icon--docs          globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  D8 storyless page, URL from D7           /docs/reference-api--docs        globals=theme:dark  preview=dark icon=M7.5.5 r=1
+firefox  D9 toolbar to light, storyless           /docs/reference-api--docs        globals=null        preview=light icon=M7.78. r=1
+firefox  D10 reloaded                             /docs/reference-api--docs        globals=null        preview=light icon=M7.78. r=1
+E: a new visit to the storyless page
+firefox  E1 loaded with globals=theme:dark        /docs/reference-api--docs        globals=theme:dark  preview=dark icon=M7.5.5 r=1
+A: loaded light, toggled after the load
+webkit   A1 loaded                                /story/box-quad--live-demo       globals=null        preview=light icon=M7.78. r=1
+webkit   A2 toggled to dark                       /story/box-quad--live-demo       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   A3 sidebar to box-quad--nested-spaces    /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   A4 reloaded                              /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+B: loaded with globals=theme:dark
+webkit   B1 loaded                                /story/box-quad--live-demo       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   B2 sidebar to box-quad--nested-spaces    /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   B3 reloaded                              /story/box-quad--nested-spaces   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   B4 toggled to light                      /story/box-quad--nested-spaces   globals=null        preview=light icon=M7.78. r=1
+webkit   B5 sidebar to box-quad--pointer-delta    /story/box-quad--pointer-delta   globals=null        preview=light icon=M7.78. r=1
+C: a docs page's toggle
+webkit   C1 loaded button-regular--docs           /docs/button-regular--docs       globals=null        preview=light icon=M7.78. r=1
+webkit   C2 docs toggle to dark                   /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   C3 sidebar to button-icon                /docs/button-icon--docs          globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   C4 reloaded                              /docs/button-icon--docs          globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   C5 sidebar to button-icon--playground    /story/button-icon--playground   globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   C6 sidebar to button-regular             /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   C7 docs toggle to light                  /docs/button-regular--docs       globals=null        preview=light icon=M7.78. r=1
+webkit   C8 sidebar to button-icon--docs          /docs/button-icon--docs          globals=null        preview=light icon=M7.78. r=1
+D: a story's toolbar toggle, then docs pages and the storyless page
+webkit   D1 loaded                                /story/box-quad--live-demo       globals=null        preview=light icon=M7.78. r=1
+webkit   D2 toggled to dark                       /story/box-quad--live-demo       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   D3 sidebar to button-regular (docs)      /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   D4 reloaded                              /docs/button-regular--docs       globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   D5 toolbar to light on docs              /docs/button-regular--docs       globals=null        preview=light icon=M7.78. r=1
+webkit   D6 sidebar to button-icon (docs)         /docs/button-icon--docs          globals=null        preview=light icon=M7.78. r=1
+webkit   D7 toolbar to dark on docs               /docs/button-icon--docs          globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   D8 storyless page, URL from D7           /docs/reference-api--docs        globals=theme:dark  preview=dark icon=M7.5.5 r=1
+webkit   D9 toolbar to light, storyless           /docs/reference-api--docs        globals=null        preview=light icon=M7.78. r=1
+webkit   D10 reloaded                             /docs/reference-api--docs        globals=null        preview=light icon=M7.78. r=1
+E: a new visit to the storyless page
+webkit   E1 loaded with globals=theme:dark        /docs/reference-api--docs        globals=theme:dark  preview=dark icon=M7.5.5 r=1
+# probes/check.sh.txt on this output: no line whose preview or icon differs from the URL's global, or that hasn't rendered.

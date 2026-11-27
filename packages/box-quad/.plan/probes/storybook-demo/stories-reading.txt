@@ -1,5 +1,5 @@
-# node packages/box-quad/.plan/probes/storybook-demo/stories-reading.ts, on 2026-11-23, from the repository root after aube exec just docs-build.
-# Stories at 67b7a39aa, in the merge d8c3d1d0e; each value set through its slider; .docs built from that tree. Node v26.13.1.
+# node packages/box-quad/.plan/probes/storybook-demo/stories-reading.ts, on 2026-11-27, from the repository root after aube exec just docs-build.
+# On repo/storybook-theme-1 after 5a85ec385, with the theme as the global globals=theme:<theme>, and each story refused unless the preview applied that theme; .docs built from that tree. Node v26.13.1.
 
 
 ## Firefox 159.0, layout.css.getBoxQuads.enabled

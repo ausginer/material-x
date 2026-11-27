@@ -72,6 +72,15 @@ The package's argument, alternatives, measurements and findings. The current-sta
 
 ## Record
 
+### 2026-11-27 — `stories-reading.ts` opens each story in its theme through the Storybook global, and refuses another theme
+
+The implementer, on `repo/storybook-theme-1` after `5a85ec385`, for `reviewer-1` of #323's [feature proof](../../../.plan/reviews/storybook-theme-1/feature-proof-claude.md) and the architect's ruling under `repo:RF-154`, requested by the coordinator. #323 makes the docs site's theme the Storybook global `theme`, so the preview no longer reads `theme=` from the URL, and the script's dark stories opened light. No decision changes.
+
+- **What changed:** `storyUrl` writes `globals=theme:<theme>`. `openStory` takes the story and its theme, and throws when the preview's `document.documentElement.dataset.theme` isn't that theme, naming the story and both themes. So a later change to how the preview applies the theme stops the run rather than writing light screenshots under dark names.
+- **`BQ-21`'s reading, rerun** ([output](probes/storybook-demo/stories-reading.txt)) on the docs site built from that tree: all readings pass with the committed digits, in Firefox, Chromium and WebKit. All eight screenshots are byte-equal to the committed ones, so none is committed again. The four `*-dark.png` files are dark, as the run's theme check requires.
+- **Witness** ([output](probes/storybook-demo/stories-reading-old-link.txt)): with the URL's `globals=theme:${theme}` put back to `theme=${theme}`, the run stops at the first dark story with _"live-demo: the preview's theme is light, not dark"_. The light screenshot it wrote first is byte-equal to the committed one.
+- **Checks:** format and lint are clean on the script; ESLint ignores `.plan`. Not covered: real Safari, GPU rendering and touch.
+
 ### 2026-11-23 — the feature proof of the in-story sliders is repaired
 
 The implementer repaired the first three findings of the [feature proof](reviews/storybook-2/feature-proof-claude.md) (read at `59967767a`) on `box-quad/storybook-2`, on the coordinator's request for pull request #177. The stories' repair is at `67b7a39aa`, and `main` is merged in at `d8c3d1d0e`. No decision changes.

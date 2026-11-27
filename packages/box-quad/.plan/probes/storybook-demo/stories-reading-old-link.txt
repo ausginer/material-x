@@ -1,0 +1,17 @@
+# stories-reading.ts with its story URL's globals=theme:${theme} put back to theme=${theme}, on 2026-11-27, on repo/storybook-theme-1 after 5a85ec385, .docs built from that tree.
+# The run refuses the first dark story. The light screenshot it wrote is byte-equal to the committed one.
+
+## Chromium 158.0.8127.18: screenshots of #storybook-root
+  screenshots/live-demo-light.png
+packages/box-quad/.plan/probes/storybook-demo/stories-reading.ts:103
+    throw new Error(`${id}: the preview's theme is ${applied}, not ${theme}`);
+          ^
+
+Error: live-demo: the preview's theme is light, not dark
+    at openStory (packages/box-quad/.plan/probes/storybook-demo/stories-reading.ts:103:11)
+    at async takeScreenshots (packages/box-quad/.plan/probes/storybook-demo/stories-reading.ts:319:7)
+    at async packages/box-quad/.plan/probes/storybook-demo/stories-reading.ts:394:5
+    at async withBrowser (packages/box-quad/.plan/probes/storybook-demo/stories-reading.ts:374:12)
+    at async packages/box-quad/.plan/probes/storybook-demo/stories-reading.ts:390:3
+
+Node.js v26.13.1
