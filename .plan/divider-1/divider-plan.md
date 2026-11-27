@@ -42,7 +42,7 @@
 
 ### Accessibility
 
-**Decorative by default, as M3 says:** no role, no tab stop, and no node in the accessibility tree. That is also what makes it valid directly inside `mx-list`. A page that wants a separator announced sets `role="separator"` on a divider outside a list. `orientation` sets the internals' `ariaOrientation`, so a vertical separator is exposed as vertical without the page writing `aria-orientation`, and a page's `aria-orientation` stands. The docs say not to give a divider `role="separator"` in `mx-list`.
+**Decorative by default, as M3 says:** the internals' role is `none`, and there is no tab stop and no node in the accessibility tree. Without a role, Chromium gives a host that holds an absolutely positioned line a `generic` node ([reading](checks/host-role.txt)), and `none` removes it (`RD-70`'s amendment). A page's `aria-label` on the divider overrides `none`, so the docs say that a decorative divider takes no label. That is also what makes it valid directly inside `mx-list`. A page that wants a separator announced sets `role="separator"` on a divider outside a list. `orientation` sets the internals' `ariaOrientation`, so a vertical separator is exposed as vertical without the page writing `aria-orientation`, and a page's `aria-orientation` stands. The docs say not to give a divider `role="separator"` in `mx-list`.
 
 ## Composition
 
@@ -120,7 +120,7 @@ A1 and A2 hold under the universal reset as on a plain page, and so does P, with
 
 The rows run in each engine at `RD-20`'s floor. A literal 16px carries its provenance: M3's specs page, _Measurements_, read 2026-11-27 ([reading](checks/m3-pages.txt)).
 
-- **`divider.browser.test.ts`:** both attributes reflect between attribute and property, and a change replaces the previous state. The divider isn't a tab stop. In Chromium's accessibility tree (the existing command), a divider has no node bare, in a container and in `mx-list`, and the list's items stay `listitem`. With `role="separator"` it is a horizontal `separator`, and vertical with `orientation="vertical"` and no `aria-orientation`. **Witness:** the vertical row fails without the `ariaOrientation` mapping. A page's `aria-orientation="horizontal"` on a vertical divider stands.
+- **`divider.browser.test.ts`:** both attributes reflect between attribute and property, and a change replaces the previous state. The divider isn't a tab stop. In Chromium's accessibility tree (the existing command), a divider has no node bare, in a container, in `mx-list` and as a horizontal direct child of `mx-card`, and the list's items stay `listitem`. **Witness:** the `mx-list` row fails without `internals.role = 'none'`, because the host is then a `generic`. With `role="separator"` it is a horizontal `separator`, and vertical with `orientation="vertical"` and no `aria-orientation`. **Witness:** the vertical row fails without the `ariaOrientation` mapping. A page's `aria-orientation="horizontal"` on a vertical divider stands.
 - **`divider.spec.browser.test.ts`,** contract `divider`:
   - the line's color and thickness against the contract, horizontal and vertical, and the host's block size (horizontal) or inline size (vertical) equal to the thickness;
   - full-width spans its container; `start` starts 16px from the start edge and reaches the end edge; `middle` is 16px from both; both mirror under `dir="rtl"`; on a vertical divider in a 48px-high flex row, the line is 48px high, and the insets are measured from its block start;
