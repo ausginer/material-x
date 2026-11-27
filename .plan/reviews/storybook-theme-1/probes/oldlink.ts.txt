@@ -1,0 +1,35 @@
+// Feature proof of #323: what the old `theme=dark` parameter and the new
+// `globals=theme:dark` open at the head, in the manager and in a standalone
+// `iframe.html` (the form box-quad's `stories-reading.ts` uses for its dark
+// screenshots). Reads the preview's `data-theme` and the body's background.
+// `node oldlink.ts <engine> [base]`.
+import * as pw from '/workspaces/worktrees/c/node_modules/playwright/index.mjs';
+import type { Page } from 'playwright';
+
+const engine = process.argv[2] as 'chromium' | 'firefox' | 'webkit';
+const base = process.argv[3] ?? 'http://127.0.0.1:6124';
+
+async function readFrame(page: Page, standalone: boolean): Promise<string> {
+  await page.waitForTimeout(3500);
+  const target = standalone ? page.mainFrame() : page.frames().find((f) => f.name() === 'storybook-preview-iframe' || f.url().includes('iframe.html'))!;
+  return target.evaluate(
+    () => `data-theme=${document.documentElement.dataset['theme']} body ${getComputedStyle(document.body).backgroundColor}`,
+  );
+}
+
+const browser = await pw[engine].launch();
+try {
+  const page = await browser.newPage();
+  const cases: [string, string, boolean][] = [
+    ['manager, theme=dark', `${base}/?path=/story/box-quad--live-demo&theme=dark`, false],
+    ['manager, globals=theme:dark', `${base}/?path=/story/box-quad--live-demo&globals=theme:dark`, false],
+    ['iframe.html, theme=dark', `${base}/iframe.html?id=box-quad--live-demo&viewMode=story&theme=dark`, true],
+    ['iframe.html, globals=theme:dark', `${base}/iframe.html?id=box-quad--live-demo&viewMode=story&globals=theme:dark`, true],
+  ];
+  for (const [label, url, standalone] of cases) {
+    await page.goto(url);
+    console.log(`${engine.padEnd(8)} ${label.padEnd(34)} ${await readFrame(page, standalone)}`);
+  }
+} finally {
+  await browser.close();
+}

@@ -1,0 +1,13 @@
+# aube exec just test tests/stories.browser.test.ts --project 'browser*', from packages/drag, Chromium, at be4f7eee2, 2026-11-27, nothing else running
+vitest run -c vitest.config.ts tests/stories.browser.test.ts --project browser*
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/worktrees/c/packages/drag
+
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  19:21:33
+   Duration  15.28s (tests 93%, worker 6%, import 1%)
+
