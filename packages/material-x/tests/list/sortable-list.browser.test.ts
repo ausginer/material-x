@@ -616,7 +616,7 @@ describe('mx-sortable-list interactive item pointer', () => {
     expect(visualOf(a!).draggable).toBe(false);
   });
 
-  it("should restore a link item's native drag once the item moves into mx-list", async () => {
+  it("should remove a link item's draggable once the item moves into mx-list", async () => {
     const [, [a]] = await createList(['A'], { item: 'mx-list-link-item' });
     const plain = document.createElement('mx-list');
     document.body.append(plain);
@@ -628,6 +628,67 @@ describe('mx-sortable-list interactive item pointer', () => {
       visualOf(a!).draggable,
     ]).toEqual([false, true]);
   });
+});
+
+describe('mx-list-link-item native drag outside mx-sortable-list', () => {
+  /** Places a link item outside a sortable list, and returns its anchor. */
+  const PLACES = [
+    [
+      'in mx-list',
+      async (): Promise<HTMLElement> => {
+        const [, [a]] = await createList(['A'], {
+          tag: 'mx-list',
+          item: 'mx-list-link-item',
+        });
+        return visualOf(a!);
+      },
+    ],
+    [
+      'moved from mx-sortable-list into mx-list',
+      async (): Promise<HTMLElement> => {
+        const [, [a]] = await createList(['A'], { item: 'mx-list-link-item' });
+        const plain = document.createElement('mx-list');
+        document.body.append(plain);
+        plain.append(a!);
+        await nextFrame();
+        return visualOf(a!);
+      },
+    ],
+  ] as const;
+
+  // WebKit's driver starts no native drag of a link, inside the list or out.
+  it.skipIf(server.browser === 'webkit').each(PLACES)(
+    "should start the browser's own drag of a link item %s",
+    async (_, place) => {
+      const anchor = await place();
+      const sources: EventTarget[] = [];
+      document.addEventListener(
+        'dragstart',
+        (event) => {
+          sources.push(event.composedPath()[0]!);
+          event.preventDefault();
+        },
+        { capture: true, once: true },
+      );
+      await lift(anchor);
+      await commands.pointerRelease();
+
+      expect(sources).toEqual([anchor]);
+    },
+  );
+
+  // Firefox has no `-webkit-user-drag`. Chromium and WebKit read it to decide
+  // whether a link drags.
+  it.skipIf(server.browser === 'firefox').each(PLACES)(
+    "should leave the -webkit-user-drag of a link item's anchor auto %s",
+    async (_, place) => {
+      const anchor = await place();
+
+      expect(
+        getComputedStyle(anchor).getPropertyValue('-webkit-user-drag'),
+      ).toBe('auto');
+    },
+  );
 });
 
 describe('mx-sortable-list keyboard', () => {

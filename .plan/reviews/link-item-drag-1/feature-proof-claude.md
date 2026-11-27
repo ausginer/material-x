@@ -66,6 +66,13 @@ The cause reproduces in each engine with the unit's own probe. The rows witness 
 - **Evidence.** [`checks/mutations.txt`](checks/mutations.txt) (M4: 0 failed in each engine) and [`checks/outside.txt`](checks/outside.txt) (head: Chromium `userDrag: auto` and `dragstart: ["a"]` outside; M4: `userDrag: none` and `dragstart: []`).
 - **Required property.** A row fails when a link item outside `mx-sortable-list` stops dragging natively, in an engine whose driver starts a native drag. At the head those are Chromium and Firefox.
 
+**Dated 2026-11-27 by the implementer: fp-1 is resolved,** on `material-x/link-item-drag-1`, from `c3df08075`, requested by the coordinator.
+
+- **Rows:** _mx-list-link-item native drag outside mx-sortable-list_ in `packages/material-x/tests/list/sortable-list.browser.test.ts` places a link item in `mx-list`, and moves one from `mx-sortable-list` into `mx-list`. For each, in Chromium and Firefox, a real pointer drag of the anchor fires one `dragstart` whose source is the anchor. WebKit's driver starts no native drag of a link, so the row skips it. For each, in Chromium and WebKit, the anchor computes `-webkit-user-drag: auto`. Firefox has no such property, so that row skips it. Each engine has a row that observes the native drag or what decides it.
+- **The row that reads the attribute** is renamed _"should remove a link item's draggable once the item moves into mx-list"_, for what it reads.
+- **Witness** ([reading](../../link-item-drag-1/checks/outside-rows.txt)): at the head with the rows, the group's 11 rows pass in the three engines. Under M4, 6 fail. In Chromium, those are both `dragstart` rows and both `-webkit-user-drag` rows. In WebKit, both `-webkit-user-drag` rows. Firefox's rows pass, because M4 changes nothing there.
+- **Checks:** the file passes in Chromium (223 rows). Lint and typecheck are clean.
+
 ## Open issues
 
 No open issue's description stops holding. The pull request closes #128, `RF-76`'s issue. #318 (`RF-155`, drag's stories and the dark theme), #306 (`RF-150`, a drop-zone row in WebKit) and #289, #276 and #200 (drag's findings) don't depend on a link item's native drag.
