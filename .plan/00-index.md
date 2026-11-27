@@ -5268,7 +5268,7 @@ Tier C, **closed 2026-11-27** by the pull request of `repo/fresh-tree-tests-1`, 
 
 #### RF-157 — `mx-checkbox` draws values other than Material's in its hover layer, press wave, outline and disabled icon
 
-Tier A, **open**, **ready**, pre-existing. #338 implements the implementer's two notes, the second for the architect's ruling of the same day. Registered on 2026-11-27 by the architect, on `material-x/checkbox-error-1`, from fp-3 of #328's [feature proof](reviews/checkbox-error-1/feature-proof-claude.md#fp-3--the-checkbox-draws-non-material-values-in-four-states-pre-existing), requested by the coordinator. `RF-156` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `93f5e44d6`. It is registered on this branch because its evidence is this branch's review record. The same cascade is on `main`: the proof renders the head's default blocks equal to `main`'s ([reading](reviews/checkbox-error-1/checks/sheet.txt)).
+Tier A, **open**, **ready**, pre-existing. #338 implements the implementer's two notes, the second for the architect's ruling of the same day, and owes the architect's third note of that day. Registered on 2026-11-27 by the architect, on `material-x/checkbox-error-1`, from fp-3 of #328's [feature proof](reviews/checkbox-error-1/feature-proof-claude.md#fp-3--the-checkbox-draws-non-material-values-in-four-states-pre-existing), requested by the coordinator. `RF-156` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `93f5e44d6`. It is registered on this branch because its evidence is this branch's review record. The same cascade is on `main`: the proof renders the head's default blocks equal to `main`'s ([reading](reviews/checkbox-error-1/checks/sheet.txt)).
 
 - **What happens,** in Chromium, Firefox and WebKit, in the proof's readings ([layers](reviews/checkbox-error-1/checks/layers.txt), [disabled](reviews/checkbox-error-1/checks/disabled.txt), [tokens](reviews/checkbox-error-1/checks/tokens.txt)):
 
@@ -5376,6 +5376,48 @@ Tier A, **open**, **ready**, pre-existing. #338 implements the implementer's two
   - `checkbox-focused.png` changes: its checkbox is unselected and focused, so its outline is now `on-surface`.
   - `checkbox-states.png` and `checkbox-error.png` don't change: they are at rest. `checkbox-hovered.png`'s checkbox is checked, so this note doesn't change its outline. No image draws the press wave. No other component's visual test renders a checkbox.
 - **Not changed:** the hover layer of a pressed host, which the ruling's property 4 leaves as the head draws it. The radio, which is `RF-158`.
+
+**Dated 2026-11-27 by the architect: a row whose value the package names by hand for its state compares with that Material token, and the graph parents that no row needs leave in this unit,** on `material-x/checkbox-colors-1`, read at `3b823addd`, requested by the coordinator. It rules on `reviewer-3` and on the observation of #338's [recheck](reviews/checkbox-colors-1/feature-proof-recheck-claude.md#reviewer-3--the-outline-rows-oracle-follows-the-outlines-mechanism).
+
+- **The recheck's reading holds, by reading.**
+  - `defaultTokens` names `outline.color` for `unselected.{hover,focus,pressed,disabled}`, and `icon.color` for `selected.disabled`, with `append`, because the set's deprecated tokens group to the same paths.
+  - `resolveTokenContract` reads `TokenPackage.effective`, which gives a state without a value of its own the value it inherits. `unselected.hover`, `unselected.focus` and `unselected.pressed` inherit `default`'s `on-surface-variant`, so the oracle moves with the append ([oracle](reviews/checkbox-colors-1/checks/recheck/oracle.txt)).
+  - `unselected.disabled` and `selected.disabled` have no parents in `createExtensions`. Their rows fail without the append only because the bridge then throws.
+- **The ruling on `reviewer-3`: such a row's expectation is the Material token that the requirement names, resolved by tproc, and not the package's effective value at that path.**
+  - **Why.** The skill takes the production package's effective state as the oracle, because a contract proves that the component selected the intended package and state. That holds for a value that tproc selects by grouping and selectors: the mechanism the row proves is the sheet and the host's state, and the oracle doesn't come from them. For a value that the package names by hand for one state, the naming is the mechanism, and the effective value is its output, or an inherited value when the naming is gone. Comparing with it is the circular comparison that the skill's first rule forbids, one step before the sheet.
+  - **What it isn't:** the raw store that the skill refuses as an oracle. The token comes from the requirement, the table's _"Material's token"_ column, and the row's binding names it. Its value comes from the bridge, resolved by tproc as the package's own append resolves the same name. The binding carries the semantics and the bridge the value, as the skill asks.
+  - **Rejected:**
+    - `TokenPackage.state`: `unselected.pressed`'s `outline.color` is deduplicated, and the skill keeps `state` for a unit whose subject is deduplication.
+    - A field in `TokenPackage` that says which token a value came from: it changes tproc's published surface for a test.
+    - A row that compares a state with its default: it encodes that Material's two values differ.
+- **Required properties:**
+  1. The bridge resolves a Material token that a row names, in the form that the package's values take, the theme's custom property with its fallback, so the rows' normalization applies unchanged. A name that the store doesn't have fails the row. The request's shape is the implementer's.
+  2. These rows compare with the token that they name:
+     - the outline of an unselected checkbox hovered, focused and pressed, with `md.comp.checkbox.unselected.{hover,focus,pressed}.outline.color`;
+     - the outline of an unselected disabled one, with `md.comp.checkbox.unselected.disabled.outline.color`;
+     - the icon of a checked and of an indeterminate disabled one, with `md.comp.checkbox.selected.disabled.icon.color`.
+
+     The disabled rows are the same case, and the rule doesn't rest on their states having no parents.
+
+  3. The other rows keep `effective`. Their tokens are selected, and the press wave's mechanism, the `press-layer.*` appends, isn't where their oracle comes from.
+- **Witness:**
+  - the hovered row fails without `unselected.hover`'s append, and the focused row without `unselected.focus`'s;
+  - the pressed row fails without the three outline appends. Its own append alone is equivalent, as the recheck found;
+  - the disabled outline row fails without `unselected.disabled`'s append, and the two icon rows without `selected.disabled`'s, each on the drawn colour and not by the bridge's throw;
+  - the two notes' witnesses still hold.
+- **The ruling on the observation: the parents that no row needs are removed in this unit, not in a later cleanup.**
+  - This unit added each selected state's parent of the same interaction, and `unselected.pressed`'s `unselected.hover` and `unselected.focus`, for the state layers of the first note. The second note moved the press wave to `press-layer.*`, which took away the reason for some of them. The edges are this unit's own code and haven't merged. A cleanup would merge machinery that the unit's own record says nothing needs.
+  - **Property:** each parent that this unit adds in `createExtensions` stays only if a row fails without it.
+    - The recheck finds that `unselected.pressed` ← `unselected.hover` and `unselected.focus`, and `selected.focus` ← `unselected.focus`, fail no row in any engine (`upressed-no-parents`, `sel-focus-no-ufocus`).
+    - `selected.hover` ← `unselected.hover` stays: `ext-base` fails the hover rows.
+    - `selected.pressed` ← `unselected.pressed` wasn't mutated. The implementer reads it the same way.
+  - A removal returns only a state that the table doesn't name to what `main` draws, which property 3 asks for and property 4 allows. The hover layer of a pressed unselected host goes back to `main`'s `on-surface`.
+  - The comment on `createExtensions` names the parents that remain and why.
+  - The recheck's 48-state matrix is read again: against `main`, only the amended table's states differ.
+- **Baselines:** no image draws a pressed host, so the implementer's list stands.
+- **`reviewer-4`:** the description is checked against that matrix. With the pressed hover layer back to `main`'s, _"Every other state draws what it drew before"_ can hold against `main`.
+- **Not in this unit: the skill's text.** `test-visual-contract` says that _"Contract expectations come from the bridge (`resolveTokenContract` → `effective`)"_. The skill is agent documentation, so the case above goes into it in a unit of its own, with its own pull request ([rule](../.agents/docs/agent-workflow.md#one-branch-and-one-pull-request-per-unit)). That unit records the decision and finds the rows already written, for any component, that read a by-name value through `effective`. This note governs `RF-157`'s rows whatever that unit decides for others.
+- **Size:** still _medium_.
 
 #### RF-158 — `mx-radio`'s press wave doesn't draw its pressed tokens: the keyboard's takes the resting or focus colour, and a pointer's the hover opacity
 
