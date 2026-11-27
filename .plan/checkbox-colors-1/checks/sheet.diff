@@ -1,0 +1,42 @@
+# The checkbox's compiled sheet: 2ed4b96ab, then material-x/checkbox-colors-1 (aube exec just debug src/checkbox/styles/default/main.css.ts)
+--- 2ed4b96ab
++++ checkbox-colors-1
+@@ -26,6 +26,10 @@
+   --_state-layer-color: var(--md-sys-color-on-surface, #191d13);
+ }
+ 
++:host(:active) {
++  --_state-layer-color: var(--md-sys-color-primary, #3e6700);
++}
++
+ :host(:state(checked)),
+ :host(:state(indeterminate)) {
+   --_container-color: var(--md-sys-color-primary, #3e6700);
+@@ -33,8 +37,10 @@
+ }
+ 
+ :host(:state(checked):hover),
+-:host(:state(indeterminate):hover) {
+-  --_state-layer-opacity: 0.08;
++:host(:state(indeterminate):hover),
++:host(:state(checked):focus-within),
++:host(:state(indeterminate):focus-within) {
++  --_state-layer-color: var(--md-sys-color-primary, #3e6700);
+ }
+ 
+ :host(:state(checked):active),
+@@ -70,12 +76,14 @@
+ 
+ :host(:disabled) {
+   --_container-opacity: 0.38;
++  --_outline-color: var(--md-sys-color-on-surface, #191d13);
+ }
+ 
+ :host(:state(checked):disabled),
+ :host(:state(indeterminate):disabled) {
+   --_container-opacity: 0.38;
+   --_container-color: var(--md-sys-color-on-surface, #191d13);
++  --_icon-color: var(--md-sys-color-surface, #f7fbea);
+ }
+ 
+ :host {

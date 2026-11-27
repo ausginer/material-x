@@ -55,6 +55,15 @@ export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
       'focus-layer.color': `${SET_NAME}.selected.focus.state-layer.color`,
       'focus-layer.opacity': `${SET_NAME}.selected.focus.state-layer.opacity`,
     })
+    // The set also holds deprecated `disabled.selected.icon.color` and
+    // `disabled.unselected.icon.color`, which group to the same paths, so the
+    // disabled colors are named.
+    .append('unselected.disabled', {
+      'outline.color': `${SET_NAME}.unselected.disabled.outline.color`,
+    })
+    .append('selected.disabled', {
+      'icon.color': `${SET_NAME}.selected.disabled.icon.color`,
+    })
     .adjustTokens(fixFullShape)
     .extend(createExtensions())
     .renderDeclarations(renderer)
