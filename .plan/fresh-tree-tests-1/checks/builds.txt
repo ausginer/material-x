@@ -1,0 +1,19 @@
+# RF-156 builds: material-x's just build-lib with the repair, without the list and then after just build-prepare.
+== material-x: aube exec just build-lib, no list
+ ERROR  Error: Build failed with 47 errors:
+Error: Can't read the private-property list /workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json. `just build-prepare` in packages/material-x writes it.
+  Error: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/utils-Bxqo4fT1.js
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/utils-Bxqo4fT1.js
+Error: Can't read the private-property list /workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json. `just build-prepare` in packages/material-x writes it.
+exit 1
+== material-x: aube exec just build-prepare, then build-lib
+build-prepare exit 0
+ℹ 263 files, total: 587.14 kB
+✔ Build complete in 1711ms
+exit 0
+
+# The sha256 of material-x's built .js files, with the repair, with origin/main's plugin source, and with the repair again.
+new plugin: ec47993682c433c8b0997bd2a60407d813724e3835deb9c502234c1a8e483083  -
+main-lib exit 0
+main's plugin: ec47993682c433c8b0997bd2a60407d813724e3835deb9c502234c1a8e483083  -
+new plugin again: ec47993682c433c8b0997bd2a60407d813724e3835deb9c502234c1a8e483083  -
