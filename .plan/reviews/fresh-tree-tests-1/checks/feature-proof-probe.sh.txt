@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+# RF-156 feature proof, slot b. Usage: proof.sh <step>
+# Every tracked file a step edits is restored from HEAD; the list is restored
+# from a copy taken before any step.
+set -uo pipefail
+
+W=/workspaces/worktrees/b
+S=/tmp/claude-1000/-workspaces-material-x/3ff8dd20-d198-4642-8310-4353a905dd26/scratchpad
+LIST="${W:?}/node_modules/.cache/css/css-private-props.json"
+KEEP="${S:?}/list-copy.json"
+PLUG="${W:?}/packages/vite-custom-element-assets"
+MX="${W:?}/packages/material-x"
+BASE=2b193971e
+PKGS=(core tproc vite-traits-plugin box-quad drag material-x)
+
+say() { printf '%s\n' "$*"; }
+
+list_away() { rm -f "${LIST:?}"; }
+list_back() { cp "${KEEP:?}" "${LIST:?}"; }
+list_state() { if [[ -f "${LIST:?}" ]]; then say "list: present, sha256 $(sha256sum "${LIST:?}" | cut -c1-16)"; else say "list: absent"; fi; }
+
+plugin_src() { # base|head
+  local rev=HEAD f
+  [[ $1 == base ]] && rev=$BASE
+  for f in src/utils.ts src/index.ts src/css/css.ts; do
+    git -C "${W:?}" show "$rev:packages/vite-custom-element-assets/$f" > "${PLUG:?}/$f"
+  done
+}
+plugin_build() {
+  (cd "${PLUG:?}" && aube exec just build > "${S:?}/plugin-build.log" 2>&1) \
+    && say "plugin built ($1)" || { say "plugin build FAILED ($1)"; tail -20 "${S:?}/plugin-build.log"; }
+}
+
+summ() { # log file
+  grep -E '^ +(Test Files|Tests) ' "$1" | sed 's/\x1b\[[0-9;]*m//g'
+  grep -E 'Startup Error|failed to load config|ERR_MODULE_NOT_FOUND|Can.t read the private-property|is not collected|FAIL ' "$1" \
+    | sed 's/\x1b\[[0-9;]*m//g' | sort | uniq -c | sort -rn | head -8
+}
+
+run_test() { # pkg label [args...]
+  local pkg=$1 label=$2; shift 2
+  local log="${S:?}/run-${pkg}-${label}.log" t0 rc
+  t0=$(date +%s)
+  (cd "${W:?}/packages/$pkg" && aube exec just test "$@" > "$log" 2>&1); rc=$?
+  say "== $pkg ($label) aube exec just test $*: exit $rc, $(( $(date +%s) - t0 )) s"
+  summ "$log"
+}
+
+hash_mx() { # label
+  (cd "${MX:?}" && find . -path ./node_modules -prune -o -type f -name '*.js' -print | sort | xargs sha256sum) > "${S:?}/hash-$1.txt"
+  say "$1: $(wc -l < "${S:?}/hash-$1.txt") .js files, digest $(sha256sum < "${S:?}/hash-$1.txt" | cut -c1-16)"
+  (cd "${MX:?}" && find . -path ./node_modules -prune -o -type f \( -name '*.d.ts' -o -name '*.js.map' \) -print | sort | xargs sha256sum) > "${S:?}/hash-$1-other.txt"
+  say "$1: $(wc -l < "${S:?}/hash-$1-other.txt") .d.ts and .js.map files, digest $(sha256sum < "${S:?}/hash-$1-other.txt" | cut -c1-16)"
+}
+mx_build() { # label
+  (cd "${MX:?}" && aube exec just clean-build > /dev/null 2>&1 && aube exec just build-lib > "${S:?}/mx-build-$1.log" 2>&1) \
+    && say "material-x build-lib ($1): exit 0" || { say "material-x build-lib ($1): FAILED"; tail -5 "${S:?}/mx-build-$1.log"; }
+}
+
+case "${1:?}" in
+  p0)
+    say "# p0: state"; git -C "${W:?}" rev-parse HEAD; git -C "${W:?}" status --short; list_state
+    cp "${LIST:?}" "${KEEP:?}"; say "list copied"
+    plugin_build head ;;
+  p1)
+    say "# p1: the base plugin source (2b193971e), list moved away"
+    plugin_src base; plugin_build base; list_away
+    for p in "${PKGS[@]}"; do list_away; run_test "$p" base; done
+    list_away
+    (cd "${MX:?}" && aube exec just build-lib > "${S:?}/mx-build-base-nolist.log" 2>&1); say "== material-x (base) build-lib: exit $?"
+    grep -E 'ERROR|Cannot find module|failed' "${S:?}/mx-build-base-nolist.log" | sed 's/\x1b\[[0-9;]*m//g' | head -4
+    plugin_src head; plugin_build head; list_back; list_state ;;
+  p2)
+    say "# p2: head, list moved away before each package"
+    for p in "${PKGS[@]}"; do
+      list_away; run_test "$p" head-nolist; list_state
+    done
+    list_back; list_state ;;
+  p2mx)
+    say "# p2mx: head, material-x, list away; when the list appears against the first browser and node rows"
+    list_away
+    log="${S:?}/run-material-x-order.log"
+    (cd "${MX:?}" && aube exec just test --reporter=verbose > "$log" 2>&1 & echo $! > "${S:?}/pid")
+    t0=$(date +%s.%N); seen=""
+    while kill -0 "$(cat "${S:?}/pid")" 2>/dev/null; do
+      if [[ -z $seen && -f "${LIST:?}" ]]; then seen=$(date +%s.%N); say "list appeared at +$(echo "$seen - $t0" | bc) s, log lines so far: $(wc -l < "$log"), passed rows so far: $(grep -c '✓' "$log")"; fi
+      sleep 0.2
+    done
+    summ "$log"
+    say "first row lines:"; grep -m3 '✓' "$log" | sed 's/\x1b\[[0-9;]*m//g'
+    say "first node row line:"; grep -m1 -n 'node/material-x\|\[node' "$log" | sed 's/\x1b\[[0-9;]*m//g'
+    list_back; list_state ;;
+  p3)
+    say "# p3: head, material-x build-lib without the list, then build-prepare, then build-lib"
+    list_away
+    (cd "${MX:?}" && aube exec just build-lib > "${S:?}/mx-build-head-nolist.log" 2>&1); say "build-lib no list: exit $?"
+    sed 's/\x1b\[[0-9;]*m//g' "${S:?}/mx-build-head-nolist.log" | grep -E 'Build failed|^Error: Can.t' | sort | uniq -c
+    sed 's/\x1b\[[0-9;]*m//g' "${S:?}/mx-build-head-nolist.log" | grep -m2 -E 'Cannot find module'
+    (cd "${MX:?}" && aube exec just build-prepare > /dev/null 2>&1); say "build-prepare: exit $?"; list_state
+    cmp -s "${LIST:?}" "${KEEP:?}" && say "list equals the kept copy" || say "list differs from the kept copy"
+    (cd "${MX:?}" && aube exec just build-lib > "${S:?}/mx-build-head-after.log" 2>&1); say "build-lib after build-prepare: exit $?"
+    list_back ;;
+  p4)
+    say "# p4: hashes of material-x's built files, list present"; list_back; list_state
+    mx_build head1; hash_mx head1
+    plugin_src base; plugin_build base; mx_build base; hash_mx base
+    plugin_src head; plugin_build head; mx_build head2; hash_mx head2
+    for a in base head2; do
+      cmp -s "${S:?}/hash-head1.txt" "${S:?}/hash-$a.txt" && say "js head1 = $a" || say "js head1 != $a"
+      cmp -s "${S:?}/hash-head1-other.txt" "${S:?}/hash-$a-other.txt" && say "d.ts/map head1 = $a" || say "d.ts/map head1 != $a"
+    done
+    say "mangled names in the build: $(grep -rhoE -- '--mx-[a-z]+' "${MX:?}"/button/*.js 2>/dev/null | sort -u | wc -l) distinct --mx-* in button/*.js; private --_ left: $(grep -rlE -- '--_[a-z]' "${MX:?}" --include='*.js' --exclude-dir=node_modules | wc -l) files" ;;
+  *) say "unknown step $1"; exit 2 ;;
+esac
+git -C "${W:?}" status --short

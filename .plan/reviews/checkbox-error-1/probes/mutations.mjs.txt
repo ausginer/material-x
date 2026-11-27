@@ -1,0 +1,64 @@
+// Feature proof of #328 at 00040d137: mutations, each run in Chromium, Firefox and WebKit at once against
+// tests/checkbox/checkbox.spec.browser.test.ts and tests/core/focus-layer.spec.browser.test.ts (spec projects).
+// Run from the slot's root: node <this file> [prefix]. Each file is restored after its run.
+import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const mx = 'packages/material-x';
+const ENGINES = ['chromium', 'firefox', 'webkit'];
+const UTILS = `${mx}/src/checkbox/styles/utils.ts`;
+const MAIN = `${mx}/src/checkbox/styles/default/main.css.ts`;
+const TOKENS = `${mx}/src/checkbox/styles/default/tokens.ts`;
+const TESTS = ['tests/checkbox/checkbox.spec.browser.test.ts', 'tests/core/focus-layer.spec.browser.test.ts'];
+
+const EXCLUSION = ["  pseudoClass('not', pseudoClass('disabled')),\n", ''];
+const ORDER = [
+  "    ...ENABLED_PATHS.map((path) => `${ERROR_PREFIX}${path}`),\n    'disabled',\n    'unselected.disabled',\n    'selected.disabled',\n",
+  "    'disabled',\n    'unselected.disabled',\n    'selected.disabled',\n    ...ENABLED_PATHS.map((path) => `${ERROR_PREFIX}${path}`),\n",
+];
+
+const MUTATIONS = [
+  { name: "W1 the error states render after the disabled ones (the ruling's witness)", edits: [[UTILS, ...ORDER]] },
+  { name: 'W2 the error selectors lose :not(:disabled)', edits: [[UTILS, ...EXCLUSION]] },
+  { name: 'W3 W1 and W2 together', edits: [[UTILS, ...EXCLUSION], [UTILS, ...ORDER]] },
+  { name: 'W4 the sheet has no error package', edits: [[MAIN, '[defaultTokens, errorTokens]', '[defaultTokens]']] },
+  { name: 'M5 the error package selects no icon.color', edits: [[UTILS, "    'icon.color',\n    'state-layer.color',", "    'state-layer.color',"]] },
+  { name: 'M6 the error package selects no state-layer.color', edits: [[UTILS, "    'icon.color',\n    'state-layer.color',\n", "    'icon.color',\n"]] },
+  { name: 'M7 the error package selects no outline.color', edits: [[UTILS, "    'container.color',\n    'outline.color',\n    'icon.color',", "    'container.color',\n    'icon.color',"]] },
+  { name: 'M8 the error package appends no focus layer', edits: [[TOKENS, "    .append('error.default', {\n      'focus-layer.color': `${SET_NAME}.error.focus.state-layer.color`,\n      'focus-layer.opacity': `${SET_NAME}.error.focus.state-layer.opacity`,\n    })\n", '']] },
+  { name: 'M9 the selected error selector names only :state(checked)', edits: [[UTILS, "      selectors.push(\n        selector(':host', indeterminate, ...errorParams, stateParam),\n      );", "      if (!error) {\n        selectors.push(selector(':host', indeterminate, ...errorParams, stateParam));\n      }"]] },
+];
+
+function run() {
+  const projects = ENGINES.flatMap((e) => ['--project', e === 'chromium' ? 'spec' : `spec/${e}`]);
+  try {
+    execFileSync('aube', ['exec', 'vitest', 'run', ...projects, ...TESTS, '--reporter=verbose'], {
+      cwd: mx, encoding: 'utf8', stdio: 'pipe', env: { ...process.env, MX_TEST_ENGINES: ENGINES.join(',') }, maxBuffer: 1 << 28,
+    });
+    return { failed: [], summary: 'passed' };
+  } catch (error) {
+    const out = String(error.stdout);
+    const failed = [...out.matchAll(/^\s+× (.+?)(?: \d+ms)?$/gmu)].map((x) => x[1]);
+    const summary = (out.match(/^\s+Tests\s+.+$/mu) ?? [String(error.stderr).slice(-600)])[0].trim();
+    return { failed, summary };
+  }
+}
+
+const only = process.argv[2];
+for (const m of MUTATIONS.filter((x) => !only || x.name.startsWith(only))) {
+  const originals = new Map();
+  try {
+    for (const [file, from, to] of m.edits) {
+      if (!originals.has(file)) originals.set(file, readFileSync(file, 'utf8'));
+      const source = readFileSync(file, 'utf8');
+      if (source.split(from).length !== 2) throw new Error(`${m.name}: text not found once in ${file}`);
+      writeFileSync(file, source.replace(from, to));
+    }
+    const { failed, summary } = run();
+    const per = ENGINES.map((e) => `${e} ${failed.filter((f) => f.includes(`(${e})`)).length}`).join(', ');
+    console.log(`## ${m.name}: ${failed.length} failed (${per}) — ${summary}`);
+    for (const f of failed) console.log(`  × ${f}`);
+  } finally {
+    for (const [file, source] of originals) writeFileSync(file, source);
+  }
+}

@@ -1,61 +1,34 @@
 import type { Preview } from '@storybook/react-vite';
+import { GLOBALS_UPDATED } from 'storybook/internal/core-events';
 import { addons } from 'storybook/preview-api';
 import './preview-frame.css';
 import './theme.css';
 import { DocsContainer } from './docs/DocsContainer.tsx';
 
-const theme = new URL(
-  window.top?.location.href ?? window.location.href,
-).searchParams.get('theme');
+/**
+ * The Storybook global that holds the reader's theme, `light` or `dark`.
+ * Storybook carries it in the manager's URL, through navigation and reload.
+ */
+export const THEME_GLOBAL = 'theme';
 
-if (theme === 'dark') {
-  document.documentElement.dataset['theme'] = 'dark';
+type Globals = Readonly<Record<string, unknown>>;
+
+function applyTheme(globals: Globals): void {
+  document.documentElement.dataset['theme'] =
+    globals[THEME_GLOBAL] === 'dark' ? 'dark' : 'light';
 }
 
-export const THEME_EVENT = 'THEME_CHANGED';
-const THEME_PARAM = 'theme';
-
-type Theme = 'light' | 'dark';
-
-function getTopUrlTheme(): Theme {
-  try {
-    const href = window.top?.location.href ?? window.location.href;
-    return new URL(href).searchParams.get(THEME_PARAM) === 'dark'
-      ? 'dark'
-      : 'light';
-  } catch {
-    return 'light';
-  }
-}
-
-function setTopUrlTheme(theme: Theme): void {
-  try {
-    const { top } = window;
-    if (!top) return;
-    const url = new URL(top.location.href);
-    url.searchParams.set(THEME_PARAM, theme);
-    top.history.replaceState(null, '', url);
-  } catch {
-    // cross-origin — ignore
-  }
-}
-
-function applyTheme(theme: Theme): void {
-  document.documentElement.dataset['theme'] = theme;
-  setTopUrlTheme(theme);
-}
-
-addons.getChannel().on(THEME_EVENT, (theme: Theme) => {
-  applyTheme(theme);
+// Storybook reports the globals on this event for every story render, every
+// docs render and every update, so it themes a docs page and a page without
+// a story, which run no decorator.
+addons.getChannel().on(GLOBALS_UPDATED, ({ globals }: { globals: Globals }) => {
+  applyTheme(globals);
 });
 
 const preview: Preview = {
-  decorators: [
-    (Story) => {
-      applyTheme(getTopUrlTheme());
-      return Story();
-    },
-  ],
+  // Naming the global here lets Storybook accept it from the URL, and drop it
+  // from the URL for light.
+  initialGlobals: { [THEME_GLOBAL]: 'light' },
   parameters: {
     docs: {
       container: DocsContainer,

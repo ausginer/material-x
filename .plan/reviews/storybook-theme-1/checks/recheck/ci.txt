@@ -1,0 +1,15 @@
+# verify run 46058282379, pull_request, on a265e732e101709a944b40a8ec6577e75804c731: success. records and deploy skipped.
+== chromium
+ ✓  browser/drag (chromium)  tests/stories.browser.test.ts (8 tests) 13710ms
+ Test Files  193 passed (193)
+      Tests  5573 passed | 2 expected fail | 12 skipped (5587)
+== firefox
+ ✓  browser/drag/firefox (firefox)  tests/stories.browser.test.ts (8 tests) 13390ms
+ Test Files  137 passed | 1 skipped (138)
+      Tests  4394 passed | 3 expected fail | 203 skipped (4600)
+== webkit
+ ✓  browser/drag/webkit (webkit)  tests/stories.browser.test.ts (8 tests) 11623ms
+ Test Files  137 passed | 1 skipped (138)
+      Tests  4395 passed | 2 expected fail | 203 skipped (4600)
+== docs
+129 of 129 pages passed (docs-smoke)

@@ -1,0 +1,13 @@
+// Feature proof of #328: md.comp.checkbox's tokens with an `error` part, and the disabled and state
+// layer tokens that the record cites, from tproc's committed store.
+import store from '/workspaces/worktrees/d/packages/tproc/store/index.js';
+const set = store.getSet('md.comp.checkbox');
+console.log('## the tokens with an error part');
+for (const t of set.tokens.filter((t) => t.tokenName.split('.').includes('error'))) {
+  console.log([t.tokenName, store.isTokenDeprecated(t) ? 'deprecated' : 'live', JSON.stringify(store.select(t)?.value)].join('\t'));
+}
+console.log('## other tokens the record cites');
+for (const n of ['selected.icon.color', 'selected.disabled.icon.color', 'selected.disabled.container.color', 'selected.disabled.container.opacity', 'unselected.outline.color', 'unselected.disabled.outline.color', 'unselected.disabled.container.opacity', 'selected.hover.state-layer.color', 'unselected.hover.state-layer.color', 'unselected.focus.state-layer.color', 'unselected.pressed.state-layer.color', 'selected.pressed.state-layer.color']) {
+  const t = store.getToken(`md.comp.checkbox.${n}`);
+  console.log([n, t ? JSON.stringify(store.select(t)?.value) : 'missing'].join('\t'));
+}

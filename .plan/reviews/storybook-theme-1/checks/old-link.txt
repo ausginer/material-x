@@ -1,0 +1,13 @@
+# node probes/mutate.ts.txt none-oldlink (runs probes/oldlink.ts.txt in each engine), against storybook dev (port 6124) on repo/storybook-theme-1 at be4f7eee2, Storybook 10.6.7, Playwright's Chromium, Firefox and WebKit one at a time, 2026-11-27
+chromium manager, theme=dark                data-theme=light body rgb(255, 255, 255)
+chromium manager, globals=theme:dark        data-theme=dark body rgb(11, 15, 7)
+chromium iframe.html, theme=dark            data-theme=light body rgb(255, 255, 255)
+chromium iframe.html, globals=theme:dark    data-theme=dark body rgb(11, 15, 7)
+firefox  manager, theme=dark                data-theme=light body rgb(255, 255, 255)
+firefox  manager, globals=theme:dark        data-theme=dark body rgb(11, 15, 7)
+firefox  iframe.html, theme=dark            data-theme=light body rgb(255, 255, 255)
+firefox  iframe.html, globals=theme:dark    data-theme=dark body rgb(11, 15, 7)
+webkit   manager, theme=dark                data-theme=light body rgb(255, 255, 255)
+webkit   manager, globals=theme:dark        data-theme=dark body rgb(11, 15, 7)
+webkit   iframe.html, theme=dark            data-theme=light body rgb(255, 255, 255)
+webkit   iframe.html, globals=theme:dark    data-theme=dark body rgb(11, 15, 7)

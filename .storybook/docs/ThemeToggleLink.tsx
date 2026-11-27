@@ -3,8 +3,9 @@
 /// <reference path="../../packages/material-x/src/react.ts" />
 
 import { type JSX, type ReactNode, useEffect, useState } from 'react';
+import { UPDATE_GLOBALS } from 'storybook/internal/core-events';
 import { addons } from 'storybook/preview-api';
-import { THEME_EVENT } from '../preview.ts';
+import { THEME_GLOBAL } from '../preview.ts';
 import '../../packages/material-x/src/button/button.ts';
 
 type Theme = 'light' | 'dark';
@@ -43,7 +44,9 @@ export function ThemeToggleLink({
       size="xsmall"
       onClick={() => {
         const next: Theme = theme === 'dark' ? 'light' : 'dark';
-        addons.getChannel().emit(THEME_EVENT, next);
+        addons
+          .getChannel()
+          .emit(UPDATE_GLOBALS, { globals: { [THEME_GLOBAL]: next } });
       }}
     >
       {children}

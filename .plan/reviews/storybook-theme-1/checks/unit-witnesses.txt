@@ -1,0 +1,36 @@
+# The unit's two probes, unchanged but for the Playwright import path and the base URL, against storybook dev (port 6123) at be4f7eee2, Chromium, 2026-11-27.
+# Each output equals the unit's reading (.plan/storybook-theme-1/checks/drag-dark.txt and theme.txt) line for line, apart from its header and, for theme.txt, runs of spaces.
+
+## drag-dark-probe
+box-quad--live-demo                    light html data-theme=light | body rgb(255, 255, 255) | [class*="stage"] rgb(242, 245, 229)
+box-quad--live-demo                    dark  html data-theme=dark | body rgb(11, 15, 7) | [class*="stage"] rgb(25, 29, 19)
+drag-sortable--list                    light html data-theme=light | body rgb(255, 255, 255) | [class*="list"] rgb(242, 245, 229) | [class*="row"] rgb(255, 255, 255)
+drag-sortable--list                    dark  html data-theme=dark | body rgb(11, 15, 7) | [class*="list"] rgb(25, 29, 19) | [class*="row"] rgb(11, 15, 7)
+drag-sortable--grid                    light html data-theme=light | body rgb(255, 255, 255) | [class*="grid"] rgb(242, 245, 229) | [class*="tile"] rgb(255, 255, 255)
+drag-sortable--grid                    dark  html data-theme=dark | body rgb(11, 15, 7) | [class*="grid"] rgb(25, 29, 19) | [class*="tile"] rgb(11, 15, 7)
+drag-free-drag--interactive            light html data-theme=light | body rgb(255, 255, 255) | [class*="area"] rgb(242, 245, 229) | [class*="box"] rgb(62, 103, 0)
+drag-free-drag--interactive            dark  html data-theme=dark | body rgb(11, 15, 7) | [class*="area"] rgb(25, 29, 19) | [class*="box"] rgb(151, 217, 69)
+drag-custom-behavior--resize-handle    light html data-theme=light | body rgb(255, 255, 255) | [class*="resizable"] rgb(204, 238, 161)
+drag-custom-behavior--resize-handle    dark  html data-theme=dark | body rgb(11, 15, 7) | [class*="resizable"] rgb(54, 80, 22)
+
+## theme-probe
+A: loaded light, toggled after the load
+A1 loaded                                /story/box-quad--live-demo       url globals=null        theme=null  preview data-theme=light
+A2 toggled to dark                       /story/box-quad--live-demo       url globals=theme:dark  theme=null  preview data-theme=dark
+A3 sidebar to box-quad--nested-spaces    /story/box-quad--nested-spaces   url globals=theme:dark  theme=null  preview data-theme=dark
+A4 reloaded                              /story/box-quad--nested-spaces   url globals=theme:dark  theme=null  preview data-theme=dark
+B: loaded with globals=theme:dark in the URL
+B1 loaded                                /story/box-quad--live-demo       url globals=theme:dark  theme=null  preview data-theme=dark
+B2 sidebar to box-quad--nested-spaces    /story/box-quad--nested-spaces   url globals=theme:dark  theme=null  preview data-theme=dark
+B3 reloaded                              /story/box-quad--nested-spaces   url globals=theme:dark  theme=null  preview data-theme=dark
+B4 toggled to light                      /story/box-quad--nested-spaces   url globals=null        theme=null  preview data-theme=light
+B5 sidebar to box-quad--pointer-delta    /story/box-quad--pointer-delta   url globals=null        theme=null  preview data-theme=light
+C: a docs page's toggle
+C1 loaded button-regular--docs           /docs/button-regular--docs       url globals=null        theme=null  preview data-theme=light
+C2 docs toggle to dark                   /docs/button-regular--docs       url globals=theme:dark  theme=null  preview data-theme=dark
+C3 sidebar to button-icon                /docs/button-icon--docs          url globals=theme:dark  theme=null  preview data-theme=dark
+C4 reloaded                              /docs/button-icon--docs          url globals=theme:dark  theme=null  preview data-theme=dark
+C5 sidebar to button-icon--playground    /story/button-icon--playground   url globals=theme:dark  theme=null  preview data-theme=dark
+C6 sidebar to button-regular             /docs/button-regular--docs       url globals=theme:dark  theme=null  preview data-theme=dark
+C7 docs toggle to light                  /docs/button-regular--docs       url globals=null        theme=null  preview data-theme=light
+C8 sidebar to button-icon--docs          /docs/button-icon--docs          url globals=null        theme=null  preview data-theme=light

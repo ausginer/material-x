@@ -84,9 +84,10 @@ const CheckboxConstructor: Composed<
  *   the checked/unchecked icon.
  * @attr {boolean} disabled - Disables interaction and form participation.
  * @attr {string} name - Name submitted with form data.
- * @attr {boolean} error - Shows the error display: `:state(error)`, and the
- *   input announced as invalid. It draws no error appearance yet.
- *   Set by the consumer only.
+ * @attr {boolean} error - Shows the error display: Material's error
+ *   appearance, `:state(error)`, and the input announced as invalid. A
+ *   disabled checkbox draws its disabled appearance, and keeps the state and
+ *   the announcement. Set by the consumer only.
  * @attr {boolean} required - Announces the control as required. It doesn't
  *   change validity, block submission or make `:required` match.
  * @attr {string} value - The value submitted with a form when checked.

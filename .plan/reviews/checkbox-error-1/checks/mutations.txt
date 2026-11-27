@@ -1,0 +1,112 @@
+# Feature proof of #328 at 00040d137: mutations, each run in Chromium, Firefox and WebKit at once, against tests/checkbox/checkbox.spec.browser.test.ts and tests/core/focus-layer.spec.browser.test.ts. W1 to W4 are the implementer's modes; M5 to M9 are mine. Run 2026-11-27 from the slot's root with node probes/mutations.mjs.txt (saved as .txt). Each file was restored after its run, and git status was clean after the last.
+## W1 the error states render after the disabled ones (the ruling's witness): 0 failed (chromium 0, firefox 0, webkit 0) — passed
+## W2 the error selectors lose :not(:disabled): 3 failed (chromium 1, firefox 1, webkit 1) — Tests  3 failed | 270 passed (273)
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:214 > mx-checkbox disabled with error > should draw what a disabled unselected checkbox draws without error
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:214 > mx-checkbox disabled with error > should draw what a disabled unselected checkbox draws without error
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:214 > mx-checkbox disabled with error > should draw what a disabled unselected checkbox draws without error
+## W3 W1 and W2 together: 9 failed (chromium 3, firefox 3, webkit 3) — Tests  9 failed | 264 passed (273)
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:214 > mx-checkbox disabled with error > should draw what a disabled unselected checkbox draws without error
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:214 > mx-checkbox disabled with error > should draw what a disabled checked checkbox draws without error
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:214 > mx-checkbox disabled with error > should draw what a disabled indeterminate checkbox draws without error
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:214 > mx-checkbox disabled with error > should draw what a disabled unselected checkbox draws without error
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:214 > mx-checkbox disabled with error > should draw what a disabled checked checkbox draws without error
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:214 > mx-checkbox disabled with error > should draw what a disabled indeterminate checkbox draws without error
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:214 > mx-checkbox disabled with error > should draw what a disabled unselected checkbox draws without error
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:214 > mx-checkbox disabled with error > should draw what a disabled checked checkbox draws without error
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:214 > mx-checkbox disabled with error > should draw what a disabled indeterminate checkbox draws without error
+## W4 the sheet has no error package: 39 failed (chromium 13, firefox 13, webkit 13) — Tests  39 failed | 234 passed (273)
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:147 > mx-checkbox error visual contract > should render the error outline color when unselected
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:156 > mx-checkbox error visual contract > should render the error container color when checked
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:156 > mx-checkbox error visual contract > should render the error container color when indeterminate
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when checked
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when indeterminate
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when unselected
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when checked
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when indeterminate
+  × |spec (chromium)| tests/core/focus-layer.spec.browser.test.ts:273 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec (chromium)| tests/core/focus-layer.spec.browser.test.ts:283 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+  × |spec (chromium)| tests/core/focus-layer.spec.browser.test.ts:294 > mx-checkbox with error focus layer visual contract > should draw the hovered state layer on hover alone
+  × |spec (chromium)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox checked with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec (chromium)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox indeterminate with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:147 > mx-checkbox error visual contract > should render the error outline color when unselected
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:156 > mx-checkbox error visual contract > should render the error container color when checked
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:156 > mx-checkbox error visual contract > should render the error container color when indeterminate
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when checked
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when indeterminate
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when unselected
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when checked
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when indeterminate
+  × |spec/firefox (firefox)| tests/core/focus-layer.spec.browser.test.ts:273 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/firefox (firefox)| tests/core/focus-layer.spec.browser.test.ts:283 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+  × |spec/firefox (firefox)| tests/core/focus-layer.spec.browser.test.ts:294 > mx-checkbox with error focus layer visual contract > should draw the hovered state layer on hover alone
+  × |spec/firefox (firefox)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox checked with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/firefox (firefox)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox indeterminate with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:147 > mx-checkbox error visual contract > should render the error outline color when unselected
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:156 > mx-checkbox error visual contract > should render the error container color when checked
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:156 > mx-checkbox error visual contract > should render the error container color when indeterminate
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when checked
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when indeterminate
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when unselected
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when checked
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when indeterminate
+  × |spec/webkit (webkit)| tests/core/focus-layer.spec.browser.test.ts:273 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/webkit (webkit)| tests/core/focus-layer.spec.browser.test.ts:283 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+  × |spec/webkit (webkit)| tests/core/focus-layer.spec.browser.test.ts:294 > mx-checkbox with error focus layer visual contract > should draw the hovered state layer on hover alone
+  × |spec/webkit (webkit)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox checked with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/webkit (webkit)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox indeterminate with error focus layer visual contract > should draw the focused state layer on keyboard focus
+## M5 the error package selects no icon.color: 6 failed (chromium 2, firefox 2, webkit 2) — Tests  6 failed | 267 passed (273)
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when checked
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when indeterminate
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when checked
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when indeterminate
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when checked
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when indeterminate
+## M6 the error package selects no state-layer.color: 24 failed (chromium 8, firefox 8, webkit 8) — Tests  24 failed | 249 passed (273)
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when unselected
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when checked
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when indeterminate
+  × |spec (chromium)| tests/core/focus-layer.spec.browser.test.ts:273 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec (chromium)| tests/core/focus-layer.spec.browser.test.ts:283 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+  × |spec (chromium)| tests/core/focus-layer.spec.browser.test.ts:294 > mx-checkbox with error focus layer visual contract > should draw the hovered state layer on hover alone
+  × |spec (chromium)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox checked with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec (chromium)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox indeterminate with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when unselected
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when checked
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when indeterminate
+  × |spec/firefox (firefox)| tests/core/focus-layer.spec.browser.test.ts:273 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/firefox (firefox)| tests/core/focus-layer.spec.browser.test.ts:283 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+  × |spec/firefox (firefox)| tests/core/focus-layer.spec.browser.test.ts:294 > mx-checkbox with error focus layer visual contract > should draw the hovered state layer on hover alone
+  × |spec/firefox (firefox)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox checked with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/firefox (firefox)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox indeterminate with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when unselected
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when checked
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:189 > mx-checkbox error visual contract > should color the press ripple with the pressed error state layer when indeterminate
+  × |spec/webkit (webkit)| tests/core/focus-layer.spec.browser.test.ts:273 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/webkit (webkit)| tests/core/focus-layer.spec.browser.test.ts:283 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+  × |spec/webkit (webkit)| tests/core/focus-layer.spec.browser.test.ts:294 > mx-checkbox with error focus layer visual contract > should draw the hovered state layer on hover alone
+  × |spec/webkit (webkit)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox checked with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/webkit (webkit)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox indeterminate with error focus layer visual contract > should draw the focused state layer on keyboard focus
+## M7 the error package selects no outline.color: 3 failed (chromium 1, firefox 1, webkit 1) — Tests  3 failed | 270 passed (273)
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:147 > mx-checkbox error visual contract > should render the error outline color when unselected
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:147 > mx-checkbox error visual contract > should render the error outline color when unselected
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:147 > mx-checkbox error visual contract > should render the error outline color when unselected
+## M8 the error package appends no focus layer: 12 failed (chromium 4, firefox 4, webkit 4) — Tests  12 failed | 261 passed (273)
+  × |spec (chromium)| tests/core/focus-layer.spec.browser.test.ts:273 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec (chromium)| tests/core/focus-layer.spec.browser.test.ts:283 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+  × |spec (chromium)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox checked with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec (chromium)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox indeterminate with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/firefox (firefox)| tests/core/focus-layer.spec.browser.test.ts:273 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/firefox (firefox)| tests/core/focus-layer.spec.browser.test.ts:283 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+  × |spec/firefox (firefox)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox checked with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/firefox (firefox)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox indeterminate with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/webkit (webkit)| tests/core/focus-layer.spec.browser.test.ts:273 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/webkit (webkit)| tests/core/focus-layer.spec.browser.test.ts:283 > mx-checkbox with error focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+  × |spec/webkit (webkit)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox checked with error focus layer visual contract > should draw the focused state layer on keyboard focus
+  × |spec/webkit (webkit)| tests/core/focus-layer.spec.browser.test.ts:342 > mx-checkbox indeterminate with error focus layer visual contract > should draw the focused state layer on keyboard focus
+## M9 the selected error selector names only :state(checked): 6 failed (chromium 2, firefox 2, webkit 2) — Tests  6 failed | 267 passed (273)
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:156 > mx-checkbox error visual contract > should render the error container color when indeterminate
+  × |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when indeterminate
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:156 > mx-checkbox error visual contract > should render the error container color when indeterminate
+  × |spec/firefox (firefox)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when indeterminate
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:156 > mx-checkbox error visual contract > should render the error container color when indeterminate
+  × |spec/webkit (webkit)| tests/checkbox/checkbox.spec.browser.test.ts:171 > mx-checkbox error visual contract > should render the error icon color when indeterminate
