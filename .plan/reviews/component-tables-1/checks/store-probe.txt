@@ -1,0 +1,16 @@
+tokens 6366 sets 180
+tokens with a name not in the store 8
+values references not in the store 8
+customComposite references not in the store 0
+tree nodes not in the store 112 with a value index 0 roots 0
+stored tokens below a missing node 0
+distinct missing names goog.ref.brand-color.blue goog.ref.brand-color.green goog.ref.brand-color.red goog.ref.brand-color.yellow goog.ref.brand-palette.blue-500 goog.ref.brand-palette.green-500 goog.ref.brand-palette.red-500 goog.ref.brand-palette.yellow-500
+every missing name starts goog. true
+md.comp.circular-progress-indicator.four-color.active-indicator.four.color | deprecated true | set [Deprecated] Progress indicator - Circular | selected {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.tertiary-container"} | entry audience 3p | entries 28 audiences 3p,1p.baseline
+md.comp.circular-progress-indicator.four-color.active-indicator.one.color | deprecated true | set [Deprecated] Progress indicator - Circular | selected {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.primary"} | entry audience 3p | entries 28 audiences 3p,1p.baseline
+md.comp.circular-progress-indicator.four-color.active-indicator.three.color | deprecated true | set [Deprecated] Progress indicator - Circular | selected {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.tertiary"} | entry audience 3p | entries 28 audiences 3p,1p.baseline
+md.comp.circular-progress-indicator.four-color.active-indicator.two.color | deprecated true | set [Deprecated] Progress indicator - Circular | selected {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.primary-container"} | entry audience 3p | entries 28 audiences 3p,1p.baseline
+md.comp.linear-progress-indicator.four-color.active-indicator.four.color | deprecated true | set [Deprecated] Progress indicator - Linear | selected {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.tertiary-container"} | entry audience 3p | entries 28 audiences 3p,1p.baseline
+md.comp.linear-progress-indicator.four-color.active-indicator.one.color | deprecated true | set [Deprecated] Progress indicator - Linear | selected {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.primary"} | entry audience 3p | entries 28 audiences 3p,1p.baseline
+md.comp.linear-progress-indicator.four-color.active-indicator.three.color | deprecated true | set [Deprecated] Progress indicator - Linear | selected {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.tertiary"} | entry audience 3p | entries 28 audiences 3p,1p.baseline
+md.comp.linear-progress-indicator.four-color.active-indicator.two.color | deprecated true | set [Deprecated] Progress indicator - Linear | selected {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.primary-container"} | entry audience 3p | entries 28 audiences 3p,1p.baseline

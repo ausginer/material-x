@@ -1,0 +1,18 @@
+own system designSystems/20543ce18892f7d9/ version 41.1.12
+tree nodes 1413 child nodes with no id 0
+value id prefixes {"designSystems/20543ce18892f7d9":1301,"designSystems/1b063509fc205e38":112}
+foreign nodes by depth {"1":56,"2":56}
+trees with a foreign node, by root 8 md.comp.circular-progress-indicator.four-color.active-indicator.four.color md.comp.circular-progress-indicator.four-color.active-indicator.one.color md.comp.circular-progress-indicator.four-color.active-indicator.three.color md.comp.circular-progress-indicator.four-color.active-indicator.two.color md.comp.linear-progress-indicator.four-color.active-indicator.four.color md.comp.linear-progress-indicator.four-color.active-indicator.one.color md.comp.linear-progress-indicator.four-color.active-indicator.three.color md.comp.linear-progress-indicator.four-color.active-indicator.two.color
+own-id nodes below a foreign node 0 
+no-id nodes below a foreign node 0
+values entry goog.ref.brand-color.green own id true keys createTime,name,revisionCreateTime,revisionId,state,tokenName
+values entry goog.ref.brand-color.yellow own id true keys createTime,name,revisionCreateTime,revisionId,state,tokenName
+values entry goog.ref.brand-color.red own id true keys createTime,name,revisionCreateTime,revisionId,state,tokenName
+values entry goog.ref.brand-color.blue own id true keys createTime,name,revisionCreateTime,revisionId,state,tokenName
+values entry goog.ref.brand-color.green own id true keys createTime,name,revisionCreateTime,revisionId,state,tokenName
+values entry goog.ref.brand-color.yellow own id true keys createTime,name,revisionCreateTime,revisionId,state,tokenName
+values entry goog.ref.brand-color.red own id true keys createTime,name,revisionCreateTime,revisionId,state,tokenName
+values entry goog.ref.brand-color.blue own id true keys createTime,name,revisionCreateTime,revisionId,state,tokenName
+values entries naming a non-md token 8
+/workspaces/worktrees/h/packages/tproc/tokens sets 180 child nodes naming a stored token 260427 of them with no value index 0
+p340/main-store/packages/tproc/tokens sets 122 child nodes naming a stored token 157540 of them with no value index 0

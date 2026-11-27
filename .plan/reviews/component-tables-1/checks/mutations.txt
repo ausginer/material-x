@@ -1,0 +1,22 @@
+== R1: a node below another system's node is classified by its own id
+   predicted: survives: no row has a node below a foreign one without a foreign id of its own
+   exit 0; Tests  53 passed (53)
+== R2: a child node with no value id is read as another system's
+   predicted: doubted: fails a row whose child node has no value id, if one exists
+   exit 0; Tests  53 passed (53)
+== R3: a values reference is admitted by another token's foreign node
+   predicted: survives: no row has two tokens, one with the foreign node and one with the values reference
+   exit 0; Tests  53 passed (53)
+== R4: another system's node is given the child-value check
+   predicted: fails: should store a reference into another design system as upstream gives it; should give another design system's tree node no value index
+   exit 1; Tests  2 failed | 51 passed (53)
+   × should store a reference into another design system as upstream gives it 4ms
+   × should give another design system's tree node no value index 2ms
+   FAIL  |node| tests/scripts/convert.node.test.ts:879 > convert, references into another design system > should store a reference into another design system as upstream gives it
+   FAIL  |node| tests/scripts/convert.node.test.ts:908 > convert, references into another design system > should give another design system's tree node no value index
+== R7: a set's description is required again
+   predicted: fails: should write a set without a description when upstream gives none
+   exit 1; Tests  1 failed | 52 passed (53)
+   × should write a set without a description when upstream gives none 3ms
+   FAIL  |node| tests/scripts/convert.node.test.ts:356 > convert > should write a set without a description when upstream gives none
+restored: true

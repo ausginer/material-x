@@ -1,0 +1,103 @@
+// Reads the Progress indicators table of the dated release in memory, never
+// writing it, and prints only token names and counts: which tree nodes have a
+// value id outside the table's own design system, at which depth, and under
+// which nodes. Then counts, in a store, the child nodes that name a stored
+// token and have no value index.
+import { readFileSync } from 'node:fs';
+
+const root = process.argv[2]!;
+const manifest = JSON.parse(readFileSync(`${root}/packages/tproc/tokens/manifest.json`, 'utf8'));
+const base: string = manifest.source.baseUrl ?? manifest.source.base ?? manifest.source.url;
+const release: string = manifest.source.release ?? manifest.source.releaseId;
+const url = `${base.replace(/\/$/, '')}/${release}/TOKEN_TABLE.6f51f7ab7775a392.json`;
+const table = await (await fetch(url)).json();
+const system = table.system;
+const own = `${system.version.name.split('/versions/')[0]}/`;
+console.log('own system', own, 'version', system.version.versionName);
+
+const tokenNames = new Map<string, string>();
+for (const token of system.tokens) tokenNames.set(token.name, token.tokenName);
+
+let nodes = 0;
+let childNoId = 0;
+const foreignByDepth = new Map<number, number>();
+const ownBelowForeign: string[] = [];
+const noIdBelowForeign: string[] = [];
+const foreignTokens = new Set<string>();
+const prefixes = new Map<string, number>();
+
+
+function walk(node: any, depth: number, below: boolean, owner: string): void {
+  nodes++;
+  const id: string | undefined = node.value?.name;
+  if (depth > 0 && id == null) childNoId++;
+  if (id) {
+    const prefix = id.split('/').slice(0, 2).join('/');
+    prefixes.set(prefix, (prefixes.get(prefix) ?? 0) + 1);
+  }
+  const foreign = depth > 0 && id != null && !id.startsWith(own);
+  if (foreign) {
+    foreignByDepth.set(depth, (foreignByDepth.get(depth) ?? 0) + 1);
+    foreignTokens.add(owner);
+  }
+  if (below && !foreign) {
+    (id == null ? noIdBelowForeign : ownBelowForeign).push(`${owner} > ${node.tokenName}`);
+  }
+  for (const child of node.childNodes ?? []) walk(child, depth + 1, below || foreign, owner);
+}
+
+// Find every referenceTree in the table, with the token it belongs to.
+function visit(value: any, owner: string): void {
+  if (Array.isArray(value)) {
+    value.forEach((v) => visit(v, owner));
+  } else if (value && typeof value === 'object') {
+    if (value.referenceTree) {
+      walk(value.referenceTree, 0, false, value.referenceTree.tokenName ?? owner);
+      return;
+    }
+    const next = typeof value.tokenName === 'string' && value.tokenValueType ? value.tokenName : owner;
+    for (const v of Object.values(value)) visit(v, next);
+  }
+}
+visit(system, '-');
+
+console.log('tree nodes', nodes, 'child nodes with no id', childNoId);
+console.log('value id prefixes', JSON.stringify(Object.fromEntries(prefixes)));
+console.log('foreign nodes by depth', JSON.stringify(Object.fromEntries(foreignByDepth)));
+console.log('trees with a foreign node, by root', foreignTokens.size, [...foreignTokens].sort().join(' '));
+console.log('own-id nodes below a foreign node', ownBelowForeign.length, ownBelowForeign.slice(0, 5).join('; '));
+console.log('no-id nodes below a foreign node', noIdBelowForeign.length);
+
+// values entries naming a goog. token, by token
+let googValues = 0;
+for (const value of system.values ?? []) {
+  if (typeof value.tokenName === 'string' && !value.tokenName.startsWith('md.')) {
+    googValues++;
+    const vid: string = value.name;
+    console.log('values entry', value.tokenName, 'own id', vid.startsWith(own), 'keys', Object.keys(value).sort().join(','));
+  }
+}
+console.log('values entries naming a non-md token', googValues);
+
+for (const store of process.argv.slice(3)) {
+  const m = JSON.parse(readFileSync(`${store}/manifest.json`, 'utf8'));
+  const names = new Set<string>();
+  const sets: any[] = [];
+  for (const { path: file } of m.files) {
+    if (!file.startsWith('sets/')) continue;
+    const set = JSON.parse(readFileSync(`${store}/${file}`, 'utf8'));
+    sets.push(set);
+    for (const t of set.tokens ?? []) names.add(t.tokenName);
+  }
+  let childStoredNoValue = 0;
+  let childStored = 0;
+  const w = (n: any, depth: number): void => {
+    if (depth > 0 && names.has(n.tokenName)) {
+      childStored++;
+      if (n.value == null) childStoredNoValue++;
+    }
+    (n.childNodes ?? []).forEach((c: any) => w(c, depth + 1));
+  };
+  for (const set of sets) for (const t of set.tokens ?? []) for (const e of t.contextualReferenceTree ?? []) w(e.referenceTree, 0);
+  console.log(store, 'sets', sets.length, 'child nodes naming a stored token', childStored, 'of them with no value index', childStoredNoValue);
+}

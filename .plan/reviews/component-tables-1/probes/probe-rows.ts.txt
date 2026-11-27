@@ -1,0 +1,45 @@
+
+// The feature proof's probe rows, appended to convert.node.test.ts for the
+// probe only and removed after it.
+describe('feature proof probes, RD-69 property 1', () => {
+  const CHILD_P: Path = [...TREE, 'referenceTree', 'childNodes', 0];
+
+  it('probe: should refuse a missing reference whose child node has no value id', () => {
+    const table = createTable();
+    edit(table, CHILD_P, { tokenName: 'goog.ref.color' });
+
+    expect(() => convert([source(table)], options)).toThrow('goog.ref.color');
+  });
+
+  it("probe: should refuse a values reference that only another token's foreign node names", () => {
+    const table = createTable();
+    edit(table, CHILD_P, {
+      value: { name: 'designSystems/other/tokenSets/x/tokens/t/values/v', version: 'x' },
+      tokenName: 'goog.ref.color',
+    });
+    edit(table, ['system', 'values', 1], {
+      name: OTHER_VALUE,
+      tokenName: 'goog.ref.color',
+    });
+
+    expect(() => convert([source(table)], options)).toThrow(
+      'md.comp.test.b: values.tokenName: names goog.ref.color, not in the store',
+    );
+  });
+
+  it("probe: should refuse a node with Material 3's id below another system's node", () => {
+    const table = createTable();
+    edit(table, ['system', 'values', 0, 'tokenName'], 'goog.ref.color');
+    edit(table, CHILD_P, {
+      value: { name: 'designSystems/other/tokenSets/x/tokens/t/values/v', version: 'x' },
+      tokenName: 'goog.ref.color',
+      childNodes: [
+        { value: { name: `${SET}/tokens/k9/values/v9`, version: 'x' }, tokenName: 'md.comp.test.missing' },
+      ],
+    });
+
+    // RD-69 property 1: every node below another system's node is another
+    // system's, so this converts. The probe asks which reading the code has.
+    expect(() => convert([source(table)], options)).not.toThrow();
+  });
+});

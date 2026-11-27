@@ -1,0 +1,50 @@
+#340's feature proof, 2026-11-27, in slot h detached at f5e5ba894, after
+`aube install`, the root's `_package-builds` and material-x's `build:prepare`.
+No raw table was written; the update and the probes read tables in memory.
+
+== The update again, on the committed store
+packages/tproc: aube exec just update-tokens --release 2026-11-19_06-20-01 --report <file>
+Wrote 182 files to packages/tproc/tokens/, with 0 conflicts
+git status --porcelain: empty. The store, manifest.json included, is
+byte-identical to f5e5ba894's. The report: 0 added, 0 removed, 0 deprecations,
+0 selected values changed, 180 sets, 2162 covered copies of 335 tokens.
+
+== The update from main's store, in one run
+packages/tproc/tokens replaced by origin/main's (2ed4b96ab), and manifest.json's
+`tables` given f5e5ba894's 20 added rows, as `kind` and `componentId` only.
+main's 18 rows are a prefix of the head's 38.
+packages/tproc: aube exec just update-tokens --release 2026-11-19_06-20-01 --report update-from-main-report.md
+Wrote 182 files, with 0 conflicts
+git status --porcelain after resetting the index: empty. The store, manifest
+included with each row's componentName, is byte-identical to f5e5ba894's.
+The report: 2062 tokens added, 0 removed, 241 deprecations added, 0 selected
+values changed. Its 2303 listed lines are as many as token-tables-report.md's
+and progress-indicators-report.md's together.
+
+== main's store files against f5e5ba894's, by blob
+NOTICE, context.json and 122 sets at origin/main:
+  123 same
+  1 diff packages/tproc/tokens/sets/md.sys.measurement.json
+  1 diff packages/tproc/tokens/manifest.json
+md.sys.measurement: 0 lines removed; its added tokenName is
+md.sys.measurement.space500.
+
+== material-x's 44 tracked css.ts through .scripts/css/debug.ts
+git ls-files 'packages/material-x/src/**.css.ts': 44
+Each generated from packages/material-x with `node ../../.scripts/css/debug.ts
+<file>`, once with f5e5ba894's store and once with origin/main's copied into
+packages/tproc/tokens. The built reader reads tokens/ at run time: it loads 180
+sets with the head's store and 122 with main's.
+diff -rq: IDENTICAL. Empty outputs: 0. 96953 bytes in all. The only stderr is
+the same `Token is deprecated:  md.sys.color.surface-tint` lines with both.
+The store was moved back, and git status was empty after it.
+
+== Personal data
+git grep -e emailAddress -e gaiaId f5e5ba894 -- packages/tproc/tokens: nothing.
+Files with an email address pattern in packages/tproc/tokens: none.
+Paths changed against main outside the store, .plan/, and tproc's scripts and
+tests: none.
+
+== Suites, unmutated
+packages/tproc: aube exec just test: 14 files, 356 passed.
+tests/scripts/convert.node.test.ts: 53 passed.

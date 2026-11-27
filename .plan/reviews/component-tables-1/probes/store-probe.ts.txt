@@ -1,0 +1,78 @@
+// Probe of #340's store through tproc's reader: every name that reaches no
+// stored token, where it is, whether such a node has a value index, and what
+// the tokens that hold one select in the rendered context.
+import store from '/workspaces/worktrees/h/packages/tproc/src/store/index.ts';
+
+type Node = { tokenName: string; value?: number; childNodes?: Node[] };
+
+const names = new Set<string>();
+for (const token of store.tokens) names.add(token.tokenName);
+
+const missing = new Map<string, Set<string>>();
+let missingNodes = 0;
+let missingNodesWithValue = 0;
+let missingValues = 0;
+let missingComposite = 0;
+let rootsMissing = 0;
+let storedBelowMissing = 0;
+
+const note = (token: string, name: string): void => {
+  const set = missing.get(token) ?? new Set();
+  set.add(name);
+  missing.set(token, set);
+};
+
+for (const token of store.tokens) {
+  for (const value of token.values as any[]) {
+    if (value.tokenName != null && !names.has(value.tokenName)) {
+      missingValues++;
+      note(token.tokenName, value.tokenName);
+    }
+    for (const property of Object.values(value.customComposite ?? {}) as any[]) {
+      if (property?.tokenName != null && !names.has(property.tokenName)) {
+        missingComposite++;
+        note(token.tokenName, property.tokenName);
+      }
+    }
+  }
+  const walk = (node: Node, depth: number, below: boolean): void => {
+    const isMissing = !names.has(node.tokenName);
+    if (isMissing) {
+      if (depth === 0) rootsMissing++;
+      missingNodes++;
+      if (node.value != null) missingNodesWithValue++;
+      note(token.tokenName, node.tokenName);
+    } else if (below) {
+      storedBelowMissing++;
+    }
+    node.childNodes?.forEach((child) => walk(child, depth + 1, below || isMissing));
+  };
+  for (const entry of (token as any).contextualReferenceTree ?? []) {
+    walk(entry.referenceTree, 0, false);
+  }
+}
+
+console.log('tokens', names.size, 'sets', store.sets.length);
+console.log('tokens with a name not in the store', missing.size);
+console.log('values references not in the store', missingValues);
+console.log('customComposite references not in the store', missingComposite);
+console.log('tree nodes not in the store', missingNodes, 'with a value index', missingNodesWithValue, 'roots', rootsMissing);
+console.log('stored tokens below a missing node', storedBelowMissing);
+const all = new Set([...missing.values()].flatMap((s) => [...s]));
+console.log('distinct missing names', [...all].sort().join(' '));
+console.log('every missing name starts goog.', [...all].every((n) => n.startsWith('goog.')));
+
+for (const name of [...missing.keys()].sort()) {
+  const token = store.getToken(name)!;
+  const selection = store.select(token);
+  const entries = (token as any).contextualReferenceTree ?? [];
+  const tags = new Set(entries.map((e: any) => e.contextTags?.audience));
+  console.log(
+    name,
+    '| deprecated', store.isTokenDeprecated(token),
+    '| set', store.getTokenSet(token).displayName,
+    '| selected', JSON.stringify(selection?.value),
+    '| entry audience', selection?.entry?.contextTags?.audience,
+    '| entries', entries.length, 'audiences', [...tags].join(','),
+  );
+}

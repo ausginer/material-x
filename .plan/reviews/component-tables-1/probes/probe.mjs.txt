@@ -1,0 +1,49 @@
+// Appends the probe rows to the converter's test file, runs them on the
+// converter unmutated and under R1, R2 and R3 of mutate.mjs, and restores
+// both files from git.
+import { execFileSync, spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const DIR = '/workspaces/worktrees/h/packages/tproc';
+const TESTS = `${DIR}/tests/scripts/convert.node.test.ts`;
+const SOURCE = `${DIR}/scripts/convert.ts`;
+const rows = readFileSync(new URL('probe-rows.ts.txt', import.meta.url), 'utf8');
+
+const variants = [
+  ['unmutated', []],
+  ['R1', [['let foreign = belowForeign;', 'let foreign = false;']]],
+  ['R2', [[
+    'foreign ||= id != null && !id.startsWith(this.designSystem);',
+    'foreign ||= id == null || !id.startsWith(this.designSystem);',
+  ]]],
+  ['R3', [
+    ['const foreignNames = new Set<string>();', 'const foreignNames = globalForeign;'],
+    ['  const names = new Set(', '  const globalForeign = new Set<string>();\n  const names = new Set('],
+  ]],
+];
+
+const tests = readFileSync(TESTS, 'utf8');
+const source = readFileSync(SOURCE, 'utf8');
+writeFileSync(TESTS, tests + rows);
+try {
+  for (const [name, edits] of variants) {
+    let text = source;
+    for (const [from, to] of edits) {
+      if (text.split(from).length !== 2) throw new Error(`${name}: not unique`);
+      text = text.replace(from, to);
+    }
+    writeFileSync(SOURCE, text);
+    const run = spawnSync(
+      'aube',
+      ['exec', 'just', 'test', 'tests/scripts/convert.node.test.ts', '-t', 'feature proof probes'],
+      { cwd: DIR, encoding: 'utf8' },
+    );
+    const out = (run.stdout + run.stderr).replaceAll(/\x1b\[[0-9;]*m/g, '');
+    console.log(`== ${name}: exit ${run.status}; ${out.split('\n').find((l) => /^\s+Tests\s/.test(l))?.trim()}`);
+    for (const line of out.split('\n').filter((l) => /^\s+[✓×]/.test(l))) console.log(`   ${line.trim()}`);
+    for (const line of out.split('\n').filter((l) => /^(Error|AssertionError):|Expected:|Received/.test(l.trim()))) console.log(`     ${line.trim()}`);
+  }
+} finally {
+  execFileSync('git', ['checkout', '--', 'scripts/convert.ts', 'tests/scripts/convert.node.test.ts'], { cwd: DIR });
+}
+console.log('restored:', readFileSync(TESTS, 'utf8') === tests && readFileSync(SOURCE, 'utf8') === source);
