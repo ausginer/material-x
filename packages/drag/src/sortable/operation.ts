@@ -284,9 +284,11 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
       return outcome.origin === 'fault' ? RECOVERY_IMMEDIATE : RECOVERY_HOME;
     }
 
+    // A drop on the item's own gap asks no verdict, and lands home as a cancel
+    // does.
     if (outcome.type === 'skipped') {
       this.#result = { type: 'noop', request: this.#request! };
-      return RECOVERY_IMMEDIATE;
+      return RECOVERY_HOME;
     }
 
     if (outcome.value === ACCEPTED) {

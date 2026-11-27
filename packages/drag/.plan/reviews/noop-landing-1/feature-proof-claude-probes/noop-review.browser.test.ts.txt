@@ -1,0 +1,226 @@
+// The reviewer's probe for drag:DRF-58 (feature proof of #327). Not a row:
+// each case prints one PROBE line and asserts nothing.
+import { afterAll, describe, it } from 'vitest';
+const LINES: string[] = [];
+import { landing } from '../src/sortable/landing.ts';
+import { ReorderResolution } from '../src/sortable.ts';
+import {
+  basicSortable,
+  commands,
+  engine,
+  focusableList,
+  frames,
+  log,
+  makeList,
+  onCleanup,
+  row,
+} from './support/harness.ts';
+
+const LONG = 100_000;
+
+function countLayoutReads(): { reads(): number } {
+  let count = 0;
+  const originals: Array<() => void> = [];
+  const wrapMethod = (target: object, name: string): void => {
+    const original = (target as Record<string, unknown>)[name] as (
+      this: unknown,
+    ) => unknown;
+
+    (target as Record<string, unknown>)[name] = function counted(
+      this: unknown,
+    ): unknown {
+      count += 1;
+      return original.call(this);
+    };
+    originals.push(() => {
+      (target as Record<string, unknown>)[name] = original;
+    });
+  };
+
+  wrapMethod(Element.prototype, 'getBoundingClientRect');
+  wrapMethod(Element.prototype, 'getClientRects');
+  onCleanup(() => {
+    for (const restore of originals) {
+      restore();
+    }
+  });
+
+  return { reads: () => count };
+}
+
+const topLeft = (element: HTMLElement): string => {
+  const { left, top } = element.getBoundingClientRect();
+  return `${Math.round(left)},${Math.round(top)}`;
+};
+
+const animations = (element: HTMLElement): string =>
+  element
+    .getAnimations()
+    .map((a) => (a.effect as KeyframeEffect).composite)
+    .join('+') || '-';
+
+function print(name: string, fields: Record<string, unknown>): void {
+  const text = Object.entries(fields)
+    .map(([key, value]) => `${key}=${String(value)}`)
+    .join(' ');
+
+  LINES.push(`PROBE ${engine} ${name} ${text}`);
+}
+
+async function pointerNoop(
+  name: string,
+  path: ReadonlyArray<readonly [number, number]>,
+  composed: boolean,
+): Promise<void> {
+  const list = makeList(4);
+  let timings = 0;
+
+  basicSortable(list, {
+    ...(composed
+      ? {
+          landing: landing({
+            duration: () => {
+              timings += 1;
+              return LONG;
+            },
+            easing: 'linear',
+          }),
+        }
+      : {}),
+  });
+
+  const item = row('r1');
+  const home = topLeft(item);
+  const { left, top } = item.getBoundingClientRect();
+  const x = left + 20;
+  const y = top + 20;
+
+  await commands.pointerMove(x, y);
+  await commands.pointerDown();
+
+  for (const [dx, dy] of path) {
+    // oxlint-disable-next-line no-await-in-loop -- one move at a time
+    await commands.pointerMove(x + dx, y + dy, 3);
+    // oxlint-disable-next-line no-await-in-loop -- one move at a time
+    await frames();
+  }
+
+  const dropped = topLeft(item);
+  const census = countLayoutReads();
+
+  await commands.pointerUp();
+
+  const reads = census.reads();
+  const released = topLeft(item);
+  const anims = animations(item);
+
+  print(name, {
+    home,
+    dropped,
+    released,
+    animations: anims,
+    timings,
+    reads,
+    log: log.join('|'),
+  });
+}
+
+describe('DRF-58 reviewer probe', () => {
+  afterAll(() => {
+    throw new Error(LINES.join('\n'));
+  });
+
+  it('pointer noop sideways, landing', async () => {
+    await pointerNoop(
+      'pointer-sideways-landing',
+      [
+        [30, 0],
+        [60, 0],
+      ],
+      true,
+    );
+  });
+
+  it('pointer noop sideways, no landing', async () => {
+    await pointerNoop(
+      'pointer-sideways-none',
+      [
+        [30, 0],
+        [60, 0],
+      ],
+      false,
+    );
+  });
+
+  it('pointer noop back to the press point, landing', async () => {
+    await pointerNoop(
+      'pointer-origin-landing',
+      [
+        [0, 30],
+        [0, 0],
+      ],
+      true,
+    );
+  });
+
+  for (const composed of [true, false]) {
+    it(`command noop after a rebase in onStart, landing=${composed}`, async () => {
+      const list = focusableList(3);
+      let timings = 0;
+      let rebased = false;
+      let home = '';
+      const controller = basicSortable(list, {
+        ...(composed
+          ? {
+              landing: landing({
+                duration: () => {
+                  timings += 1;
+                  return LONG;
+                },
+                easing: 'linear',
+              }),
+            }
+          : {}),
+        onStart(_, kind) {
+          log.push(`start:${kind}`);
+          // r1 goes before r0, so r0's ArrowDown gap is r0's own gap.
+          list.insertBefore(row('r1'), row('r0'));
+          controller.invalidate();
+          rebased = true;
+        },
+        onReorder() {
+          log.push('asked');
+          return ReorderResolution.accept();
+        },
+      });
+
+      const before = topLeft(row('r0'));
+      const census = countLayoutReads();
+
+      row('r0').focus();
+      await commands.keyPress('ArrowDown');
+
+      const reads = census.reads();
+      const released = topLeft(row('r0'));
+      const anims = animations(row('r0'));
+
+      for (const animation of row('r0').getAnimations()) {
+        animation.finish();
+      }
+
+      home = topLeft(row('r0'));
+      await frames();
+      print(`command-rebased-noop-landing=${composed}`, {
+        before,
+        released,
+        animations: anims,
+        finished: home,
+        timings,
+        reads,
+        rebased,
+        order: [...list.children].map((c) => c.id).join(','),
+        log: log.join('|'),
+      });
+    });
+  }
+});

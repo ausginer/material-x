@@ -1,0 +1,39 @@
+# drag:DRF-58's command row, 'should land a command on its own gap at the rebased home', with operation.ts as at ba7c06803 and the rows of this branch, Chromium, 2026-11-27, from packages/drag:
+#   aube exec vitest run -c vitest.config.ts --project 'browser*' tests/landing.browser.test.ts -t "command on its own gap"
+# It fails: no flight at the release (expected 1, received 0). With operation.ts at 134809c64 the file's 36 rows pass.
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/worktrees/h/packages/drag
+
+ ❯ |browser (chromium)| tests/landing.browser.test.ts (36 tests | 1 failed | 35 skipped) 104ms
+   ❯ drag:DRI-13 sortable landing of a drop on the item's own gap (11)
+     × should land a command on its own gap at the rebased home 103ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:768 > drag:DRI-13 sortable landing of a drop on the item's own gap > should land a command on its own gap at the rebased home
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/landing.browser.test.ts:796:27
+    794|
+    795|     expect([asked, log]).toEqual([0, ['start:command', 'end:noop']]);
+    796|     expect(flights(item)).toBe(1);
+       |                           ^
+    797|     expect(Math.abs(item.getBoundingClientRect().top - before)).toBeLe…
+    798|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 35 skipped (36)
+   Start at  10:48:30
+   Duration  911ms (worker 72%, tests 19%, import 7%, setup 3%)
+

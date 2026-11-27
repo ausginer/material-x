@@ -157,6 +157,18 @@ The distinction is what lets a status be read per decision rather than per sente
 
 **Nothing may be deleted from a current-state document or a source comment into the record unless the record already carries it.** Where it does not, it is written there first, in the same change.
 
+### A decision's status
+
+**A decision's status is a sentence, and it is kept current.** It is in the paragraph after the decision's heading, and an amendment's status is in the amendment's own paragraph. It says whether the decision holds in the code: unimplemented, with the unit that implements it, or implemented, with the pull request. A dated note is history: it is true on its date, and isn't brought up to date.
+
+**The pull request that implements a decision, or one of its amendments, updates that sentence itself.** The implementer adds _"**Implemented** by #N"_ after the sentence, in a commit after it opens the pull request, and says which part when the pull request implements only part. Until the pull request has its number, the sentence stays unimplemented: a status never names a branch, which is deleted on merge. The sentence that it follows stays as written. The edit is non-substantive, so it mints no decision, and the implementer makes it. Its commit changes only a record, so it can carry `[noci]`.
+
+**The implementing branch names no merge:** no _"not yet merged"_, no _"when #N merges"_, and no merge commit, which the branch can't know. Its sentence is on the branch with the implementation, so it reaches `main` when the implementation does, and it never reaches `main` if the pull request closes unmerged. `#N` leads to the merge. A status that waits for the merge goes stale when the merge happens. **A correction written after the merge,** when an audit finds a stale status, names the merge it read, as _"**Implemented** by #N, merged <date> as `<commit>`"_. That merge has happened, so the sentence stays true.
+
+**A decision that holds without code,** such as an owner's setting or a rule in a document, is updated by whoever records that it holds, in the same pull request.
+
+**A review reads the sentence.** A pull request that implements a decision and leaves its status unimplemented has a finding.
+
 ---
 
 ## 7. Witnesses
@@ -218,3 +230,4 @@ What this document used to say, and what changed it. Section numbers are permane
 | 2026-11-18 | §8 | **Added:** `work-queue.md`, and GitHub Issues with the `Work queue` board as the work queue, outside the four kinds of document. Record: `repo:RD-22` |
 | 2026-11-24 | §8 | **Added:** `findings.md`, and an issue with a `tier:` label as a finding whose body is its contract. Record: `repo:RD-56` |
 | 2026-11-26 | §8 | **Changed:** the `.plan/` row says that each decision is a file in `.plan/decisions/`. It used to say that the record is registered in `.plan/00-index.md`, which held every decision. Record: `repo:RD-64` |
+| 2026-11-27 | §6 | **Added:** _A decision's status_. The pull request that implements a decision names itself in its status sentence, and the implementing branch names no merge. Nothing said before who updated a status, or when. An audit found 28 status sentences in 18 decisions that called merged work unimplemented or unmerged. Record: `repo:RD-68` |
