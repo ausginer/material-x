@@ -1,0 +1,40 @@
+# probes/spellings.mjs.txt at 4fcc0a457: a value a sheet gives a custom property, what getComputedStyle(...).getPropertyValue(...) returns in each engine, and the head's expression on the trimmed value.
+== chromium 158.0.8127.18
+"250ms"      computed "250ms"      head 250
+"0.25s"      computed "0.25s"      head 250
+".25s"       computed ".25s"       head 250
+"250MS"      computed "250MS"      head 250000
+"0.25S"      computed "0.25S"      head 250
+"250Ms"      computed "250Ms"      head 250000
+"  250ms  "  computed "250ms"      head 250
+"2.5e2ms"    computed "2.5e2ms"    head 250
+"+250ms"     computed "+250ms"     head 250
+== firefox 159.0
+"250ms"      computed "250ms"      head 250
+"0.25s"      computed "0.25s"      head 250
+".25s"       computed ".25s"       head 250
+"250MS"      computed "250MS"      head 250000
+"0.25S"      computed "0.25S"      head 250
+"250Ms"      computed "250Ms"      head 250000
+"  250ms  "  computed "250ms"      head 250
+"2.5e2ms"    computed "2.5e2ms"    head 250
+"+250ms"     computed "+250ms"     head 250
+== webkit 27.2
+"250ms"      computed "250ms"      head 250
+"0.25s"      computed "0.25s"      head 250
+".25s"       computed ".25s"       head 250
+"250MS"      computed "250MS"      head 250000
+"0.25S"      computed "0.25S"      head 250
+"250Ms"      computed "250Ms"      head 250000
+"  250ms  "  computed "250ms"      head 250
+"2.5e2ms"    computed "2.5e2ms"    head 250
+"+250ms"     computed "+250ms"     head 250
+
+# probes/lightningcss-case.mjs.txt, with the lightningcss in the slot's root node_modules:
+minify false .a { --d: .25s; --e: .25s; --f: .25s; --g: 99ms; } 
+minify true .a{--d:.25s;--e:.25s;--f:.25s;--g:99ms}
+
+# probes/units.mjs.txt: each engine reads a time unit in capitals as a <time>; the computed transition-duration of an element given each value.
+== chromium 250MS -> 0.25s, 250Ms -> 0.25s, 0.25S -> 0.25s
+== firefox 250MS -> 0.25s, 250Ms -> 0.25s, 0.25S -> 0.25s
+== webkit 250MS -> 0.25s, 250Ms -> 0.25s, 0.25S -> 0.25s
