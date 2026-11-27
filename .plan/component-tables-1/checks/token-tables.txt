@@ -1,0 +1,187 @@
+#335, by the implementer, 2026-11-27, on tproc/component-tables-1 from
+origin/main e7fa0d5f8, with origin/main fe101808b merged before the update. The
+tables were read in memory, and no raw table is kept.
+
+== Component ids
+Each id is the `components/<id>` of design system 20543ce18892f7d9 in the page
+content of release 2026-11-19_06-20-01 (the site's carbonVersion on this day),
+`_dsm/content/m3/<release>/<exportedCarbonFileId>` for the page's slug in the
+site's main bundle. Each page names two ids: the token table, at database
+41.1.12 (version 4ae102170fee99b1, the manifest's), and a table of database
+2026-11-18v8 with no token sets. The rows name the first.
+menus 385a28e5d3bb3dd0, switch 33b1b2925d9ff561, chips 484a63be03b01a17,
+progress-indicators 6f51f7ab7775a392 (linear and circular), loading-indicator
+68895be451a51c31, dialogs 0b1e39a67d5bafdc, snackbar 346ae12a744b45dd,
+tooltips 37697297db0555a6, badges 59a1b3a9a90ca8b3, navigation-bar
+52865380210a9b69, navigation-rail 5b55bd7cc1ea6e29, tabs 6039f0080a95df1e,
+toolbars 2956a7939bf0879c, search 07341534518f78d0 (bar and view),
+date-pickers 01c5310367774eb8, time-pickers 39f4b152dd9bd292, bottom-sheets
+75e530a1014802b3, side-sheets 06c2c925cf96adca, carousel 43a124d2adc8a2ef,
+fab-menu 1a076cec8bc202c2. The database carries all twenty.
+
+== Refusals, with all twenty rows
+1. TOKEN_TABLE.39f4b152dd9bd292: md.comp.time-pickers: description: is not a string
+   Upstream gives the set no description. The plan keeps a set's description
+   when present, and schema.ts has it optional. The converter now reads it
+   with optionalString. Its convert row fails without the change with this
+   refusal, and passes with it.
+2. TOKEN_TABLE.6f51f7ab7775a392: md.comp.linear-progress-indicator.four-color.active-indicator.four.color: values.tokenName: names goog.ref.brand-color.green, not in the store
+   Eight tokens, {linear,circular}-progress-indicator.four-color.active-indicator.{one,two,three,four}.color,
+   reference goog.ref.brand-color.{blue,red,yellow,green}, which no table
+   carries. All eight are in the two [Deprecated] sets. Ruled by RD-69: a
+   reference into another design system is stored as upstream gives it and
+   isn't checked. The 20th row is added after it, below.
+With Progress indicators left out, no other refusal.
+
+== The update, 19 rows
+packages/tproc: aube exec just update-tokens --release 2026-11-19_06-20-01 --report <file>
+Wrote 177 files, with 0 conflicts. 2006 tokens added, 0 removed, 0 selected
+values changed. The 208 deprecations added are all of added tokens.
+A second run: identical store.
+
+== Existing sets, and the sets added
+Every file of the store at fe101808b compared with the store after, by bytes:
+before: 123 files; missing after: 0; differing: 1; after: 176
+rows kept as prefix: true | source equal: true
+The one differing file, md.sys.measurement, gains md.sys.measurement.space500,
+which an added table carries; its other tokens are byte-identical.
+md.comp.assist-chip | Chip - Assist | 51 tokens, 1 deprecated
+md.comp.badge | Badges | 13 tokens, 0 deprecated
+md.comp.bottom-app-bar | Bottom app bar (baseline) | 6 tokens, 2 deprecated
+md.comp.carousel-item | Carousel item | 27 tokens, 1 deprecated
+md.comp.date-input.modal | Date picker - Modal input | 22 tokens, 1 deprecated
+md.comp.date-picker.docked | Date picker - Docked | 96 tokens, 1 deprecated
+md.comp.date-picker.modal | Date picker - Modal | 111 tokens, 4 deprecated
+md.comp.dialog | Dialog - Basic | 45 tokens, 10 deprecated
+md.comp.fab-menu | FAB menu - Common | 15 tokens, 0 deprecated
+md.comp.fab-menu.primary-container | FAB menu list items - Color - Primary | 19 tokens, 0 deprecated
+md.comp.fab-menu.primary.close-button | FAB menu close button - Color - Primary | 15 tokens, 0 deprecated
+md.comp.fab-menu.secondary-container | FAB menu list items - Color - Secondary | 19 tokens, 0 deprecated
+md.comp.fab-menu.secondary.close-button | FAB menu close button - Color - Secondary | 15 tokens, 0 deprecated
+md.comp.fab-menu.tertiary-container | FAB menu list items - Color - Tertiary | 19 tokens, 0 deprecated
+md.comp.fab-menu.tertiary.close-button | FAB menu close button - Color - Tertiary | 15 tokens, 0 deprecated
+md.comp.filter-chip | Chip - Filter | 107 tokens, 16 deprecated
+md.comp.full-screen-dialog | Dialog - Full screen | 56 tokens, 23 deprecated
+md.comp.input-chip | Chip - Input | 107 tokens, 28 deprecated
+md.comp.loading-indicator | Loading indicator | 8 tokens, 1 deprecated
+md.comp.menu | Menu (baseline) | 49 tokens, 45 deprecated
+md.comp.menus | Menus - Common | 59 tokens, 0 deprecated
+md.comp.menus.standard | Menus - Color - Standard | 84 tokens, 0 deprecated
+md.comp.menus.vibrant | Menus - Color - Vibrant | 70 tokens, 0 deprecated
+md.comp.nav-bar.item.horizontal | Nav bar - Item - Horizontal | 5 tokens, 0 deprecated
+md.comp.nav-bar.item.vertical | Nav bar - Item - Vertical | 5 tokens, 0 deprecated
+md.comp.nav-bar | Nav bar - Common | 23 tokens, 0 deprecated
+md.comp.nav-rail.collapsed | Nav rail - Collapsed | 7 tokens, 0 deprecated
+md.comp.nav-rail.expanded | Nav rail - Expanded | 11 tokens, 2 deprecated
+md.comp.nav-rail.item.horizontal | Nav rail item - Horizontal | 5 tokens, 0 deprecated
+md.comp.nav-rail.item | Nav rail item - Common | 10 tokens, 0 deprecated
+md.comp.nav-rail.item.vertical | Nav rail item - Vertical | 6 tokens, 0 deprecated
+md.comp.nav-rail | Nav rail - Common | 14 tokens, 0 deprecated
+md.comp.navigation-bar | Navigation bar (baseline) | 52 tokens, 8 deprecated
+md.comp.navigation-rail | Navigation rail (baseline) | 71 tokens, 28 deprecated
+md.comp.plain-tooltip | Tooltip - Plain | 16 tokens, 5 deprecated
+md.comp.primary-navigation-tab | Tabs - Primary navigation | 48 tokens, 2 deprecated
+md.comp.rich-tooltip | Tooltip - Rich | 35 tokens, 1 deprecated
+md.comp.search-bar | Search - Bar | 49 tokens, 1 deprecated
+md.comp.search-view | Search - View | 36 tokens, 1 deprecated
+md.comp.secondary-navigation-tab | Tabs - Secondary navigation | 35 tokens, 2 deprecated
+md.comp.sheet.bottom | Sheets - Bottom | 13 tokens, 2 deprecated
+md.comp.sheet.side | Sheets - Side | 31 tokens, 2 deprecated
+md.comp.snackbar | Snackbars | 40 tokens, 0 deprecated
+md.comp.suggestion-chip | Chip - Suggestion | 51 tokens, 1 deprecated
+md.comp.switch | Switch | 78 tokens, 6 deprecated
+md.comp.time-input | Time picker - Input | 75 tokens, 1 deprecated
+md.comp.time-picker | Time picker - Dial | 99 tokens, 3 deprecated
+md.comp.time-pickers | Time pickers | 56 tokens, 0 deprecated
+md.comp.toolbar.docked | Toolbar - Docked | 7 tokens, 1 deprecated
+md.comp.toolbar.floating.fab | Toolbar - Floating - FAB | 15 tokens, 0 deprecated
+md.comp.toolbar.floating | Toolbar - Floating | 18 tokens, 9 deprecated
+md.comp.toolbar.standard | Toolbar - Color - Standard | 33 tokens, 0 deprecated
+md.comp.toolbar.vibrant | Toolbar - Color - Vibrant | 33 tokens, 0 deprecated
+tokens before 4304, after 6310, names unique: true
+
+== material-x CSS
+The 44 tracked css.ts through `aube exec just debug`, with the store of
+fe101808b and with the new one: 44 of 44 identical, none empty.
+
+== Personal data
+git grep -e emailAddress -e gaiaId -- packages/tproc/tokens: nothing. Files with
+an email address pattern: 0.
+
+== Suites
+tproc: 14 files, 352 passed. material-x, its package recipe after
+_package-builds and build:prepare: 52 files, 2850 passed, 2 expected fail.
+Typecheck in tproc and material-x: exit 0. Chromium only; Firefox, WebKit and
+visual are the pull request's checks.
+
+== The 20th row, Progress indicators, after RD-69
+On tproc/component-tables-1 after the converter's RD-69 change (156e4dce8) and
+a merge of origin/main at 2ed4b96ab (69cd38e03), 2026-11-27. The row is appended, so the 19
+rows stay a prefix. Witnesses: foreign-references-witness.txt beside this file.
+packages/tproc: aube exec just update-tokens --release 2026-11-19_06-20-01 --report <file>
+Wrote 182 files, with 0 conflicts. 56 tokens added, 0 removed, 0 selected
+values changed, 33 deprecations added, all of added tokens. 180 sets.
+Report: progress-indicators-report.md. A second run: identical store.
+Every file of the 19-row store, 175 sets and context.json, is byte-identical
+after it. The sets added:
+md.comp.progress-indicator | Progress Indicator - Common | 10 tokens, 4 deprecated
+md.comp.progress-indicator.circular | Progress indicator - Circular | 11 tokens, 4 deprecated
+md.comp.progress-indicator.linear | Progress indicator - Linear | 17 tokens, 7 deprecated
+md.comp.linear-progress-indicator | [Deprecated] Progress indicator - Linear | 10 tokens, 10 deprecated
+md.comp.circular-progress-indicator | [Deprecated] Progress indicator - Circular | 8 tokens, 8 deprecated
+
+The 8 tokens through the reader (src/store), in the rendered context. Each
+selects its audience: 3p entry, which references md.sys.color.*. "Names not in
+the store" walks every tree of the token; each such node below the root has no
+value index.
+tokens: 8
+md.comp.circular-progress-indicator.four-color.active-indicator.four.color
+  deprecated: true
+  values: md.sys.color.tertiary-container {"audience":"3p"} | goog.ref.brand-color.green
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.tertiary-container"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.green, goog.ref.brand-palette.green-500; such nodes without a value index: 14
+md.comp.circular-progress-indicator.four-color.active-indicator.one.color
+  deprecated: true
+  values: md.sys.color.primary {"audience":"3p"} | goog.ref.brand-color.blue
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.primary"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.blue, goog.ref.brand-palette.blue-500; such nodes without a value index: 14
+md.comp.circular-progress-indicator.four-color.active-indicator.three.color
+  deprecated: true
+  values: md.sys.color.tertiary {"audience":"3p"} | goog.ref.brand-color.yellow
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.tertiary"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.yellow, goog.ref.brand-palette.yellow-500; such nodes without a value index: 14
+md.comp.circular-progress-indicator.four-color.active-indicator.two.color
+  deprecated: true
+  values: md.sys.color.primary-container {"audience":"3p"} | goog.ref.brand-color.red
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.primary-container"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.red, goog.ref.brand-palette.red-500; such nodes without a value index: 14
+md.comp.linear-progress-indicator.four-color.active-indicator.four.color
+  deprecated: true
+  values: md.sys.color.tertiary-container {"audience":"3p"} | goog.ref.brand-color.green
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.tertiary-container"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.green, goog.ref.brand-palette.green-500; such nodes without a value index: 14
+md.comp.linear-progress-indicator.four-color.active-indicator.one.color
+  deprecated: true
+  values: md.sys.color.primary {"audience":"3p"} | goog.ref.brand-color.blue
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.primary"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.blue, goog.ref.brand-palette.blue-500; such nodes without a value index: 14
+md.comp.linear-progress-indicator.four-color.active-indicator.three.color
+  deprecated: true
+  values: md.sys.color.tertiary {"audience":"3p"} | goog.ref.brand-color.yellow
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.tertiary"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.yellow, goog.ref.brand-palette.yellow-500; such nodes without a value index: 14
+md.comp.linear-progress-indicator.four-color.active-indicator.two.color
+  deprecated: true
+  values: md.sys.color.primary-container {"audience":"3p"} | goog.ref.brand-color.red
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.primary-container"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.red, goog.ref.brand-palette.red-500; such nodes without a value index: 14
+values references to names not in the store, whole store: 8
+
+material-x CSS: the 44 tracked css.ts through `aube exec just debug`, with the
+19-row store after the merge and with the 20-row store: 44 of 44 identical,
+none empty.
+Personal data: git grep -e emailAddress -e gaiaId -- packages/tproc/tokens:
+nothing. Files with an email address pattern: 0.
+Suites: tproc 14 files, 356 passed; material-x 52 files, 2886 passed, 2
+expected fail, after _package-builds and build:prepare. Typecheck in tproc and
+material-x: exit 0. Chromium only.

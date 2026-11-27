@@ -1,0 +1,67 @@
+// The feature proof's mutations of #340's converter, at f5e5ba894, run in the
+// review's slot against packages/tproc/tests/scripts/convert.node.test.ts,
+// one at a time, with scripts/convert.ts restored from git after each.
+// Predictions are written before the run, in `expect`.
+import { execFileSync, spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const DIR = '/workspaces/worktrees/h/packages/tproc';
+const FILE = `${DIR}/scripts/convert.ts`;
+
+const mutations = [
+  {
+    name: "R1: a node below another system's node is classified by its own id",
+    edits: [['let foreign = belowForeign;', 'let foreign = false;']],
+    expect: 'survives: no row has a node below a foreign one without a foreign id of its own',
+  },
+  {
+    name: 'R2: a child node with no value id is read as another system\'s',
+    edits: [[
+      'foreign ||= id != null && !id.startsWith(this.designSystem);',
+      'foreign ||= id == null || !id.startsWith(this.designSystem);',
+    ]],
+    expect: 'doubted: fails a row whose child node has no value id, if one exists',
+  },
+  {
+    name: "R3: a values reference is admitted by another token's foreign node",
+    edits: [
+      ['const foreignNames = new Set<string>();', 'const foreignNames = globalForeign;'],
+      ['  const names = new Set(', '  const globalForeign = new Set<string>();\n  const names = new Set('],
+    ],
+    expect: 'survives: no row has two tokens, one with the foreign node and one with the values reference',
+  },
+  {
+    name: "R4: another system's node is given the child-value check",
+    edits: [['      if (!foreign) {', '      {']],
+    expect: "fails: should store a reference into another design system as upstream gives it; should give another design system's tree node no value index",
+  },
+  {
+    name: "R7: a set's description is required again",
+    edits: [[
+      "const description = this.optionalString(tokenSetName, raw, 'description');",
+      "const description = this.string(tokenSetName, raw, 'description');",
+    ]],
+    expect: 'fails: should write a set without a description when upstream gives none',
+  },
+];
+
+const original = readFileSync(FILE, 'utf8');
+for (const { name, edits, expect } of mutations) {
+  let text = original;
+  for (const [from, to] of edits) {
+    if (text.split(from).length !== 2) throw new Error(`${name}: edit text not unique`);
+    text = text.replace(from, to);
+  }
+  writeFileSync(FILE, text);
+  const run = spawnSync('aube', ['exec', 'just', 'test', 'tests/scripts/convert.node.test.ts'], {
+    cwd: DIR,
+    encoding: 'utf8',
+  });
+  execFileSync('git', ['checkout', '--', 'scripts/convert.ts'], { cwd: DIR });
+  const out = (run.stdout + run.stderr).replaceAll(/\x1b\[[0-9;]*m/g, '');
+  const failed = [...new Set(out.split('\n').filter((l) => /^\s+(×|FAIL)/.test(l)).map((l) => l.trim()))];
+  const tests = out.split('\n').find((l) => /^\s+Tests\s/.test(l))?.trim();
+  console.log(`== ${name}\n   predicted: ${expect}\n   exit ${run.status}; ${tests}`);
+  for (const line of failed) console.log(`   ${line}`);
+}
+console.log('restored:', readFileSync(FILE, 'utf8') === original);

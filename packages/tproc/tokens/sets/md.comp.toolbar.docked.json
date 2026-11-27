@@ -1,0 +1,860 @@
+{
+  "tokenSetName": "md.comp.toolbar.docked",
+  "displayName": "Toolbar - Docked",
+  "description": "For docked toolbars.",
+  "tokenType": "COMPONENT",
+  "custom": {
+    "token_class": "COMPONENT"
+  },
+  "order": 1,
+  "displayGroups": [
+    {
+      "displayName": "Color",
+      "orderInParentTokenSet": 1
+    },
+    {
+      "displayName": "Size",
+      "orderInParentTokenSet": 2
+    },
+    {
+      "displayName": "Shape",
+      "orderInParentTokenSet": 3
+    }
+  ],
+  "tokens": [
+    {
+      "tokenName": "md.comp.toolbar.docked.container.color",
+      "displayName": "Docked toolbar container color",
+      "tokenValueType": "COLOR",
+      "displayGroup": [
+        "Color"
+      ],
+      "deprecationMessage": {
+        "message": "Moving this token to the color token set"
+      },
+      "values": [
+        {
+          "tokenName": "md.sys.color.surface-container"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.15686275,
+              "green": 0.16470589,
+              "blue": 0.17254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.15686275,
+              "green": 0.16470589,
+              "blue": 0.17254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 4
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11764706,
+              "green": 0.12156863,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11764706,
+              "green": 0.12156863,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11764706,
+              "green": 0.12156863,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11764706,
+              "green": 0.12156863,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.11764706,
+              "green": 0.12156863,
+              "blue": 0.1254902,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9411765,
+              "green": 0.95686275,
+              "blue": 0.9764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9411765,
+              "green": 0.95686275,
+              "blue": 0.9764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9411765,
+              "green": 0.95686275,
+              "blue": 0.9764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9411765,
+              "green": 0.95686275,
+              "blue": 0.9764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9411765,
+              "green": 0.95686275,
+              "blue": 0.9764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 7,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral12",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.12941177,
+              "green": 0.12156863,
+              "blue": 0.14901961,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 7,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral12",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.12941177,
+              "green": 0.12156863,
+              "blue": 0.14901961,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 7,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral12",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.12941177,
+              "green": 0.12156863,
+              "blue": 0.14901961,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral94",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9529412,
+              "green": 0.92941177,
+              "blue": 0.96862745,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral94",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9529412,
+              "green": 0.92941177,
+              "blue": 0.96862745,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral94",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9529412,
+              "green": 0.92941177,
+              "blue": 0.96862745,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.toolbar.docked.container.height",
+      "displayName": "Docked toolbar container height",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Size"
+      ],
+      "values": [
+        {
+          "length": {
+            "value": 64,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.height"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 64,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.toolbar.docked.container.leading-space",
+      "displayName": "Docked toolbar leading padding",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Size"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space200"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.leading-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space200",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 16,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.toolbar.docked.container.trailing-space",
+      "displayName": "Docked toolbar trailing padding",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Size"
+      ],
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space200"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.trailing-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space200",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 16,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.toolbar.docked.container.max-spacing",
+      "displayName": "Docked toolbar max space between actions",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Size"
+      ],
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "length": {
+            "value": 32,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.max-spacing"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 32,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.toolbar.docked.container.min-spacing",
+      "displayName": "Docked toolbar min space between actions",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Size"
+      ],
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "length": {
+            "value": 4,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.min-spacing"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.toolbar.docked.container.shape",
+      "displayName": "Docked toolbar container shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape"
+      ],
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.none"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.toolbar.docked.container.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.none",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

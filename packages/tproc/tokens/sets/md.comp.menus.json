@@ -1,0 +1,6437 @@
+{
+  "tokenSetName": "md.comp.menus",
+  "displayName": "Menus - Common",
+  "description": "Common tokens for expressive menus. For baseline menus, use \"Menu (baseline)\" tokens `md.comp.menu`.",
+  "tokenType": "COMPONENT",
+  "custom": {
+    "token_class": "COMPONENT"
+  },
+  "order": 1,
+  "displayGroups": [
+    {
+      "displayName": "Horizontal icon-only",
+      "parentGroup": [
+        "Layout"
+      ],
+      "orderInParentTokenSet": 4,
+      "orderInParentDisplayGroup": 2
+    },
+    {
+      "displayName": "Horizontal icon-only, selected",
+      "parentGroup": [
+        "Shape"
+      ],
+      "orderInParentTokenSet": 6,
+      "orderInParentDisplayGroup": 4
+    },
+    {
+      "displayName": "Default",
+      "parentGroup": [
+        "Layout"
+      ],
+      "orderInParentTokenSet": 6
+    },
+    {
+      "displayName": "Horizontal",
+      "parentGroup": [
+        "Layout"
+      ],
+      "orderInParentTokenSet": 5,
+      "orderInParentDisplayGroup": 1
+    },
+    {
+      "displayName": "Horizontal, Selected",
+      "parentGroup": [
+        "Shape"
+      ],
+      "orderInParentTokenSet": 6,
+      "orderInParentDisplayGroup": 3
+    },
+    {
+      "displayName": "Horizontal, Default",
+      "parentGroup": [
+        "Shape"
+      ],
+      "orderInParentTokenSet": 5,
+      "orderInParentDisplayGroup": 2
+    },
+    {
+      "displayName": "Selected",
+      "parentGroup": [
+        "Shape"
+      ],
+      "orderInParentTokenSet": 5,
+      "orderInParentDisplayGroup": 1
+    },
+    {
+      "displayName": "Default",
+      "parentGroup": [
+        "Shape"
+      ],
+      "orderInParentTokenSet": 6
+    },
+    {
+      "displayName": "Typography",
+      "orderInParentTokenSet": 1
+    },
+    {
+      "displayName": "Focus ring",
+      "orderInParentTokenSet": 5
+    },
+    {
+      "displayName": "Layout",
+      "orderInParentTokenSet": 3
+    },
+    {
+      "displayName": "Shape",
+      "orderInParentTokenSet": 2
+    }
+  ],
+  "tokens": [
+    {
+      "tokenName": "md.comp.menus.active.container.shape",
+      "displayName": "Menu active container shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Default"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.large"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.active.container.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.large",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 16,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.height",
+      "displayName": "Menu item height",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Default"
+      ],
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "length": {
+            "value": 44,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.height"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 44,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.menu-item.focused.shape",
+      "displayName": "Menu horizontal menu item focused shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Horizontal, Default"
+      ],
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.medium"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.menu-item.focused.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.medium",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 12,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.container.shape",
+      "displayName": "Menu horizontal container shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Horizontal, Default"
+      ],
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.full"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.container.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.full",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_CIRCULAR"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.menu-item.hovered.shape",
+      "displayName": "Menu horizontal menu item hovered shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Horizontal, Default"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.medium"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.menu-item.hovered.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.medium",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 12,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.menu-item.pressed.shape",
+      "displayName": "Menu horizontal menu item pressed shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Horizontal, Default"
+      ],
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.medium"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.menu-item.pressed.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.medium",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 12,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.trailing-space",
+      "displayName": "Menu item trailing space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Default"
+      ],
+      "orderInDisplayGroup": 8,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space200"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space200",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 16,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.leading-space",
+      "displayName": "Menu item leading space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Default"
+      ],
+      "orderInDisplayGroup": 7,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space200"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.leading-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space200",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 16,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.trailing-icon.size",
+      "displayName": "Menu item trailing icon size",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Default"
+      ],
+      "orderInDisplayGroup": 11,
+      "values": [
+        {
+          "length": {
+            "value": 20,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-icon.size"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 20,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.top-space",
+      "displayName": "Menu item top space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Default"
+      ],
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space100"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.top-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space100",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 8,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.between-space",
+      "displayName": "Menu item between space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Default"
+      ],
+      "orderInDisplayGroup": 9,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space150"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.between-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space150",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 12,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.container.elevation",
+      "displayName": "Menu container elevation",
+      "tokenValueType": "ELEVATION",
+      "displayGroup": [
+        "Layout",
+        "Default"
+      ],
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "tokenName": "md.sys.elevation.level2"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.container.elevation",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.elevation.level2",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "elevation": {
+              "value": 3,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.bottom-space",
+      "displayName": "Menu item bottom space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Default"
+      ],
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space100"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.bottom-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space100",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 8,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.group.padding",
+      "displayName": "Menu group padding",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Default"
+      ],
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space25"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.group.padding",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space25",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 2,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.leading-icon.size",
+      "displayName": "Menu item leading icon size",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Default"
+      ],
+      "orderInDisplayGroup": 10,
+      "values": [
+        {
+          "length": {
+            "value": 20,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.leading-icon.size"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 20,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.gap",
+      "displayName": "Menu gap",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Default"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space25"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.gap",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space25",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 2,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.icon-only.gap",
+      "displayName": "Menu horizontal icon only gap",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Horizontal icon-only"
+      ],
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space50"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.icon-only.gap",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space50",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.last-child.inner-corner.corner-size",
+      "displayName": "Menu item last child inner corner corner size",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Default"
+      ],
+      "orderInDisplayGroup": 8,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.extra-small"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.last-child.inner-corner.corner-size",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.extra-small",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 4,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.first-child.shape",
+      "displayName": "Menu item first child shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Default"
+      ],
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.medium"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.first-child.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.medium",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 12,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.first-child.inner-corner.corner-size",
+      "displayName": "Menu item first child inner corner corner size",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Default"
+      ],
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.extra-small"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.first-child.inner-corner.corner-size",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.extra-small",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 4,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.last-child.shape",
+      "displayName": "Menu item last child shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Default"
+      ],
+      "orderInDisplayGroup": 7,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.medium"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.last-child.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.medium",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 12,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.shape",
+      "displayName": "Menu item shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Default"
+      ],
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.extra-small"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.extra-small",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 4,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.inactive.container.shape",
+      "displayName": "Menu inactive container shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Default"
+      ],
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.small"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.inactive.container.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.small",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 8,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.group.shape",
+      "displayName": "Menu group shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Default"
+      ],
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.small"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.group.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.small",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 8,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.menu-item.leading-space",
+      "displayName": "Menu horizontal menu item leading space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Horizontal"
+      ],
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space150"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.menu-item.leading-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space150",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 12,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+      "displayName": "Menu item trailing supporting text weight",
+      "tokenValueType": "FONT_WEIGHT",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 21,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.label-large.weight"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "font": "ios.bold",
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-bold",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "font": "ios.bold",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-bold",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "font": "ios.bold",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-bold",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "font": "ios.bold",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-bold",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "font": "ios.bold",
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-bold",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "font": "static",
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "font": "variable",
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "font": "static",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "font": "variable",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "font": "static",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "font": "variable",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "font": "static",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "font": "variable",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "font": "static",
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "font": "variable",
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.tracking",
+      "displayName": "Menu item trailing supporting text tracking",
+      "tokenValueType": "FONT_TRACKING",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 20,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.label-large.tracking"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.tracking",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.tracking",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.tracking",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "value": 0.1,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.tracking",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "value": 0.1,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.tracking",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.tracking",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.size",
+      "displayName": "Menu item trailing supporting text size",
+      "tokenValueType": "FONT_SIZE",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 19,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.label-large.size"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.size",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.size",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontSize": {
+              "value": 14,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.line-height",
+      "displayName": "Menu item trailing supporting text line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 18,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.label-large.line-height"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.line-height",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.line-height",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 20,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+      "displayName": "Menu item trailing supporting text font",
+      "tokenValueType": "FONT_NAMES",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 17,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.label-large.font"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.brand",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.brand",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.brand",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.brand",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.brand",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.brand",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.trailing-supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.supporting-text.weight",
+      "displayName": "Menu item supporting text weight",
+      "tokenValueType": "FONT_WEIGHT",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 16,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.body-small.weight"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-regular",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-regular",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 400
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-regular",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 400
+          }
+        },
+        {
+          "contextTags": {
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-regular",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 400
+          }
+        },
+        {
+          "contextTags": {
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-regular",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 400
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.supporting-text.tracking",
+      "displayName": "Menu item supporting text tracking",
+      "tokenValueType": "FONT_TRACKING",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 15,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.body-small.tracking"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.tracking",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.tracking",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.tracking",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "value": 0.4,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.tracking",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "value": 0.4,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.tracking",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "value": 0.1,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.tracking",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "value": 0.1,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.supporting-text.line-height",
+      "displayName": "Menu item supporting text line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 13,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.body-small.line-height"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.line-height",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.line-height",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 16,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.supporting-text.size",
+      "displayName": "Menu item supporting text size",
+      "tokenValueType": "FONT_SIZE",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 14,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.body-small.size"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.size",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.size",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontSize": {
+              "value": 12,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.supporting-text.font",
+      "displayName": "Menu item supporting text font",
+      "tokenValueType": "FONT_NAMES",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 12,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.body-small.font"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 4
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "System"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 4
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "System"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.supporting-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.body-small.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.label-text.weight",
+      "displayName": "Menu item label text weight",
+      "tokenValueType": "FONT_WEIGHT",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 11,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.label-large.weight"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "font": "ios.bold",
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-bold",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "font": "ios.bold",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-bold",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "font": "ios.bold",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-bold",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "font": "ios.bold",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-bold",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "font": "ios.bold",
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-bold",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "font": "static",
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "font": "variable",
+            "ios.weight.setting": "bold",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 700
+          }
+        },
+        {
+          "contextTags": {
+            "font": "static",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "font": "variable",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "font": "static",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "font": "variable",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "font": "static",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "font": "variable",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "font": "static",
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        },
+        {
+          "contextTags": {
+            "font": "variable",
+            "ios.weight.setting": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.weight",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.weight",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.weight-medium",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontWeight": 500
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.label-text.tracking",
+      "displayName": "Menu item label text tracking",
+      "tokenValueType": "FONT_TRACKING",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 10,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.label-large.tracking"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.tracking",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.tracking",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.tracking",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "value": 0.1,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.tracking",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "value": 0.1,
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.tracking",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "unit": "POINTS"
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.tracking",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.tracking",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontTracking": {
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.label-text.size",
+      "displayName": "Menu item label text size",
+      "tokenValueType": "FONT_SIZE",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 9,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.label-large.size"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.size",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.size",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontSize": {
+              "value": 14,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.label-text.line-height",
+      "displayName": "Menu item label text line height",
+      "tokenValueType": "LINE_HEIGHT",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 8,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.label-large.line-height"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.line-height",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.line-height",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "lineHeight": {
+              "value": 20,
+              "unit": "POINTS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.label-text.font",
+      "displayName": "Menu item label text font",
+      "tokenValueType": "FONT_NAMES",
+      "displayGroup": [
+        "Typography"
+      ],
+      "orderInDisplayGroup": 7,
+      "values": [
+        {
+          "tokenName": "md.sys.typescale.label-large.font"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.brand",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.brand",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.brand",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.brand",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.brand",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.brand",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "variable",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "variable",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Flex"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "static",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "font": "ios.bold",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Roboto"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "compose"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "android"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "static",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "font": "ios.bold",
+            "platform": "web"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.label-text.font",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.typescale.label-large.font",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.typeface.plain",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "fontNames": {
+              "values": [
+                "Google Sans Text"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.focus.indicator.outline.offset",
+      "displayName": "Menu item focus indicator outline offset",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Focus ring"
+      ],
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "tokenName": "md.sys.state.focus-indicator.inner-offset"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.outline.offset",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.state.focus-indicator.inner-offset",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": -3,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.focus.indicator.thickness",
+      "displayName": "Menu item focus indicator thickness",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Focus ring"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "tokenName": "md.sys.state.focus-indicator.thickness"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.thickness",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.state.focus-indicator.thickness",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 3,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+      "displayName": "Menu item focus indicator color",
+      "tokenValueType": "COLOR",
+      "displayGroup": [
+        "Focus ring"
+      ],
+      "values": [
+        {
+          "tokenName": "md.sys.color.secondary"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary95",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9647059,
+              "green": 0.92941177,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary95",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9647059,
+              "green": 0.92941177,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary95",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9647059,
+              "green": 0.92941177,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary95",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8745098,
+              "green": 0.9529412,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary95",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8745098,
+              "green": 0.9529412,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary95",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8745098,
+              "green": 0.9529412,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9098039,
+              "green": 0.87058824,
+              "blue": 0.972549,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9098039,
+              "green": 0.87058824,
+              "blue": 0.972549,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9098039,
+              "green": 0.87058824,
+              "blue": 0.972549,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.7607843,
+              "green": 0.90588236,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.7607843,
+              "green": 0.90588236,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.7607843,
+              "green": 0.90588236,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.7607843,
+              "green": 0.90588236,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.2,
+              "green": 0.1764706,
+              "blue": 0.25490198,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.2,
+              "green": 0.1764706,
+              "blue": 0.25490198,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.2,
+              "green": 0.1764706,
+              "blue": 0.25490198,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.2,
+              "blue": 0.33333334,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.2,
+              "blue": 0.33333334,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary20",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.2,
+              "blue": 0.33333334,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.2901961,
+              "green": 0.26666668,
+              "blue": 0.34509805,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.2901961,
+              "green": 0.26666668,
+              "blue": 0.34509805,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.2901961,
+              "green": 0.26666668,
+              "blue": 0.34509805,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary30",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.2901961,
+              "blue": 0.46666667,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary30",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.2901961,
+              "blue": 0.46666667,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary30",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.2901961,
+              "blue": 0.46666667,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary30",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.2901961,
+              "blue": 0.46666667,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 7
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8,
+              "green": 0.7607843,
+              "blue": 0.8627451,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8,
+              "green": 0.7607843,
+              "blue": 0.8627451,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8,
+              "green": 0.7607843,
+              "blue": 0.8627451,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary80",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.49803922,
+              "green": 0.8117647,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary80",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.49803922,
+              "green": 0.8117647,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary80",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.49803922,
+              "green": 0.8117647,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary80",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.49803922,
+              "green": 0.8117647,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.38431373,
+              "green": 0.35686275,
+              "blue": 0.44313726,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.38431373,
+              "green": 0.35686275,
+              "blue": 0.44313726,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.38431373,
+              "green": 0.35686275,
+              "blue": 0.44313726,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary40",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.3882353,
+              "blue": 0.60784316,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary40",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.3882353,
+              "blue": 0.60784316,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary40",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.3882353,
+              "blue": 0.60784316,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.focus.indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.secondary",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.secondary40",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.3882353,
+              "blue": 0.60784316,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.menu-item.selected.shape",
+      "displayName": "Menu item selected shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Selected"
+      ],
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.medium"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.menu-item.selected.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.medium",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 12,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.icon-only.menu-item.bottom-space",
+      "displayName": "Menu horizontal icon only menu item bottom space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Horizontal icon-only"
+      ],
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space200"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.icon-only.menu-item.bottom-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space200",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 16,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.icon-only.menu-item.top-space",
+      "displayName": "Menu horizontal icon only menu item top space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Horizontal icon-only"
+      ],
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space200"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.icon-only.menu-item.top-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space200",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 16,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.icon-only.menu-item.trailing-space",
+      "displayName": "Menu horizontal icon only menu item trailing space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Horizontal icon-only"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space200"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.icon-only.menu-item.trailing-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space200",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 16,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.icon-only.menu-item.leading-space",
+      "displayName": "Menu horizontal icon only menu item leading space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Horizontal icon-only"
+      ],
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space200"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.icon-only.menu-item.leading-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space200",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 16,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.menu-item.bottom-space",
+      "displayName": "Menu horizontal menu item bottom space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Horizontal"
+      ],
+      "orderInDisplayGroup": 8,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space75"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.menu-item.bottom-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space75",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 6,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.menu-item.top-space",
+      "displayName": "Menu horizontal menu item top space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Horizontal"
+      ],
+      "orderInDisplayGroup": 7,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space75"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.menu-item.top-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space75",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 6,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.menu-item.between-space",
+      "displayName": "Menu horizontal menu item between space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Horizontal"
+      ],
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space150"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.menu-item.between-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space150",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 12,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.menu-item.trailing-space",
+      "displayName": "Menu horizontal menu item trailing space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Horizontal"
+      ],
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space150"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.menu-item.trailing-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space150",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 12,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.container.bottom-space",
+      "displayName": "Menu horizontal container bottom space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Horizontal"
+      ],
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space100"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.container.bottom-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space100",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 8,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.container.top-space",
+      "displayName": "Menu horizontal container top space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Layout",
+        "Horizontal"
+      ],
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space100"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.container.top-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space100",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 8,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.container.shape",
+      "displayName": "Menu container shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Default"
+      ],
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.large"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.container.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.large",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "value": 16,
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.menu-item.selected.pressed.shape",
+      "displayName": "Menu horizontal menu item selected pressed shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Horizontal, Selected"
+      ],
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.full"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.menu-item.selected.pressed.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.full",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_CIRCULAR"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.menu-item.selected.focused.shape",
+      "displayName": "Menu horizontal menu item selected focused shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Horizontal, Selected"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.full"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.menu-item.selected.focused.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.full",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_CIRCULAR"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.menu-item.selected.hovered.shape",
+      "displayName": "Menu horizontal menu item selected hovered shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Horizontal, Selected"
+      ],
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.full"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.menu-item.selected.hovered.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.full",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_CIRCULAR"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.menus.horizontal.icon-only.menu-item.selected.shape",
+      "displayName": "Menu horizontal icon only menu item selected shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "Shape",
+        "Horizontal icon-only, selected"
+      ],
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.full"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.menus.horizontal.icon-only.menu-item.selected.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.full",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_CIRCULAR"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

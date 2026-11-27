@@ -224,6 +224,21 @@
           }
         }
       ]
+    },
+    {
+      "tokenName": "md.sys.measurement.space500",
+      "displayName": "Space 500",
+      "tokenValueType": "LENGTH",
+      "description": "5 x base measurement",
+      "orderInDisplayGroup": 14,
+      "values": [
+        {
+          "length": {
+            "value": 40,
+            "unit": "DIPS"
+          }
+        }
+      ]
     }
   ]
 }

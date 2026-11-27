@@ -233,14 +233,14 @@ They replace point 5. A refusal names the table, the token and the field.
 
 - **Input:** each field the converter reads is present, with its type. Each tag id resolves to a tag and a group of the same table. Each tree's root is the token's own value.
   - A value has exactly one value field, a resolved value exactly one literal field, and an entry exactly one of `resolvedValue` and `resolvedCustomCompositeValue`. A value kind that upstream adds is then refused, and doesn't vanish through the allow list. Today's tables pass, with the fields ruled on above.
-- **References:** each `tokenName` in a value, `customComposite`'s properties included, and each node of a tree, names a token in the converted store.
+- **References:** each `tokenName` in a value, `customComposite`'s properties included, and each node of a tree, names a token in the converted store, unless it is a reference into another design system ([`RD-69`](#references-into-another-design-system)). Until `RD-69`, every reference had to name a stored token.
 - **Duplicates:** a token that more than one table carries has one copy that covers every other, and the store keeps that copy ([step 2 rulings](#rulings-for-steps-2-and-3)). A copy covers another when the two are identical, or when the other has no `contextualReferenceTree`, equals it in every field but `values`, and has only `values` entries that each equal a different entry of its `values`. Where no copy covers every other, the update is refused, naming both tables. Sets, context tag groups and display groups still convert to identical content.
   - In step 1, the converter kept the table that `DB.load()` reads first and listed each conflict. Each of those 704 copies was covered by the kept copy.
   - Until the step 2 rulings, this said: a token that more than one table carries _"converts to identical content"_. The 704 conflicts were put down to the mixed snapshot, _"the component tables are `35.0.28` and the system tables `37.0.32`"_, and _"from step 2 on, a conflict refuses the update"_. One release of one database has the same 704, so the mixed snapshot wasn't their cause.
 - **One release:** every table reports the same `versionName`. Step 1's legacy conversion is exempt and records both versions.
 - **Allow list and drop list:** at every depth, each key is kept by the allow list or named by the drop list, and a key in neither refuses the conversion. Inside a value field, keys and types match the schema exactly ([second rulings](#field-rulings-from-the-feature-proof)). A final scan refuses a store that holds an email address or a `gaiaId` key.
 - **Display groups:** no two groups of a set share a path, each `parentGroup` resolves to a group of the same set, and each token's group is a group of its set.
-- **Child values:** each child node's value is a value of that child's token in the store. Step 1's legacy conversion lists the exceptions.
+- **Child values:** each child node's value is a value of that child's token in the store, unless the node is a reference into another design system, which has no `value` index ([`RD-69`](#references-into-another-design-system)). Step 1's legacy conversion lists the exceptions. Until `RD-69`, the rule had no exception after step 1.
 
 ### The reader and the CSS layer
 
@@ -399,3 +399,23 @@ The rule for the three keys is the field rulings' rule. The store keeps every fi
   The comparison runs on a manifest whose database is edited, and on the real one.
 
 - **P9 after merge, owed:** a `workflow_dispatch` run is possible only once the workflow is on `main`. With the compared database edited, as on a scratch ref dispatched with `--ref`, a run opens exactly one issue, and a second run adds nothing. It runs on the owner's go, its result goes into `RD-28`, and the coordinator closes the issue it opens.
+
+### References into another design system
+
+**Ruled 2026-11-27 by the architect, as [`RD-69`](../decisions/RD-69.md),** on the owner's answer (a′) to #335's question, relayed by the coordinator. #335's update refused the Progress indicators table, `TOKEN_TABLE.6f51f7ab7775a392`, because 8 deprecated tokens reference `goog.ref.brand-color.*`, which no table of the store carries ([transcript](../component-tables-1/checks/token-tables.txt), refusal 2).
+
+**What the architect read,** in memory from release `2026-11-19_06-20-01`, database `41.1.12`. The probes and their output are in [`foreign-references.txt`](../component-tables-1/checks/foreign-references.txt).
+
+- **The tokens:** `md.comp.{linear,circular}-progress-indicator.four-color.active-indicator.{one,two,three,four}.color`, in the two `[Deprecated]` sets, each with a `deprecationMessage`. No other token of the table reaches another system.
+- **Their values:** each has a reference to `md.sys.color.*` tagged `audience: 3p`, and one to `goog.ref.brand-color.{blue,red,yellow,green}` with no tags. That value's keys are `name`, `tokenName` and `state`, and its own id is in Material 3's system, `designSystems/20543ce18892f7d9/`.
+- **Their trees:** 56 entries, each tagged `audience: 1p.baseline`, reach the other system. Their 112 nodes in it are `goog.ref.brand-color.*` at depth 1 and `goog.ref.brand-palette.*-500` at depth 2, and each node's value id starts `designSystems/1b063509fc205e38/`. Every other node's value id is in Material 3's system.
+- **The other system:** `COLOR.1b063509fc205e38.json` is served at the release, as system _"Google Brand Colors"_, version `v0.01`, with one set, `goog.ref.brand-color`, of 4 literal tokens. Its `ELEVATION`, `TYPOGRAPHY`, `SHAPE`, `MOTION` and `TOKEN_TYPE_UNSPECIFIED` tables have no tokens. No served table carries `goog.ref.brand-palette.*`.
+- **The selection:** in tproc's rendered context, each of the 8 tokens has one entry, tagged `audience: 3p`, and it references `md.sys.color.*`.
+
+**The rule** is `RD-69`'s properties. A reference into another system is recognised by the value id of a tree node, and a `values` entry by the node that names its `tokenName`. It is stored as upstream gives it, without a `value` index, and the reference and child-value checks skip it. Every other reference is checked as before.
+
+**The proofs added to step 2:**
+
+- **P5, admitted:** a table whose token references another system's token, in a `values` entry and in a tree node with another system's value id, converts. The store keeps the name, and the node has no `value` index.
+- **P5, still refused:** a missing reference whose node has Material 3's value id, and a `values` reference that no node of another system names. Each is refused with `names <token>, not in the store`.
+- **The 20th table:** the manifest gains Progress indicators. The update from the same release converts it, the report lists its sets, and material-x's 44 generated stylesheets are byte-identical.

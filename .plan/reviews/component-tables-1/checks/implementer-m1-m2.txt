@@ -1,0 +1,8 @@
+== M1 (implementer's): scripts/convert.ts at 64bdc23e5
+     × should store a reference into another design system as upstream gives it 8ms
+     × should give another design system's tree node no value index 2ms
+      Tests  2 failed | 4 passed | 47 skipped (53)
+== M2 (implementer's): checkReferences refuses nothing
+     × should refuse a missing reference whose node has the table's own system 9ms
+     × should refuse a values reference that no node of another system names 3ms
+      Tests  2 failed | 4 passed | 47 skipped (53)

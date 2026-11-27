@@ -1,0 +1,17 @@
+== unmutated: exit 0; Tests  3 passed | 53 skipped (56)
+== R1: exit 1; Tests  1 failed | 2 passed | 53 skipped (56)
+   × probe: should refuse a node with Material 3's id below another system's node 4ms
+     AssertionError: expected [Function] to not throw an error but 'Error: TOKEN_TABLE.c1: md.comp.test.a…' was thrown
+     - Expected:
+     + Received:
+== R2: exit 1; Tests  1 failed | 2 passed | 53 skipped (56)
+   × probe: should refuse a missing reference whose child node has no value id 10ms
+     AssertionError: expected [Function] to throw an error
+     - Expected:
+     + Received:
+== R3: exit 1; Tests  1 failed | 2 passed | 53 skipped (56)
+   × probe: should refuse a values reference that only another token's foreign node names 4ms
+     AssertionError: expected [Function] to throw an error
+     - Expected:
+     + Received:
+restored: true

@@ -1,0 +1,828 @@
+{
+  "tokenSetName": "md.comp.nav-rail.collapsed",
+  "displayName": "Nav rail - Collapsed",
+  "description": "For collapsed nav rail.",
+  "tokenType": "COMPONENT",
+  "custom": {
+    "token_class": "COMPONENT"
+  },
+  "order": 1,
+  "tokens": [
+    {
+      "tokenName": "md.comp.nav-rail.collapsed.container.color",
+      "displayName": "Nav rail collapsed container color",
+      "tokenValueType": "COLOR",
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "tokenName": "md.sys.color.surface"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral100",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 1,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.078431375,
+              "green": 0.07058824,
+              "blue": 0.09411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.078431375,
+              "green": 0.07058824,
+              "blue": 0.09411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.078431375,
+              "green": 0.07058824,
+              "blue": 0.09411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral6",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.07450981,
+              "green": 0.07450981,
+              "blue": 0.078431375,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral98",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.96862745,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral98",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.96862745,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral98",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.96862745,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.nav-rail.collapsed.item.vertical-space",
+      "displayName": "Nav rail collapsed item vertical space",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space50"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.item.vertical-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space50",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.nav-rail.collapsed.container.width",
+      "displayName": "Nav rail collapsed container width",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "length": {
+            "value": 96,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.width"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 96,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.nav-rail.collapsed.container.elevation",
+      "displayName": "Nav rail collapsed container elevation",
+      "tokenValueType": "ELEVATION",
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "tokenName": "md.sys.elevation.level0"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.elevation",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.elevation.level0",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "elevation": {
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.nav-rail.collapsed.container.shape",
+      "displayName": "Nav rail collapsed container shape",
+      "tokenValueType": "SHAPE",
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.none"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.container.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.none",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.nav-rail.collapsed.top-space",
+      "displayName": "Nav rail collapsed item top space",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 7,
+      "values": [
+        {
+          "length": {
+            "value": 44,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.top-space"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 44,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.nav-rail.collapsed.narrow.container.width",
+      "displayName": "Nav rail collapsed narrow container width",
+      "tokenValueType": "LENGTH",
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "length": {
+            "value": 80,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.nav-rail.collapsed.narrow.container.width"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 80,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

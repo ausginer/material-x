@@ -1,0 +1,50 @@
+// The recheck's run of the feature proof's R1 to R3 on #340 at dd2726300,
+// against the whole of convert.node.test.ts. The tree is a `git archive` of
+// dd2726300 (the root's files, packages/tproc and drag's test support) in the
+// reviewer's scratchpad, with slot b's installed node_modules linked in, and
+// scripts/convert.ts is restored from memory after each run.
+// Predicted, before the run: each mutation fails exactly its own new row.
+import { spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const DIR = process.argv[2];
+const SOURCE = `${DIR}/scripts/convert.ts`;
+
+const variants = [
+  ['unmutated', [], 'none'],
+  ['R1', [['let foreign = belowForeign;', 'let foreign = false;']],
+    "should store unchecked a node with the table's own value id below another system's node"],
+  ['R2', [[
+    'foreign ||= id != null && !id.startsWith(this.designSystem);',
+    'foreign ||= id == null || !id.startsWith(this.designSystem);',
+  ]], 'should refuse a missing reference whose node has no value id'],
+  ['R3', [
+    ['const foreignNames = new Set<string>();', 'const foreignNames = globalForeign;'],
+    ['  const names = new Set(', '  const globalForeign = new Set<string>();\n  const names = new Set('],
+  ], "should refuse a values reference that only another token's node of another system names"],
+];
+
+const source = readFileSync(SOURCE, 'utf8');
+try {
+  for (const [name, edits, predicted] of variants) {
+    let text = source;
+    for (const [from, to] of edits) {
+      if (text.split(from).length !== 2) throw new Error(`${name}: not unique`);
+      text = text.replace(from, to);
+    }
+    writeFileSync(SOURCE, text);
+    const run = spawnSync(
+      '../../node_modules/.bin/vitest',
+      ['run', '-c', 'vitest.config.ts', 'tests/scripts/convert.node.test.ts'],
+      { cwd: DIR, encoding: 'utf8' },
+    );
+    const out = (run.stdout + run.stderr).replaceAll(/\x1b\[[0-9;]*m/g, '');
+    console.log(`== ${name}: exit ${run.status}; ${out.split('\n').find((l) => /^\s+Tests\s/.test(l))?.trim()}`);
+    console.log(`   predicted to fail: ${predicted}`);
+    for (const line of out.split('\n').filter((l) => /^\s+×/.test(l))) console.log(`   ${line.trim()}`);
+    for (const line of out.split('\n').filter((l) => /^(Error|AssertionError):/.test(l.trim()))) console.log(`     ${line.trim()}`);
+  }
+} finally {
+  writeFileSync(SOURCE, source);
+}
+console.log('restored:', readFileSync(SOURCE, 'utf8') === source);

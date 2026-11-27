@@ -1,0 +1,25 @@
+# RD-69's witnesses, by the implementer, 2026-11-27, on tproc/component-tables-1 after 64bdc23e5.
+# packages/tproc: aube exec just test tests/scripts/convert.node.test.ts -t "another design system", with scripts/convert.ts unmutated and under each mutation, restored after each.
+# M1 is convert.ts at 64bdc23e5. M2 makes checkReferences refuse nothing. M3 admits a values reference when any tree node of the token is another system's.
+# M4 reads another system from a name without the md. prefix, in place of the value id.
+
+== unmutated
+      Tests  6 passed | 47 skipped (53)
+== M1: the converter before RD-69
+     × should store a reference into another design system as upstream gives it
+     × should give another design system's tree node no value index
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  2 failed | 4 passed | 47 skipped (53)
+== M2: every missing name admitted
+     × should refuse a missing reference whose node has the table's own system
+     × should refuse a values reference that no node of another system names
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  2 failed | 4 passed | 47 skipped (53)
+== M3: a values reference admitted when any node of the token is another system's
+     × should refuse a values reference that no node of another system names
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 5 passed | 47 skipped (53)
+== M4: another system read from the name's prefix, not the value id
+     × should refuse a missing reference whose node has the table's own system
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 5 passed | 47 skipped (53)
