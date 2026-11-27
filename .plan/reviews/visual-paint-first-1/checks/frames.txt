@@ -1,0 +1,69 @@
+# Feature proof of #346 at 1edc36b27, slot d, local, 2026-11-27: probes/zz-proof-frames.browser.test.ts.txt, one engine at a time.
+# nextPaint()'s two requestAnimationFrame callbacks, 20 times after appending an mx-button: performance.now() at the call, and each callback's frame timestamp.
+# Firefox's timestamp is its refresh tick's time, which can precede a call made late in the previous tick; the gap between the two callbacks is positive in every sample.
+
+# chromium: the second frame is a later rendering update in 20 of 20
+ 0 call 2051.1 first 2057.2 second 2073.9 gap 16.7 ms
+ 1 call 2076.4 first 2090.4 second 2107.1 gap 16.7 ms
+ 2 call 2109.7 first 2123.8 second 2140.5 gap 16.7 ms
+ 3 call 2143.0 first 2157.1 second 2173.8 gap 16.7 ms
+ 4 call 2176.4 first 2190.5 second 2207.2 gap 16.7 ms
+ 5 call 2209.8 first 2223.8 second 2240.4 gap 16.6 ms
+ 6 call 2243.0 first 2257.1 second 2273.8 gap 16.7 ms
+ 7 call 2276.4 first 2290.4 second 2307.1 gap 16.7 ms
+ 8 call 2310.2 first 2323.7 second 2340.5 gap 16.8 ms
+ 9 call 2343.4 first 2357.1 second 2373.8 gap 16.7 ms
+10 call 2376.8 first 2390.4 second 2407.1 gap 16.7 ms
+11 call 2410.3 first 2423.8 second 2440.5 gap 16.7 ms
+12 call 2443.3 first 2457.1 second 2473.8 gap 16.7 ms
+13 call 2476.6 first 2490.5 second 2507.1 gap 16.6 ms
+14 call 2509.7 first 2523.8 second 2540.5 gap 16.7 ms
+15 call 2542.9 first 2557.1 second 2573.8 gap 16.7 ms
+16 call 2576.9 first 2590.5 second 2607.1 gap 16.6 ms
+17 call 2609.8 first 2623.8 second 2640.5 gap 16.7 ms
+18 call 2643.6 first 2657.1 second 2673.8 gap 16.7 ms
+19 call 2676.6 first 2690.5 second 2707.1 gap 16.6 ms
+
+# firefox: the second frame is a later rendering update in 20 of 20
+ 0 call 3218.0 first 3082.4 second 3216.2 gap 133.8 ms
+ 1 call 3231.0 first 3300.1 second 3316.4 gap 16.2 ms
+ 2 call 3320.0 first 3349.8 second 3366.1 gap 16.2 ms
+ 3 call 3377.0 first 3383.5 second 3400.1 gap 16.7 ms
+ 4 call 3413.0 first 3416.8 second 3432.7 gap 15.9 ms
+ 5 call 3436.0 first 3449.8 second 3465.9 gap 16.1 ms
+ 6 call 3487.0 first 3483.5 second 3499.8 gap 16.4 ms
+ 7 call 3523.0 first 3516.1 second 3533.5 gap 17.4 ms
+ 8 call 3542.0 first 3550.1 second 3566.8 gap 16.7 ms
+ 9 call 3575.0 first 3583.5 second 3600.1 gap 16.7 ms
+10 call 3619.0 first 3616.8 second 3633.5 gap 16.7 ms
+11 call 3640.0 first 3649.9 second 3666.2 gap 16.3 ms
+12 call 3669.0 first 3683.5 second 3700.0 gap 16.5 ms
+13 call 3702.0 first 3716.8 second 3733.5 gap 16.7 ms
+14 call 3736.0 first 3750.1 second 3766.8 gap 16.7 ms
+15 call 3795.0 first 3783.5 second 3800.1 gap 16.7 ms
+16 call 3815.0 first 3816.3 second 3833.5 gap 17.1 ms
+17 call 3837.0 first 3849.7 second 3866.8 gap 17.1 ms
+18 call 3870.0 first 3883.0 second 3900.1 gap 17.1 ms
+19 call 3904.0 first 3916.8 second 3932.9 gap 16.1 ms
+
+# webkit: the second frame is a later rendering update in 20 of 20
+ 0 call 2067.0 first 2077.0 second 2106.0 gap 29.0 ms
+ 1 call 2107.0 first 2114.0 second 2124.0 gap 10.0 ms
+ 2 call 2125.0 first 2141.0 second 2157.0 gap 16.0 ms
+ 3 call 2158.0 first 2173.0 second 2192.0 gap 19.0 ms
+ 4 call 2193.0 first 2211.0 second 2223.0 gap 12.0 ms
+ 5 call 2223.0 first 2239.0 second 2255.0 gap 16.0 ms
+ 6 call 2256.0 first 2271.0 second 2287.0 gap 16.0 ms
+ 7 call 2288.0 first 2303.0 second 2319.0 gap 16.0 ms
+ 8 call 2320.0 first 2335.0 second 2352.0 gap 17.0 ms
+ 9 call 2352.0 first 2368.0 second 2384.0 gap 16.0 ms
+10 call 2385.0 first 2400.0 second 2416.0 gap 16.0 ms
+11 call 2417.0 first 2434.0 second 2450.0 gap 16.0 ms
+12 call 2451.0 first 2466.0 second 2482.0 gap 16.0 ms
+13 call 2483.0 first 2500.0 second 2516.0 gap 16.0 ms
+14 call 2516.0 first 2534.0 second 2550.0 gap 16.0 ms
+15 call 2551.0 first 2564.0 second 2580.0 gap 16.0 ms
+16 call 2581.0 first 2596.0 second 2612.0 gap 16.0 ms
+17 call 2613.0 first 2629.0 second 2645.0 gap 16.0 ms
+18 call 2645.0 first 2661.0 second 2678.0 gap 17.0 ms
+19 call 2679.0 first 2694.0 second 2710.0 gap 16.0 ms

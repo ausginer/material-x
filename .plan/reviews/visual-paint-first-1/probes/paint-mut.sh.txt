@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Feature proof of #346 (RF-159): runs the implementer's witness probe
+# (.plan/visual-paint-first-1/probes/paint-first-rows.browser.test.ts.txt) in Chromium with
+# tests/browser.ts' nextPaint() body replaced. Usage: paint-mut.sh <name>... ; head = unmutated.
+set -uo pipefail
+W=/workspaces/worktrees/d/packages/material-x
+S=/tmp/claude-1000/-workspaces-material-x/10f66da6-3309-4006-946a-c4ce58d969cf/scratchpad/vp
+B=tests/browser.ts
+OLD='export async function nextPaint(): Promise<void> {\n  await nextFrame();\n  await nextFrame();\n}'
+cd "${W:?}" || exit 1
+cp ../../.plan/visual-paint-first-1/probes/paint-first-rows.browser.test.ts.txt tests/zz-probe-rf159.browser.test.ts
+for name in "$@"; do
+  case "$name" in
+    head) new='' ;;
+    no-wait) new='export async function nextPaint(): Promise<void> {}' ;;
+    one-frame) new='export async function nextPaint(): Promise<void> {\n  await nextFrame();\n}' ;;
+    timeout-0) new='export async function nextPaint(): Promise<void> {\n  await new Promise((r) => setTimeout(r, 0));\n}' ;;
+    timeout-50) new='export async function nextPaint(): Promise<void> {\n  await new Promise((r) => setTimeout(r, 50));\n}' ;;
+    *) echo "unknown $name"; continue ;;
+  esac
+  [[ -n $new ]] && { python3 -I "${S:?}/edit.py" $B "$OLD" "$new" || continue; }
+  echo "== $name"; git diff -U0 -- $B | grep -E '^[-+][^-+]' | sed 's/^/  /'
+  MX_TEST_ENGINES=chromium timeout 900 aube exec just test tests/zz-probe-rf159.browser.test.ts > "${S:?}/run-$name.log" 2>&1; echo "  exit $?"
+  mv zz-probe-rf159.txt "${S:?}/rows-$name.txt" 2>/dev/null && sed 's/ apex=.*//' "${S:?}/rows-$name.txt" | sed 's/^/  /'
+  git checkout -q -- $B
+done
+rm -f tests/zz-probe-rf159.browser.test.ts
+git -C "${W:?}" status --short
