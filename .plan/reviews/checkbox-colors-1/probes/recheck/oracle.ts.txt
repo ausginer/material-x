@@ -1,0 +1,5 @@
+// The outline rows' oracle: checkbox.defaultTokens' effective outline.color per state.
+import { defaultTokens } from './src/checkbox/styles/default/tokens.ts';
+for (const s of ['default', 'unselected.hover', 'unselected.focus', 'unselected.pressed']) {
+  console.log(s.padEnd(20), String(defaultTokens.value.effective(s)?.['outline.color'] ?? '(none)'));
+}

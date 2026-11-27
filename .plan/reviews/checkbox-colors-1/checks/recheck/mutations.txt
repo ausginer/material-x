@@ -1,0 +1,127 @@
+# Recheck of #338 at 2642a3baf, slot d, 2026-11-27: mutations of the checkbox's style modules and stylesheet (probes/recheck/mutate.sh.txt).
+# For each: the compiled sheet's lines that differ from the head's (< head, > mutated), then the spec file's result per engine (checkbox.spec.browser.test.ts, 31 rows).
+# Each engine ran alone, one file at a time. Styles restored from HEAD after each.
+
+== no-press-rule
+  sheet < :host .ripple:after {
+  sheet <   background-color: var(--_press-layer-color);
+  sheet <   opacity: var(--_press-layer-opacity);
+  sheet < }
+  sheet < 
+  chromium  Tests  5 failed | 26 passed (31)
+              × should draw the keyboard press wave as the pressed state layer when unselected
+              × should draw the keyboard press wave as the pressed state layer when checked
+              × should draw the keyboard press wave as the pressed state layer when indeterminate
+              × should draw the pointer press wave at the pressed state layer opacity when unselected
+              × should draw the pointer press wave at the pressed state layer opacity when checked
+  firefox   Tests  5 failed | 26 passed (31)
+              × should draw the keyboard press wave as the pressed state layer when unselected
+              × should draw the keyboard press wave as the pressed state layer when checked
+              × should draw the keyboard press wave as the pressed state layer when indeterminate
+              × should draw the pointer press wave at the pressed state layer opacity when unselected
+              × should draw the pointer press wave at the pressed state layer opacity when checked
+  webkit    Tests  5 failed | 26 passed (31)
+              × should draw the keyboard press wave as the pressed state layer when unselected
+              × should draw the keyboard press wave as the pressed state layer when checked
+              × should draw the keyboard press wave as the pressed state layer when indeterminate
+              × should draw the pointer press wave at the pressed state layer opacity when unselected
+              × should draw the pointer press wave at the pressed state layer opacity when checked
+
+== no-press-color
+  sheet <   background-color: var(--_press-layer-color);
+  chromium  Tests  3 failed | 28 passed (31)
+              × should draw the keyboard press wave as the pressed state layer when unselected
+              × should draw the keyboard press wave as the pressed state layer when checked
+              × should draw the keyboard press wave as the pressed state layer when indeterminate
+
+== no-press-opacity
+  sheet <   opacity: var(--_press-layer-opacity);
+  chromium  Tests  2 failed | 29 passed (31)
+              × should draw the pointer press wave at the pressed state layer opacity when unselected
+              × should draw the pointer press wave at the pressed state layer opacity when checked
+
+== no-unselected-press
+  sheet <   --_press-layer-color: var(--md-sys-color-primary, #3e6700);
+  sheet <   --_press-layer-opacity: 0.1;
+  sheet >   --_press-layer-opacity: 0.1;
+  chromium  Tests  3 failed | 28 passed (31)
+              × should color the press ripple with the unselected pressed state layer
+              × should draw the keyboard press wave as the pressed state layer when unselected
+              × should draw the pointer press wave at the pressed state layer opacity when unselected
+
+== no-selected-press
+  sheet <   --_press-layer-color: var(--md-sys-color-on-surface, #191d13);
+  chromium  Tests  2 failed | 29 passed (31)
+              × should draw the keyboard press wave as the pressed state layer when checked
+              × should draw the keyboard press wave as the pressed state layer when indeterminate
+
+== no-error-press
+  sheet <   --_press-layer-color: var(--md-sys-color-error, #ba1a1a);
+  sheet <   --_press-layer-opacity: 0.1;
+  chromium  Tests  3 failed | 28 passed (31)
+              × should color the press ripple with the pressed error state layer when unselected
+              × should color the press ripple with the pressed error state layer when checked
+              × should color the press ripple with the pressed error state layer when indeterminate
+  firefox   Tests  3 failed | 28 passed (31)
+              × should color the press ripple with the pressed error state layer when unselected
+              × should color the press ripple with the pressed error state layer when checked
+              × should color the press ripple with the pressed error state layer when indeterminate
+  webkit    Tests  3 failed | 28 passed (31)
+              × should color the press ripple with the pressed error state layer when unselected
+              × should color the press ripple with the pressed error state layer when checked
+              × should color the press ripple with the pressed error state layer when indeterminate
+
+== no-uhover-outline
+  sheet <   --_outline-color: var(--md-sys-color-on-surface, #191d13);
+  chromium  Tests  31 passed (31)
+  firefox   Tests  31 passed (31)
+  webkit    Tests  31 passed (31)
+
+== no-ufocus-outline
+  sheet <   --_outline-color: var(--md-sys-color-on-surface, #191d13);
+  sheet >   --_outline-color: var(--md-sys-color-on-surface, #191d13);
+  chromium  Tests  31 passed (31)
+  firefox   Tests  31 passed (31)
+  webkit    Tests  31 passed (31)
+
+== no-upressed-outline
+  sheet: identical to the head's
+  chromium  Tests  31 passed (31)
+
+== no-outline-appends
+  sheet <   --_outline-color: var(--md-sys-color-on-surface, #191d13);
+  sheet <   --_outline-color: var(--md-sys-color-on-surface, #191d13);
+  chromium  Tests  31 passed (31)
+  firefox   Tests  31 passed (31)
+  webkit    Tests  31 passed (31)
+
+== upressed-no-parents
+  sheet <   --_state-layer-color: var(--md-sys-color-primary, #3e6700);
+  sheet >   --_outline-color: var(--md-sys-color-on-surface, #191d13);
+  chromium  Tests  31 passed (31)
+  firefox   Tests  31 passed (31)
+  webkit    Tests  31 passed (31)
+
+== sel-focus-no-ufocus
+  sheet < :host(:state(indeterminate):hover),
+  sheet < :host(:state(checked):focus-within),
+  sheet < :host(:state(indeterminate):focus-within) {
+  sheet > :host(:state(indeterminate):hover) {
+  chromium  Tests  31 passed (31)
+  firefox   Tests  31 passed (31)
+  webkit    Tests  31 passed (31)
+
+== ext-base
+  sheet <   --_state-layer-color: var(--md-sys-color-primary, #3e6700);
+  sheet >   --_outline-color: var(--md-sys-color-on-surface, #191d13);
+  sheet < :host(:state(indeterminate):hover),
+  sheet < :host(:state(checked):focus-within),
+  sheet < :host(:state(indeterminate):focus-within) {
+  sheet <   --_state-layer-color: var(--md-sys-color-primary, #3e6700);
+  sheet > :host(:state(indeterminate):hover) {
+  sheet >   --_state-layer-opacity: 0.08;
+  chromium  Tests  2 failed | 29 passed (31)
+              × should draw the selected hovered state layer color when checked
+              × should draw the selected hovered state layer color when indeterminate
+
+== sel-hover-no-uhover: not run; its exact-once edit matches twice in the head's utils.ts. utils.ts doesn't change in 2642a3baf, and ext-base kills the two hover rows.

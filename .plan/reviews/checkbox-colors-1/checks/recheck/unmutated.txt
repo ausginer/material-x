@@ -1,0 +1,3 @@
+# aube exec just test tests/checkbox/checkbox.spec.browser.test.ts tests/checkbox/checkbox.browser.test.ts tests/core/animations/ripple.browser.test.ts, at 2642a3baf, Chromium, unmutated, slot d, 2026-11-27.
+ Test Files  3 passed (3)
+      Tests  76 passed (76)

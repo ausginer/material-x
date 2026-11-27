@@ -1,0 +1,12 @@
+# md.comp.checkbox tokens that RF-157's ruling names, in the store's rendered context (probes/recheck/tokens.ts.txt, run from packages/tproc). md.sys.state.pressed.state-layer-opacity renders 0.1 in the compiled sheet.
+unselected.pressed.state-layer.color       {"tokenName":"md.sys.color.primary"}
+unselected.pressed.state-layer.opacity     {"tokenName":"md.sys.state.pressed.state-layer-opacity"}
+selected.pressed.state-layer.color         {"tokenName":"md.sys.color.on-surface"}
+selected.pressed.state-layer.opacity       {"tokenName":"md.sys.state.pressed.state-layer-opacity"}
+error.pressed.state-layer.color            {"tokenName":"md.sys.color.error"}
+error.pressed.state-layer.opacity          {"tokenName":"md.sys.state.pressed.state-layer-opacity"}
+unselected.outline.color                   {"tokenName":"md.sys.color.on-surface-variant"}
+unselected.hover.outline.color             {"tokenName":"md.sys.color.on-surface"}
+unselected.focus.outline.color             {"tokenName":"md.sys.color.on-surface"}
+unselected.pressed.outline.color           {"tokenName":"md.sys.color.on-surface"}
+unselected.disabled.outline.color          {"tokenName":"md.sys.color.on-surface"}

@@ -1,0 +1,14 @@
+// The checkbox tokens that RF-157's ruling names: each pressed state layer, and each outline colour.
+import store from '@ydinjs/tproc/store/index.js';
+const names = [
+  'unselected.pressed.state-layer.color', 'unselected.pressed.state-layer.opacity',
+  'selected.pressed.state-layer.color', 'selected.pressed.state-layer.opacity',
+  'error.pressed.state-layer.color', 'error.pressed.state-layer.opacity',
+  'unselected.outline.color', 'unselected.hover.outline.color', 'unselected.focus.outline.color',
+  'unselected.pressed.outline.color', 'unselected.disabled.outline.color',
+];
+for (const n of names) {
+  const t = store.getToken(`md.comp.checkbox.${n}`);
+  const s = t && store.select(t);
+  console.log(n.padEnd(42), t ? `${JSON.stringify(s?.value)}${store.isTokenDeprecated(t) ? ' DEPRECATED' : ''}` : 'MISSING');
+}

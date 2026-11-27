@@ -1,0 +1,9 @@
+# edit.py <file> <old> [<new>]: replaces <old>, which must occur exactly once, with <new> (default: nothing).
+import sys
+path, old = sys.argv[1], sys.argv[2].encode().decode('unicode_escape')
+new = (sys.argv[3] if len(sys.argv) > 3 else '').encode().decode('unicode_escape')
+text = open(path).read()
+n = text.count(old)
+if n != 1:
+    sys.exit(f'  EDIT DID NOT APPLY ({n} matches): {old!r}')
+open(path, 'w').write(text.replace(old, new))

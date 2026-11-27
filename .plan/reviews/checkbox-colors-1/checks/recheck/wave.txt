@@ -1,0 +1,169 @@
+# Recheck of #338 at 2642a3baf, slot d, 2026-11-27: the press wave (the ripple's ::after), probes/recheck/zz-proof-wave.browser.test.ts.txt, summarized by fmt-wave.py.txt.
+# head = 2642a3baf. 29f5597d6 and bec75d638 (origin/main, whose checkbox styles and ripple are 2ed4b96ab's) = the head with that commit's utils.ts, default/tokens.ts and default/main.styles.css.
+# 'visible' lists, in order, each (selection, the host's pseudo-classes, wave colour) while the wave has a width. 'space-toggle' has a consumer that toggles the selection on change.
+# primary rgb(62, 103, 0), on-surface rgb(25, 29, 19), error rgb(186, 26, 26). Frames are requestAnimationFrame ticks after the command returns.
+
+## wave-head-chromium.json
+  unselected space                 visible: unselected :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  unselected space-toggle          visible: checked :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  unselected click                 visible: unselected :hover :focus-within :active rgb(62, 103, 0) -> unselected :hover :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  unselected press-out             held       unselected    :hover :focus-within :active   outline rgb(25, 29, 19)
+  unselected press-out             moved-out  unselected    :focus-within :active          outline rgb(25, 29, 19) focus=true
+  unselected error space           visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error space-toggle    visible: checked :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error click           visible: unselected :hover :focus-within :active rgb(186, 26, 26) -> unselected :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error press-out       held       unselected    :hover :focus-within :active   outline rgb(186, 26, 26)
+  unselected error press-out       moved-out  unselected    :focus-within :active          outline rgb(186, 26, 26) focus=true
+  checked space                    visible: checked :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  checked space-toggle             visible: unselected :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  checked click                    visible: checked :hover :focus-within :active rgb(25, 29, 19) -> checked :hover :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  checked press-out                held       checked       :hover :focus-within :active   outline rgb(62, 103, 0)
+  checked press-out                moved-out  checked       :focus-within :active          outline rgb(62, 103, 0) focus=true
+  checked error space              visible: checked :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error space-toggle       visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error click              visible: checked :hover :focus-within :active rgb(186, 26, 26) -> checked :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error press-out          held       checked       :hover :focus-within :active   outline rgb(186, 26, 26)
+  checked error press-out          moved-out  checked       :focus-within :active          outline rgb(186, 26, 26) focus=true
+  indeterminate space              visible: indeterminate :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  indeterminate space-toggle       visible: unselected :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  indeterminate click              visible: indeterminate :hover :focus-within :active rgb(25, 29, 19) -> indeterminate :hover :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  indeterminate press-out          held       indeterminate :hover :focus-within :active   outline rgb(62, 103, 0)
+  indeterminate press-out          moved-out  indeterminate :focus-within :active          outline rgb(62, 103, 0) focus=true
+  indeterminate error space        visible: indeterminate :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error space-toggle visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error click        visible: indeterminate :hover :focus-within :active rgb(186, 26, 26) -> indeterminate :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error press-out    held       indeterminate :hover :focus-within :active   outline rgb(186, 26, 26)
+  indeterminate error press-out    moved-out  indeterminate :focus-within :active          outline rgb(186, 26, 26) focus=true
+
+## wave-head-firefox.json
+  unselected space                 visible: unselected :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  unselected space-toggle          visible: checked :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  unselected click                 visible: unselected :hover :focus-within :active rgb(62, 103, 0) -> unselected :hover :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  unselected press-out             held       unselected    :hover :focus-within :active   outline rgb(25, 29, 19)
+  unselected press-out             moved-out  unselected    :focus-within :active          outline rgb(25, 29, 19) focus=true
+  unselected error space           visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error space-toggle    visible: checked :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error click           visible: unselected :hover :focus-within :active rgb(186, 26, 26) -> unselected :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error press-out       held       unselected    :hover :focus-within :active   outline rgb(186, 26, 26)
+  unselected error press-out       moved-out  unselected    :focus-within :active          outline rgb(186, 26, 26) focus=true
+  checked space                    visible: checked :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  checked space-toggle             visible: unselected :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  checked click                    visible: checked :hover :focus-within :active rgb(25, 29, 19) -> checked :hover :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  checked press-out                held       checked       :hover :focus-within :active   outline rgb(62, 103, 0)
+  checked press-out                moved-out  checked       :focus-within :active          outline rgb(62, 103, 0) focus=true
+  checked error space              visible: checked :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error space-toggle       visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error click              visible: checked :hover :focus-within :active rgb(186, 26, 26) -> checked :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error press-out          held       checked       :hover :focus-within :active   outline rgb(186, 26, 26)
+  checked error press-out          moved-out  checked       :focus-within :active          outline rgb(186, 26, 26) focus=true
+  indeterminate space              visible: indeterminate :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  indeterminate space-toggle       visible: unselected :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  indeterminate click              visible: indeterminate :hover :focus-within :active rgb(25, 29, 19) -> indeterminate :hover :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  indeterminate press-out          held       indeterminate :hover :focus-within :active   outline rgb(62, 103, 0)
+  indeterminate press-out          moved-out  indeterminate :focus-within :active          outline rgb(62, 103, 0) focus=true
+  indeterminate error space        visible: indeterminate :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error space-toggle visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error click        visible: indeterminate :hover :focus-within :active rgb(186, 26, 26) -> indeterminate :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error press-out    held       indeterminate :hover :focus-within :active   outline rgb(186, 26, 26)
+  indeterminate error press-out    moved-out  indeterminate :focus-within :active          outline rgb(186, 26, 26) focus=true
+
+## wave-head-webkit.json
+  unselected space                 visible: unselected :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  unselected space-toggle          visible: checked :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  unselected click                 visible: unselected :hover :focus-within :active rgb(62, 103, 0) -> unselected :hover :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  unselected press-out             held       unselected    :hover :focus-within :active   outline rgb(25, 29, 19)
+  unselected press-out             moved-out  unselected    :focus-within :active          outline rgb(25, 29, 19) focus=true
+  unselected error space           visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error space-toggle    visible: checked :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error click           visible: unselected :hover :focus-within :active rgb(186, 26, 26) -> unselected :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error press-out       held       unselected    :hover :focus-within :active   outline rgb(186, 26, 26)
+  unselected error press-out       moved-out  unselected    :focus-within :active          outline rgb(186, 26, 26) focus=true
+  checked space                    visible: checked :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  checked space-toggle             visible: unselected :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  checked click                    visible: checked :hover :focus-within :active rgb(25, 29, 19) -> checked :hover :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  checked press-out                held       checked       :hover :focus-within :active   outline rgb(62, 103, 0)
+  checked press-out                moved-out  checked       :focus-within :active          outline rgb(62, 103, 0) focus=true
+  checked error space              visible: checked :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error space-toggle       visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error click              visible: checked :hover :focus-within :active rgb(186, 26, 26) -> checked :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error press-out          held       checked       :hover :focus-within :active   outline rgb(186, 26, 26)
+  checked error press-out          moved-out  checked       :focus-within :active          outline rgb(186, 26, 26) focus=true
+  indeterminate space              visible: indeterminate :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  indeterminate space-toggle       visible: unselected :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  indeterminate click              visible: indeterminate :hover :focus-within :active rgb(25, 29, 19) -> indeterminate :hover :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  indeterminate press-out          held       indeterminate :hover :focus-within :active   outline rgb(62, 103, 0)
+  indeterminate press-out          moved-out  indeterminate :focus-within :active          outline rgb(62, 103, 0) focus=true
+  indeterminate error space        visible: indeterminate :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error space-toggle visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error click        visible: indeterminate :hover :focus-within :active rgb(186, 26, 26) -> indeterminate :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error press-out    held       indeterminate :hover :focus-within :active   outline rgb(186, 26, 26)
+  indeterminate error press-out    moved-out  indeterminate :focus-within :active          outline rgb(186, 26, 26) focus=true
+
+## wave-29f5597d6-chromium.json
+  unselected space                 visible: unselected :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  unselected space-toggle          visible: checked :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  unselected click                 visible: unselected :hover :focus-within :active rgb(62, 103, 0) -> unselected :hover :focus-within rgb(25, 29, 19) | opacity before fade [] | fade ran
+  unselected press-out             held       unselected    :hover :focus-within :active   outline rgb(66, 73, 55)
+  unselected press-out             moved-out  unselected    :focus-within :active          outline rgb(66, 73, 55) focus=true
+  unselected error space           visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error space-toggle    visible: checked :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error click           visible: unselected :hover :focus-within :active rgb(186, 26, 26) -> unselected :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error press-out       held       unselected    :hover :focus-within :active   outline rgb(186, 26, 26)
+  unselected error press-out       moved-out  unselected    :focus-within :active          outline rgb(186, 26, 26) focus=true
+  checked space                    visible: checked :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  checked space-toggle             visible: unselected :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  checked click                    visible: checked :hover :focus-within :active rgb(25, 29, 19) -> checked :hover :focus-within rgb(62, 103, 0) | opacity before fade [] | fade ran
+  checked press-out                held       checked       :hover :focus-within :active   outline rgb(62, 103, 0)
+  checked press-out                moved-out  checked       :focus-within :active          outline rgb(62, 103, 0) focus=true
+  checked error space              visible: checked :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error space-toggle       visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error click              visible: checked :hover :focus-within :active rgb(186, 26, 26) -> checked :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error press-out          held       checked       :hover :focus-within :active   outline rgb(186, 26, 26)
+  checked error press-out          moved-out  checked       :focus-within :active          outline rgb(186, 26, 26) focus=true
+  indeterminate space              visible: indeterminate :focus-within rgb(62, 103, 0) | opacity before fade ['0.100'] | fade ran
+  indeterminate space-toggle       visible: unselected :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  indeterminate click              visible: indeterminate :hover :focus-within :active rgb(25, 29, 19) -> indeterminate :hover :focus-within rgb(62, 103, 0) | opacity before fade [] | fade ran
+  indeterminate press-out          held       indeterminate :hover :focus-within :active   outline rgb(62, 103, 0)
+  indeterminate press-out          moved-out  indeterminate :focus-within :active          outline rgb(62, 103, 0) focus=true
+  indeterminate error space        visible: indeterminate :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error space-toggle visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error click        visible: indeterminate :hover :focus-within :active rgb(186, 26, 26) -> indeterminate :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error press-out    held       indeterminate :hover :focus-within :active   outline rgb(186, 26, 26)
+  indeterminate error press-out    moved-out  indeterminate :focus-within :active          outline rgb(186, 26, 26) focus=true
+
+## wave-bec75d638-chromium.json
+  unselected space                 visible: unselected :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  unselected space-toggle          visible: checked :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  unselected click                 visible: unselected :hover :focus-within :active rgb(25, 29, 19) -> unselected :hover :focus-within rgb(25, 29, 19) | opacity before fade [] | fade ran
+  unselected press-out             held       unselected    :hover :focus-within :active   outline rgb(66, 73, 55)
+  unselected press-out             moved-out  unselected    :focus-within :active          outline rgb(66, 73, 55) focus=true
+  unselected error space           visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error space-toggle    visible: checked :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error click           visible: unselected :hover :focus-within :active rgb(186, 26, 26) -> unselected :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  unselected error press-out       held       unselected    :hover :focus-within :active   outline rgb(186, 26, 26)
+  unselected error press-out       moved-out  unselected    :focus-within :active          outline rgb(186, 26, 26) focus=true
+  checked space                    visible: checked :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  checked space-toggle             visible: unselected :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  checked click                    visible: checked :hover :focus-within :active rgb(25, 29, 19) -> checked :hover :focus-within rgb(25, 29, 19) | opacity before fade [] | fade ran
+  checked press-out                held       checked       :hover :focus-within :active   outline rgb(62, 103, 0)
+  checked press-out                moved-out  checked       :focus-within :active          outline rgb(62, 103, 0) focus=true
+  checked error space              visible: checked :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error space-toggle       visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error click              visible: checked :hover :focus-within :active rgb(186, 26, 26) -> checked :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  checked error press-out          held       checked       :hover :focus-within :active   outline rgb(186, 26, 26)
+  checked error press-out          moved-out  checked       :focus-within :active          outline rgb(186, 26, 26) focus=true
+  indeterminate space              visible: indeterminate :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  indeterminate space-toggle       visible: unselected :focus-within rgb(25, 29, 19) | opacity before fade ['0.100'] | fade ran
+  indeterminate click              visible: indeterminate :hover :focus-within :active rgb(25, 29, 19) -> indeterminate :hover :focus-within rgb(25, 29, 19) | opacity before fade [] | fade ran
+  indeterminate press-out          held       indeterminate :hover :focus-within :active   outline rgb(62, 103, 0)
+  indeterminate press-out          moved-out  indeterminate :focus-within :active          outline rgb(62, 103, 0) focus=true
+  indeterminate error space        visible: indeterminate :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error space-toggle visible: unselected :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error click        visible: indeterminate :hover :focus-within :active rgb(186, 26, 26) -> indeterminate :hover :focus-within rgb(186, 26, 26) | opacity before fade ['0.100'] | fade ran
+  indeterminate error press-out    held       indeterminate :hover :focus-within :active   outline rgb(186, 26, 26)
+  indeterminate error press-out    moved-out  indeterminate :focus-within :active          outline rgb(186, 26, 26) focus=true
+
+## The first frame whose wave opacity is below 0.1, after Space's keyboard command returns (each 'space' case, in order)
+chromium [15, 14, 14, 14, 15, 14]
+firefox [15, 16, 16, 15, 16, 16]
+webkit [14, 16, 16, 16, 16, 16]

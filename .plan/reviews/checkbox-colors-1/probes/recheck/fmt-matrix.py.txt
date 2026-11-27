@@ -1,0 +1,21 @@
+# fmt-matrix.py table <json> | diff <from.json> <to.json> [drawn]: the matrix as a table, or every
+# value that differs between two readings (drawn.* only, with 'drawn').
+import json, sys
+cols = ['matches','drawn.outline','drawn.container','drawn.icon','drawn.host-opacity','drawn.hover-layer','drawn.press-wave']
+if sys.argv[1] == 'table':
+    d = json.load(open(sys.argv[2]))
+    print(f"{'state':36}" + ' | '.join(c.removeprefix('drawn.') for c in cols))
+    for k, v in d.items():
+        print(f"{k:36}" + ' | '.join(v.get(c, '?') for c in cols))
+else:
+    a, b = json.load(open(sys.argv[2])), json.load(open(sys.argv[3]))
+    only = len(sys.argv) > 4
+    n = 0
+    for k in a:
+        for p in sorted(set(a[k]) | set(b[k])):
+            if only and not p.startswith('drawn.'): continue
+            if p == 'matches' and a[k].get(p) == b[k].get(p): continue
+            if a[k].get(p) != b[k].get(p):
+                n += 1
+                print(f"{k:36} {p:24} {a[k].get(p,'(unset)')}  ->  {b[k].get(p,'(unset)')}")
+    print(f"# {n} differences in {len(a)} states")

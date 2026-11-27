@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# probe.sh <variant> <engine> <probe>: variant is head, or a commit whose
+# checkbox style modules and stylesheet replace the head's; probe is matrix or wave.
+set -uo pipefail
+W=/workspaces/worktrees/d
+S=/tmp/claude-1000/-workspaces-material-x/10f66da6-3309-4006-946a-c4ce58d969cf/scratchpad/cb
+variant=${1:?}; engine=${2:?}; probe=${3:?}
+st=packages/material-x/src/checkbox/styles
+cd "${W:?}" || exit 1
+if [[ $variant != head ]]; then
+  for f in utils.ts default/tokens.ts default/main.styles.css; do git show "$variant:$st/$f" > "$st/$f"; done
+fi
+cd packages/material-x
+MX_TEST_ENGINES=$engine timeout 600 aube exec just test tests/checkbox/zz-proof-$probe.browser.test.ts > "${S:?}/run-$probe-$variant-$engine.log" 2>&1
+echo "$probe $variant $engine exit $?"
+mv "zz-$probe-$engine.json" "${S:?}/$probe-$variant-$engine.json" 2>/dev/null || echo "  no json"
+cd "${W:?}" && git checkout -q -- "$st" && git status --short

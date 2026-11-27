@@ -1,0 +1,11 @@
+# The outline rows' oracle, checkbox.defaultTokens' effective 'outline.color' (the bridge's resolveTokenContract reads TokenPackage.effective), probes/recheck/oracle.ts.txt, run from packages/material-x, 2026-11-27.
+## head (2642a3baf)
+default              var(--md-sys-color-on-surface-variant, #424937)
+unselected.hover     var(--md-sys-color-on-surface, #191D13)
+unselected.focus     var(--md-sys-color-on-surface, #191D13)
+unselected.pressed   var(--md-sys-color-on-surface, #191D13)
+## no-outline-appends (mutations.txt)
+default              var(--md-sys-color-on-surface-variant, #424937)
+unselected.hover     var(--md-sys-color-on-surface-variant, #424937)
+unselected.focus     var(--md-sys-color-on-surface-variant, #424937)
+unselected.pressed   var(--md-sys-color-on-surface-variant, #424937)

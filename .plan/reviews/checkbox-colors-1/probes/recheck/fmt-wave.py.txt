@@ -1,0 +1,24 @@
+# fmt-wave.py <json>...: per case, the distinct (selection, pseudo-classes, wave colour) while the wave is
+# visible (width > 0), the opacities seen before the fade starts, and whether the fade ran.
+import json, re, sys
+for path in sys.argv[1:]:
+    d = json.load(open(path))
+    print(f"## {path.rsplit('/',1)[-1]}")
+    for k, v in d.items():
+        if k.endswith('press-out'):
+            for s in v:
+                m = re.match(r'(\S+)\s+\d+ (\S+) (.*?) \| (rgb\([^)]*\)) @(\S+) w=\S+ outline=(rgb\([^)]*\))(.*)', s)
+                print(f"  {k:32} {m[1]:10} {m[2]:13} {m[3]:30} outline {m[6]}{m[7]}")
+            continue
+        groups, pre, fade = [], set(), False
+        for s in v:
+            m = re.match(r'\s*\d+ (\S+) (.*?) \| (rgb\([^)]*\)) @(\S+) w=(\S+)', s)
+            if m[5] == '0px':
+                continue
+            g = f"{m[1]} {m[2]} {m[3]}"
+            if not groups or groups[-1] != g:
+                groups.append(g)
+            o = float(m[4])
+            if o < 0.0995: fade = True
+            elif not fade: pre.add(m[4])
+        print(f"  {k:32} visible: {' -> '.join(groups)} | opacity before fade {sorted(pre)} | fade {'ran' if fade else 'not seen'}")

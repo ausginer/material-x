@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Recheck of #338 at 2642a3baf: mutations of the checkbox's style modules and stylesheet.
+# Each makes exact-once edits (edit.py), prints the compiled sheet's diff from the head's, runs the
+# spec file in $ENGINE (default chromium), and restores the styles from HEAD. Usage: mutate.sh <name>...
+set -uo pipefail
+W=/workspaces/worktrees/d/packages/material-x
+S=/tmp/claude-1000/-workspaces-material-x/10f66da6-3309-4006-946a-c4ce58d969cf/scratchpad/cb
+ENGINE=${ENGINE:-chromium}
+U=src/checkbox/styles/utils.ts
+K=src/checkbox/styles/default/tokens.ts
+M=src/checkbox/styles/default/main.styles.css
+e() { python3 -I "${S:?}/edit.py" "$@"; }
+cd "${W:?}" || exit 1
+
+apply() {
+  case "$1" in
+    no-press-rule) e $M ':host .ripple::after {\n  background-color: var(--_press-layer-color);\n  opacity: var(--_press-layer-opacity);\n}\n' ;;
+    no-press-color) e $M '  background-color: var(--_press-layer-color);\n' ;;
+    no-press-opacity) e $M '  opacity: var(--_press-layer-opacity);\n' ;;
+    no-unselected-press) e $K "      'press-layer.color': \`\${SET_NAME}.unselected.pressed.state-layer.color\`,\n      'press-layer.opacity': \`\${SET_NAME}.unselected.pressed.state-layer.opacity\`,\n" ;;
+    no-selected-press) e $K "      'press-layer.color': \`\${SET_NAME}.selected.pressed.state-layer.color\`,\n      'press-layer.opacity': \`\${SET_NAME}.selected.pressed.state-layer.opacity\`,\n" ;;
+    no-error-press) e $K "      'press-layer.color': \`\${SET_NAME}.error.pressed.state-layer.color\`,\n      'press-layer.opacity': \`\${SET_NAME}.error.pressed.state-layer.opacity\`,\n" ;;
+    no-uhover-outline) e $K "    .append('unselected.hover', {\n      'outline.color': \`\${SET_NAME}.unselected.hover.outline.color\`,\n    })\n" ;;
+    no-ufocus-outline) e $K "    .append('unselected.focus', {\n      'outline.color': \`\${SET_NAME}.unselected.focus.outline.color\`,\n    })\n" ;;
+    no-upressed-outline) e $K "    .append('unselected.pressed', {\n      'outline.color': \`\${SET_NAME}.unselected.pressed.outline.color\`,\n    })\n" ;;
+    no-outline-appends) apply no-uhover-outline && apply no-ufocus-outline && apply no-upressed-outline ;;
+    upressed-no-parents) e $U 'unselectedDefault,\n      unselectedHover,\n      unselectedFocus,\n' 'unselectedDefault,\n' ;;
+    sel-focus-no-ufocus) e $U 'selectedDefault,\n      unselectedFocus,\n' 'selectedDefault,\n' ;;
+    sel-hover-no-uhover) e $U 'selectedDefault,\n      unselectedHover,\n' 'selectedDefault,\n' ;;
+    ext-base) git show 2ed4b96ab:packages/material-x/$U > $U ;;
+    *) echo "unknown $1"; return 1 ;;
+  esac
+}
+
+for name in "$@"; do
+  echo "== $name ($ENGINE)"
+  apply "$name" || { git checkout -q -- src/checkbox/styles; continue; }
+  node ../../.scripts/css/debug.ts src/checkbox/styles/default/main.css.ts > "${S:?}/sheet-m.css" 2>&1
+  diff "${S:?}/sheet-head.css" "${S:?}/sheet-m.css" | grep -E '^[<>]' | sed 's/^/  sheet /' | head -14
+  diff -q "${S:?}/sheet-head.css" "${S:?}/sheet-m.css" >/dev/null && echo "  sheet identical to the head's"
+  MX_TEST_ENGINES=$ENGINE timeout 600 aube exec just test tests/checkbox/checkbox.spec.browser.test.ts > "${S:?}/mut-$name-$ENGINE.log" 2>&1; echo "  spec exit $?"
+  sed 's/\x1b\[[0-9;]*m//g' "${S:?}/mut-$name-$ENGINE.log" | grep -E '^ +(×|✗) |^ +Tests ' | sed 's/^ */  /'
+  git checkout -q -- src/checkbox/styles
+done
+git -C "${W:?}" status --short

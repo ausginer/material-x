@@ -1,0 +1,298 @@
+# Recheck of #338 at 2642a3baf, slot d, 2026-11-27, Chromium: probes/recheck/zz-proof-matrix.browser.test.ts.txt, formatted by fmt-matrix.py.txt.
+# Like the first proof's matrix, but the host's own animations (the box's border transition) are finished too before reading.
+# head = 2642a3baf. 29f5597d6 and bec75d638 (origin/main) = the head with that commit's utils.ts, default/tokens.ts and default/main.styles.css. m-<name> = the head under mutations.txt's <name>.
+# press-wave is the ::after's computed style. The wave has no width except while an activation runs, and a disabled host shows no ripple.
+
+## The head
+state                               matches | outline | container | icon | host-opacity | hover-layer | press-wave
+unselected rest                     - | rgb(66, 73, 55) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0 | rgb(62, 103, 0) @0.1
+unselected hover                    :hover | rgb(25, 29, 19) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 1 | rgb(25, 29, 19) @0.08 | rgb(62, 103, 0) @0.1
+unselected focus                    :focus-within | rgb(25, 29, 19) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 1 | rgb(25, 29, 19) @0.1 | rgb(62, 103, 0) @0.1
+unselected hover+focus              :hover :focus-within | rgb(25, 29, 19) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 1 | rgb(25, 29, 19) @0.1 | rgb(62, 103, 0) @0.1
+unselected press                    :hover :focus-within :active | rgb(25, 29, 19) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0.08 | rgb(62, 103, 0) @0.1
+unselected space                    :focus-within | rgb(25, 29, 19) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 1 | rgb(25, 29, 19) @0.1 | rgb(62, 103, 0) @0.1
+unselected disabled rest            - | rgb(25, 29, 19) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 0.38 | rgb(62, 103, 0) @0 | rgb(62, 103, 0) @0.1
+unselected disabled hover           - | rgb(25, 29, 19) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 0.38 | rgb(62, 103, 0) @0 | rgb(62, 103, 0) @0.1
+unselected error rest               - | rgb(186, 26, 26) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0 | rgb(186, 26, 26) @0.1
+unselected error hover              :hover | rgb(186, 26, 26) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.08 | rgb(186, 26, 26) @0.1
+unselected error focus              :focus-within | rgb(186, 26, 26) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.1 | rgb(186, 26, 26) @0.1
+unselected error hover+focus        :hover :focus-within | rgb(186, 26, 26) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.1 | rgb(186, 26, 26) @0.1
+unselected error press              :hover :focus-within :active | rgb(186, 26, 26) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.1 | rgb(186, 26, 26) @0.1
+unselected error space              :focus-within | rgb(186, 26, 26) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.1 | rgb(186, 26, 26) @0.1
+unselected error disabled rest      - | rgb(25, 29, 19) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 0.38 | rgb(62, 103, 0) @0 | rgb(62, 103, 0) @0.1
+unselected error disabled hover     - | rgb(25, 29, 19) | rgba(0, 0, 0, 0) | rgb(255, 255, 255) | 0.38 | rgb(62, 103, 0) @0 | rgb(62, 103, 0) @0.1
+checked rest                        - | rgb(62, 103, 0) | rgb(62, 103, 0) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0 | rgb(25, 29, 19) @0.1
+checked hover                       :hover | rgb(62, 103, 0) | rgb(62, 103, 0) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0.08 | rgb(25, 29, 19) @0.1
+checked focus                       :focus-within | rgb(62, 103, 0) | rgb(62, 103, 0) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0.1 | rgb(25, 29, 19) @0.1
+checked hover+focus                 :hover :focus-within | rgb(62, 103, 0) | rgb(62, 103, 0) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0.1 | rgb(25, 29, 19) @0.1
+checked press                       :hover :focus-within :active | rgb(62, 103, 0) | rgb(62, 103, 0) | rgb(255, 255, 255) | 1 | rgb(25, 29, 19) @0.08 | rgb(25, 29, 19) @0.1
+checked space                       :focus-within | rgb(62, 103, 0) | rgb(62, 103, 0) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0.1 | rgb(25, 29, 19) @0.1
+checked disabled rest               - | rgb(25, 29, 19) | rgb(25, 29, 19) | rgb(247, 251, 234) | 0.38 | rgb(62, 103, 0) @0 | rgb(25, 29, 19) @0.1
+checked disabled hover              - | rgb(25, 29, 19) | rgb(25, 29, 19) | rgb(247, 251, 234) | 0.38 | rgb(62, 103, 0) @0 | rgb(25, 29, 19) @0.1
+checked error rest                  - | rgb(186, 26, 26) | rgb(186, 26, 26) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0 | rgb(186, 26, 26) @0.1
+checked error hover                 :hover | rgb(186, 26, 26) | rgb(186, 26, 26) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.08 | rgb(186, 26, 26) @0.1
+checked error focus                 :focus-within | rgb(186, 26, 26) | rgb(186, 26, 26) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.1 | rgb(186, 26, 26) @0.1
+checked error hover+focus           :hover :focus-within | rgb(186, 26, 26) | rgb(186, 26, 26) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.1 | rgb(186, 26, 26) @0.1
+checked error press                 :hover :focus-within :active | rgb(186, 26, 26) | rgb(186, 26, 26) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.1 | rgb(186, 26, 26) @0.1
+checked error space                 :focus-within | rgb(186, 26, 26) | rgb(186, 26, 26) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.1 | rgb(186, 26, 26) @0.1
+checked error disabled rest         - | rgb(25, 29, 19) | rgb(25, 29, 19) | rgb(247, 251, 234) | 0.38 | rgb(62, 103, 0) @0 | rgb(25, 29, 19) @0.1
+checked error disabled hover        - | rgb(25, 29, 19) | rgb(25, 29, 19) | rgb(247, 251, 234) | 0.38 | rgb(62, 103, 0) @0 | rgb(25, 29, 19) @0.1
+indeterminate rest                  - | rgb(62, 103, 0) | rgb(62, 103, 0) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0 | rgb(25, 29, 19) @0.1
+indeterminate hover                 :hover | rgb(62, 103, 0) | rgb(62, 103, 0) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0.08 | rgb(25, 29, 19) @0.1
+indeterminate focus                 :focus-within | rgb(62, 103, 0) | rgb(62, 103, 0) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0.1 | rgb(25, 29, 19) @0.1
+indeterminate hover+focus           :hover :focus-within | rgb(62, 103, 0) | rgb(62, 103, 0) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0.1 | rgb(25, 29, 19) @0.1
+indeterminate press                 :hover :focus-within :active | rgb(62, 103, 0) | rgb(62, 103, 0) | rgb(255, 255, 255) | 1 | rgb(25, 29, 19) @0.08 | rgb(25, 29, 19) @0.1
+indeterminate space                 :focus-within | rgb(62, 103, 0) | rgb(62, 103, 0) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0.1 | rgb(25, 29, 19) @0.1
+indeterminate disabled rest         - | rgb(25, 29, 19) | rgb(25, 29, 19) | rgb(247, 251, 234) | 0.38 | rgb(62, 103, 0) @0 | rgb(25, 29, 19) @0.1
+indeterminate disabled hover        - | rgb(25, 29, 19) | rgb(25, 29, 19) | rgb(247, 251, 234) | 0.38 | rgb(62, 103, 0) @0 | rgb(25, 29, 19) @0.1
+indeterminate error rest            - | rgb(186, 26, 26) | rgb(186, 26, 26) | rgb(255, 255, 255) | 1 | rgb(62, 103, 0) @0 | rgb(186, 26, 26) @0.1
+indeterminate error hover           :hover | rgb(186, 26, 26) | rgb(186, 26, 26) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.08 | rgb(186, 26, 26) @0.1
+indeterminate error focus           :focus-within | rgb(186, 26, 26) | rgb(186, 26, 26) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.1 | rgb(186, 26, 26) @0.1
+indeterminate error hover+focus     :hover :focus-within | rgb(186, 26, 26) | rgb(186, 26, 26) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.1 | rgb(186, 26, 26) @0.1
+indeterminate error press           :hover :focus-within :active | rgb(186, 26, 26) | rgb(186, 26, 26) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.1 | rgb(186, 26, 26) @0.1
+indeterminate error space           :focus-within | rgb(186, 26, 26) | rgb(186, 26, 26) | rgb(255, 255, 255) | 1 | rgb(186, 26, 26) @0.1 | rgb(186, 26, 26) @0.1
+indeterminate error disabled rest   - | rgb(25, 29, 19) | rgb(25, 29, 19) | rgb(247, 251, 234) | 0.38 | rgb(62, 103, 0) @0 | rgb(25, 29, 19) @0.1
+indeterminate error disabled hover  - | rgb(25, 29, 19) | rgb(25, 29, 19) | rgb(247, 251, 234) | 0.38 | rgb(62, 103, 0) @0 | rgb(25, 29, 19) @0.1
+
+## Every drawn value and private property that differs, 29f5597d6 -> head
+unselected rest                      --_press-layer-color     (unset)  ->  #3e6700
+unselected rest                      --_press-layer-opacity   (unset)  ->  .1
+unselected hover                     --_outline-color         #424937  ->  #191d13
+unselected hover                     --_press-layer-color     (unset)  ->  #3e6700
+unselected hover                     --_press-layer-opacity   (unset)  ->  .1
+unselected hover                     drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected hover                     drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(62, 103, 0) @0.1
+unselected focus                     --_outline-color         #424937  ->  #191d13
+unselected focus                     --_press-layer-color     (unset)  ->  #3e6700
+unselected focus                     --_press-layer-opacity   (unset)  ->  .1
+unselected focus                     drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected focus                     drawn.press-wave         rgb(25, 29, 19) @0.1  ->  rgb(62, 103, 0) @0.1
+unselected hover+focus               --_outline-color         #424937  ->  #191d13
+unselected hover+focus               --_press-layer-color     (unset)  ->  #3e6700
+unselected hover+focus               --_press-layer-opacity   (unset)  ->  .1
+unselected hover+focus               drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected hover+focus               drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(62, 103, 0) @0.1
+unselected press                     --_outline-color         #424937  ->  #191d13
+unselected press                     --_press-layer-color     (unset)  ->  #3e6700
+unselected press                     --_press-layer-opacity   (unset)  ->  .1
+unselected press                     drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected press                     drawn.press-wave         rgb(62, 103, 0) @0.08  ->  rgb(62, 103, 0) @0.1
+unselected space                     --_outline-color         #424937  ->  #191d13
+unselected space                     --_press-layer-color     (unset)  ->  #3e6700
+unselected space                     --_press-layer-opacity   (unset)  ->  .1
+unselected space                     drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected space                     drawn.press-wave         rgb(25, 29, 19) @0.1  ->  rgb(62, 103, 0) @0.1
+unselected disabled rest             --_press-layer-color     (unset)  ->  #3e6700
+unselected disabled rest             --_press-layer-opacity   (unset)  ->  .1
+unselected disabled hover            --_press-layer-color     (unset)  ->  #3e6700
+unselected disabled hover            --_press-layer-opacity   (unset)  ->  .1
+unselected error rest                --_press-layer-color     (unset)  ->  #ba1a1a
+unselected error rest                --_press-layer-opacity   (unset)  ->  .1
+unselected error rest                drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(186, 26, 26) @0.1
+unselected error hover               --_press-layer-color     (unset)  ->  #ba1a1a
+unselected error hover               --_press-layer-opacity   (unset)  ->  .1
+unselected error hover               drawn.press-wave         rgb(186, 26, 26) @0.08  ->  rgb(186, 26, 26) @0.1
+unselected error focus               --_press-layer-color     (unset)  ->  #ba1a1a
+unselected error focus               --_press-layer-opacity   (unset)  ->  .1
+unselected error hover+focus         --_press-layer-color     (unset)  ->  #ba1a1a
+unselected error hover+focus         --_press-layer-opacity   (unset)  ->  .1
+unselected error press               --_press-layer-color     (unset)  ->  #ba1a1a
+unselected error press               --_press-layer-opacity   (unset)  ->  .1
+unselected error space               --_press-layer-color     (unset)  ->  #ba1a1a
+unselected error space               --_press-layer-opacity   (unset)  ->  .1
+unselected error disabled rest       --_press-layer-color     (unset)  ->  #3e6700
+unselected error disabled rest       --_press-layer-opacity   (unset)  ->  .1
+unselected error disabled hover      --_press-layer-color     (unset)  ->  #3e6700
+unselected error disabled hover      --_press-layer-opacity   (unset)  ->  .1
+checked rest                         --_press-layer-color     (unset)  ->  #191d13
+checked rest                         --_press-layer-opacity   (unset)  ->  .1
+checked rest                         drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+checked hover                        --_press-layer-color     (unset)  ->  #191d13
+checked hover                        --_press-layer-opacity   (unset)  ->  .1
+checked hover                        drawn.press-wave         rgb(62, 103, 0) @0.08  ->  rgb(25, 29, 19) @0.1
+checked focus                        --_press-layer-color     (unset)  ->  #191d13
+checked focus                        --_press-layer-opacity   (unset)  ->  .1
+checked focus                        drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+checked hover+focus                  --_press-layer-color     (unset)  ->  #191d13
+checked hover+focus                  --_press-layer-opacity   (unset)  ->  .1
+checked hover+focus                  drawn.press-wave         rgb(62, 103, 0) @0.08  ->  rgb(25, 29, 19) @0.1
+checked press                        --_press-layer-color     (unset)  ->  #191d13
+checked press                        --_press-layer-opacity   (unset)  ->  .1
+checked press                        drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(25, 29, 19) @0.1
+checked space                        --_press-layer-color     (unset)  ->  #191d13
+checked space                        --_press-layer-opacity   (unset)  ->  .1
+checked space                        drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+checked disabled rest                --_press-layer-color     (unset)  ->  #191d13
+checked disabled rest                --_press-layer-opacity   (unset)  ->  .1
+checked disabled rest                drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+checked disabled hover               --_press-layer-color     (unset)  ->  #191d13
+checked disabled hover               --_press-layer-opacity   (unset)  ->  .1
+checked disabled hover               drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+checked error rest                   --_press-layer-color     (unset)  ->  #ba1a1a
+checked error rest                   --_press-layer-opacity   (unset)  ->  .1
+checked error rest                   drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(186, 26, 26) @0.1
+checked error hover                  --_press-layer-color     (unset)  ->  #ba1a1a
+checked error hover                  --_press-layer-opacity   (unset)  ->  .1
+checked error hover                  drawn.press-wave         rgb(186, 26, 26) @0.08  ->  rgb(186, 26, 26) @0.1
+checked error focus                  --_press-layer-color     (unset)  ->  #ba1a1a
+checked error focus                  --_press-layer-opacity   (unset)  ->  .1
+checked error hover+focus            --_press-layer-color     (unset)  ->  #ba1a1a
+checked error hover+focus            --_press-layer-opacity   (unset)  ->  .1
+checked error press                  --_press-layer-color     (unset)  ->  #ba1a1a
+checked error press                  --_press-layer-opacity   (unset)  ->  .1
+checked error space                  --_press-layer-color     (unset)  ->  #ba1a1a
+checked error space                  --_press-layer-opacity   (unset)  ->  .1
+checked error disabled rest          --_press-layer-color     (unset)  ->  #191d13
+checked error disabled rest          --_press-layer-opacity   (unset)  ->  .1
+checked error disabled rest          drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+checked error disabled hover         --_press-layer-color     (unset)  ->  #191d13
+checked error disabled hover         --_press-layer-opacity   (unset)  ->  .1
+checked error disabled hover         drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate rest                   --_press-layer-color     (unset)  ->  #191d13
+indeterminate rest                   --_press-layer-opacity   (unset)  ->  .1
+indeterminate rest                   drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate hover                  --_press-layer-color     (unset)  ->  #191d13
+indeterminate hover                  --_press-layer-opacity   (unset)  ->  .1
+indeterminate hover                  drawn.press-wave         rgb(62, 103, 0) @0.08  ->  rgb(25, 29, 19) @0.1
+indeterminate focus                  --_press-layer-color     (unset)  ->  #191d13
+indeterminate focus                  --_press-layer-opacity   (unset)  ->  .1
+indeterminate focus                  drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate hover+focus            --_press-layer-color     (unset)  ->  #191d13
+indeterminate hover+focus            --_press-layer-opacity   (unset)  ->  .1
+indeterminate hover+focus            drawn.press-wave         rgb(62, 103, 0) @0.08  ->  rgb(25, 29, 19) @0.1
+indeterminate press                  --_press-layer-color     (unset)  ->  #191d13
+indeterminate press                  --_press-layer-opacity   (unset)  ->  .1
+indeterminate press                  drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(25, 29, 19) @0.1
+indeterminate space                  --_press-layer-color     (unset)  ->  #191d13
+indeterminate space                  --_press-layer-opacity   (unset)  ->  .1
+indeterminate space                  drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate disabled rest          --_press-layer-color     (unset)  ->  #191d13
+indeterminate disabled rest          --_press-layer-opacity   (unset)  ->  .1
+indeterminate disabled rest          drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate disabled hover         --_press-layer-color     (unset)  ->  #191d13
+indeterminate disabled hover         --_press-layer-opacity   (unset)  ->  .1
+indeterminate disabled hover         drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate error rest             --_press-layer-color     (unset)  ->  #ba1a1a
+indeterminate error rest             --_press-layer-opacity   (unset)  ->  .1
+indeterminate error rest             drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(186, 26, 26) @0.1
+indeterminate error hover            --_press-layer-color     (unset)  ->  #ba1a1a
+indeterminate error hover            --_press-layer-opacity   (unset)  ->  .1
+indeterminate error hover            drawn.press-wave         rgb(186, 26, 26) @0.08  ->  rgb(186, 26, 26) @0.1
+indeterminate error focus            --_press-layer-color     (unset)  ->  #ba1a1a
+indeterminate error focus            --_press-layer-opacity   (unset)  ->  .1
+indeterminate error hover+focus      --_press-layer-color     (unset)  ->  #ba1a1a
+indeterminate error hover+focus      --_press-layer-opacity   (unset)  ->  .1
+indeterminate error press            --_press-layer-color     (unset)  ->  #ba1a1a
+indeterminate error press            --_press-layer-opacity   (unset)  ->  .1
+indeterminate error space            --_press-layer-color     (unset)  ->  #ba1a1a
+indeterminate error space            --_press-layer-opacity   (unset)  ->  .1
+indeterminate error disabled rest    --_press-layer-color     (unset)  ->  #191d13
+indeterminate error disabled rest    --_press-layer-opacity   (unset)  ->  .1
+indeterminate error disabled rest    drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate error disabled hover   --_press-layer-color     (unset)  ->  #191d13
+indeterminate error disabled hover   --_press-layer-opacity   (unset)  ->  .1
+indeterminate error disabled hover   drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+# 137 differences in 48 states
+
+## Every drawn value that differs, origin/main -> head
+unselected hover                     drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected hover                     drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(62, 103, 0) @0.1
+unselected focus                     drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected focus                     drawn.press-wave         rgb(25, 29, 19) @0.1  ->  rgb(62, 103, 0) @0.1
+unselected hover+focus               drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected hover+focus               drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(62, 103, 0) @0.1
+unselected press                     drawn.hover-layer        rgb(25, 29, 19) @0.08  ->  rgb(62, 103, 0) @0.08
+unselected press                     drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected press                     drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(62, 103, 0) @0.1
+unselected space                     drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected space                     drawn.press-wave         rgb(25, 29, 19) @0.1  ->  rgb(62, 103, 0) @0.1
+unselected disabled rest             drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected disabled hover            drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected error rest                drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(186, 26, 26) @0.1
+unselected error hover               drawn.press-wave         rgb(186, 26, 26) @0.08  ->  rgb(186, 26, 26) @0.1
+unselected error disabled rest       drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected error disabled hover      drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+checked rest                         drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+checked hover                        drawn.hover-layer        rgb(25, 29, 19) @0.08  ->  rgb(62, 103, 0) @0.08
+checked hover                        drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(25, 29, 19) @0.1
+checked hover+focus                  drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(25, 29, 19) @0.1
+checked press                        drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(25, 29, 19) @0.1
+checked disabled rest                drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+checked disabled rest                drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+checked disabled hover               drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+checked disabled hover               drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+checked error rest                   drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(186, 26, 26) @0.1
+checked error hover                  drawn.press-wave         rgb(186, 26, 26) @0.08  ->  rgb(186, 26, 26) @0.1
+checked error disabled rest          drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+checked error disabled rest          drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+checked error disabled hover         drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+checked error disabled hover         drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate rest                   drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate hover                  drawn.hover-layer        rgb(25, 29, 19) @0.08  ->  rgb(62, 103, 0) @0.08
+indeterminate hover                  drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(25, 29, 19) @0.1
+indeterminate hover+focus            drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(25, 29, 19) @0.1
+indeterminate press                  drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(25, 29, 19) @0.1
+indeterminate disabled rest          drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+indeterminate disabled rest          drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate disabled hover         drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+indeterminate disabled hover         drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate error rest             drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(186, 26, 26) @0.1
+indeterminate error hover            drawn.press-wave         rgb(186, 26, 26) @0.08  ->  rgb(186, 26, 26) @0.1
+indeterminate error disabled rest    drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+indeterminate error disabled rest    drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate error disabled hover   drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+indeterminate error disabled hover   drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+# 47 differences in 48 states
+
+## Every private property that differs, origin/main -> head, except the new --_press-layer-*
+unselected hover                     --_outline-color         #424937  ->  #191d13
+unselected focus                     --_outline-color         #424937  ->  #191d13
+unselected hover+focus               --_outline-color         #424937  ->  #191d13
+unselected press                     --_outline-color         #424937  ->  #191d13
+unselected press                     --_ripple-color          #191d13  ->  #3e6700
+unselected press                     --_state-layer-color     #191d13  ->  #3e6700
+unselected space                     --_outline-color         #424937  ->  #191d13
+unselected disabled rest             --_outline-color         #424937  ->  #191d13
+unselected disabled hover            --_outline-color         #424937  ->  #191d13
+unselected error disabled rest       --_outline-color         #424937  ->  #191d13
+unselected error disabled hover      --_outline-color         #424937  ->  #191d13
+checked hover                        --_ripple-color          #191d13  ->  #3e6700
+checked hover                        --_state-layer-color     #191d13  ->  #3e6700
+checked focus                        --_ripple-color          #191d13  ->  #3e6700
+checked focus                        --_state-layer-color     #191d13  ->  #3e6700
+checked hover+focus                  --_ripple-color          #191d13  ->  #3e6700
+checked hover+focus                  --_state-layer-color     #191d13  ->  #3e6700
+checked space                        --_ripple-color          #191d13  ->  #3e6700
+checked space                        --_state-layer-color     #191d13  ->  #3e6700
+checked disabled rest                --_icon-color            #fff  ->  #f7fbea
+checked disabled hover               --_icon-color            #fff  ->  #f7fbea
+checked error disabled rest          --_icon-color            #fff  ->  #f7fbea
+checked error disabled hover         --_icon-color            #fff  ->  #f7fbea
+indeterminate hover                  --_ripple-color          #191d13  ->  #3e6700
+indeterminate hover                  --_state-layer-color     #191d13  ->  #3e6700
+indeterminate focus                  --_ripple-color          #191d13  ->  #3e6700
+indeterminate focus                  --_state-layer-color     #191d13  ->  #3e6700
+indeterminate hover+focus            --_ripple-color          #191d13  ->  #3e6700
+indeterminate hover+focus            --_state-layer-color     #191d13  ->  #3e6700
+indeterminate space                  --_ripple-color          #191d13  ->  #3e6700
+indeterminate space                  --_state-layer-color     #191d13  ->  #3e6700
+indeterminate disabled rest          --_icon-color            #fff  ->  #f7fbea
+indeterminate disabled hover         --_icon-color            #fff  ->  #f7fbea
+indeterminate error disabled rest    --_icon-color            #fff  ->  #f7fbea
+indeterminate error disabled hover   --_icon-color            #fff  ->  #f7fbea
+# 178 differences in 48 states
+
+## Every drawn value that differs, head -> m-no-outline-appends
+unselected hover                     drawn.outline            rgb(25, 29, 19)  ->  rgb(66, 73, 55)
+unselected focus                     drawn.outline            rgb(25, 29, 19)  ->  rgb(66, 73, 55)
+unselected hover+focus               drawn.outline            rgb(25, 29, 19)  ->  rgb(66, 73, 55)
+unselected press                     drawn.outline            rgb(25, 29, 19)  ->  rgb(66, 73, 55)
+unselected space                     drawn.outline            rgb(25, 29, 19)  ->  rgb(66, 73, 55)
+# 5 differences in 48 states
+
+## Every drawn value that differs, head -> m-upressed-no-parents
+unselected press                     drawn.hover-layer        rgb(62, 103, 0) @0.08  ->  rgb(25, 29, 19) @0.08
+# 1 differences in 48 states
+
+## Every drawn value that differs, head -> m-sel-focus-no-ufocus
+# 0 differences in 48 states
