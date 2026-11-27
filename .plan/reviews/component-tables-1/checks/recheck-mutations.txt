@@ -1,0 +1,15 @@
+== unmutated: exit 0; Tests  56 passed (56)
+   predicted to fail: none
+== R1: exit 1; Tests  1 failed | 55 passed (56)
+   predicted to fail: should store unchecked a node with the table's own value id below another system's node
+   × should store unchecked a node with the table's own value id below another system's node 7ms
+     Error: TOKEN_TABLE.c0: md.comp.test.a: contextualReferenceTree.referenceTree.childNodes.value: names no value of md.comp.test.missing in the store
+== R2: exit 1; Tests  1 failed | 55 passed (56)
+   predicted to fail: should refuse a missing reference whose node has no value id
+   × should refuse a missing reference whose node has no value id 8ms
+     AssertionError: expected [Function] to throw an error
+== R3: exit 1; Tests  1 failed | 55 passed (56)
+   predicted to fail: should refuse a values reference that only another token's node of another system names
+   × should refuse a values reference that only another token's node of another system names 9ms
+     AssertionError: expected [Function] to throw an error
+restored: true
