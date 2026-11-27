@@ -30,7 +30,7 @@ import {
 } from '@ydinjs/core/traits/valuable.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useRipple } from '../animations/ripple/ripple.ts';
-import { notify, useClickActivation } from '../utils/events.ts';
+import { useClickActivation } from '../utils/events.ts';
 import { useCore } from '../utils/useCore.ts';
 import css from './styles/main.css.ts' with { type: 'css' };
 
@@ -96,7 +96,9 @@ export function useCheckableCore(
     host,
     {
       change() {
-        notify(host, 'change');
+        // A native `change` isn't composed, so the one inside the shadow tree
+        // never crosses the host's boundary, and the host fires its own.
+        host.dispatchEvent(new Event('change', { bubbles: true }));
         input.checked = host.checked;
       },
     },
