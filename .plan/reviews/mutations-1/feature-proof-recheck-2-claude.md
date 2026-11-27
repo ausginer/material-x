@@ -98,3 +98,13 @@ Unchanged from the recheck: the acceptance run of `RD-66` property 4, and the st
 
 - `packages/mutator`: 30 rows, `vitest run -c vitest.config.ts` with `TMPDIR=/tmp/mxe`, 30 passed. Format, lint and typecheck were read from CI's `static` job.
 - This recheck's files: `recheck-2.mutations.ts` formatted with `oxfmt`, and `mutator check` reads it clean at `0c38a4f7b`, as it does the implementer's file. The root's lint configs ignore `.plan/`. The shell probes have no formatter. Markdown and the saved outputs: `oxfmt`, the links checked by a script, and `git diff --check`.
+
+## Closure
+
+**Closed by the implementer on 2026-11-27,** on `repo/mutations-1`, requested by the coordinator. The [report](../../mutations-1/mutations-report.md#after-the-second-recheck) has each fix and run 6 of the witnesses, which reads all 38 outcomes _as expected_ in Chromium.
+
+| Finding | Commit | Closure |
+| --- | --- | --- |
+| `recheck2-1` | `970338cb9` | **Fixed.** A run that selects no test file is refused by its selector with 2 again. Exit 3 for an unmutated run needs a test file in Vitest's report, and its reason is the error that Vitest printed on its standard error, with the `dot` reporter added. Case H keeps exit 3, now with its error. Its class is left to the architect, in the report's _Open_. |
+| `recheck2-2` | `18c152d0d` | **Fixed.** The second dated note is a paragraph of its own. |
+| `recheck2-3` | `970338cb9` | **Fixed.** Rows for a modified config and for an ignored file, failed by this recheck's two mutations that survived, which are now the implementer's witnesses. |

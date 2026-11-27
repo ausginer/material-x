@@ -120,7 +120,25 @@ The 18 rows of `9a65f1a89` are described in [after the feature proof](#after-the
 
 - **Run 5, at `0ec97ff3f`** ([summary](checks/mutator-chromium-5.md), [report](checks/mutator-chromium-5.json)): 30 rows unmutated, and **every outcome of the 32 _as expected_**, the recheck's three mutations among them. The ten new witnesses fail their rows: the file's commit as the code's fails the three commit rows, and the summary without the reason fails the three rows that read it. The summary's first line names `0ec97ff3f` for the file and the runner, which held them as they ran. Nothing named `mutator-*` was left in the temporary directory, and no worktree.
 
+## After the second recheck
+
+**The [second recheck](../reviews/mutations-1/feature-proof-recheck-2-claude.md)'s three findings, by the implementer, on 2026-11-27,** on `repo/mutations-1` from `c921af6c7` and the merge of `main` `9bf745912`. Requested by the coordinator. The code, the rows and the witnesses are at `970338cb9`. The package has 34 rows.
+
+- **`recheck2-1`, the cases of exit 3.** `runVitest` keeps a `failure` only when Vitest's report lists a test file. A run whose tests match no test file has no row again, so the file's selectors refuse it with 2, as at `0cc0d9516` and as `RD-65` property 5 says. Vitest also runs with the `dot` reporter, which prints unhandled errors on its standard error, because the JSON report has none. The reason is the first lines of that standard error, without stack frames, code frames or the reporter's banner, or _"Vitest printed no error"_. It no longer falls back to the standard output, whose only line was the JSON report's path.
+  - **A browser that doesn't start:** exit 3, as before, and the reason's second line is _"Error: browserType.launch: Failed to launch chromium …"_.
+  - **An unhandled error in a row that passes** (the recheck's case H): exit 3, as at `0c38a4f7b`, and the reason is _"Error: left unhandled"_. Its class is unchanged, because no decision settles it ([Open](#open)).
+  - The reviewer's probe P3, run again on the fix ([transcript](checks/p3-after-recheck-2.txt)): case N exits with 2 and names the selector, and case H exits with 3 with the error.
+- **`recheck2-2`.** `RD-66`'s second dated note is a paragraph of its own (`18c152d0d`).
+- **`recheck2-3`.** Two rows: a config modified after its commit, and a file that the checkout's `.git/info/exclude` ignores. In both, the report has no `fileCommit`. The recheck's two mutations that survived are now witnesses that fail them.
+- **New rows for `recheck2-1`:** a run that selects no test file is refused by its selector, and an unhandled error in a passing row exits with 3 with Vitest's error. The browser row also reads that the reason doesn't name the JSON report.
+
+**The witnesses, in Chromium:**
+
+- **Run 6, at `970338cb9`** ([summary](checks/mutator-chromium-6.md), [report](checks/mutator-chromium-6.json)): 34 rows unmutated, and **every outcome of the 38 _as expected_**. The six new witnesses each fail their rows: a run with no test file as a failure fails the refusal row, no `dot` reporter fails the unhandled-error row, the standard output as the reason fails three rows, the banner kept fails the browser's void row, and the reviewer's two survivors now fail the config row and the ignored-file row. The summary names `970338cb9` for the code, the file and the runner. Nothing named `mutator-*` was left in the temporary directory, and no worktree.
+
 ## Checks
+
+**After the second recheck:** `packages/mutator`: format, lint and typecheck, and its 34 rows. The witnesses above, run 6. **Not run:** the workflow on GitHub.
 
 **After the recheck:** `packages/mutator`: format, lint and typecheck, and its 30 rows. The witnesses above, run 5. The workflow's `oxfmt --check`. **Not run:** the workflow on GitHub.
 
@@ -130,5 +148,7 @@ The 18 rows of `9a65f1a89` are described in [after the feature proof](#after-the
 
 ## Open
 
+- **Case H's class, for the architect:** an unmutated run in which every row passes and Vitest exits with 1 for an unhandled error. It now fails with 3 and gives the error. The other reading is to judge the run, as `0cc0d9516` did. `RD-65` and `RD-66` don't settle which, as the second recheck says.
+- **A run that selects no test file, in a file with only _survives_ expectations,** has no selector to refuse it, so its mutations are judged on no row and read _as expected_. This is as it was at `0cc0d9516`. Whether such a run makes the file invalid is not in `RD-65` property 5, which names selectors.
 - The two dispatches above, after the merge, on `main`'s workflow.
 - Unit 2, the documentation of `RD-62`'s amendment and the worktree's exception in `agent-workflow.md` and `coordinator-setup.md`.
