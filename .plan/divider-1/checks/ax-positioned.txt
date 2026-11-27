@@ -1,0 +1,52 @@
+== no style — no role
+  div:  paragraph > paragraph
+  list: list > listitem > listitem
+  role="separator": paragraph > separator[horizontal] > paragraph
+  role="separator" aria-orientation="vertical": paragraph > separator[vertical] > paragraph
+== no style — internals role none
+  div:  paragraph > paragraph
+  list: list > listitem > listitem
+  role="separator": paragraph > separator[horizontal] > paragraph
+  role="separator" aria-orientation="vertical": paragraph > separator[vertical] > paragraph
+== display: block — no role
+  div:  paragraph > paragraph
+  list: list > listitem > listitem
+  role="separator": paragraph > separator[horizontal] > paragraph
+  role="separator" aria-orientation="vertical": paragraph > separator[vertical] > paragraph
+== display: block — internals role none
+  div:  paragraph > paragraph
+  list: list > listitem > listitem
+  role="separator": paragraph > separator[horizontal] > paragraph
+  role="separator" aria-orientation="vertical": paragraph > separator[vertical] > paragraph
+== display: block; position: relative — no role
+  div:  paragraph > generic > paragraph
+  list: list > listitem > generic > listitem
+  role="separator": paragraph > separator[horizontal] > paragraph
+  role="separator" aria-orientation="vertical": paragraph > separator[vertical] > paragraph
+== display: block; position: relative — internals role none
+  div:  paragraph > paragraph
+  list: list > listitem > listitem
+  role="separator": paragraph > separator[horizontal] > paragraph
+  role="separator" aria-orientation="vertical": paragraph > separator[vertical] > paragraph
+== the divider's line, host not positioned — no role
+  div:  paragraph > paragraph
+  list: list > listitem > listitem
+  role="separator": paragraph > separator[horizontal] > paragraph
+  role="separator" aria-orientation="vertical": paragraph > separator[vertical] > paragraph
+== the divider's line, host not positioned — internals role none
+  div:  paragraph > paragraph
+  list: list > listitem > listitem
+  role="separator": paragraph > separator[horizontal] > paragraph
+  role="separator" aria-orientation="vertical": paragraph > separator[vertical] > paragraph
+== the divider's line, host position: relative — no role
+  div:  paragraph > generic > paragraph
+  list: list > listitem > generic > listitem
+  role="separator": paragraph > separator[horizontal] > paragraph
+  role="separator" aria-orientation="vertical": paragraph > separator[vertical] > paragraph
+== the divider's line, host position: relative — internals role none
+  div:  paragraph > paragraph
+  list: list > listitem > listitem
+  role="separator": paragraph > separator[horizontal] > paragraph
+  role="separator" aria-orientation="vertical": paragraph > separator[vertical] > paragraph
+
+chromium 158.0.8127.18
