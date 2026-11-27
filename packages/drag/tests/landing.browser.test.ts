@@ -9,6 +9,8 @@ import {
 } from '../src/free-drag.ts';
 import { Lifter } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
+import { layoutAnimation } from '../src/sortable/layout-animation.ts';
+import { xy } from '../src/sortable/xy.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
   basicSortable,
@@ -655,5 +657,127 @@ describe('drag:DRI-13 sortable landing after the commit', () => {
       animations: 0,
       parent: other,
     });
+  });
+});
+
+describe("drag:DRI-13 sortable landing of a drop on the item's own gap", () => {
+  type Path = ReadonlyArray<readonly [number, number]>;
+
+  const PATHS: ReadonlyArray<readonly [string, Path]> = [
+    [
+      'sideways',
+      [
+        [30, 0],
+        [60, 0],
+      ],
+    ],
+    [
+      'into another slot and back',
+      [
+        [0, 30],
+        [0, 90],
+        [0, 4],
+      ],
+    ],
+    [
+      'within its slot',
+      [
+        [0, 10],
+        [6, 14],
+      ],
+    ],
+  ];
+  const LONG = 100_000;
+  const VARIANTS: ReadonlyArray<
+    readonly [string, Partial<Parameters<typeof basicSortable>[1]>]
+  > = [
+    ['y()', {}],
+    [
+      'y() with a displacement',
+      {
+        displacement: layoutAnimation({
+          timing: () => ({ duration: LONG, easing: 'linear' }),
+        }),
+      },
+    ],
+    ['xy()', { axis: xy() }],
+  ];
+
+  const topLeft = (element: HTMLElement): string => {
+    const { left, top } = element.getBoundingClientRect();
+    return `${Math.round(left)},${Math.round(top)}`;
+  };
+  const flights = (element: HTMLElement): number =>
+    element
+      .getAnimations()
+      .filter(
+        (animation) => (animation.effect as KeyframeEffect).composite === 'add',
+      ).length;
+
+  for (const [variant, extra] of VARIANTS) {
+    for (const [name, path] of PATHS) {
+      it(`should land home from the drop position after a drag ${name}, with ${variant}`, async () => {
+        const list = makeList(4);
+        let asked = 0;
+
+        basicSortable(list, {
+          ...extra,
+          landing: landing({ duration: LONG, easing: 'linear' }),
+          onReorder() {
+            asked += 1;
+            return ReorderResolution.accept();
+          },
+        });
+
+        const item = row('r1');
+        const home = topLeft(item);
+        const { left, top } = item.getBoundingClientRect();
+        const x = left + 20;
+        const y = top + 20;
+
+        await commands.pointerMove(x, y);
+        await commands.pointerDown();
+
+        for (const [dx, dy] of path) {
+          // oxlint-disable-next-line no-await-in-loop -- one move at a time
+          await commands.pointerMove(x + dx, y + dy, 3);
+          // oxlint-disable-next-line no-await-in-loop -- one move at a time
+          await frames();
+        }
+
+        const dropped = topLeft(item);
+
+        await commands.pointerUp();
+
+        expect({
+          dropped: dropped === home,
+          released: topLeft(item),
+          flights: flights(item),
+        }).toEqual({ dropped: false, released: dropped, flights: 1 });
+        expect([asked, log]).toEqual([0, ['start', 'end:noop']]);
+
+        for (const animation of item.getAnimations()) {
+          animation.finish();
+        }
+
+        expect(topLeft(item)).toBe(home);
+      });
+    }
+  }
+
+  it('should still skip the landing for a fault', async () => {
+    const list = makeList(4);
+
+    basicSortable(list, {
+      landing: landing({ duration: LONG, easing: 'linear' }),
+      onReorder() {
+        throw new Error('thrown');
+      },
+    });
+    await grab('#r0', 0, 90);
+    await commands.pointerUp();
+
+    expect(flights(row('r0'))).toBe(0);
+    expect([log, faults.length]).toEqual([['start', 'end:canceled'], 1]);
   });
 });
