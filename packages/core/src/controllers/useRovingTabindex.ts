@@ -2,7 +2,6 @@ import { ControlledElement } from '../element.ts';
 import { Checkable } from '../traits/checkable.ts';
 import { Disableable } from '../traits/disableable.ts';
 import { Valuable } from '../traits/valuable.ts';
-import { createEventNotifier } from '../utils/DOM.ts';
 import { useAttributes } from './useAttributes.ts';
 import { useConnected } from './useConnected.ts';
 import { useEvents } from './useEvents.ts';
@@ -12,11 +11,6 @@ import { useSlot } from './useSlot.ts';
 type Host = ControlledElement & Valuable;
 type Item = ControlledElement & Checkable & Valuable & Disableable;
 
-const notifySelection = createEventNotifier({
-  input: { cancelable: false },
-  change: { cancelable: false, composed: false },
-});
-
 function notifyFocused(item: Item | undefined): void {
   // Keep the host controlled-only: emit events but don't mutate state here.
   if (!item || item.checked) {
@@ -24,7 +18,8 @@ function notifyFocused(item: Item | undefined): void {
   }
 
   // Match native radio behavior by emitting the same events on selection.
-  notifySelection(item, 'input', 'change');
+  item.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+  item.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
 function isItem(node: unknown): node is Item {

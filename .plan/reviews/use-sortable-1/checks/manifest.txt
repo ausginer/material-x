@@ -1,0 +1,30 @@
+# custom-elements.json built at 94167bb33 with aube exec just build-cem in packages/material-x, 2026-11-27. Each export whose declaration names a module that the manifest doesn't list, then sortable-list's module, then who reads the manifest in the repository.
+## modules listed: 22 ; any module path naming reorder-event or useSortable: false
+## exports that reference an unlisted module
+src/list/sortable-list.ts js ReorderEvent -> ./reorder-event.ts
+src/list/sortable-list.ts js ReorderEventInit -> ./reorder-event.ts
+src/text-field/multiline-text-field.ts js TextFieldProperties -> ./TextFieldCore.ts
+src/text-field/multiline-text-field.ts js TextFieldEvents -> ./TextFieldCore.ts
+src/text-field/multiline-text-field.ts js TextFieldCSSProperties -> ./TextFieldCore.ts
+src/text-field/text-field.ts js TextFieldProperties -> ./TextFieldCore.ts
+src/text-field/text-field.ts js TextFieldEvents -> ./TextFieldCore.ts
+src/text-field/text-field.ts js TextFieldCSSProperties -> ./TextFieldCore.ts
+## src/list/sortable-list.ts declarations [["class","SortableList"]]
+## SortableList events [{"description":"A `ReorderEvent`, fired on the list for each move the user proposes. It carries `item`, `from`, `to`, `previous` and `next`, and `list.insertBefore(event.item, event.next)` applies it. The list never moves an item itself. The item stays lifted until the list's children show the move, so the consumer may commit in the handler or later, as in a framework render. After 500 ms the item lands where the DOM has it. `preventDefault()` rejects the move, and the item lands home.","name":"reorder"}]
+## any declaration named ReorderEvent: false
+## readers of custom-elements.json in the tree (git grep from the root, without .plan/ and the lockfile)
+.gitignore:13:/packages/*/custom-elements.json
+.oxlintrc.json:42:    "custom-elements.json",
+.oxlintrc.json:46:    "packages/*/custom-elements.json",
+.storybook/docs/ApiTables.tsx:37:          Could not find <code>{tag}</code> in <code>custom-elements.json</code>
+.storybook/docs/SummaryOrWarning.tsx:17:      <code>custom-elements.json</code>. Run <code>aube run build:cem</code> and
+.storybook/docs/cem.ts:2:import manifestJSON from '../../packages/material-x/custom-elements.json' with { type: 'json' };
+packages/material-x/files.json:28:    "extras": ["core", "custom-elements.json"]
+packages/material-x/package.json:20:    "custom-elements.json",
+packages/material-x/package.json:179:  "customElements": "custom-elements.json"
+## .storybook/docs/cem.ts keeps a declaration only by its tagName, and reads its events' name and description
+.storybook/docs/cem.ts:77:  return declarations.find((declaration) => declaration.tagName === tag);
+.storybook/docs/cem.ts:146:      name: normalizeName(event.name),
+.storybook/docs/cem.ts:147:      description: event.description,
+.storybook/docs/cem.ts:149:    .filter((event) => Boolean(event.name))
+.storybook/docs/cem.ts:152:      name: event.name!,
