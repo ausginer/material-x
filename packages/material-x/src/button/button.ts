@@ -1,3 +1,4 @@
+import { useFormActivation } from '@ydinjs/core/controllers/useFormActivation.js';
 import {
   ControlledElement,
   type ControlledElementConstructor,
@@ -11,7 +12,6 @@ import {
 import { type Typeable, useTypeable } from '@ydinjs/core/traits/typeable.js';
 import type { EmptyObject } from 'type-fest';
 import type { FocusForwarding } from '../core/traits/focus-forwarding.ts';
-import { useFormActivation } from '../core/utils/events.ts';
 import buttonTemplate from './button.tpl.html' with { type: 'html' };
 import {
   type ButtonCoreTraits,

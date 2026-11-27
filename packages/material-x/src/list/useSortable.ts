@@ -1,5 +1,6 @@
 import { useProvider } from '@ydinjs/core/controllers/useContext.js';
 import {
+  parseMs,
   useCSSProps,
   type CSSPropDescription,
 } from '@ydinjs/core/controllers/useCSSProps.js';
@@ -17,7 +18,7 @@ import {
   type SortableController,
 } from '@ydinjs/drag/sortable.js';
 import { useAriaNotifyPolyfill } from '../core/polyfills/aria-notify/aria-notify.ts';
-import { identity, parseMs } from '../core/utils/fns.ts';
+import { identity } from '../core/utils/fns.ts';
 import { ReorderEvent } from './reorder-event.ts';
 import { handleOf, isDisabled, sortItem } from './sortable-item.ts';
 import { SORTABLE_LIST_CTX } from './sortable-list-context.ts';

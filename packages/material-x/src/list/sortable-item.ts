@@ -1,17 +1,7 @@
+import { AttributeClaimer } from '@ydinjs/core/utils/AttributeClaimer.js';
 import type { SortableItem } from './sortable-list-context.ts';
 
 const DESCRIPTION = 'Use the arrow keys to move';
-
-/** The attributes the item claims, which its observer watches. */
-const CLAIMED: MutationObserverInit = {
-  attributeFilter: [
-    'tabindex',
-    'role',
-    'aria-label',
-    'aria-description',
-    'aria-disabled',
-  ],
-};
 
 /**
  * The item's handle: a child element with `data-handle` in its `lead` or
@@ -30,58 +20,6 @@ export function handleOf(item: HTMLElement): HTMLElement | null {
  */
 export function isDisabled(item: HTMLElement): boolean {
   return item.matches(':state(disabled)');
-}
-
-function unclaim(
-  element: HTMLElement | null,
-  owned: Set<string>,
-  name: string,
-): void {
-  if (!owned.delete(name)) {
-    return;
-  }
-
-  if (name !== 'touch-action') {
-    element!.removeAttribute(name);
-  } else if (element!.style.touchAction === 'none') {
-    // No observer sees an inline style, so only a different value tells a
-    // consumer's `touch-action` from the item's.
-    element!.style.removeProperty(name);
-  }
-}
-
-/**
- * Writes the attribute when the element doesn't have it, or has the item's own
- * value, and records it in `owned`. With `null`, removes the item's own value.
- * `touch-action` is the inline style property.
- */
-function claim(
-  element: HTMLElement,
-  owned: Set<string>,
-  name: string,
-  value: string | null,
-): void {
-  if (value === null) {
-    unclaim(element, owned, name);
-  } else if (name === 'touch-action') {
-    if (!element.style.touchAction) {
-      element.style.touchAction = value;
-      owned.add(name);
-    }
-  } else if (
-    owned.has(name)
-      ? element.getAttribute(name) !== value
-      : !element.hasAttribute(name)
-  ) {
-    element.setAttribute(name, value);
-    owned.add(name);
-  }
-}
-
-function release(element: HTMLElement | null, owned: Set<string>): void {
-  for (const name of owned) {
-    unclaim(element, owned, name);
-  }
 }
 
 /**
@@ -114,71 +52,62 @@ export function sortItem(
     return undefined;
   }
 
-  const handleOwned = new Set<string>();
-  const controlOwned = new Set<string>();
+  const controlClaims = new AttributeClaimer(control);
   let handle: HTMLElement | null = null;
+  let handleClaims: AttributeClaimer | null = null;
+  // Whether the handle's inline `touch-action` is the item's. No observer
+  // sees an inline style, so only a different value tells a consumer's
+  // `touch-action` from the item's.
+  let ownsTouchAction = false;
 
-  // Each record that reaches this function is another writer's, so its
-  // attribute stops being the item's.
-  const disown = (records: readonly MutationRecord[]): void => {
-    for (const { target, attributeName } of records) {
-      if (target === control) {
-        controlOwned.delete(attributeName!);
-      } else if (target === handle) {
-        handleOwned.delete(attributeName!);
+  const releaseTouchAction = (): void => {
+    if (ownsTouchAction) {
+      ownsTouchAction = false;
+
+      if (handle!.style.touchAction === 'none') {
+        handle!.style.removeProperty('touch-action');
       }
     }
   };
-  const observer = new MutationObserver(disown);
-
-  // Runs the item's own writes and removals: the pending records, which are
-  // another writer's, are applied first, and those of the item's own writes
-  // are dropped.
-  const write = (run: () => void): void => {
-    disown(observer.takeRecords());
-    run();
-    observer.takeRecords();
-  };
-
-  observer.observe(control, CLAIMED);
 
   const update = (): void => {
-    write(() => {
-      const next = handleOf(host);
-      const disabled = isDisabled(host);
-      const description = disabled ? null : DESCRIPTION;
+    const next = handleOf(host);
+    const disabled = isDisabled(host);
+    const description = disabled ? null : DESCRIPTION;
 
-      if (next !== handle) {
-        release(handle, handleOwned);
-        handle = next;
-        observer.disconnect();
-        observer.observe(control, CLAIMED);
+    if (next !== handle) {
+      handleClaims?.release();
+      releaseTouchAction();
+      handle = next;
+      handleClaims = handle && new AttributeClaimer(handle);
+    }
 
-        if (handle) {
-          observer.observe(handle, CLAIMED);
-        }
+    if (handle) {
+      handleClaims!.set({
+        tabindex: disabled ? '-1' : '0',
+        role: 'button',
+        // `aria-labelledby` names the handle instead, so the item's own
+        // label goes.
+        'aria-label': handle.hasAttribute('aria-labelledby') ? null : 'Reorder',
+        'aria-description': description,
+        'aria-disabled': disabled ? 'true' : null,
+      });
+
+      if (disabled) {
+        releaseTouchAction();
+      } else if (!handle.style.touchAction) {
+        handle.style.touchAction = 'none';
+        ownsTouchAction = true;
       }
 
-      if (handle) {
-        claim(handle, handleOwned, 'tabindex', disabled ? '-1' : '0');
-        claim(handle, handleOwned, 'role', 'button');
-
-        if (!handle.hasAttribute('aria-labelledby')) {
-          claim(handle, handleOwned, 'aria-label', 'Reorder');
-        }
-
-        claim(handle, handleOwned, 'aria-description', description);
-        claim(handle, handleOwned, 'aria-disabled', disabled ? 'true' : null);
-        claim(handle, handleOwned, 'touch-action', disabled ? null : 'none');
-        release(control, controlOwned);
-      } else {
-        if (control === host) {
-          claim(control, controlOwned, 'tabindex', '0');
-        }
-
-        claim(control, controlOwned, 'aria-description', description);
-      }
-    });
+      controlClaims.set({ tabindex: null, 'aria-description': null });
+    } else {
+      controlClaims.set(
+        control === host
+          ? { tabindex: '0', 'aria-description': description }
+          : { 'aria-description': description },
+      );
+    }
   };
 
   const state = new MutationObserver(update);
@@ -200,16 +129,14 @@ export function sortItem(
   return {
     update,
     release: () => {
-      write(() => {
-        release(handle, handleOwned);
-        release(control, controlOwned);
-      });
+      handleClaims?.release();
+      releaseTouchAction();
+      controlClaims.release();
 
       if (link) {
         control.removeAttribute('draggable');
       }
 
-      observer.disconnect();
       state.disconnect();
       handle = null;
     },

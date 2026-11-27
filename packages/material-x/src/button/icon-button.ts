@@ -1,9 +1,9 @@
+import { useFormActivation } from '@ydinjs/core/controllers/useFormActivation.js';
 import {
   ControlledElement,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
-import { useFormActivation } from '../core/utils/events.ts';
 import { useButtonCore } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
 import {

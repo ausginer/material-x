@@ -1,39 +1,6 @@
-import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
-import { internals, type ControlledElement } from '@ydinjs/core/element.js';
-import type { Typeable } from '@ydinjs/core/traits/typeable.js';
-/**
- * Delegates clicks originating directly on a custom-element host to its
- * internal native control.
- *
- * @remarks Clicks originating from the internal control pass through
- * unchanged. A direct host click is suppressed and replaced by the native
- * control's activation so consumers observe one native event sequence.
- *
- * @param host - Custom-element host receiving direct activation.
- * @param target - Internal native control that owns activation behavior.
- */
-export function useClickActivation(
-  host: ControlledElement,
-  target: HTMLElement,
-): void {
-  useEvents(host, {
-    click: [
-      (event) => {
-        if (event.composedPath()[0] !== host) {
-          return;
-        }
-
-        // The host has no native click default of its own; `preventDefault`
-        // guards the form-associated case, where activating the host would
-        // otherwise trigger implicit submission alongside the delegated click.
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        target.click();
-      },
-      { capture: true },
-    ],
-  });
-}
+import { internals, type ControlledElement } from '../element.ts';
+import type { Typeable } from '../traits/typeable.ts';
+import { useEvents } from './useEvents.ts';
 
 /**
  * Wires outer-form participation for a form-associated button host.
@@ -43,7 +10,9 @@ export function useClickActivation(
  * default) requests submission and attributes it to the host as the submitter,
  * `type="reset"` resets the form, and `type="button"` does nothing. The
  * internal native control lives in the shadow tree and cannot reach the outer
- * form on its own, so the host drives the form explicitly.
+ * form on its own, so the host drives the form explicitly. A click whose
+ * default was prevented does nothing: that includes the host click that
+ * `useClickActivation` cancels and replaces with its control's click.
  *
  * @param host - Form-associated custom-element host. Its optional `type` field
  *   selects the behavior and defaults to `"submit"`.

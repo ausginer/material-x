@@ -1,6 +1,7 @@
 import { Bool } from '@ydinjs/core/attribute.js';
 import { setOwnARIA } from '@ydinjs/core/controllers/useARIA.js';
 import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
+import { useClickActivation } from '@ydinjs/core/controllers/useClickActivation.js';
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
 import type {
@@ -24,7 +25,6 @@ import {
   BUTTON_GROUP_ELEMENTS,
 } from '../button-group/button-group-context.ts';
 import type { FocusForwarding } from '../core/traits/focus-forwarding.ts';
-import { useClickActivation } from '../core/utils/events.ts';
 import { useContext } from '../core/utils/useContext.ts';
 import { useButtonCore, type ButtonCoreTraits } from './ButtonCore.ts';
 

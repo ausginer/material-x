@@ -1,0 +1,11 @@
+# RD-73 property 10's row, slot h, 2026-11-27, Chromium, from packages/material-x:
+# src/list/sortable-item.ts as at 2c6a65ad3 (today's), the rest of the working tree, then
+# aube exec just test-behavior tests/list/sortable-list.browser.test.ts -t aria-label
+
+     × should remove its Reorder label at an update after the handle gains aria-labelledby 646ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+- Expected
++ Received
+- false
++ true
+      Tests  1 failed | 2 passed | 222 skipped (225)
