@@ -11,6 +11,8 @@ Both are useful, but they describe different layers of the component model.
 
 Attributes are the public API. They are authored by users, visible in markup, and available before the custom element is upgraded.
 
+**A choice among values is one enumerated attribute, never several booleans that can be set together.** `mx-divider` takes `inset="start" | "middle"`, and not `inset`, `inset-start` and `inset-end`: with three booleans a page can set two at once, and nothing says which applies. A boolean attribute is for one condition that is on or off, such as `disabled` (`repo:RD-71`).
+
 ```css
 :host([disabled]) {
 }
