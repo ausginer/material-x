@@ -6,7 +6,8 @@
   --_level: var(--_container-elevation);
   display: flow-root;
   box-sizing: border-box !important;
-  padding: var(--md-card-padding, 16px) !important;
+  padding-inline: var(--md-card-padding-inline, 16px) !important;
+  padding-block: var(--md-card-padding-block, 16px) !important;
   border-radius: var(--md-card-container-shape, var(--_container-shape));
   background-color: var(--md-card-container-color, var(--_container-color));
 }
@@ -22,4 +23,16 @@ slot {
 
   /* Passes the card's radius to the content that inherits it. */
   border-radius: inherit;
+}
+
+/*
+ * A horizontal `mx-divider` directly in the card reaches the card's edges, and
+ * its inset is measured from them: the rule pulls the divider's box out by the
+ * card's inline padding, and the divider draws its line and insets inside its
+ * own box (`divider/styles/default/main.styles.css`). A page's margin beats a
+ * `::slotted` rule, so a universal reset needs the `!important`, and a page's
+ * inline margin on the divider doesn't apply.
+ */
+::slotted(mx-divider:not(:state(vertical))) {
+  margin-inline: calc(-1 * var(--md-card-padding-inline, 16px)) !important;
 }

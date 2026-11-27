@@ -1,5 +1,5 @@
-import { page, server, userEvent } from 'vitest/browser';
-import { nextFrame, settleAnimations } from './browser.ts';
+import { server, userEvent } from 'vitest/browser';
+import { capture, nextFrame, settleAnimations } from './browser.ts';
 
 /**
  * The key that moves focus to every control. Safari's default Tab skips
@@ -29,20 +29,6 @@ const REACH = 6;
 
 /** How far apart two channels may be and still be the same color. */
 const TOLERANCE = 12;
-
-async function capture(frame: HTMLElement): Promise<ImageData> {
-  await nextFrame();
-  await nextFrame();
-  const image = new Image();
-  image.src = `data:image/png;base64,${await page.screenshot({ element: frame, save: false })}`;
-  await image.decode();
-  const canvas = document.createElement('canvas');
-  canvas.width = image.width;
-  canvas.height = image.height;
-  const context = canvas.getContext('2d')!;
-  context.drawImage(image, 0, 0);
-  return context.getImageData(0, 0, image.width, image.height);
-}
 
 function channels(color: string): Uint8ClampedArray {
   const canvas = document.createElement('canvas');

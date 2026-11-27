@@ -58,6 +58,12 @@ import type {
   CheckboxEvents,
   CheckboxProperties,
 } from './checkbox/checkbox.ts';
+import type Divider from './divider/divider.ts';
+import type {
+  DividerCSSProperties,
+  DividerEvents,
+  DividerProperties,
+} from './divider/divider.ts';
 import type FAB from './fab/fab.ts';
 import type { FABCSSProperties, FABEvents, FABProperties } from './fab/fab.ts';
 import type Icon from './icon/icon.ts';
@@ -182,6 +188,8 @@ type CardJSX = JSXWrapper<Card, CardProperties, CardEvents>;
 
 type CheckboxJSX = JSXWrapper<Checkbox, CheckboxProperties, CheckboxEvents>;
 
+type DividerJSX = JSXWrapper<Divider, DividerProperties, DividerEvents>;
+
 type RadioJSX = JSXWrapper<Radio, RadioProperties, RadioEvents>;
 
 type SliderJSX = JSXWrapper<Slider, SliderProperties, SliderEvents>;
@@ -230,6 +238,7 @@ declare module 'react' {
       'mx-connected-button-group': ConnectedButtonGroupJSX;
       'mx-card': CardJSX;
       'mx-checkbox': CheckboxJSX;
+      'mx-divider': DividerJSX;
       'mx-fab': FABJSX;
       'mx-list': ListJSX;
       'mx-list-item': ListItemJSX;
@@ -256,6 +265,7 @@ declare module 'react' {
       ConnectedButtonGroupCSSProperties,
       CardCSSProperties,
       CheckboxCSSProperties,
+      DividerCSSProperties,
       FABCSSProperties,
       IconCSSProperties,
       ListCSSProperties,

@@ -44,7 +44,8 @@ export type CardCSSProperties = Readonly<{
   '--md-card-container-color'?: string;
   '--md-card-container-shape'?: string;
   '--md-card-outline-color'?: string;
-  '--md-card-padding'?: string;
+  '--md-card-padding-block'?: string;
+  '--md-card-padding-inline'?: string;
 }>;
 
 const CardConstructor: Composed<
@@ -72,8 +73,12 @@ const CardConstructor: Composed<
  * reaches nothing inside it, and WebKit doesn't. Content at the card's edge that
  * is positioned, or has an `opacity` or a `transform`, paints over the outline.
  *
- * `--md-card-padding` sets the padding. A `padding` that the page sets on the
- * card doesn't apply.
+ * `--md-card-padding-inline` and `--md-card-padding-block` set the padding,
+ * each one length. A `padding` that the page sets on the card doesn't apply.
+ *
+ * A horizontal `mx-divider` that is a direct child of the card reaches the
+ * card's edges, and its inset is measured from the card's edge. Its inline
+ * margin doesn't apply.
  *
  * On an outlined card, an `outline` that the page sets applies only while the
  * card matches `:focus-visible`.
@@ -87,8 +92,12 @@ const CardConstructor: Composed<
  * @cssprop --md-card-container-shape - Overrides the container corner radius.
  * @cssprop --md-card-outline-color - Overrides the outline color of the
  * outlined variant.
- * @cssprop --md-card-padding - Overrides the space between the container's edge
- * and the content. Set to `0` for full-bleed content.
+ * @cssprop --md-card-padding-block - Overrides the space between the
+ * container's block edges and the content. Set both to `0` for full-bleed
+ * content.
+ * @cssprop --md-card-padding-inline - Overrides the space between the
+ * container's inline edges and the content. Set both to `0` for full-bleed
+ * content.
  */
 export default class Card extends CardConstructor {
   constructor() {

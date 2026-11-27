@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { CSSProperties, JSX } from 'react';
 import '../button/button.ts';
+import '../divider/divider.ts';
 import css from '../story.module.css';
 // oxlint-disable-next-line import/no-duplicates
 import './card.ts';
@@ -68,7 +69,8 @@ export const ContentWithActions = (): JSX.Element => (
 
 const MEDIA_STYLES: CSSProperties = {
   inlineSize: '280px',
-  '--md-card-padding': '0',
+  '--md-card-padding-inline': '0',
+  '--md-card-padding-block': '0',
 };
 
 const IMAGE_STYLES: CSSProperties = {
@@ -87,5 +89,16 @@ export const FullBleedMedia = (): JSX.Element => (
       <h3 style={HEADING_STYLES}>Heading</h3>
       <p>Supporting text about the subject of the card.</p>
     </div>
+  </mx-card>
+);
+
+const DIVIDER_STYLES: CSSProperties = { marginBlock: '16px' };
+
+export const WithADivider = (): JSX.Element => (
+  <mx-card variant="outlined" style={CONTENT_STYLES}>
+    <h3 style={HEADING_STYLES}>Heading</h3>
+    <p>Supporting text about the subject of the card.</p>
+    <mx-divider style={DIVIDER_STYLES} />
+    <mx-button color="text">Details</mx-button>
   </mx-card>
 );
