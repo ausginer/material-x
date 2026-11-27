@@ -1,0 +1,93 @@
+# Read at 856db95cb on repo/decision-status-1, base 9342359bf, 2026-11-27.
+## Added status fragments (count, then each):
+28
+== .plan/decisions/RD-12.md
+**Implemented** by #27, merged 2026-11-16 as `275ad0f5c` (added 2026-11-27, `RD-68`)
+**Implemented** by #27, merged 2026-11-16 as `275ad0f5c` (added 2026-11-27, `RD-68`)
+**Implemented** by #29, merged 2026-11-17 as `4e85ac046` (added 2026-11-27, `RD-68`)
+**Implemented** by #31, merged 2026-11-17 as `8cf9781fa` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-14.md
+**Implemented** by #30, merged 2026-11-17 as `21392e738` (added 2026-11-27, `RD-68`)
+**Implemented** by #30, merged 2026-11-17 as `21392e738` (added 2026-11-27, `RD-68`)
+**Implemented** by `d6674ecfb` on #74, not yet merged. #74 merged 2026-11-19 as `73f079ade` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-15.md
+**Implemented** by #31, merged 2026-11-17 as `8cf9781fa` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-16.md
+**Implemented** by #31, merged 2026-11-17 as `8cf9781fa` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-17.md
+#33 merged 2026-11-17 as `e9236603e` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-18.md
+#33 merged 2026-11-17 as `e9236603e` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-21.md
+#38 merged 2026-11-18 as `83c3de7c5` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-23.md
+#66 merged 2026-11-19 as `bc7fe07d6` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-24.md
+**Implemented** by #68, merged 2026-11-19 as `91fc5d662` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-26.md
+**Implemented** by #76, merged 2026-11-19 as `162ead02b` (added 2026-11-27, `RD-68`)
+**Implemented** by #88, merged 2026-11-21 as `7c2732d1d` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-28.md
+#84 merged 2026-11-20 as `645410c12`. Steps 2 and 3 are implemented by #87, merged 2026-11-20 as `498d955fc` (added 2026-11-27, `RD-68`)
+**Implemented** by #196, merged 2026-11-23 as `0cac74e57` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-31.md
+#99 merged 2026-11-21 as `ce3ce5176` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-33.md
+#102 merged 2026-11-21 as `7cc702e1b` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-5.md
+**Implemented** by #24, merged 2026-11-15 as `3228d1f07` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-50.md
+**Implemented** by #203, merged 2026-11-23 as `2d1b5ca51` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-6.md
+**Implemented** by #30, merged 2026-11-17 as `21392e738` (added 2026-11-27, `RD-68`)
+**Implemented** by #31, merged 2026-11-17 as `8cf9781fa` (added 2026-11-27, `RD-68`)
+**Implemented** by #37, merged 2026-11-18 as `35bfc6209` (added 2026-11-27, `RD-68`)
+**Implemented** by #38, merged 2026-11-18 as `83c3de7c5` (added 2026-11-27, `RD-68`)
+== .plan/decisions/RD-64.md
+**Implemented** by #302, merged 2026-11-26 as `03eaeff45` (added 2026-11-27, `RD-68`)
+== packages/drag/.plan/decisions/DRO-18.md
+**In force in CI since #27,** merged 2026-11-16 as `275ad0f5c`, whose gate ran drag's projects in Safari, and **in Playwright's WebKit since #31,** merged 2026-11-17 as `8cf9781fa`, which moved Safari to the weekly `safari.yml` (added 2026-11-27, `repo:RD-68`)
+## Words removed from the 18 files by the word diff (expected 0):
+0
+## Each named merge commit is an ancestor of the base 9342359bf:
+3228d1f07 yes
+275ad0f5c yes
+4e85ac046 yes
+21392e738 yes
+8cf9781fa yes
+e9236603e yes
+35bfc6209 yes
+83c3de7c5 yes
+bc7fe07d6 yes
+91fc5d662 yes
+73f079ade yes
+162ead02b yes
+645410c12 yes
+498d955fc yes
+7c2732d1d yes
+ce3ce5176 yes
+7cc702e1b yes
+0cac74e57 yes
+2d1b5ca51 yes
+03eaeff45 yes
+## The named pull requests on GitHub (number, state, merged, merge commit, head branch, title):
+#24 MERGED 2026-11-15 3228d1f07 drag2/removal | drag: retire drag2, take its stories and guarantees, and replace __DEV__ with test-side oracles
+#27 MERGED 2026-11-16 275ad0f5c ci/verification | repo: verify every push and ready pull request in three engines, with a pinned visual environment
+#29 MERGED 2026-11-17 4e85ac046 repo/findings-1 | repo: resolve the open repository findings and repair the docs workflow
+#30 MERGED 2026-11-17 21392e738 repo/docs-gate-1 | repo: gate verify on the docs site, built and loaded in Chromium, and repair RF-46 with vite 8.4.0-beta.1
+#31 MERGED 2026-11-17 8cf9781fa repo/ci-speed-1 | repo: a faster gate, with WebKit in place of Safari, a [noci] path, and a full move to aube
+#33 MERGED 2026-11-17 e9236603e repo/harness-1 | repo: session slots on a worktrees volume, stacked pull requests, and the effort guard removed
+#37 MERGED 2026-11-18 35bfc6209 repo/declarations-check-1 | repo: type-check the published declarations in the gate, and type trait fields by a mapped brand (RF-51, RF-54
+#38 MERGED 2026-11-18 83c3de7c5 repo/ci-deps-1 | repo: fetch the runners' system packages once up front and install them offline (RF-58, RD-21)
+#66 MERGED 2026-11-19 bc7fe07d6 repo/state-layer-visual-1 | repo: the visual project compares at a threshold that sees state layers, chosen by a reading on the runner (RF
+#68 MERGED 2026-11-19 91fc5d662 repo/mx-size-1 | repo: material-x's size rows, one per runtime entry and a complete row, with no limits until its first publica
+#74 MERGED 2026-11-19 73f079ade repo/story-http-1 | repo: the checkbox's WithLabel story needs no secure context, and docs-smoke opens the site from an origin tha
+#76 MERGED 2026-11-19 162ead02b repo/traits-migration-1 | repo: traits are plain classes in two layers, composed by a Composed annotation that the flattener, now a requ
+#84 MERGED 2026-11-20 645410c12 tproc/tokens-source-1 | tproc: reads Material's tokens from a committed store of its own, converted from the tables it deletes (RD-28
+#87 MERGED 2026-11-20 498d955fc tproc/tokens-update-1 | tproc: token store at Material's release 2026-11-19_06-20-01, and a weekly check for new databases (RD-28 step
+#88 MERGED 2026-11-21 7c2732d1d repo/trait-decorator-2 | repo: the trait plugin's load stage keeps the doc of an export default trait and of one that other comments fo
+#99 MERGED 2026-11-21 ce3ce5176 material-x/list-roles-1 | material-x: each list item is a listitem on its row, the static item's .host or a row around an interactive it
+#102 MERGED 2026-11-21 7cc702e1b repo/trait-private-fields-1 | repo: a trait may declare private instance members, renamed per trait, and a constructor whose body runs after
+#196 MERGED 2026-11-23 0cac74e57 tproc/typescale-selection-1 | tproc: every token is read in one complete web context, and the components apply their tracking (RF-110, RF-92
+#203 MERGED 2026-11-23 2d1b5ca51 repo/tokens-notice-1 | repo: the token store's notice, and material-x's README on the specification (RD-50)
+#302 MERGED 2026-11-26 03eaeff45 repo/decision-files-1 | repo: a file per decision (RD-64)

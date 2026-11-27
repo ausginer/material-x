@@ -1,0 +1,3 @@
+BROKEN .plan/decisions/RD-26.md: o
+181 relative links checked, 1 broken
+# The one BROKEN line is RD-26's code '[Symbol.hasInstance](o)', unchanged since 9342359bf, not a link.
