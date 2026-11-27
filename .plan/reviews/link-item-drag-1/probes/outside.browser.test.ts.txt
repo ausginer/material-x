@@ -1,0 +1,75 @@
+// Feature proof of #325: a link item outside mx-sortable-list keeps its native drag.
+// Copied into packages/material-x/tests/list/ for a run, and removed after it.
+// Each case presses the anchor, moves 12 px, releases, and prints one JSON line.
+import { afterEach, describe, it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+import '../../src/list/list-link-item.ts';
+import '../../src/list/list.ts';
+import '../../src/list/sortable-list.ts';
+import { nextFrame } from '../browser.ts';
+
+const CASES = [
+  ['in mx-list', async (item: HTMLElement) => {
+    const list = document.createElement('mx-list');
+    list.append(item);
+    document.body.append(list);
+    await nextFrame();
+  }],
+  ['moved from mx-sortable-list into mx-list', async (item: HTMLElement) => {
+    const sortable = document.createElement('mx-sortable-list');
+    sortable.append(item);
+    document.body.append(sortable);
+    await nextFrame();
+    const list = document.createElement('mx-list');
+    document.body.append(list);
+    list.append(item);
+    await nextFrame();
+  }],
+  ['removed from mx-sortable-list into body', async (item: HTMLElement) => {
+    const sortable = document.createElement('mx-sortable-list');
+    sortable.append(item);
+    document.body.append(sortable);
+    await nextFrame();
+    document.body.append(item);
+    await nextFrame();
+  }],
+  ['in mx-sortable-list', async (item: HTMLElement) => {
+    const sortable = document.createElement('mx-sortable-list');
+    sortable.append(item);
+    document.body.append(sortable);
+    await nextFrame();
+  }],
+] as const;
+
+afterEach(async () => {
+  await commands.pointerRelease().catch(() => {});
+  document.body.replaceChildren();
+});
+
+describe('fp325 outside', () => {
+  for (const [name, place] of CASES) {
+    it(name, async () => {
+      const item = document.createElement('mx-list-link-item');
+      item.setAttribute('href', '#fp325');
+      item.append('A');
+      await place(item);
+      const anchor = item.shadowRoot!.querySelector<HTMLAnchorElement>('.host')!;
+      const drags: string[] = [];
+      document.addEventListener('dragstart', (e) => drags.push((e.composedPath()[0] as Element).localName), { capture: true, once: true });
+      const { left, top, width, height } = anchor.getBoundingClientRect();
+      const [x, y] = [left + width / 2, top + height / 2];
+      await commands.pointerPress(x, y);
+      await commands.pointerMove(x, y + 12, 3);
+      await commands.pointerRelease();
+      await nextFrame();
+      console.log(JSON.stringify({
+        engine: server.browser,
+        case: name,
+        attribute: anchor.getAttribute('draggable'),
+        draggable: anchor.draggable,
+        userDrag: getComputedStyle(anchor).getPropertyValue('-webkit-user-drag') || null,
+        dragstart: drags,
+      }));
+    });
+  }
+});
