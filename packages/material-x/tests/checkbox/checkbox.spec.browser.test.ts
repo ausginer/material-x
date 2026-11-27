@@ -60,6 +60,24 @@ async function errorColor(state: string, token: string): Promise<string> {
   return resolveComputed('color', String(values[token]!));
 }
 
+/**
+ * Runs `observe` with on-error set to a color of its own. The fixture theme's
+ * on-error and on-primary are both white, so an icon row can't tell them apart
+ * without it.
+ */
+async function withDistinctOnError<T>(
+  observe: () => T | Promise<T>,
+): Promise<T> {
+  const root = document.documentElement;
+  root.style.setProperty('--md-sys-color-on-error', 'rgb(1, 2, 3)');
+
+  try {
+    return await observe();
+  } finally {
+    root.style.removeProperty('--md-sys-color-on-error');
+  }
+}
+
 /** What a checkbox draws: its box's colors, the host's opacity and the icon's color. */
 function drawn(element: HTMLElement): Readonly<Record<string, string>> {
   const box = getBox(element);
@@ -163,25 +181,17 @@ describe('mx-checkbox error visual contract', () => {
     },
   );
 
-  /*
-   * The fixture theme's on-error and on-primary are both white, so the row
-   * gives on-error a color of its own, which the expected value reads too.
-   */
+  // The expected value resolves on-error under the same distinct color.
   it.each(SELECTED)(
     'should render the error icon color when %s',
     async (_, attributes) => {
-      const root = document.documentElement;
-      root.style.setProperty('--md-sys-color-on-error', 'rgb(1, 2, 3)');
-
-      try {
+      await withDistinctOnError(async () => {
         const icon = iconOf(createCheckbox('error', ...attributes));
 
         expect(getComputedStyle(icon).color).toBe(
           await errorColor('error.selected.default', 'icon.color'),
         );
-      } finally {
-        root.style.removeProperty('--md-sys-color-on-error');
-      }
+      });
     },
   );
 
@@ -208,15 +218,18 @@ describe('mx-checkbox disabled with error', () => {
   /*
    * No token combines error with disabled. A disabled control takes no
    * correction, so it draws its disabled appearance, and `error` keeps only
-   * its state and announcement.
+   * its state and announcement. On-error has a color of its own, so the error
+   * icon color differs from the disabled one.
    */
   it.each(SELECTIONS)(
     'should draw what a disabled %s checkbox draws without error',
-    (_, attributes) => {
-      const disabled = createCheckbox('disabled', ...attributes);
-      const error = createCheckbox('disabled', 'error', ...attributes);
+    async (_, attributes) => {
+      await withDistinctOnError(() => {
+        const disabled = createCheckbox('disabled', ...attributes);
+        const error = createCheckbox('disabled', 'error', ...attributes);
 
-      expect(drawn(error)).toStrictEqual(drawn(disabled));
+        expect(drawn(error)).toStrictEqual(drawn(disabled));
+      });
     },
   );
 });

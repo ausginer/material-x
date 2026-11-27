@@ -13,7 +13,7 @@ The branch merges into `origin/main` at `2b193971e` without a conflict.
 **Outcome: accepted. Three findings:**
 
 - **fp-1, tier C, for the architect:** the ruling's witness doesn't hold under a mechanism that the ruling allows.
-- **fp-2, tier B:** the disabled-with-error rows can't see the error icon color, because the fixture theme draws `on-error` and `on-primary` in the same white.
+- **fp-2, tier B, closed 2026-11-27:** the disabled-with-error rows can't see the error icon color, because the fixture theme draws `on-error` and `on-primary` in the same white.
 - **fp-3, tier A, pre-existing and outside the unit:** the checkbox draws non-Material values in four states that its rows don't read.
 
 The required property holds in Chromium, Firefox and WebKit. With `error`, the checkbox draws Material's error outline, container, icon and state layers. With `error` and `disabled`, it draws exactly what it draws with `disabled` alone, in each selection. The existing compiled blocks are unchanged. The baseline shows the three error states. Every unmutated row passes, here in Chromium and on CI in all three engines, and CI's `verify` passed on `00040d137`.
@@ -102,6 +102,7 @@ The ruling names: _"with the error states rendered after the disabled ones, the 
 - **Why it matters.** Under W2, a disabled checked or indeterminate checkbox with `error` draws the icon in `on-error`, and with `disabled` alone in `on-primary`. In Chromium, Firefox and WebKit, the `disabled` probe gives `differs: ["icon"]` with distinct colors and `differs: []` in the fixture theme. The unit's rows under W2 fail only the unselected selection. So a change that let the error icon color reach a disabled checkbox fails no row, although the ruled property, _"exactly what it draws with `disabled` alone"_, fails in any theme where the two colors differ.
 - **Evidence.** [`checks/disabled.txt`](checks/disabled.txt) and [`checks/mutations.txt`](checks/mutations.txt) (W2).
 - **Required property.** The disabled-with-error rows fail when any value that the error states set (container, outline or icon color) reaches a disabled checkbox, in each selection.
+- **Closed 2026-11-27 by the implementer,** on `material-x/checkbox-error-1` after `2424da17a`, with no source change. The disabled-with-error rows now draw both checkboxes with `--md-sys-color-on-error` set to a color of its own, the same one that the error icon rows set, through one helper. Under W2, in Chromium, every selection's row fails: the unselected one by the outline, and the checked and indeterminate ones by the icon, `rgb(1, 2, 3)` against `rgb(255, 255, 255)`. W3 fails the same three rows, and the unmutated rows pass. Reading: [`../../checkbox-error-1/checks/disabled-icon.txt`](../../checkbox-error-1/checks/disabled-icon.txt). Firefox and WebKit are CI's, by `RD-62` property 1.
 
 ### fp-3 — The checkbox draws non-Material values in four states. Pre-existing
 
