@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import '../../src/radio/radio.ts';
-import { nextFrame, settleAnimations, whenFontsReady } from '../browser.ts';
+import {
+  nextFrame,
+  nextPaint,
+  settleAnimations,
+  whenFontsReady,
+} from '../browser.ts';
 
 function createFixture(name: string): HTMLDivElement {
   const fixture = document.createElement('div');
@@ -69,6 +74,7 @@ describe('radio visual regression', () => {
     const element = appendRadio(fixture, { checked: '' });
 
     await settleFixture(fixture);
+    await nextPaint();
     await userEvent.hover(element);
 
     await expect
@@ -81,6 +87,7 @@ describe('radio visual regression', () => {
     appendRadio(fixture);
 
     await settleFixture(fixture);
+    await nextPaint();
     await userEvent.tab();
 
     await expect

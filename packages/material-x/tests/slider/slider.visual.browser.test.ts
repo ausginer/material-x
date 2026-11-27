@@ -2,7 +2,12 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { commands, page, userEvent } from 'vitest/browser';
 import type Slider from '../../src/slider/slider.ts';
 import '../../src/slider/slider.ts';
-import { nextFrame, settleAnimations, whenFontsReady } from '../browser.ts';
+import {
+  nextFrame,
+  nextPaint,
+  settleAnimations,
+  whenFontsReady,
+} from '../browser.ts';
 
 const VALUES = ['0', '40', '100'] as const;
 
@@ -87,8 +92,10 @@ describe('slider visual regression', () => {
   it('should match the held slider with its value indicator', async () => {
     const fixture = createFixture('slider-held');
     const slider = appendSlider(fixture, { indicator: '', value: '40' });
-    const { left, top, width, height } = slider.getBoundingClientRect();
 
+    await whenFontsReady();
+    await nextPaint();
+    const { left, top, width, height } = slider.getBoundingClientRect();
     await commands.pointerPress(left + width * 0.6, top + height / 2);
 
     await capture(fixture);
@@ -98,6 +105,8 @@ describe('slider visual regression', () => {
     const fixture = createFixture('slider-focused');
     appendSlider(fixture, { indicator: '', value: '40' });
 
+    await whenFontsReady();
+    await nextPaint();
     await userEvent.tab();
 
     await capture(fixture);

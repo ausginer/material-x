@@ -18,6 +18,19 @@ export async function nextFrame(): Promise<void> {
   });
 }
 
+/**
+ * Resolves once the page has painted a frame since the call: the second
+ * frame's callback runs after the first frame's paint. A visual row awaits it
+ * before the input that gives its fixture a state, because Chromium rasterizes
+ * a focus ring's curved edge differently when the ring is in an element's
+ * first paint and when input adds it to an element already painted. Without
+ * the wait, the order depends on how long the input's round trip takes.
+ */
+export async function nextPaint(): Promise<void> {
+  await nextFrame();
+  await nextFrame();
+}
+
 /** Parses a CSS pixel string (`"40px"`) into its numeric value. */
 export function pixels(value: string | number): number {
   if (typeof value !== 'string' || !value.endsWith('px')) {

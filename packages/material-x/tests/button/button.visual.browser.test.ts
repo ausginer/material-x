@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import '../../src/button/button.ts';
 import '../../src/button/switch-button.ts';
-import { whenFontsReady } from '../browser.ts';
+import { nextPaint, whenFontsReady } from '../browser.ts';
 
 function createFixture(name: string): HTMLDivElement {
   const fixture = document.createElement('div');
@@ -126,6 +126,7 @@ describe('mx-button visual regression', () => {
     const button = appendButton(fixture, { color: 'elevated' });
 
     await whenFontsReady();
+    await nextPaint();
     await userEvent.hover(button);
 
     await expect
@@ -138,6 +139,7 @@ describe('mx-button visual regression', () => {
     appendButton(fixture, { color: 'elevated' });
 
     await whenFontsReady();
+    await nextPaint();
     await userEvent.tab();
 
     await expect

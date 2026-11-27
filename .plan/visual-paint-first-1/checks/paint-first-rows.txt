@@ -1,0 +1,54 @@
+# Output of probes/paint-first-rows.browser.test.ts.txt, twice, slot g at d1d653557 plus the eight rows' new steps
+# (tests/browser.ts nextPaint), Chromium 158, local, 2026-11-27.
+# aube exec vitest run --project browser tests/zz-probe-rf159.browser.test.ts
+# Each of the eight input rows' fixtures, under the steps the rows had ("old") and the steps they have now ("new"),
+# 10 times each, read 150 ms after the input as checks/paint-order.txt's probe reads. Per distinct result: its count and the
+# SHA-1 prefix of the fixture's RGBA; for button-focused, also the red channel of x 10-15, y 33-38 (the ring's left apex).
+# checks/paint-order.txt's frame-then-tab image is 2e63a491, and its row image is a077a846.
+#
+# Read:
+# - button-focused new is one image in 10, in both runs: 2e63a491, the frame-then-tab image, with 82 and 254 at the apex.
+#   Old is a077a846, the row image. So the wait decides the order.
+# - The other six rows give the same image under old and new. Locally, then, only button-focused.png changes.
+# - radio-focused is not one image under either order: 9 + 1 in run 1 under both, and 9 + 1 old, 10 new in run 2.
+#   A first read with no wait after the input (not saved) gave two other images, 50aa540b and 200fdb08. So the radio's
+#   focused rendering depends on the time since the input, as well as on paint order. Not explained here: the fixture
+#   turns off transitions and animations. The visual row's matcher compares until two screenshots agree.
+
+== run 1
+button-hovered old     x10 6c9c3427
+button-hovered new     x10 6c9c3427
+button-focused old     x10 a077a846 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,78,75,75,249,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+button-focused new     x10 2e63a491 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,82,75,75,254,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+checkbox-hovered old   x10 af2c89a9
+checkbox-hovered new   x10 af2c89a9
+checkbox-focused old   x10 3941f287
+checkbox-focused new   x10 3941f287
+radio-hovered old      x10 8ce00aaa
+radio-hovered new      x10 8ce00aaa
+radio-focused old      x9 711b664f
+radio-focused old      x1 3377e0b9
+radio-focused new      x9 711b664f
+radio-focused new      x1 3377e0b9
+slider-held old        x10 23c5460e
+slider-held new        x10 23c5460e
+slider-focused old     x10 f3cb8e14
+slider-focused new     x10 f3cb8e14
+== run 2
+button-hovered old     x10 6c9c3427
+button-hovered new     x10 6c9c3427
+button-focused old     x10 a077a846 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,78,75,75,249,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+button-focused new     x10 2e63a491 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,82,75,75,254,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+checkbox-hovered old   x10 af2c89a9
+checkbox-hovered new   x10 af2c89a9
+checkbox-focused old   x10 3941f287
+checkbox-focused new   x10 3941f287
+radio-hovered old      x10 8ce00aaa
+radio-hovered new      x10 8ce00aaa
+radio-focused old      x1 3377e0b9
+radio-focused old      x9 711b664f
+radio-focused new      x10 711b664f
+slider-held old        x10 23c5460e
+slider-held new        x10 23c5460e
+slider-focused old     x10 f3cb8e14
+slider-focused new     x10 f3cb8e14
