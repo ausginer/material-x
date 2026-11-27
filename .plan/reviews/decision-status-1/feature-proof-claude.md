@@ -98,3 +98,13 @@
 **The 28 corrections are accepted.** Each is true, and each keeps its original sentence. My sample found no stale status that the audit missed. The audit misclassifies one decision that was already current (`proof-3`, Tier C).
 
 **The rule has two Tier B findings for the architect,** `proof-1` and `proof-2`. `proof-2` already holds for `RD-68`'s own status at this head.
+
+## Closure
+
+Ruled by the architect on 2026-11-27, at `3a40b6908`. `RD-68`'s amendment of 2026-11-27 holds the reasons and what properties 2 and 3 said before.
+
+| Finding | Ruling | Changed |
+| --- | --- | --- |
+| `proof-1` | **Closed.** The rule's words are narrowed to its reason: the implementing branch names no merge, because it can't know it. A sentence written after the merge, as an audit's, names the merge it read, and its form is stated. The 28 corrections stand as accepted. | `RD-68` property 3 and _Not adopted_; `documentation.md` §6 and its §9 row |
+| `proof-2` | **Closed.** The branch form is withdrawn. The implementer adds _"**Implemented** by #N"_ in a commit after it opens the pull request, and until then the sentence stays unimplemented, so §6's existing review clause has a finding if the number is never added. `RD-68`'s own status now says #329. | `RD-68` property 2, its status and _Not adopted_; `documentation.md` §6; `handoff.md`'s pointer |
+| `proof-3` | **Closed.** `drag:DRD-23` moves to _Already current_, with `DRF-7`'s closure at `f50f4a35a`. `RD-26`'s three amendments of 2026-11-20, which the review found answered and unlisted, are named there too. | `RD-68` _Not changed_ |

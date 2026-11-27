@@ -56,7 +56,7 @@ A finalized handoff identifies:
 - the outcome and scope, with paths to the substantive result;
 - verification, discriminating witnesses or mutations when owed, and limits;
 - for a unit with a pull request, its head and `verify`'s state there, pending or its result. Nothing is accepted or proposed for merging until `verify` passes on its head ([rule](test-architecture.md#engines-in-development-and-in-review));
-- for a unit that implements a decision or one of its amendments, that decision's status sentence, updated in the same pull request ([documentation.md §6](documentation.md#a-decisions-status));
+- for a unit that implements a decision or one of its amendments, that decision's status sentence, naming the pull request in a commit after it opens ([documentation.md §6](documentation.md#a-decisions-status));
 - unresolved findings, obligations and pending acceptance;
 - one bounded next task and its recipient, or the stopping boundary.
 
