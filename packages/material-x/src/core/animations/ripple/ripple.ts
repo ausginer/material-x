@@ -6,12 +6,13 @@
  * adaptations for this project's style and needs.
  */
 import {
+  parseMs,
   useCSSProps,
   type CSSPropDescription,
 } from '@ydinjs/core/controllers/useCSSProps.js';
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import { use, type ControlledElement } from '@ydinjs/core/element.js';
-import { identity, parseMs } from '../../utils/fns.ts';
+import { identity } from '../../utils/fns.ts';
 import css from './styles/main.css.ts' with { type: 'css' };
 
 type Point = Readonly<{

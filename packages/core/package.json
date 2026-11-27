@@ -16,6 +16,10 @@
       "types": "./controllers/useAttributes.d.ts",
       "default": "./controllers/useAttributes.js"
     },
+    "./controllers/useClickActivation.js": {
+      "types": "./controllers/useClickActivation.d.ts",
+      "default": "./controllers/useClickActivation.js"
+    },
     "./controllers/useConnected.js": {
       "types": "./controllers/useConnected.d.ts",
       "default": "./controllers/useConnected.js"
@@ -31,6 +35,10 @@
     "./controllers/useEvents.js": {
       "types": "./controllers/useEvents.d.ts",
       "default": "./controllers/useEvents.js"
+    },
+    "./controllers/useFormActivation.js": {
+      "types": "./controllers/useFormActivation.d.ts",
+      "default": "./controllers/useFormActivation.js"
     },
     "./controllers/useKeyboard.js": {
       "types": "./controllers/useKeyboard.d.ts",
@@ -103,6 +111,10 @@
     "./traits/valuable.js": {
       "types": "./traits/valuable.d.ts",
       "default": "./traits/valuable.js"
+    },
+    "./utils/AttributeClaimer.js": {
+      "types": "./utils/AttributeClaimer.d.ts",
+      "default": "./utils/AttributeClaimer.js"
     },
     "./utils/DOM.js": {
       "types": "./utils/DOM.d.ts",

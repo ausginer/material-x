@@ -1441,6 +1441,34 @@ describe('mx-sortable-list handle semantics', () => {
     ]);
   });
 
+  it('should remove its Reorder label at an update after the handle gains aria-labelledby', async () => {
+    const [, [a]] = await createList(['A'], {
+      item: 'mx-list-button-item',
+      handles: true,
+    });
+    const handle = handleOf(a!);
+    handle.setAttribute('aria-labelledby', 'label-a');
+    a!.toggleAttribute('disabled', true);
+    await nextFrame();
+
+    expect(handle.hasAttribute('aria-label')).toBe(false);
+  });
+
+  it("should keep the consumer's aria-label and aria-labelledby on the handle", async () => {
+    const [list] = await createList([]);
+    const a = createItem('mx-list-item', 'A', true);
+    const handle = handleOf(a);
+    handle.setAttribute('aria-labelledby', 'label-a');
+    handle.setAttribute('aria-label', 'Move A');
+    list.append(a);
+    await nextFrame();
+
+    expect([
+      handle.getAttribute('aria-labelledby'),
+      handle.getAttribute('aria-label'),
+    ]).toEqual(['label-a', 'Move A']);
+  });
+
   it('should leave the items of an mx-list nested in an item plain', async () => {
     const [, [a]] = await createList(['A']);
     const nested = document.createElement('mx-list');

@@ -1,6 +1,6 @@
 # Step (c) — what goes in `@ydinjs/core`, `AttributeClaimer`, and two moves from material-x — plan
 
-**Status: accepted by the owner on 2026-11-27, with Q1 (a) and Q2 (a). [Unit 1](#unit-1--attributeclaimer-and-the-moves) is ready for an implementer, on this branch. [Unit 2](#unit-2--the-rule-in-architecturemd) is #342, and unit 3 isn't needed.** Until 2026-11-27 it said: _"proposed, waiting for the owner's checkpoint and his answers to Q1 and Q2"_. Written by the architect on 2026-11-27, on the coordinator's task, on `repo/core-placement-1` from `origin/main` at `2ed4b96ab`. The owner approved the three items on 2026-11-26 (_"Ага, подтверждаю"_, "Yes, I confirm"), after a conversation with Mx Architect Explainer. They were due after `RF-118`, which merged with `RF-117` as #321 (`fe101808b`), and after `RF-152`'s `parseMs`, which merged as #315 (`085be1e2b`).
+**Status: accepted by the owner on 2026-11-27, with Q1 (a) and Q2 (a). [Unit 1](#unit-1--attributeclaimer-and-the-moves) is implemented on this branch, as its dated note says. [Unit 2](#unit-2--the-rule-in-architecturemd) is #342, and unit 3 isn't needed.** Until 2026-11-27 it said: _"proposed, waiting for the owner's checkpoint and his answers to Q1 and Q2"_. Written by the architect on 2026-11-27, on the coordinator's task, on `repo/core-placement-1` from `origin/main` at `2ed4b96ab`. The owner approved the three items on 2026-11-26 (_"Ага, подтверждаю"_, "Yes, I confirm"), after a conversation with Mx Architect Explainer. They were due after `RF-118`, which merged with `RF-117` as #321 (`fe101808b`), and after `RF-152`'s `parseMs`, which merged as #315 (`085be1e2b`).
 
 **The decisions were proposed here as `CP-D1` to `CP-D3`, and are minted:** `CP-D1` is [`RD-73`](../decisions/RD-73.md) and `CP-D3` is [`RD-74`](../decisions/RD-74.md), on this branch, and `CP-D2` is `RD-75`, on `repo/core-placement-rule-1` (#342). `RD-71` (#337) is the highest on any branch, and the coordinator reserves `RD-72` for `material-x/select-1`. The decision files are the statement, and [_The decisions_](#the-decisions) says what each is.
 
@@ -117,6 +117,38 @@ On this branch, by an implementer. **Ready since 2026-11-27,** when the owner ac
 - **Size:** `complete`, every row that imports a moved function and `list/sortable-list` are read before and after. Every other material-x row is the control and stays byte for byte. Core's `.size-limit.json` rows stay within their limits. No new limit is added.
 - **Stopping boundary:** the implementer stops and returns if a row of material-x other than the import paths and the new row needs an edit, if `AttributeClaimer`'s rows can't hold in an engine at the floor, or if the move changes the built `custom-elements.json` or `react.d.ts` of material-x beyond module paths.
 - **The pull request** is this branch's, so it carries the plan and the two decisions with the implementation. Its description says `Closes #341`. After it opens, the implementer adds _"**Implemented** by #N"_ to `RD-73`'s and `RD-74`'s status sentences ([`documentation.md` §6](../../.agents/docs/documentation.md#a-decisions-status)).
+
+**Dated 2026-11-27 by the implementer: unit 1 is implemented,** on `repo/core-placement-1`, from `2c6a65ad3` with `origin/main` merged, in Chromium (`RD-62`), requested by the coordinator.
+
+- **Core:**
+  - `src/utils/AttributeClaimer.ts`: one `MutationObserver` per instance, on every attribute of its element, and the claimed names in a `#private` set. `set()` and `release()` apply the pending records first and drop the records of their own writes, as `sortable-item.ts`'s `write` did.
+  - `src/controllers/useClickActivation.ts` and `src/controllers/useFormActivation.ts`, with the bodies of material-x's `events.ts`. `useFormActivation`'s JSDoc names the click that `useClickActivation` cancels.
+  - `parseMs` in `src/controllers/useCSSProps.ts`, as a function declaration with the same parameters as `CSSPropParser<number>`.
+  - `files.json`, `docs/api.ts` and the README. The build writes the three `exports` entries in `package.json` from `files.json`. The README's _Controllers_ table loses `useAnchor.js` and gains the two controllers and `useCSSProps.js`, which it didn't list. _Utils_ gains a table with `DOM.js` and `AttributeClaimer.js`. `docs/api.ts` also gains `useCSSProps`, which it didn't list, because `parseMs` is documented there.
+- **material-x:**
+  - `sortable-item.ts`: one `AttributeClaimer` for the control, for the item's lifetime, and one for each handle. A new handle releases the old handle's instance. With a handle, the control's claims end through `set({ tabindex: null, 'aria-description': null })`, because the control's instance lives on. `touch-action` stays in the item with today's rule, as a flag. The handle's `aria-label` is `null` while it has `aria-labelledby` (`RD-73` property 10).
+  - The six call sites change only their import. `events.ts` and `tests/core/utils/fns.browser.test.ts` are deleted, and `fns.ts` keeps `identity`.
+- **Core rows,** in core's browser project:
+  - `tests/utils/AttributeClaimer.browser.test.ts`, 13 rows, those that the unit lists. The removal by another writer and the write of a later `set()` are one row, _"should write a value again after another writer removed it"_.
+  - `tests/controllers/useClickActivation.browser.test.ts`, 4 rows. The three properties of a host click are one row each: the target is clicked once, the click is cancelled, and the parent receives only the target's click.
+  - `tests/controllers/useFormActivation.browser.test.ts`, 3 rows on a plain form-associated host, for `submit`, `reset` and `button`.
+  - `parseMs`'s 13 rows, unchanged, at the end of `tests/controllers/useCSSProps.browser.test.ts`.
+- **Core witnesses** ([reading](checks/core-witnesses.txt)), each a mutation of the module, restored after:
+  - the observer's callback disowns nothing: _"should keep that writer's value on a later set"_ and _"on release"_ fail;
+  - `set()` and `release()` don't take the pending records first: the two same-task rows fail;
+  - the instance's own records reach the observer: _"should keep the claim after its own writes"_ fails, and so do the rewrite, `null` and `release` rows, which also need the claim;
+  - no `stopImmediatePropagation`: _"should let the host's parent receive only the target's click"_ fails.
+- **material-x rows,** in `tests/list/sortable-list.browser.test.ts`, _handle semantics_:
+  - _"should remove its Reorder label at an update after the handle gains aria-labelledby"_, on a button item, disabled after the handle gains `aria-labelledby`. **Witness** ([reading](checks/sortable-label-witness.txt)): with `2c6a65ad3`'s `sortable-item.ts`, it fails, reading `aria-label` present.
+  - _"should keep the consumer's aria-label and aria-labelledby on the handle"_. It passes on today's code too.
+  - No other row is edited. The file's 225 rows pass.
+- **Checks:** core's tests (423) pass. material-x's `browser` (1,438), `spec` (1,399, 2 expected failures) and `node` (38) projects pass in Chromium. Format, lint and typecheck are clean in both packages. Firefox and WebKit are read from CI.
+- **Stopping boundary:** not reached. No material-x row other than the new ones is edited. The built `custom-elements.json` and `react.d.ts` are byte-identical before and after.
+- **Size** ([reading](checks/size.txt)), Brotli bytes, before and after:
+  - `complete`: 26,920 → 26,931 (+11). `list/sortable-list`: 10,045 → 10,042 (−3).
+  - The rows that import a moved function move by −25 to +19.
+  - The seven controls, which reach none of the changed modules, are unchanged: `card`, `icon`, `list`, `list-item`, `slider`, `multiline-text-field` and `top-app-bar`.
+  - Core's `element` (277, limit 340) and `emitter` (198, limit 210) are unchanged. No limit is added.
 
 ### Unit 2 — the rule in `architecture.md`
 

@@ -24,6 +24,29 @@ export type CSSPropParser<T> = (
   name: `--${string}`,
 ) => T;
 
+/**
+ * Reads a CSS `<time>` in milliseconds, for a {@link CSSPropDescription}. A
+ * value that ends in `ms`, in any case, is read in milliseconds, and any other
+ * in seconds. A minifier such as lightningcss prints a time of 100 ms or more in
+ * seconds and a shorter one in milliseconds, so a property can hold either.
+ *
+ * @throws {@link CSSVariableError} when the value has no number.
+ */
+export function parseMs(
+  value: string,
+  target: HTMLElement,
+  name: `--${string}`,
+): number {
+  const result =
+    parseFloat(value) * (value.slice(-2).toLowerCase() === 'ms' ? 1 : 1000);
+
+  if (isNaN(result)) {
+    throw new CSSVariableError(name, target);
+  }
+
+  return result;
+}
+
 export type CSSPropDescription<T> = readonly [
   name: `--${string}`,
   parse: CSSPropParser<T>,

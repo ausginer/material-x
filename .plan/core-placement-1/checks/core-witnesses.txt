@@ -1,0 +1,25 @@
+# Core witnesses for RD-73 and RD-74, slot h, 2026-11-27, Chromium, from packages/core:
+# each mutation applied to the module, then aube exec just test --project browser <rows file>, then the module restored.
+# The failing rows of each run, and the run's count.
+
+== observer-removed (the callback receives nothing)
+       × should keep that writer's value on a later set 78ms
+       × should keep that writer's value on release 4ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  2 failed | 11 passed (13)
+== set-and-release-take-no-pending-records
+       × should keep that writer's value on set 92ms
+       × should keep that writer's value on release 17ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  2 failed | 11 passed (13)
+== own-records-reach-observer
+     × should rewrite a value while it is still its own 91ms
+     × should remove its own value for null 6ms
+     × should remove only its own values on release 15ms
+     × should keep the claim after its own writes 4ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  4 failed | 9 passed (13)
+== no-stopImmediatePropagation
+     × should let the host's parent receive only the target's click 66ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 3 passed (4)

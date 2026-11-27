@@ -1,5 +1,6 @@
 import { Bool } from '@ydinjs/core/attribute.js';
 import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
+import { useClickActivation } from '@ydinjs/core/controllers/useClickActivation.js';
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
 import {
@@ -30,7 +31,6 @@ import {
 } from '@ydinjs/core/traits/valuable.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useRipple } from '../animations/ripple/ripple.ts';
-import { useClickActivation } from '../utils/events.ts';
 import { useCore } from '../utils/useCore.ts';
 import css from './styles/main.css.ts' with { type: 'css' };
 

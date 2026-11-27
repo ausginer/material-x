@@ -1,0 +1,32 @@
+# Size rows, Brotli bytes, size-limit with size-limit-preset-rolldown, slot h, 2026-11-27.
+# before = 2c6a65ad3 with origin/main merged; after = the working tree of this unit. Built with each package's `just build`.
+# A row marked control reaches none of the changed modules (graph read from the built imports).
+
+## @ydinjs/material-x
+button/button                          4955   4956    1
+button/icon-button                     5230   5222   -8
+button/link-button                     4922   4927    5
+button/switch-button                   5493   5511   18
+button/switch-icon-button              5889   5902   13
+button/split-button                    7830   7837    7
+button-group/button-group              3101   3101    0
+button-group/connected-button-group    4139   4140    1
+card/card                              1354   1354    0  control
+checkbox/checkbox                      4353   4340  -13
+fab/fab                                4224   4221   -3
+icon/icon                               712    712    0  control
+list/list                               584    584    0  control
+list/list-item                         2855   2855    0  control
+list/list-button-item                  5027   5014  -13
+list/list-link-item                    5223   5242   19
+list/sortable-list                    10045  10042   -3
+radio/radio                            3820   3818   -2
+slider/slider                          4037   4037    0  control
+text-field/multiline-text-field        4512   4512    0  control
+text-field/text-field                  8588   8563  -25
+top-app-bar/top-app-bar                1391   1391    0  control
+complete                              26920  26931   11
+
+## @ydinjs/core (.size-limit.json)
+element                                 277    277    0  limit 340
+emitter                                 198    198    0  limit 210

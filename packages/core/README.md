@@ -117,9 +117,11 @@ All controllers are registered with `use(host, controller)` in the constructor.
 | `@ydinjs/core/controllers/useShadowDOM.js` | Attach shadow root, adopt stylesheets |
 | `@ydinjs/core/controllers/useAttributes.js` | Mirror host attributes to an internal element |
 | `@ydinjs/core/controllers/useARIA.js` | Sync `aria-*` host attributes to a target element; `setOwnARIA` sets the component's own value under the host's |
-| `@ydinjs/core/controllers/useAnchor.js` | Wire host navigation attrs to a shadow anchor |
 | `@ydinjs/core/controllers/useContext.js` | Lightweight provider / consumer context |
 | `@ydinjs/core/controllers/useEvents.js` | Declarative event listener registration |
+| `@ydinjs/core/controllers/useClickActivation.js` | Replace a click on the host with a click on its internal native control |
+| `@ydinjs/core/controllers/useFormActivation.js` | Submit or reset the host's form, as a native submit or reset button does |
+| `@ydinjs/core/controllers/useCSSProps.js` | Read and parse the host's computed CSS variables; `parseMs` reads a CSS time in milliseconds |
 | `@ydinjs/core/controllers/useConnected.js` | Connected / disconnected callbacks |
 | `@ydinjs/core/controllers/useSlot.js` | React to slot content changes |
 | `@ydinjs/core/controllers/useRovingTabindex.js` | Keyboard focus management for groups |
@@ -134,6 +136,11 @@ import { toggleState } from '@ydinjs/core/utils/DOM.js';
 
 toggleState(internals, 'checked', true); // add/remove a custom state from ElementInternals.states
 ```
+
+| Import | Purpose |
+| --- | --- |
+| `@ydinjs/core/utils/DOM.js` | `toggleState` and `switchState` for the custom states of `ElementInternals`, and DOM helpers |
+| `@ydinjs/core/utils/AttributeClaimer.js` | Write attributes on a consumer's element only while the consumer hasn't |
 
 ## Building a Component
 
