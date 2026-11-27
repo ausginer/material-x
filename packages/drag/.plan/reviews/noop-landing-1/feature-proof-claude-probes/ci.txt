@@ -1,0 +1,15 @@
+# CI verify run 45982439961 on ba5cc19b0, jobs firefox (140449766780) and webkit (140449766964), read 2026-11-27; final verify job in progress at the first reading, completed success at the second.
+## job 140449766780
+ Test Files  137 passed | 1 skipped (138)
+      Tests  4352 passed | 3 expected fail | 201 skipped (4556)
+ ✓  browser/material-x/firefox (firefox)  tests/list/sortable-list.browser.test.ts (211 tests | 12 skipped) 40457ms
+ ✓  spec/material-x/firefox (firefox)  tests/list/sortable-list.spec.browser.test.ts (26 tests) 5231ms
+ ✓  browser/drag/firefox (firefox)  tests/landing.browser.test.ts (35 tests) 6738ms
+ ✓  consumer/drag/firefox (firefox)  tests/landing.browser.test.ts (35 tests) 6716ms
+## job 140449766964
+ Test Files  137 passed | 1 skipped (138)
+      Tests  4363 passed | 2 expected fail | 201 skipped (4566)
+ ✓  browser/material-x/webkit (webkit)  tests/list/sortable-list.browser.test.ts (211 tests | 12 skipped) 34837ms
+ ✓  spec/material-x/webkit (webkit)  tests/list/sortable-list.spec.browser.test.ts (36 tests) 7633ms
+ ✓  browser/drag/webkit (webkit)  tests/landing.browser.test.ts (35 tests) 3720ms
+ ✓  consumer/drag/webkit (webkit)  tests/landing.browser.test.ts (35 tests) 3708ms
