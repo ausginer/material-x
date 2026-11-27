@@ -568,6 +568,68 @@ describe('mx-sortable-list pointer', () => {
   );
 });
 
+describe('mx-sortable-list interactive item pointer', () => {
+  const ITEMS = [
+    ['mx-list-button-item', false],
+    ['mx-list-button-item', true],
+    ['mx-list-link-item', false],
+    ['mx-list-link-item', true],
+  ] as const;
+
+  /** Lifts the item by its handle, or by its surface without one. */
+  const liftItem = async (
+    item: HTMLElement,
+    handle: boolean,
+  ): Promise<void> => {
+    await lift(handle ? handleOf(item) : visualOf(item));
+  };
+
+  it.each(ITEMS)(
+    'should lift %s (handle: %s) in a pointer drag',
+    async (tag, handles) => {
+      const [, [a]] = await createList(['A', 'B'], { item: tag, handles });
+      await liftItem(a!, handles);
+
+      expect(isDragged(a!)).toBe(true);
+    },
+  );
+
+  it.each([false, true])(
+    'should keep the location of the page when a link item is released (handle: %s)',
+    async (handles) => {
+      const [list, [a]] = await createList(['A', 'B'], {
+        item: 'mx-list-link-item',
+        handles,
+      });
+      const before = location.href;
+      await liftItem(a!, handles);
+      await commands.pointerRelease();
+      await whenSettled(list, a!);
+
+      expect(location.href).toBe(before);
+    },
+  );
+
+  it("should make a link item's anchor not draggable", async () => {
+    const [, [a]] = await createList(['A'], { item: 'mx-list-link-item' });
+
+    expect(visualOf(a!).draggable).toBe(false);
+  });
+
+  it("should restore a link item's native drag once the item moves into mx-list", async () => {
+    const [, [a]] = await createList(['A'], { item: 'mx-list-link-item' });
+    const plain = document.createElement('mx-list');
+    document.body.append(plain);
+    plain.append(a!);
+    await nextFrame();
+
+    expect([
+      visualOf(a!).hasAttribute('draggable'),
+      visualOf(a!).draggable,
+    ]).toEqual([false, true]);
+  });
+});
+
 describe('mx-sortable-list keyboard', () => {
   it('should move the item one slot on ArrowDown from its focused handle', async () => {
     const [list, [a, b, c]] = await createList(['A', 'B', 'C'], {

@@ -1,0 +1,51 @@
+{"browser":"chromium","name":"light DOM a[draggable=false]","userDrag":"none","log":[]}
+{"browser":"chromium","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"chromium","name":"light DOM a[draggable=false] > div > text","userDrag":"none","log":[]}
+{"browser":"chromium","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"chromium","name":"shadow a[draggable=false] > text","userDrag":"none","log":[]}
+{"browser":"chromium","name":"shadow a[draggable=false] > slot","userDrag":"none","log":[]}
+{"browser":"chromium","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"chromium","name":"shadow a[draggable=false] > div > slot","userDrag":"none","log":[]}
+{"browser":"chromium","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"chromium","name":"shadow a[draggable=false] with a { all: unset }","userDrag":"auto","log":["dragstart types=text/uri-list,text/plain,text/html"]}
+{"browser":"chromium","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"chromium","name":"shadow a[draggable=false] with a { all: unset } and [draggable=false] { -webkit-user-drag: none }","userDrag":"none","log":[]}
+{"browser":"chromium","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"chromium","name":"light DOM a[draggable=false] with a { all: unset }","userDrag":"auto","log":["dragstart types=text/uri-list,text/plain,text/html"]}
+{"browser":"chromium","lifted":true,"locationChanged":false,"log":["pointerdown [span<slot.lead has-slotted<a.host]"]}
+{"browser":"chromium","lifted":true,"locationChanged":false,"log":["pointerdown [span<slot.lead has-slotted<a.host]"]}
+{"browser":"chromium","lifted":true,"locationChanged":false,"log":["pointerdown [span<slot.lead has-slotted<a.host]"]}
+{"browser":"firefox","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"firefox","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"firefox","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"firefox","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"firefox","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"firefox","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"firefox","lifted":true,"locationChanged":false,"log":["pointerdown [span<slot.lead has-slotted<a.host]"]}
+{"browser":"firefox","lifted":true,"locationChanged":false,"log":["pointerdown [span<slot.lead has-slotted<a.host]"]}
+{"browser":"firefox","lifted":true,"locationChanged":false,"log":["pointerdown [span<slot.lead has-slotted<a.host]"]}
+{"browser":"firefox","name":"light DOM a[draggable=false]","userDrag":"","log":[]}
+{"browser":"firefox","name":"light DOM a[draggable=false] > div > text","userDrag":"","log":[]}
+{"browser":"firefox","name":"shadow a[draggable=false] > text","userDrag":"","log":[]}
+{"browser":"firefox","name":"shadow a[draggable=false] > slot","userDrag":"","log":[]}
+{"browser":"firefox","name":"shadow a[draggable=false] > div > slot","userDrag":"","log":[]}
+{"browser":"firefox","name":"shadow a[draggable=false] with a { all: unset }","userDrag":"","log":[]}
+{"browser":"firefox","name":"shadow a[draggable=false] with a { all: unset } and [draggable=false] { -webkit-user-drag: none }","userDrag":"","log":[]}
+{"browser":"firefox","name":"light DOM a[draggable=false] with a { all: unset }","userDrag":"","log":[]}
+{"browser":"webkit","name":"light DOM a[draggable=false]","userDrag":"none","log":[]}
+{"browser":"webkit","name":"light DOM a[draggable=false] > div > text","userDrag":"none","log":[]}
+{"browser":"webkit","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"webkit","name":"shadow a[draggable=false] > text","userDrag":"none","log":[]}
+{"browser":"webkit","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"webkit","name":"shadow a[draggable=false] > slot","userDrag":"none","log":[]}
+{"browser":"webkit","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"webkit","name":"shadow a[draggable=false] > div > slot","userDrag":"none","log":[]}
+{"browser":"webkit","name":"shadow a[draggable=false] with a { all: unset }","userDrag":"auto","log":[]}
+{"browser":"webkit","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"webkit","name":"shadow a[draggable=false] with a { all: unset } and [draggable=false] { -webkit-user-drag: none }","userDrag":"none","log":[]}
+{"browser":"webkit","name":"light DOM a[draggable=false] with a { all: unset }","userDrag":"auto","log":[]}
+{"browser":"webkit","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"webkit","lifted":true,"locationChanged":false,"log":["pointerdown [slot.label has-slotted<div.content<a.host]"]}
+{"browser":"webkit","lifted":true,"locationChanged":false,"log":["pointerdown [span<slot.lead has-slotted<a.host]","selectstart [#text<span<slot.lead has-slotted]"]}
+{"browser":"webkit","lifted":true,"locationChanged":false,"log":["pointerdown [span<slot.lead has-slotted<a.host]","selectstart [#text<span<slot.lead has-slotted]"]}
+{"browser":"webkit","lifted":true,"locationChanged":false,"log":["pointerdown [span<slot.lead has-slotted<a.host]","selectstart [#text<span<slot.lead has-slotted]"]}
