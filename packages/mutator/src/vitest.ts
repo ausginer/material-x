@@ -2,6 +2,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
+import { stripVTControlCharacters } from 'node:util';
 import type { Run } from './format.ts';
 import { exec } from './process.ts';
 import type { Row, RowStatus, VitestRun } from './report.ts';
@@ -127,8 +128,10 @@ export async function runVitest(
           '',
         ),
       );
-    const banner = UNHANDLED.exec(result.stderr);
-    const unhandled = banner ? lines(result.stderr.slice(banner.index)) : [];
+    // Without the colors that a CI's `FORCE_COLOR` turns on.
+    const stderr = stripVTControlCharacters(result.stderr);
+    const banner = UNHANDLED.exec(stderr);
+    const unhandled = banner ? lines(stderr.slice(banner.index)) : [];
     const files = report.testResults.length;
     const explained =
       files === 0 ||
@@ -141,7 +144,7 @@ export async function runVitest(
         : { files, rows, errors };
     }
 
-    const printed = lines(result.stderr);
+    const printed = lines(stderr);
     const reason = printed.length > 0 ? printed : ['Vitest printed no error'];
 
     // A listed test file with no row and no message didn't run: the engine,

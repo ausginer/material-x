@@ -111,6 +111,8 @@ type MutateOptions = Readonly<{
   commit?: 'file' | 'runner';
   /** Options added to the command line. */
   args?: readonly string[];
+  /** Variables added to the tool's environment. */
+  env?: Readonly<Record<string, string>>;
 }>;
 
 /**
@@ -126,6 +128,7 @@ async function mutate(
     interrupt,
     commit,
     args = [],
+    env = {},
   }: MutateOptions = {},
 ): Promise<Result> {
   const root = await mkdtemp(join(tmpdir(), 'mutator-test-'));
@@ -211,7 +214,7 @@ async function mutate(
         summary,
         ...args,
       ],
-      { cwd: repo, env: cleanEnv({ TMPDIR: temp, FIXTURE_LOG: log }) },
+      { cwd: repo, env: cleanEnv({ TMPDIR: temp, FIXTURE_LOG: log, ...env }) },
       (error, _stdout, err) => {
         done({
           code: (error as { code?: number } | null)?.code ?? 0,
@@ -306,6 +309,24 @@ const NO_BROWSER = {
   text: "launchOptions: { channel: 'chromium' }",
   replacement: "launchOptions: { executablePath: '/nonexistent/chrome' }",
 } as const;
+
+/** Adds a row that passes and leaves a rejection unhandled, and commits it. */
+const UNHANDLED_ROW = async (repo: string): Promise<void> => {
+  const rows = join(repo, TEST_FILE);
+  await writeFile(
+    rows,
+    `${await readFile(rows, 'utf8')}\nit('should pass and leave a rejection unhandled', () => {\n  void Promise.reject(new Error('left unhandled'));\n});\n`,
+  );
+  await git(repo, [
+    '-c',
+    'user.name=fixture',
+    '-c',
+    'user.email=fixture@example.invalid',
+    'commit',
+    '-qam',
+    'an unhandled rejection',
+  ]);
+};
 
 const browserFile = (mutations: readonly Mutation[]): MutationFile => ({
   runs: [{ dir: '.', tests: ['tests/dom'] }],
@@ -886,22 +907,7 @@ describe('mutator run, outcomes', () => {
     'should judge a run whose rows pass beside an unhandled error, and report the error',
     async () => {
       const result = await mutate(fileOf([CLAMP]), {
-        prepare: async (repo) => {
-          const rows = join(repo, TEST_FILE);
-          await writeFile(
-            rows,
-            `${await readFile(rows, 'utf8')}\nit('should pass and leave a rejection unhandled', () => {\n  void Promise.reject(new Error('left unhandled'));\n});\n`,
-          );
-          await git(repo, [
-            '-c',
-            'user.name=fixture',
-            '-c',
-            'user.email=fixture@example.invalid',
-            'commit',
-            '-qam',
-            'an unhandled rejection',
-          ]);
-        },
+        prepare: UNHANDLED_ROW,
       });
       const [leg] = result.report!.legs;
 
@@ -913,6 +919,22 @@ describe('mutator run, outcomes', () => {
       expect(leg!.mutations[0]!.runError).toContain('Error: left unhandled');
       expect(result.summary).toContain(
         '- a, unmutated: Vitest printed an error outside the rows:\n  - Error: left unhandled\n',
+      );
+    },
+    TIMEOUT,
+  );
+
+  it(
+    "should read Vitest's error without colors when FORCE_COLOR is set",
+    async () => {
+      const result = await mutate(fileOf([CLAMP]), {
+        prepare: UNHANDLED_ROW,
+        env: { FORCE_COLOR: '1' },
+      });
+
+      expect(result.code).toBe(0);
+      expect(result.report!.legs[0]!.runError).toContain(
+        'Error: left unhandled',
       );
     },
     TIMEOUT,

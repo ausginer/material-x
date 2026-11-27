@@ -8,8 +8,9 @@
  * witnesses of its findings, three of them the recheck's own mutations, and the
  * ones after the second recheck's comment are the witnesses of its findings, two
  * of them its own mutations, which it predicted to survive. The last two are the
- * witnesses of RD-66's ruling on a run with an unhandled error, and the last one
- * the witness of the owner's (a) on a run that selects no test file.
+ * witnesses of RD-66's ruling on a run with an unhandled error, the next one
+ * the witness of the owner's (a) on a run that selects no test file, and the last
+ * the witness of reading Vitest's errors without the colors that CI turns on.
  */
 import type { MutationFile } from '@ydinjs/mutator';
 
@@ -664,7 +665,7 @@ const config: MutationFile = {
       edits: [
         {
           file: VITEST,
-          text: 'const printed = lines(result.stderr);',
+          text: 'const printed = lines(stderr);',
           replacement: 'const printed = lines(result.stdout);',
         },
       ],
@@ -785,6 +786,24 @@ const config: MutationFile = {
           ),
           row(
             'should name only the run that selects no test file, of two runs',
+          ),
+        ],
+      },
+    },
+    {
+      name: "Vitest's colors are kept",
+      group: 'mechanism',
+      edits: [
+        {
+          file: VITEST,
+          text: 'const stderr = stripVTControlCharacters(result.stderr);',
+          replacement: 'const stderr = result.stderr;',
+        },
+      ],
+      expect: {
+        fails: [
+          row(
+            "should read Vitest's error without colors when FORCE_COLOR is set",
           ),
         ],
       },
