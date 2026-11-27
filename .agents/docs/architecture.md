@@ -34,6 +34,12 @@ The workspace also contains build-time packages: the public `@ydinjs/vite-traits
 
 ## Core runtime: `@ydinjs/core`
 
+**`@ydinjs/core` holds universal utilities, which anyone building a design system can use,** whatever the number of their users in this repository. **material-x's `src/core/` holds the code that material-x's components share and that means nothing without material-x,** such as its styles, its ripple and its token-bound helpers. So _"it has no second user"_ is a reason against `src/core/`, and never against `@ydinjs/core`.
+
+**A workaround with a deletion condition stays where its users are until the condition holds,** and is deleted with it, even when it would be universal. In `@ydinjs/core` it would be a public export, and deleting one breaks the consumers that import it ([`CONTRIBUTING.md` §4](../../CONTRIBUTING.md#4-public-runtime-vocabulary-is-governed-by-surface-and-permanence)). Today these are material-x's `FocusForwarding`, `useHasSlottedPolyfill` and `useAriaNotifyPolyfill`.
+
+The owner stated what each package is for on 2026-11-26, and decided the workarounds on 2026-11-27 ([`repo:RD-75`](../../.plan/decisions/RD-75.md)).
+
 ### Base element
 
 `ControlledElement` from `@ydinjs/core/element.js` extends `HTMLElement` and provides the small component lifecycle:
@@ -115,7 +121,7 @@ The placeholder and the lift hold until the verdict settles. A landing starts af
 
 ## Extension points
 
-- **Core capability:** add an `@ydinjs/core` controller or trait and export it through that package's `files.json`.
+- **Core capability:** a universal controller, trait or utility, by the rule in [_Core runtime_](#core-runtime-ydinjscore). Add it to `@ydinjs/core` and export it through that package's `files.json`. Code that only material-x's components can use goes in `packages/material-x/src/core/`.
 - **Token capability:** add or adjust an `@ydinjs/tproc` token-processing primitive or upstream table source.
 - **Material component:** create a `packages/material-x/src/<component>/` implementation, consume core and tproc through their `@ydinjs/*` imports, add public entrypoints to `packages/material-x/files.json`, and add mirrored tests under `packages/material-x/tests/<component>/`.
 - **Trait lowering:** extend `@ydinjs/vite-traits-plugin`; a composition it can't carry is a build error.
