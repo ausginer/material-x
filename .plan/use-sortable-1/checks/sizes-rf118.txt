@@ -1,0 +1,25 @@
+# RF-118's sizes: aube exec just size in packages/material-x (size-limit, Brotli), at e67e120bb (RF-117) and with RF-118. Run 2026-11-26.
+# composition | e67e120bb | RF-118
+button/button | 4.94 kB | 4.94 kB
+button/icon-button | 5.21 kB | 5.21 kB
+button/link-button | 4.91 kB | 4.91 kB
+button/switch-button | 5.47 kB | 5.47 kB
+button/switch-icon-button | 5.88 kB | 5.88 kB
+button/split-button | 7.84 kB | 7.84 kB
+button-group/button-group | 3.1 kB | 3.1 kB
+button-group/connected-button-group | 4.14 kB | 4.14 kB
+card/card | 1.35 kB | 1.35 kB
+checkbox/checkbox | 4.25 kB | 4.25 kB
+fab/fab | 4.21 kB | 4.21 kB
+icon/icon | 712 B | 712 B
+list/list | 584 B | 584 B
+list/list-item | 2.85 kB | 2.85 kB
+list/list-button-item | 5.01 kB | 5.01 kB
+list/list-link-item | 5.19 kB | 5.19 kB
+list/sortable-list | 9.94 kB | 10 kB
+radio/radio | 3.81 kB | 3.81 kB
+slider/slider | 4.04 kB | 4.04 kB
+text-field/multiline-text-field | 4.51 kB | 4.51 kB
+text-field/text-field | 8.57 kB | 8.57 kB
+top-app-bar/top-app-bar | 1.39 kB | 1.39 kB
+complete | 26.77 kB | 26.84 kB

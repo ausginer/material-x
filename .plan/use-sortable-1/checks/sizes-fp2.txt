@@ -1,0 +1,8 @@
+# fp-2's sizes: aube exec just size in packages/material-x (size-limit, Brotli), run 2026-11-27 on material-x/use-sortable-1.
+# Between ae84ceaeb and the head, two source changes ship: #327's packages/drag/src/sortable/operation.ts (from the merge of origin/main, ff627bec2), and fp-2's removal of Proposal.request.
+# A is ae84ceaeb's two files built in the merged tree, B is the merge ff627bec2, and C is the head with fp-2.
+# size-limit rounds to 10 B, and Brotli deltas don't add up (CONTRIBUTING.md §15).
+# composition | A ae84ceaeb | B merge | C fp-2
+list/sortable-list | 10.02 kB | 10.04 kB | 10.02 kB
+complete | 26.87 kB | 26.84 kB | 26.79 kB
+# No budget fails in any of the three runs.

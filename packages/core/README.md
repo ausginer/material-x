@@ -130,13 +130,8 @@ All controllers are registered with `use(host, controller)` in the constructor.
 ### Utils
 
 ```ts
-import { createEventNotifier, toggleState } from '@ydinjs/core/utils/DOM.js';
+import { toggleState } from '@ydinjs/core/utils/DOM.js';
 
-const notify = createEventNotifier({
-  input: { cancelable: false },
-  change: { cancelable: false, composed: false },
-});
-notify(host, 'input', 'change'); // create and dispatch configured events in order
 toggleState(internals, 'checked', true); // add/remove a custom state from ElementInternals.states
 ```
 
