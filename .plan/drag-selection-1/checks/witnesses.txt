@@ -1,0 +1,22 @@
+## no rule webkit
+       × should select no text while a mouse drags the item
+       × should select no text after a mouse drops the item
+       × should select no text while a mouse drags the item
+       × should select no text after a mouse drops the item
+     × should select no text when the held mouse leaves the list over page text
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  5 failed | 3 passed | 202 skipped (210)
+## no rule chromium
+      Tests  8 passed | 202 skipped (210)
+## rule on every item webkit
+     × should still select text by a mouse press that moves less than the threshold
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 7 passed | 202 skipped (210)
+## rule on every item chromium
+     × should still select text by a mouse press that moves less than the threshold
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 7 passed | 202 skipped (210)
+## rule webkit
+      Tests  8 passed | 202 skipped (210)
+## rule chromium
+      Tests  8 passed | 202 skipped (210)

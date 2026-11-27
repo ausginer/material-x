@@ -1,0 +1,4 @@
+# RD-60 ruling 1's reading, by the architect at 5448c4fd6: the row "should keep the neighbor of a refused key move in its place", with one line added after moveDown that fails with B's read and its list animations (playState, duration, translate keyframes). The file was restored after.
+chromium: PROBE {"animations":1,"off":0}[["running",3600000,["0px","0px"]]]
+firefox:  PROBE {"animations":1,"off":0}[["running",3600000,["0px","0px"]]]
+webkit:   PROBE {"animations":1,"off":0}[["running",3600000,["0px","0px"]]]

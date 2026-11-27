@@ -13,6 +13,7 @@ import {
 import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import { DEFAULT_EVENT_INIT, toggleState } from '@ydinjs/core/utils/DOM.js';
 import { landing } from '@ydinjs/drag/sortable/landing.js';
+import { layoutAnimation } from '@ydinjs/drag/sortable/layout-animation.js';
 import { y } from '@ydinjs/drag/sortable/y.js';
 import {
   ReorderResolution,
@@ -44,9 +45,15 @@ const DRAG_STATE = 'drag';
 const COMMAND_STATE = 'command';
 
 /** The landing's timing. */
-const CSS_PROPS = {
+const DRAG_CSS_PROPS = {
   duration: ['--_drag-duration', parseMs],
   easing: ['--_drag-easing', identity<string>],
+} as const satisfies Readonly<Record<string, CSSPropDescription<unknown>>>;
+
+/** The layout animation's timing. */
+const LAYOUT_CSS_PROPS = {
+  duration: ['--_layout-animation-duration', parseMs],
+  easing: ['--_layout-animation-easing', identity<string>],
 } as const satisfies Readonly<Record<string, CSSPropDescription<unknown>>>;
 
 export type ReorderEventInit = Readonly<{
@@ -131,6 +138,11 @@ const SortableListConstructor: Composed<
  *   `mx-list-item`. `--md-list-item-container-color` still overrides the
  *   container color. A page's popover rule that sets other properties, such as
  *   `box-shadow`, applies to the item while it is lifted.
+ * - **Neighbors.** The items that a move pushes aside slide to their new
+ *   places, in a pointer drag and a key move, and slide back when the move is
+ *   cancelled, refused or never committed. The slide animates each item's
+ *   `translate`, added to the item's own. With
+ *   `prefers-reduced-motion: reduce`, they move at once.
  * - **Nested controls.** A control inside an item without a handle that uses
  *   the arrow keys itself, such as a text field or a slider, needs a
  *   `data-drag-ignore` attribute. Otherwise its arrow keys move the item.
@@ -193,9 +205,12 @@ export default class SortableList extends SortableListConstructor {
       items: () => items,
       axis: y(),
       handle: (item) => (isDisabled(item) ? null : (handleOf(item) ?? item)),
+      displacement: layoutAnimation({
+        timing: useCSSProps(this, LAYOUT_CSS_PROPS),
+      }),
       landing: {
         ...landing(),
-        timing: useCSSProps(this, CSS_PROPS),
+        timing: useCSSProps(this, DRAG_CSS_PROPS),
       },
       onStart: (item, kind) => {
         toggleState(internals(this), COMMAND_STATE, kind === 'command');

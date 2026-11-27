@@ -1,0 +1,112 @@
+# RD-60's witnesses at 65c6f432e with the unit's working tree: node .plan/sortable-displacement-1/probes/witnesses.mjs <engine> <report>, run 2026-11-26T17:22Z, load 1.48 1.61 2.39 on 12 cores.
+## none | chromium | 0 failed, 202 passed, 0 skipped
+## displacement removed | chromium | 11 failed, 191 passed, 0 skipped
+   mx-sortable-list neighbors motion should animate the neighbor of a key move from its place to the new one
+   mx-sortable-list neighbors motion should animate the rows that a slow pointer move and a flick displace
+   mx-sortable-list neighbors motion should keep animating the neighbor of a key move that the page commits 100 ms later
+   mx-sortable-list neighbors return should animate the neighbor back on Escape in a pointer drag
+   mx-sortable-list neighbors return should animate the neighbor back when the page refuses a pointer drop
+   mx-sortable-list neighbors return should animate the neighbor back when the page never commits a key move
+   mx-sortable-list neighbors return should animate the neighbor back when the page never commits a pointer move
+   mx-sortable-list neighbors reduced motion should follow the preference turned on between two moves
+   mx-sortable-list neighbors reduced motion should follow the preference turned off between two moves
+   mx-sortable-list neighbors timing should time the neighbor's animation by the tokens' pair
+   mx-sortable-list neighbors timing should time the neighbor's animation by the list's private properties
+## timing left out | chromium | 11 failed, 191 passed, 0 skipped
+   mx-sortable-list neighbors motion should animate the neighbor of a key move from its place to the new one
+   mx-sortable-list neighbors motion should animate the rows that a slow pointer move and a flick displace
+   mx-sortable-list neighbors motion should keep animating the neighbor of a key move that the page commits 100 ms later
+   mx-sortable-list neighbors return should animate the neighbor back on Escape in a pointer drag
+   mx-sortable-list neighbors return should animate the neighbor back when the page refuses a pointer drop
+   mx-sortable-list neighbors return should animate the neighbor back when the page never commits a key move
+   mx-sortable-list neighbors return should animate the neighbor back when the page never commits a pointer move
+   mx-sortable-list neighbors reduced motion should follow the preference turned on between two moves
+   mx-sortable-list neighbors reduced motion should follow the preference turned off between two moves
+   mx-sortable-list neighbors timing should time the neighbor's animation by the tokens' pair
+   mx-sortable-list neighbors timing should time the neighbor's animation by the list's private properties
+## the landing's pair in the layout animation's place | chromium | 2 failed, 200 passed, 0 skipped
+   mx-sortable-list neighbors timing should time the neighbor's animation by the tokens' pair
+   mx-sortable-list neighbors private properties should give an mx-sortable-list host the tokens' values
+## the four properties left in the default list sheet | chromium | 1 failed, 201 passed, 0 skipped
+   mx-sortable-list neighbors private properties should give an mx-list host none of them
+## --_drag-duration and --_drag-easing removed from the sortable sheet | chromium | 5 failed, 197 passed, 0 skipped
+   mx-sortable-list pointer should land with zero duration under reduced motion
+   mx-sortable-list in a hidden iframe should sort once the iframe it connected in is shown
+   mx-sortable-list neighbors timing should time the landing and the lifted item's elevation by the landing's pair, without a page rule
+   mx-sortable-list neighbors timing should time the landing and the lifted item's elevation by the landing's pair, with the neighbors' private properties set
+   mx-sortable-list neighbors private properties should give an mx-sortable-list host the tokens' values
+## row 4 without the emulation | chromium | 4 failed, 198 passed, 0 skipped
+   mx-sortable-list neighbors reduced motion should place the neighbor of a key move in the next frame
+   mx-sortable-list neighbors reduced motion should place the neighbor of a pointer drag in the next frame
+   mx-sortable-list neighbors reduced motion should follow the preference turned on between two moves
+   mx-sortable-list neighbors reduced motion should follow the preference turned off between two moves
+## none | firefox | 0 failed, 190 passed, 12 skipped
+## displacement removed | firefox | 11 failed, 179 passed, 12 skipped
+   mx-sortable-list neighbors motion should animate the neighbor of a key move from its place to the new one
+   mx-sortable-list neighbors motion should animate the rows that a slow pointer move and a flick displace
+   mx-sortable-list neighbors motion should keep animating the neighbor of a key move that the page commits 100 ms later
+   mx-sortable-list neighbors return should animate the neighbor back on Escape in a pointer drag
+   mx-sortable-list neighbors return should animate the neighbor back when the page refuses a pointer drop
+   mx-sortable-list neighbors return should animate the neighbor back when the page never commits a key move
+   mx-sortable-list neighbors return should animate the neighbor back when the page never commits a pointer move
+   mx-sortable-list neighbors reduced motion should follow the preference turned on between two moves
+   mx-sortable-list neighbors reduced motion should follow the preference turned off between two moves
+   mx-sortable-list neighbors timing should time the neighbor's animation by the tokens' pair
+   mx-sortable-list neighbors timing should time the neighbor's animation by the list's private properties
+## timing left out | firefox | 6 failed, 184 passed, 12 skipped
+   mx-sortable-list neighbors motion should animate the neighbor of a key move from its place to the new one
+   mx-sortable-list neighbors motion should animate the rows that a slow pointer move and a flick displace
+   mx-sortable-list neighbors motion should keep animating the neighbor of a key move that the page commits 100 ms later
+   mx-sortable-list neighbors return should animate the neighbor back when the page never commits a key move
+   mx-sortable-list neighbors timing should time the neighbor's animation by the tokens' pair
+   mx-sortable-list neighbors timing should time the neighbor's animation by the list's private properties
+## the landing's pair in the layout animation's place | firefox | 2 failed, 188 passed, 12 skipped
+   mx-sortable-list neighbors timing should time the neighbor's animation by the tokens' pair
+   mx-sortable-list neighbors private properties should give an mx-sortable-list host the tokens' values
+## the four properties left in the default list sheet | firefox | 1 failed, 189 passed, 12 skipped
+   mx-sortable-list neighbors private properties should give an mx-list host none of them
+## --_drag-duration and --_drag-easing removed from the sortable sheet | firefox | 5 failed, 185 passed, 12 skipped
+   mx-sortable-list pointer should land with zero duration under reduced motion
+   mx-sortable-list in a hidden iframe should sort once the iframe it connected in is shown
+   mx-sortable-list neighbors timing should time the landing and the lifted item's elevation by the landing's pair, without a page rule
+   mx-sortable-list neighbors timing should time the landing and the lifted item's elevation by the landing's pair, with the neighbors' private properties set
+   mx-sortable-list neighbors private properties should give an mx-sortable-list host the tokens' values
+## row 4 without the emulation | firefox | 4 failed, 186 passed, 12 skipped
+   mx-sortable-list neighbors reduced motion should place the neighbor of a key move in the next frame
+   mx-sortable-list neighbors reduced motion should place the neighbor of a pointer drag in the next frame
+   mx-sortable-list neighbors reduced motion should follow the preference turned on between two moves
+   mx-sortable-list neighbors reduced motion should follow the preference turned off between two moves
+## none | webkit | 0 failed, 190 passed, 12 skipped
+## displacement removed | webkit | 11 failed, 179 passed, 12 skipped
+   mx-sortable-list neighbors motion should animate the neighbor of a key move from its place to the new one
+   mx-sortable-list neighbors motion should animate the rows that a slow pointer move and a flick displace
+   mx-sortable-list neighbors motion should keep animating the neighbor of a key move that the page commits 100 ms later
+   mx-sortable-list neighbors return should animate the neighbor back on Escape in a pointer drag
+   mx-sortable-list neighbors return should animate the neighbor back when the page refuses a pointer drop
+   mx-sortable-list neighbors return should animate the neighbor back when the page never commits a key move
+   mx-sortable-list neighbors return should animate the neighbor back when the page never commits a pointer move
+   mx-sortable-list neighbors reduced motion should follow the preference turned on between two moves
+   mx-sortable-list neighbors reduced motion should follow the preference turned off between two moves
+   mx-sortable-list neighbors timing should time the neighbor's animation by the tokens' pair
+   mx-sortable-list neighbors timing should time the neighbor's animation by the list's private properties
+## timing left out | webkit | 4 failed, 186 passed, 12 skipped
+   mx-sortable-list neighbors motion should animate the rows that a slow pointer move and a flick displace
+   mx-sortable-list neighbors motion should keep animating the neighbor of a key move that the page commits 100 ms later
+   mx-sortable-list neighbors timing should time the neighbor's animation by the tokens' pair
+   mx-sortable-list neighbors timing should time the neighbor's animation by the list's private properties
+## the landing's pair in the layout animation's place | webkit | 2 failed, 188 passed, 12 skipped
+   mx-sortable-list neighbors timing should time the neighbor's animation by the tokens' pair
+   mx-sortable-list neighbors private properties should give an mx-sortable-list host the tokens' values
+## the four properties left in the default list sheet | webkit | 1 failed, 189 passed, 12 skipped
+   mx-sortable-list neighbors private properties should give an mx-list host none of them
+## --_drag-duration and --_drag-easing removed from the sortable sheet | webkit | 5 failed, 185 passed, 12 skipped
+   mx-sortable-list pointer should land with zero duration under reduced motion
+   mx-sortable-list in a hidden iframe should sort once the iframe it connected in is shown
+   mx-sortable-list neighbors timing should time the landing and the lifted item's elevation by the landing's pair, without a page rule
+   mx-sortable-list neighbors timing should time the landing and the lifted item's elevation by the landing's pair, with the neighbors' private properties set
+   mx-sortable-list neighbors private properties should give an mx-sortable-list host the tokens' values
+## row 4 without the emulation | webkit | 4 failed, 186 passed, 12 skipped
+   mx-sortable-list neighbors reduced motion should place the neighbor of a key move in the next frame
+   mx-sortable-list neighbors reduced motion should place the neighbor of a pointer drag in the next frame
+   mx-sortable-list neighbors reduced motion should follow the preference turned on between two moves
+   mx-sortable-list neighbors reduced motion should follow the preference turned off between two moves

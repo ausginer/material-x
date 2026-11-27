@@ -39,6 +39,28 @@ describe.each([
     expect(readControlARIA(item)).toEqual({ 'aria-current': current });
   });
 
+  it(`should give a disabled item's control aria-current="${current}" and no aria-selected when selected before the connect`, () => {
+    const item = document.createElement(tag);
+    item.toggleAttribute('disabled', true);
+    item.toggleAttribute('selected', true);
+    document.body.append(item);
+    const aria = readControlARIA(item);
+
+    expect(aria).toHaveProperty('aria-current', current);
+    expect(aria).not.toHaveProperty('aria-selected');
+  });
+
+  it(`should give a disabled item's control aria-current="${current}" and no aria-selected when selected after the connect`, () => {
+    const item = document.createElement(tag);
+    item.toggleAttribute('disabled', true);
+    document.body.append(item);
+    item.toggleAttribute('selected', true);
+    const aria = readControlARIA(item);
+
+    expect(aria).toHaveProperty('aria-current', current);
+    expect(aria).not.toHaveProperty('aria-selected');
+  });
+
   it('should give the control no ARIA after the item is deselected', () => {
     const item = document.createElement(tag);
     document.body.append(item);

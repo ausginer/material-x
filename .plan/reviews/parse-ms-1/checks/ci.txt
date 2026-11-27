@@ -1,0 +1,32 @@
+# verify, run 45883437436, pull_request, on 4fcc0a4574f0859e83a63be570bd41d2af5be63e: success. records and deploy skipped.
+# Lines of each engine job's log (gh run view 45883437436 --job <id> --log), colour codes stripped.
+
+== firefox job 140128398805
+ ✓  browser/material-x/firefox (firefox)  tests/list/sortable-list.browser.test.ts (203 tests | 12 skipped) 38971ms
+ ✓  browser/material-x/firefox (firefox)  tests/list/list-roles.browser.test.ts (45 tests | 2 skipped) 5333ms
+ ✓  browser/material-x/firefox (firefox)  tests/core/animations/ripple.browser.test.ts (30 tests) 18377ms
+ ✓  browser/material-x/firefox (firefox)  tests/core/utils/fns.browser.test.ts (9 tests) 485ms
+ ✓  spec/material-x/firefox (firefox)  tests/core/elevation.spec.browser.test.ts (26 tests) 2789ms
+ ✓  spec/material-x/firefox (firefox)  tests/list/sortable-list.spec.browser.test.ts (26 tests) 5597ms
+ Test Files  137 passed | 1 skipped (138)
+      Tests  4320 passed | 3 expected fail | 201 skipped (4524)
+
+== webkit job 140128398763
+ ✓  browser/material-x/webkit (webkit)  tests/list/sortable-list.browser.test.ts (203 tests | 12 skipped) 30196ms
+ ✓  browser/material-x/webkit (webkit)  tests/list/list-roles.browser.test.ts (45 tests | 2 skipped) 4189ms
+ ✓  browser/material-x/webkit (webkit)  tests/core/animations/ripple.browser.test.ts (30 tests) 18613ms
+ ✓  browser/material-x/webkit (webkit)  tests/core/utils/fns.browser.test.ts (9 tests) 458ms
+ ✓  spec/material-x/webkit (webkit)  tests/core/elevation.spec.browser.test.ts (26 tests) 3212ms
+ ✓  spec/material-x/webkit (webkit)  tests/list/sortable-list.spec.browser.test.ts (36 tests) 7372ms
+ Test Files  137 passed | 1 skipped (138)
+      Tests  4331 passed | 2 expected fail | 201 skipped (4534)
+
+== chromium job 140128398780
+ ✓  browser/material-x (chromium)  tests/list/sortable-list.browser.test.ts (203 tests) 47223ms
+ ✓  browser/material-x (chromium)  tests/list/list-roles.browser.test.ts (45 tests) 5897ms
+ ✓  browser/material-x (chromium)  tests/core/animations/ripple.browser.test.ts (30 tests) 18340ms
+ ✓  browser/material-x (chromium)  tests/core/utils/fns.browser.test.ts (9 tests) 464ms
+ ✓  spec/material-x (chromium)  tests/core/elevation.spec.browser.test.ts (26 tests) 3189ms
+ ✓  spec/material-x (chromium)  tests/list/sortable-list.spec.browser.test.ts (36 tests) 9455ms
+ Test Files  193 passed (193)
+      Tests  5506 passed | 2 expected fail | 12 skipped (5520)

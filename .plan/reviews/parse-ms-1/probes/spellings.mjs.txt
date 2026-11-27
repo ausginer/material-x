@@ -1,0 +1,26 @@
+// What getPropertyValue(...).trim() gives a parseMs for custom-property times
+// written in other spellings, in each engine, and what the head's expression
+// (copied from fns.ts at 4fcc0a457) returns for it.
+import { chromium, firefox, webkit } from 'playwright';
+const values = ['250ms', '0.25s', '.25s', '250MS', '0.25S', '250Ms', '  250ms  ', '2.5e2ms', '+250ms'];
+for (const [name, type] of Object.entries({ chromium, firefox, webkit })) {
+  const browser = await type.launch();
+  const page = await browser.newPage();
+  const rows = await page.evaluate((values) => {
+    const sheet = document.createElement('style');
+    sheet.textContent = values.map((v, i) => `.v${i}{--d:${v};}`).join('\n');
+    document.head.append(sheet);
+    return values.map((v, i) => {
+      const el = document.createElement('div');
+      el.className = `v${i}`;
+      document.body.append(el);
+      const raw = getComputedStyle(el).getPropertyValue('--d');
+      const t = raw.trim();
+      const head = parseFloat(t) * (t.endsWith('ms') ? 1 : 1000);
+      return `${JSON.stringify(v).padEnd(12)} computed ${JSON.stringify(raw).padEnd(12)} head ${head}`;
+    });
+  }, values);
+  console.log(`== ${name} ${browser.version()}`);
+  for (const r of rows) console.log(r);
+  await browser.close();
+}

@@ -1,0 +1,18 @@
+# RD-60's reads, not rows, at 65c6f432e with the unit's working tree: .plan/sortable-displacement-1/probes/shots.browser.test.ts.txt, run as packages/material-x/tests/list/zz-shots.browser.test.ts in chromium, firefox and webkit, then removed. Screenshots in shots/.
+# overshoot-*: the time at which the displaced neighbor C, in A B C D with B moved down by key or held over C in a pointer drag, is drawn furthest past its place (upward), every animation paused there; overA and overMoved are its overlap with row A and with the moved item B.
+# focus-*: A B C, C focused by Tab and moved up by ArrowUp, every animation paused at t; coveredIndicator (tests/focus-indicator.ts) counts the pixels of C's outline along its bottom edge, painted with B hidden, and those B covers with B shown.
+chromium-focus-100: focused=true outline=solid painted=626 covered=0 bAnimations=1
+chromium-focus-250: focused=true outline=solid painted=620 covered=0 bAnimations=1
+chromium-focus-400: focused=true outline=solid painted=912 covered=0 bAnimations=1
+chromium-overshoot-key: t=280ms past=0.81px overA=0.00px overMoved=0.00px
+chromium-overshoot-pointer: t=280ms past=0.81px overA=0.00px overMoved=0.00px
+firefox-focus-100: focused=true outline=solid painted=914 covered=0 bAnimations=1
+firefox-focus-250: focused=true outline=solid painted=908 covered=0 bAnimations=1
+firefox-focus-400: focused=true outline=solid painted=914 covered=0 bAnimations=1
+firefox-overshoot-key: t=278ms past=0.82px overA=0.00px overMoved=0.00px
+firefox-overshoot-pointer: t=278ms past=0.82px overA=0.00px overMoved=0.00px
+webkit-focus-100: focused=true outline=solid painted=626 covered=0 bAnimations=1
+webkit-focus-250: focused=true outline=solid painted=620 covered=0 bAnimations=1
+webkit-focus-400: focused=true outline=solid painted=912 covered=0 bAnimations=1
+webkit-overshoot-key: t=280ms past=0.81px overA=0.00px overMoved=0.00px
+webkit-overshoot-pointer: t=280ms past=0.81px overA=0.00px overMoved=0.00px
