@@ -353,6 +353,13 @@ describe('convert', () => {
     );
   });
 
+  it('should write a set without a description when upstream gives none', () => {
+    const table = createTable();
+    edit(table, ['system', 'tokenSets', 0, 'description']);
+
+    expect(setFile([table])).not.toHaveProperty('description');
+  });
+
   it("should drop the site's navigation", () => {
     const table = createTable();
     edit(table, ['system', 'navigation'], { guidelinesNodes: [] });

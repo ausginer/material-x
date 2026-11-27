@@ -925,6 +925,7 @@ class TableReader {
     const id = this.string('-', raw, 'name');
     const tokenSetName = this.string(id, raw, 'tokenSetName');
     this.ruled(tokenSetName, raw, 'tokenSet', 'tokenSets');
+    const description = this.optionalString(tokenSetName, raw, 'description');
     const tokenType = this.optionalString(tokenSetName, raw, 'tokenType');
     const order = this.optionalNumber(tokenSetName, raw, 'order');
     let custom: StoredSet['custom'];
@@ -944,7 +945,7 @@ class TableReader {
       {
         tokenSetName,
         displayName: this.string(tokenSetName, raw, 'displayName'),
-        description: this.string(tokenSetName, raw, 'description'),
+        ...(description != null && { description }),
         ...(tokenType != null && { tokenType }),
         ...(custom && { custom }),
         ...(order != null && { order }),
