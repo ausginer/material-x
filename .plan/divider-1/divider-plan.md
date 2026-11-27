@@ -1,6 +1,6 @@
 # `mx-divider` — plan
 
-**Status: proposed. [Q1](#q1--the-inset-attribute) is answered, and [Q2](#q2--a-divider-in-a-card) is open again, with new options. The decision is minted when the owner answers Q2,** at the next free `RD-` at that time. Mx Architect B is planning `mx-select` in parallel, so a number taken now could collide. Written by the architect on 2026-11-27, on the coordinator's task for [#333](https://github.com/ausginer/material-x/issues/333), on `material-x/divider-1` from `origin/main` at `e7fa0d5f8`. Size: **small** (the issue says medium; the element has one token set with two tokens and no behavior).
+**Status: decided as [`RD-70`](../decisions/RD-70.md), and ready for an implementer.** The owner answered [Q1](#q1--the-inset-attribute) (a) and [Q2](#q2--a-divider-in-a-card) A2. Until then, Q2 was open, and the decision was to be minted on its answer. Written by the architect on 2026-11-27, on the coordinator's task for [#333](https://github.com/ausginer/material-x/issues/333), on `material-x/divider-1` from `origin/main` at `e7fa0d5f8`. Size: **small** (the issue says medium; the element has one token set with two tokens and no behavior).
 
 ## Readings
 
@@ -35,10 +35,10 @@
 2. **Horizontal:** the line is `thickness` high and as wide as its container, less the insets. The host takes exactly that block size.
 3. **Vertical:** the line is `thickness` wide and as high as the layout makes the host. In a flex row or a grid the default stretch gives it the row's height. Elsewhere it has no height, and the page gives it one. The docs say so.
 4. **Insets** are logical: they mirror in a right-to-left container. On a vertical divider they apply along the line, from its block start, which is this plan's choice, because M3 has no measurement for it.
-5. **A page's universal reset** (`* { margin: 0; padding: 0; border: 0 }`) changes neither the line, its thickness, nor its insets. **A page's `margin` on the divider applies,** except a direct child's inline margin in a card under Q2 (A2) or (A1).
+5. **A page's universal reset** (`* { margin: 0; padding: 0; border: 0 }`) changes neither the line, its thickness, nor its insets. **A page's `margin` on the divider applies,** except a direct child's inline margin in a card, which doesn't move the line (Q2 A2).
 6. **In forced colors** the line is `CanvasText`.
 7. **The line's color and thickness come from the token package,** and the two CSS properties override them.
-8. **Under Q2 (A2), the line is an absolutely positioned box whose containing block is the divider's host,** which is `position: relative`. It takes its thickness from its own size and its block position from its static position, never from `inset-block`. `mx-card` relies on this, so a comment in each stylesheet names the other.
+8. **The line is an absolutely positioned box whose containing block is the divider's host,** which is `position: relative`. It takes its thickness from its own size and its block position from its static position, never from `inset-block`. `mx-card` relies on this, so a comment in each stylesheet names the other.
 
 ### Accessibility
 
@@ -56,14 +56,16 @@
 
 **Answered by the owner on 2026-11-27, (a): `inset="start" | "middle"`,** relayed by the coordinator, who translated his words. He gave two reasons. The decision records both:
 
-- _"Three booleans mean all three can technically be set at once, and then how do you tell which one applies 😅 That's why I gave up booleans like that in mx."_ **This is a rule for every component, and no record states it yet.** It isn't in `CONTRIBUTING.md`, `attribute-vs-state-styling.md`, `architecture.md`, the decisions or the index (searched on 2026-11-27 for _boolean_, _booleans_ and _mutually exclusive_). The decision quotes it as his. If he wants it as a rule, it goes into `attribute-vs-state-styling.md` §Public Attributes as a sentence in force, citing the decision: _a choice among values is one enumerated attribute, never several booleans that can be set together_.
+- _"Three booleans mean all three can technically be set at once, and then how do you tell which one applies 😅 That's why I gave up booleans like that in mx."_ **This is a rule for every component.** Asked whether to record it, the owner said, on 2026-11-27: _"Yes, let's record it. It's an important parameter that I try to stick to."_ `RD-71` puts it into [`attribute-vs-state-styling.md` §Public Attributes](../../.agents/docs/attribute-vs-state-styling.md#public-attributes), in its own pull request, and `RD-70` applies it. Until then, no record stated it: it wasn't in `CONTRIBUTING.md`, `attribute-vs-state-styling.md`, `architecture.md`, the decisions or the index (searched on 2026-11-27 for _boolean_, _booleans_ and _mutually exclusive_).
 - _"And `variant` looks like extra noise, because it all comes down to inset anyway."_
 
 What M3 names, and the options he chose from: full-width, _inset_ (16dp at the start) and _middle-inset_ (16dp on both sides). (b) was material-web's `inset`, `inset-start` and `inset-end`, and (c) was `variant="inset" | "middle-inset"`. `end` can be added later without breaking a consumer, but M3 has no end-only inset.
 
 ### Q2 — a divider in a card
 
-**Open.** The owner declined both earlier options (the card names `mx-divider`, or nothing). He proposed his own idea, the card's padding on its slotted content, and asked to have it challenged. He then proposed `::slotted(mx-divider)` with a negative margin. He leans to the earlier (a), which that idea is a mechanism of, and that isn't an answer yet.
+**Answered by the owner on 2026-11-27: A2,** relayed by the coordinator: `position: static` on a horizontal direct-child divider in `mx-card`, so its line is positioned against the card's padding box. `RD-70` records it. What follows is what he chose from. Until his answer, this said _"Open."_
+
+The owner declined both earlier options (the card names `mx-divider`, or nothing). He proposed his own idea, the card's padding on its slotted content, and asked to have it challenged. He then proposed `::slotted(mx-divider)` with a negative margin. He leans to the earlier (a), which that idea is a mechanism of, and that isn't an answer yet.
 
 `mx-card` has 16px of padding on its own box (`RD-53` clause 3 and its notes), so a divider inside it ends 16px from each edge. M3's example of a full-width divider in a card reaches the card's edges, and M3 measures the inset from the container's edge.
 
@@ -106,12 +108,12 @@ A1 and A2 hold under the universal reset as on a plain page, and so does P, with
 
 **Recommended: A2.** It is the only design that meets M3's geometry for every `--md-card-padding` and leaves the rest of the card's content and contract as they are. Its coupling is one rule, which the tests keep.
 
-**What changes in `mx-card` under A2:** one rule in `card/styles/default/main.styles.css`, which makes a horizontal `mx-divider` direct child `position: static`, with its comment. It selects the divider's state (`::slotted(mx-divider:not(:state(vertical)))`), or its attribute where `:state()` doesn't match inside `::slotted()` in an engine. The JSDoc and `card.mdx` gain one sentence: _"A horizontal `mx-divider` that is a direct child of the card reaches the card's edges, and its inset is measured from the card's edge."_ `card.stories.tsx` gains a story with a divider. `card/card`'s size row grows by the rule. Nothing else in the card moves: no attribute, property, padding, size, existing row or story.
+**What changes in `mx-card`:** one rule in `card/styles/default/main.styles.css`, which makes a horizontal `mx-divider` direct child `position: static`, with its comment. It selects the divider's state (`::slotted(mx-divider:not(:state(vertical)))`), or its attribute where `:state()` doesn't match inside `::slotted()` in an engine. The JSDoc and `card.mdx` gain one sentence: _"A horizontal `mx-divider` that is a direct child of the card reaches the card's edges, and its inset is measured from the card's edge."_ `card.stories.tsx` gains a story with a divider. `card/card`'s size row grows by the rule. Nothing else in the card moves: no attribute, property, padding, size, existing row or story.
 
 ## Work
 
-1. **Source:** `src/divider/`: the element with its trait (`DividerLike`), the styles and one token package from `md.comp.divider` with both tokens; `files.json`; `react.ts`. Under Q2 A2, the card's rule, its comment, and a story with a divider in `card/`.
-2. **Docs:** JSDoc for the manifest (`@attr`, `@cssprop`, the decorative default, `role="separator"` outside a list, the vertical divider's height, the sortable list). `divider.mdx` with `card.mdx`'s sections: Summary, When to use, When not to use, Quick start, Insets, Vertical, In a list, In a card, Accessibility, Anatomy, Theming, API reference, Material 3 reference and deltas, Changelog. `divider.stories.tsx`: _Playground_ (inset and orientation controls), _Insets_, _Vertical_, _In a list_, _In a card_. `list.mdx`'s delta, and under Q2 A2 the card's JSDoc and `card.mdx`.
+1. **Source:** `src/divider/`: the element with its trait (`DividerLike`), the styles and one token package from `md.comp.divider` with both tokens; `files.json`; `react.ts`. The card's rule, its comment, and a story with a divider in `card/`.
+2. **Docs:** JSDoc for the manifest (`@attr`, `@cssprop`, the decorative default, `role="separator"` outside a list, the vertical divider's height, the sortable list). `divider.mdx` with `card.mdx`'s sections: Summary, When to use, When not to use, Quick start, Insets, Vertical, In a list, In a card, Accessibility, Anatomy, Theming, API reference, Material 3 reference and deltas, Changelog. `divider.stories.tsx`: _Playground_ (inset and orientation controls), _Insets_, _Vertical_, _In a list_, _In a card_. `list.mdx`'s delta, and the card's JSDoc and `card.mdx`.
 3. **`architecture.md`:** the exception _The host is the box_ names `mx-divider`.
 
 ### Tests
@@ -127,16 +129,16 @@ The rows run in each engine at `RD-20`'s floor. A literal 16px carries its prove
   - a page's `margin-block` and `margin-inline-start` on a full-width divider apply;
   - with `emulateForcedColors(true)`, the line is `CanvasText`. **Witness:** the row fails without the forced-colors rule, if the line is painted in a way that forced colors overrides;
   - in `mx-list`, a horizontal divider has the list's width;
-  - under Q2 A2, in `mx-card`: a horizontal direct-child divider spans the card's border box with the default padding, with `--md-card-padding: 24px` and with `8px 24px`; `start` is 16px from the card's start edge, and `middle` 16px from both; it mirrors under `dir="rtl"`. **Witness:** these fail without the card's rule. A page's universal reset changes none of them. A page's `position: relative` on the divider makes it span the content box. A vertical direct child and a divider in a child of the card are as they are outside a card;
-  - under Q2 A2, the divider's side of the contract: with a page's `position: static` on a divider in a `position: relative` container with 16px of padding, the line spans the container's padding box. **Witness:** the row fails when the line is in flow.
+  - in `mx-card`: a horizontal direct-child divider spans the card's border box with the default padding, with `--md-card-padding: 24px` and with `8px 24px`; `start` is 16px from the card's start edge, and `middle` 16px from both; it mirrors under `dir="rtl"`. **Witness:** these fail without the card's rule. A page's universal reset changes none of them. A page's `position: relative` on the divider makes it span the content box. A vertical direct child and a divider in a child of the card are as they are outside a card;
+  - the divider's side of the contract: with a page's `position: static` on a divider in a `position: relative` container with 16px of padding, the line spans the container's padding box. **Witness:** the row fails when the line is in flow.
 - **`axe.browser.test.ts`:** rows for `mx-divider` bare (`hasNoRule`), with `role="separator"`, vertical with `role="separator"`, and in `mx-list`.
 - **`traits-baseline`:** `DividerLike`'s runtime-shape snapshot.
 - **`divider.visual.browser.test.ts`:** one screenshot: the three insets, a vertical divider in a row, a list with dividers, and a card with one. The recording workflow records its baseline, and the owner reviews it (`RD-13`).
 
 ### Size
 
-`divider/divider` is a new row. `complete` is read before and after. **Every other row is the control and stays byte for byte,** except `card/card` under Q2 A2, whose growth is reported. No limit applies yet (`RD-24`).
+`divider/divider` is a new row. `complete` is read before and after. **Every other row is the control and stays byte for byte,** except `card/card`, whose growth is reported. No limit applies yet (`RD-24`).
 
 ### Stopping boundary
 
-The implementer stops and returns to the architect if a property above can't hold in an engine at the floor, if the forced-colors row and the universal-reset row need mechanisms that conflict, or if a row of `mx-list` or `mx-card` other than those named here changes. Under Q2 A2, if `:state()` doesn't match inside `::slotted()` in an engine, the card's rule selects the `orientation` attribute, and the return says so.
+The implementer stops and returns to the architect if a property above can't hold in an engine at the floor, if the forced-colors row and the universal-reset row need mechanisms that conflict, or if a row of `mx-list` or `mx-card` other than those named here changes. If `:state()` doesn't match inside `::slotted()` in an engine, the card's rule selects the `orientation` attribute, and the return says so.
