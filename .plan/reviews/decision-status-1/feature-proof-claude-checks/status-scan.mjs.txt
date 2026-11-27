@@ -1,0 +1,13 @@
+// Prints, per decision file, the phrases in its status paragraph (the first
+// paragraph after the heading) that a stale status may use.
+import { readFileSync, readdirSync } from 'node:fs';
+import { join, basename } from 'node:path';
+const root = process.argv[2];
+const dirs = [join(root, '.plan/decisions'), join(root, 'packages/drag/.plan/decisions')];
+const re = /not yet|pending|waits for|merges|isn.t merged|unmerged|not merged|reaches `main`|applies to `main`|lands\b|not implemented|isn.t implemented|unimplemented|ready for an implementer|not in force|nothing has moved|implements it|will implement/gi;
+for (const dir of dirs) for (const name of readdirSync(dir).filter((n) => n.endsWith('.md')).sort()) {
+  const paras = readFileSync(join(dir, name), 'utf8').split(/\n\s*\n/);
+  const status = (paras[1] ?? '').replace(/\(added 2026-11-27[^)]*\)/g, '');
+  const hits = [...status.matchAll(re)].map((m) => status.slice(Math.max(0, m.index - 70), m.index + m[0].length + 50).replace(/\n/g, ' '));
+  if (hits.length) console.log(`${basename(name, '.md')}: ${hits.join(' ¦ ')}`);
+}

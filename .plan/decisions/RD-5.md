@@ -1,6 +1,6 @@
 #### RD-5 — The record resolver is repository tooling, and a retired scope resolves at its final commit
 
-**Decided 2026-11-15** by the architect, on the owner's decision to delete `@ydinjs/drag2` (`drag:DRO-17`, `drag:DRD-64`). **Unimplemented:** [`drag2-retirement-handoff.md`](../../packages/drag/.plan/drag2-retirement-handoff.md) item 3 implements it.
+**Decided 2026-11-15** by the architect, on the owner's decision to delete `@ydinjs/drag2` (`drag:DRO-17`, `drag:DRD-64`). **Unimplemented:** [`drag2-retirement-handoff.md`](../../packages/drag/.plan/drag2-retirement-handoff.md) item 3 implements it. **Implemented** by #24, merged 2026-11-15 as `3228d1f07` (added 2026-11-27, `RD-68`).
 
 **The resolver moves to `.scripts/entry.sh` and `.scripts/entry.ts`, with the same address syntax and the same three refusals.** It resolves `repo` and `drag` from the working tree. **`drag2` becomes a retired scope, read at `0870abd75` and never from the working tree.** Its current-state documents are what they were: `.plan/contract/*.md` and `.plan/obligations.md`. A `drag2:` address resolves to the bytes it resolved to at that commit. A clone that doesn't hold the commit gets an error that names it. That error differs from the three refusals, because its repair is fetching history and not correcting the address.
 
