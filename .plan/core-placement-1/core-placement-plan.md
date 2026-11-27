@@ -1,8 +1,8 @@
 # Step (c) — what goes in `@ydinjs/core`, `AttributeClaimer`, and two moves from material-x — plan
 
-**Status: proposed, waiting for the owner's checkpoint and his answers to [Q1](#q1--the-workarounds-that-expire) and [Q2](#q2--useformactivation).** Written by the architect on 2026-11-27, on the coordinator's task, on `repo/core-placement-1` from `origin/main` at `2ed4b96ab`. The owner approved the three items on 2026-11-26 (_"Ага, подтверждаю"_, "Yes, I confirm"), after a conversation with Mx Architect Explainer. They were due after `RF-118`, which merged with `RF-117` as #321 (`fe101808b`), and after `RF-152`'s `parseMs`, which merged as #315 (`085be1e2b`).
+**Status: accepted by the owner on 2026-11-27, with Q1 (a) and Q2 (a). [Unit 1](#unit-1--attributeclaimer-and-the-moves) is ready for an implementer, on this branch. [Unit 2](#unit-2--the-rule-in-architecturemd) is #342, and unit 3 isn't needed.** Until 2026-11-27 it said: _"proposed, waiting for the owner's checkpoint and his answers to Q1 and Q2"_. Written by the architect on 2026-11-27, on the coordinator's task, on `repo/core-placement-1` from `origin/main` at `2ed4b96ab`. The owner approved the three items on 2026-11-26 (_"Ага, подтверждаю"_, "Yes, I confirm"), after a conversation with Mx Architect Explainer. They were due after `RF-118`, which merged with `RF-117` as #321 (`fe101808b`), and after `RF-152`'s `parseMs`, which merged as #315 (`085be1e2b`).
 
-**The decisions are proposed here as `CP-D1` to `CP-D3`, and minted at the checkpoint,** at the next free `RD-` numbers then. On 2026-11-27 `RD-71` (#337) is the highest on any branch, and `material-x/select-1` will take one when its questions are answered. `CP-D2` and `CP-D3` depend on Q1 and Q2. `CP-D1` depends on neither, and is minted with them so that the step's decisions are consecutive.
+**The decisions were proposed here as `CP-D1` to `CP-D3`, and are minted:** `CP-D1` is [`RD-73`](../decisions/RD-73.md) and `CP-D3` is [`RD-74`](../decisions/RD-74.md), on this branch, and `CP-D2` is `RD-75`, on `repo/core-placement-rule-1` (#342). `RD-71` (#337) is the highest on any branch, and the coordinator reserves `RD-72` for `material-x/select-1`. The decision files are the statement, and [_The decisions_](#the-decisions) says what each is.
 
 ## The owner's words
 
@@ -40,45 +40,17 @@ Each of Explainer's claims was read again at today's `origin/main`. #321 and #32
   - **`useHasSlottedPolyfill`** (`polyfills/has-slotted.ts`): it works only with the build's `hasSlottedFallbackVisitor`, in `@ydinjs/vite-custom-element-assets`, which is private. It goes once every supported engine matches `:has-slotted` and `:host:has()`.
   - **`useAriaNotifyPolyfill`** (`polyfills/aria-notify/`): it imports a CSS sheet and an HTML template. Its TODO deletes it once Playwright's WebKit has `Element.ariaNotify` and a VoiceOver check passes.
 
-## The proposed decisions
+## The decisions
 
-### `CP-D1` — `AttributeClaimer` in `@ydinjs/core`
+Proposed here as `CP-D1` to `CP-D3` and minted on 2026-11-27, after the owner's answers. Each decision file is the statement: the plan held the same text until then, and `CP-D2` and `CP-D3` now carry the answers. The proposed text is at `21025aa80`.
 
-1. **A class, `AttributeClaimer`,** in a module of its own, `@ydinjs/core/utils/AttributeClaimer.js`. It isn't in `DOM.js`, so that a user of `toggleState` doesn't pay for it (§7). Its state is `#private` (_Class encapsulation_). It is a class because each instance has a lifetime of its own, with an observer and a release, which §10 calls _"meaningful lifecycle identity"_. The owner asked for a class.
-2. **One instance per element:** `new AttributeClaimer(element)`.
-3. **`set(values: Readonly<Record<string, string | null>>): void`** claims each named attribute:
-   - **A string** is written when the element doesn't have the attribute, or has this instance's own value. The value is then the instance's own.
-   - **`null`** removes the instance's own value, and leaves another writer's.
-   - **A name that `values` doesn't list** is left as it is.
-4. **The claim ends when anyone else writes or removes the attribute.** After another writer's value, `set()` leaves it, and `release()` doesn't remove it. After another writer's removal, the element doesn't have the attribute, so a later `set()` with a string claims it again, as `sortable-item.ts` does today. The instance's own writes and removals don't end its claim. Another writer's change made earlier in the same task as a `set()` or `release()` is seen before the instance writes.
-5. **`release(): void`** removes every value that is still the instance's own, and stops observing. It is called once, and nothing is called after it.
-6. **Its terms are `useARIA`'s:** _own value_ is the value this instance wrote and still holds. The JSDoc says that it is the reverse direction: `setOwnARIA` keeps the component's value under the host's, and the claimer writes on a consumer's element only while the consumer hasn't.
-7. **It is public core API:** an entry in `files.json`, `docs/api.ts`, a row in the README's _Utils_, JSDoc, and core rows in `packages/core/tests/utils/AttributeClaimer.browser.test.ts`.
-8. **`sortable-item.ts` uses it,** one instance for the control for the item's lifetime, and one for each handle. A new handle releases the old handle's instance and creates one for the new handle, which replaces today's re-observation.
-9. **`touch-action` stays in `sortable-item.ts`,** as an inline style. It is drag's, and no observer sees it. It keeps today's rule: written while the handle has no inline `touch-action`, and removed while it is still `none`.
-10. **One change of behavior: `aria-label`.** The item passes `'aria-label': handle.hasAttribute('aria-labelledby') ? null : 'Reorder'`. So at an update after the handle gains `aria-labelledby`, the item removes its own `Reorder`. Today it stays. `aria-labelledby` wins over `aria-label` in the accessible name, so the name doesn't change. A consumer's own `aria-label` stays, as today.
-
-**Why.** The claim rule doesn't depend on material-x: any component that adds semantics to an element a consumer gives it needs it, so it passes the owner's test of what core is for. An instance per element replaces the two `owned` sets and the shared observer, so the item's code is the calls.
-
-### `CP-D2` — What goes in `@ydinjs/core`, and what in material-x's `src/core`
-
-1. **`@ydinjs/core` holds universal utilities, which anyone building a design system can use,** whatever the number of their users in this repository.
-2. **material-x's `src/core` holds code that material-x's components share and that means nothing without material-x,** such as its styles, its ripple and its token-bound helpers.
-3. **_"No second user"_ is a reason only against `src/core`,** as `RF-118` property 5 uses it for `useSortable`. That property's reason against `@ydinjs/core`, a dependency on drag (`RD-31`), stands.
-4. **A workaround with a deletion condition:** by Q1's answer.
-5. **Where it is written:** [`architecture.md`](../../.agents/docs/architecture.md), in _Core runtime_ and in _Extension points_' _Core capability_, which today says only _"add an `@ydinjs/core` controller or trait"_. It is project documentation, so it has [its own unit](#unit-2--the-rule-in-architecturemd) and pull request, as `RD-71` had #337.
-
-**Why there.** `architecture.md` already says what each package is for, and its _Extension points_ is where an author decides where new code goes. `CONTRIBUTING.md` is about how source is written, not where.
-
-### `CP-D3` — `useClickActivation` and `parseMs` move to `@ydinjs/core`
-
-1. **`useClickActivation`** moves to `@ydinjs/core/controllers/useClickActivation.js`, as a controller of its own, as each core controller is. Under Q2 (a), **`useFormActivation`** moves to `@ydinjs/core/controllers/useFormActivation.js`, and its JSDoc names the click that `useClickActivation` cancels. material-x's `src/core/utils/events.ts` is then deleted.
-2. **`parseMs`** moves to `@ydinjs/core/controllers/useCSSProps.js`, beside `CSSPropParser` and `CSSVariableError`. It is the parser for that controller, so a consumer imports it from where it uses it. `identity` stays in `fns.ts`, which is a one-line function.
-3. **Each moved function keeps its behavior and signature,** and material-x's call sites change only their import.
-4. **The `useContext` wrapper stays** in material-x's `src/core/utils/useContext.ts`, so that core's `useContext` stays neutral about how a value is carried.
-5. **§8: no re-export is left** at the old paths.
+- **`CP-D1` is [`RD-73`](../decisions/RD-73.md): `AttributeClaimer` in `@ydinjs/core`,** with `sortable-item.ts` using it, `touch-action` staying in the item, and one change of behavior for `aria-label`.
+- **`CP-D2` is `RD-75`: what goes in `@ydinjs/core`, and what in material-x's `src/core`.** Its property 4, under Q1 (a): a workaround with a deletion condition stays where its users are until the condition holds. It is written in `architecture.md` by [unit 2](#unit-2--the-rule-in-architecturemd), and its file is on that unit's branch, `repo/core-placement-rule-1` (#342).
+- **`CP-D3` is [`RD-74`](../decisions/RD-74.md): `useClickActivation`, `useFormActivation` and `parseMs` move to `@ydinjs/core`,** with `useFormActivation` under Q2 (a), and material-x's `events.ts` deleted.
 
 ## Questions for the owner
+
+**Both are answered.** The owner answered at his checkpoint on 2026-11-27, relayed by the coordinator: Q1 (a) and Q2 (a). The questions stay as he read them.
 
 ### Q1 — the workarounds that expire
 
@@ -93,6 +65,8 @@ Each of Explainer's claims was read again at today's `origin/main`. #321 and #32
 
 **Recommended: (a).** It is what the owner said he wants, and the expiry is the reason: core is the package whose exports are a promise, and these are the code that is meant to go.
 
+**Answered (a), 2026-11-27.** `RD-75` property 4 states it, and unit 3 isn't needed.
+
 ### Q2 — `useFormActivation`
 
 **Explainer's list doesn't name `useFormActivation`, which is in `events.ts` beside `useClickActivation`. Does it move too?**
@@ -105,20 +79,22 @@ Each of Explainer's claims was read again at today's `origin/main`. #321 and #32
 
 **Recommended: (a).** The owner named the function he saw, and the second is the other half of it.
 
+**Answered (a), 2026-11-27.** [`RD-74`](../decisions/RD-74.md) property 1 states it.
+
 ## The units, in order
 
 ### Unit 1 — `AttributeClaimer`, and the moves
 
-On this branch, by an implementer, after the checkpoint and Q2. **Size: medium.**
+On this branch, by an implementer. **Ready since 2026-11-27,** when the owner accepted the plan and answered Q2. It implements [`RD-73`](../decisions/RD-73.md) and [`RD-74`](../decisions/RD-74.md). **Size: medium.**
 
 - **Core:**
-  - `src/utils/AttributeClaimer.ts` (`CP-D1`), and `src/controllers/useClickActivation.ts`. Under Q2 (a), `src/controllers/useFormActivation.ts`. `parseMs` goes into `src/controllers/useCSSProps.ts`.
+  - `src/utils/AttributeClaimer.ts` (`RD-73`), `src/controllers/useClickActivation.ts` and `src/controllers/useFormActivation.ts` (`RD-74`). `parseMs` goes into `src/controllers/useCSSProps.ts`.
   - The entries in `files.json` and `docs/api.ts`, and rows in the README's tables. The README's `useAnchor.js` row is removed, because the module doesn't exist.
 - **material-x:**
-  - `sortable-item.ts` uses `AttributeClaimer` (`CP-D1` 8 to 10);
-  - the imports of `SwitchCore.ts`, `CheckableCore.ts`, `ripple.ts` and `useSortable.ts`, and under Q2 (a) `button.ts` and `icon-button.ts`;
-  - `events.ts` deleted under Q2 (a), and `fns.ts` keeps `identity`;
-  - `parseMs`'s rows move to core.
+  - `sortable-item.ts` uses `AttributeClaimer` (`RD-73` properties 8 to 10);
+  - the imports of `SwitchCore.ts`, `CheckableCore.ts`, `button.ts`, `icon-button.ts`, `ripple.ts` and `useSortable.ts`;
+  - `events.ts` deleted, and `fns.ts` keeps `identity`;
+  - `parseMs`'s rows move to core, and `tests/core/utils/fns.browser.test.ts`, which holds only them, goes.
 - **Rows, in core's browser project:**
   - **`AttributeClaimer`:**
     - a value is written on an element without the attribute, and rewritten while it is still the instance's own;
@@ -131,27 +107,25 @@ On this branch, by an implementer, after the checkpoint and Q2. **Size: medium.*
     - **a change earlier in the same task is seen:** a consumer writes the attribute, then `set()` runs in the same task with another value, and the consumer's value stays. The same with `release()`. **Witness:** the row fails when `set()` doesn't take the pending records first;
     - **the instance's own writes don't end its claim:** after `set({ role: 'button' })` and a microtask, `set({ role: null })` removes it. **Witness:** the row fails when the instance's own records reach the observer.
   - **`useClickActivation`:** a click on the host clicks the target once, its default is prevented, and a listener on the host's parent receives one click, the target's. A click on the target passes unchanged. **Witness:** the first row fails without `stopImmediatePropagation`, because the parent then receives two.
-  - **`useFormActivation`** under Q2 (a): the rows that `button.ts`'s form behavior has in material-x stay there, and core gets one row on a plain form-associated host for `submit`, `reset` and `button`.
+  - **`useFormActivation`:** the rows that `button.ts`'s form behavior has in material-x stay there, and core gets one row on a plain form-associated host for `submit`, `reset` and `button`.
   - **`parseMs`:** `fns.browser.test.ts`'s rows, moved to core's `useCSSProps` rows unchanged.
 - **Rows, in material-x:**
   - **`sortable-list.browser.test.ts`'s rows pass unedited,** among them _"should keep the values the consumer set on the handle"_, the tab-stop rows, the description rows, _"should keep the aria-disabled that the page writes on a disabled handle"_ and _"should keep the touch-action that the page writes on a handle after the claim"_.
-  - **One new row for `CP-D1` 10:** the item claims `Reorder`, the page sets `aria-labelledby` on the handle, the item is then disabled, and the handle has no `aria-label`. **Witness:** it fails on today's code.
+  - **One new row for `RD-73` property 10:** the item claims `Reorder`, the page sets `aria-labelledby` on the handle, the item is then disabled, and the handle has no `aria-label`. **Witness:** it fails on today's code.
   - **A handle that already has `aria-labelledby` and a consumer's `aria-label`** keeps both.
   - The switch, checkbox, radio, button and icon-button rows pass unedited.
 - **Size:** `complete`, every row that imports a moved function and `list/sortable-list` are read before and after. Every other material-x row is the control and stays byte for byte. Core's `.size-limit.json` rows stay within their limits. No new limit is added.
 - **Stopping boundary:** the implementer stops and returns if a row of material-x other than the import paths and the new row needs an edit, if `AttributeClaimer`'s rows can't hold in an engine at the floor, or if the move changes the built `custom-elements.json` or `react.d.ts` of material-x beyond module paths.
+- **The pull request** is this branch's, so it carries the plan and the two decisions with the implementation. Its description says `Closes #341`. After it opens, the implementer adds _"**Implemented** by #N"_ to `RD-73`'s and `RD-74`'s status sentences ([`documentation.md` §6](../../.agents/docs/documentation.md#a-decisions-status)).
 
 ### Unit 2 — the rule in `architecture.md`
 
-On its own branch from `origin/main`, by the architect, after Q1's answer, with its own pull request. **Size: small,** Markdown only. It writes `CP-D2` and mints it. It may merge before or after unit 1.
+On its own branch from `origin/main`, by the architect, after Q1's answer, with its own pull request. **Size: small,** Markdown only. It writes `CP-D2` and mints it. It may merge before or after unit 1. **Done 2026-11-27:** `repo/core-placement-rule-1`, #342, which mints `CP-D2` as `RD-75`.
 
 ### Unit 3 — the workarounds, only under Q1 (b) or (c)
 
-Not planned until the answer. Under (b) it needs a build decision for core, and so it is a plan of its own.
+Not planned until the answer. Under (b) it needs a build decision for core, and so it is a plan of its own. **Not needed:** the owner answered Q1 with (a).
 
 ## Not adopted
 
-- **`AttributeClaimer` as `useAttributeClaims(host, element)`.** A hook registers on a host's lifecycle. The claims' lifetime is the handle's, which changes while the host lives, and the owner asked for a class.
-- **One instance for several elements,** as today's shared observer. Then `release()` takes an element, and the item's two `owned` sets come back as a map inside the class.
-- **`touch-action` in the claimer,** as a style claim. No observer sees it, so its rule is a different one, and it is drag's.
-- **`parseMs` in a new `@ydinjs/core/utils/` module.** It would be a module for one function that only `useCSSProps` calls.
+The alternatives that lost are under each decision's _Not adopted_: [`RD-73`](../decisions/RD-73.md)'s for `AttributeClaimer`, [`RD-74`](../decisions/RD-74.md)'s for the moves, and `RD-75`'s for the workarounds, with Q1's (b) and (c).
