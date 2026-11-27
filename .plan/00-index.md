@@ -1976,6 +1976,8 @@ Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 
 **Dated 2026-11-27 by the architect: `RF-157` registers that the checkbox draws non-Material colours when checked or indeterminate and hovered, unselected and pressed, and disabled,** so this entry's checkbox rows for those states would fail at the current code. `RF-157`'s unit adds the rows for the states that it names. This entry's other rows stay here, and its status doesn't change.
 
+**Dated 2026-11-27 by the architect: `RF-157` now also names the checkbox's press wave under the keyboard and under a pointer, and its unselected outline when hovered, focused and pressed, and `RF-158` names the radio's press wave.** Their units add the rows for those states. This entry's other rows stay here, and its status doesn't change.
+
 #### RF-89 — No visual contract covers the split button
 
 Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#mx-split-button)'s reviewer's task 8 (`RD-34`), relayed by the coordinator. `RF-88` is the highest `RF-` on any branch on `origin`, so this is the next free number.
@@ -5219,9 +5221,9 @@ Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi
 - **Not read:** core, tproc, vite-traits-plugin and box-quad, which the proof lists by reading. A build, `just build-lib`, in a tree with no list.
 - **Plan needed:** no. **Size:** _small_.
 
-#### RF-157 — `mx-checkbox` draws non-Material colours when selected and hovered, unselected and pressed, and disabled
+#### RF-157 — `mx-checkbox` draws values other than Material's in its hover layer, press wave, outline and disabled icon
 
-Tier A, **open**, **ready**, pre-existing. **Implemented** by #338, not yet merged (the implementer's note). Registered on 2026-11-27 by the architect, on `material-x/checkbox-error-1`, from fp-3 of #328's [feature proof](reviews/checkbox-error-1/feature-proof-claude.md#fp-3--the-checkbox-draws-non-material-values-in-four-states-pre-existing), requested by the coordinator. `RF-156` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `93f5e44d6`. It is registered on this branch because its evidence is this branch's review record. The same cascade is on `main`: the proof renders the head's default blocks equal to `main`'s ([reading](reviews/checkbox-error-1/checks/sheet.txt)).
+Tier A, **open**, **ready**, pre-existing. #338 implements the implementer's note. The architect's note of the same day adds rows to the table, and the implementation of those rows is owed on the same branch before #338 merges. Registered on 2026-11-27 by the architect, on `material-x/checkbox-error-1`, from fp-3 of #328's [feature proof](reviews/checkbox-error-1/feature-proof-claude.md#fp-3--the-checkbox-draws-non-material-values-in-four-states-pre-existing), requested by the coordinator. `RF-156` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `93f5e44d6`. It is registered on this branch because its evidence is this branch's review record. The same cascade is on `main`: the proof renders the head's default blocks equal to `main`'s ([reading](reviews/checkbox-error-1/checks/sheet.txt)).
 
 - **What happens,** in Chromium, Firefox and WebKit, in the proof's readings ([layers](reviews/checkbox-error-1/checks/layers.txt), [disabled](reviews/checkbox-error-1/checks/disabled.txt), [tokens](reviews/checkbox-error-1/checks/tokens.txt)):
 
@@ -5253,6 +5255,83 @@ Tier A, **open**, **ready**, pre-existing. **Implemented** by #338, not yet merg
 - **Checks:** material-x's `spec` (1,405 passed, 2 expected failures), `browser` (1,449) and `node` (38) projects pass in Chromium. Format, lint and typecheck are clean. Firefox and WebKit are read from CI.
 - **Baselines,** by `RD-13`: `checkbox-disabled.png` is expected to change, by the unselected outline and the checked and indeterminate icons, and `checkbox-hovered.png` by its checked checkbox's hover layer. No other image of the five draws a changed state: the selection and error matrices are at rest, and the focused row's checkbox is unselected and unhovered. No image is committed. The pull request's visual job fails on those two rows until a `record-baselines` run proposes them and the owner merges them.
 - **Observed, not changed:** under a pointer press the press wave draws opacity `0.08`, `hover`'s, in each selection, while `unselected.pressed.state-layer.opacity` and `selected.pressed`'s are `0.1`. `:host(:hover)` sets it and no pressed rule sets an opacity, the same as at `2ed4b96ab`. The table names only colours, so this unit doesn't change it. It isn't registered. The radio isn't read or changed.
+
+**Dated 2026-11-27 by the architect: a keyboard activation is the pressed state, so the press wave draws its selection's pressed tokens whatever activates it. The table adds the wave's opacity and the unselected outline when hovered, focused and pressed,** on `material-x/checkbox-colors-1`, read at `29f5597d6`, requested by the coordinator. It rules on `reviewer-1` and `reviewer-2` of #338's [feature proof](reviews/checkbox-colors-1/feature-proof-claude.md#findings), and on #339.
+
+- **The proof's reading holds** ([rerun](checkbox-colors-1/checks/keyboard-wave.txt)). Space on a focused checkbox draws the press wave as follows, in Chromium, Firefox and WebKit:
+  - checked or indeterminate: `primary` at the head and `on-surface` at `2ed4b96ab`;
+  - unselected: `on-surface` at both.
+  - In no sampled frame does the host match `:active`.
+  - `resolveInheritance`, in `packages/tproc/src/ExtensionManager.ts`, builds a state's inherited tokens by spreading its parents' effective sets in order, as the proof's observation says.
+- **The ruling on `reviewer-1`: a keyboard activation is the pressed state.**
+  - The press wave is the pressed state's layer, and only an activation draws it. The ripple runs it from `pointerdown`, and from a `click` that no pointer started, which is the keyboard's.
+  - A focused checkbox has its own indicators, the focus layer and the focus ring, and they draw the focus tokens.
+  - Material Web, from which the ripple is adapted, does the same, read at `875a8b6b8` of its `main`. Its ripple runs the same press animation for a keyboard click (`ripple/internal/ripple.ts`). Its checkbox colours the wave with `pressed-state-layer-color`, and with `selected-pressed-state-layer-color` when selected (`checkbox/internal/_checkbox.scss`).
+  - **So the table's _"Unselected, pressed"_ row covers a keyboard activation,** which the head and `2ed4b96ab` both draw in `on-surface`.
+  - **A checked or indeterminate keyboard activation is pressed too,** not a state that the table leaves out. It draws `selected.pressed`'s `on-surface`. `2ed4b96ab` draws that, and the head doesn't.
+- **The ruling on #339: the press wave's opacity joins this entry.**
+  - The colour and the opacity are the same layer's, from the same tokens. Under a pointer press the wave draws `0.08`, hover's, in each selection. Both pressed tokens give `0.1`.
+  - The cause is the proof's observation. In the model, `unselected.pressed` inherits `unselected.focus`'s effective `0.1`, so pressed's own `0.1` is dropped as equal. The cascade gives `:host(:hover)`'s `0.08`, because `:host(:focus-within)` declares no opacity.
+  - So a wave that takes its values from the host's pseudo-classes, through the extension graph, draws the right opacity only where the model and the cascade happen to agree.
+  - #339 also asks for the radio to be read. That is `RF-158`.
+- **The ruling on `reviewer-2`: the unselected outline joins this entry, and isn't registered on its own.**
+  - It is this entry's fault, in the same module: an unselected checkbox draws `on-surface-variant` when hovered, focused and pressed. The current `unselected.{hover,focus,pressed}.outline.color` give `on-surface`.
+  - The disabled outline that this unit already draws by name has the same cause. The re-proof that `reviewer-1` needs covers it, and the baselines go through one recording.
+- **The table, amended.** These rows are added, and the four rows above stay:
+
+  | State | Drawn at `29f5597d6` | Material's token |
+  | --- | --- | --- |
+  | Unselected, activated by the keyboard | press wave `on-surface` | `unselected.pressed.state-layer.color`: `primary` |
+  | Checked or indeterminate, activated by the keyboard | press wave `primary` | `selected.pressed.state-layer.color`: `on-surface` |
+  | Each selection, pressed by a pointer | press wave at opacity `0.08` | `{unselected,selected}.pressed.state-layer.opacity`: `0.1` |
+  | Unselected, hovered, focused or pressed | outline `on-surface-variant` | `unselected.{hover,focus,pressed}.outline.color`: `on-surface` |
+
+- **The required property, amended:**
+  1. In each state and selection that the amended table names, the checkbox draws the value that its Material token gives, in each engine at `RD-20`'s floor.
+  2. The press wave draws its selection's `pressed.state-layer.color` and `.opacity` for every activation, by a pointer or by the keyboard, whether or not the host is hovered. With `error`, those are `error.pressed.state-layer.*`, which the head already draws. The selection is the one the host has while the wave draws.
+  3. Every other state draws what it draws at `93f5e44d6`. That includes the outline of a checked or indeterminate checkbox, which is its container's colour, the focus layer and the focus ring.
+  4. The hover layer of a host that a pointer presses isn't named. It may draw what the head draws: its selection's pressed colour, at hover's opacity. The head's change of it for an unselected host is accepted with the press row.
+  5. `RF-95`'s rows still pass.
+- **Rows,** in `checkbox.spec.browser.test.ts`, each against its token's contract:
+  - the press wave after Space on a focused checkbox, when unselected, checked and indeterminate, against its selection's `pressed` colour and opacity;
+  - the press wave's opacity under a pointer press, unselected and checked;
+  - the outline of an unselected checkbox hovered, focused and pressed.
+- **Witness:** each row fails at `29f5597d6`'s styles, in each engine. The Space rows fail on the colour, the pointer rows on `0.08`, and the outline rows on `on-surface-variant`.
+- **Not decided: the mechanism.** It stays local to the checkbox's style modules and its sheet, as the entry says. The shared ripple serves every component that has one, so a change to it isn't this unit's.
+  - **Two facts bound it.** No engine gives the host `:active` for a keyboard activation. And the extension graph's deduplication isn't the cascade for a state with several parents.
+  - **Recommended:** the wave reads its selection's pressed tokens without going through the host's `:hover`, `:focus-within` or `:active`. That is what Material Web's ripple theme does, giving the wave `pressed-color` and `pressed-opacity` per selection. One mechanism then meets the keyboard, the pointer and the opacity, and the graph's parents stay what the hover rows need.
+- **Baselines,** by `RD-13`. The two images that the implementer's note names still change.
+  - Any image that draws an unselected checkbox hovered, focused or pressed also changes, by its outline. `checkbox-focused.png`'s checkbox is unselected and focused, so it changes.
+  - The unit names each image that changes and why.
+- **#339's description no longer holds:** its checkbox part is this entry's, and the radio's is `RF-158`'s.
+- **Size:** still _medium_.
+
+#### RF-158 — `mx-radio`'s press wave doesn't draw its pressed tokens: the keyboard's takes the resting or focus colour, and a pointer's the hover opacity
+
+Tier A, **open**, pre-existing. **Ready** once #338 merges, so that the radio takes the checkbox's mechanism.
+
+Registered on 2026-11-27 by the architect, on `material-x/checkbox-colors-1`, requested by the coordinator. It comes from #339, which asks for the radio to be read for the checkbox's fault, and from `RF-157`'s ruling that a keyboard activation is the pressed state. `RF-157` is the highest `RF-` on any branch on `origin`, so this is the next free number.
+
+Read in the radio's compiled sheet at `29f5597d6` ([sheet](checkbox-colors-1/checks/radio-sheet.css.txt)), where the radio's styles are `main`'s. Not run.
+
+- **What happens, by the sheet:**
+
+  | Activation | The wave draws | Material's token |
+  | --- | --- | --- |
+  | Unselected, by the keyboard | `on-surface`, from `:host` | `unselected.pressed.state-layer.color`: `primary` |
+  | Checked, by the keyboard | `primary`, from `:host(:state(checked):focus-within)` | `selected.pressed.state-layer.color`: `on-surface` |
+  | Checked, by a pointer | `primary`, from `:host(:state(checked):hover)`, which also applies and wins over `:host(:active)`. No block sets a selected pressed colour | `selected.pressed.state-layer.color`: `on-surface` |
+  | Each selection, by a pointer | opacity `0.08`, from `:host(:hover)` | `{unselected,selected}.pressed.state-layer.opacity`: `0.1` |
+
+- **The cause, by reading the sheet.** The wave takes `--_state-layer-*` from the host's pseudo-classes, as the checkbox's does, and no engine gives the host `:active` for a keyboard activation (`RF-157`'s reading). The radio's extension graph isn't read.
+- **Why it is a problem:** a consumer sees a press colour that no Material token gives: in both selections for a keyboard user, and when checked for a pointer.
+- **Required property:**
+  - The radio's press wave draws its selection's `pressed.state-layer.color` and `.opacity` for every activation, by a pointer or by the keyboard, in each engine at `RD-20`'s floor.
+  - Every other state draws what it draws at `29f5597d6`.
+- **Rows,** in a radio spec file, which `RF-88` names and which doesn't exist yet. Each is against its token's contract: the wave after Space on a focused radio, and under a pointer press, unselected and checked. **Witness:** each row fails at `29f5597d6`'s styles, in each engine. These are `RF-88`'s pressed radio rows, so this unit adds them.
+- **Not decided:** the mechanism. `RF-157`'s recommendation applies.
+- **Not read:** the drawn values. Whether an arrow key, which moves focus and checks the next radio, runs the wave. Whether Space on a checked radio does.
+- **Plan needed:** no. **Size:** _medium_: rows in a new spec file, in three engines. A baseline changes only where an image draws a pressed radio.
 
 ## Questions
 

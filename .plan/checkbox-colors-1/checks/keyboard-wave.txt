@@ -1,0 +1,35 @@
+# The architect's rerun of the proof's keyboard probe (reviews/checkbox-colors-1/probes/zz-proof-keyboard.browser.test.ts.txt), slot c, 2026-11-27,
+# MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run tests/checkbox/zz-proof-keyboard.browser.test.ts
+# head = 29f5597d6 (the code is 7b392714d's); base = the head with src/checkbox/styles/utils.ts and default/tokens.ts from 2ed4b96ab.
+# Space on a focused checkbox; the press wave (the ripple's ::after) sampled over 30 frames. Each line: the distinct colours drawn, the opacity before the fade, and whether the host matched :active in any frame.
+# primary = rgb(62, 103, 0), on-surface = rgb(25, 29, 19). Tokens: unselected.pressed.state-layer.color = primary, selected.pressed.state-layer.color = on-surface.
+
+== head chromium
+unselected     rgb(25, 29, 19) @0.1 no :active
+checked        rgb(62, 103, 0) @0.1 no :active
+indeterminate  rgb(62, 103, 0) @0.1 no :active
+
+== head firefox
+unselected     rgb(25, 29, 19) @0.1 no :active
+checked        rgb(62, 103, 0) @0.1 no :active
+indeterminate  rgb(62, 103, 0) @0.1 no :active
+
+== head webkit
+unselected     rgb(25, 29, 19) @0.1 no :active
+checked        rgb(62, 103, 0) @0.1 no :active
+indeterminate  rgb(62, 103, 0) @0.1 no :active
+
+== base chromium
+unselected     rgb(25, 29, 19) @0.1 no :active
+checked        rgb(25, 29, 19) @0.1 no :active
+indeterminate  rgb(25, 29, 19) @0.1 no :active
+
+== base firefox
+unselected     rgb(25, 29, 19) @0.1 no :active
+checked        rgb(25, 29, 19) @0.1 no :active
+indeterminate  rgb(25, 29, 19) @0.1 no :active
+
+== base webkit
+unselected     rgb(25, 29, 19) @0.1 no :active
+checked        rgb(25, 29, 19) @0.1 no :active
+indeterminate  rgb(25, 29, 19) @0.1 no :active
