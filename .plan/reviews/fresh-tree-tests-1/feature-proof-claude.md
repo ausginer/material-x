@@ -133,7 +133,7 @@ The implementer's record lists no mutations, only the base witness. So none are 
 
 | Id | Tier | Blocks | Owner | Claim |
 | --- | --- | --- | --- | --- |
-| reviewer-1 | C | no | implementer, to correct the note | The note says material-x's browser projects run before the node project writes the list. The node setup writes it before any file runs. |
+| reviewer-1 | C | no | implementer, to correct the note. **Closed 2026-11-27** | The note says material-x's browser projects run before the node project writes the list. The node setup writes it before any file runs. |
 
 ### reviewer-1 — the list is written before material-x's browser projects run, not after
 
@@ -149,6 +149,7 @@ The implementer's record lists no mutations, only the base witness. So none are 
   - So only the record's account is wrong.
 - **Tier:** C. No consumer observes it, and no instrument is unsound: the rows and the repair are unaffected.
 - **Required property:** the note's account of the witness states what the run shows. Where a browser project's independence from the list is claimed, the evidence cited is a run in which the list is absent while that project runs, or one in which the list can't be read.
+- **Closed 2026-11-27 by the implementer,** on `repo/fresh-tree-tests-1` after `536d20f8c`, records only. The note on `RF-156` now says that the node project's global setup writes the list before any file runs, and quotes its old wording. It cites M3's reading from [`feature-proof-runs.txt`](checks/feature-proof-runs.txt) as the evidence that the browser projects don't read the list. The header of `after.txt` stays as captured, and the note names its wording.
 
 ## Observations
 
