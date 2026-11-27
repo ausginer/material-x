@@ -1,0 +1,15 @@
+#!/bin/bash
+# For a theme-probe output, prints each line whose preview data-theme or toolbar
+# icon isn't the theme that the URL's global names (dark iff globals=theme:dark),
+# or whose preview hasn't rendered. Every line of the probe is a point at which
+# the theme last chosen is the one the URL's global carries, except under a
+# mutation that breaks the toolbar or the docs toggle, which compare.sh shows.
+grep -E '^(chromium|firefox|webkit) ' "$1" | while read -r line; do
+  g=$(sed -E 's/.* globals=([^ ]+) .*/\1/' <<<"$line")
+  p=$(sed -E 's/.* preview=([^ ]+) .*/\1/' <<<"$line")
+  i=$(sed -E 's/.* icon=([^ ]+) .*/\1/' <<<"$line")
+  r=$(sed -E 's/.* r=([01]).*/\1/' <<<"$line")
+  want=light; [ "$g" = theme:dark ] && want=dark
+  ic=light; [[ $i == M7.5.* ]] && ic=dark
+  [ "$p" = "$want" ] && [ "$ic" = "$want" ] && [ "$r" = 1 ] || echo "$line"
+done

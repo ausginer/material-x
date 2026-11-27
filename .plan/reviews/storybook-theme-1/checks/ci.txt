@@ -1,0 +1,27 @@
+# gh run view 45978438003 and its chromium, firefox and webkit job logs, the lines of drag's stories file and the totals, 2026-11-27
+run https://github.com/ausginer/material-x/actions/runs/45978438003 event=pull_request head=be4f7eee2a19c2f2064f92bced64ea59071f07e5 status=completed conclusion=success
+  job scope: success
+  job static: success
+  job system-deps (chromium): success
+  job system-deps (webkit): success
+  job system-deps (firefox): success
+  job records: skipped
+  job docs: success
+  job chromium: success
+  job measurements: success
+  job firefox: success
+  job webkit: success
+  job deploy: skipped
+  job verify: success
+== chromium job 140436397643
+ ✓  browser/drag (chromium)  tests/stories.browser.test.ts (8 tests) 13700ms
+ Test Files  193 passed (193)
+      Tests  5518 passed | 2 expected fail | 12 skipped (5532)
+== firefox job 140436397657
+ ✓  browser/drag/firefox (firefox)  tests/stories.browser.test.ts (8 tests) 13405ms
+ Test Files  137 passed | 1 skipped (138)
+      Tests  4332 passed | 3 expected fail | 201 skipped (4536)
+== webkit job 140436397711
+ ✓  browser/drag/webkit (webkit)  tests/stories.browser.test.ts (8 tests) 11639ms
+ Test Files  137 passed | 1 skipped (138)
+      Tests  4343 passed | 2 expected fail | 201 skipped (4546)

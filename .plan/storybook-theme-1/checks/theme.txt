@@ -1,0 +1,21 @@
+# node probes/theme-probe.ts.txt (copied to .ts), against storybook dev on repo/storybook-theme-1, Chromium (Playwright), 2026-11-27
+A: loaded light, toggled after the load
+A1 loaded                                /story/box-quad--live-demo       url globals=null        theme=null  preview data-theme=light
+A2 toggled to dark                       /story/box-quad--live-demo       url globals=theme:dark  theme=null  preview data-theme=dark
+A3 sidebar to box-quad--nested-spaces    /story/box-quad--nested-spaces   url globals=theme:dark  theme=null  preview data-theme=dark
+A4 reloaded                              /story/box-quad--nested-spaces   url globals=theme:dark  theme=null  preview data-theme=dark
+B: loaded with globals=theme:dark in the URL
+B1 loaded                                /story/box-quad--live-demo       url globals=theme:dark  theme=null  preview data-theme=dark
+B2 sidebar to box-quad--nested-spaces    /story/box-quad--nested-spaces   url globals=theme:dark  theme=null  preview data-theme=dark
+B3 reloaded                              /story/box-quad--nested-spaces   url globals=theme:dark  theme=null  preview data-theme=dark
+B4 toggled to light                      /story/box-quad--nested-spaces   url globals=null        theme=null  preview data-theme=light
+B5 sidebar to box-quad--pointer-delta    /story/box-quad--pointer-delta   url globals=null        theme=null  preview data-theme=light
+C: a docs page's toggle
+C1 loaded button-regular--docs           /docs/button-regular--docs       url globals=null        theme=null  preview data-theme=light
+C2 docs toggle to dark                   /docs/button-regular--docs       url globals=theme:dark  theme=null  preview data-theme=dark
+C3 sidebar to button-icon                /docs/button-icon--docs          url globals=theme:dark  theme=null  preview data-theme=dark
+C4 reloaded                              /docs/button-icon--docs          url globals=theme:dark  theme=null  preview data-theme=dark
+C5 sidebar to button-icon--playground    /story/button-icon--playground   url globals=theme:dark  theme=null  preview data-theme=dark
+C6 sidebar to button-regular             /docs/button-regular--docs       url globals=theme:dark  theme=null  preview data-theme=dark
+C7 docs toggle to light                  /docs/button-regular--docs       url globals=null        theme=null  preview data-theme=light
+C8 sidebar to button-icon--docs          /docs/button-icon--docs          url globals=null        theme=null  preview data-theme=light

@@ -1,54 +1,27 @@
 import { MoonIcon, SunIcon } from '@storybook/icons';
 import React from 'react';
 import { Button } from 'storybook/internal/components';
-import {
-  addons,
-  types,
-  useAddonState,
-  useChannel,
-} from 'storybook/manager-api';
+import { addons, types, useGlobals } from 'storybook/manager-api';
 
 const ADDON_ID = 'theme-toggle';
-export const THEME_EVENT = 'THEME_CHANGED';
-const THEME_PARAM = 'theme';
 
-type Theme = 'light' | 'dark';
-
-function getUrlTheme(): Theme {
-  return new URL(window.location.href).searchParams.get(THEME_PARAM) === 'dark'
-    ? 'dark'
-    : 'light';
-}
-
-function setUrlTheme(theme: Theme): void {
-  const url = new URL(window.location.href);
-  url.searchParams.set(THEME_PARAM, theme);
-  window.history.replaceState(null, '', url);
-}
+/** The global that `preview.ts` declares and applies. */
+const THEME_GLOBAL = 'theme';
 
 function ThemeToggle(): React.JSX.Element {
-  const [theme, setTheme] = useAddonState<Theme>(ADDON_ID, getUrlTheme());
-
-  const emit = useChannel({
-    [THEME_EVENT]: (next: Theme) => {
-      setTheme(next);
-      setUrlTheme(next);
-    },
-  });
+  const [globals, updateGlobals] = useGlobals();
+  const dark = globals[THEME_GLOBAL] === 'dark';
 
   return (
     <Button
       variant="ghost"
       ariaLabel="Toggle theme"
-      tooltip={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+      tooltip={`Switch to ${dark ? 'light' : 'dark'} theme`}
       onClick={() => {
-        const next: Theme = theme === 'dark' ? 'light' : 'dark';
-        setTheme(next);
-        setUrlTheme(next);
-        emit(THEME_EVENT, next);
+        updateGlobals({ [THEME_GLOBAL]: dark ? 'light' : 'dark' });
       }}
     >
-      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+      {dark ? <SunIcon /> : <MoonIcon />}
     </Button>
   );
 }
