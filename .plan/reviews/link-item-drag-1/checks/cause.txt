@@ -1,0 +1,26 @@
+# The unit's probe .plan/link-item-drag-1/probes/draggable-false.browser.test.ts, run again at 85a96ba5a, 2026-11-27, in Chromium, Firefox and WebKit at once, copied into packages/material-x/tests/list/ and removed after it.
+      Tests  24 passed (24)
+{"browser":"chromium","name":"light DOM a[draggable=false] > div > text","userDrag":"none","log":[]}
+{"browser":"chromium","name":"light DOM a[draggable=false] with a { all: unset }","userDrag":"auto","log":["dragstart types=text/uri-list,text/plain,text/html"]}
+{"browser":"chromium","name":"light DOM a[draggable=false]","userDrag":"none","log":[]}
+{"browser":"chromium","name":"shadow a[draggable=false] > div > slot","userDrag":"none","log":[]}
+{"browser":"chromium","name":"shadow a[draggable=false] > slot","userDrag":"none","log":[]}
+{"browser":"chromium","name":"shadow a[draggable=false] > text","userDrag":"none","log":[]}
+{"browser":"chromium","name":"shadow a[draggable=false] with a { all: unset } and [draggable=false] { -webkit-user-drag: none }","userDrag":"none","log":[]}
+{"browser":"chromium","name":"shadow a[draggable=false] with a { all: unset }","userDrag":"auto","log":["dragstart types=text/uri-list,text/plain,text/html"]}
+{"browser":"firefox","name":"light DOM a[draggable=false] > div > text","userDrag":"","log":[]}
+{"browser":"firefox","name":"light DOM a[draggable=false] with a { all: unset }","userDrag":"","log":[]}
+{"browser":"firefox","name":"light DOM a[draggable=false]","userDrag":"","log":[]}
+{"browser":"firefox","name":"shadow a[draggable=false] > div > slot","userDrag":"","log":[]}
+{"browser":"firefox","name":"shadow a[draggable=false] > slot","userDrag":"","log":[]}
+{"browser":"firefox","name":"shadow a[draggable=false] > text","userDrag":"","log":[]}
+{"browser":"firefox","name":"shadow a[draggable=false] with a { all: unset } and [draggable=false] { -webkit-user-drag: none }","userDrag":"","log":[]}
+{"browser":"firefox","name":"shadow a[draggable=false] with a { all: unset }","userDrag":"","log":[]}
+{"browser":"webkit","name":"light DOM a[draggable=false] > div > text","userDrag":"none","log":[]}
+{"browser":"webkit","name":"light DOM a[draggable=false] with a { all: unset }","userDrag":"auto","log":[]}
+{"browser":"webkit","name":"light DOM a[draggable=false]","userDrag":"none","log":[]}
+{"browser":"webkit","name":"shadow a[draggable=false] > div > slot","userDrag":"none","log":[]}
+{"browser":"webkit","name":"shadow a[draggable=false] > slot","userDrag":"none","log":[]}
+{"browser":"webkit","name":"shadow a[draggable=false] > text","userDrag":"none","log":[]}
+{"browser":"webkit","name":"shadow a[draggable=false] with a { all: unset } and [draggable=false] { -webkit-user-drag: none }","userDrag":"none","log":[]}
+{"browser":"webkit","name":"shadow a[draggable=false] with a { all: unset }","userDrag":"auto","log":[]}

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { commands, server } from 'vitest/browser';
+import { commands } from 'vitest/browser';
 import '../../src/list/list-button-item.ts';
 import '../../src/list/list-item.ts';
 import '../../src/list/list-link-item.ts';
@@ -22,19 +22,12 @@ const LIFTED_ITEMS: ReadonlyArray<readonly [string, ItemOptions]> = [
   ['a button item', { tag: 'mx-list-button-item' }],
   ['a button item by its handle', { tag: 'mx-list-button-item', handle: true }],
   ['a selected button item', { tag: 'mx-list-button-item', selected: true }],
-  // A pointer drag doesn't lift a link item in Firefox.
-  ...(server.browser === 'firefox'
-    ? []
-    : ([
-        [
-          'a link item by its handle',
-          { tag: 'mx-list-link-item', handle: true },
-        ],
-        [
-          'a selected link item by its handle',
-          { tag: 'mx-list-link-item', handle: true, selected: true },
-        ],
-      ] as const)),
+  ['a link item', { tag: 'mx-list-link-item' }],
+  ['a link item by its handle', { tag: 'mx-list-link-item', handle: true }],
+  [
+    'a selected link item by its handle',
+    { tag: 'mx-list-link-item', handle: true, selected: true },
+  ],
 ];
 
 /** The tokens that color the item's content, with the slot each one colors. */

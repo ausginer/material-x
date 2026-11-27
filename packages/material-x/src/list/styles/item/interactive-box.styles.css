@@ -39,6 +39,15 @@
   }
 }
 
+/*
+ * Chromium and WebKit turn `draggable="false"` into a presentational hint of
+ * `-webkit-user-drag: none`. The `all: unset` above outranks a hint, so this
+ * rule states the value again.
+ */
+.host[draggable='false'] {
+  -webkit-user-drag: none;
+}
+
 .host:focus-visible {
   outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
   outline-offset: var(--_focus-indicator-outline-offset);
