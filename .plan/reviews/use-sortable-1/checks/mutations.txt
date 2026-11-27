@@ -1,0 +1,257 @@
+# Feature proof of #321 at 94167bb33: mutations, each run against the site's own test file in Chromium, Firefox and WebKit at once (MX_TEST_ENGINES=chromium,firefox,webkit). Run 2026-11-27 from the slot's root with node probes/mutations.mjs.txt (saved as .txt). Each source was restored after its run, and git status was clean after the last.
+# The per-engine counts are the failed rows whose name carries the engine.
+## useRovingTabindex input, bubbles flipped: 3 failed (chromium 1, firefox 1, webkit 1) — Tests  3 failed | 288 passed (291)
+  × |browser (chromium)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+  × |browser/firefox (firefox)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+  × |browser/webkit (webkit)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+## useRovingTabindex input, cancelable flipped: 3 failed (chromium 1, firefox 1, webkit 1) — Tests  3 failed | 288 passed (291)
+  × |browser (chromium)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+  × |browser/firefox (firefox)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+  × |browser/webkit (webkit)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+## useRovingTabindex input, composed flipped: 3 failed (chromium 1, firefox 1, webkit 1) — Tests  3 failed | 288 passed (291)
+  × |browser (chromium)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+  × |browser/firefox (firefox)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+  × |browser/webkit (webkit)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+## useRovingTabindex change, bubbles flipped: 3 failed (chromium 1, firefox 1, webkit 1) — Tests  3 failed | 288 passed (291)
+  × |browser (chromium)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+  × |browser/firefox (firefox)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+  × |browser/webkit (webkit)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+## useRovingTabindex change, cancelable flipped: 3 failed (chromium 1, firefox 1, webkit 1) — Tests  3 failed | 288 passed (291)
+  × |browser (chromium)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+  × |browser/firefox (firefox)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+  × |browser/webkit (webkit)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+## useRovingTabindex change, composed flipped: 3 failed (chromium 1, firefox 1, webkit 1) — Tests  3 failed | 288 passed (291)
+  × |browser (chromium)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+  × |browser/firefox (firefox)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+  × |browser/webkit (webkit)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+## SwitchCore input, bubbles flipped: 12 failed (chromium 4, firefox 4, webkit 4) — Tests  12 failed | 126 passed (138)
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-button activation events > should dispatch input and change after every click listener
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-icon-button activation events > should dispatch input and change after every click listener
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-button activation events > should dispatch input and change after every click listener
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-icon-button activation events > should dispatch input and change after every click listener
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-button activation events > should dispatch input and change after every click listener
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-icon-button activation events > should dispatch input and change after every click listener
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+## SwitchCore input, cancelable flipped: 6 failed (chromium 2, firefox 2, webkit 2) — Tests  6 failed | 132 passed (138)
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+## SwitchCore input, composed flipped: 6 failed (chromium 2, firefox 2, webkit 2) — Tests  6 failed | 132 passed (138)
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+## SwitchCore change, bubbles flipped: 12 failed (chromium 4, firefox 4, webkit 4) — Tests  12 failed | 126 passed (138)
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-button activation events > should dispatch input and change after every click listener
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-icon-button activation events > should dispatch input and change after every click listener
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-button activation events > should dispatch input and change after every click listener
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-icon-button activation events > should dispatch input and change after every click listener
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-button activation events > should dispatch input and change after every click listener
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-icon-button activation events > should dispatch input and change after every click listener
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+## SwitchCore change, cancelable flipped: 6 failed (chromium 2, firefox 2, webkit 2) — Tests  6 failed | 132 passed (138)
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+## SwitchCore change, composed flipped: 6 failed (chromium 2, firefox 2, webkit 2) — Tests  6 failed | 132 passed (138)
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+## CheckableCore change, bubbles flipped: 6 failed (chromium 2, firefox 2, webkit 2) — Tests  6 failed | 150 passed (156)
+  × |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-checkbox activation > should preserve the native event flags
+  × |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-radio activation > should preserve the native event flags
+  × |browser/firefox (firefox)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-checkbox activation > should preserve the native event flags
+  × |browser/firefox (firefox)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-radio activation > should preserve the native event flags
+  × |browser/webkit (webkit)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-checkbox activation > should preserve the native event flags
+  × |browser/webkit (webkit)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-radio activation > should preserve the native event flags
+## CheckableCore change, cancelable flipped: 6 failed (chromium 2, firefox 2, webkit 2) — Tests  6 failed | 150 passed (156)
+  × |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-checkbox activation > should preserve the native event flags
+  × |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-radio activation > should preserve the native event flags
+  × |browser/firefox (firefox)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-checkbox activation > should preserve the native event flags
+  × |browser/firefox (firefox)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-radio activation > should preserve the native event flags
+  × |browser/webkit (webkit)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-checkbox activation > should preserve the native event flags
+  × |browser/webkit (webkit)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-radio activation > should preserve the native event flags
+## CheckableCore change, composed flipped: 6 failed (chromium 2, firefox 2, webkit 2) — Tests  6 failed | 150 passed (156)
+  × |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-checkbox activation > should preserve the native event flags
+  × |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-radio activation > should preserve the native event flags
+  × |browser/firefox (firefox)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-checkbox activation > should preserve the native event flags
+  × |browser/firefox (firefox)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-radio activation > should preserve the native event flags
+  × |browser/webkit (webkit)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-checkbox activation > should preserve the native event flags
+  × |browser/webkit (webkit)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-radio activation > should preserve the native event flags
+## TextFieldCore change, bubbles flipped: 6 failed (chromium 2, firefox 2, webkit 2) — Tests  6 failed | 180 passed (186)
+  × |browser (chromium)| tests/text-field/text-field.browser.test.ts:428 > mx-text-field > should bridge change from the internal field to the host
+  × |browser (chromium)| tests/text-field/text-field.browser.test.ts:428 > mx-multiline-text-field > should bridge change from the internal field to the host
+  × |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:428 > mx-text-field > should bridge change from the internal field to the host
+  × |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:428 > mx-multiline-text-field > should bridge change from the internal field to the host
+  × |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:428 > mx-text-field > should bridge change from the internal field to the host
+  × |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:428 > mx-multiline-text-field > should bridge change from the internal field to the host
+## TextFieldCore change, cancelable flipped: 6 failed (chromium 2, firefox 2, webkit 2) — Tests  6 failed | 180 passed (186)
+  × |browser (chromium)| tests/text-field/text-field.browser.test.ts:428 > mx-text-field > should bridge change from the internal field to the host
+  × |browser (chromium)| tests/text-field/text-field.browser.test.ts:428 > mx-multiline-text-field > should bridge change from the internal field to the host
+  × |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:428 > mx-text-field > should bridge change from the internal field to the host
+  × |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:428 > mx-multiline-text-field > should bridge change from the internal field to the host
+  × |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:428 > mx-text-field > should bridge change from the internal field to the host
+  × |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:428 > mx-multiline-text-field > should bridge change from the internal field to the host
+## TextFieldCore change, composed flipped: 6 failed (chromium 2, firefox 2, webkit 2) — Tests  6 failed | 180 passed (186)
+  × |browser (chromium)| tests/text-field/text-field.browser.test.ts:428 > mx-text-field > should bridge change from the internal field to the host
+  × |browser (chromium)| tests/text-field/text-field.browser.test.ts:428 > mx-multiline-text-field > should bridge change from the internal field to the host
+  × |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:428 > mx-text-field > should bridge change from the internal field to the host
+  × |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:428 > mx-multiline-text-field > should bridge change from the internal field to the host
+  × |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:428 > mx-text-field > should bridge change from the internal field to the host
+  × |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:428 > mx-multiline-text-field > should bridge change from the internal field to the host
+## split-button secondaryaction, bubbles flipped: 3 failed (chromium 1, firefox 1, webkit 1) — Tests  3 failed | 166 passed | 8 skipped (177)
+  × |browser (chromium)| tests/button/split-button.browser.test.ts:64 > mx-split-button events > should emit a bubbling composed non-cancelable secondary action
+  × |browser/firefox (firefox)| tests/button/split-button.browser.test.ts:64 > mx-split-button events > should emit a bubbling composed non-cancelable secondary action
+  × |browser/webkit (webkit)| tests/button/split-button.browser.test.ts:64 > mx-split-button events > should emit a bubbling composed non-cancelable secondary action
+## split-button secondaryaction, cancelable flipped: 3 failed (chromium 1, firefox 1, webkit 1) — Tests  3 failed | 166 passed | 8 skipped (177)
+  × |browser (chromium)| tests/button/split-button.browser.test.ts:64 > mx-split-button events > should emit a bubbling composed non-cancelable secondary action
+  × |browser/firefox (firefox)| tests/button/split-button.browser.test.ts:64 > mx-split-button events > should emit a bubbling composed non-cancelable secondary action
+  × |browser/webkit (webkit)| tests/button/split-button.browser.test.ts:64 > mx-split-button events > should emit a bubbling composed non-cancelable secondary action
+## split-button secondaryaction, composed flipped: 3 failed (chromium 1, firefox 1, webkit 1) — Tests  3 failed | 166 passed | 8 skipped (177)
+  × |browser (chromium)| tests/button/split-button.browser.test.ts:64 > mx-split-button events > should emit a bubbling composed non-cancelable secondary action
+  × |browser/firefox (firefox)| tests/button/split-button.browser.test.ts:64 > mx-split-button events > should emit a bubbling composed non-cancelable secondary action
+  × |browser/webkit (webkit)| tests/button/split-button.browser.test.ts:64 > mx-split-button events > should emit a bubbling composed non-cancelable secondary action
+## ReorderEvent, bubbles flipped: 3 failed (chromium 1, firefox 1, webkit 1) — Tests  3 failed | 606 passed | 24 skipped (633)
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:203 > ReorderEvent > should bubble
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:203 > ReorderEvent > should bubble
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:203 > ReorderEvent > should bubble
+## ReorderEvent, cancelable flipped: 6 failed (chromium 2, firefox 2, webkit 2) — Tests  6 failed | 603 passed | 24 skipped (633)
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:211 > ReorderEvent > should be cancelable
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2793 > mx-sortable-list neighbors > return > should animate the neighbor back when the page refuses a pointer drop
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:211 > ReorderEvent > should be cancelable
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2793 > mx-sortable-list neighbors > return > should animate the neighbor back when the page refuses a pointer drop
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:211 > ReorderEvent > should be cancelable
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2793 > mx-sortable-list neighbors > return > should animate the neighbor back when the page refuses a pointer drop
+## ReorderEvent, composed flipped: 6 failed (chromium 2, firefox 2, webkit 2) — Tests  6 failed | 603 passed | 24 skipped (633)
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:207 > ReorderEvent > should be composed
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:234 > ReorderEvent > should cross a shadow boundary to the host
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:207 > ReorderEvent > should be composed
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:234 > ReorderEvent > should cross a shadow boundary to the host
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:207 > ReorderEvent > should be composed
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:234 > ReorderEvent > should cross a shadow boundary to the host
+## H1 onEnd reads the proposal after clearing it: 33 failed (chromium 11, firefox 11, webkit 11) — Tests  33 failed | 576 passed | 24 skipped (633)
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:512 > mx-sortable-list pointer > should announce a pointer drop by position
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:642 > mx-sortable-list keyboard > should announce a keyboard move by position
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:1642 > mx-sortable-list disabled items > disabled in its reorder handler > should be moved by an arrow key
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:1653 > mx-sortable-list disabled items > disabled in its reorder handler > should be moved by a drop
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2144 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2152 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot later
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted before the move is …
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted in the task that co…
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed in the task tha…
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed before the move…
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when the item leaves and returns at the prop…
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:512 > mx-sortable-list pointer > should announce a pointer drop by position
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:642 > mx-sortable-list keyboard > should announce a keyboard move by position
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1642 > mx-sortable-list disabled items > disabled in its reorder handler > should be moved by an arrow key
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1653 > mx-sortable-list disabled items > disabled in its reorder handler > should be moved by a drop
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2144 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2152 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot later
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted before the move is …
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted in the task that co…
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed in the task tha…
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed before the move…
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when the item leaves and returns at the prop…
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:512 > mx-sortable-list pointer > should announce a pointer drop by position
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:642 > mx-sortable-list keyboard > should announce a keyboard move by position
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1642 > mx-sortable-list disabled items > disabled in its reorder handler > should be moved by an arrow key
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1653 > mx-sortable-list disabled items > disabled in its reorder handler > should be moved by a drop
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2144 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2152 > mx-sortable-list announcement > should announce the item's position when the consumer commits at another slot later
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted before the move is …
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted in the task that co…
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed in the task tha…
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed before the move…
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when the item leaves and returns at the prop…
+## H2 onEnd tests the slot of `to` instead of `from`: 39 failed (chromium 13, firefox 13, webkit 13) — Tests  39 failed | 570 passed | 24 skipped (633)
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:512 > mx-sortable-list pointer > should announce a pointer drop by position
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:642 > mx-sortable-list keyboard > should announce a keyboard move by position
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:1642 > mx-sortable-list disabled items > disabled in its reorder handler > should be moved by an arrow key
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:1653 > mx-sortable-list disabled items > disabled in its reorder handler > should be moved by a drop
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2126 > mx-sortable-list announcement > should announce nothing when the consumer never commits
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2135 > mx-sortable-list announcement > should announce nothing for a pointer drop the consumer never commits
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2162 > mx-sortable-list announcement > should announce nothing when the consumer commits after the bound
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted and the move is not…
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted before the move is …
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted in the task that co…
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed in the task tha…
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed before the move…
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when the item leaves and returns at the prop…
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:512 > mx-sortable-list pointer > should announce a pointer drop by position
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:642 > mx-sortable-list keyboard > should announce a keyboard move by position
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1642 > mx-sortable-list disabled items > disabled in its reorder handler > should be moved by an arrow key
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:1653 > mx-sortable-list disabled items > disabled in its reorder handler > should be moved by a drop
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2126 > mx-sortable-list announcement > should announce nothing when the consumer never commits
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2135 > mx-sortable-list announcement > should announce nothing for a pointer drop the consumer never commits
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2162 > mx-sortable-list announcement > should announce nothing when the consumer commits after the bound
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted and the move is not…
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted before the move is …
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted in the task that co…
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed in the task tha…
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed before the move…
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when the item leaves and returns at the prop…
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:512 > mx-sortable-list pointer > should announce a pointer drop by position
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:642 > mx-sortable-list keyboard > should announce a keyboard move by position
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1642 > mx-sortable-list disabled items > disabled in its reorder handler > should be moved by an arrow key
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:1653 > mx-sortable-list disabled items > disabled in its reorder handler > should be moved by a drop
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2126 > mx-sortable-list announcement > should announce nothing when the consumer never commits
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2135 > mx-sortable-list announcement > should announce nothing for a pointer drop the consumer never commits
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2162 > mx-sortable-list announcement > should announce nothing when the consumer commits after the bound
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted and the move is not…
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted before the move is …
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when an item is inserted in the task that co…
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed in the task tha…
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when another item is removed before the move…
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2321 > mx-sortable-list when other items change during the commit wait > should announce only a real move when the item leaves and returns at the prop…
+## H3 a slot change does not commit the proposal: 24 failed (chromium 8, firefox 8, webkit 8) — Tests  24 failed | 585 passed | 24 skipped (633)
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:362 > mx-sortable-list pointer > should settle once the consumer commits one task later
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:953 > mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a static item
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:953 > mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a button item
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted before the move is …
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed in the task tha…
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed before the move…
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the passed item is removed and the move…
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the item leaves and returns at the prop…
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:362 > mx-sortable-list pointer > should settle once the consumer commits one task later
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:953 > mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a static item
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:953 > mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a button item
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted before the move is …
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed in the task tha…
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed before the move…
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the passed item is removed and the move…
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the item leaves and returns at the prop…
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:362 > mx-sortable-list pointer > should settle once the consumer commits one task later
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:953 > mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a static item
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:953 > mx-sortable-list lifted item in a key move > should have its resting colors and corners in each frame while the commit is pending, for a button item
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when an item is inserted before the move is …
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed in the task tha…
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when another item is removed before the move…
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the passed item is removed and the move…
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the item leaves and returns at the prop…
+## H4 the proposal keeps the moved item among the others: 3 failed (chromium 1, firefox 1, webkit 1) — Tests  3 failed | 606 passed | 24 skipped (633)
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the passed item is removed and the move…
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the passed item is removed and the move…
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2330 > mx-sortable-list when other items change during the commit wait > should end the wait only for the order of the proposed slot when the passed item is removed and the move…
+## H5 the wait does not check the slot when it starts: 0 failed (chromium 0, firefox 0, webkit 0) — passed
+## H6 the wait ignores its signal: 0 failed (chromium 0, firefox 0, webkit 0) — passed
