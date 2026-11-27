@@ -9,6 +9,7 @@
     "./eslint.base.config.ts",
     "./eslint.config.ts",
     "./vite.config.ts",
-    "./vitest.config.ts"
+    "./vitest.config.ts",
+    "./mutator.config.ts"
   ]
 }

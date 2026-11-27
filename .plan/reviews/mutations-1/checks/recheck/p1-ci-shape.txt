@@ -1,0 +1,25 @@
+# RD-66 property 1, probed at 0cc0d9516 on 2026-11-26 with ../../probes/recheck/p1-ci-shape.sh. $S is the scratch directory.
+
+A=497bbd2678e51319b6091748208f3e39386a48e2 B=db3ab393189a331507773b9be06dac86d1d6d558 RUNNER=2851524e15b582e2c40f0543c628a08b41b6905a
+A holds .mutator/mutations.ts: no
+
+## 1. CI's shape: the root checked out at A, the file and config in .mutator/, --ref A
+exit 0
+checkouts: unchanged
+left in TMPDIR: []
+{"file":"mutations.ts","commit":"497bbd2678e51319b6091748208f3e39386a48e2","fileCommit":"2851524e15b582e2c40f0543c628a08b41b6905a","outcome":"as expected"}
+The code at 497bbd2678e51319b6091748208f3e39386a48e2, the file and the runner at 2851524e15b582e2c40f0543c628a08b41b6905a, in a.
+
+## 2. A local run: the root at B, --ref A, the file in .mutator/ modified and not committed
+.mutator status:  M mutations.ts
+exit 0
+{"file":"mutations.ts","commit":"497bbd2678e51319b6091748208f3e39386a48e2","fileCommit":"2851524e15b582e2c40f0543c628a08b41b6905a","name":"clamp ignores its low bound, edited"}
+The code at 497bbd2678e51319b6091748208f3e39386a48e2, the file and the runner at 2851524e15b582e2c40f0543c628a08b41b6905a, in a.
+RUNNER's mutation name: name: 'clamp ignores its low bound'
+
+## 3. The file outside any repository
+exit 0
+{"file":"$S/p1/plain/mutations.ts","commit":"497bbd2678e51319b6091748208f3e39386a48e2","fileCommit":null}
+The code at 497bbd2678e51319b6091748208f3e39386a48e2, the file and the runner at no commit, in a.
+left in TMPDIR: []
+1

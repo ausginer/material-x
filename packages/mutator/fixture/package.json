@@ -1,0 +1,5 @@
+{
+  "name": "mutator-fixture",
+  "private": true,
+  "type": "module"
+}

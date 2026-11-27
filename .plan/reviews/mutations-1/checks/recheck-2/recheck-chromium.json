@@ -1,0 +1,316 @@
+{
+  "file": ".plan/reviews/mutations-1/recheck-2.mutations.ts",
+  "commit": "0c38a4f7bdb443483149d4a60e1f8c778b04c528",
+  "fileCommit": "7f32e02b85e22a0824f28e4940dfa1c48a4a04a8",
+  "legs": [
+    {
+      "engine": "chromium",
+      "shard": [1, 1],
+      "rows": [
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, refusals should refuse each stale edit by name before anything runs",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, refusals should refuse a selector that covers no row before any mutation runs",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, failures outside the tests should exit with 3 on an unknown option",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, failures outside the tests should exit with 3, not refuse the file, when the unmutated run's browser doesn't start",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the invoking checkout should leave the checkout and the temporary directory as they were after a run",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the invoking checkout should leave them as they were after a run that fails midway",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the invoking checkout should stop its Vitest and leave nothing after SIGTERM to the tool alone",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the invoking checkout should wait for a command that a signal stops before it removes the copy",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, a copy that an earlier run left should remove a locked copy whose process no longer runs",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a mutation that fails every selected row as expected",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a selected row that passes as missed and fail the run",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a survivor that fails rows as caught",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a survivor that fails no row as expected",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a selected row that fails unmutated as void",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a selected row that doesn't run as void, with its file's reason",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a survivor whose rows don't run as void",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a survivor whose row the mutation skips as void",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a selected row whose browser doesn't start as void, with Vitest's output",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should judge each engine by its own expectation when it gives one",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should run in a browser project",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, engines should flag a mutation that fails other rows in another engine",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, engines should flag a difference between engines that another engine's own expectation doesn't explain",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, engines should not flag a row that another engine skips",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, engines should not flag a row that doesn't run in another engine",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, restore should restore each mutation before the next one runs",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, rebuilds should rebuild after a matching edit and after its restore",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, rebuilds should not rebuild for an edit that doesn't match",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the summary should name the commit that holds the file, the config and the runner, apart from the code",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the summary should name no commit for a file that differs from its commit",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the summary should name no commit for a runner from another checkout than the file's",
+          "status": "passed"
+        }
+      ],
+      "mutations": [
+        {
+          "name": "a run that fails a row is a failure outside the tests",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should read a selected row that fails unmutated as void"
+              }
+            ]
+          },
+          "outcome": "as expected",
+          "failed": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a selected row that fails unmutated as void",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge each engine by its own expectation when it gives one",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, engines should flag a mutation that fails other rows in another engine",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, engines should flag a difference between engines that another engine's own expectation doesn't explain",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, engines should not flag a row that another engine skips",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, engines should not flag a row that doesn't run in another engine"
+          ],
+          "missed": [],
+          "voided": [],
+          "unrun": {},
+          "messages": {
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a selected row that fails unmutated as void": [
+              "TypeError: Cannot read properties of undefined (reading 'legs')",
+              "    at outcomes (/tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/tests/mutator.node.test.ts:326:11)",
+              "    at /tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/tests/mutator.node.test.ts:657:28",
+              "    at async file:///tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge each engine by its own expectation when it gives one": [
+              "TypeError: Cannot read properties of undefined (reading 'legs')",
+              "    at outcomes (/tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/tests/mutator.node.test.ts:326:11)",
+              "    at /tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/tests/mutator.node.test.ts:789:9",
+              "    at async file:///tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, engines should flag a mutation that fails other rows in another engine": [
+              "TypeError: Cannot destructure property 'legs' of '.for' as it is undefined.",
+              "    at merge (/tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/src/report.ts:205:16)",
+              "    at differing (/tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/src/report.ts:260:29)",
+              "    at /tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/tests/mutator.node.test.ts:820:28",
+              "    at async file:///tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, engines should flag a difference between engines that another engine's own expectation doesn't explain": [
+              "TypeError: Cannot destructure property 'legs' of '.for' as it is undefined.",
+              "    at merge (/tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/src/report.ts:205:16)",
+              "    at differing (/tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/src/report.ts:260:29)",
+              "    at /tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/tests/mutator.node.test.ts:858:28",
+              "    at async file:///tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, engines should not flag a row that another engine skips": [
+              "TypeError: Cannot read properties of undefined (reading 'legs')",
+              "    at /tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/tests/mutator.node.test.ts:883:24",
+              "    at async file:///tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, engines should not flag a row that doesn't run in another engine": [
+              "TypeError: Cannot read properties of undefined (reading 'legs')",
+              "    at outcomes (/tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/tests/mutator.node.test.ts:326:11)",
+              "    at /tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/tests/mutator.node.test.ts:913:14",
+              "    at async file:///tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ]
+          }
+        },
+        {
+          "name": "the failure is read from Vitest's standard output",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should exit with 3, not refuse the file, when the unmutated run's browser doesn't start"
+              },
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should read a selected row whose browser doesn't start as void, with Vitest's output"
+              }
+            ]
+          },
+          "outcome": "as expected",
+          "failed": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, failures outside the tests should exit with 3, not refuse the file, when the unmutated run's browser doesn't start",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a selected row whose browser doesn't start as void, with Vitest's output"
+          ],
+          "missed": [],
+          "voided": [],
+          "unrun": {},
+          "messages": {
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, failures outside the tests should exit with 3, not refuse the file, when the unmutated run's browser doesn't start": [
+              "AssertionError: expected 'mutator: setup: ln -s /tmp/mxe/chromi…' to contain 'Failed to launch chromium'",
+              "    at /tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/tests/mutator.node.test.ts:430:29",
+              "    at async file:///tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read a selected row whose browser doesn't start as void, with Vitest's output": [
+              "AssertionError: expected [ …(2) ] to deeply equal [ …(2) ]",
+              "    at /tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/tests/mutator.node.test.ts:758:66",
+              "    at async file:///tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ]
+          }
+        },
+        {
+          "name": "an unknown option is accepted",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should exit with 3 on an unknown option"
+              }
+            ]
+          },
+          "outcome": "as expected",
+          "failed": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, failures outside the tests should exit with 3 on an unknown option"
+          ],
+          "missed": [],
+          "voided": [],
+          "unrun": {},
+          "messages": {
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, failures outside the tests should exit with 3 on an unknown option": [
+              "AssertionError: expected [ +0, { …(3) } ] to deeply equal [ 3, undefined ]",
+              "    at /tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/packages/mutator/tests/mutator.node.test.ts:395:44",
+              "    at async file:///tmp/mxe/chromium-recheck/mutator-j3aBNp/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ]
+          }
+        },
+        {
+          "name": "the config isn't compared with the file's commit",
+          "group": "doubted",
+          "expect": {
+            "survives": "no row modifies the config alone after its commit; probe P3, case C, reads it"
+          },
+          "outcome": "as expected",
+          "failed": [],
+          "missed": [],
+          "voided": [],
+          "unrun": {},
+          "messages": {}
+        },
+        {
+          "name": "an ignored file names a commit",
+          "group": "doubted",
+          "expect": {
+            "survives": "no row runs a file that its checkout ignores"
+          },
+          "outcome": "as expected",
+          "failed": [],
+          "missed": [],
+          "voided": [],
+          "unrun": {},
+          "messages": {}
+        }
+      ]
+    }
+  ]
+}

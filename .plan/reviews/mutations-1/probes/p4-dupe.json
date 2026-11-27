@@ -1,0 +1,32 @@
+{
+  "runs": [{ "dir": ".", "tests": ["tests/math"] }],
+  "engines": ["a"],
+  "mutations": [
+    {
+      "name": "same",
+      "group": "mechanism",
+      "edits": [
+        {
+          "file": "src/math.ts",
+          "text": "Math.max(value, low)",
+          "replacement": "value"
+        }
+      ],
+      "expect": {
+        "fails": [
+          { "file": "tests/math.node.test.ts", "row": "should clamp high" }
+        ]
+      }
+    },
+    {
+      "name": "same",
+      "group": "mechanism",
+      "edits": [
+        { "file": "src/math.ts", "text": "a + b", "replacement": "a - b" }
+      ],
+      "expect": {
+        "fails": [{ "file": "tests/math.node.test.ts", "row": "should add" }]
+      }
+    }
+  ]
+}

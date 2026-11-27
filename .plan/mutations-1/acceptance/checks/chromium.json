@@ -1,0 +1,1531 @@
+{
+  "file": ".plan/mutations-1/acceptance/rf-142.mutations.ts",
+  "commit": "9173a25a1d0d80289aa188b05230d6a02c480362",
+  "legs": [
+    {
+      "engine": "chromium",
+      "shard": [1, 1],
+      "rows": [
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "ReorderEvent should bubble",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "ReorderEvent should be composed",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "ReorderEvent should be cancelable",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "ReorderEvent should carry the move",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "ReorderEvent should cross a shadow boundary to the host",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-list should not drag an item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-list should write nothing on a handle or an item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should not set the drag state before the threshold",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should set the drag state once the drag activates",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should dispatch the move with its neighbors on the drop",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should propose a move without reordering the DOM itself",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should land home and keep the order when the move is prevented",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should settle once the consumer commits in the handler",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should settle once the consumer commits one task later",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should keep the item lifted until the consumer commits",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should land within the bound when the consumer never commits",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should clear the drag state on pointercancel",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should tear down when the list disconnects mid-drag",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should drag again after disconnecting mid-drag and reconnecting",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should stop and dispatch nothing more when the list disconnects during the commit wait",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should drag an item without a handle by its whole surface",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should start a drag when the press lands on the handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should not start a drag when the press misses the handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should describe the collection after an item is added during a drag",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should announce a pointer drop by position",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should keep the landing duration of the first landing in a connection",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list pointer should land with zero duration under reduced motion",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list keyboard should move the item one slot on ArrowDown from its focused handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list keyboard should not move an item with a handle from another focused element",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list keyboard should settle promptly on the consumer commit",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list keyboard should keep focus on the handle and move again on a second ArrowDown",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list keyboard should announce a keyboard move by position",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list keyboard should move a button item without a handle from its focused button",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list keyboard should keep Space activating a button item without a handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list keyboard should leave the arrow keys to a control marked data-drag-ignore",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list drop zone should paint nothing in the handler of a move by ArrowDown",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list drop zone should paint nothing in the handler of a move by ArrowUp",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list drop zone should paint nothing in any frame while the commit of a key move is pending",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list drop zone should paint nothing in the handler of a refused key move",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list drop zone should paint the drop zone in a pointer drag",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list drop zone should paint the drop zone in the handler of a pointer drop",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list drop zone should paint the drop zone in each frame while the commit of a pointer drop is pending",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list drop zone should paint the drop zone in the pointer drag after an accepted key move",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list drop zone should paint the drop zone in the pointer drag after a refused key move",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list drop zone should paint the drop zone in the pointer drag after a key move that timed out",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list drop zone should paint the drop zone in the pointer drag after a disconnection during the commit of a key move",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list lifted item in a key move should have its resting colors and corners in the handler, for a static item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list lifted item in a key move should have its resting colors and corners in the handler, for a button item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list lifted item in a key move should have its resting colors and corners in the handler, for a selected button item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list lifted item in a key move should have its resting colors and corners in each frame while the commit is pending, for a static item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list lifted item in a key move should have its resting colors and corners in each frame while the commit is pending, for a button item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list lifted item in a key move should have its resting colors and corners in each frame while the commit is pending, for a selected button item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list lifted item in a key move should take the dragged elevation",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list lifted item in a key move should keep a page's background-color and color on a static item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list lifted item in a key move should keep a static item's own background-color and color with a page rule for popovers",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list static item focus should make a static item without a handle a tab stop",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list static item focus should move a focused static item on ArrowDown",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list static item focus should keep focus on the host and move again after a keyboard move",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list static item focus should show the focus indicator on a focused static item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list static item focus should describe a focused static item with the arrow keys",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list static item focus should not make a static item a tab stop in mx-list",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list static item focus should remove the tab stop once the item has a handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list static item focus should restore the tab stop once the handle is removed",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list static item focus should remove the tab stop once the item leaves the list",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list static item focus should remove the tab stop once the item moves into mx-list",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list static item focus should write only the tab stop and the description on the host",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list static item focus should keep the consumer's tabindex and description on the host",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list static item focus should add no tab stop to a button item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list handle semantics should make the handle a described Reorder button",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list handle semantics should keep the values the consumer set on the handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list handle semantics should cover a handle added after the item is slotted",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list handle semantics should describe a button item without a handle on its button",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list handle semantics should move the description from the button to a handle added later",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list handle semantics should move the description back to the button once the handle is removed",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list handle semantics should remove what it wrote and keep the consumer values in mx-list",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list handle semantics should leave the items of an mx-list nested in an item plain",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-button-item should propose nothing in a pointer drag by its handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-button-item should propose nothing in a pointer drag without a handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on its focused handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on a page's control in an item without a handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-button-item should let an enabled item move past it",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-button-item should have a span handle that Tab skips",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-button-item should have a button handle that Tab skips",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-button-item should have a mx-icon-button handle that Tab skips",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-button-item should write the semantics of a handle again after it is enabled",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-button-item should describe the control of an item without a handle only while it is enabled",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-link-item should propose nothing in a pointer drag by its handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-link-item should propose nothing in a pointer drag without a handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on its focused handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on a page's control in an item without a handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-link-item should let an enabled item move past it",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-link-item should have a span handle that Tab skips",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-link-item should have a button handle that Tab skips",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-link-item should have a mx-icon-button handle that Tab skips",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-link-item should write the semantics of a handle again after it is enabled",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items mx-list-link-item should describe the control of an item without a handle only while it is enabled",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items should keep the values that the page set on a handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items should keep focus on a span handle that has it, and move with it again once enabled",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items should keep focus on a button handle that has it, and move with it again once enabled",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items disabled in its reorder handler should be moved by an arrow key",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items disabled in its reorder handler should be moved by a drop",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items should go on with a pointer drag whose item is disabled",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items should move an mx-list-item with the attribute",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list disabled items should write the semantics of an enabled handle on an mx-list-item with the attribute",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list values a consumer writes after the claim should keep a consumer's aria-label on a handle once the handle leaves",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list values a consumer writes after the claim should keep a consumer's tabindex and description on the host once it moves into mx-list",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list values a consumer writes after the claim should keep a consumer's tabindex of the item's value on the host once it gains a handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list values a consumer writes after the claim should keep a consumer's tabindex of the item's value as a tab stop in mx-list",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list values a consumer writes after the claim should keep a consumer's write made in the same task as the release",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list values a consumer writes after the claim should keep the description that the host forwards to a button item's control once it leaves",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list values a consumer writes after the claim should keep the description that the host forwards to a button item's control once it gains a handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list values a consumer writes after the claim should describe a button item's control that loses the host's description in a move",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list values a consumer writes after the claim should not write again an attribute the consumer removed, before or at the release",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-list-item focus should take focus on its host by Tab in mx-sortable-list",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-list-item focus should leave by Tab after one stop",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-list-item focus should return by Shift+Tab",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-list-item focus should take focus by focus() in mx-sortable-list",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-list-item focus should not take focus by Tab in mx-list",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-list-item focus should not take focus by focus() in mx-list",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list in a hidden iframe should sort once the iframe it connected in is shown",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list definition order should make a static item a tab stop when sortable-list.js is evaluated first",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list definition order should make a static item a tab stop when list-item.js is evaluated first",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list definition order should move a static item by keyboard when sortable-list.js is evaluated first",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list definition order should move a static item by keyboard when list-item.js is evaluated first",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list definition order should move a static item by pointer when sortable-list.js is evaluated first",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list definition order should move a static item by pointer when list-item.js is evaluated first",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list announcement should announce nothing when the consumer never commits",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list announcement should announce nothing for a pointer drop the consumer never commits",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list announcement should announce the item's position when the consumer commits at another slot",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list announcement should announce the item's position when the consumer commits at another slot later",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list announcement should announce nothing when the consumer commits after the bound",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list announcement should announce nothing when the consumer removes the item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list announcement should style the region without a style attribute",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list when other items change during the commit wait should announce only a real move when an item is inserted and the move is not…",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list when other items change during the commit wait should announce only a real move when an item is inserted before the move is …",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list when other items change during the commit wait should announce only a real move when an item is inserted in the task that co…",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list when other items change during the commit wait should announce only a real move when another item is removed in the task tha…",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list when other items change during the commit wait should announce only a real move when another item is removed before the move…",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list when other items change during the commit wait should announce only a real move when the passed item is removed and the move…",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list when other items change during the commit wait should announce only a real move when the item leaves and returns at the prop…",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list when other items change during the commit wait should end the wait only for the order of the proposed slot when an item is inserted and the move is not…",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list when other items change during the commit wait should end the wait only for the order of the proposed slot when an item is inserted before the move is …",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list when other items change during the commit wait should end the wait only for the order of the proposed slot when an item is inserted in the task that co…",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list when other items change during the commit wait should end the wait only for the order of the proposed slot when another item is removed in the task tha…",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list when other items change during the commit wait should end the wait only for the order of the proposed slot when another item is removed before the move…",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list when other items change during the commit wait should end the wait only for the order of the proposed slot when the passed item is removed and the move…",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list when other items change during the commit wait should end the wait only for the order of the proposed slot when the item leaves and returns at the prop…",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list scrollable overflow should not change the overflow of any ancestor in an unpositioned scroll container",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list scrollable overflow should not change the overflow of any ancestor in a scroll container in a transformed box",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list scrollable overflow should not change the overflow of any ancestor in a scroll container in a fixed box",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list scrollable overflow should not change the overflow of any ancestor in an empty transformed box",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list scrollable overflow should not change the overflow of any ancestor in a right-to-left scroll container in a t…",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+          "name": "mx-sortable-list scrollable overflow should not change the overflow of any ancestor in a left-to-right scroll container of a r…",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a static item in a pointer drag should render the container and content colors at once",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a static item in a pointer drag should render the shape",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a static item in a pointer drag should render the resting colors again after the drop",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a static item by its handle in a pointer drag should render the container and content colors at once",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a static item by its handle in a pointer drag should render the shape",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a static item by its handle in a pointer drag should render the resting colors again after the drop",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a button item in a pointer drag should render the container and content colors at once",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a button item in a pointer drag should render the shape",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a button item in a pointer drag should render the resting colors again after the drop",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a button item by its handle in a pointer drag should render the container and content colors at once",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a button item by its handle in a pointer drag should render the shape",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a button item by its handle in a pointer drag should render the resting colors again after the drop",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a selected button item in a pointer drag should render the container and content colors at once",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a selected button item in a pointer drag should render the shape",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a selected button item in a pointer drag should render the resting colors again after the drop",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a link item by its handle in a pointer drag should render the container and content colors at once",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a link item by its handle in a pointer drag should render the shape",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a link item by its handle in a pointer drag should render the resting colors again after the drop",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a selected link item by its handle in a pointer drag should render the container and content colors at once",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a selected link item by its handle in a pointer drag should render the shape",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract of a selected link item by its handle in a pointer drag should render the resting colors again after the drop",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should render the state layer on a button item in a pointer drag",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should render the state layer on a button item by its handle in a pointer drag",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should render the state layer on a selected button item in a pointer drag",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should render the state layer on a link item by its handle in a pointer drag",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should render the state layer on a selected link item by its handle in a pointer drag",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should render the drop zone in its color, opaque",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should take the disabled look of a button item that is disabled during its drag",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should keep the consumer's container color and shape on a static item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should keep the consumer's container color and shape on a static item by its handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should keep the consumer's container color and shape on a button item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should keep the consumer's container color and shape on a button item by its handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should keep the consumer's container color and shape on a selected button item",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should keep the consumer's container color and shape on a link item by its handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should keep the consumer's container color and shape on a selected link item by its handle",
+          "status": "passed"
+        },
+        {
+          "file": "packages/material-x/tests/list/sortable-list.spec.browser.test.ts",
+          "name": "mx-sortable-list reorder contract should keep the consumer's list shape on the drop zone",
+          "status": "passed"
+        }
+      ],
+      "mutations": [
+        {
+          "name": "aria-disabled isn't watched",
+          "group": "doubted",
+          "expect": {
+            "survives": "No row writes `aria-disabled` on a disabled handle and then enables the item (the feature proof's `reviewer-1`)"
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [],
+          "missed": [],
+          "voided": [],
+          "messages": {}
+        },
+        {
+          "name": "the state observer is never disconnected",
+          "group": "doubted",
+          "expect": {
+            "survives": "No row changes `disabled` on an item that has left the list (the feature proof's `reviewer-1`)"
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [],
+          "missed": [],
+          "voided": [],
+          "messages": {}
+        },
+        {
+          "name": "a disabled control keeps its description",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should describe the control of an item without a handle only while it is enabled"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should describe the control of an item without a handle only while it is enabled"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should describe the control of an item without a handle only while it is enabled",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should describe the control of an item without a handle only while it is enabled"
+          ],
+          "missed": [],
+          "voided": [],
+          "messages": {
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should describe the control of an item without a handle only while it is enabled": [
+              "AssertionError: expected [ 'Use the arrow keys to move', …(2) ] to deeply equal [ 'Use the arrow keys to move', …(2) ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688305712:1345:7",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should describe the control of an item without a handle only while it is enabled": [
+              "AssertionError: expected [ 'Use the arrow keys to move', …(2) ] to deeply equal [ 'Use the arrow keys to move', …(2) ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688305712:1345:7",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ]
+          }
+        },
+        {
+          "name": "a disabled handle keeps its description",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should write the semantics of a disabled handle from the start"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should write the semantics of a disabled handle after it is disabled"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should write the semantics of a disabled handle from the start"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should write the semantics of a disabled handle after it is disabled"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled"
+          ],
+          "missed": [],
+          "voided": [],
+          "messages": {
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start": [
+              "AssertionError: expected { Object (tabindex, role, ...) } to deeply equal { Object (tabindex, role, ...) }",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688353574:1314:38",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled": [
+              "AssertionError: expected [ { tabindex: '0', …(5) }, …(1) ] to deeply equal [ { tabindex: '0', …(5) }, …(1) ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688353574:1323:46",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start": [
+              "AssertionError: expected { Object (tabindex, role, ...) } to deeply equal { Object (tabindex, role, ...) }",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688353574:1314:38",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled": [
+              "AssertionError: expected [ { tabindex: '0', …(5) }, …(1) ] to deeply equal [ { tabindex: '0', …(5) }, …(1) ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688353574:1323:46",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ]
+          }
+        },
+        {
+          "name": "a disabled handle keeps its touch-action",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should write the semantics of a disabled handle from the start"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should write the semantics of a disabled handle after it is disabled"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should write the semantics of a disabled handle from the start"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should write the semantics of a disabled handle after it is disabled"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled"
+          ],
+          "missed": [],
+          "voided": [],
+          "messages": {
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start": [
+              "AssertionError: expected { Object (tabindex, role, ...) } to deeply equal { Object (tabindex, role, ...) }",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688401403:1314:38",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled": [
+              "AssertionError: expected [ { tabindex: '0', …(5) }, …(1) ] to deeply equal [ { tabindex: '0', …(5) }, …(1) ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688401403:1323:46",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start": [
+              "AssertionError: expected { Object (tabindex, role, ...) } to deeply equal { Object (tabindex, role, ...) }",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688401403:1314:38",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled": [
+              "AssertionError: expected [ { tabindex: '0', …(5) }, …(1) ] to deeply equal [ { tabindex: '0', …(5) }, …(1) ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688401403:1323:46",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ]
+          }
+        },
+        {
+          "name": "a disabled handle loses its role",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should write the semantics of a disabled handle from the start"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should write the semantics of a disabled handle after it is disabled"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should write the semantics of a disabled handle from the start"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should write the semantics of a disabled handle after it is disabled"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled"
+          ],
+          "missed": [],
+          "voided": [],
+          "messages": {
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start": [
+              "AssertionError: expected { tabindex: '-1', role: null, …(4) } to deeply equal { Object (tabindex, role, ...) }",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688447700:1314:38",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled": [
+              "AssertionError: expected [ { tabindex: '0', …(5) }, …(1) ] to deeply equal [ { tabindex: '0', …(5) }, …(1) ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688447700:1323:46",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start": [
+              "AssertionError: expected { tabindex: '-1', role: null, …(4) } to deeply equal { Object (tabindex, role, ...) }",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688447700:1314:38",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled": [
+              "AssertionError: expected [ { tabindex: '0', …(5) }, …(1) ] to deeply equal [ { tabindex: '0', …(5) }, …(1) ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688447700:1323:46",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ]
+          }
+        },
+        {
+          "name": "a disabled handle loses its name",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should write the semantics of a disabled handle from the start"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should write the semantics of a disabled handle after it is disabled"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should write the semantics of a disabled handle from the start"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should write the semantics of a disabled handle after it is disabled"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled"
+          ],
+          "missed": [],
+          "voided": [],
+          "messages": {
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle from the start": [
+              "AssertionError: expected { Object (tabindex, role, ...) } to deeply equal { Object (tabindex, role, ...) }",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688495143:1314:38",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled": [
+              "AssertionError: expected [ { tabindex: '0', …(5) }, …(1) ] to deeply equal [ { tabindex: '0', …(5) }, …(1) ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688495143:1323:46",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle from the start": [
+              "AssertionError: expected { Object (tabindex, role, ...) } to deeply equal { Object (tabindex, role, ...) }",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688495143:1314:38",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled": [
+              "AssertionError: expected [ { tabindex: '0', …(5) }, …(1) ] to deeply equal [ { tabindex: '0', …(5) }, …(1) ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688495143:1323:46",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ]
+          }
+        },
+        {
+          "name": "the item's own value isn't written again",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should write the semantics of a disabled handle after it is disabled"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should write the semantics of a disabled handle after it is disabled"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled"
+          ],
+          "missed": [],
+          "voided": [],
+          "messages": {
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should write the semantics of a disabled handle after it is disabled": [
+              "AssertionError: expected [ { tabindex: '0', …(5) }, …(1) ] to deeply equal [ { tabindex: '0', …(5) }, …(1) ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688542030:1323:46",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should write the semantics of a disabled handle after it is disabled": [
+              "AssertionError: expected [ { tabindex: '0', …(5) }, …(1) ] to deeply equal [ { tabindex: '0', …(5) }, …(1) ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688542030:1323:46",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ]
+          }
+        },
+        {
+          "name": "a page's touch-action is removed",
+          "group": "doubted",
+          "expect": {
+            "survives": "The row writes the page's `touch-action` before the claim only (the feature proof's `reviewer-1`)"
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [],
+          "missed": [],
+          "voided": [],
+          "messages": {}
+        },
+        {
+          "name": "an item without a handle is admitted",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should propose nothing in a pointer drag without a handle"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should propose nothing for an arrow key on a page's control in an item without a handle"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should propose nothing in a pointer drag without a handle"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should propose nothing for an arrow key on a page's control in an item without a handle"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should propose nothing in a pointer drag without a handle",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on a page's control in an item without a handle",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should propose nothing in a pointer drag without a handle",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on a page's control in an item without a handle"
+          ],
+          "missed": [],
+          "voided": [],
+          "messages": {
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should propose nothing in a pointer drag without a handle": [
+              "AssertionError: expected [ [ Event{ …(6) } ], true ] to deeply equal [ [], false ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688639082:1232:35",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on a page's control in an item without a handle": [
+              "AssertionError: expected [ Array(2) ] to deeply equal [ <button slot=\"trail\"></button>, [] ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688639082:1262:45",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should propose nothing in a pointer drag without a handle": [
+              "AssertionError: expected [ [ Event{ …(6) } ], true ] to deeply equal [ [], false ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688639082:1232:35",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on a page's control in an item without a handle": [
+              "AssertionError: expected [ Array(2) ] to deeply equal [ <button slot=\"trail\"></button>, [] ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688639082:1262:45",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ]
+          }
+        },
+        {
+          "name": "an item with a handle is admitted",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should propose nothing in a pointer drag by its handle"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should propose nothing for an arrow key on its focused handle"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should propose nothing in a pointer drag by its handle"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should propose nothing for an arrow key on its focused handle"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "should keep focus on a span handle that has it, and move with it again once enabled"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "should keep focus on a button handle that has it, and move with it again once enabled"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should propose nothing in a pointer drag by its handle",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on its focused handle",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should propose nothing in a pointer drag by its handle",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on its focused handle",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items should keep focus on a span handle that has it, and move with it again once enabled",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items should keep focus on a button handle that has it, and move with it again once enabled"
+          ],
+          "missed": [],
+          "voided": [],
+          "messages": {
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should propose nothing in a pointer drag by its handle": [
+              "AssertionError: expected [ [ Event{ …(6) } ], true ] to deeply equal [ [], false ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688685837:1221:35",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should propose nothing for an arrow key on its focused handle": [
+              "AssertionError: expected [ Array(2) ] to deeply equal [ <span data-handle …(6)></span>, [] ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688685837:1247:45",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should propose nothing in a pointer drag by its handle": [
+              "AssertionError: expected [ [ Event{ …(6) } ], true ] to deeply equal [ [], false ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688685837:1221:35",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should propose nothing for an arrow key on its focused handle": [
+              "AssertionError: expected [ Array(2) ] to deeply equal [ <span data-handle …(6)></span>, [] ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688685837:1247:45",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items should keep focus on a span handle that has it, and move with it again once enabled": [
+              "AssertionError: expected [ Array(4) ] to deeply equal [ Array(4) ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688685837:1406:6",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items should keep focus on a button handle that has it, and move with it again once enabled": [
+              "AssertionError: expected [ …(4) ] to deeply equal [ …(4) ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688685837:1406:6",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ]
+          }
+        },
+        {
+          "name": "a disabled item leaves the collection",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-button-item should let an enabled item move past it"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "mx-list-link-item should let an enabled item move past it"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should let an enabled item move past it",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should let an enabled item move past it"
+          ],
+          "missed": [],
+          "voided": [],
+          "messages": {
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-button-item should let an enabled item move past it": [
+              "AssertionError: expected [ 'A', 'B', 'C' ] to deeply equal [ 'B', 'A', 'C' ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688733250:1278:24",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items mx-list-link-item should let an enabled item move past it": [
+              "AssertionError: expected [ 'A', 'B', 'C' ] to deeply equal [ 'B', 'A', 'C' ]",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688733250:1278:24",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ]
+          }
+        },
+        {
+          "name": "a press whose item is disabled before the lift is canceled",
+          "group": "doubted",
+          "expect": {
+            "survives": "No row disables an item between the press and the lift (the feature proof's `reviewer-1`)"
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [],
+          "missed": [],
+          "voided": [],
+          "messages": {}
+        },
+        {
+          "name": "a pending commit is refused when the item is disabled in its handler",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "disabled in its reorder handler should be moved by an arrow key"
+              },
+              {
+                "file": "packages/material-x/tests/list/sortable-list.browser.test.ts",
+                "row": "disabled in its reorder handler should be moved by a drop"
+              }
+            ]
+          },
+          "hasEngineExpectations": false,
+          "outcome": "as expected",
+          "failed": [
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items disabled in its reorder handler should be moved by an arrow key",
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items disabled in its reorder handler should be moved by a drop"
+          ],
+          "missed": [],
+          "voided": [],
+          "messages": {
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items disabled in its reorder handler should be moved by an arrow key": [
+              "AssertionError: expected '' to be 'Item 2 of 3.' // Object.is equality",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688827016:1444:33",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ],
+            "packages/material-x/tests/list/sortable-list.browser.test.ts > mx-sortable-list disabled items disabled in its reorder handler should be moved by a drop": [
+              "AssertionError: expected '' to be 'Item 2 of 3.' // Object.is equality",
+              "    at http://127.0.0.1:23315/tmp/mutator-sIfHcv/copy/packages/material-x/tests/list/sortable-list.browser.test.ts?import&browserv=1795688827016:1455:33",
+              "    at async http://127.0.0.1:23315/node_modules/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-fvszGaa0.js?v=47fd1280:5247:20"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

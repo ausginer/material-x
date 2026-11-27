@@ -1,0 +1,48 @@
+# Each of the 23 rows, and the mutations of the implementer's run 4 (../../../../mutations-1/checks/mutator-chromium-4.json) that fail it. Read at 0cc0d9516.
+
+1. mutator run, refusals should refuse each stale edit by name before anything runs
+   a stale edit runs
+2. mutator run, refusals should refuse a selector that covers no row before any mutation runs
+   a selector that covers no row runs
+3. mutator run, the invoking checkout should leave the checkout and the temporary directory as they were after a run
+   the copy stays after a run; nothing is read as expected
+4. mutator run, the invoking checkout should leave them as they were after a run that fails midway
+   the copy stays after a run; nothing rebuilds
+5. mutator run, the invoking checkout should stop its Vitest and leave nothing after SIGTERM to the tool alone
+   the copy stays after a run; a signal stops nothing
+6. mutator run, the invoking checkout should wait for a command that a signal stops before it removes the copy
+   the copy stays after a run; a signal stops nothing; a stopped command is not waited for
+7. mutator run, a copy that an earlier run left should remove a locked copy whose process no longer runs
+   the copy stays after a run; a stale copy is kept; nothing is read as expected
+8. mutator run, outcomes should read a mutation that fails every selected row as expected
+   nothing is read as expected
+9. mutator run, outcomes should read a selected row that passes as missed and fail the run
+   a selected row that passes is never missed
+10. mutator run, outcomes should read a survivor that fails rows as caught
+   a survivor is never caught
+11. mutator run, outcomes should read a survivor that fails no row as expected
+   a survivor is always caught
+12. mutator run, outcomes should read a selected row that fails unmutated as void
+   a void row is judged; an engine's environment doesn't reach Vitest
+13. mutator run, outcomes should read a selected row that doesn't run as void, with its file's reason
+   a void row is judged; a row that doesn't run counts as passing; a row that doesn't run counts as failed
+14. mutator run, outcomes should read a survivor whose rows don't run as void
+   a row that doesn't run counts as passing; a row that doesn't run counts as failed; a survivor is always caught
+15. mutator run, outcomes should judge each engine by its own expectation when it gives one
+   an engine's own expectation doesn't account for a difference; an engine's environment doesn't reach Vitest; nothing is read as expected; a survivor is always caught
+16. mutator run, outcomes should run in a browser project
+   an engine's environment doesn't reach Vitest; nothing is read as expected
+17. mutator run, engines should flag a mutation that fails other rows in another engine
+   engines never differ; an engine's environment doesn't reach Vitest
+18. mutator run, engines should flag a difference between engines that another engine's own expectation doesn't explain
+   engines never differ; one engine's own expectation accounts for every engine's difference; an engine's environment doesn't reach Vitest
+19. mutator run, engines should not flag a row that another engine skips
+   a row that one engine skips counts; an engine's environment doesn't reach Vitest
+20. mutator run, engines should not flag a row that doesn't run in another engine
+   a void row is judged; a row that one engine skips counts; a row that doesn't run counts as passing; a row that doesn't run counts as failed; an engine's environment doesn't reach Vitest; a row that doesn't run in one engine is compared; nothing is read as expected
+21. mutator run, restore should restore each mutation before the next one runs
+   a mutation is not restored; nothing is read as expected; a survivor is always caught
+22. mutator run, rebuilds should rebuild after a matching edit and after its restore
+   nothing rebuilds; nothing is read as expected
+23. mutator run, rebuilds should not rebuild for an edit that doesn't match
+   every edit rebuilds

@@ -1,0 +1,32 @@
+{
+  "name": "@ydinjs/mutator",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Applies a review's mutations, written as data, in a scratch copy, and compares the rows that fail with a prediction in each engine",
+  "license": "Apache-2.0",
+  "bin": {
+    "mutator": "./src/cli.ts"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "typecheck": "just typecheck",
+    "test": "just test",
+    "fmt": "just fmt",
+    "fmt:check": "just fmt-check",
+    "lint": "just lint",
+    "lint:fix": "just lint-fix"
+  },
+  "peerDependencies": {
+    "vitest": "^5"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

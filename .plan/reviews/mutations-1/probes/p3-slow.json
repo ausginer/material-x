@@ -1,0 +1,18 @@
+{
+  "runs": [{ "dir": ".", "tests": ["tests/math"] }],
+  "engines": ["a"],
+  "mutations": [
+    {
+      "name": "slow",
+      "group": "other",
+      "edits": [
+        {
+          "file": "src/math.ts",
+          "text": "export function unused",
+          "replacement": "{ const t = Date.now(); while (Date.now() - t < 25000) {} }\nexport function unused"
+        }
+      ],
+      "expect": { "survives": "slow" }
+    }
+  ]
+}

@@ -22,6 +22,7 @@ const config: UserConfigFnObject = defineConfig((env) =>
       './packages/vite-traits-plugin/',
       import.meta.url,
     ),
+    mutatorRoot: new URL('./packages/mutator/', import.meta.url),
   }),
 );
 
