@@ -1,16 +1,18 @@
+/* Colours come from the preview's theme tokens, as in box-quad's stories, so each story reads in the light and the dark theme. */
+
 .stage {
   display: flex;
   flex-direction: column;
   gap: 16px;
   align-items: flex-start;
   font-family: system-ui, sans-serif;
-  color: #1c1b1f;
+  color: var(--md-sys-color-on-surface);
 }
 
 .hint {
   margin: 0;
   font-size: 13px;
-  color: #49454f;
+  color: var(--md-sys-color-on-surface-variant);
   max-width: min(480px, 90vw);
 }
 
@@ -23,9 +25,9 @@
   position: relative;
   width: min(480px, 90vw);
   height: 280px;
-  border: 1px dashed #79747e;
+  border: 1px dashed var(--md-sys-color-outline);
   border-radius: 12px;
-  background: #f7f2fa;
+  background: var(--md-sys-color-surface-container-low);
   overflow: hidden;
 }
 
@@ -39,14 +41,15 @@
   width: 96px;
   height: 96px;
   border-radius: 12px;
-  background: #6750a4;
-  color: #fff;
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
   font-size: 13px;
   font-weight: 500;
   cursor: grab;
   user-select: none;
   touch-action: none;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
+  box-shadow: 0 1px 3px
+    color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent);
 }
 
 .box:active {
@@ -70,7 +73,7 @@
   width: min(360px, 90vw);
   padding: 8px;
   border-radius: 12px;
-  background: #f7f2fa;
+  background: var(--md-sys-color-surface-container-low);
 }
 
 .row {
@@ -79,15 +82,16 @@
   gap: 12px;
   padding: 12px 16px;
   border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 15%);
+  background: var(--md-sys-color-surface-container-lowest);
+  box-shadow: 0 1px 2px
+    color-mix(in srgb, var(--md-sys-color-shadow) 15%, transparent);
   cursor: grab;
   user-select: none;
   touch-action: none;
 }
 
 .glyph {
-  color: #79747e;
+  color: var(--md-sys-color-outline);
 }
 
 /* A wrapping field of rectangles, the layout `xy()` measures. */
@@ -98,7 +102,7 @@
   width: min(440px, 90vw);
   padding: 8px;
   border-radius: 12px;
-  background: #f7f2fa;
+  background: var(--md-sys-color-surface-container-low);
 }
 
 .tile {
@@ -108,8 +112,9 @@
   width: 72px;
   height: 72px;
   border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 15%);
+  background: var(--md-sys-color-surface-container-lowest);
+  box-shadow: 0 1px 2px
+    color-mix(in srgb, var(--md-sys-color-shadow) 15%, transparent);
   cursor: grab;
   user-select: none;
   touch-action: none;
@@ -119,9 +124,9 @@
 
 .list [data-drag-placeholder],
 .grid [data-drag-placeholder] {
-  border: 2px dashed #6750a4;
+  border: 2px dashed var(--md-sys-color-primary);
   border-radius: 8px;
-  background: rgb(103 80 164 / 8%);
+  background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
 }
 
 /* A custom placeholder: more specific than the default rule. */
@@ -130,8 +135,8 @@
   align-items: center;
   justify-content: center;
   border-style: solid;
-  background: #e8def8;
-  color: #4f378b;
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
   font-size: 13px;
 }
 
@@ -140,7 +145,7 @@
   width: 240px;
   height: 140px;
   border-radius: 12px;
-  background: #e8def8;
+  background: var(--md-sys-color-secondary-container);
 }
 
 .grip {
@@ -150,7 +155,7 @@
   width: 24px;
   height: 24px;
   border-radius: 8px 0 12px;
-  background: #6750a4;
+  background: var(--md-sys-color-primary);
   touch-action: none;
   cursor: nwse-resize;
 }

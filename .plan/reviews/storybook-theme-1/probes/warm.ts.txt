@@ -1,0 +1,15 @@
+// Opens a story, a docs page and the storyless page in Chromium, 10 s each, so
+// that Vite has transformed and optimized what the probes load.
+import { chromium } from '/workspaces/worktrees/c/node_modules/playwright/index.mjs';
+
+const base = process.argv[2]!;
+const browser = await chromium.launch();
+try {
+  const page = await browser.newPage();
+  for (const path of ['/story/box-quad--live-demo', '/docs/button-regular--docs', '/docs/reference-api--docs', '/story/drag-sortable--list']) {
+    await page.goto(`${base}/?path=${path}`);
+    await page.waitForTimeout(10000);
+  }
+} finally {
+  await browser.close();
+}

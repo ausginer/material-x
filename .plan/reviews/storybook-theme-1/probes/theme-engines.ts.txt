@@ -1,0 +1,145 @@
+// Feature proof of #323 (repo:RF-154): the unit's theme probe (A, B, C) in one
+// engine, plus D (a story's toolbar toggle, then docs pages and the storyless
+// Reference/API page) and E (a new visit to the storyless page with
+// globals=theme:dark). Each line also reads the toolbar's icon (the start of
+// its first SVG path: `M7.5.5` is the sun, shown in dark; `M7.78.` the moon,
+// shown in light) and whether the preview has rendered (`r=1`).
+// Run against a running `storybook dev`, from a tree with Playwright installed:
+// `node theme-engines.ts <chromium|firefox|webkit> [base]`. WAIT sets the
+// settle time per step in ms (default 3500); ONLY limits the paths, e.g. `ABE`.
+import * as pw from '/workspaces/worktrees/c/node_modules/playwright/index.mjs';
+import type { Page } from 'playwright';
+
+const engine = process.argv[2] as 'chromium' | 'firefox' | 'webkit';
+const base = process.argv[3] ?? 'http://127.0.0.1:6123';
+const wait = Number(process.env['WAIT'] ?? 3500);
+const only = process.env['ONLY'];
+
+async function icon(page: Page): Promise<string> {
+  const d = await page
+    .getByRole('button', { name: 'Toggle theme' })
+    .locator('svg path')
+    .first()
+    .getAttribute('d', { timeout: 2000 })
+    .catch(() => null);
+  return d ? d.slice(0, 6) : 'unread';
+}
+
+async function read(page: Page, label: string): Promise<void> {
+  await page.waitForTimeout(wait);
+  const frame = page.frameLocator('#storybook-preview-iframe');
+  const html = frame.locator('html');
+  const theme = await html.getAttribute('data-theme', { timeout: 5000 }).catch(() => 'unread');
+  const rendered = await html
+    .evaluate(
+      () =>
+        (document.querySelector('#storybook-root')?.childElementCount ?? 0) +
+          (document.querySelector('#storybook-docs')?.childElementCount ?? 0) >
+        0,
+      undefined,
+      { timeout: 5000 },
+    )
+    .catch(() => false);
+  const params = new URL(page.url()).searchParams;
+  console.log(
+    `${engine.padEnd(8)} ${label.padEnd(40)} ${String(params.get('path')).padEnd(32)} globals=${String(params.get('globals')).padEnd(11)} preview=${theme} icon=${await icon(page)} r=${rendered ? 1 : 0}`,
+  );
+}
+
+const toggle = (page: Page) => page.getByRole('button', { name: 'Toggle theme' }).click();
+const toggleInDocs = (page: Page) =>
+  page
+    .frameLocator('#storybook-preview-iframe')
+    .locator('mx-button', { hasText: 'Toggle Theme' })
+    .first()
+    .click();
+const open = (page: Page, id: string) =>
+  page.locator(`[data-item-id="${id}"]`).first().click({ timeout: 10000 });
+
+const browser = await pw[engine].launch();
+try {
+  let page: Page;
+  if (!only || only.includes('A')) {
+    console.log('A: loaded light, toggled after the load');
+    page = await browser.newPage();
+    await page.goto(`${base}/?path=/story/box-quad--live-demo`);
+    await read(page, 'A1 loaded');
+    await toggle(page);
+    await read(page, 'A2 toggled to dark');
+    await open(page, 'box-quad--nested-spaces');
+    await read(page, 'A3 sidebar to box-quad--nested-spaces');
+    await page.reload();
+    await read(page, 'A4 reloaded');
+    await page.close();
+  }
+  if (!only || only.includes('B')) {
+    console.log('B: loaded with globals=theme:dark');
+    page = await browser.newPage();
+    await page.goto(`${base}/?path=/story/box-quad--live-demo&globals=theme:dark`);
+    await read(page, 'B1 loaded');
+    await open(page, 'box-quad--nested-spaces');
+    await read(page, 'B2 sidebar to box-quad--nested-spaces');
+    await page.reload();
+    await read(page, 'B3 reloaded');
+    await toggle(page);
+    await read(page, 'B4 toggled to light');
+    await open(page, 'box-quad--pointer-delta');
+    await read(page, 'B5 sidebar to box-quad--pointer-delta');
+    await page.close();
+  }
+  if (!only || only.includes('C')) {
+    console.log("C: a docs page's toggle");
+    page = await browser.newPage();
+    await page.goto(`${base}/?path=/docs/button-regular--docs`);
+    await read(page, 'C1 loaded button-regular--docs');
+    await toggleInDocs(page);
+    await read(page, 'C2 docs toggle to dark');
+    await open(page, 'button-icon');
+    await read(page, 'C3 sidebar to button-icon');
+    await page.reload();
+    await read(page, 'C4 reloaded');
+    await open(page, 'button-icon--playground');
+    await read(page, 'C5 sidebar to button-icon--playground');
+    await open(page, 'button-regular');
+    await read(page, 'C6 sidebar to button-regular');
+    await toggleInDocs(page);
+    await read(page, 'C7 docs toggle to light');
+    await open(page, 'button-icon--docs');
+    await read(page, 'C8 sidebar to button-icon--docs');
+    await page.close();
+  }
+  if (!only || only.includes('D')) {
+    console.log("D: a story's toolbar toggle, then docs pages and the storyless page");
+    page = await browser.newPage();
+    await page.goto(`${base}/?path=/story/box-quad--live-demo`);
+    await read(page, 'D1 loaded');
+    await toggle(page);
+    await read(page, 'D2 toggled to dark');
+    await open(page, 'button-regular');
+    await read(page, 'D3 sidebar to button-regular (docs)');
+    await page.reload();
+    await read(page, 'D4 reloaded');
+    await toggle(page);
+    await read(page, 'D5 toolbar to light on docs');
+    await open(page, 'button-icon');
+    await read(page, 'D6 sidebar to button-icon (docs)');
+    await toggle(page);
+    await read(page, 'D7 toolbar to dark on docs');
+    await page.goto(`${base}/?path=/docs/reference-api--docs&globals=theme:dark`);
+    await read(page, 'D8 storyless page, URL from D7');
+    await toggle(page);
+    await read(page, 'D9 toolbar to light, storyless');
+    await page.reload();
+    await read(page, 'D10 reloaded');
+    await page.close();
+  }
+  if (!only || only.includes('E')) {
+    console.log('E: a new visit to the storyless page');
+    page = await browser.newPage();
+    await page.goto(`${base}/?path=/docs/reference-api--docs&globals=theme:dark`);
+    await read(page, 'E1 loaded with globals=theme:dark');
+    await page.close();
+  }
+} finally {
+  await browser.close();
+}

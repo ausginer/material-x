@@ -1,0 +1,88 @@
+// Feature proof of #323: applies one mutation (exact-once replacements) to a
+// tracked file, starts `storybook dev` on it, warms it, runs a probe in each
+// engine one at a time, stops the server and restores the file.
+// `node mutate.ts <name>`, or `node mutate.ts none` for the unmutated run.
+// ENGINES (default chromium,firefox,webkit), WAIT and ONLY pass to the probe.
+import { spawn, execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const root = '/workspaces/worktrees/c';
+const here = new URL('.', import.meta.url).pathname;
+const port = 6124;
+
+type M = { file: string; edits: [string, string][]; probe: 'theme' | 'drag' | 'oldlink' };
+const preview = '.storybook/preview.ts';
+const manager = '.storybook/manager.tsx';
+const link = '.storybook/docs/ThemeToggleLink.tsx';
+const css = 'packages/drag/src/stories.module.css';
+const decorator: [string, string] = ['(Story, { globals }) => {\n      applyTheme(globals);', '(Story, { globals }) => {\n      void globals;'];
+const setGlobals: [string, string] = ['channel.on(SET_GLOBALS, ({ globals }: { globals: Globals }) => {\n  applyTheme(globals);', 'channel.on(SET_GLOBALS, ({ globals }: { globals: Globals }) => {\n  void globals;'];
+const globalsUpdated: [string, string] = ['channel.on(GLOBALS_UPDATED, ({ globals }: { globals: Globals }) => {\n  applyTheme(globals);', 'channel.on(GLOBALS_UPDATED, ({ globals }: { globals: Globals }) => {\n  void globals;'];
+const mutations: Record<string, M> = {
+  'none-theme': { file: preview, probe: 'theme', edits: [] },
+  'none-drag': { file: css, probe: 'drag', edits: [] },
+  'none-oldlink': { file: preview, probe: 'oldlink', edits: [] },
+  'only-globals-updated-drag': { file: preview, probe: 'drag', edits: [decorator, setGlobals] },
+  'decorator-off': { file: preview, probe: 'theme', edits: [decorator] },
+  'set-globals-off': { file: preview, probe: 'theme', edits: [setGlobals] },
+  'globals-updated-off': { file: preview, probe: 'theme', edits: [globalsUpdated] },
+  'only-globals-updated': { file: preview, probe: 'theme', edits: [decorator, setGlobals] },
+  'only-decorator': { file: preview, probe: 'theme', edits: [setGlobals, globalsUpdated] },
+  'global-types-off': { file: preview, probe: 'theme', edits: [["  globalTypes: {\n    [THEME_GLOBAL]: { description: 'The theme of the stories and docs.' },\n  },\n", '']] },
+  'initial-globals-off': { file: preview, probe: 'theme', edits: [["  initialGlobals: { [THEME_GLOBAL]: 'light' },\n", '']] },
+  'toolbar-local-state': {
+    file: manager,
+    probe: 'theme',
+    edits: [
+      ["  const [globals, updateGlobals] = useGlobals();\n  const dark = globals[THEME_GLOBAL] === 'dark';", "  const [, updateGlobals] = useGlobals();\n  const [dark, setDark] = React.useState(false);\n  const update = (g: Record<string, string>) => { setDark(g[THEME_GLOBAL] === 'dark'); updateGlobals(g); };"],
+      ['updateGlobals({ [THEME_GLOBAL]:', 'update({ [THEME_GLOBAL]:'],
+    ],
+  },
+  'docs-link-sets-attribute': { file: link, probe: 'theme', edits: [["        addons\n          .getChannel()\n          .emit(UPDATE_GLOBALS, { globals: { [THEME_GLOBAL]: next } });", "        void addons; void UPDATE_GLOBALS; void THEME_GLOBAL;\n        document.documentElement.dataset['theme'] = next;"]] },
+  'list-fixed': { file: css, probe: 'drag', edits: [['  width: min(360px, 90vw);\n  padding: 8px;\n  border-radius: 12px;\n  background: var(--md-sys-color-surface-container-low);', '  width: min(360px, 90vw);\n  padding: 8px;\n  border-radius: 12px;\n  background: #f7f2fa;']] },
+  'hint-fixed': { file: css, probe: 'drag', edits: [['color: var(--md-sys-color-on-surface-variant);', 'color: #49454f;']] },
+  'placeholder-fixed': { file: css, probe: 'drag', edits: [['border: 2px dashed var(--md-sys-color-primary);', 'border: 2px dashed #6750a4;']] },
+};
+
+const name = process.argv[2]!;
+const m = mutations[name]!;
+const engines = (process.env['ENGINES'] ?? 'chromium,firefox,webkit').split(',');
+const path = `${root}/${m.file}`;
+const original = readFileSync(path, 'utf8');
+let mutated = original;
+for (const [a, b] of m.edits) {
+  if (mutated.split(a).length !== 2) throw new Error(`${name}: text not found exactly once: ${a}`);
+  mutated = mutated.replace(a, b);
+}
+writeFileSync(path, mutated);
+console.log(`== ${name} (${m.file})`);
+const env = { ...process.env, PATH: `${root}/node_modules/.bin:${process.env['PATH']}` };
+const server = spawn('node', ['../../.scripts/storybook.ts', 'dev', '--config-dir', '../../.storybook', '-h', '127.0.0.1', '-p', String(port), '--ci'], { cwd: `${root}/packages/material-x`, env, detached: true, stdio: ['ignore', 'pipe', 'pipe'] });
+try {
+  await new Promise<void>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error('server not ready')), 180000);
+    const on = (d: Buffer) => {
+      if (/for manager and .* for preview/.test(String(d))) {
+        clearTimeout(t);
+        resolve();
+      }
+    };
+    server.stdout.on('data', on);
+    server.stderr.on('data', on);
+  });
+  // Warm Vite: one story, one docs page and the storyless page, so that no
+  // engine's first step pays the first transform or a dependency reload.
+  execFileSync('node', [`${here}warm.ts`, `http://127.0.0.1:${port}`], { env, encoding: 'utf8', timeout: 180000 });
+  for (const engine of engines) {
+    const script = { theme: 'theme-engines.ts', drag: 'drag-engines.ts', oldlink: 'oldlink.ts' }[m.probe];
+    const out = execFileSync('node', [`${here}${script}`, engine, `http://127.0.0.1:${port}`], { env: { ...env, WAIT: process.env['WAIT'] ?? '3500' }, encoding: 'utf8', timeout: 900000 });
+    process.stdout.write(out);
+  }
+} finally {
+  writeFileSync(path, original);
+  try {
+    process.kill(-server.pid!, 'SIGTERM');
+  } catch {}
+  const status = execFileSync('git', ['-C', root, 'status', '--short'], { encoding: 'utf8' });
+  console.log(`restored; git status: ${status.trim() || 'clean'}`);
+}

@@ -1,0 +1,83 @@
+# node probes/mutate.ts.txt <name>, one mutation at a time, each on its own storybook dev (port 6124) at be4f7eee2, warmed, then Chromium, Firefox and WebKit one at a time, 2026-11-27. Every run restored the file, and git status was clean after each.
+# Theme mutations: probes/compare.sh.txt (the lines that differ from the unmutated run, as line(g=globals,p=preview data-theme,i=icon,r=rendered)), then probes/check.sh.txt (the lines whose preview or icon isn't the theme that the URL's global names).
+
+## decorator-off
+decorator-off chromium lines=28 differ: none 
+decorator-off firefox lines=28 differ: none 
+decorator-off webkit lines=28 differ: none 
+inconsistent with the URL's global: none
+
+## set-globals-off
+set-globals-off chromium lines=28 differ: none 
+set-globals-off firefox lines=28 differ: none 
+set-globals-off webkit lines=28 differ: none 
+inconsistent with the URL's global: none
+
+## globals-updated-off
+globals-updated-off chromium lines=28 differ: D9(g=null,p=dark,i=M7.78.,r=1) 
+globals-updated-off firefox lines=28 differ: D9(g=null,p=dark,i=M7.78.,r=1) 
+globals-updated-off webkit lines=28 differ: D9(g=null,p=dark,i=M7.78.,r=1) 
+inconsistent with the URL's global: chromium:D9 firefox:D9 webkit:D9
+
+## only-globals-updated
+only-globals-updated chromium lines=28 differ: none 
+only-globals-updated firefox lines=28 differ: none 
+only-globals-updated webkit lines=28 differ: none 
+inconsistent with the URL's global: none
+
+## only-decorator
+only-decorator chromium lines=28 differ: D8(g=theme:dark,p=null,i=M7.5.5,r=1) D9(g=null,p=null,i=M7.78.,r=1) D10(g=null,p=null,i=M7.78.,r=1) E1(g=theme:dark,p=null,i=M7.5.5,r=1) 
+only-decorator firefox lines=28 differ: D8(g=theme:dark,p=null,i=M7.5.5,r=1) D9(g=null,p=null,i=M7.78.,r=1) D10(g=null,p=null,i=M7.78.,r=1) E1(g=theme:dark,p=null,i=M7.5.5,r=1) 
+only-decorator webkit lines=28 differ: D8(g=theme:dark,p=null,i=M7.5.5,r=1) D9(g=null,p=null,i=M7.78.,r=1) D10(g=null,p=null,i=M7.78.,r=1) E1(g=theme:dark,p=null,i=M7.5.5,r=1) 
+inconsistent with the URL's global: chromium:D8 chromium:D9 chromium:D10 chromium:E1 firefox:D8 firefox:D9 firefox:D10 firefox:E1 webkit:D8 webkit:D9 webkit:D10 webkit:E1
+
+## global-types-off
+global-types-off chromium lines=28 differ: none 
+global-types-off firefox lines=28 differ: none 
+global-types-off webkit lines=28 differ: none 
+inconsistent with the URL's global: none
+
+## initial-globals-off
+initial-globals-off chromium lines=28 differ: B4(g=theme:light,p=light,i=M7.78.,r=1) B5(g=theme:light,p=light,i=M7.78.,r=1) C7(g=theme:light,p=light,i=M7.78.,r=1) C8(g=theme:light,p=light,i=M7.78.,r=1) D5(g=theme:light,p=light,i=M7.78.,r=1) D6(g=theme:light,p=light,i=M7.78.,r=1) D9(g=theme:light,p=light,i=M7.78.,r=1) D10(g=theme:light,p=light,i=M7.78.,r=1) 
+initial-globals-off firefox lines=28 differ: B4(g=theme:light,p=light,i=M7.78.,r=1) B5(g=theme:light,p=light,i=M7.78.,r=1) C7(g=theme:light,p=light,i=M7.78.,r=1) C8(g=theme:light,p=light,i=M7.78.,r=1) D5(g=theme:light,p=light,i=M7.78.,r=1) D6(g=theme:light,p=light,i=M7.78.,r=1) D9(g=theme:light,p=light,i=M7.78.,r=1) D10(g=theme:light,p=light,i=M7.78.,r=1) 
+initial-globals-off webkit lines=28 differ: B4(g=theme:light,p=light,i=M7.78.,r=1) B5(g=theme:light,p=light,i=M7.78.,r=1) C7(g=theme:light,p=light,i=M7.78.,r=1) C8(g=theme:light,p=light,i=M7.78.,r=1) D5(g=theme:light,p=light,i=M7.78.,r=1) D6(g=theme:light,p=light,i=M7.78.,r=1) D9(g=theme:light,p=light,i=M7.78.,r=1) D10(g=theme:light,p=light,i=M7.78.,r=1) 
+inconsistent with the URL's global: none
+
+## toolbar-local-state
+toolbar-local-state chromium lines=28 differ: A4(g=theme:dark,p=dark,i=M7.78.,r=1) B1(g=theme:dark,p=dark,i=M7.78.,r=1) B2(g=theme:dark,p=dark,i=M7.78.,r=1) B3(g=theme:dark,p=dark,i=M7.78.,r=1) B4(g=theme:dark,p=dark,i=M7.5.5,r=1) B5(g=theme:dark,p=dark,i=M7.5.5,r=1) C2(g=theme:dark,p=dark,i=M7.78.,r=1) C3(g=theme:dark,p=dark,i=M7.78.,r=1) C4(g=theme:dark,p=dark,i=M7.78.,r=1) C5(g=theme:dark,p=dark,i=M7.78.,r=1) C6(g=theme:dark,p=dark,i=M7.78.,r=1) D4(g=theme:dark,p=dark,i=M7.78.,r=1) D5(g=theme:dark,p=dark,i=M7.5.5,r=1) D6(g=theme:dark,p=dark,i=M7.5.5,r=1) D7(g=null,p=light,i=M7.78.,r=1) D8(g=theme:dark,p=dark,i=M7.78.,r=1) D9(g=theme:dark,p=dark,i=M7.5.5,r=1) D10(g=theme:dark,p=dark,i=M7.78.,r=1) E1(g=theme:dark,p=dark,i=M7.78.,r=1) 
+toolbar-local-state firefox lines=28 differ: A4(g=theme:dark,p=dark,i=M7.78.,r=1) B1(g=theme:dark,p=dark,i=M7.78.,r=1) B2(g=theme:dark,p=dark,i=M7.78.,r=1) B3(g=theme:dark,p=dark,i=M7.78.,r=1) B4(g=theme:dark,p=dark,i=M7.5.5,r=1) B5(g=theme:dark,p=dark,i=M7.5.5,r=1) C2(g=theme:dark,p=dark,i=M7.78.,r=1) C3(g=theme:dark,p=dark,i=M7.78.,r=1) C4(g=theme:dark,p=dark,i=M7.78.,r=1) C5(g=theme:dark,p=dark,i=M7.78.,r=1) C6(g=theme:dark,p=dark,i=M7.78.,r=1) D4(g=theme:dark,p=dark,i=M7.78.,r=1) D5(g=theme:dark,p=dark,i=M7.5.5,r=1) D6(g=theme:dark,p=dark,i=M7.5.5,r=1) D7(g=null,p=light,i=M7.78.,r=1) D8(g=theme:dark,p=dark,i=M7.78.,r=1) D9(g=theme:dark,p=dark,i=M7.5.5,r=1) D10(g=theme:dark,p=dark,i=M7.78.,r=1) E1(g=theme:dark,p=dark,i=M7.78.,r=1) 
+toolbar-local-state webkit lines=28 differ: A4(g=theme:dark,p=dark,i=M7.78.,r=1) B1(g=theme:dark,p=dark,i=M7.78.,r=1) B2(g=theme:dark,p=dark,i=M7.78.,r=1) B3(g=theme:dark,p=dark,i=M7.78.,r=1) B4(g=theme:dark,p=dark,i=M7.5.5,r=1) B5(g=theme:dark,p=dark,i=M7.5.5,r=1) C2(g=theme:dark,p=dark,i=M7.78.,r=1) C3(g=theme:dark,p=dark,i=M7.78.,r=1) C4(g=theme:dark,p=dark,i=M7.78.,r=1) C5(g=theme:dark,p=dark,i=M7.78.,r=1) C6(g=theme:dark,p=dark,i=M7.78.,r=1) D4(g=theme:dark,p=dark,i=M7.78.,r=1) D5(g=theme:dark,p=dark,i=M7.5.5,r=1) D6(g=theme:dark,p=dark,i=M7.5.5,r=1) D7(g=null,p=light,i=M7.78.,r=1) D8(g=theme:dark,p=dark,i=M7.78.,r=1) D9(g=theme:dark,p=dark,i=M7.5.5,r=1) D10(g=theme:dark,p=dark,i=M7.78.,r=1) E1(g=theme:dark,p=dark,i=M7.78.,r=1) 
+inconsistent with the URL's global: chromium:A4 chromium:B1 chromium:B2 chromium:B3 chromium:C2 chromium:C3 chromium:C4 chromium:C5 chromium:C6 chromium:D4 chromium:D8 chromium:D10 chromium:E1 firefox:A4 firefox:B1 firefox:B2 firefox:B3 firefox:C2 firefox:C3 firefox:C4 firefox:C5 firefox:C6 firefox:D4 firefox:D8 firefox:D10 firefox:E1 webkit:A4 webkit:B1 webkit:B2 webkit:B3 webkit:C2 webkit:C3 webkit:C4 webkit:C5 webkit:C6 webkit:D4 webkit:D8 webkit:D10 webkit:E1
+
+## docs-link-sets-attribute
+docs-link-sets-attribute chromium lines=28 differ: C2(g=null,p=dark,i=M7.78.,r=1) C3(g=null,p=light,i=M7.78.,r=1) C4(g=null,p=light,i=M7.78.,r=1) C5(g=null,p=light,i=M7.78.,r=1) C6(g=null,p=light,i=M7.78.,r=1) C7(g=null,p=dark,i=M7.78.,r=1) 
+docs-link-sets-attribute firefox lines=28 differ: C2(g=null,p=dark,i=M7.78.,r=1) C3(g=null,p=light,i=M7.78.,r=1) C4(g=null,p=light,i=M7.78.,r=1) C5(g=null,p=light,i=M7.78.,r=1) C6(g=null,p=light,i=M7.78.,r=1) C7(g=null,p=dark,i=M7.78.,r=1) 
+docs-link-sets-attribute webkit lines=28 differ: C2(g=null,p=dark,i=M7.78.,r=1) C3(g=null,p=light,i=M7.78.,r=1) C4(g=null,p=light,i=M7.78.,r=1) C5(g=null,p=light,i=M7.78.,r=1) C6(g=null,p=light,i=M7.78.,r=1) C7(g=null,p=dark,i=M7.78.,r=1) 
+inconsistent with the URL's global: chromium:C2 chromium:C7 firefox:C2 firefox:C7 webkit:C2 webkit:C7
+
+# Drag mutations: per engine, the values other than box-shadow that are the same in light and dark (count, element, value), and the placeholder's border colours (count, value) over the four sortable stories in both themes.
+
+## none-drag
+chromium stories=8 unthemed=0 unchanged: none | placeholder borders: 4 rgb(151, 217, 69),4 rgb(62, 103, 0)
+firefox stories=8 unthemed=0 unchanged: none | placeholder borders: 4 rgb(151, 217, 69),4 rgb(62, 103, 0)
+webkit stories=8 unthemed=0 unchanged: none | placeholder borders: 4 rgb(151, 217, 69),4 rgb(62, 103, 0)
+
+## list-fixed
+chromium stories=8 unthemed=0 unchanged: 3 div.list background-color=rgb(247, 242, 250) | placeholder borders: 4 rgb(151, 217, 69),4 rgb(62, 103, 0)
+firefox stories=8 unthemed=0 unchanged: 3 div.list background-color=rgb(247, 242, 250) | placeholder borders: 4 rgb(151, 217, 69),4 rgb(62, 103, 0)
+webkit stories=8 unthemed=0 unchanged: 3 div.list background-color=rgb(247, 242, 250) | placeholder borders: 4 rgb(151, 217, 69),4 rgb(62, 103, 0)
+
+## hint-fixed
+chromium stories=8 unthemed=0 unchanged: 1 output. color=rgb(73, 69, 79),8 p.hint color=rgb(73, 69, 79) | placeholder borders: 4 rgb(151, 217, 69),4 rgb(62, 103, 0)
+firefox stories=8 unthemed=0 unchanged: 1 output. color=rgb(73, 69, 79),8 p.hint color=rgb(73, 69, 79) | placeholder borders: 4 rgb(151, 217, 69),4 rgb(62, 103, 0)
+webkit stories=8 unthemed=0 unchanged: 1 output. color=rgb(73, 69, 79),8 p.hint color=rgb(73, 69, 79) | placeholder borders: 4 rgb(151, 217, 69),4 rgb(62, 103, 0)
+
+## placeholder-fixed
+chromium stories=8 unthemed=0 unchanged: none | placeholder borders: 8 rgb(103, 80, 164)
+firefox stories=8 unthemed=0 unchanged: none | placeholder borders: 8 rgb(103, 80, 164)
+webkit stories=8 unthemed=0 unchanged: none | placeholder borders: 8 rgb(103, 80, 164)
+
+## only-globals-updated-drag
+chromium stories=8 unthemed=0 unchanged: none | placeholder borders: 4 rgb(151, 217, 69),4 rgb(62, 103, 0)
+firefox stories=8 unthemed=0 unchanged: none | placeholder borders: 4 rgb(151, 217, 69),4 rgb(62, 103, 0)
+webkit stories=8 unthemed=0 unchanged: none | placeholder borders: 4 rgb(151, 217, 69),4 rgb(62, 103, 0)
