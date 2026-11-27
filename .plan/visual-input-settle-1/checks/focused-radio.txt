@@ -1,0 +1,56 @@
+# The radio's keyboard-focused fixture after Tab, Chromium 158, local, slot b's temporary worktree at aca446b94 (origin/main),
+# 2026-11-27. The fixture and steps are radio.visual.browser.test.ts's "should match the keyboard-focused radio" on main:
+# settle, then Tab, with no settle after it. Run from packages/material-x with
+#   aube exec vitest run --project browser tests/<probe>.browser.test.ts
+# with the probe placed in tests/ while it ran.
+#
+# Read:
+# - Two transitions run in the radio's shadow root when Tab returns: `color` on the unchecked icon (mx-icon.off, 200 ms,
+#   --_check-duration) and `opacity` on the ripple's ::before (15 ms). The fixture's `transition: none` rule matches
+#   `.mx-test-fixture *`, which doesn't reach into a shadow root.
+# - The icon's computed colour reaches on-surface, rgb(25, 29, 19), about 150 ms after Tab returns.
+# - Finishing the shadow root's animations after Tab (settleAnimations) leaves none running, and the colour is final at once.
+# - Two settled images: 711b664f when the transitions end by themselves, 3377e0b9 when they are finished. They differ in
+#   9 pixels on the focus layer's edge, by 1 or 2 levels. Run 2 read 711b664f twice in 10 at 150 ms after finishing.
+# - Against 711b664f, with pixelmatch's threshold of 0.01 and without its antialiasing exemption (an upper bound of what
+#   the matcher counts): both settled images and two late transient ones are 0 pixels over; three transient images read
+#   with no wait are 38, 55 and 76 over.
+# - The local images aren't compared with the committed baseline: they differ from it in 142 and 151 pixels, with colour
+#   fringes on the glyph in the baseline. That is the environment, and says nothing here.
+
+== focused-colour.browser.test.ts.txt: the icon's computed colour, sampled from Tab's return, three runs per variant
+settleAfter=false run=0 tab=0ms running=[color@mx-icon opacity@div::before] 0ms=rgb(66, 73, 55) 50ms=rgb(36, 41, 28) 100ms=rgb(27, 31, 21) 110ms=rgb(27, 31, 21) 120ms=rgb(26, 30, 20) 130ms=rgb(26, 30, 20) 140ms=rgb(26, 30, 20) 150ms=rgb(25, 29, 19) 160ms=rgb(25, 29, 19) 170ms=rgb(25, 29, 19) 180ms=rgb(25, 29, 19) 190ms=rgb(25, 29, 19) 200ms=rgb(25, 29, 19) 220ms=rgb(25, 29, 19) 300ms=rgb(25, 29, 19)
+settleAfter=false run=1 tab=0ms running=[color@mx-icon opacity@div::before] 0ms=rgb(66, 73, 55) 50ms=rgb(42, 47, 34) 100ms=rgb(27, 31, 21) 110ms=rgb(27, 31, 21) 120ms=rgb(26, 30, 20) 130ms=rgb(26, 30, 20) 140ms=rgb(26, 30, 20) 150ms=rgb(25, 29, 19) 160ms=rgb(25, 29, 19) 170ms=rgb(25, 29, 19) 180ms=rgb(25, 29, 19) 190ms=rgb(25, 29, 19) 200ms=rgb(25, 29, 19) 220ms=rgb(25, 29, 19) 300ms=rgb(25, 29, 19)
+settleAfter=false run=2 tab=0ms running=[color@mx-icon opacity@div::before] 0ms=rgb(66, 73, 55) 50ms=rgb(36, 41, 28) 100ms=rgb(29, 33, 22) 110ms=rgb(27, 31, 21) 120ms=rgb(26, 30, 20) 130ms=rgb(26, 30, 20) 140ms=rgb(26, 30, 20) 150ms=rgb(25, 29, 19) 160ms=rgb(25, 29, 19) 170ms=rgb(25, 29, 19) 180ms=rgb(25, 29, 19) 190ms=rgb(25, 29, 19) 200ms=rgb(25, 29, 19) 220ms=rgb(25, 29, 19) 300ms=rgb(25, 29, 19)
+settleAfter=true run=0 tab=0ms running=[] 0ms=rgb(25, 29, 19) 50ms=rgb(25, 29, 19) 100ms=rgb(25, 29, 19) 110ms=rgb(25, 29, 19) 120ms=rgb(25, 29, 19) 130ms=rgb(25, 29, 19) 140ms=rgb(25, 29, 19) 150ms=rgb(25, 29, 19) 160ms=rgb(25, 29, 19) 170ms=rgb(25, 29, 19) 180ms=rgb(25, 29, 19) 190ms=rgb(25, 29, 19) 200ms=rgb(25, 29, 19) 220ms=rgb(25, 29, 19) 300ms=rgb(25, 29, 19)
+settleAfter=true run=1 tab=0ms running=[] 0ms=rgb(25, 29, 19) 50ms=rgb(25, 29, 19) 100ms=rgb(25, 29, 19) 110ms=rgb(25, 29, 19) 120ms=rgb(25, 29, 19) 130ms=rgb(25, 29, 19) 140ms=rgb(25, 29, 19) 150ms=rgb(25, 29, 19) 160ms=rgb(25, 29, 19) 170ms=rgb(25, 29, 19) 180ms=rgb(25, 29, 19) 190ms=rgb(25, 29, 19) 200ms=rgb(25, 29, 19) 220ms=rgb(25, 29, 19) 300ms=rgb(25, 29, 19)
+settleAfter=true run=2 tab=0ms running=[] 0ms=rgb(25, 29, 19) 50ms=rgb(25, 29, 19) 100ms=rgb(25, 29, 19) 110ms=rgb(25, 29, 19) 120ms=rgb(25, 29, 19) 130ms=rgb(25, 29, 19) 140ms=rgb(25, 29, 19) 150ms=rgb(25, 29, 19) 160ms=rgb(25, 29, 19) 170ms=rgb(25, 29, 19) 180ms=rgb(25, 29, 19) 190ms=rgb(25, 29, 19) 200ms=rgb(25, 29, 19) 220ms=rgb(25, 29, 19) 300ms=rgb(25, 29, 19)
+
+== focused-images.browser.test.ts.txt: 10 reads per variant; per distinct image, its count and the SHA-1 prefix of its RGBA
+-- run 2 (copied from the terminal; run 1 wrote the same file and its result was overwritten unread, and run 3 overwrote this one)
+settleAfter=false wait=0ms x1 5fbe6698, x1 1a83ca5a, x4 200fdb08, x1 ef17cbc0, x3 50aa540b
+settleAfter=false wait=150ms x9 711b664f, x1 3377e0b9
+settleAfter=false wait=400ms x10 711b664f
+settleAfter=true wait=0ms x10 3377e0b9
+settleAfter=true wait=150ms x8 3377e0b9, x2 711b664f
+settleAfter=true wait=400ms x10 3377e0b9
+-- run 3, which saved each distinct image to images/
+settleAfter=false wait=0ms x1 3377e0b9, x3 200fdb08, x3 ef17cbc0, x1 50aa540b, x1 9abf311e, x1 1a83ca5a
+settleAfter=false wait=150ms x10 711b664f
+settleAfter=false wait=400ms x10 711b664f
+settleAfter=true wait=0ms x10 3377e0b9
+settleAfter=true wait=150ms x10 3377e0b9
+settleAfter=true wait=400ms x10 3377e0b9
+
+== threshold-count.mjs.txt and pixel-diff.mjs.txt, against 711b664f (run 3 images)
+radio-focused-1a83ca5a.png pixels over threshold 0 worst delta 2.0 limit 3.52
+radio-focused-200fdb08.png pixels over threshold 38 worst delta 17.6 limit 3.52
+radio-focused-3377e0b9.png pixels over threshold 0 worst delta 2.0 limit 3.52
+radio-focused-50aa540b.png pixels over threshold 76 worst delta 48.4 limit 3.52
+radio-focused-711b664f.png pixels over threshold 0 worst delta 0.0 limit 3.52
+radio-focused-9abf311e.png pixels over threshold 0 worst delta 0.5 limit 3.52
+radio-focused-ef17cbc0.png pixels over threshold 55 worst delta 7.7 limit 3.52
+baseline 72x72 49c97fb7 a 72x72 711b664f b 3377e0b9
+711b vs 3377: differing pixels 9 (21,21) 254,254,254,255 vs 253,253,253,255 | (22,21) 239,239,238,255 vs 237,237,236,255 | (49,21) 239,239,238,255 vs 237,237,236,255 | (50,21) 254,254,254,255 vs 253,253,253,255 | (21,22) 239,239,238,255 vs 237,237,236,255 | (50,22) 239,239,238,255 vs 238,238,237,255
+711b vs baseline: differing pixels 142 (32,27) 205,205,203,255 vs 218,206,178,255 | (33,27) 132,134,128,255 vs 153,123,98,255 | (34,27) 77,80,72,255 vs 82,66,45,255 | (35,27) 41,44,35,255 vs 38,29,19,255 | (36,27) 41,44,35,255 vs 25,29,31,255 | (37,27) 79,82,74,255 vs 50,66,78,255
+3377 vs baseline: differing pixels 151 (21,21) 253,253,253,255 vs 254,254,254,255 | (22,21) 237,237,236,255 vs 239,239,238,255 | (49,21) 237,237,236,255 vs 239,239,238,255 | (50,21) 253,253,253,255 vs 254,254,254,255 | (21,22) 237,237,236,255 vs 239,239,238,255 | (50,22) 238,238,237,255 vs 239,239,238,255

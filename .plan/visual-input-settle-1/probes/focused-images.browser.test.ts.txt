@@ -1,0 +1,62 @@
+// Probe for the radio's focused fixture, not a row. Placed in
+// packages/material-x/tests/ while it runs. Reads the fixture 10 times per
+// variant: a wait after Tab of 0, 150 or 400 ms, with or without finishing the
+// shadow root's animations after Tab. Per distinct image: its count and the
+// SHA-1 prefix of the fixture's RGBA.
+import { it } from 'vitest';
+import { commands, page, userEvent } from 'vitest/browser';
+import '../src/radio/radio.ts';
+import { nextFrame, settleAnimations, whenFontsReady } from './browser.ts';
+
+const saved = new Set<string>();
+async function hash(f: HTMLElement): Promise<string> {
+  const base64 = (await page.screenshot({ element: f, base64: true, save: false })) as unknown as string;
+  const blob = new Blob([Uint8Array.from(atob(base64), (ch) => ch.charCodeAt(0))], { type: 'image/png' });
+  const bmp = await createImageBitmap(blob);
+  const c = new OffscreenCanvas(bmp.width, bmp.height);
+  const ctx = c.getContext('2d')!;
+  ctx.drawImage(bmp, 0, 0);
+  const d = ctx.getImageData(0, 0, bmp.width, bmp.height);
+  const h = await crypto.subtle.digest('SHA-1', d.data);
+  const hex = [...new Uint8Array(h)].slice(0, 4).map((x) => x.toString(16).padStart(2, '0')).join('');
+  if (!saved.has(hex)) { saved.add(hex); await commands.writeFile(`zz-347-${hex}.b64`, base64); }
+  return hex;
+}
+
+async function park(): Promise<void> {
+  const c = document.createElement('div');
+  c.style.cssText = 'position: fixed; top: 0; left: 0; width: 1px; height: 1px;';
+  document.body.append(c);
+  await userEvent.hover(c);
+  c.remove();
+}
+
+it('reads the focused radio by wait and settle', { timeout: 600_000 }, async () => {
+  document.body.className = 'mx-test-body';
+  const lines: string[] = [];
+  for (const settleAfter of [false, true]) {
+    for (const waitMs of [0, 150, 400]) {
+      const seen = new Map<string, number>();
+      for (let i = 0; i < 10; i++) {
+        document.body.replaceChildren();
+        (document.activeElement as HTMLElement | null)?.blur();
+        await park();
+        const f = document.createElement('div');
+        f.className = 'mx-test-fixture';
+        document.body.append(f);
+        const radio = document.createElement('mx-radio');
+        f.append(radio);
+        await whenFontsReady();
+        await settleAnimations(radio);
+        await nextFrame();
+        await userEvent.tab();
+        if (settleAfter) await settleAnimations(radio);
+        if (waitMs) await new Promise((r) => setTimeout(r, waitMs));
+        const key = await hash(f);
+        seen.set(key, (seen.get(key) ?? 0) + 1);
+      }
+      lines.push(`settleAfter=${settleAfter} wait=${waitMs}ms ${[...seen].map(([k, n]) => `x${n} ${k}`).join(', ')}`);
+    }
+  }
+  await commands.writeFile('zz-probe-347b.txt', lines.join('\n'));
+});

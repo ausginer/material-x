@@ -1,0 +1,38 @@
+// Probe for the radio's focused fixture, not a row. Placed in
+// packages/material-x/tests/ while it runs. Samples the unchecked icon's
+// computed color and the shadow root's running animations after Tab.
+import { it } from 'vitest';
+import { commands, userEvent } from 'vitest/browser';
+import '../src/radio/radio.ts';
+import { nextFrame, settleAnimations, whenFontsReady } from './browser.ts';
+
+it('samples the focused radio after Tab', { timeout: 60_000 }, async () => {
+  const lines: string[] = [];
+  for (const settleAfter of [false, true]) {
+    for (let run = 0; run < 3; run++) {
+      document.body.replaceChildren();
+      const fixture = document.createElement('div');
+      fixture.className = 'mx-test-fixture';
+      document.body.append(fixture);
+      const radio = document.createElement('mx-radio');
+      fixture.append(radio);
+      await whenFontsReady();
+      await settleAnimations(radio);
+      await nextFrame();
+      const off = radio.shadowRoot!.querySelector('.off')!;
+      await userEvent.tab();
+      const start = performance.now();
+      if (settleAfter) await settleAnimations(radio);
+      const tabbed = 0;
+      const running = radio.shadowRoot!.getAnimations().map((a) => `${(a as CSSTransition).transitionProperty ?? a.constructor.name}@${(a.effect as KeyframeEffect).target?.localName}${(a.effect as KeyframeEffect).pseudoElement ?? ''}`);
+      const samples: string[] = [];
+      for (const at of [0, 50, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 220, 300]) {
+        while (performance.now() - start < tabbed + at) await new Promise((r) => requestAnimationFrame(r));
+        samples.push(`${at}ms=${getComputedStyle(off).color}`);
+      }
+      lines.push(`settleAfter=${settleAfter} run=${run} tab=${tabbed.toFixed(0)}ms running=[${running.join(' ')}] ${samples.join(' ')}`);
+      (document.activeElement as HTMLElement | null)?.blur();
+    }
+  }
+  await commands.writeFile('zz-probe-347.txt', lines.join('\n'));
+});

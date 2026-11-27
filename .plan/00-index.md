@@ -5288,6 +5288,47 @@ Tier A, **open**, **ready**, pre-existing. Registered on 2026-11-27 by the archi
 - **Not read:** the radio. Its extension graph has the same shape, and its `allowedTokensSelector` lists `icon.color` but no outline. Whether it draws the same way isn't read. States other than those that the proof probed: hover and press in each selection, and disabled.
 - **Plan needed:** no. The property and the rows are stated, and the mechanism is local to the checkbox's two style modules. **Size:** _medium_: the change alters the compiled sheet, the rows cover four states in three engines, and a baseline changes through `RD-13`'s workflow.
 
+#### RF-160 — A visual row that hovers or focuses its fixture takes its screenshot while the component's own transitions still run
+
+Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-27 by the architect, on `material-x/visual-input-settle-1`, from #347, requested by the coordinator. #347 is an `unregistered` issue and not a `tier:` finding, so the finding is registered here. `RF-159`, on `material-x/visual-paint-first-1`, is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `aca446b94`, `origin/main`, in Chromium, from #346's reading and from the architect's probes ([reading](visual-input-settle-1/checks/focused-radio.txt), [probes](visual-input-settle-1/probes/)).
+
+- **What happens:**
+  - #346's probe reads the radio's keyboard-focused fixture 150 ms after Tab, 10 times. In three of four readings it gets one image 9 times and another once, under both paint orders. A read with no wait gave two other images. The reading is `.plan/visual-paint-first-1/checks/paint-first-rows.txt` on #346.
+  - The architect's probe reads the fixture 10 times for each wait after the row's steps. With no wait, it gets five or six different images. At 150 ms it gets one image 9 or 10 times, and at 400 ms one image 10 times.
+- **The cause, by reading and in the probe:**
+  - The fixture's rule turns off `animation` and `transition` for `.mx-test-fixture *`, which doesn't match inside a shadow root. `settleAnimations`' JSDoc in `tests/browser.ts` says so.
+  - Tab focuses the radio's input, and two transitions start in its shadow root. `:host(:focus-within)` sets `--_icon-color` from `on-surface-variant` to `on-surface`, and the unchecked icon has a `color` transition over `--_check-duration`, 200 ms. `.input:focus-visible ~ .ripple::before` sets the focus layer's opacity, and the ripple's `::before` has an `opacity` transition of 15 ms.
+  - The probe finds both running when Tab returns. The icon's computed colour reaches `on-surface` about 150 ms later.
+  - The row finishes the shadow root's animations before Tab and not after it. So the moment of the screenshot decides the image until the transitions end.
+  - **A smaller, second dependence.** Once the transitions are over, the fixture is one of two images. They differ in 9 pixels on the focus layer's edge, by 1 or 2 levels. One comes when the transitions end by themselves, the other when `Animation.finish()` ends them. In one run, a read 150 ms after finishing gave the first image 2 times in 10. Why isn't read. That the focus layer is composited differently is inferred.
+- **What the matcher sees.** The probe counts pixels over `RD-23`'s threshold of 0.01 against the image that the transitions end in. It skips pixelmatch's antialiasing exemption, so the count is an upper bound.
+  - The two settled images, and the two transient images read latest, are 0 pixels over.
+  - Three transient images, read with no wait, are 38, 55 and 76 pixels over.
+  - So the row passes because the matcher repeats its screenshots until two agree, and by then the icon is within the threshold of its end colour. What settles the fixture is the matcher's retry, not the row's steps.
+- **The other rows, by reading `main`:**
+  - The button's and the checkbox's hovered and focused rows, and the radio's hovered row, take the screenshot right after the input, as the radio's focused row does.
+  - The slider's held and focused rows finish their animations after the input, in `capture`.
+  - Whether those five rows' inputs start a transition isn't read. Each gave one image at 150 ms in #346's probe.
+  - #338 (`RF-157`) makes an unselected checkbox's outline change on focus, and its rows finish the host's animations before they read the outline. So the checkbox's focused row is likely exposed in the same way once #338 merges. That is inferred.
+- **Why it is a problem:** Tier B. No consumer sees a difference. The visual row is an instrument that the repository relies on, and its steps don't fix its image: the image is whichever frame the matcher's retry stops on.
+  - A read at a fixed time, as #346's probe made, gets one of several images by chance.
+  - If two consecutive screenshots taken during a transition agree, the row compares a transient frame with the baseline.
+  - `radio.visual.browser.test.ts`'s comment on its settling says that the end state applies _"even with transitions suppressed"_. The fixture's rule doesn't suppress the radio's own transitions.
+- **Required property:**
+  1. Each visual row whose state comes from input takes its screenshot after the input, once no animation runs in its fixture's shadow roots. These are `RF-159`'s eight rows. The slider's two rows already do this.
+  2. No comparator setting changes (`RD-23`).
+  3. No baseline is expected to change: the image that the transitions are finished in is within the threshold of the one they end in by themselves. If a baseline fails, the unit names it and says why, and `RD-13`'s workflow re-records it.
+  4. The raster doesn't have to be identical across runs. The second dependence stays within the threshold, and its cause isn't read.
+- **Witness:** with the new steps, the radio's focused fixture is read with no wait after the row's steps, as the probe reads it. In 10 of 10 reads it is within the threshold of the settled image. Today's steps give images 38 to 76 pixels over.
+- **`RF-159`:** the same rows and files, with a separate cause. `RF-159` paints the fixture before the input, and this entry settles it after the input. Either can merge first.
+- **Not decided:** the mechanism. The slider's `capture` is one that meets the property.
+- **Not read:**
+  - Firefox and WebKit, which have no visual project.
+  - Why the focus layer's edge depends on how its transition ended.
+  - Whether the other five rows' inputs start a transition.
+  - The local images against the committed baselines. They differ from the baseline in 142 and 151 pixels, with colour fringes on its glyph, which is the environment.
+- **Plan needed:** no. **Size:** _small_: a few lines in three visual test files, with no baseline expected to change.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

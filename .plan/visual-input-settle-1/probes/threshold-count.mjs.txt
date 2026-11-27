@@ -1,0 +1,23 @@
+// Counts the pixels over pixelmatch's threshold 0.01 (YIQ delta > 35215 * t^2),
+// without its anti-aliasing exemption, so the count is an upper bound of what
+// the matcher counts.
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+const require = createRequire(process.cwd() + '/');
+const { PNG } = require('pngjs');
+const load = (f) => PNG.sync.read(Buffer.from(readFileSync(f, 'utf8'), 'base64'));
+const yiq = (r, g, b) => [r * 0.29889531 + g * 0.58662247 + b * 0.11448223, r * 0.59597799 - g * 0.2741761 - b * 0.32180189, r * 0.21147017 - g * 0.52261711 + b * 0.31114694];
+const max = 35215 * 0.01 * 0.01;
+const ref = load(process.argv[2]);
+for (const f of process.argv.slice(3)) {
+  const a = load(f);
+  let over = 0, worst = 0;
+  for (let i = 0; i < a.data.length; i += 4) {
+    const [y1, i1, q1] = yiq(ref.data[i], ref.data[i + 1], ref.data[i + 2]);
+    const [y2, i2, q2] = yiq(a.data[i], a.data[i + 1], a.data[i + 2]);
+    const d = 0.5053 * (y1 - y2) ** 2 + 0.299 * (i1 - i2) ** 2 + 0.1957 * (q1 - q2) ** 2;
+    worst = Math.max(worst, d);
+    if (d > max) over++;
+  }
+  console.log(f, 'pixels over threshold', over, 'worst delta', worst.toFixed(1), 'limit', max.toFixed(2));
+}

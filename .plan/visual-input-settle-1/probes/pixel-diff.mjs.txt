@@ -1,0 +1,20 @@
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { createRequire } from 'node:module';
+const require = createRequire(process.cwd() + '/');
+const { PNG } = require('pngjs');
+const load = (f) => PNG.sync.read(f.endsWith('.b64') ? Buffer.from(readFileSync(f, 'utf8'), 'base64') : readFileSync(f));
+const sha = (p) => createHash('sha1').update(p.data).digest('hex').slice(0, 8);
+const [a, b, base] = process.argv.slice(2).map(load);
+console.log('baseline', base.width + 'x' + base.height, sha(base), 'a', a.width + 'x' + a.height, sha(a), 'b', sha(b));
+const cmp = (x, y, name) => {
+  let n = 0; const ex = [];
+  for (let i = 0; i < x.data.length; i += 4) {
+    const dx = [0,1,2,3].map((k) => x.data[i+k] - y.data[i+k]);
+    if (dx.some((v) => v)) { n++; if (ex.length < 6) { const p = i/4; ex.push(`(${p % x.width},${Math.floor(p / x.width)}) ${[...x.data.slice(i,i+4)]} vs ${[...y.data.slice(i,i+4)]}`); } }
+  }
+  console.log(name, 'differing pixels', n, ex.join(' | '));
+};
+cmp(a, b, '711b vs 3377:');
+cmp(a, base, '711b vs baseline:');
+cmp(b, base, '3377 vs baseline:');
