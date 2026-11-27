@@ -2113,6 +2113,27 @@ Tier A, **open**, pre-existing, **not ready: the form isn't decided.** Registere
 - **Not read:** whether mirrored margins collapse as the item's did, margins and padding in a grid, a pointer drag's first frame after the lift with a visual that isn't the item, and the three engines for `xy()`.
 - **Size:** _large_, because a decision comes first.
 
+#### DRF-58 — A pointer drop on the item's own gap snaps home without its landing
+
+Tier A, **open**, on `main` since `a9c323f6a` (#14). Registered on 2026-11-27 by the architect, on `repo/register-observations-11`, from the owner's observation in [#322](https://github.com/ausginer/material-x/issues/322), relayed by the coordinator. `DRF-57` is the highest `DRF-` on any branch on `origin`, so this is the next free number. Read in Chromium at `085be1e2b` ([reading](../../../.plan/observations-11/checks/noop-landing.txt), [probe](../../../.plan/observations-11/probes/noop-landing.browser.test.ts.txt)).
+
+- **The owner's words, 2026-11-27:** _"If I move an item to the next place, the animation works perfectly. But if the item moves, say, horizontally without changing its slot, its landing animation doesn't run at all: it returns to its place instantly."_ That was `mx-sortable-list`, which composes `axis: y()` and a `landing`.
+- **What happens:** with a `landing` composed, a pointer drop that resolves to the item's own gap starts no flight. The visual is at home in the frame of the release. It is the same for a sideways drag, a drag into another slot and back, and a drift within the slot, with `y()` and `xy()`, and with `layoutAnimation` and without. `onEnd` gets `{ type: 'noop' }`. From the same position, `Escape` lands home, and a drop in the next slot lands there.
+- **Why, by reading:** `SortableOperation.drop` returns no verdict when `request.to === request.from`, so the session decides `skipped`. `#recordResult` maps `skipped` to `noop` and to `RECOVERY_IMMEDIATE`, which `settle` treats as a fault: it names no landing. A drop's `skipped` is the only one that reaches `settle`, because an activation's `skipped` has no operation. `freeDrag`'s drop always returns a verdict, so it has no such case.
+- **Why it is a finding:** no record makes the snap deliberate. The vocabulary's landing is _"the animation from the drop position to the visual's target"_, and `DRI-13` names no outcome without one. The mapping arrived in `a9c323f6a` with no reason. The rows that end in `noop` assert only the log, and none composes a landing.
+- **Decided direction:** a drop on the item's own gap lands home, as a cancel does. Only a fault ends with no landing. The record doesn't leave this to the owner: the owner's observation states the expected behavior, and no recorded decision conflicts with it.
+- **Required properties:**
+  1. With a `landing` composed, a pointer drop whose request has `to === from` lands home from the position last translated to, in the three engines, for `y()` and `xy()`, with `displacement` and without.
+  2. `onEnd` gets `{ type: 'noop', request }`, and `onReorder` isn't asked, as today.
+  3. A fault still skips the landing. An accepted drop, a rejection and a cancel land as today.
+  4. A noop whose visual is already at home starts no animation, as `landing()` does for every landing with a zero offset.
+- **Rows:** the sideways drop, the return to the own gap, and a drift within the slot, each reading an additive flight on the item at the release and the item away from home in that frame. **Witness:** each fails at `085be1e2b`. `displacement.browser.test.ts`'s _"should start no animation in a drop on its own gap"_ composes no landing, so it stays.
+- **Cost:** a noop drop with a landing now moves the placeholder home and reads its rect once, as a cancel does, and calls the landing's `timing`. `DRI-17`'s _"`sortable` measures a landing target only when a landing is composed"_ still holds.
+- **Amends `DRI-13`,** by the unit that takes it, with a sentence after the first: _"`sortable` names a landing for every outcome but a fault: an accepted drop lands at its new place, and a rejection, a cancel and a drop on the item's own gap land home."_ It needs no `DRD` and no plan.
+- **Not read:** Firefox, WebKit and Safari. A command whose drop is on its own gap: a command is refused at the collection's edge, so by reading one reaches `settle` skipped only after a rebase moves its gap, and its visual is at home there.
+- **Ready** for an implementer, in its own pull request.
+- **Size:** _small_.
+
 ## Owner decisions
 
 The decisions are in [`decisions/`](decisions/), one file each, named by the identifier.
