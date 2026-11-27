@@ -1,0 +1,25 @@
+== list, divider without role
+axe violations: []
+ax tree (not ignored): RootWebArea > main > list > listitem > listitem
+
+== list, divider role=separator
+axe violations: []
+ax tree (not ignored): RootWebArea > main > list > listitem > separator[horizontal] > listitem
+
+== list, divider role=none
+axe violations: []
+ax tree (not ignored): RootWebArea > main > list > listitem > listitem
+
+== div, divider without role
+axe violations: []
+ax tree (not ignored): RootWebArea > main > paragraph > paragraph
+
+== div, divider role=separator
+axe violations: []
+ax tree (not ignored): RootWebArea > main > paragraph > separator[horizontal] > paragraph
+
+== div, vertical separator
+axe violations: []
+ax tree (not ignored): RootWebArea > main > paragraph > separator[vertical] > paragraph
+
+chromium 158.0.8127.18

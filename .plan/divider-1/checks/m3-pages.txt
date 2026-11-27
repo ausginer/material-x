@@ -1,0 +1,289 @@
+===== https://m3.material.io/components/divider/overview
+Divider
+Dividers are thin lines that group content in lists or other containers
+Resources
+android
+flutter
++2
+info
+Overview
+style
+Specs
+design_services
+Guidelines
+accessibility_new
+Accessibility
+On this page
+Availability & resources
+Differences from M2
+link
+Copy link
+Link copied
+Make dividers visible but not bold
+Only use dividers if items can’t be grouped with open space
+Use dividers to group things, not separate individual items
+link
+Copy link
+Link copied
+Dividers separating items in a list
+link
+Copy link
+Link copied
+Availability & resources
+link
+Copy link
+Link copied
+Type
+Resource
+Status
+Design
+Design Kit (Figma)
+Available
+Implementation
+Flutter
+Available
+android
+Jetpack Compose
+Available
+android
+Android Views (MDC-Android)
+Available
+language
+Web
+Available
+Close
+link
+Copy link
+Link copied
+Differences from M2
+link
+Copy link
+Link copied
+Color: New color mappings and compatibility with dynamic color
+Configurations: Ability to have vertical dividers
+Dividers have new color mappings
+
+===== https://m3.material.io/components/divider/specs
+Divider
+Dividers are thin lines that group content in lists or other containers
+Resources
+android
+flutter
++2
+info
+Overview
+style
+Specs
+design_services
+Guidelines
+accessibility_new
+Accessibility
+On this page
+Tokens and specs
+Color
+Measurements
+link
+Copy link
+Link copied
+Divider
+link
+Copy link
+Link copied
+Tokens and specs
+Browse the component elements, attributes, tokens, and their values.
+link
+Copy link
+Link copied
+Divider
+arrow_drop_down
+search
+visibility
+grid_view
+expand_all
+Token
+Light, Default
+arrow_drop_down
+folder
+Enabled
+keyboard_arrow_down
+Close
+link
+Copy link
+Link copied
+Color
+link
+Copy link
+Link copied
+Color values are implemented through design tokens. For design, this means working with color values that correspond with tokens. For implementation, a color value will be a token that references a value.
+Learn more about design tokens
+link
+Copy link
+Link copied
+Divider color roles used for light and dark schemes:
+Outline variant
+link
+Copy link
+Link copied
+Measurements
+link
+Copy link
+Link copied
+Measurements
+link
+Copy link
+Link copied
+Attribute
+Value
+Divider full-width
+100%
+Divider inset left margin
+16dp
+Divider inset right margin
+0dp
+Divider middle-inset left margin
+16dp
+Divider middle-inset right margin
+16dp
+Space between divider & supporting-text
+4dp
+Divider right margin
+8dp
+Divider bottom margin
+8dp
+
+===== https://m3.material.io/components/divider/guidelines
+Divider
+Dividers are thin lines that group content in lists or other containers
+Resources
+android
+flutter
++2
+info
+Overview
+style
+Specs
+design_services
+Guidelines
+accessibility_new
+Accessibility
+On this page
+Usage
+Anatomy
+Full-width dividers
+Inset dividers
+Vertical divider
+link
+Copy link
+Link copied
+Full-width dividers
+link
+Copy link
+Link copied
+Usage
+link
+Copy link
+Link copied
+Dividers are one way to visually group components and create hierarchy. They can also be used to imply nested parent/child relationships.
+The divider can be used in two ways:
+Full width
+Inset
+Full-width divider
+Inset divider
+link
+Copy link
+Link copied
+Anatomy
+link
+Copy link
+Link copied
+A divider is a simple line.
+link
+Copy link
+Link copied
+Divider
+link
+Copy link
+Link copied
+Full-width dividers
+link
+Copy link
+Link copied
+Use full-width dividers to separate larger sections of unrelated content. They can be used directly on a surface or inside other components like cards or lists.
+Full-width dividers can also separate interactive areas from non-interactive areas.
+They are used to group visual elements together, and indicate when elements are related to each other from an interaction perspective.
+Full-width dividers to indicate separation of content
+link
+Copy link
+Link copied
+check
+Do
+Use full-width divider lines to separate interactive and non-interactive areas of a container such as a card
+exclamation
+Caution
+Use full-width dividers sparingly. Too many divider lines will make an interface look cluttered.
+link
+Copy link
+Link copied
+Inset dividers
+link
+Copy link
+Link copied
+Use inset dividers to separate related content within a section.
+Inset dividers are equally indented from both sides of the screen by default.
+Inset dividers separate related content, such as emails in a list. They should be used with anchoring elements such as icons or avatars, and align with the leading edge of the screen.
+link
+Copy link
+Link copied
+Inset dividers in a list of related items
+Inset dividers can be placed in the middle of a layout to separate elements such as body text from selection chips
+link
+Copy link
+Link copied
+Using dividers both ways on the same screen
+If dividers are used both ways in a UI, they must reinforce the hierarchy of information within different sections.
+To separate a different kind of content, use a full-width divider
+To separate nested content items, use inset dividers
+check
+Do
+Use a combination of inset and full-width dividers to reflect the hierarchy of information
+link
+Copy link
+Link copied
+List items with repetitive formats may not require an inset divider, in which using only the margin between items is acceptable.
+check
+Do
+Content may not require a divider line
+link
+Copy link
+Link copied
+Vertical divider
+link
+Copy link
+Link copied
+A vertical divider can be used to arrange content on a larger screen, such as separating paragraph text from video or imagery media.
+link
+Copy link
+Link copied
+Vertical divider in a large screen context
+
+===== https://m3.material.io/components/divider/accessibility
+Divider
+Dividers are thin lines that group content in lists or other containers
+Resources
+android
+flutter
++2
+info
+Overview
+style
+Specs
+design_services
+Guidelines
+accessibility_new
+Accessibility
+link
+Copy link
+Link copied
+Dividers are decorative elements, which have no contrast minimums.
+Decorative elements have no contrast minimums
+
