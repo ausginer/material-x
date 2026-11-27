@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# RF-156 feature proof, mutations. Usage: mut.sh <M1|M1ff|M1wk|M2|M3|M4|M5>
+# Each mutation edits the plugin's source, rebuilds the plugin, runs, then
+# restores the source from HEAD and rebuilds.
+set -uo pipefail
+
+W=/workspaces/worktrees/b
+S=/tmp/claude-1000/-workspaces-material-x/3ff8dd20-d198-4642-8310-4353a905dd26/scratchpad
+LIST="${W:?}/node_modules/.cache/css/css-private-props.json"
+KEEP="${S:?}/list-copy.json"
+PLUG="${W:?}/packages/vite-custom-element-assets"
+MX="${W:?}/packages/material-x"
+
+say() { printf '%s\n' "$*"; }
+list_state() { if [[ -f "${LIST:?}" ]]; then say "list: present"; else say "list: absent"; fi; }
+restore() {
+  git -C "${W:?}" checkout -q HEAD -- packages/vite-custom-element-assets/src
+  (cd "${PLUG:?}" && aube exec just build > "${S:?}/plugin-build.log" 2>&1) && say "restored, plugin rebuilt" || say "RESTORE BUILD FAILED"
+}
+edit() { # file perl-expr
+  perl -0pi -e "$2" "${PLUG:?}/$1"
+  git -C "${W:?}" diff --stat -- "packages/vite-custom-element-assets/$1" | head -1
+  git -C "${W:?}" diff -U0 -- "packages/vite-custom-element-assets/$1" | grep -E '^[-+][^-+]' | head -6
+  (cd "${PLUG:?}" && aube exec just build > "${S:?}/plugin-build.log" 2>&1) && say "mutant plugin built" || { say "MUTANT BUILD FAILED"; tail "${S:?}/plugin-build.log"; }
+}
+clean() { sed 's/\x1b\[[0-9;]*m//g' "$1"; }
+summ() {
+  clean "$1" | grep -E '^ +(Test Files|Tests) '
+  clean "$1" | grep -E 'Can.t read the private-property|ERR_MODULE_NOT_FOUND|M3: the list was read|Error: |FAIL ' | sort | uniq -c | sort -rn | head -6
+}
+vt() { # label engine files...
+  local label=$1 eng=$2; shift 2
+  local log="${S:?}/mut-${label}.log" rc
+  (cd "${MX:?}" && MX_TEST_ENGINES=$eng aube exec just test "$@" > "$log" 2>&1); rc=$?
+  say "== $label: MX_TEST_ENGINES=$eng just test $*: exit $rc"; summ "$log"
+}
+
+M1_EXPR='s/options\?\.isProd \? await loadPropList\(\) : undefined/await loadPropList()/'
+FILES1=(tests/icon/icon.browser.test.ts tests/button/button.browser.test.ts)
+
+case "${1:?}" in
+  M1|M1ff|M1wk)
+    eng=chromium; [[ $1 == M1ff ]] && eng=firefox; [[ $1 == M1wk ]] && eng=webkit
+    say "# $1: compileCSS reads the list whatever isProd says; list absent; $eng"
+    edit src/css/css.ts "$M1_EXPR"; rm -f "${LIST:?}"
+    if [[ $eng == chromium ]]; then vt "$1" "$eng" "${FILES1[@]}"; else vt "$1" "$eng" tests/icon/icon.browser.test.ts; fi
+    say "-- the same files unmutated, list absent:"; restore; rm -f "${LIST:?}"
+    if [[ $eng == chromium ]]; then vt "$1-control" "$eng" "${FILES1[@]}"; else vt "$1-control" "$eng" tests/icon/icon.browser.test.ts; fi
+    cp "${KEEP:?}" "${LIST:?}" ;;
+  M2)
+    say "# M2: the token plugin's transform outside isProd; list absent; chromium"
+    edit src/index.ts 's/\.\.\.\(options\?\.isProd\n/...(true\n/'; rm -f "${LIST:?}"
+    vt M2 chromium "${FILES1[@]}"
+    restore; cp "${KEEP:?}" "${LIST:?}" ;;
+  M3)
+    say "# M3: loadPropList always rejects; list absent at start; whole material-x run, chromium; when the list appears"
+    edit src/utils.ts 's/(export function loadPropList\(\): Promise<PropList> \{\n)/$1  return Promise.reject(new Error("M3: the list was read"));\n/'
+    rm -f "${LIST:?}"
+    log="${S:?}/mut-M3.log"
+    (cd "${MX:?}" && aube exec just test --reporter=verbose > "$log" 2>&1; echo "exit $?" > "${S:?}/M3.rc") &
+    bg=$!; t0=$(date +%s); seen=""
+    while kill -0 "$bg" 2>/dev/null; do
+      if [[ -z $seen && -f "${LIST:?}" ]]; then
+        seen=1; n=$(clean "$log" | grep -cE '^ +✓'); nb=$(clean "$log" | grep -E '^ +✓' | grep -vc 'node/')
+        say "list appeared at +$(( $(date +%s) - t0 )) s, rows reported by then: $n, of which outside node: $nb"
+      fi
+      sleep 0.2
+    done
+    say "== M3 whole run: $(cat "${S:?}/M3.rc")"; summ "$log"
+    say "failed files by project:"; clean "$log" | grep -E '^ +(✗|×|FAIL) ' | grep -oE '\[?[a-z-]+/material-x[^] ]*' | sort | uniq -c
+    say "rows passed by project:"; clean "$log" | grep -E '^ +✓' | grep -oE '[a-z]+(/[a-z]+)?/material-x' | sort | uniq -c
+    restore; cp "${KEEP:?}" "${LIST:?}" ;;
+  M4)
+    say "# M4: the read's failure rethrown as it is; build-lib, list absent"
+    edit src/utils.ts 's/\(error: unknown\) => \{\n      throw new Error\(/(error: unknown) => {\n      throw error;\n      throw new Error(/'
+    rm -f "${LIST:?}"
+    (cd "${MX:?}" && aube exec just build-lib > "${S:?}/mut-M4.log" 2>&1); say "build-lib: exit $?"
+    clean "${S:?}/mut-M4.log" | grep -cE 'build-prepare' | sed 's/^/lines naming build-prepare: /'
+    clean "${S:?}/mut-M4.log" | grep -m2 -E 'Build failed|Cannot find module'
+    restore; cp "${KEEP:?}" "${LIST:?}" ;;
+  M5)
+    say "# M5: the error without its cause; build-lib, list absent"
+    edit src/utils.ts 's/,\n        \{ cause: error \},\n/,\n/'
+    rm -f "${LIST:?}"
+    (cd "${MX:?}" && aube exec just build-lib > "${S:?}/mut-M5.log" 2>&1); say "build-lib: exit $?"
+    clean "${S:?}/mut-M5.log" | grep -cE 'Cannot find module' | sed 's/^/lines naming the missing module: /'
+    clean "${S:?}/mut-M5.log" | grep -m1 -E "Can.t read"
+    restore; cp "${KEEP:?}" "${LIST:?}" ;;
+  *) say "unknown $1"; exit 2 ;;
+esac
+git -C "${W:?}" status --short
