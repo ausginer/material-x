@@ -1,0 +1,82 @@
+// Feature proof of #325: where a released pointer drag's trailing click goes, for a link item in
+// mx-sortable-list, by its surface and by a handle. Copied into packages/material-x/tests/list/
+// for a run, and removed after it. Each case prints one JSON line.
+import { afterEach, describe, it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+import '../../src/list/list-link-item.ts';
+import '../../src/list/sortable-list.ts';
+import { nextFrame } from '../browser.ts';
+
+afterEach(async () => {
+  await commands.pointerRelease().catch(() => {});
+  document.body.replaceChildren();
+  history.replaceState(null, '', location.pathname + location.search);
+});
+
+const settle = async (): Promise<void> => {
+  for (let i = 0; i < 20; i += 1) {
+    await nextFrame();
+  }
+};
+
+describe('fp325 click', () => {
+  for (const handle of [false, true]) {
+    for (const lifted of [true, false]) {
+      it(`handle ${handle}, ${lifted ? 'dragged 12 px' : 'clicked'}`, async () => {
+        const list = document.createElement('mx-sortable-list');
+        list.style.setProperty('--_drag-duration', '0s');
+        list.style.setProperty('--_layout-animation-duration', '0s');
+        const item = document.createElement('mx-list-link-item');
+        item.setAttribute('href', '#fp325');
+        let grip: HTMLElement | null = null;
+
+        if (handle) {
+          grip = document.createElement('span');
+          grip.dataset['handle'] = '';
+          grip.slot = 'lead';
+          grip.textContent = '≡';
+          item.append(grip);
+        }
+
+        item.append('A');
+        const other = document.createElement('mx-list-link-item');
+        other.setAttribute('href', '#other');
+        other.append('B');
+        list.append(item, other);
+        document.body.append(list);
+        await nextFrame();
+        const anchor = item.shadowRoot!.querySelector<HTMLAnchorElement>('.host')!;
+        const target = grip ?? anchor;
+        const clicks: unknown[] = [];
+        const before = location.href;
+        window.addEventListener(
+          'click',
+          (e) => {
+            clicks.push({ target: (e.composedPath()[0] as Element).localName });
+            queueMicrotask(() => clicks.push({ prevented: e.defaultPrevented }));
+          },
+          { capture: true },
+        );
+        const { left, top, width, height } = target.getBoundingClientRect();
+        const [x, y] = [left + width / 2, top + height / 2];
+        await commands.pointerPress(x, y);
+
+        if (lifted) {
+          await commands.pointerMove(x, y + 12, 3);
+        }
+
+        await commands.pointerRelease();
+        await settle();
+        console.log(
+          JSON.stringify({
+            engine: server.browser,
+            handle,
+            lifted,
+            clicks,
+            followed: location.href !== before,
+          }),
+        );
+      });
+    }
+  }
+});

@@ -94,6 +94,10 @@ function release(element: HTMLElement | null, owned: Set<string>): void {
  * that is no tab stop, and neither it nor a control is described. The handle
  * keeps a tab index, so that one that has focus doesn't lose it.
  *
+ * A link item's anchor has `draggable="false"`. The browser's own drag of a
+ * link would cancel the pointer's press, by the surface and by a handle, so the
+ * item wouldn't lift.
+ *
  * The handle and a static item's host are the consumer's elements, and an
  * interactive item's control receives the host's `aria-*`. So a value is the
  * item's from its write until anyone else writes or removes that attribute,
@@ -184,6 +188,13 @@ export function sortItem(
     state.observe(host, { attributeFilter: ['disabled'] });
   }
 
+  // The anchor is in the item's shadow tree, so no one else writes it.
+  const link = control instanceof HTMLAnchorElement;
+
+  if (link) {
+    control.draggable = false;
+  }
+
   update();
 
   return {
@@ -193,6 +204,11 @@ export function sortItem(
         release(handle, handleOwned);
         release(control, controlOwned);
       });
+
+      if (link) {
+        control.removeAttribute('draggable');
+      }
+
       observer.disconnect();
       state.disconnect();
       handle = null;
