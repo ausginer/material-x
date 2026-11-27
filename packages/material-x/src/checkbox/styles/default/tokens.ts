@@ -47,13 +47,41 @@ export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
     .group(groupTokens)
     .select(notErrorTokenSelector, allowedTokensSelector)
     .append('default', specialTokens)
+    // The press wave draws its selection's pressed state layer for every
+    // activation. No engine gives the host `:active` for a keyboard
+    // activation, so the wave doesn't take the state layer that the host's
+    // pseudo-classes select.
     .append('unselected.default', {
       'focus-layer.color': `${SET_NAME}.unselected.focus.state-layer.color`,
       'focus-layer.opacity': `${SET_NAME}.unselected.focus.state-layer.opacity`,
+      'press-layer.color': `${SET_NAME}.unselected.pressed.state-layer.color`,
+      'press-layer.opacity': `${SET_NAME}.unselected.pressed.state-layer.opacity`,
     })
     .append('selected.default', {
       'focus-layer.color': `${SET_NAME}.selected.focus.state-layer.color`,
       'focus-layer.opacity': `${SET_NAME}.selected.focus.state-layer.opacity`,
+      'press-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
+      'press-layer.opacity': `${SET_NAME}.selected.pressed.state-layer.opacity`,
+    })
+    // The set also holds deprecated `disabled.selected.icon.color`,
+    // `disabled.unselected.icon.color` and `unselected.*.icon.color`, which
+    // group to the same paths, so the outline and disabled colors are named
+    // rather than selected. A selected checkbox's outline is its container's
+    // color, so only the unselected states name one.
+    .append('unselected.hover', {
+      'outline.color': `${SET_NAME}.unselected.hover.outline.color`,
+    })
+    .append('unselected.focus', {
+      'outline.color': `${SET_NAME}.unselected.focus.outline.color`,
+    })
+    .append('unselected.pressed', {
+      'outline.color': `${SET_NAME}.unselected.pressed.outline.color`,
+    })
+    .append('unselected.disabled', {
+      'outline.color': `${SET_NAME}.unselected.disabled.outline.color`,
+    })
+    .append('selected.disabled', {
+      'icon.color': `${SET_NAME}.selected.disabled.icon.color`,
     })
     .adjustTokens(fixFullShape)
     .extend(createExtensions())
@@ -63,7 +91,8 @@ export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
 
 /**
  * The error states: Material's error colors for the outline, container, icon
- * and state layer, and the focus layer's from the focused error state.
+ * and state layer, the focus layer's from the focused error state, and the
+ * press wave's from the pressed one.
  */
 export const errorTokens: ReadonlySignal<TokenPackage> = computed(() =>
   t
@@ -73,6 +102,8 @@ export const errorTokens: ReadonlySignal<TokenPackage> = computed(() =>
     .append('error.default', {
       'focus-layer.color': `${SET_NAME}.error.focus.state-layer.color`,
       'focus-layer.opacity': `${SET_NAME}.error.focus.state-layer.opacity`,
+      'press-layer.color': `${SET_NAME}.error.pressed.state-layer.color`,
+      'press-layer.opacity': `${SET_NAME}.error.pressed.state-layer.opacity`,
     })
     .extend(createExtensions('error.'))
     .renderDeclarations(renderer)

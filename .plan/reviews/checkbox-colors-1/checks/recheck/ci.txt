@@ -1,0 +1,27 @@
+# CI for #338 at 2642a3baf, read 2026-11-27 ~21:05 UTC from slot d.
+## gh run list --branch material-x/checkbox-colors-1
+46064268341 pull_request 92d96f9e2 completed failure 2026-11-27T20:32:00Z
+46063152138 pull_request 29f5597d6 completed cancelled 2026-11-27T20:22:09Z
+46060500126 pull_request 7b392714d completed failure 2026-11-27T19:59:33Z
+46060455518 pull_request 1e5d8264b completed cancelled 2026-11-27T19:59:08Z
+## check runs on 2642a3baf14a10b62f43bed6fab49a92f9f060e3
+total_count 0
+## the pull request
+head 2642a3baf14a10b62f43bed6fab49a92f9f060e3 mergeable false mergeable_state dirty updated_at 2026-11-27T20:44:22Z
+## #332's merge, bec75d638
+mergedAt 2026-11-27T20:43:13Z
+## git merge-tree --write-tree --name-only 2642a3baf bec75d638
+.plan/00-index.md
+
+Auto-merging .plan/00-index.md
+CONFLICT (content): Merge conflict in .plan/00-index.md
+## git merge-tree --write-tree --name-only 2642a3baf origin/main (aca446b94)
+.plan/00-index.md
+
+Auto-merging .plan/00-index.md
+CONFLICT (content): Merge conflict in .plan/00-index.md
+## the conflict, origin/main's side: RF-156's status and its implementer note, beside RF-157's heading (git diff 75241dece^2 origin/main -- .plan/00-index.md, first lines)
+@@ -5240,7 +5240,7 @@ Tier C, **closed 2026-11-27** by #323, on `repo/storybook-theme-1`, at its merge
+-Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the architect, on `repo/register-observations-10`, from `reviewer-1` of #316's [feature proof](reviews/node-build-props-1/feature-proof-claude.md#reviewer-1--with-no-list-no-packages-vitest-run-starts), requested by the coordinator. `RF-155` is the entry before this one. Read at `6588c7361`.
++Tier C, **closed 2026-11-27** by the pull request of `repo/fresh-tree-tests-1`, which says `Closes #320`, at its merge (the last note). Before closure: open, ready. Pre-existing. Registered on 2026-11-26 by the architect, on `repo/register-observations-10`, from `reviewer-1` of #316's [feature proof](reviews/node-build-props-1/feature-proof-claude.md#reviewer-1--with-no-list-no-packages-vitest-run-starts), requested by the coordinator. `RF-155` is the entry before this one. Read at `6588c7361`.
+@@ -5251,6 +5251,19 @@ Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi

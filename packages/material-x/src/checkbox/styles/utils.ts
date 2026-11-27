@@ -86,6 +86,11 @@ export function notErrorTokenSelector(path: string): boolean {
 /**
  * The states' inheritance, under `prefix`: none for the states without error,
  * `error.` for the error states. Material has no disabled error state.
+ *
+ * A state's tokens are deduplicated against its parents'. `unselected.hover`'s
+ * selector also matches a selected host and sets the hover layer's
+ * `on-surface`, so `selected.hover` extends it, after `selected.default`, and
+ * keeps the `primary` that differs from it.
  */
 export function createExtensions(prefix = ''): ExtensionCallback {
   return (m) => {
@@ -101,7 +106,10 @@ export function createExtensions(prefix = ''): ExtensionCallback {
     }
 
     const unselectedDefault = state('unselected.default').extends(defaultState);
-    state('unselected.hover').extends(defaultState, unselectedDefault);
+    const unselectedHover = state('unselected.hover').extends(
+      defaultState,
+      unselectedDefault,
+    );
     state('unselected.focus').extends(defaultState, unselectedDefault);
     state('unselected.pressed').extends(defaultState, unselectedDefault);
 
@@ -113,6 +121,7 @@ export function createExtensions(prefix = ''): ExtensionCallback {
       defaultState,
       unselectedDefault,
       selectedDefault,
+      unselectedHover,
     );
     state('selected.focus').extends(
       defaultState,
@@ -141,9 +150,9 @@ export const allowedTokensSelector: GroupSelector = createAllowedTokensSelector(
 );
 
 /**
- * The error states' tokens. Only the error states draw the outline and icon
- * colors of their own state, because the other states keep the default
- * state's.
+ * The error states' tokens. The error states draw the outline and icon colors
+ * of their own state. The enabled states without error keep the default
+ * state's, and the disabled states take theirs from `defaultTokens`.
  */
 export const errorAllowedTokensSelector: GroupSelector =
   createAllowedTokensSelector([

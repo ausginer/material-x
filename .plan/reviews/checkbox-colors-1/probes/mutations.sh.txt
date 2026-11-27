@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Feature proof of #338, mutations of the checkbox's style modules, in Chromium.
+# Each edits one module (exact-once perl substitutions), runs the spec file, and
+# restores the module from HEAD. Usage: mut.sh <name>... ; `matrix:<name>` runs
+# zz-proof-matrix.browser.test.ts instead and keeps its JSON as m-<name>.json.
+set -uo pipefail
+W=/workspaces/worktrees/d/packages/material-x
+S=/tmp/claude-1000/-workspaces-material-x/3ff8dd20-d198-4642-8310-4353a905dd26/scratchpad/cb
+U=src/checkbox/styles/utils.ts
+K=src/checkbox/styles/default/tokens.ts
+cd "${W:?}" || exit 1
+
+edit() { # file expr
+  perl -0pi -e "$2" "$1"
+  git diff --quiet -- "$1" && { echo "  EDIT DID NOT APPLY: $2"; return 1; }
+  return 0
+}
+
+apply() {
+  case "$1" in
+    ext-base) git show 2ed4b96ab:packages/material-x/$U > $U ;;
+    sel-hover-no-uhover) edit $U 's/((?<!un)selectedDefault,\n      unselectedHover,\n)/selectedDefault,\n/' ;;
+    upressed-no-parents) edit $U 's/unselectedDefault,\n      unselectedHover,\n      unselectedFocus,\n/unselectedDefault,\n/' ;;
+    upressed-no-focus) edit $U 's/unselectedHover,\n      unselectedFocus,\n    \);/unselectedHover,\n    );/' ;;
+    upressed-no-hover) edit $U 's/unselectedDefault,\n      unselectedHover,\n      unselectedFocus,\n/unselectedDefault,\n      unselectedFocus,\n/' ;;
+    sel-focus-no-ufocus) edit $U 's/selectedDefault,\n      unselectedFocus,\n/selectedDefault,\n/' ;;
+    sel-pressed-no-upressed) edit $U 's/selectedDefault,\n      unselectedPressed,\n/selectedDefault,\n/' ;;
+    no-outline-append) edit $K "s/    \.append\('unselected\.disabled', \{\n.*?\n    \}\)\n//s" ;;
+    no-icon-append) edit $K "s/    \.append\('selected\.disabled', \{\n.*?\n    \}\)\n//s" ;;
+    widen) edit $K "s/    \.append\('unselected\.disabled', \{\n.*?\n    \}\)\n    \.append\('selected\.disabled', \{\n.*?\n    \}\)\n//s" \
+           && edit $U "s/    'container\.opacity',\n/    'container.opacity',\n    'outline.color',\n    'icon.color',\n/" ;;
+    *) echo "unknown $1"; return 1 ;;
+  esac
+}
+
+for arg in "$@"; do
+  name=${arg#matrix:}
+  apply "$name" || { git checkout -q -- src/checkbox/styles; continue; }
+  echo "== $arg"
+  git diff -U0 -- src/checkbox/styles | grep -E '^[-+][^-+]' | sed 's/^/  /' | head -12
+  if [[ $arg == matrix:* ]]; then
+    aube exec just test tests/checkbox/zz-proof-matrix.browser.test.ts > "${S:?}/run-$name.log" 2>&1; echo "  matrix exit $?"
+    mv zz-matrix-chromium.json "${S:?}/m-$name.json"
+  else
+    aube exec just test tests/checkbox/checkbox.spec.browser.test.ts > "${S:?}/run-$name.log" 2>&1; echo "  spec exit $?"
+    sed 's/\x1b\[[0-9;]*m//g' "${S:?}/run-$name.log" | grep -E '^ +(×|✗) |^ +Tests ' | sed 's/^ */  /'
+  fi
+  git checkout -q -- src/checkbox/styles
+done
+git -C "${W:?}" status --short

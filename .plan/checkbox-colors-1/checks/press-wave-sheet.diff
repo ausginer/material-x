@@ -1,0 +1,51 @@
+--- 29f5597d6
++++ working
+@@ -15,15 +15,19 @@
+   --_check-duration: 0.2s;
+   --_focus-layer-color: var(--md-sys-color-on-surface, #191d13);
+   --_focus-layer-opacity: 0.1;
++  --_press-layer-color: var(--md-sys-color-primary, #3e6700);
++  --_press-layer-opacity: 0.1;
+ }
+ 
+ :host(:hover) {
+   --_state-layer-opacity: 0.08;
+   --_state-layer-color: var(--md-sys-color-on-surface, #191d13);
++  --_outline-color: var(--md-sys-color-on-surface, #191d13);
+ }
+ 
+ :host(:focus-within) {
+   --_state-layer-color: var(--md-sys-color-on-surface, #191d13);
++  --_outline-color: var(--md-sys-color-on-surface, #191d13);
+ }
+ 
+ :host(:active) {
+@@ -34,6 +38,7 @@
+ :host(:state(indeterminate)) {
+   --_container-color: var(--md-sys-color-primary, #3e6700);
+   --_focus-layer-color: var(--md-sys-color-primary, #3e6700);
++  --_press-layer-color: var(--md-sys-color-on-surface, #191d13);
+ }
+ 
+ :host(:state(checked):hover),
+@@ -51,6 +56,8 @@
+ :host(:state(error):not(:disabled)) {
+   --_focus-layer-color: var(--md-sys-color-error, #ba1a1a);
+   --_focus-layer-opacity: 0.1;
++  --_press-layer-color: var(--md-sys-color-error, #ba1a1a);
++  --_press-layer-opacity: 0.1;
+ }
+ 
+ :host(:state(error):not(:disabled):hover) {
+@@ -139,6 +146,11 @@
+   opacity: var(--_focus-layer-opacity);
+ }
+ 
++:host .ripple:after {
++  background-color: var(--_press-layer-color);
++  opacity: var(--_press-layer-opacity);
++}
++
+ .indicator {
+   border-radius: inherit;
+   pointer-events: none;

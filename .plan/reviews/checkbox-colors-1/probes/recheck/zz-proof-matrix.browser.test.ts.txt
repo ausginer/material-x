@@ -1,0 +1,83 @@
+// Feature proof of #338 (RF-157), recheck at 2642a3baf: the host's own animations (the box's
+// border transition) are now finished too, before reading.
+// First written for the proof at 7b392714d, a probe and not a row: every selection, error
+// and disabled combination under real input (rest, hover, focus, hover and
+// focus, a pointer press, a held Space), with what the checkbox draws and its
+// private properties. Written to zz-matrix-<engine>.json beside this file.
+import { afterEach, it } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+import '../../src/checkbox/checkbox.ts';
+import { nextFrame, settleAnimations } from '../browser.ts';
+
+const SELECTIONS = [
+  ['unselected', []],
+  ['checked', ['checked']],
+  ['indeterminate', ['indeterminate']],
+] as const;
+const ENABLED = ['rest', 'hover', 'focus', 'hover+focus', 'press', 'space'] as const;
+const DISABLED = ['rest', 'hover'] as const;
+
+afterEach(async () => {
+  await commands.pointerRelease().catch(() => {});
+  await userEvent.keyboard('{/Space}').catch(() => {});
+  await commands.pointerMove(1, 1, 1).catch(() => {});
+});
+
+function read(element: HTMLElement): Record<string, string> {
+  const host = getComputedStyle(element);
+  const box = getComputedStyle(element, '::after');
+  const ripple = element.shadowRoot!.querySelector('.ripple')!;
+  const before = getComputedStyle(ripple, '::before');
+  const after = getComputedStyle(ripple, '::after');
+  const icon = getComputedStyle(element.shadowRoot!.querySelector('.icon')!);
+  const out: Record<string, string> = {
+    'matches': [':hover', ':focus-within', ':active'].filter((s) => element.matches(s)).join(' ') || '-',
+    'drawn.container': box.backgroundColor,
+    'drawn.outline': box.borderTopColor,
+    'drawn.host-opacity': host.opacity,
+    'drawn.icon': icon.color,
+    'drawn.hover-layer': `${before.backgroundColor} @${before.opacity}`,
+    'drawn.press-wave': `${after.backgroundColor} @${after.opacity}`,
+  };
+  for (let i = 0; i < host.length; i += 1) {
+    const name = host.item(i);
+    if (name.startsWith('--_')) out[name] = host.getPropertyValue(name).trim();
+  }
+  return out;
+}
+
+it('reads the matrix', async () => {
+  const rows: Record<string, Record<string, string>> = {};
+  for (const [selection, attrs] of SELECTIONS) {
+    for (const error of [false, true]) {
+      for (const disabled of [false, true]) {
+        for (const interaction of disabled ? DISABLED : ENABLED) {
+          const element = document.createElement('mx-checkbox');
+          for (const a of attrs) element.toggleAttribute(a, true);
+          if (error) element.toggleAttribute('error', true);
+          if (disabled) element.toggleAttribute('disabled', true);
+          document.body.append(element);
+          await nextFrame();
+          const { left, top, width, height } = element.getBoundingClientRect();
+          if (interaction.includes('hover')) await commands.pointerMove(left + width / 2, top + height / 2, 1);
+          if (interaction.includes('focus') || interaction === 'space') element.focus();
+          if (interaction === 'space') await userEvent.keyboard('{Space>}');
+          if (interaction === 'press') await commands.pointerPress(left + width / 2, top + height / 2);
+          await nextFrame();
+          await settleAnimations(element);
+          getComputedStyle(element, "::after").borderTopColor;
+          await Promise.all(element.getAnimations({ subtree: true }).map(async (a) => { a.finish(); await a.finished; }));
+          await nextFrame();
+          rows[`${selection}${error ? ' error' : ''}${disabled ? ' disabled' : ''} ${interaction}`] = read(element);
+          await commands.pointerRelease().catch(() => {});
+          await userEvent.keyboard('{/Space}').catch(() => {});
+          await commands.pointerMove(1, 1, 1).catch(() => {});
+          element.blur();
+          element.remove();
+          await nextFrame();
+        }
+      }
+    }
+  }
+  await commands.writeFile(`zz-matrix-${server.browser}.json`, JSON.stringify(rows, null, 1));
+}, 120000);

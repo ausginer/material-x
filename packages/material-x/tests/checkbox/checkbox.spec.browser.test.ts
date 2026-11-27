@@ -1,7 +1,12 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { commands } from 'vitest/browser';
+import { commands, userEvent } from 'vitest/browser';
 import '../../src/checkbox/checkbox.ts';
-import { nextFrame, pixels, resolveComputed } from '../browser.ts';
+import {
+  nextFrame,
+  pixels,
+  resolveComputed,
+  settleAnimations,
+} from '../browser.ts';
 
 const CONTRACT = 'checkbox.default';
 
@@ -49,15 +54,52 @@ async function checkboxTokens(tokens: readonly string[]) {
   });
 }
 
-/** A color token of a state of the error contract, as the engine computes it. */
-async function errorColor(state: string, token: string): Promise<string> {
+/** A color token of a state of a contract, as the engine computes it. */
+async function contractColor(
+  contract: string,
+  state: string,
+  token: string,
+): Promise<string> {
   const { values } = await commands.resolveTokenContract({
-    contract: ERROR_CONTRACT,
+    contract,
     state,
     tokens: [token],
   });
 
   return resolveComputed('color', String(values[token]!));
+}
+
+/** An opacity token of a state of the default contract, as a number. */
+async function opacity(state: string, token: string): Promise<number> {
+  const { values } = await commands.resolveTokenContract({
+    contract: CONTRACT,
+    state,
+    tokens: [token],
+  });
+
+  return Number(values[token]!);
+}
+
+/** A color token of a state of the default contract, as the engine computes it. */
+async function color(state: string, token: string): Promise<string> {
+  return await contractColor(CONTRACT, state, token);
+}
+
+/**
+ * A Material color token named by the requirement, as the engine computes it.
+ * A row whose value the package names by hand for its state compares with
+ * this: the package's effective value at that path is the naming's output, or
+ * an inherited value without it.
+ */
+async function namedColor(token: string): Promise<string> {
+  const { values } = await commands.resolveMaterialTokens({ tokens: [token] });
+
+  return resolveComputed('color', String(values[token]!));
+}
+
+/** A color token of a state of the error contract, as the engine computes it. */
+async function errorColor(state: string, token: string): Promise<string> {
+  return await contractColor(ERROR_CONTRACT, state, token);
 }
 
 /**
@@ -68,14 +110,68 @@ async function errorColor(state: string, token: string): Promise<string> {
 async function withDistinctOnError<T>(
   observe: () => T | Promise<T>,
 ): Promise<T> {
+  return await withColor('--md-sys-color-on-error', 'rgb(1, 2, 3)', observe);
+}
+
+/** Runs `observe` with the system color `name` set to `value` on the root. */
+async function withColor<T>(
+  name: string,
+  value: string,
+  observe: () => T | Promise<T>,
+): Promise<T> {
   const root = document.documentElement;
-  root.style.setProperty('--md-sys-color-on-error', 'rgb(1, 2, 3)');
+  root.style.setProperty(name, value);
 
   try {
     return await observe();
   } finally {
-    root.style.removeProperty('--md-sys-color-on-error');
+    root.style.removeProperty(name);
   }
+}
+
+function rippleOf(
+  element: HTMLElement,
+  pseudo: '::before' | '::after',
+): CSSStyleDeclaration {
+  return getComputedStyle(
+    element.shadowRoot!.querySelector('.ripple')!,
+    pseudo,
+  );
+}
+
+/** Holds the primary button down at the host's center. */
+async function press(element: HTMLElement): Promise<void> {
+  await nextFrame();
+  const { left, top, width, height } = element.getBoundingClientRect();
+  await commands.pointerPress(left + width / 2, top + height / 2);
+}
+
+/**
+ * Activates a focused checkbox with Space, which runs the press wave from the
+ * keyboard's click. The host doesn't match `:active` for it in any engine, and
+ * the wave is read before its fade starts.
+ */
+async function activateByKeyboard(element: HTMLElement): Promise<void> {
+  await nextFrame();
+  element.focus();
+  await nextFrame();
+  await userEvent.keyboard('{Space}');
+}
+
+/**
+ * Finishes the box's color transitions. The box is the host's `::after`, so its
+ * transitions are the host's, which the shadow root doesn't report. Reading
+ * the style first starts a transition that the interaction caused.
+ */
+async function settleBox(element: HTMLElement): Promise<void> {
+  getBox(element).getPropertyValue('border-top-color');
+
+  await Promise.all(
+    element.getAnimations({ subtree: true }).map(async (animation) => {
+      animation.finish();
+      await animation.finished;
+    }),
+  );
 }
 
 /** What a checkbox draws: its box's colors, the host's opacity and the icon's color. */
@@ -161,6 +257,141 @@ describe('mx-checkbox icon visual contract', () => {
   });
 });
 
+describe('mx-checkbox state layer visual contract', () => {
+  /*
+   * The hover layer is the ripple's `::before` and the press wave its
+   * `::after`. The unselected hovered and focused states' `on-surface` also
+   * applies to a selected host and to a pressed one, and each state read here
+   * has `primary` in Material's tokens.
+   */
+  it.each(SELECTED)(
+    'should draw the selected hovered state layer color when %s',
+    async (_, attributes) => {
+      const element = createCheckbox(...attributes);
+      await userEvent.hover(element);
+      await nextFrame();
+      await settleAnimations(element);
+
+      expect(rippleOf(element, '::before').backgroundColor).toBe(
+        await color('selected.hover', 'state-layer.color'),
+      );
+    },
+  );
+
+  it('should color the press ripple with the unselected pressed state layer', async () => {
+    const element = createCheckbox();
+    await press(element);
+
+    expect(rippleOf(element, '::after').backgroundColor).toBe(
+      await color('unselected.pressed', 'state-layer.color'),
+    );
+  });
+});
+
+describe('mx-checkbox press wave visual contract', () => {
+  /*
+   * The press wave is the ripple's `::after`. It draws the pressed state layer
+   * of the host's selection for every activation: a pointer press, which also
+   * hovers the host, and a keyboard one, which neither hovers it nor makes it
+   * `:active`.
+   */
+  const PRESSED_STATES = [
+    ['unselected', [], 'unselected.pressed'],
+    ['checked', ['checked'], 'selected.pressed'],
+    ['indeterminate', ['indeterminate'], 'selected.pressed'],
+  ] as const;
+
+  it.each(PRESSED_STATES)(
+    'should draw the keyboard press wave as the pressed state layer when %s',
+    async (_, attributes, state) => {
+      const element = createCheckbox(...attributes);
+      await activateByKeyboard(element);
+      const wave = rippleOf(element, '::after');
+
+      expect({
+        color: wave.backgroundColor,
+        opacity: Number(wave.opacity),
+      }).toStrictEqual({
+        color: await color(state, 'state-layer.color'),
+        opacity: await opacity(state, 'state-layer.opacity'),
+      });
+    },
+  );
+
+  it.each(PRESSED_STATES.slice(0, 2))(
+    'should draw the pointer press wave at the pressed state layer opacity when %s',
+    async (_, attributes, state) => {
+      const element = createCheckbox(...attributes);
+      await press(element);
+
+      expect(Number(rippleOf(element, '::after').opacity)).toBe(
+        await opacity(state, 'state-layer.opacity'),
+      );
+    },
+  );
+});
+
+describe('mx-checkbox unselected outline visual contract', () => {
+  /*
+   * A selected checkbox's outline is its container's color, so only the
+   * unselected states draw an outline color of their own.
+   */
+  const INTERACTIONS = [
+    [
+      'hovered',
+      'md.comp.checkbox.unselected.hover.outline.color',
+      async (element: HTMLElement) => {
+        await userEvent.hover(element);
+      },
+    ],
+    [
+      'focused',
+      'md.comp.checkbox.unselected.focus.outline.color',
+      async (element: HTMLElement) => {
+        await nextFrame();
+        element.focus();
+      },
+    ],
+    ['pressed', 'md.comp.checkbox.unselected.pressed.outline.color', press],
+  ] as const;
+
+  it.each(INTERACTIONS)(
+    'should draw the unselected outline color when %s',
+    async (_, token, interact) => {
+      const element = createCheckbox();
+      await interact(element);
+      await settleBox(element);
+
+      expect(getBox(element).borderTopColor).toBe(await namedColor(token));
+    },
+  );
+});
+
+describe('mx-checkbox disabled visual contract', () => {
+  it('should draw the disabled outline color when unselected', async () => {
+    const box = getBox(createCheckbox('disabled'));
+
+    expect(box.borderTopColor).toBe(
+      await namedColor('md.comp.checkbox.unselected.disabled.outline.color'),
+    );
+  });
+
+  // The expected value resolves surface under the same distinct color, so it
+  // differs from on-primary, the enabled icon color.
+  it.each(SELECTED)(
+    'should draw the disabled icon color when %s',
+    async (_, attributes) => {
+      await withColor('--md-sys-color-surface', 'rgb(4, 5, 6)', async () => {
+        const icon = iconOf(createCheckbox('disabled', ...attributes));
+
+        expect(getComputedStyle(icon).color).toBe(
+          await namedColor('md.comp.checkbox.selected.disabled.icon.color'),
+        );
+      });
+    },
+  );
+});
+
 describe('mx-checkbox error visual contract', () => {
   it('should render the error outline color when unselected', async () => {
     const box = getBox(createCheckbox('error'));
@@ -199,15 +430,9 @@ describe('mx-checkbox error visual contract', () => {
     'should color the press ripple with the pressed error state layer when %s',
     async (_, attributes) => {
       const element = createCheckbox('error', ...attributes);
-      await nextFrame();
-      const { left, top, width, height } = element.getBoundingClientRect();
-      await commands.pointerPress(left + width / 2, top + height / 2);
-      const ripple = getComputedStyle(
-        element.shadowRoot!.querySelector('.ripple')!,
-        '::after',
-      );
+      await press(element);
 
-      expect(ripple.backgroundColor).toBe(
+      expect(rippleOf(element, '::after').backgroundColor).toBe(
         await errorColor('error.pressed', 'state-layer.color'),
       );
     },

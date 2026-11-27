@@ -1,0 +1,41 @@
+# The press-wave and outline rows' witness, slot e, 2026-11-27, Chromium:
+# bash .plan/checkbox-colors-1/probes/witness.sh 29f5597d6
+# The sheet that 29f5597d6's utils.ts, default/tokens.ts and default/main.styles.css compile, with the working tree's token packages as the oracle and its rows.
+# primary = rgb(62, 103, 0), on-surface = rgb(25, 29, 19), on-surface-variant = rgb(66, 73, 55).
+# Vitest prints an error once, under the last of the rows that share it.
+
+     × should draw the keyboard press wave as the pressed state layer when unselected 197ms
+     × should draw the keyboard press wave as the pressed state layer when checked 141ms
+     × should draw the keyboard press wave as the pressed state layer when indeterminate 172ms
+     × should draw the pointer press wave at the pressed state layer opacity when unselected 225ms
+     × should draw the pointer press wave at the pressed state layer opacity when checked 136ms
+     × should draw the unselected outline color when hovered 152ms
+     × should draw the unselected outline color when focused 98ms
+     × should draw the unselected outline color when pressed 133ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:293 > mx-checkbox press wave visual contract > should draw the keyboard press wave as the pressed state layer when unselected
+- Expected
++ Received
+-   "color": "rgb(62, 103, 0)",
++   "color": "rgb(25, 29, 19)",
+    "opacity": 0.1,
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:293 > mx-checkbox press wave visual contract > should draw the keyboard press wave as the pressed state layer when checked
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:293 > mx-checkbox press wave visual contract > should draw the keyboard press wave as the pressed state layer when indeterminate
+- Expected
++ Received
+-   "color": "rgb(25, 29, 19)",
++   "color": "rgb(62, 103, 0)",
+    "opacity": 0.1,
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:310 > mx-checkbox press wave visual contract > should draw the pointer press wave at the pressed state layer opacity when unselected
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:310 > mx-checkbox press wave visual contract > should draw the pointer press wave at the pressed state layer opacity when checked
+- Expected
++ Received
+- 0.1
++ 0.08
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:347 > mx-checkbox unselected outline visual contract > should draw the unselected outline color when hovered
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:347 > mx-checkbox unselected outline visual contract > should draw the unselected outline color when focused
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:347 > mx-checkbox unselected outline visual contract > should draw the unselected outline color when pressed
+Expected: "rgb(25, 29, 19)"
+Received: "rgb(66, 73, 55)"
+ Test Files  1 failed (1)
+      Tests  8 failed | 23 passed (31)

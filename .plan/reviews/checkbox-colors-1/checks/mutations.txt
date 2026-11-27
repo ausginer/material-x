@@ -1,0 +1,145 @@
+# Mutations of the checkbox's two style modules, run by probes/mutations.sh.txt on tests/checkbox/checkbox.spec.browser.test.ts. Each restored from HEAD.
+# The first Chromium pass's sel-hover-no-uhover regex matched inside unselectedDefault and edited unselected.pressed instead (so it repeated upressed-no-hover); it is dropped below and the corrected run follows.
+
+#### chromium
+== ext-base
+  - *
+  - * A state's tokens are deduplicated against its parents', so a state extends
+  - * each state whose rule also applies to the host and comes before its own. An
+  - * unselected state's selector also matches a selected host, so each selected
+  - * state extends the unselected state of its interaction, after
+  - * `selected.default`. A pressed host can also be hovered and focused, so
+  - * `unselected.pressed` extends `unselected.hover` and `unselected.focus`, and
+  - * keeps the state layer color that differs from theirs.
+  -    const unselectedHover = state('unselected.hover').extends(
+  -      defaultState,
+  -      unselectedDefault,
+  -    );
+  spec exit 1
+  × should draw the selected hovered state layer color when checked 250ms
+  × should draw the selected hovered state layer color when indeterminate 156ms
+  × should color the press ripple with the unselected pressed state layer 115ms
+  Tests  3 failed | 20 passed (23)
+== upressed-no-parents
+  -      unselectedHover,
+  -      unselectedFocus,
+  spec exit 1
+  × should color the press ripple with the unselected pressed state layer 208ms
+  Tests  1 failed | 22 passed (23)
+== upressed-no-focus
+  -      unselectedFocus,
+  spec exit 0
+  Tests  23 passed (23)
+== upressed-no-hover
+  -      unselectedHover,
+  spec exit 0
+  Tests  23 passed (23)
+== sel-focus-no-ufocus
+  -      unselectedFocus,
+  spec exit 0
+  Tests  23 passed (23)
+== sel-pressed-no-upressed
+  -      unselectedPressed,
+  spec exit 0
+  Tests  23 passed (23)
+== no-outline-append
+  -    .append('unselected.disabled', {
+  -      'outline.color': `${SET_NAME}.unselected.disabled.outline.color`,
+  -    })
+  spec exit 1
+  × should draw the disabled outline color when unselected 171ms
+  Tests  1 failed | 22 passed (23)
+== no-icon-append
+  -    .append('selected.disabled', {
+  -      'icon.color': `${SET_NAME}.selected.disabled.icon.color`,
+  -    })
+  spec exit 1
+  × should draw the disabled icon color when checked 126ms
+  × should draw the disabled icon color when indeterminate 61ms
+  Tests  2 failed | 21 passed (23)
+== widen
+  -    .append('unselected.disabled', {
+  -      'outline.color': `${SET_NAME}.unselected.disabled.outline.color`,
+  -    })
+  -    .append('selected.disabled', {
+  -      'icon.color': `${SET_NAME}.selected.disabled.icon.color`,
+  -    })
+  +    'outline.color',
+  +    'icon.color',
+  spec exit 1
+  × should render the tokenized icon color 172ms
+  Tests  1 failed | 22 passed (23)
+
+== sel-hover-no-uhover
+  -      unselectedHover,
+  spec exit 1
+  × should draw the selected hovered state layer color when checked 219ms
+  × should draw the selected hovered state layer color when indeterminate 136ms
+  Tests  2 failed | 21 passed (23)
+
+# widen, through the spec file (the run above, out-mut.txt): 1 failed, 'should render the tokenized icon color' (an unselected checkbox's icon, against the default state's icon.color). The matrix shows why: the deprecated unselected.icon.color, on-surface, now colours the unselected icon.
+# widen through the matrix: checks/matrix.txt
+
+#### firefox
+== ext-base
+  spec exit 1
+  × should draw the selected hovered state layer color when checked 446ms
+  × should draw the selected hovered state layer color when indeterminate 302ms
+  × should color the press ripple with the unselected pressed state layer 272ms
+  Tests  3 failed | 20 passed (23)
+== no-outline-append
+  spec exit 1
+  × should draw the disabled outline color when unselected 170ms
+  Tests  1 failed | 22 passed (23)
+== no-icon-append
+  spec exit 1
+  × should draw the disabled icon color when checked 340ms
+  × should draw the disabled icon color when indeterminate 409ms
+  Tests  2 failed | 21 passed (23)
+#### webkit
+== ext-base
+  spec exit 1
+  × should draw the selected hovered state layer color when checked 258ms
+  × should draw the selected hovered state layer color when indeterminate 131ms
+  × should color the press ripple with the unselected pressed state layer 101ms
+  Tests  3 failed | 20 passed (23)
+== no-outline-append
+  spec exit 1
+  × should draw the disabled outline color when unselected 238ms
+  Tests  1 failed | 22 passed (23)
+== no-icon-append
+  spec exit 1
+  × should draw the disabled icon color when checked 223ms
+  × should draw the disabled icon color when indeterminate 105ms
+  Tests  2 failed | 21 passed (23)
+firefox unmutated       Tests  23 passed (23)
+webkit unmutated       Tests  23 passed (23)
+
+# The surviving mutations' compiled sheets against the head's (node ../../.scripts/css/debug.ts src/checkbox/styles/default/main.css.ts)
+== upressed-no-focus (0	1)
+29a30
+>   --_state-layer-opacity: 0.1;
+== upressed-no-hover (0	1)
+  sheet identical to the head's
+== sel-focus-no-ufocus (0	1)
+40,42c40
+< :host(:state(indeterminate):hover),
+< :host(:state(checked):focus-within),
+< :host(:state(indeterminate):focus-within) {
+---
+> :host(:state(indeterminate):hover) {
+== sel-pressed-no-upressed (0	1)
+  sheet identical to the head's
+
+# The implementer's witness, rerun: .plan/checkbox-colors-1/probes/witness.sh 2ed4b96ab, Chromium
+     × should draw the selected hovered state layer color when checked
+     × should draw the selected hovered state layer color when indeterminate
+     × should color the press ripple with the unselected pressed state layer
+     × should draw the disabled outline color when unselected
+     × should draw the disabled icon color when checked
+     × should draw the disabled icon color when indeterminate
+AssertionError: expected 'rgb(25, 29, 19)' to be 'rgb(62, 103, 0)' // Object.is equality
+AssertionError: expected 'rgb(25, 29, 19)' to be 'rgb(62, 103, 0)' // Object.is equality
+AssertionError: expected 'rgb(66, 73, 55)' to be 'rgb(25, 29, 19)' // Object.is equality
+AssertionError: expected 'rgb(255, 255, 255)' to be 'rgb(4, 5, 6)' // Object.is equality
+      Tests  6 failed | 17 passed (23)

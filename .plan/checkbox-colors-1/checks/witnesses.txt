@@ -1,0 +1,20 @@
+# .plan/checkbox-colors-1/probes/witness.sh 2ed4b96ab, in Chromium, on material-x/checkbox-colors-1 before its first commit
+     × should draw the selected hovered state layer color when checked
+     × should draw the selected hovered state layer color when indeterminate
+     × should color the press ripple with the unselected pressed state layer
+     × should draw the disabled outline color when unselected
+     × should draw the disabled icon color when checked
+     × should draw the disabled icon color when indeterminate
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:217 > mx-checkbox state layer visual contract > should draw the selected hovered state layer color when checked
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:217 > mx-checkbox state layer visual contract > should draw the selected hovered state layer color when indeterminate
+AssertionError: expected 'rgb(25, 29, 19)' to be 'rgb(62, 103, 0)' // Object.is equality
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:230 > mx-checkbox state layer visual contract > should color the press ripple with the unselected pressed state layer
+AssertionError: expected 'rgb(25, 29, 19)' to be 'rgb(62, 103, 0)' // Object.is equality
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:241 > mx-checkbox disabled visual contract > should draw the disabled outline color when unselected
+AssertionError: expected 'rgb(66, 73, 55)' to be 'rgb(25, 29, 19)' // Object.is equality
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:252 > mx-checkbox disabled visual contract > should draw the disabled icon color when checked
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:252 > mx-checkbox disabled visual contract > should draw the disabled icon color when indeterminate
+AssertionError: expected 'rgb(255, 255, 255)' to be 'rgb(4, 5, 6)' // Object.is equality
+ Test Files  1 failed (1)
+      Tests  6 failed | 17 passed (23)

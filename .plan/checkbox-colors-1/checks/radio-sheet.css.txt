@@ -1,0 +1,49 @@
+# mx-radio's compiled token blocks at 29f5597d6 (the radio's styles are main's, 2ed4b96ab), read by the architect: aube exec just debug src/radio/styles/default/main.css.ts, up to the component's own stylesheet.
+:host {
+  --_state-layer-size: 40px;
+  --_icon-size: 20px;
+  --_state-layer-color: var(--md-sys-color-on-surface, #191d13);
+  --_state-layer-opacity: 0.1;
+  --_ripple-color: var(--_state-layer-color);
+  --_ripple-opacity: var(--_state-layer-opacity);
+  --_check-easing: cubic-bezier(0.34, 0.8, 0.34, 1);
+  --_check-duration: 0.2s;
+  --_icon-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_focus-layer-color: var(--md-sys-color-on-surface, #191d13);
+  --_focus-layer-opacity: 0.1;
+}
+
+:host(:hover) {
+  --_icon-color: var(--md-sys-color-on-surface, #191d13);
+  --_state-layer-opacity: 0.08;
+}
+
+:host(:focus-within) {
+  --_icon-color: var(--md-sys-color-on-surface, #191d13);
+}
+
+:host(:active) {
+  --_icon-color: var(--md-sys-color-on-surface, #191d13);
+  --_state-layer-color: var(--md-sys-color-primary, #3e6700);
+}
+
+:host(:state(checked)) {
+  --_icon-color: var(--md-sys-color-primary, #3e6700);
+  --_focus-layer-color: var(--md-sys-color-primary, #3e6700);
+}
+
+:host(:state(checked):hover) {
+  --_state-layer-opacity: 0.08;
+  --_state-layer-color: var(--md-sys-color-primary, #3e6700);
+}
+
+:host(:state(checked):focus-within) {
+  --_state-layer-color: var(--md-sys-color-primary, #3e6700);
+}
+
+:host(:disabled),
+:host(:state(checked):disabled) {
+  --_icon-opacity: 0.38;
+  --_icon-color: var(--md-sys-color-on-surface, #191d13);
+}
+

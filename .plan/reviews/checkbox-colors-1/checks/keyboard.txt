@@ -1,0 +1,326 @@
+# probes/zz-proof-keyboard.browser.test.ts.txt: Space on a focused checkbox (userEvent.keyboard('{Space}')), the press wave (the ripple's ::after) sampled each frame.
+# head = 7b392714d; base = the head with main's (2ed4b96ab) two style modules. The component is controlled, so the selection doesn't change. Every 2nd frame shown.
+
+== chromium base unselected
+   0 unselected rgb(25, 29, 19) @0.1
+   2 unselected rgb(25, 29, 19) @0.1
+   4 unselected rgb(25, 29, 19) @0.1
+   6 unselected rgb(25, 29, 19) @0.1
+   8 unselected rgb(25, 29, 19) @0.1
+  10 unselected rgb(25, 29, 19) @0.1
+  12 unselected rgb(25, 29, 19) @0.1
+  14 unselected rgb(25, 29, 19) @0.1
+  16 unselected rgb(25, 29, 19) @0.0778327
+  18 unselected rgb(25, 29, 19) @0.055566
+  20 unselected rgb(25, 29, 19) @0.033366
+  22 unselected rgb(25, 29, 19) @0.0110993
+  24 unselected rgb(25, 29, 19) @0.1
+  26 unselected rgb(25, 29, 19) @0.1
+  28 unselected rgb(25, 29, 19) @0.1
+  after: checked=false indeterminate=false focus=mx-checkbox
+
+== chromium base checked
+   0 checked rgb(25, 29, 19) @0.1
+   2 checked rgb(25, 29, 19) @0.1
+   4 checked rgb(25, 29, 19) @0.1
+   6 checked rgb(25, 29, 19) @0.1
+   8 checked rgb(25, 29, 19) @0.1
+  10 checked rgb(25, 29, 19) @0.1
+  12 checked rgb(25, 29, 19) @0.1
+  14 checked rgb(25, 29, 19) @0.0888407
+  16 checked rgb(25, 29, 19) @0.0666407
+  18 checked rgb(25, 29, 19) @0.0444407
+  20 checked rgb(25, 29, 19) @0.0222407
+  22 checked rgb(25, 29, 19) @4.06667e-05
+  24 checked rgb(25, 29, 19) @0.1
+  26 checked rgb(25, 29, 19) @0.1
+  28 checked rgb(25, 29, 19) @0.1
+  after: checked=true indeterminate=false focus=mx-checkbox
+
+== chromium base indeterminate
+   0 indeterminate rgb(25, 29, 19) @0.1
+   2 indeterminate rgb(25, 29, 19) @0.1
+   4 indeterminate rgb(25, 29, 19) @0.1
+   6 indeterminate rgb(25, 29, 19) @0.1
+   8 indeterminate rgb(25, 29, 19) @0.1
+  10 indeterminate rgb(25, 29, 19) @0.1
+  12 indeterminate rgb(25, 29, 19) @0.1
+  14 indeterminate rgb(25, 29, 19) @0.1
+  16 indeterminate rgb(25, 29, 19) @0.0777367
+  18 indeterminate rgb(25, 29, 19) @0.0556033
+  20 indeterminate rgb(25, 29, 19) @0.0333367
+  22 indeterminate rgb(25, 29, 19) @0.0111367
+  24 indeterminate rgb(25, 29, 19) @0.1
+  26 indeterminate rgb(25, 29, 19) @0.1
+  28 indeterminate rgb(25, 29, 19) @0.1
+  after: checked=false indeterminate=true focus=mx-checkbox
+
+== chromium head unselected
+   0 unselected rgb(25, 29, 19) @0.1
+   2 unselected rgb(25, 29, 19) @0.1
+   4 unselected rgb(25, 29, 19) @0.1
+   6 unselected rgb(25, 29, 19) @0.1
+   8 unselected rgb(25, 29, 19) @0.1
+  10 unselected rgb(25, 29, 19) @0.1
+  12 unselected rgb(25, 29, 19) @0.1
+  14 unselected rgb(25, 29, 19) @0.1
+  16 unselected rgb(25, 29, 19) @0.0778067
+  18 unselected rgb(25, 29, 19) @0.0556067
+  20 unselected rgb(25, 29, 19) @0.03334
+  22 unselected rgb(25, 29, 19) @0.01114
+  24 unselected rgb(25, 29, 19) @0.1
+  26 unselected rgb(25, 29, 19) @0.1
+  28 unselected rgb(25, 29, 19) @0.1
+  after: checked=false indeterminate=false focus=mx-checkbox
+
+== chromium head checked
+   0 checked rgb(62, 103, 0) @0.1
+   2 checked rgb(62, 103, 0) @0.1
+   4 checked rgb(62, 103, 0) @0.1
+   6 checked rgb(62, 103, 0) @0.1
+   8 checked rgb(62, 103, 0) @0.1
+  10 checked rgb(62, 103, 0) @0.1
+  12 checked rgb(62, 103, 0) @0.1
+  14 checked rgb(62, 103, 0) @0.0888813
+  16 checked rgb(62, 103, 0) @0.0666147
+  18 checked rgb(62, 103, 0) @0.0444147
+  20 checked rgb(62, 103, 0) @0.0222147
+  22 checked rgb(62, 103, 0) @1.46667e-05
+  24 checked rgb(62, 103, 0) @0.1
+  26 checked rgb(62, 103, 0) @0.1
+  28 checked rgb(62, 103, 0) @0.1
+  after: checked=true indeterminate=false focus=mx-checkbox
+
+== chromium head indeterminate
+   0 indeterminate rgb(62, 103, 0) @0.1
+   2 indeterminate rgb(62, 103, 0) @0.1
+   4 indeterminate rgb(62, 103, 0) @0.1
+   6 indeterminate rgb(62, 103, 0) @0.1
+   8 indeterminate rgb(62, 103, 0) @0.1
+  10 indeterminate rgb(62, 103, 0) @0.1
+  12 indeterminate rgb(62, 103, 0) @0.1
+  14 indeterminate rgb(62, 103, 0) @0.0889333
+  16 indeterminate rgb(62, 103, 0) @0.0666667
+  18 indeterminate rgb(62, 103, 0) @0.0444
+  20 indeterminate rgb(62, 103, 0) @0.0222667
+  22 indeterminate rgb(62, 103, 0) @0.1
+  24 indeterminate rgb(62, 103, 0) @0.1
+  26 indeterminate rgb(62, 103, 0) @0.1
+  28 indeterminate rgb(62, 103, 0) @0.1
+  after: checked=false indeterminate=true focus=mx-checkbox
+
+== firefox base unselected
+   0 unselected rgb(25, 29, 19) @0.1
+   2 unselected rgb(25, 29, 19) @0.1
+   4 unselected rgb(25, 29, 19) @0.1
+   6 unselected rgb(25, 29, 19) @0.1
+   8 unselected rgb(25, 29, 19) @0.1
+  10 unselected rgb(25, 29, 19) @0.1
+  12 unselected rgb(25, 29, 19) @0.1
+  14 unselected rgb(25, 29, 19) @0.1
+  16 unselected rgb(25, 29, 19) @0.077784
+  18 unselected rgb(25, 29, 19) @0.0556379
+  20 unselected rgb(25, 29, 19) @0.0334663
+  22 unselected rgb(25, 29, 19) @0.0113305
+  24 unselected rgb(25, 29, 19) @0.1
+  26 unselected rgb(25, 29, 19) @0.1
+  28 unselected rgb(25, 29, 19) @0.1
+  after: checked=false indeterminate=false focus=mx-checkbox
+
+== firefox base checked
+   0 checked rgb(25, 29, 19) @0.1
+   2 checked rgb(25, 29, 19) @0.1
+   4 checked rgb(25, 29, 19) @0.1
+   6 checked rgb(25, 29, 19) @0.1
+   8 checked rgb(25, 29, 19) @0.1
+  10 checked rgb(25, 29, 19) @0.1
+  12 checked rgb(25, 29, 19) @0.1
+  14 checked rgb(25, 29, 19) @0.1
+  16 checked rgb(25, 29, 19) @0.0778612
+  18 checked rgb(25, 29, 19) @0.0557105
+  20 checked rgb(25, 29, 19) @0.033573
+  22 checked rgb(25, 29, 19) @0.0107859
+  24 checked rgb(25, 29, 19) @0.1
+  26 checked rgb(25, 29, 19) @0.1
+  28 checked rgb(25, 29, 19) @0.1
+  after: checked=true indeterminate=false focus=mx-checkbox
+
+== firefox base indeterminate
+   0 indeterminate rgb(25, 29, 19) @0.1
+   2 indeterminate rgb(25, 29, 19) @0.1
+   4 indeterminate rgb(25, 29, 19) @0.1
+   6 indeterminate rgb(25, 29, 19) @0.1
+   8 indeterminate rgb(25, 29, 19) @0.1
+  10 indeterminate rgb(25, 29, 19) @0.1
+  12 indeterminate rgb(25, 29, 19) @0.1
+  14 indeterminate rgb(25, 29, 19) @0.1
+  16 indeterminate rgb(25, 29, 19) @0.0778442
+  18 indeterminate rgb(25, 29, 19) @0.0556897
+  20 indeterminate rgb(25, 29, 19) @0.0334932
+  22 indeterminate rgb(25, 29, 19) @0.0113353
+  24 indeterminate rgb(25, 29, 19) @0.1
+  26 indeterminate rgb(25, 29, 19) @0.1
+  28 indeterminate rgb(25, 29, 19) @0.1
+  after: checked=false indeterminate=true focus=mx-checkbox
+
+== firefox head unselected
+   0 unselected rgb(25, 29, 19) @0.1
+   2 unselected rgb(25, 29, 19) @0.1
+   4 unselected rgb(25, 29, 19) @0.1
+   6 unselected rgb(25, 29, 19) @0.1
+   8 unselected rgb(25, 29, 19) @0.1
+  10 unselected rgb(25, 29, 19) @0.1
+  12 unselected rgb(25, 29, 19) @0.1
+  14 unselected rgb(25, 29, 19) @0.1
+  16 unselected rgb(25, 29, 19) @0.0778696
+  18 unselected rgb(25, 29, 19) @0.0557167
+  20 unselected rgb(25, 29, 19) @0.0335853
+  22 unselected rgb(25, 29, 19) @0.011432
+  24 unselected rgb(25, 29, 19) @0.1
+  26 unselected rgb(25, 29, 19) @0.1
+  28 unselected rgb(25, 29, 19) @0.1
+  after: checked=false indeterminate=false focus=mx-checkbox
+
+== firefox head checked
+   0 checked rgb(62, 103, 0) @0.1
+   2 checked rgb(62, 103, 0) @0.1
+   4 checked rgb(62, 103, 0) @0.1
+   6 checked rgb(62, 103, 0) @0.1
+   8 checked rgb(62, 103, 0) @0.1
+  10 checked rgb(62, 103, 0) @0.1
+  12 checked rgb(62, 103, 0) @0.1
+  14 checked rgb(62, 103, 0) @0.1
+  16 checked rgb(62, 103, 0) @0.0892714
+  18 checked rgb(62, 103, 0) @0.0671373
+  20 checked rgb(62, 103, 0) @0.0443344
+  22 checked rgb(62, 103, 0) @0.0221676
+  24 checked rgb(62, 103, 0) @0.00000436733
+  26 checked rgb(62, 103, 0) @0.1
+  28 checked rgb(62, 103, 0) @0.1
+  after: checked=true indeterminate=false focus=mx-checkbox
+
+== firefox head indeterminate
+   0 indeterminate rgb(62, 103, 0) @0.1
+   2 indeterminate rgb(62, 103, 0) @0.1
+   4 indeterminate rgb(62, 103, 0) @0.1
+   6 indeterminate rgb(62, 103, 0) @0.1
+   8 indeterminate rgb(62, 103, 0) @0.1
+  10 indeterminate rgb(62, 103, 0) @0.1
+  12 indeterminate rgb(62, 103, 0) @0.1
+  14 indeterminate rgb(62, 103, 0) @0.1
+  16 indeterminate rgb(62, 103, 0) @0.0778498
+  18 indeterminate rgb(62, 103, 0) @0.055681
+  20 indeterminate rgb(62, 103, 0) @0.0334707
+  22 indeterminate rgb(62, 103, 0) @0.0113167
+  24 indeterminate rgb(62, 103, 0) @0.1
+  26 indeterminate rgb(62, 103, 0) @0.1
+  28 indeterminate rgb(62, 103, 0) @0.1
+  after: checked=false indeterminate=true focus=mx-checkbox
+
+== webkit base unselected
+   0 unselected rgb(25, 29, 19) @0.1
+   2 unselected rgb(25, 29, 19) @0.1
+   4 unselected rgb(25, 29, 19) @0.1
+   6 unselected rgb(25, 29, 19) @0.1
+   8 unselected rgb(25, 29, 19) @0.1
+  10 unselected rgb(25, 29, 19) @0.1
+  12 unselected rgb(25, 29, 19) @0.1
+  14 unselected rgb(25, 29, 19) @0.098667
+  16 unselected rgb(25, 29, 19) @0.078
+  18 unselected rgb(25, 29, 19) @0.056
+  20 unselected rgb(25, 29, 19) @0.034667
+  22 unselected rgb(25, 29, 19) @0.013333
+  24 unselected rgb(25, 29, 19) @0.1
+  26 unselected rgb(25, 29, 19) @0.1
+  28 unselected rgb(25, 29, 19) @0.1
+  after: checked=false indeterminate=false focus=mx-checkbox
+
+== webkit base checked
+   0 checked rgb(25, 29, 19) @0.1
+   2 checked rgb(25, 29, 19) @0.1
+   4 checked rgb(25, 29, 19) @0.1
+   6 checked rgb(25, 29, 19) @0.1
+   8 checked rgb(25, 29, 19) @0.1
+  10 checked rgb(25, 29, 19) @0.1
+  12 checked rgb(25, 29, 19) @0.1
+  14 checked rgb(25, 29, 19) @0.1
+  16 checked rgb(25, 29, 19) @0.088667
+  18 checked rgb(25, 29, 19) @0.067333
+  20 checked rgb(25, 29, 19) @0.046
+  22 checked rgb(25, 29, 19) @0.024667
+  24 checked rgb(25, 29, 19) @0.003333
+  26 checked rgb(25, 29, 19) @0.1
+  28 checked rgb(25, 29, 19) @0.1
+  after: checked=true indeterminate=false focus=mx-checkbox
+
+== webkit base indeterminate
+   0 indeterminate rgb(25, 29, 19) @0.1
+   2 indeterminate rgb(25, 29, 19) @0.1
+   4 indeterminate rgb(25, 29, 19) @0.1
+   6 indeterminate rgb(25, 29, 19) @0.1
+   8 indeterminate rgb(25, 29, 19) @0.1
+  10 indeterminate rgb(25, 29, 19) @0.1
+  12 indeterminate rgb(25, 29, 19) @0.1
+  14 indeterminate rgb(25, 29, 19) @0.1
+  16 indeterminate rgb(25, 29, 19) @0.088667
+  18 indeterminate rgb(25, 29, 19) @0.067333
+  20 indeterminate rgb(25, 29, 19) @0.046
+  22 indeterminate rgb(25, 29, 19) @0.024667
+  24 indeterminate rgb(25, 29, 19) @0.003333
+  26 indeterminate rgb(25, 29, 19) @0.1
+  28 indeterminate rgb(25, 29, 19) @0.1
+  after: checked=false indeterminate=true focus=mx-checkbox
+
+== webkit head unselected
+   0 unselected rgb(25, 29, 19) @0.1
+   2 unselected rgb(25, 29, 19) @0.1
+   4 unselected rgb(25, 29, 19) @0.1
+   6 unselected rgb(25, 29, 19) @0.1
+   8 unselected rgb(25, 29, 19) @0.1
+  10 unselected rgb(25, 29, 19) @0.1
+  12 unselected rgb(25, 29, 19) @0.1
+  14 unselected rgb(25, 29, 19) @0.1
+  16 unselected rgb(25, 29, 19) @0.078
+  18 unselected rgb(25, 29, 19) @0.056667
+  20 unselected rgb(25, 29, 19) @0.035333
+  22 unselected rgb(25, 29, 19) @0.014
+  24 unselected rgb(25, 29, 19) @0.1
+  26 unselected rgb(25, 29, 19) @0.1
+  28 unselected rgb(25, 29, 19) @0.1
+  after: checked=false indeterminate=false focus=mx-checkbox
+
+== webkit head checked
+   0 checked rgb(62, 103, 0) @0.1
+   2 checked rgb(62, 103, 0) @0.1
+   4 checked rgb(62, 103, 0) @0.1
+   6 checked rgb(62, 103, 0) @0.1
+   8 checked rgb(62, 103, 0) @0.1
+  10 checked rgb(62, 103, 0) @0.1
+  12 checked rgb(62, 103, 0) @0.1
+  14 checked rgb(62, 103, 0) @0.1
+  16 checked rgb(62, 103, 0) @0.088667
+  18 checked rgb(62, 103, 0) @0.068
+  20 checked rgb(62, 103, 0) @0.046
+  22 checked rgb(62, 103, 0) @0.024667
+  24 checked rgb(62, 103, 0) @0.003333
+  26 checked rgb(62, 103, 0) @0.1
+  28 checked rgb(62, 103, 0) @0.1
+  after: checked=true indeterminate=false focus=mx-checkbox
+
+== webkit head indeterminate
+   0 indeterminate rgb(62, 103, 0) @0.1
+   2 indeterminate rgb(62, 103, 0) @0.1
+   4 indeterminate rgb(62, 103, 0) @0.1
+   6 indeterminate rgb(62, 103, 0) @0.1
+   8 indeterminate rgb(62, 103, 0) @0.1
+  10 indeterminate rgb(62, 103, 0) @0.1
+  12 indeterminate rgb(62, 103, 0) @0.1
+  14 indeterminate rgb(62, 103, 0) @0.098667
+  16 indeterminate rgb(62, 103, 0) @0.079333
+  18 indeterminate rgb(62, 103, 0) @0.056667
+  20 indeterminate rgb(62, 103, 0) @0.034
+  22 indeterminate rgb(62, 103, 0) @0.013333
+  24 indeterminate rgb(62, 103, 0) @0.1
+  26 indeterminate rgb(62, 103, 0) @0.1
+  28 indeterminate rgb(62, 103, 0) @0.1
+  after: checked=false indeterminate=true focus=mx-checkbox

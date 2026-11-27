@@ -1,5 +1,7 @@
 import type { AccessibilityNode } from './accessibility-commands.node.ts';
 import type {
+  MaterialTokenRequest,
+  MaterialTokenResponse,
   TokenContractRequest,
   TokenContractResponse,
 } from './visual-contracts.node.ts';
@@ -9,6 +11,10 @@ declare module 'vitest/browser' {
     resolveTokenContract(
       request: TokenContractRequest,
     ): Promise<TokenContractResponse>;
+    /** Resolves Material tokens by name, in the form a package's values take. */
+    resolveMaterialTokens(
+      request: MaterialTokenRequest,
+    ): Promise<MaterialTokenResponse>;
     /**
      * Moves the pointer to the viewport point and holds a button down, the left
      * one by default.

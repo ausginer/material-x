@@ -65,11 +65,21 @@
  * The focus layer: the focused state's state layer, on the focus indicator's
  * trigger: a keyboard-focused input, read from a later sibling, because Firefox
  * doesn't match `:host:has()`. It is more specific than the ripple's hover rule, so it shows over
- * hover; the press wave is the ripple's ::after and stays as it is.
+ * hover.
  */
 :host .input:focus-visible ~ .ripple::before {
   background-color: var(--_focus-layer-color);
   opacity: var(--_focus-layer-opacity);
+}
+
+/*
+ * The press wave: the pressed state's state layer, the same for a pointer and
+ * a keyboard activation, hovered or not. It is more specific than the ripple's
+ * rule. The ripple's fade animates the opacity from this value.
+ */
+:host .ripple::after {
+  background-color: var(--_press-layer-color);
+  opacity: var(--_press-layer-opacity);
 }
 
 /* The focus indicator's box: the host's, so the outline is drawn as around the host. */

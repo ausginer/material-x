@@ -1,0 +1,12 @@
+// md.comp.checkbox's outline.color and icon.color tokens: value, deprecation, and
+// the path groupTokens gives them. Run from packages/material-x in slot d.
+import store from '/workspaces/worktrees/d/packages/tproc/store/index.js';
+import { groupTokens } from '/workspaces/worktrees/d/packages/material-x/src/checkbox/styles/utils.ts';
+const set = store.getSet('md.comp.checkbox')!;
+for (const t of set.tokens) {
+  if (!/(outline\.color|icon\.color)$/.test(t.tokenName)) continue;
+  const s = store.select(t);
+  const v = s?.value as Record<string, unknown> | undefined;
+  const g = groupTokens(t.tokenName.replace('md.comp.checkbox.', ''));
+  console.log(`${t.tokenName.padEnd(52)} ${String(v?.['tokenName'] ?? JSON.stringify(v)).padEnd(28)} ${store.isTokenDeprecated(t) ? 'DEPRECATED' : 'current   '} -> ${g.path}  ${g.tokenName}`);
+}

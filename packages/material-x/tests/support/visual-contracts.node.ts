@@ -16,6 +16,15 @@ export type TokenContractResponse = Readonly<{
   values: Readonly<Record<string, string | number>>;
 }>;
 
+/** Material tokens that a row names, such as `md.comp.checkbox.unselected.hover.outline.color`. */
+export type MaterialTokenRequest = Readonly<{
+  tokens: readonly string[];
+}>;
+
+export type MaterialTokenResponse = Readonly<{
+  values: Readonly<Record<string, string | number>>;
+}>;
+
 type ContractRegistry = Readonly<Record<string, ReadonlySignal<TokenPackage>>>;
 
 /*
@@ -192,11 +201,39 @@ export async function resolveTokenContract(
   };
 }
 
+/**
+ * Resolves each named Material token as a package's `append` resolves the same
+ * name: a system color becomes its public custom property with the theme's
+ * value as fallback. A row whose requirement names its token compares with this
+ * rather than with a package's effective value, which comes from the naming
+ * under test.
+ */
+export async function resolveMaterialTokens(
+  request: MaterialTokenRequest,
+): Promise<MaterialTokenResponse> {
+  const { resolveSet } = await import('@ydinjs/tproc/resolve.js');
+  const values = resolveSet(
+    Object.fromEntries(request.tokens.map((token) => [token, token])),
+  );
+
+  for (const token of request.tokens) {
+    if (values[token] == null) {
+      throw new Error(`Unknown Material token "${token}"`);
+    }
+  }
+
+  return { values };
+}
+
 export const tokenContractCommands: Readonly<
   Record<string, BrowserCommand<any[]>>
 > = {
   resolveTokenContract: defineBrowserCommand<[TokenContractRequest]>(
     (_context, request): Promise<TokenContractResponse> =>
       resolveTokenContract(request),
+  ),
+  resolveMaterialTokens: defineBrowserCommand<[MaterialTokenRequest]>(
+    (_context, request): Promise<MaterialTokenResponse> =>
+      resolveMaterialTokens(request),
   ),
 };

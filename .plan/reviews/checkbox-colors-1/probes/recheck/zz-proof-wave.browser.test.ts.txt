@@ -1,0 +1,140 @@
+// Recheck of #338 (RF-157) at 2642a3baf, a probe and not a row. For each
+// selection, with and without `error`:
+// - space: Space on a focused checkbox, the press wave (the ripple's ::after)
+//   sampled each frame, with the host's :hover, :focus-within and :active;
+// - space-toggle: the same, with a consumer that toggles the selection on
+//   `change`, so the selection changes while the wave draws;
+// - click: a hovered pointer press, held 6 frames, then released, sampled;
+// - press-out: a pointer press at the centre, then moved outside while held,
+//   with the box's outline read after the host's transitions finish.
+// Written to zz-wave-<engine>.json beside this file.
+import { it } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+import '../../src/checkbox/checkbox.ts';
+import { nextFrame } from '../browser.ts';
+
+const SELECTIONS = [
+  ['unselected', []],
+  ['checked', ['checked']],
+  ['indeterminate', ['indeterminate']],
+] as const;
+
+function selection(element: Element): string {
+  if (element.matches(':state(indeterminate)')) return 'indeterminate';
+  return element.matches(':state(checked)') ? 'checked' : 'unselected';
+}
+
+function sample(element: HTMLElement, i: number): string {
+  const wave = getComputedStyle(
+    element.shadowRoot!.querySelector('.ripple')!,
+    '::after',
+  );
+  const matches =
+    [':hover', ':focus-within', ':active']
+      .filter((s) => element.matches(s))
+      .join(' ') || '-';
+  return `${String(i).padStart(2)} ${selection(element)} ${matches} | ${wave.backgroundColor} @${Number(wave.opacity).toFixed(3)} w=${wave.width}`;
+}
+
+async function finishHost(element: HTMLElement): Promise<void> {
+  getComputedStyle(element, '::after').borderTopColor;
+  await Promise.all(
+    element.getAnimations({ subtree: true }).map(async (a) => {
+      a.finish();
+      await a.finished;
+    }),
+  );
+}
+
+function create(attrs: readonly string[], error: boolean): HTMLElement {
+  const element = document.createElement('mx-checkbox');
+  for (const a of attrs) element.toggleAttribute(a, true);
+  if (error) element.toggleAttribute('error', true);
+  document.body.append(element);
+  return element;
+}
+
+it('samples the press wave', async () => {
+  const out: Record<string, string[]> = {};
+  for (const [name, attrs] of SELECTIONS) {
+    for (const error of [false, true]) {
+      const key = `${name}${error ? ' error' : ''}`;
+      for (const mode of ['space', 'space-toggle'] as const) {
+        const element = create(attrs, error);
+        if (mode === 'space-toggle') {
+          element.addEventListener('change', () => {
+            const on = element.hasAttribute('checked') || element.hasAttribute('indeterminate');
+            element.removeAttribute('indeterminate');
+            element.toggleAttribute('checked', !on);
+          });
+        }
+        await nextFrame();
+        element.focus();
+        await nextFrame();
+        const samples: string[] = [];
+        await userEvent.keyboard('{Space}');
+        for (let i = 0; i < 26; i += 1) {
+          samples.push(sample(element, i));
+          await nextFrame();
+        }
+        out[`${key} ${mode}`] = samples;
+        element.remove();
+        await nextFrame();
+      }
+
+      {
+        const element = create(attrs, error);
+        await nextFrame();
+        const { left, top, width, height } = element.getBoundingClientRect();
+        const x = left + width / 2;
+        const y = top + height / 2;
+        await commands.pointerMove(x, y, 1);
+        await nextFrame();
+        const samples: string[] = [];
+        await commands.pointerPress(x, y);
+        for (let i = 0; i < 6; i += 1) {
+          samples.push(sample(element, i));
+          await nextFrame();
+        }
+        await commands.pointerRelease();
+        for (let i = 6; i < 26; i += 1) {
+          samples.push(sample(element, i));
+          await nextFrame();
+        }
+        out[`${key} click`] = samples;
+        await commands.pointerMove(1, 1, 1);
+        element.blur();
+        element.remove();
+        await nextFrame();
+      }
+
+      {
+        const element = create(attrs, error);
+        await nextFrame();
+        const { left, top, width, height } = element.getBoundingClientRect();
+        const x = left + width / 2;
+        const y = top + height / 2;
+        await commands.pointerMove(x, y, 1);
+        await commands.pointerPress(x, y);
+        await nextFrame();
+        await finishHost(element);
+        const held = `held ${sample(element, 0)} outline=${getComputedStyle(element, '::after').borderTopColor}`;
+        await commands.pointerMove(left + width + 40, top + height + 40, 4);
+        await nextFrame();
+        await finishHost(element);
+        const out2 = `moved-out ${sample(element, 1)} outline=${getComputedStyle(element, '::after').borderTopColor} focus=${document.activeElement === element}`;
+        await commands.pointerRelease();
+        await nextFrame();
+        out[`${key} press-out`] = [held, out2];
+        await commands.pointerMove(1, 1, 1);
+        element.blur();
+        element.remove();
+        await nextFrame();
+      }
+    }
+  }
+  await commands.writeFile(
+    `zz-wave-${server.browser}.json`,
+    JSON.stringify(out, null, 1),
+  );
+}, 120000);

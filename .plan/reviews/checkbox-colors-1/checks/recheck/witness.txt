@@ -1,0 +1,14 @@
+# .plan/checkbox-colors-1/probes/witness.sh 29f5597d6, run by the reviewer from slot d's root at 2642a3baf, Chromium, 2026-11-27.
+     × should draw the keyboard press wave as the pressed state layer when unselected
+     × should draw the keyboard press wave as the pressed state layer when checked
+     × should draw the keyboard press wave as the pressed state layer when indeterminate
+     × should draw the pointer press wave at the pressed state layer opacity when unselected
+     × should draw the pointer press wave at the pressed state layer opacity when checked
+     × should draw the unselected outline color when hovered
+     × should draw the unselected outline color when focused
+     × should draw the unselected outline color when pressed
+AssertionError: expected { color: 'rgb(25, 29, 19)', …(1) } to strictly equal { color: 'rgb(62, 103, 0)', …(1) }
+AssertionError: expected { color: 'rgb(62, 103, 0)', …(1) } to strictly equal { color: 'rgb(25, 29, 19)', …(1) }
+AssertionError: expected 0.08 to be 0.1 // Object.is equality
+AssertionError: expected 'rgb(66, 73, 55)' to be 'rgb(25, 29, 19)' // Object.is equality
+      Tests  8 failed | 23 passed (31)

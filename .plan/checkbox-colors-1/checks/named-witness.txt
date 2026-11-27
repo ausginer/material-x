@@ -1,0 +1,30 @@
+== no-uhover-outline
+  × should draw the unselected outline color when hovered 363ms
+  AssertionError: expected 'rgb(66, 73, 55)' to be 'rgb(25, 29, 19)' // Object.is equality
+  Tests  1 failed | 30 passed (31)
+== no-ufocus-outline
+  × should draw the unselected outline color when focused 219ms
+  AssertionError: expected 'rgb(66, 73, 55)' to be 'rgb(25, 29, 19)' // Object.is equality
+  Tests  1 failed | 30 passed (31)
+== no-upressed-outline
+  Tests  31 passed (31)
+== no-outline-appends
+  × should draw the unselected outline color when hovered 326ms
+  × should draw the unselected outline color when focused 133ms
+  × should draw the unselected outline color when pressed 131ms
+  AssertionError: expected 'rgb(66, 73, 55)' to be 'rgb(25, 29, 19)' // Object.is equality
+  Tests  3 failed | 28 passed (31)
+== no-udisabled-outline
+  × should draw the disabled outline color when unselected 177ms
+  AssertionError: expected 'rgb(66, 73, 55)' to be 'rgb(25, 29, 19)' // Object.is equality
+  Tests  1 failed | 30 passed (31)
+== no-sdisabled-icon
+  × should draw the disabled icon color when checked 154ms
+  × should draw the disabled icon color when indeterminate 68ms
+  AssertionError: expected 'rgb(255, 255, 255)' to be 'rgb(4, 5, 6)' // Object.is equality
+  Tests  2 failed | 29 passed (31)
+== sel-hover-no-uhover
+  × should draw the selected hovered state layer color when checked 426ms
+  × should draw the selected hovered state layer color when indeterminate 149ms
+  AssertionError: expected 'rgb(25, 29, 19)' to be 'rgb(62, 103, 0)' // Object.is equality
+  Tests  2 failed | 29 passed (31)
