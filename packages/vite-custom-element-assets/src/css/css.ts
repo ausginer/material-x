@@ -1,16 +1,11 @@
 import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { RolldownMagicString, type SourceMapInput } from 'rolldown';
-import { cssCache, escapeTemplateLiteral, type JSONModule } from '../utils.ts';
+import { escapeTemplateLiteral, loadPropList } from '../utils.ts';
 import format from './format.ts';
 import transform from './transform.ts';
 
 const CSS_VARIABLE_NAME_REGEXP = /(--_[\w-]+)/gu;
-
-const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
-  await import(fileURLToPath(new URL('css-private-props.json', cssCache)), {
-    with: { type: 'json' },
-  });
 
 export type CSSCompilationResult = Readonly<{
   code: string;
@@ -30,7 +25,8 @@ export async function compileCSS(
   const path = fileURLToPath(url);
   const cssPath = path.replace(/\.ts$/u, '');
 
-  const css = options?.isProd
+  const propList = options?.isProd ? await loadPropList() : undefined;
+  const css = propList
     ? code.replace(CSS_VARIABLE_NAME_REGEXP, (propName) => {
         const mangled = propList[propName];
 
