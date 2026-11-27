@@ -65,6 +65,7 @@ So nothing that is required is lost. A manifest reader outside the repository th
 - **Why it matters.** The note links the probe as the evidence of the witness, and the probe was reformatted at the head (`94167bb33`). A reader who runs it at the head gets an error, and nothing in the reading or the probe says that it ran at `e67e120bb`.
 - **Evidence.** `grep -c` finds the text 0 times in `sortable-list.ts` and once in `reorder-event.ts`. My script, which uses the moved site, kills all three of `ReorderEvent`'s flips in each engine.
 - **Required property.** The witness's probe and reading say the commit they ran at, or the probe runs at the head that cites it.
+- **Closed 2026-11-27 by the architect,** from `ae84ceaeb`, by the first alternative. The probe's header says that it ran at `e67e120bb`, why it stops from `5472eba5b` on, and that this proof's script reads the moved site. The probe isn't pointed at the moved site, because it would then no longer be the instrument that wrote the reading. The reading is a captured transcript and isn't edited, so `RF-117`'s architect note of 2026-11-27, which cites it, says the commit. No source changes.
 
 ### fp-2 — `RF-118` property 3 asks the proposal to hold the request, and nothing reads it. For the architect
 
@@ -73,6 +74,7 @@ So nothing that is required is lost. A manifest reader outside the repository th
 - **Why it matters.** The field is required by the contract, not by the code. So the implementation is faithful, and the field is machinery with no responsibility (`CONTRIBUTING.md` §2.2). Deciding whether the property should name it is a contract call, not a defect in the implementation.
 - **Evidence.** `grep -n "request" packages/material-x/src/list/useSortable.ts`: the field's declaration (line 54) and its initializer (line 101), and no member read.
 - **Required property.** The architect decides whether property 3 holds as written. The implementation doesn't change before then.
+- **Ruled 2026-11-27 by the architect,** from `ae84ceaeb`, in `RF-118`'s architect note of that date. Property 3's wording stands: _holds_ means the state the object owns, which for the request is `wait`'s closure, as it is for the other items. The `request` member is a second copy of that state with no reader (`CONTRIBUTING.md` §5), so the implementer removes it on this branch before the merge, and the typecheck, the unedited `sortable-list` rows and CI's `verify` witness it. **The finding closes with that commit.** No new feature proof is owed.
 
 ### fp-3 — `RD-52` still says _Unimplemented_ after its unit. For the architect
 
@@ -80,6 +82,8 @@ So nothing that is required is lost. A manifest reader outside the repository th
 - **Current behavior.** `.plan/decisions/RD-52.md` says _"**Unimplemented:** `RF-117` is its unit."_ At `94167bb33`, `RF-117` is implemented and marked closed by #321. The unit doesn't touch the decision.
 - **Why it matters.** A reader of the decision is told that its rule doesn't yet hold in the code. Only the architect amends a decision. The same is true of `RD-60` on `main` after #310, so this happens more than once and is reported once here.
 - **Required property.** A decision's status line matches its implementation once the unit merges, or the record states that status lines aren't maintained.
+- **Closed 2026-11-27 by the architect,** from `ae84ceaeb`, by the first alternative. Status lines are maintained. `RD-52`'s says that it was implemented at `e67e120bb` on this branch, with #321 not yet merged. `RD-60`'s says that it was implemented by #310, merged as `d6f6cf60b`. Each keeps its former wording, as `RD-30`'s does. Changing a status line is a non-substantive edit (`documentation.md` §6), so the unit that implements a decision may make it, as `RD-30`'s implementer did.
+  - **Not read:** 21 other decision files still contain _"Unimplemented"_, and this pass didn't check which of them are stale. Auditing them, and writing the status-line duty into `documentation.md` §6, is a documentation unit with its own pull request, and isn't made here.
 
 ## Open issues
 

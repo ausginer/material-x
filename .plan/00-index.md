@@ -2692,6 +2692,12 @@ Tier C, **closed 2026-11-26** by #321, on `material-x/use-sortable-1`, at its me
 - **Property 5:** `CONTRIBUTING.md`, Part I, _Shape_, has `RD-52`'s bullet in its wording, and the change record has its row.
 - **Sizes** ([reading](use-sortable-1/checks/sizes-rf117.txt)): no row grows. `complete` goes from 26.91 to 26.77 kB, and the switch, checkbox, radio, split-button, connected-button-group and text-field rows lose 50 to 70 B each.
 
+**Dated 2026-11-27 by the architect: the witness's probe and reading are `e67e120bb`'s,** on `material-x/use-sortable-1`, from fp-1 of #321's [feature proof](reviews/use-sortable-1/feature-proof-claude.md#fp-1--the-units-committed-probe-stops-at-the-head-before-it-reaches-reorderevent), requested by the coordinator.
+
+- **The probe and the reading above ran at `e67e120bb`,** where `ReorderEvent` is declared in `src/list/sortable-list.ts`. `RF-118` moves the class to `src/list/reorder-event.ts` at `5472eba5b`, so from that commit the probe flips the other 21 flags and then stops at `ReorderEvent`'s site. Its header now says so.
+- **The probe stays as it ran,** as `RF-109`'s probes name the hook at the commits they read. Pointing it at the moved site would make it a different instrument from the one that wrote the reading. The reading is a captured transcript and isn't edited.
+- **At the head, the witness is the feature proof's:** its [script](reviews/use-sortable-1/probes/mutations.mjs.txt) reads `ReorderEvent`'s flags in `reorder-event.ts`, and all 24 flips fail rows in Chromium, Firefox and WebKit ([readings](reviews/use-sortable-1/checks/mutations.txt)).
+
 #### RF-118 — `mx-sortable-list`'s constructor mixes the state of four lifetimes, and retains removed items
 
 Tier C, **closed 2026-11-26** by #321, on `material-x/use-sortable-1`, at its merge (the last note). Before closure: open. Pre-existing. Registered on 2026-11-23 by the architect, on `repo/register-observations-8`, from Mx Architect Explainer, relayed by the coordinator. `RF-117` is the entry before this one, so this is the next free number. Read at `04047237e`.
@@ -2758,6 +2764,16 @@ Tier C, **closed 2026-11-26** by #321, on `material-x/use-sortable-1`, at its me
   - `react.d.ts` is byte-identical.
   - In `custom-elements.json`, `src/list/sortable-list.ts` no longer declares the `ReorderEvent` class. It exports `ReorderEvent` and `ReorderEventInit` from `./reorder-event.ts`, which the manifest doesn't list, because it lists only `files.json`'s runtime entrypoints. The `reorder` event's description doesn't change. No document or script reads the class from the manifest. This is an observation for the architect, and the unit doesn't change the manifest's configuration.
 - **Size** ([reading](use-sortable-1/checks/sizes-rf118.txt)): `list/sortable-list` goes from 9.94 to 10 kB, and `complete` from 26.77 to 26.84 kB, against `e67e120bb`. No other row changes. The hook's single call site is kept under §2.1, as the boundary between the element's public API and the drag protocol.
+
+**Dated 2026-11-27 by the architect: property 3 holds as written, and the proposal's `request` member goes,** on `material-x/use-sortable-1`, from fp-2 of #321's [feature proof](reviews/use-sortable-1/feature-proof-claude.md#fp-2--rf-118-property-3-asks-the-proposal-to-hold-the-request-and-nothing-reads-it-for-the-architect), read at `ae84ceaeb`, requested by the coordinator.
+
+- **_Holds_ in property 3 means the state that the object owns, and not its members.** The property lists the other items alongside the request, and the object holds those only in its closure, which the proof accepts. It holds the request the same way: `wait`'s check reads `request.item` and `request.to` from `createProposal`'s parameter. The property's wording stands, and is read so.
+- **So `Proposal.request` is a second copy of a fact that the operation already holds,** with no reader: `onEnd` reads `result.request`, and `wait` reads its parameter. `CONTRIBUTING.md` §5 removes it (_"cached aliases of objects already in operation state"_).
+- **Owed by the implementer, on this branch, before the merge:** remove `request` from the `Proposal` type and from `createProposal`'s returned object in `src/list/useSortable.ts`. Nothing else changes.
+  - **Witness:** material-x's typecheck passes, which it wouldn't if any code read the member. The browser rows of `sortable-list` pass unedited in Chromium, and CI's `verify` passes on the commit, as `RD-62` asks.
+  - **Sizes:** the `list/sortable-list` row is measured against `ae84ceaeb`, and any change is reported.
+  - **No new feature proof is owed.** The change deletes a member that the proof found unread, and the typecheck and the rows show that.
+- **The manifest, which the proof reads and the implementer routes here:** `custom-elements.json` lists `files.json`'s runtime entrypoints, so it has no `ReorderEvent` class, and `sortable-list.ts`'s exports point at the unlisted `./reorder-event.ts`. This isn't registered. No reader in the repository needs the class, the package isn't published, and `text-field.ts` already exports `TextFieldCore.ts`'s types the same way. Whether the manifest covers modules that aren't entrypoints is a question for the first release's manifest, if a consumer's tool needs it.
 
 #### RF-119 — A control in a disabled fieldset isn't disabled
 

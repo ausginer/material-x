@@ -1,6 +1,10 @@
 // RF-117's witness: each flag of each dispatch, changed one at a time, run against the file that
 // holds the dispatch's flags row. Run from the repository root: node .plan/use-sortable-1/probes/event-flags.mjs
 // Each source is restored after its run.
+// It ran at e67e120bb, where ReorderEvent is declared in src/list/sortable-list.ts. From 5472eba5b
+// (RF-118) the class is in src/list/reorder-event.ts, so at later commits this probe stops at its
+// last site with "text not found once". The feature proof of #321 reads the moved site:
+// .plan/reviews/use-sortable-1/probes/mutations.mjs.txt.
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 
