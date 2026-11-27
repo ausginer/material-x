@@ -1,0 +1,41 @@
+# The architect's readings for the ruling on #340's feature proof, 2026-11-27
+# Tree: c694c71b2 (tproc/component-tables-1), in a temporary worktree,
+# after aube install and 'aube exec just _test-builds'. Mutation edits are the review's R1 to R3
+# (probes/probe.mjs.txt). scripts/convert.ts and the test file are restored from git after each run.
+# Runners: probes/probe.mjs.txt with its paths pointed at this tree, and probes/architect-survive.mjs.txt.
+
+## The review's three probe rows, unmutated and under R1, R2 and R3
+== unmutated: exit 0; Tests  3 passed | 53 skipped (56)
+== R1: exit 1; Tests  1 failed | 2 passed | 53 skipped (56)
+   × probe: should refuse a node with Material 3's id below another system's node 5ms
+     AssertionError: expected [Function] to not throw an error but 'Error: TOKEN_TABLE.c1: md.comp.test.a…' was thrown
+     - Expected:
+     + Received:
+== R2: exit 1; Tests  1 failed | 2 passed | 53 skipped (56)
+   × probe: should refuse a missing reference whose child node has no value id 9ms
+     AssertionError: expected [Function] to throw an error
+     - Expected:
+     + Received:
+== R3: exit 1; Tests  1 failed | 2 passed | 53 skipped (56)
+   × probe: should refuse a values reference that only another token's foreign node names 4ms
+     AssertionError: expected [Function] to throw an error
+     - Expected:
+     + Received:
+restored: true
+
+## convert.node.test.ts's own rows, under R1, R2 and R3
+R1 exit 0 Tests  53 passed (53)
+R2 exit 0 Tests  53 passed (53)
+R3 exit 0 Tests  53 passed (53)
+restored true
+
+## The tables' design systems: the manifest's databases
+tables 38
+databases [{'versionName': '41.1.12', 'versionId': '4ae102170fee99b1', 'publishTime': '2026-11-12T16:31:36.692418Z'}]
+system tables [('COLOR', '20543ce18892f7d9'), ('ELEVATION', '20543ce18892f7d9'), ('TOKEN_TYPE_UNSPECIFIED', '20543ce18892f7d9'), ('TYPOGRAPHY', '20543ce18892f7d9')]
+
+## #340's description: the rendered hrefs of its record links
+href=".plan/component-tables-1/checks/foreign-references-witness.txt"
+href=".plan/component-tables-1/checks/token-tables-report.md"
+href=".plan/component-tables-1/checks/progress-indicators-report.md"
+href=".plan/component-tables-1/checks/token-tables.txt"

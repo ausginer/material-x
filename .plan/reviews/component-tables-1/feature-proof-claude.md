@@ -91,6 +91,9 @@
 - **Why it is a problem:** the four rows are the record's proof that no reference into Material 3 is admitted (#340: _"Each fails under a mutation that classifies by the wrong rule"_). They pass two converters that classify by a wrong rule and admit such references. A later edit of the classification could make either change, and no row or update would refuse it.
 - **Evidence:** [mutations](checks/mutations.txt) R2 and R3: 53 passed each. [Probe rows](checks/probe.txt): rows 1 and 2 pass unmutated and fail under R2 and R3. [Raw table](checks/raw-probe.txt): _"child nodes with no id 0"_.
 - **Required property:** a row fails a converter that admits a missing child-node reference with no value id. A row fails one that admits a `values` reference that only another token's foreign node names.
+- **Ruled 2026-11-27 by the architect,** from `c694c71b2`: **tier B, the implementer's, on this branch.** The architect reran probe rows 1 and 2 and the 53 rows, unmutated and under R2 and R3, with the same outcomes ([readings](checks/architect-ruling.txt)). Two rows in `convert.node.test.ts`, each with the refusal's whole message, naming the table, the token and the field (`RD-69` property 4):
+  - **a child node with no value id** that names a token not in the store is refused. **Witness:** it fails under R2, where such a node is read as another system's;
+  - **a `values` reference that only another token's foreign node names** is refused, on the token whose entry it is, with `values.tokenName: names <token>, not in the store`. **Witness:** it fails under R3, where one token's foreign names admit another's entries.
 
 ### `fp-2` — tier C: no row fails a converter that classifies a node below a foreign node by its own id
 
@@ -99,6 +102,7 @@
 - **Why it is a problem:** a required clause isn't shown. The harm is limited: without the clause, the converter refuses more than the decision does and admits nothing it shouldn't.
 - **Evidence:** [mutations](checks/mutations.txt) R1. [Probe rows](checks/probe.txt), row 3. [Raw table](checks/raw-probe.txt): _"own-id nodes below a foreign node 0"_, _"no-id nodes below a foreign node 0"_.
 - **Required property:** a row fails a converter that checks a node below another system's node by its own id.
+- **Ruled 2026-11-27 by the architect,** from `c694c71b2`: **tier C, the implementer's, on this branch.** One row: a node with its table's own value id, below another system's node and naming a token not in the store, converts. The store keeps that node's `tokenName`, and the node has no `value` index (`RD-69` properties 1 and 2). Its name says that the node is stored unchecked, not that it is refused, unlike probe row 3. **Witness:** it fails under R1, where the node is refused.
 
 ### `fp-3` — tier C, routed to the architect: the converter reads "another design system" against the table's own system, where `RD-69` names Material 3's
 
@@ -107,6 +111,7 @@
 - **Why it is a problem:** the decision's text and the code's rule differ, and nothing at this release distinguishes them. Which rule stands is a reading of the decision, so it is the architect's call and not a defect in the code.
 - **Evidence:** `scripts/convert.ts`, `this.designSystem = …parentId(this.string('-', version, 'name'), 'versions')…` and `foreign ||= id != null && !id.startsWith(this.designSystem)`. The fixture's `const DS = 'designSystems/ds'`. [Raw table](checks/raw-probe.txt): _"own system designSystems/20543ce18892f7d9/"_.
 - **Required property:** `RD-69` property 1 and the converter state the same rule.
+- **Ruled 2026-11-27 by the architect,** from `c694c71b2`: **`RD-69` is amended to the code's reading,** before merge. Property 1 now reads another design system against the table's own, which `system.version.name` names, and says that for every table of the store it is Material 3's. The amendment's paragraph gives the reasons and the two alternatives not adopted: the converter naming Material 3's id, and a refusal of tables whose design systems differ. **No code changes,** and #340 implements the amendment as it stands. The description's _"a design system other than the table's own"_ is then the decision's rule.
 
 ### `fp-4` — tier C: #340's description links its record with paths that don't resolve on GitHub
 
@@ -114,3 +119,4 @@
 - **Current behaviour / contract:** `body_html` from `gh api repos/ausginer/material-x/pulls/340` has `href=".plan/component-tables-1/checks/foreign-references-witness.txt"` and three more links of the same form.
 - **Why it is a problem:** a reader of the pull request can't open the witnesses and reports from it.
 - **Required property:** the description's links reach the files they name.
+- **Ruled 2026-11-27 by the architect,** from `c694c71b2`: **tier C, the implementer's.** The implementer edits #340's description. Each of the four record links becomes absolute, `https://github.com/ausginer/material-x/blob/<commit>/<path>`, at a commit of this branch that holds the file, so that it still resolves after the branch is deleted on merge. No commit is needed for it. The architect read the four rendered `href`s again, all relative, in [the readings](checks/architect-ruling.txt).

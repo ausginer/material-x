@@ -1,0 +1,21 @@
+import { execFileSync, spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+const DIR = '/workspaces/worktrees/arch-tmp-tables/packages/tproc';
+const SOURCE = `${DIR}/scripts/convert.ts`;
+const source = readFileSync(SOURCE, 'utf8');
+const variants = {
+  R1: [['let foreign = belowForeign;', 'let foreign = false;']],
+  R2: [['foreign ||= id != null && !id.startsWith(this.designSystem);', 'foreign ||= id == null || !id.startsWith(this.designSystem);']],
+  R3: [['const foreignNames = new Set<string>();', 'const foreignNames = globalForeign;'], ['  const names = new Set(', '  const globalForeign = new Set<string>();\n  const names = new Set(']],
+};
+try {
+  for (const [name, edits] of Object.entries(variants)) {
+    let text = source;
+    for (const [a, b] of edits) { if (text.split(a).length !== 2) throw new Error(name); text = text.replace(a, b); }
+    writeFileSync(SOURCE, text);
+    const run = spawnSync('aube', ['exec', 'just', 'test', 'tests/scripts/convert.node.test.ts'], { cwd: DIR, encoding: 'utf8' });
+    const out = (run.stdout + run.stderr).replaceAll(/\x1b\[[0-9;]*m/g, '');
+    console.log(name, 'exit', run.status, out.split('\n').find((l) => /^\s+Tests\s/.test(l))?.trim());
+  }
+} finally { execFileSync('git', ['checkout', '--', 'scripts/convert.ts'], { cwd: DIR }); }
+console.log('restored', readFileSync(SOURCE, 'utf8') === source);
