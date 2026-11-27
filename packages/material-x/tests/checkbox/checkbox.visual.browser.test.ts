@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import '../../src/checkbox/checkbox.ts';
-import { nextFrame, settleAnimations, whenFontsReady } from '../browser.ts';
+import {
+  nextFrame,
+  nextPaint,
+  settleAnimations,
+  whenFontsReady,
+} from '../browser.ts';
 
 function createFixture(name: string): HTMLDivElement {
   const fixture = document.createElement('div');
@@ -83,6 +88,7 @@ describe('checkbox visual regression', () => {
     const element = appendCheckbox(fixture, { checked: '' });
 
     await settleFixture(fixture);
+    await nextPaint();
     await userEvent.hover(element);
 
     await expect
@@ -95,6 +101,7 @@ describe('checkbox visual regression', () => {
     appendCheckbox(fixture);
 
     await settleFixture(fixture);
+    await nextPaint();
     await userEvent.tab();
 
     await expect

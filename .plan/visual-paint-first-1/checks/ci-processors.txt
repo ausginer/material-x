@@ -1,0 +1,51 @@
+# The gate's chromium job per verify run, newest first, read by the architect on 2026-11-27 from each job's log: its result and the processor that RD-13 property 9's step logs.
+# 'button-focused-mentions' > 0 marks a job that failed button-focused. Each job ran ImageOS ubuntu24; the two read in full ran ImageVersion 20261122.23.1.
+# run job result cpu
+46065214647 140728893596 cancelled cpu=[] button-focused-mentions=0
+46064268341 140725994088 failure cpu=[AMD EPYC 9V45 96-Core Processor] button-focused-mentions=0
+46063933872 140724828306 failure cpu=[AMD EPYC 7763 64-Core Processor] button-focused-mentions=7
+46063925514 140724924951 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46063807136 140724337901 success cpu=[AMD EPYC 7763 64-Core Processor] button-focused-mentions=0
+46063456669 140723206479 success cpu=[INTEL(R) XEON(R) PLATINUM 8573C] button-focused-mentions=0
+46063152138 140722223882 failure cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46061614947 140717323752 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46061582384 140716989936 cancelled cpu=[] button-focused-mentions=0
+46061056048 140715320441 success cpu=[AMD EPYC 7763 64-Core Processor] button-focused-mentions=0
+46060500126 140713607632 failure cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46060455518 140713337687 cancelled cpu=[] button-focused-mentions=0
+46059678175 140722857715 cancelled cpu=[AMD EPYC 7763 64-Core Processor] button-focused-mentions=0
+46058282379 140706244816 success cpu=[AMD EPYC 9V74 80-Core Processor] button-focused-mentions=0
+46056855537 140701577722 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46056568435 140700622071 cancelled cpu=[AMD EPYC 7763 64-Core Processor] button-focused-mentions=0
+46056134318 140699171991 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46055310402 140696532460 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46055231885 140696231041 success cpu=[AMD EPYC 7763 64-Core Processor] button-focused-mentions=0
+46055035943 140695589828 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46053379531 140690136228 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46053371988 140690135960 failure cpu=[Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz] button-focused-mentions=7
+46053359866 140690093093 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46053192520 140689567270 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46051800222 140684951714 success cpu=[AMD EPYC 9V45 96-Core Processor] button-focused-mentions=0
+46051616070 140684274096 success cpu=[AMD EPYC 9V74 80-Core Processor] button-focused-mentions=0
+46051582203 140684200572 success cpu=[Intel(R) Xeon(R) 6973P-C] button-focused-mentions=0
+46051571583 140684153168 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46051321424 140683238839 cancelled cpu=[] button-focused-mentions=0
+46050447313 140680421343 failure cpu=[AMD EPYC 9V45 96-Core Processor] button-focused-mentions=7
+46049537848 140677353458 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46048926550 140675310494 success cpu=[AMD EPYC 9V74 80-Core Processor] button-focused-mentions=0
+46048141938 140672700388 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46047294771 140670053957 success cpu=[AMD EPYC 9V45 96-Core Processor] button-focused-mentions=0
+46046819181 140668263126 cancelled cpu=[AMD EPYC 9V74 80-Core Processor] button-focused-mentions=0
+46046386597 140667044420 failure cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46045936488 140665340949 cancelled cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+46045831761 140664930979 success cpu=[AMD EPYC 9V45 96-Core Processor] button-focused-mentions=0
+45988263765 140469771772 success cpu=[AMD EPYC 9V45 96-Core Processor] button-focused-mentions=0
+45988132431 140469083333 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+45988003238 140468757152 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+45987917439 140469442616 success cpu=[AMD EPYC 7763 64-Core Processor] button-focused-mentions=0
+45987328370 140466606252 cancelled cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+45986023113 140462190503 success cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+45985316339 140459838766 cancelled cpu=[Intel(R) Xeon(R) 6975P-C] button-focused-mentions=0
+45985193194 140459110774 success cpu=[AMD EPYC 7763 64-Core Processor] button-focused-mentions=0
+45985026205 140458786478 cancelled cpu=[AMD EPYC 9V74 80-Core Processor] button-focused-mentions=0
+45984709211 140457533348 cancelled cpu=[AMD EPYC 9V74 80-Core Processor] button-focused-mentions=0

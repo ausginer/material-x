@@ -1,0 +1,102 @@
+# Feature proof of #346 at 1edc36b27, slot d, Chromium, local, 2026-11-27: the implementer's witness probe
+# (.plan/visual-paint-first-1/probes/paint-first-rows.browser.test.ts.txt), run by probes/paint-mut.sh.txt with tests/browser.ts' nextPaint() as named.
+# 'old' is the rows' steps before #346 (no wait). 'new' calls nextPaint(), so each mutation changes only 'new'. Per distinct result: count, SHA-1 prefix of the fixture's RGBA;
+# for button-focused, the red channel of x 10-15, y 33-38. a077a846 is the current baseline's rendering (78, 249 at the apex); 2e63a491 is CI's failing actual (82, 254).
+
+== nextPaint: head
+   (unmutated: two requestAnimationFrame callbacks)
+button-hovered old     x10 6c9c3427
+button-hovered new     x10 6c9c3427
+button-focused old     x10 a077a846 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,78,75,75,249,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+button-focused new     x10 2e63a491 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,82,75,75,254,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+checkbox-hovered old   x10 af2c89a9
+checkbox-hovered new   x10 af2c89a9
+checkbox-focused old   x10 3941f287
+checkbox-focused new   x10 3941f287
+radio-hovered old      x10 8ce00aaa
+radio-hovered new      x10 8ce00aaa
+radio-focused old      x10 711b664f
+radio-focused new      x1 3377e0b9
+radio-focused new      x9 711b664f
+slider-held old        x10 23c5460e
+slider-held new        x10 23c5460e
+slider-focused old     x10 f3cb8e14
+slider-focused new     x10 f3cb8e14
+
+== nextPaint: no-wait
+   (an empty body)
+button-hovered old     x10 6c9c3427
+button-hovered new     x10 6c9c3427
+button-focused old     x10 a077a846 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,78,75,75,249,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+button-focused new     x10 a077a846 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,78,75,75,249,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+checkbox-hovered old   x10 af2c89a9
+checkbox-hovered new   x10 af2c89a9
+checkbox-focused old   x10 3941f287
+checkbox-focused new   x10 3941f287
+radio-hovered old      x10 8ce00aaa
+radio-hovered new      x10 8ce00aaa
+radio-focused old      x10 711b664f
+radio-focused new      x9 711b664f
+radio-focused new      x1 3377e0b9
+slider-held old        x10 23c5460e
+slider-held new        x10 23c5460e
+slider-focused old     x10 f3cb8e14
+slider-focused new     x10 f3cb8e14
+
+== nextPaint: one-frame
+   (one requestAnimationFrame callback)
+button-hovered old     x10 6c9c3427
+button-hovered new     x10 6c9c3427
+button-focused old     x10 a077a846 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,78,75,75,249,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+button-focused new     x10 2e63a491 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,82,75,75,254,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+checkbox-hovered old   x10 af2c89a9
+checkbox-hovered new   x10 af2c89a9
+checkbox-focused old   x10 3941f287
+checkbox-focused new   x10 3941f287
+radio-hovered old      x10 8ce00aaa
+radio-hovered new      x10 8ce00aaa
+radio-focused old      x10 711b664f
+radio-focused new      x10 711b664f
+slider-held old        x10 23c5460e
+slider-held new        x10 23c5460e
+slider-focused old     x10 f3cb8e14
+slider-focused new     x10 f3cb8e14
+
+== nextPaint: timeout-0
+   (setTimeout 0 ms)
+button-hovered old     x10 6c9c3427
+button-hovered new     x10 6c9c3427
+button-focused old     x10 a077a846 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,78,75,75,249,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+button-focused new     x10 a077a846 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,78,75,75,249,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+checkbox-hovered old   x10 af2c89a9
+checkbox-hovered new   x10 af2c89a9
+checkbox-focused old   x10 3941f287
+checkbox-focused new   x10 3941f287
+radio-hovered old      x10 8ce00aaa
+radio-hovered new      x10 8ce00aaa
+radio-focused old      x8 711b664f
+radio-focused old      x2 3377e0b9
+radio-focused new      x10 711b664f
+slider-held old        x10 23c5460e
+slider-held new        x10 23c5460e
+slider-focused old     x10 f3cb8e14
+slider-focused new     x10 f3cb8e14
+
+== nextPaint: timeout-50
+   (setTimeout 50 ms)
+button-hovered old     x10 6c9c3427
+button-hovered new     x10 6c9c3427
+button-focused old     x10 a077a846 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,78,75,75,249,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+button-focused new     x10 2e63a491 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,82,75,75,254,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+checkbox-hovered old   x10 af2c89a9
+checkbox-hovered new   x10 af2c89a9
+checkbox-focused old   x10 3941f287
+checkbox-focused new   x10 3941f287
+radio-hovered old      x10 8ce00aaa
+radio-hovered new      x10 8ce00aaa
+radio-focused old      x10 711b664f
+radio-focused new      x10 711b664f
+slider-held old        x10 23c5460e
+slider-held new        x10 23c5460e
+slider-focused old     x10 f3cb8e14
+slider-focused new     x10 f3cb8e14

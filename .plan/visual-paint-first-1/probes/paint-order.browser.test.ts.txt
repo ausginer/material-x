@@ -1,0 +1,73 @@
+// Probe for #336 (RF-159), not a row. Placed in packages/material-x/tests/button/
+// while it ran: does the keyboard-focused elevated button render differently
+// when the button is painted before the ring appears?
+import { it } from 'vitest';
+import { commands, userEvent } from 'vitest/browser';
+import '../../src/button/button.ts';
+import { capture, nextFrame, whenFontsReady } from '../browser.ts';
+
+function fixture(name: string): [HTMLDivElement, HTMLElement] {
+  const f = document.createElement('div');
+  f.className = 'mx-test-fixture';
+  f.dataset['testid'] = name;
+  const b = document.createElement('mx-button');
+  b.setAttribute('color', 'elevated');
+  b.append('Button');
+  f.append(b);
+  document.body.append(f);
+  return [f, b];
+}
+
+async function hash(d: ImageData): Promise<string> {
+  const h = await crypto.subtle.digest('SHA-1', d.data);
+  return [...new Uint8Array(h)].slice(0, 4).map((x) => x.toString(16).padStart(2, '0')).join('');
+}
+
+function apex(d: ImageData): string {
+  const out: number[] = [];
+  for (let y = 33; y <= 38; y++) for (let x = 10; x <= 15; x++) out.push(d.data[(y * d.width + x) * 4]!);
+  return out.join(',');
+}
+
+async function park(): Promise<void> {
+  const c = document.createElement('div');
+  c.style.cssText = 'position: fixed; top: 0; left: 0; width: 1px; height: 1px;';
+  document.body.append(c);
+  await userEvent.hover(c);
+  c.remove();
+}
+
+const conditions: Record<string, () => Promise<HTMLDivElement>> = {
+  // The row's own steps.
+  row: async () => { const [f] = fixture('focused'); await whenFontsReady(); await userEvent.tab(); return f; },
+  // Two frames painted before the ring appears.
+  'frame-then-tab': async () => { const [f] = fixture('focused'); await whenFontsReady(); await nextFrame(); await nextFrame(); await userEvent.tab(); return f; },
+  // Focused before the first paint.
+  'focus-before-paint': async () => { const [f, b] = fixture('focused'); b.shadowRoot!.querySelector<HTMLElement>('.host')!.focus({ focusVisible: true } as FocusOptions); return f; },
+  // After the hovered row, as in the file.
+  'after-hover': async () => {
+    const [h, hb] = fixture('hovered'); await whenFontsReady(); await userEvent.hover(hb); await capture(h);
+    document.body.replaceChildren(); await park();
+    const [f] = fixture('focused'); await whenFontsReady(); await userEvent.tab(); return f;
+  },
+};
+
+it('reads the focused button under each condition', { timeout: 240_000 }, async () => {
+  document.body.className = 'mx-test-body';
+  const lines: string[] = [];
+  for (const [name, run] of Object.entries(conditions)) {
+    const seen = new Map<string, number>();
+    for (let i = 0; i < 10; i++) {
+      document.body.replaceChildren();
+      (document.activeElement as HTMLElement | null)?.blur();
+      await park();
+      const f = await run();
+      await new Promise((r) => setTimeout(r, 150));
+      const d = await capture(f);
+      const key = `${await hash(d)} apex=${apex(d)}`;
+      seen.set(key, (seen.get(key) ?? 0) + 1);
+    }
+    for (const [k, n] of seen) lines.push(`${name.padEnd(20)} x${n} ${k}`);
+  }
+  await commands.writeFile('zz-probe-336.txt', lines.join('\n'));
+});

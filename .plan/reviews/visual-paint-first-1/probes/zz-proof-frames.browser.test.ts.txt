@@ -1,0 +1,29 @@
+// Feature proof of #346 (RF-159), a probe and not a row: nextPaint()'s two
+// requestAnimationFrame callbacks, 20 times after appending a fixture. Each
+// callback's frame timestamp, and whether the second is a later rendering update
+// than the first. Written to zz-frames-<engine>.txt.
+import { it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+import '../src/button/button.ts';
+import { whenFontsReady } from './browser.ts';
+
+const frame = async (): Promise<number> => await new Promise((r) => requestAnimationFrame(r));
+
+it('reads the two frames', async () => {
+  const lines: string[] = [];
+  let later = 0;
+  for (let i = 0; i < 20; i += 1) {
+    document.body.replaceChildren();
+    const b = document.createElement('mx-button');
+    b.append('Button');
+    document.body.append(b);
+    await whenFontsReady();
+    const t0 = performance.now();
+    const t1 = await frame();
+    const t2 = await frame();
+    if (t2 > t1) later += 1;
+    lines.push(`${String(i).padStart(2)} call ${t0.toFixed(1)} first ${t1.toFixed(1)} second ${t2.toFixed(1)} gap ${(t2 - t1).toFixed(1)} ms`);
+  }
+  lines.unshift(`# ${server.browser}: the second frame is a later rendering update in ${later} of 20`);
+  await commands.writeFile(`zz-frames-${server.browser}.txt`, lines.join('\n'));
+});

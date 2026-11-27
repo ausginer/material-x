@@ -1,0 +1,26 @@
+# Feature proof of #346 at 1edc36b27: every visual test file, searched for input (userEvent, pointer/touch/pen/key commands, focus(), click(), dispatchEvent, scroll).
+# git ls-files '*visual*.test.ts'
+packages/material-x/tests/button-group/button-group.visual.browser.test.ts
+packages/material-x/tests/button/button.visual.browser.test.ts
+packages/material-x/tests/card/card.visual.browser.test.ts
+packages/material-x/tests/checkbox/checkbox.visual.browser.test.ts
+packages/material-x/tests/radio/radio.visual.browser.test.ts
+packages/material-x/tests/slider/slider.visual.browser.test.ts
+packages/material-x/tests/support/visual-contracts.node.test.ts
+packages/material-x/tests/top-app-bar/top-app-bar.visual.browser.test.ts
+
+packages/material-x/tests/button/button.visual.browser.test.ts:130:    await userEvent.hover(button);
+packages/material-x/tests/button/button.visual.browser.test.ts:137:  it('should match the keyboard-focused button', async () => {
+packages/material-x/tests/button/button.visual.browser.test.ts:143:    await userEvent.tab();
+packages/material-x/tests/checkbox/checkbox.visual.browser.test.ts:92:    await userEvent.hover(element);
+packages/material-x/tests/checkbox/checkbox.visual.browser.test.ts:99:  it('should match the keyboard-focused checkbox', async () => {
+packages/material-x/tests/checkbox/checkbox.visual.browser.test.ts:105:    await userEvent.tab();
+packages/material-x/tests/radio/radio.visual.browser.test.ts:78:    await userEvent.hover(element);
+packages/material-x/tests/radio/radio.visual.browser.test.ts:85:  it('should match the keyboard-focused radio', async () => {
+packages/material-x/tests/radio/radio.visual.browser.test.ts:91:    await userEvent.tab();
+packages/material-x/tests/slider/slider.visual.browser.test.ts:63:  await commands.pointerRelease().catch(() => {});
+packages/material-x/tests/slider/slider.visual.browser.test.ts:99:    await commands.pointerPress(left + width * 0.6, top + height / 2);
+packages/material-x/tests/slider/slider.visual.browser.test.ts:104:  it('should match the keyboard-focused slider', async () => {
+packages/material-x/tests/slider/slider.visual.browser.test.ts:110:    await userEvent.tab();
+packages/material-x/tests/top-app-bar/top-app-bar.visual.browser.test.ts:36:  scrollTo({ top: 0, behavior: 'instant' });
+packages/material-x/tests/top-app-bar/top-app-bar.visual.browser.test.ts:52:    scrollTo({ top: 300, behavior: 'instant' });

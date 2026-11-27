@@ -1,0 +1,106 @@
+// Probe for RF-159, not a row. Placed in packages/material-x/tests/ while it
+// runs: reads each of the eight input rows' fixtures under the steps the rows
+// had (old) and the steps they have now (new), 10 times each.
+import { it } from 'vitest';
+import { commands, page, userEvent } from 'vitest/browser';
+import '../src/button/button.ts';
+import '../src/checkbox/checkbox.ts';
+import '../src/radio/radio.ts';
+import '../src/slider/slider.ts';
+import { nextFrame, nextPaint, settleAnimations, whenFontsReady } from './browser.ts';
+
+function fixture(name: string, padTop = false): HTMLDivElement {
+  const f = document.createElement('div');
+  f.className = 'mx-test-fixture';
+  f.dataset['testid'] = name;
+  if (padTop) f.style.paddingBlockStart = '80px';
+  document.body.append(f);
+  return f;
+}
+
+function add(f: HTMLElement, tag: string, attrs: Record<string, string>, text?: string): HTMLElement {
+  const e = document.createElement(tag);
+  if (text) e.append(text);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (tag === 'mx-slider') e.style.inlineSize = '204px';
+  f.append(e);
+  return e;
+}
+
+async function settle(f: HTMLElement): Promise<void> {
+  await whenFontsReady();
+  await Promise.all([...f.children].map((c) => settleAnimations(c as HTMLElement)));
+  await nextFrame();
+}
+
+async function read(f: HTMLElement): Promise<[string, string]> {
+  // With save: false, the screenshot is the base64 string itself.
+  const base64 = (await page.screenshot({ element: f, base64: true, save: false })) as unknown as string;
+  const blob = new Blob([Uint8Array.from(atob(base64), (ch) => ch.charCodeAt(0))], { type: 'image/png' });
+  const bmp = await createImageBitmap(blob);
+  const c = new OffscreenCanvas(bmp.width, bmp.height);
+  const ctx = c.getContext('2d')!;
+  ctx.drawImage(bmp, 0, 0);
+  const d = ctx.getImageData(0, 0, bmp.width, bmp.height);
+  const h = await crypto.subtle.digest('SHA-1', d.data);
+  const hex = [...new Uint8Array(h)].slice(0, 4).map((x) => x.toString(16).padStart(2, '0')).join('');
+  const apex: number[] = [];
+  for (let y = 33; y <= 38; y++) for (let x = 10; x <= 15; x++) apex.push(d.data[(y * d.width + x) * 4] ?? -1);
+  return [hex, apex.join(',')];
+}
+
+type Row = (paintFirst: boolean) => Promise<HTMLDivElement>;
+const wait = async (on: boolean) => { if (on) await nextPaint(); };
+
+const rows: Record<string, Row> = {
+  'button-hovered': async (p) => { const f = fixture('hovered'); const b = add(f, 'mx-button', { color: 'elevated' }, 'Button'); await whenFontsReady(); await wait(p); await userEvent.hover(b); return f; },
+  'button-focused': async (p) => { const f = fixture('focused'); add(f, 'mx-button', { color: 'elevated' }, 'Button'); await whenFontsReady(); await wait(p); await userEvent.tab(); return f; },
+  'checkbox-hovered': async (p) => { const f = fixture('checkbox-hovered'); const e = add(f, 'mx-checkbox', { checked: '' }); await settle(f); await wait(p); await userEvent.hover(e); return f; },
+  'checkbox-focused': async (p) => { const f = fixture('checkbox-focused'); add(f, 'mx-checkbox', {}); await settle(f); await wait(p); await userEvent.tab(); return f; },
+  'radio-hovered': async (p) => { const f = fixture('radio-hovered'); const e = add(f, 'mx-radio', { checked: '' }); await settle(f); await wait(p); await userEvent.hover(e); return f; },
+  'radio-focused': async (p) => { const f = fixture('radio-focused'); add(f, 'mx-radio', {}); await settle(f); await wait(p); await userEvent.tab(); return f; },
+  'slider-held': async (p) => {
+    const f = fixture('slider-held', true); const s = add(f, 'mx-slider', { indicator: '', value: '40' });
+    if (p) { await whenFontsReady(); await nextPaint(); }
+    const { left, top, width, height } = s.getBoundingClientRect();
+    await commands.pointerPress(left + width * 0.6, top + height / 2); await settle(f); return f;
+  },
+  'slider-focused': async (p) => {
+    const f = fixture('slider-focused', true); add(f, 'mx-slider', { indicator: '', value: '40' });
+    if (p) { await whenFontsReady(); await nextPaint(); }
+    await userEvent.tab(); await settle(f); return f;
+  },
+};
+
+async function park(): Promise<void> {
+  const c = document.createElement('div');
+  c.style.cssText = 'position: fixed; top: 0; left: 0; width: 1px; height: 1px;';
+  document.body.append(c);
+  await userEvent.hover(c);
+  c.remove();
+}
+
+it('reads the eight rows under the old and the new steps', { timeout: 600_000 }, async () => {
+  document.body.className = 'mx-test-body';
+  const lines: string[] = [];
+  for (const [name, run] of Object.entries(rows)) {
+    for (const [label, paintFirst] of [['old', false], ['new', true]] as const) {
+      const seen = new Map<string, number>();
+      for (let i = 0; i < 10; i++) {
+        await commands.pointerRelease().catch(() => {});
+        document.body.replaceChildren();
+        (document.activeElement as HTMLElement | null)?.blur();
+        await park();
+        const f = await run(paintFirst);
+        // As the review's probe reads: a fixed wait before the capture.
+        await new Promise((r) => setTimeout(r, 150));
+        const [hex, apex] = await read(f);
+        const key = name === 'button-focused' ? `${hex} apex=${apex}` : hex;
+        seen.set(key, (seen.get(key) ?? 0) + 1);
+      }
+      for (const [k, n] of seen) lines.push(`${`${name} ${label}`.padEnd(22)} x${n} ${k}`);
+    }
+  }
+  await commands.pointerRelease().catch(() => {});
+  await commands.writeFile('zz-probe-rf159.txt', lines.join('\n'));
+});

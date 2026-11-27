@@ -1,0 +1,50 @@
+# CI for #346 at 1edc36b27, read 2026-11-27 from slot d.
+## verify run 46068228537 (pull_request, 1edc36b2715309c806099c17959fabbcffc93dd6)
+conclusion failure
+  scope success
+  system-deps (chromium) success
+  system-deps (firefox) success
+  static success
+  system-deps (webkit) success
+  records skipped
+  webkit success
+  measurements success
+  chromium failure
+  docs success
+  firefox success
+  deploy skipped
+  verify failure
+## chromium job 140738896035: processor, the failing row, totals
+Model name:                              Intel(R) Xeon(R) 6975P-C
+× should match the keyboard-focused button
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL   visual/material-x (chromium)  tests/button/button.visual.browser.test.ts > mx-button visual regression > should match the keyboard-focused button
+Error: expect(element).toMatchScreenshot()
+Screenshot does not match the stored reference.
+1 pixels (ratio 0.01) differ.
+Reference screenshot:
+  /home/runner/work/material-x/material-x/packages/material-x/tests/button/__screenshots__/button.visual.browser.test.ts/button-focused-chromium-linux.png
+Actual screenshot:
+  /home/runner/work/material-x/material-x/.vitest/attachments/tests/button/button.visual.browser.test.ts/button-focused-actual-chromium-linux.png
+Diff image:
+  /home/runner/work/material-x/material-x/.vitest/attachments/tests/button/button.visual.browser.test.ts/button-focused-diff-chromium-linux.png
+ ❯ tests/button/button.visual.browser.test.ts:147:8
+    145|     await expect
+    146|       .element(page.getByTestId('focused'))
+    147|       .toMatchScreenshot('button-focused.png');
+       |        ^
+    148|   });
+    149| });
+Caused by: Error: Matcher did not succeed in time.
+ Test Files  1 failed | 192 passed (193)
+      Tests  1 failed | 5572 passed | 2 expected fail | 12 skipped (5587)
+## the screenshots artifact (gh run download 46068228537 -n screenshots), sha256
+c4689afd93e6651783e0ec78f3965934666a67fefb68f1b50fcb8b6a6250f341  ./3e27a5797e3b72e1e7092bf8c6fe5be87a0973d4.png
+f29c965a7a7473d8f9a6b883a5059f28dbd9abd3fe116c57f20b7a782e9ec7ac  ./9e8530e484adf61449ec9ad58d0bf78b475ebebd.png
+8a4050e5ba7b9c9ebffcec28fa7ea5734a41c6751fb74569088b8832a6082f91  ./c2eeaa35b3621678f7dcc278896ca94062b5cb44.png
+f29c965a7a7473d8f9a6b883a5059f28dbd9abd3fe116c57f20b7a782e9ec7ac  ./tests/button/button.visual.browser.test.ts/button-focused-actual-chromium-linux.png
+8a4050e5ba7b9c9ebffcec28fa7ea5734a41c6751fb74569088b8832a6082f91  ./tests/button/button.visual.browser.test.ts/button-focused-diff-chromium-linux.png
+## for comparison
+c4689afd93e6651783e0ec78f3965934666a67fefb68f1b50fcb8b6a6250f341  packages/material-x/tests/button/__screenshots__/button.visual.browser.test.ts/button-focused-chromium-linux.png
+f29c965a7a7473d8f9a6b883a5059f28dbd9abd3fe116c57f20b7a782e9ec7ac  .plan/visual-paint-first-1/checks/ci-images/button-focused-actual-chromium-linux.png
+8a4050e5ba7b9c9ebffcec28fa7ea5734a41c6751fb74569088b8832a6082f91  .plan/visual-paint-first-1/checks/ci-images/button-focused-diff-chromium-linux.png
