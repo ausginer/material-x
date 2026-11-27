@@ -1,0 +1,37 @@
+# Witnesses of RF-95's rows, in Chromium, at a279df579 with the unit's tree.
+# Each mode is applied by probes/mutate.py from packages/material-x, and the files are restored after it.
+# Rows: tests/checkbox/checkbox.spec.browser.test.ts and tests/core/focus-layer.spec.browser.test.ts (spec project).
+
+== after-disabled
+      Tests  91 passed (91)
+== no-exclusion
+     × should draw what a disabled unselected checkbox draws without error
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 90 passed (91)
+== both
+     × should draw what a disabled unselected checkbox draws without error
+     × should draw what a disabled checked checkbox draws without error
+     × should draw what a disabled indeterminate checkbox draws without error
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  3 failed | 88 passed (91)
+== no-error-css
+     × should render the error outline color when unselected
+     × should render the error container color when checked
+     × should render the error container color when indeterminate
+     × should color the press ripple with the pressed error state layer when unselected
+     × should color the press ripple with the pressed error state layer when checked
+     × should color the press ripple with the pressed error state layer when indeterminate
+     × should draw the focused state layer on keyboard focus
+     × should draw the focused state layer on keyboard focus with hover
+     × should draw the hovered state layer on hover alone
+     × should draw the focused state layer on keyboard focus
+     × should draw the focused state layer on keyboard focus
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  11 failed | 80 passed (91)
+
+# The icon rows, after they set a distinct --md-sys-color-on-error:
+== no-error-css, icon rows
+     × should render the error icon color when checked
+     × should render the error icon color when indeterminate
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  2 failed | 1 passed | 14 skipped (17)

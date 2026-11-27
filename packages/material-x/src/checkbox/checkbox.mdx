@@ -81,7 +81,7 @@ Use the live example below to inspect interaction states:
 The element has no native validators: its validity and its error display are both yours to set.
 
 - **Validity:** `setCustomValidity(message)` makes the element invalid with a non-empty message, and valid with `''`. An invalid element blocks form submission and fires `invalid` at the host, which doesn't bubble. `validity`, `validationMessage`, `willValidate`, `checkValidity()` and `reportValidity()` behave as a native control's.
-- **Error display:** the `error` attribute. While it is set, the checkbox matches `:state(error)` and its input is announced as invalid. It draws no error appearance yet. No method, event, submission or reset sets or clears it.
+- **Error display:** the `error` attribute. While it is set, the checkbox draws Material's error appearance, matches `:state(error)` and its input is announced as invalid. A disabled checkbox draws its disabled appearance, and keeps the state and the announcement. No method, event, submission or reset sets or clears it.
 - **`required`:** announces the control as required and does nothing else. It doesn't block submission and doesn't make `:required` match: validate in your own code, and select `[required]` in styles.
 - **Form reset** leaves custom validity and `error` as they are. Clear them in the form's `reset` listener.
 - Set `error` and `required` rather than `aria-invalid` and `aria-required` on the host.

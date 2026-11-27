@@ -1,0 +1,12 @@
+// Feature proof of #328: renders the checkbox's token sheet from main's sources and from the head's,
+// copied out of git into this directory. The token blocks only, without main.styles.css.
+const root = new URL('.', import.meta.url).pathname;
+const at = (tree, file) => `${root}${tree}/packages/material-x/src/checkbox/styles/${file}`;
+const mainUtils = await import(at('main', 'utils.ts'));
+const mainTokens = await import(at('main', 'default/tokens.ts'));
+const headUtils = await import(at('head', 'utils.ts'));
+const headTokens = await import(at('head', 'default/tokens.ts'));
+const { writeFileSync } = await import('node:fs');
+writeFileSync(`${root}main.css`, mainUtils.renderStylesInOrder([mainTokens.defaultTokens]));
+writeFileSync(`${root}head-default.css`, headUtils.renderStylesInOrder([headTokens.defaultTokens]));
+writeFileSync(`${root}head.css`, headUtils.renderStylesInOrder([headTokens.defaultTokens, headTokens.errorTokens]));

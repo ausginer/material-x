@@ -1,0 +1,5 @@
+# Feature proof of #328 at 00040d137, unmutated, in Chromium only (MX_TEST_ENGINES=chromium), run 2026-11-27 in slot d after aube install, aube exec just _test-builds and Playwright's browsers installed in the container.
+## packages/material-x: aube exec vitest run -c vitest.config.ts (every project)
+ Test Files  52 passed (52)
+      Tests  2869 passed | 2 expected fail (2871)
+## tests/axe.browser.test.ts is one of the 52 files, and no row failed (the default reporter lists only failures)
