@@ -1,9 +1,20 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { commands } from 'vitest/browser';
 import '../../src/checkbox/checkbox.ts';
-import { pixels, resolveComputed } from '../browser.ts';
+import { nextFrame, pixels, resolveComputed } from '../browser.ts';
 
 const CONTRACT = 'checkbox.default';
+
+const ERROR_CONTRACT = 'checkbox.error';
+
+/** The selections, as the attributes that set them. */
+const SELECTIONS = [
+  ['unselected', []],
+  ['checked', ['checked']],
+  ['indeterminate', ['indeterminate']],
+] as const;
+
+const SELECTED = SELECTIONS.slice(1);
 
 /**
  * `mx-checkbox` visual-contract deltas. The state-layer box, full radius and
@@ -13,10 +24,17 @@ const CONTRACT = 'checkbox.default';
  * The visible box is the `:host::after` pseudo-element, so its geometry is read
  * through `getComputedStyle(host, '::after')` rather than a `DOMRect`.
  */
-function createCheckbox(): HTMLElement {
+function createCheckbox(...attributes: readonly string[]): HTMLElement {
   const element = document.createElement('mx-checkbox');
+  for (const name of attributes) {
+    element.toggleAttribute(name, true);
+  }
   document.body.append(element);
   return element;
+}
+
+function iconOf(element: HTMLElement): HTMLElement {
+  return element.shadowRoot!.querySelector<HTMLElement>('.icon')!;
 }
 
 function getBox(element: HTMLElement): CSSStyleDeclaration {
@@ -30,6 +48,34 @@ async function checkboxTokens(tokens: readonly string[]) {
     tokens,
   });
 }
+
+/** A color token of a state of the error contract, as the engine computes it. */
+async function errorColor(state: string, token: string): Promise<string> {
+  const { values } = await commands.resolveTokenContract({
+    contract: ERROR_CONTRACT,
+    state,
+    tokens: [token],
+  });
+
+  return resolveComputed('color', String(values[token]!));
+}
+
+/** What a checkbox draws: its box's colors, the host's opacity and the icon's color. */
+function drawn(element: HTMLElement): Readonly<Record<string, string>> {
+  const box = getBox(element);
+
+  return {
+    container: box.backgroundColor,
+    outline: box.borderTopColor,
+    opacity: getComputedStyle(element).opacity,
+    icon: getComputedStyle(iconOf(element)).color,
+  };
+}
+
+afterEach(async () => {
+  // A row that fails mid-press leaves the button down.
+  await commands.pointerRelease().catch(() => {});
+});
 
 describe('mx-checkbox container visual contract', () => {
   /*
@@ -95,4 +141,82 @@ describe('mx-checkbox icon visual contract', () => {
       resolveComputed('color', String(expected.values['icon.color'])),
     );
   });
+});
+
+describe('mx-checkbox error visual contract', () => {
+  it('should render the error outline color when unselected', async () => {
+    const box = getBox(createCheckbox('error'));
+
+    expect(box.borderTopColor).toBe(
+      await errorColor('error.unselected.default', 'outline.color'),
+    );
+  });
+
+  it.each(SELECTED)(
+    'should render the error container color when %s',
+    async (_, attributes) => {
+      const box = getBox(createCheckbox('error', ...attributes));
+
+      expect(box.backgroundColor).toBe(
+        await errorColor('error.selected.default', 'container.color'),
+      );
+    },
+  );
+
+  /*
+   * The fixture theme's on-error and on-primary are both white, so the row
+   * gives on-error a color of its own, which the expected value reads too.
+   */
+  it.each(SELECTED)(
+    'should render the error icon color when %s',
+    async (_, attributes) => {
+      const root = document.documentElement;
+      root.style.setProperty('--md-sys-color-on-error', 'rgb(1, 2, 3)');
+
+      try {
+        const icon = iconOf(createCheckbox('error', ...attributes));
+
+        expect(getComputedStyle(icon).color).toBe(
+          await errorColor('error.selected.default', 'icon.color'),
+        );
+      } finally {
+        root.style.removeProperty('--md-sys-color-on-error');
+      }
+    },
+  );
+
+  it.each(SELECTIONS)(
+    'should color the press ripple with the pressed error state layer when %s',
+    async (_, attributes) => {
+      const element = createCheckbox('error', ...attributes);
+      await nextFrame();
+      const { left, top, width, height } = element.getBoundingClientRect();
+      await commands.pointerPress(left + width / 2, top + height / 2);
+      const ripple = getComputedStyle(
+        element.shadowRoot!.querySelector('.ripple')!,
+        '::after',
+      );
+
+      expect(ripple.backgroundColor).toBe(
+        await errorColor('error.pressed', 'state-layer.color'),
+      );
+    },
+  );
+});
+
+describe('mx-checkbox disabled with error', () => {
+  /*
+   * No token combines error with disabled. A disabled control takes no
+   * correction, so it draws its disabled appearance, and `error` keeps only
+   * its state and announcement.
+   */
+  it.each(SELECTIONS)(
+    'should draw what a disabled %s checkbox draws without error',
+    (_, attributes) => {
+      const disabled = createCheckbox('disabled', ...attributes);
+      const error = createCheckbox('disabled', 'error', ...attributes);
+
+      expect(drawn(error)).toStrictEqual(drawn(disabled));
+    },
+  );
 });

@@ -107,6 +107,7 @@ async function loadRegistry(): Promise<ContractRegistry> {
     'button-group.connected.large': connected.connectedTokens[3]!,
     'button-group.connected.xlarge': connected.connectedTokens[4]!,
     'checkbox.default': checkbox.defaultTokens,
+    'checkbox.error': checkbox.errorTokens,
     'radio.default': radio.defaultTokens,
     'slider.default': slider.defaultTokens,
     'slider.size.xsmall': sliderSize.defaultSizeTokens,
