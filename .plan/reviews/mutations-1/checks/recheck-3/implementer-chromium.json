@@ -1,420 +1,417 @@
 {
- "file": ".plan/mutations-1/mutator.mutations.ts",
- "commit": "3450377252aa1e4608e281ac12cd1af333a52c45",
- "fileCommit": "3450377252aa1e4608e281ac12cd1af333a52c45",
- "legs": [
-  {
-   "engine": "chromium",
-   "shard": [
-    1,
-    1
-   ],
-   "rows": [
+  "file": ".plan/mutations-1/mutator.mutations.ts",
+  "commit": "3450377252aa1e4608e281ac12cd1af333a52c45",
+  "fileCommit": "3450377252aa1e4608e281ac12cd1af333a52c45",
+  "legs": [
     {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, refusals should refuse each stale edit by name before anything runs",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, refusals should refuse a selector that covers no row before any mutation runs",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, refusals should refuse a file whose run selects no test file",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, refusals should refuse a file with only survivors whose run selects no test file, before any mutation",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, refusals should name only the run that selects no test file, of two runs",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, failures outside the tests should exit with 3 on an unknown option",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, failures outside the tests should exit with 3, not refuse the file, when the unmutated run's browser doesn't start",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, the invoking checkout should leave the checkout and the temporary directory as they were after a run",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, the invoking checkout should leave them as they were after a run that fails midway",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, the invoking checkout should stop its Vitest and leave nothing after SIGTERM to the tool alone",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, the invoking checkout should wait for a command that a signal stops before it removes the copy",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, a copy that an earlier run left should remove a locked copy whose process no longer runs",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read a mutation that fails every selected row as expected",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read a selected row that passes as missed and fail the run",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read a survivor that fails rows as caught",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read a survivor that fails no row as expected",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read a selected row that fails unmutated as void",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read a selected row that doesn't run as void, with its file's reason",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read a survivor whose rows don't run as void",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read a survivor whose row the mutation skips as void",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read a selected row whose browser doesn't start as void, with Vitest's output",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should judge each engine by its own expectation when it gives one",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should run in a browser project",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should judge a run whose rows pass beside an unhandled error, and report the error",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, outcomes should read Vitest's error without colors when FORCE_COLOR is set",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, engines should flag a mutation that fails other rows in another engine",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, engines should flag a difference between engines that another engine's own expectation doesn't explain",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, engines should not flag a row that another engine skips",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, engines should not flag a row that doesn't run in another engine",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, restore should restore each mutation before the next one runs",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, rebuilds should rebuild after a matching edit and after its restore",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, rebuilds should not rebuild for an edit that doesn't match",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, the summary should name the commit that holds the file, the config and the runner, apart from the code",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, the summary should name no commit for a file that differs from its commit",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, the summary should name no commit for a config that differs from its commit",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, the summary should name no commit for a file that its checkout ignores",
-     "status": "passed"
-    },
-    {
-     "file": "packages/mutator/tests/mutator.node.test.ts",
-     "name": "mutator run, the summary should name no commit for a runner from another checkout than the file's",
-     "status": "passed"
+      "engine": "chromium",
+      "shard": [1, 1],
+      "rows": [
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, refusals should refuse each stale edit by name before anything runs",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, refusals should refuse a selector that covers no row before any mutation runs",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, refusals should refuse a file whose run selects no test file",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, refusals should refuse a file with only survivors whose run selects no test file, before any mutation",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, refusals should name only the run that selects no test file, of two runs",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, failures outside the tests should exit with 3 on an unknown option",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, failures outside the tests should exit with 3, not refuse the file, when the unmutated run's browser doesn't start",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the invoking checkout should leave the checkout and the temporary directory as they were after a run",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the invoking checkout should leave them as they were after a run that fails midway",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the invoking checkout should stop its Vitest and leave nothing after SIGTERM to the tool alone",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the invoking checkout should wait for a command that a signal stops before it removes the copy",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, a copy that an earlier run left should remove a locked copy whose process no longer runs",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a mutation that fails every selected row as expected",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a selected row that passes as missed and fail the run",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a survivor that fails rows as caught",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a survivor that fails no row as expected",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a selected row that fails unmutated as void",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a selected row that doesn't run as void, with its file's reason",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a survivor whose rows don't run as void",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a survivor whose row the mutation skips as void",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read a selected row whose browser doesn't start as void, with Vitest's output",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should judge each engine by its own expectation when it gives one",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should run in a browser project",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should judge a run whose rows pass beside an unhandled error, and report the error",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, outcomes should read Vitest's error without colors when FORCE_COLOR is set",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, engines should flag a mutation that fails other rows in another engine",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, engines should flag a difference between engines that another engine's own expectation doesn't explain",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, engines should not flag a row that another engine skips",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, engines should not flag a row that doesn't run in another engine",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, restore should restore each mutation before the next one runs",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, rebuilds should rebuild after a matching edit and after its restore",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, rebuilds should not rebuild for an edit that doesn't match",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the summary should name the commit that holds the file, the config and the runner, apart from the code",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the summary should name no commit for a file that differs from its commit",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the summary should name no commit for a config that differs from its commit",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the summary should name no commit for a file that its checkout ignores",
+          "status": "passed"
+        },
+        {
+          "file": "packages/mutator/tests/mutator.node.test.ts",
+          "name": "mutator run, the summary should name no commit for a runner from another checkout than the file's",
+          "status": "passed"
+        }
+      ],
+      "mutations": [
+        {
+          "name": "a run that selects no test file is a failure outside the tests",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should refuse a file whose run selects no test file"
+              },
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should refuse a file with only survivors whose run selects no test file, before any mutation"
+              },
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should name only the run that selects no test file, of two runs"
+              }
+            ]
+          },
+          "outcome": "as expected",
+          "failed": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file whose run selects no test file",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file with only survivors whose run selects no test file, before any mutation",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should name only the run that selects no test file, of two runs"
+          ],
+          "missed": [],
+          "voided": [],
+          "unrun": {},
+          "messages": {
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file whose run selects no test file": [
+              "AssertionError: expected [ 3, undefined ] to deeply equal [ 2, undefined ]",
+              "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:415:44",
+              "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file with only survivors whose run selects no test file, before any mutation": [
+              "AssertionError: expected [ 3, undefined, 1 ] to deeply equal [ 2, undefined, 1 ]",
+              "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:443:59",
+              "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should name only the run that selects no test file, of two runs": [
+              "AssertionError: expected [ 3, undefined ] to deeply equal [ 2, undefined ]",
+              "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:470:44",
+              "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ]
+          }
+        },
+        {
+          "name": "Vitest's unhandled errors aren't printed",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should judge a run whose rows pass beside an unhandled error, and report the error"
+              }
+            ]
+          },
+          "outcome": "as expected",
+          "failed": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge a run whose rows pass beside an unhandled error, and report the error",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read Vitest's error without colors when FORCE_COLOR is set"
+          ],
+          "missed": [],
+          "voided": [],
+          "unrun": {},
+          "messages": {
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge a run whose rows pass beside an unhandled error, and report the error": [
+              "AssertionError: expected [ 'Vitest printed no error' ] to include 'Error: left unhandled'",
+              "    at Proxy.<anonymous> (file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/index.CZzC1gGg.js:1791:15)",
+              "    at Proxy.<anonymous> (file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/index.CZzC1gGg.js:1656:14)",
+              "    at Proxy.methodWrapper (file:///tmp/mutator-TElAzX/copy/node_modules/chai/index.js:1737:25)",
+              "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:918:29",
+              "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read Vitest's error without colors when FORCE_COLOR is set": [
+              "AssertionError: expected [ 'Vitest printed no error' ] to include 'Error: left unhandled'",
+              "    at Proxy.<anonymous> (file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/index.CZzC1gGg.js:1791:15)",
+              "    at Proxy.<anonymous> (file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/index.CZzC1gGg.js:1656:14)",
+              "    at Proxy.methodWrapper (file:///tmp/mutator-TElAzX/copy/node_modules/chai/index.js:1737:25)",
+              "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:936:48",
+              "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ]
+          }
+        },
+        {
+          "name": "an unhandled error beside rows that ran is a failure outside the tests",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should judge a run whose rows pass beside an unhandled error, and report the error"
+              }
+            ]
+          },
+          "outcome": "as expected",
+          "failed": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge a run whose rows pass beside an unhandled error, and report the error",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read Vitest's error without colors when FORCE_COLOR is set"
+          ],
+          "missed": [],
+          "voided": [],
+          "unrun": {},
+          "messages": {
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge a run whose rows pass beside an unhandled error, and report the error": [
+              "TypeError: Cannot read properties of undefined (reading 'legs')",
+              "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:912:36",
+              "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read Vitest's error without colors when FORCE_COLOR is set": [
+              "AssertionError: expected 3 to be +0 // Object.is equality",
+              "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:935:27",
+              "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ]
+          }
+        },
+        {
+          "name": "the summary doesn't name the unmutated run's error",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should judge a run whose rows pass beside an unhandled error, and report the error"
+              }
+            ]
+          },
+          "outcome": "as expected",
+          "failed": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge a run whose rows pass beside an unhandled error, and report the error"
+          ],
+          "missed": [],
+          "voided": [],
+          "unrun": {},
+          "messages": {
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge a run whose rows pass beside an unhandled error, and report the error": [
+              "AssertionError: expected '# Mutations: /tmp/mutator-test-G4mcoP…' to contain '- a, unmutated: Vitest printed an err…'",
+              "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:920:30",
+              "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ]
+          }
+        },
+        {
+          "name": "a run that selects no test file is not refused",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should refuse a file whose run selects no test file"
+              },
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should refuse a file with only survivors whose run selects no test file, before any mutation"
+              },
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should name only the run that selects no test file, of two runs"
+              }
+            ]
+          },
+          "outcome": "as expected",
+          "failed": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file whose run selects no test file",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file with only survivors whose run selects no test file, before any mutation",
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should name only the run that selects no test file, of two runs"
+          ],
+          "missed": [],
+          "voided": [],
+          "unrun": {},
+          "messages": {
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file whose run selects no test file": [
+              "AssertionError: expected 'mutator: setup: ln -s /tmp/mutator-TE…' to contain 'runs that select no test file\\n  - a:…'",
+              "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:416:29",
+              "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file with only survivors whose run selects no test file, before any mutation": [
+              "AssertionError: expected [ +0, { …(3) }, 3 ] to deeply equal [ 2, undefined, 1 ]",
+              "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:443:59",
+              "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ],
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should name only the run that selects no test file, of two runs": [
+              "AssertionError: expected [ +0, { …(3) } ] to deeply equal [ 2, undefined ]",
+              "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:470:44",
+              "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ]
+          }
+        },
+        {
+          "name": "Vitest's colors are kept",
+          "group": "mechanism",
+          "expect": {
+            "fails": [
+              {
+                "file": "packages/mutator/tests/mutator.node.test.ts",
+                "row": "should read Vitest's error without colors when FORCE_COLOR is set"
+              }
+            ]
+          },
+          "outcome": "as expected",
+          "failed": [
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read Vitest's error without colors when FORCE_COLOR is set"
+          ],
+          "missed": [],
+          "voided": [],
+          "unrun": {},
+          "messages": {
+            "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read Vitest's error without colors when FORCE_COLOR is set": [
+              "AssertionError: expected [ …(8) ] to include 'Error: left unhandled'",
+              "    at Proxy.<anonymous> (file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/index.CZzC1gGg.js:1791:15)",
+              "    at Proxy.<anonymous> (file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/index.CZzC1gGg.js:1656:14)",
+              "    at Proxy.methodWrapper (file:///tmp/mutator-TElAzX/copy/node_modules/chai/index.js:1737:25)",
+              "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:936:48",
+              "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
+            ]
+          }
+        }
+      ]
     }
-   ],
-   "mutations": [
-    {
-     "name": "a run that selects no test file is a failure outside the tests",
-     "group": "mechanism",
-     "expect": {
-      "fails": [
-       {
-        "file": "packages/mutator/tests/mutator.node.test.ts",
-        "row": "should refuse a file whose run selects no test file"
-       },
-       {
-        "file": "packages/mutator/tests/mutator.node.test.ts",
-        "row": "should refuse a file with only survivors whose run selects no test file, before any mutation"
-       },
-       {
-        "file": "packages/mutator/tests/mutator.node.test.ts",
-        "row": "should name only the run that selects no test file, of two runs"
-       }
-      ]
-     },
-     "outcome": "as expected",
-     "failed": [
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file whose run selects no test file",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file with only survivors whose run selects no test file, before any mutation",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should name only the run that selects no test file, of two runs"
-     ],
-     "missed": [],
-     "voided": [],
-     "unrun": {},
-     "messages": {
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file whose run selects no test file": [
-       "AssertionError: expected [ 3, undefined ] to deeply equal [ 2, undefined ]",
-       "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:415:44",
-       "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file with only survivors whose run selects no test file, before any mutation": [
-       "AssertionError: expected [ 3, undefined, 1 ] to deeply equal [ 2, undefined, 1 ]",
-       "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:443:59",
-       "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should name only the run that selects no test file, of two runs": [
-       "AssertionError: expected [ 3, undefined ] to deeply equal [ 2, undefined ]",
-       "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:470:44",
-       "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ]
-     }
-    },
-    {
-     "name": "Vitest's unhandled errors aren't printed",
-     "group": "mechanism",
-     "expect": {
-      "fails": [
-       {
-        "file": "packages/mutator/tests/mutator.node.test.ts",
-        "row": "should judge a run whose rows pass beside an unhandled error, and report the error"
-       }
-      ]
-     },
-     "outcome": "as expected",
-     "failed": [
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge a run whose rows pass beside an unhandled error, and report the error",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read Vitest's error without colors when FORCE_COLOR is set"
-     ],
-     "missed": [],
-     "voided": [],
-     "unrun": {},
-     "messages": {
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge a run whose rows pass beside an unhandled error, and report the error": [
-       "AssertionError: expected [ 'Vitest printed no error' ] to include 'Error: left unhandled'",
-       "    at Proxy.<anonymous> (file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/index.CZzC1gGg.js:1791:15)",
-       "    at Proxy.<anonymous> (file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/index.CZzC1gGg.js:1656:14)",
-       "    at Proxy.methodWrapper (file:///tmp/mutator-TElAzX/copy/node_modules/chai/index.js:1737:25)",
-       "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:918:29",
-       "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read Vitest's error without colors when FORCE_COLOR is set": [
-       "AssertionError: expected [ 'Vitest printed no error' ] to include 'Error: left unhandled'",
-       "    at Proxy.<anonymous> (file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/index.CZzC1gGg.js:1791:15)",
-       "    at Proxy.<anonymous> (file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/index.CZzC1gGg.js:1656:14)",
-       "    at Proxy.methodWrapper (file:///tmp/mutator-TElAzX/copy/node_modules/chai/index.js:1737:25)",
-       "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:936:48",
-       "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ]
-     }
-    },
-    {
-     "name": "an unhandled error beside rows that ran is a failure outside the tests",
-     "group": "mechanism",
-     "expect": {
-      "fails": [
-       {
-        "file": "packages/mutator/tests/mutator.node.test.ts",
-        "row": "should judge a run whose rows pass beside an unhandled error, and report the error"
-       }
-      ]
-     },
-     "outcome": "as expected",
-     "failed": [
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge a run whose rows pass beside an unhandled error, and report the error",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read Vitest's error without colors when FORCE_COLOR is set"
-     ],
-     "missed": [],
-     "voided": [],
-     "unrun": {},
-     "messages": {
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge a run whose rows pass beside an unhandled error, and report the error": [
-       "TypeError: Cannot read properties of undefined (reading 'legs')",
-       "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:912:36",
-       "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read Vitest's error without colors when FORCE_COLOR is set": [
-       "AssertionError: expected 3 to be +0 // Object.is equality",
-       "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:935:27",
-       "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ]
-     }
-    },
-    {
-     "name": "the summary doesn't name the unmutated run's error",
-     "group": "mechanism",
-     "expect": {
-      "fails": [
-       {
-        "file": "packages/mutator/tests/mutator.node.test.ts",
-        "row": "should judge a run whose rows pass beside an unhandled error, and report the error"
-       }
-      ]
-     },
-     "outcome": "as expected",
-     "failed": [
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge a run whose rows pass beside an unhandled error, and report the error"
-     ],
-     "missed": [],
-     "voided": [],
-     "unrun": {},
-     "messages": {
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should judge a run whose rows pass beside an unhandled error, and report the error": [
-       "AssertionError: expected '# Mutations: /tmp/mutator-test-G4mcoP…' to contain '- a, unmutated: Vitest printed an err…'",
-       "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:920:30",
-       "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ]
-     }
-    },
-    {
-     "name": "a run that selects no test file is not refused",
-     "group": "mechanism",
-     "expect": {
-      "fails": [
-       {
-        "file": "packages/mutator/tests/mutator.node.test.ts",
-        "row": "should refuse a file whose run selects no test file"
-       },
-       {
-        "file": "packages/mutator/tests/mutator.node.test.ts",
-        "row": "should refuse a file with only survivors whose run selects no test file, before any mutation"
-       },
-       {
-        "file": "packages/mutator/tests/mutator.node.test.ts",
-        "row": "should name only the run that selects no test file, of two runs"
-       }
-      ]
-     },
-     "outcome": "as expected",
-     "failed": [
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file whose run selects no test file",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file with only survivors whose run selects no test file, before any mutation",
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should name only the run that selects no test file, of two runs"
-     ],
-     "missed": [],
-     "voided": [],
-     "unrun": {},
-     "messages": {
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file whose run selects no test file": [
-       "AssertionError: expected 'mutator: setup: ln -s /tmp/mutator-TE…' to contain 'runs that select no test file\\n  - a:…'",
-       "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:416:29",
-       "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should refuse a file with only survivors whose run selects no test file, before any mutation": [
-       "AssertionError: expected [ +0, { …(3) }, 3 ] to deeply equal [ 2, undefined, 1 ]",
-       "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:443:59",
-       "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ],
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, refusals should name only the run that selects no test file, of two runs": [
-       "AssertionError: expected [ +0, { …(3) } ] to deeply equal [ 2, undefined ]",
-       "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:470:44",
-       "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ]
-     }
-    },
-    {
-     "name": "Vitest's colors are kept",
-     "group": "mechanism",
-     "expect": {
-      "fails": [
-       {
-        "file": "packages/mutator/tests/mutator.node.test.ts",
-        "row": "should read Vitest's error without colors when FORCE_COLOR is set"
-       }
-      ]
-     },
-     "outcome": "as expected",
-     "failed": [
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read Vitest's error without colors when FORCE_COLOR is set"
-     ],
-     "missed": [],
-     "voided": [],
-     "unrun": {},
-     "messages": {
-      "packages/mutator/tests/mutator.node.test.ts > mutator run, outcomes should read Vitest's error without colors when FORCE_COLOR is set": [
-       "AssertionError: expected [ …(8) ] to include 'Error: left unhandled'",
-       "    at Proxy.<anonymous> (file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/index.CZzC1gGg.js:1791:15)",
-       "    at Proxy.<anonymous> (file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/index.CZzC1gGg.js:1656:14)",
-       "    at Proxy.methodWrapper (file:///tmp/mutator-TElAzX/copy/node_modules/chai/index.js:1737:25)",
-       "    at /tmp/mutator-TElAzX/copy/packages/mutator/tests/mutator.node.test.ts:936:48",
-       "    at async file:///tmp/mutator-TElAzX/copy/node_modules/vitest/dist/chunks/run.CjdgFZiW.js:2801:20"
-      ]
-     }
-    }
-   ]
-  }
- ]
+  ]
 }
