@@ -5,7 +5,9 @@
  * row of `packages/mutator/tests/mutator.node.test.ts`. The three after RD-66's
  * comment are the feature proof's witnesses, with its predictions, read again
  * against the rows as they are now. The ones after the recheck's comment are the
- * witnesses of its findings, three of them the recheck's own mutations.
+ * witnesses of its findings, three of them the recheck's own mutations, and the
+ * ones after the second recheck's comment are the witnesses of its findings, two
+ * of them its own mutations, which it predicted to survive.
  */
 import type { MutationFile } from '@ydinjs/mutator';
 
@@ -477,8 +479,8 @@ const config: MutationFile = {
       edits: [
         {
           file: VITEST,
-          text: 'return result.code === 0 || reported',
-          replacement: 'return true',
+          text: 'if (result.code === 0 || reported) {',
+          replacement: 'if (true) {',
         },
       ],
       expect: {
@@ -610,6 +612,111 @@ const config: MutationFile = {
       ],
       expect: {
         fails: [row('should exit with 3 on an unknown option')],
+      },
+    },
+    // The second recheck's findings, `recheck2-1` and `recheck2-3`.
+    {
+      name: 'a run that selects no test file is a failure outside the tests',
+      group: 'mechanism',
+      edits: [
+        {
+          file: VITEST,
+          text: '      report.testResults.length === 0 ||\n',
+          replacement: '',
+        },
+      ],
+      expect: {
+        fails: [
+          row(
+            'should refuse a file whose run selects no test file, by its selector',
+          ),
+        ],
+      },
+    },
+    {
+      name: "Vitest's unhandled errors aren't printed",
+      group: 'mechanism',
+      edits: [
+        { file: VITEST, text: "        '--reporter=dot',\n", replacement: '' },
+      ],
+      expect: {
+        fails: [
+          row(
+            "should give Vitest's unhandled error as the reason when every row of the unmutated run passes",
+          ),
+        ],
+      },
+    },
+    {
+      name: "the failure is read from Vitest's standard output",
+      group: 'mechanism',
+      edits: [
+        {
+          file: VITEST,
+          text: '      result.stderr.replaceAll(',
+          replacement: '      result.stdout.replaceAll(',
+        },
+      ],
+      expect: {
+        fails: [
+          row(
+            "should exit with 3, not refuse the file, when the unmutated run's browser doesn't start",
+          ),
+          row("should read a selected row whose browser doesn't start as void"),
+          row(
+            "should give Vitest's unhandled error as the reason when every row of the unmutated run passes",
+          ),
+        ],
+      },
+    },
+    {
+      name: "the reporter's banner is kept",
+      group: 'mechanism',
+      edits: [
+        {
+          file: VITEST,
+          text: '|⎯|Vitest caught |This might cause ).*$/gmu',
+          replacement: ').*$/gmu',
+        },
+      ],
+      expect: {
+        fails: [
+          row("should read a selected row whose browser doesn't start as void"),
+        ],
+      },
+    },
+    {
+      name: "the config isn't compared with the file's commit",
+      group: 'mechanism',
+      edits: [
+        {
+          file: CLI,
+          text: '    configPath,\n    import.meta.dirname,\n',
+          replacement: '    import.meta.dirname,\n',
+        },
+      ],
+      expect: {
+        fails: [
+          row(
+            'should name no commit for a config that differs from its commit',
+          ),
+        ],
+      },
+    },
+    {
+      name: 'an ignored file names a commit',
+      group: 'mechanism',
+      edits: [
+        {
+          file: CLI,
+          text: "'--porcelain', '--ignored', '--'",
+          replacement: "'--porcelain', '--'",
+        },
+      ],
+      expect: {
+        fails: [
+          row('should name no commit for a file that its checkout ignores'),
+        ],
       },
     },
   ],

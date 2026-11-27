@@ -52,8 +52,10 @@ function vitestOf(dir: string): readonly string[] {
  * Runs Vitest once for `run` in the copy at `root`, with `env`, and reads every
  * row of its JSON report. A test file that fails before its rows run adds no
  * row, and its message is kept as the reason that its rows didn't run. When
- * Vitest exits with a failure that neither a row nor a test file reports, its
- * output is kept as the run's failure.
+ * Vitest runs a test file and exits with a failure that neither a row nor a
+ * test file reports, as when a browser doesn't start, the errors that it prints
+ * are kept as the run's failure. A run that selects no test file has no
+ * failure: it has no row, so the file's selectors refuse it.
  */
 export async function runVitest(
   root: string,
@@ -73,7 +75,10 @@ export async function runVitest(
         ...(run.config ? ['--config', run.config] : []),
         ...run.tests,
         '--reporter=json',
-        `--outputFile=${output}`,
+        `--outputFile.json=${output}`,
+        // The JSON report has no unhandled error, and this reporter prints
+        // them on the standard error.
+        '--reporter=dot',
       ],
       dir,
       { env, signal },
@@ -109,22 +114,31 @@ export async function runVitest(
     );
 
     const reported =
+      report.testResults.length === 0 ||
       Object.keys(errors).length > 0 ||
       rows.some(({ status }) => status === 'failed');
 
-    return result.code === 0 || reported
-      ? { rows, errors }
-      : {
-          rows,
-          errors,
-          failure: [
-            `Vitest exited with ${result.code} and reported no failed row:`,
-            // Without the stack frames, which would fill the lines kept.
-            ...firstLines(
-              (result.stderr || result.stdout).replaceAll(/^\s+at .*$/gmu, ''),
-            ),
-          ],
-        };
+    if (result.code === 0 || reported) {
+      return { rows, errors };
+    }
+
+    // Without the stack frames, the code frames and the reporter's banner,
+    // which would fill the lines kept before the error.
+    const printed = firstLines(
+      result.stderr.replaceAll(
+        /^(?:\s+(?:at |❯ |\d*\|)|⎯|Vitest caught |This might cause ).*$/gmu,
+        '',
+      ),
+    );
+
+    return {
+      rows,
+      errors,
+      failure: [
+        `Vitest exited with ${result.code} and reported no failed row:`,
+        ...(printed.length > 0 ? printed : ['Vitest printed no error']),
+      ],
+    };
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }

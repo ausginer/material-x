@@ -17,9 +17,9 @@ export type VitestRun = Readonly<{
   /** The first lines of the message of each test file that failed as a whole. */
   errors: Readonly<Record<string, readonly string[]>>;
   /**
-   * Vitest's exit code and the first lines of its output, when it exited with
-   * a failure that no row and no test file's message reports, as when a
-   * browser didn't start.
+   * Vitest's exit code and the first lines of the errors that it printed, when
+   * it ran a test file and exited with a failure that no row and no test
+   * file's message reports, as when a browser didn't start.
    */
   failure?: readonly string[];
 }>;

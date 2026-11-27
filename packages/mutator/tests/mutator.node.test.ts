@@ -382,6 +382,22 @@ describe('mutator run, refusals', () => {
     },
     TIMEOUT,
   );
+
+  it(
+    'should refuse a file whose run selects no test file, by its selector',
+    async () => {
+      const result = await mutate({
+        ...fileOf([CLAMP]),
+        runs: [{ dir: '.', tests: ['tests/nothing'] }],
+      });
+
+      expect([result.code, result.report]).toEqual([2, undefined]);
+      expect(result.stderr).toContain(
+        'clamp ignores its low bound, a: tests/math.node.test.ts > should clamp low covers no row that ran',
+      );
+    },
+    TIMEOUT,
+  );
 });
 
 describe('mutator run, failures outside the tests', () => {
@@ -428,6 +444,39 @@ describe('mutator run, failures outside the tests', () => {
         'unmutated, chromium: Vitest exited with 1 and reported no failed row:',
       );
       expect(result.stderr).toContain('Failed to launch chromium');
+      expect(result.stderr).not.toContain('JSON report written');
+    },
+    TIMEOUT,
+  );
+
+  it(
+    "should give Vitest's unhandled error as the reason when every row of the unmutated run passes",
+    async () => {
+      const result = await mutate(fileOf([CLAMP]), {
+        prepare: async (repo) => {
+          const rows = join(repo, TEST_FILE);
+          await writeFile(
+            rows,
+            `${await readFile(rows, 'utf8')}\nit('should pass and leave a rejection unhandled', () => {\n  void Promise.reject(new Error('left unhandled'));\n});\n`,
+          );
+          await git(repo, [
+            '-c',
+            'user.name=fixture',
+            '-c',
+            'user.email=fixture@example.invalid',
+            'commit',
+            '-qam',
+            'an unhandled rejection',
+          ]);
+        },
+      });
+
+      expect([result.code, result.report]).toEqual([3, undefined]);
+      expect(result.stderr).toContain(
+        'unmutated, a: Vitest exited with 1 and reported no failed row:',
+      );
+      expect(result.stderr).toContain('Error: left unhandled');
+      expect(result.stderr).not.toContain('JSON report written');
     },
     TIMEOUT,
   );
@@ -1020,6 +1069,50 @@ describe('mutator run, the summary', () => {
       expect(result.summary).toContain(
         'the file and the runner at no commit that holds them as they ran,',
       );
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'should name no commit for a config that differs from its commit',
+    async () => {
+      const result = await mutate(fileOf([CLAMP]), {
+        commit: 'runner',
+        prepare: async (repo) => {
+          const config = join(repo, 'mutator.config.ts');
+          await writeFile(
+            config,
+            `${await readFile(config, 'utf8')}// modified\n`,
+          );
+        },
+      });
+
+      expect([result.code, result.report!.fileCommit]).toEqual([0, undefined]);
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'should name no commit for a file that its checkout ignores',
+    async () => {
+      const result = await mutate(fileOf([CLAMP]), {
+        commit: 'runner',
+        prepare: async (repo) => {
+          await git(repo, ['rm', '-q', '--cached', 'mutations.ts']);
+          await writeFile(join(repo, '.git/info/exclude'), 'mutations.ts\n');
+          await git(repo, [
+            '-c',
+            'user.name=fixture',
+            '-c',
+            'user.email=fixture@example.invalid',
+            'commit',
+            '-qm',
+            'the file ignored',
+          ]);
+        },
+      });
+
+      expect([result.code, result.report!.fileCommit]).toEqual([0, undefined]);
     },
     TIMEOUT,
   );
