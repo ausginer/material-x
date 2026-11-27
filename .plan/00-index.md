@@ -1965,6 +1965,8 @@ Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `r
 - **Ready** for an implementer.
 - **Size:** _medium_.
 
+**Dated 2026-11-27 by the architect: `RF-157` registers that the checkbox draws non-Material colours when checked or indeterminate and hovered, unselected and pressed, and disabled,** so this entry's checkbox rows for those states would fail at the current code. `RF-157`'s unit adds the rows for the states that it names. This entry's other rows stay here, and its status doesn't change.
+
 #### RF-89 — No visual contract covers the split button
 
 Tier B, **open**, pre-existing. Registered on 2026-11-22 by the architect, on `repo/visual-contract-coverage-1`, from the [coverage map](visual-contract-coverage-1/coverage-map.md#mx-split-button)'s reviewer's task 8 (`RD-34`), relayed by the coordinator. `RF-88` is the highest `RF-` on any branch on `origin`, so this is the next free number.
@@ -2119,6 +2121,13 @@ Tier A, **closed 2026-11-27** by the pull request of `material-x/checkbox-error-
 - **Also:** `error`'s JSDoc and `checkbox.mdx` say that the checkbox draws Material's error appearance and that a disabled one draws its disabled appearance. The Playground story has an `error` control.
 - **Checks:** the two spec files pass in Chromium, Firefox and WebKit locally (91 rows in Chromium, 182 in the other two). material-x's `browser` and `spec` projects pass in Chromium apart from 9 rows of `tests/axe.browser.test.ts`: `mx-checkbox` and `mx-radio` report `aria-prohibited-attr` at the host. They fail the same way at `a279df579` without this unit's changes, after rebuilding core and drag and reinstalling, and `verify` passed `085be1e2b` on `main`. So this unit doesn't cause it. It isn't registered here. Format, lint and typecheck are clean.
 - **Closed** at the merge of the pull request that carries this note, which says `Closes #149`, after the baseline's merge as the note above orders. The status above said _"Tier A, **open**."_
+
+**Dated 2026-11-27 by the architect: the witness of _disabled wins_ lets the error states' declarations reach a disabled checkbox and come after its disabled ones, whichever mechanism keeps them out,** on fp-1 of #328's [feature proof](reviews/checkbox-error-1/feature-proof-claude.md#fp-1--the-rulings-witness-changes-nothing-under-a-mechanism-that-the-ruling-allows-for-the-architect), read at `93f5e44d6`, requested by the coordinator. It corrects the witness that the first note names, _"with the error states rendered after the disabled ones, the row fails, in each engine."_ That note also allows _"a selector that excludes `:disabled`"_, and the unit uses one. With it, the mutation that the note names (the proof's W1) fails no row in any engine, because the order no longer decides ([readings](reviews/checkbox-error-1/checks/mutations.txt)). The required property, the rows and the code don't change.
+
+- **The witness:** a mutation that removes every mechanism that keeps the error states' declarations from a disabled checkbox, so that they apply to it and come after its disabled ones. It fails the row of each selection, in each engine. With the unit's exclusion, that is the proof's W3: the exclusion removed and the error states rendered after the disabled ones. With the order alone, it would be W1.
+- **W2 alone, the exclusion removed, isn't the witness.** The order still keeps a checked or indeterminate disabled container, and W2 fails only the unselected row. The implementer's note says _"The mutation that removes the exclusion stands in for it"_. This note corrects that: W3 stands in for it.
+- **The witness holds.** W3 fails 9 rows at `00040d137`, the three selections in each of Chromium, Firefox and WebKit, in the proof's reading, and the implementer's reading has the same three rows in Chromium. Nothing is owed for fp-1.
+- **fp-2 isn't ruled here, and this note doesn't change what its rows read.** They still need a theme in which `on-error` and `on-primary` differ. With such rows, W2 also fails each selection's row, the checked and indeterminate ones by the icon ([reading](reviews/checkbox-error-1/checks/disabled.txt)). That makes W2 fp-2's own witness, and W3 stays the witness of _disabled wins_.
 
 #### RF-96 — The text fields' validation doesn't follow the form, and the other form controls have none
 
@@ -5134,6 +5143,30 @@ Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi
 - **Not decided:** whether the repair makes the run start or only names the step. Either meets the property. Starting is the more useful, because a fresh tree then needs nothing before its first run.
 - **Not read:** core, tproc, vite-traits-plugin and box-quad, which the proof lists by reading. A build, `just build-lib`, in a tree with no list.
 - **Plan needed:** no. **Size:** _small_.
+
+#### RF-157 — `mx-checkbox` draws non-Material colours when selected and hovered, unselected and pressed, and disabled
+
+Tier A, **open**, **ready**, pre-existing. Registered on 2026-11-27 by the architect, on `material-x/checkbox-error-1`, from fp-3 of #328's [feature proof](reviews/checkbox-error-1/feature-proof-claude.md#fp-3--the-checkbox-draws-non-material-values-in-four-states-pre-existing), requested by the coordinator. `RF-156` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `93f5e44d6`. It is registered on this branch because its evidence is this branch's review record. The same cascade is on `main`: the proof renders the head's default blocks equal to `main`'s ([reading](reviews/checkbox-error-1/checks/sheet.txt)).
+
+- **What happens,** in Chromium, Firefox and WebKit, in the proof's readings ([layers](reviews/checkbox-error-1/checks/layers.txt), [disabled](reviews/checkbox-error-1/checks/disabled.txt), [tokens](reviews/checkbox-error-1/checks/tokens.txt)):
+
+  | State | Drawn | Material's token |
+  | --- | --- | --- |
+  | Checked or indeterminate, hovered | state layer `on-surface` | `selected.hover.state-layer.color`: `primary` |
+  | Unselected, pressed | press wave `on-surface` | `unselected.pressed.state-layer.color`: `primary` |
+  | Unselected, disabled | outline `on-surface-variant` | `unselected.disabled.outline.color`: `on-surface` |
+  | Checked or indeterminate, disabled | icon `on-primary` | `selected.disabled.icon.color`: `surface` |
+
+- **The cause, by reading.** The architect read the extension graph, `specialTokens` and `allowedTokensSelector` in `packages/material-x/src/checkbox/styles/utils.ts` and `styles/default/tokens.ts`. The deduplication is the proof's reading:
+  - **The state layers.** A state's tokens are deduplicated against the states that it extends. The default state's `state-layer.color` is `unselected.pressed.state-layer.color`, `primary`, so `selected.hover`'s `primary` and `unselected.pressed`'s are dropped as equal to it. But `selected.hover` doesn't extend `unselected.hover`, and in CSS `:host(:hover)` also matches a checked host and sets `on-surface`. A press focuses the input, and `:host(:focus-within)` sets `unselected.focus`'s `on-surface`. The graph counts as parents fewer states than the cascade applies.
+  - **The disabled values.** `allowedTokensSelector` lists neither `outline.color` nor `icon.color`, so only the default state sets them, from `specialTokens`: `unselected.outline.color` and `selected.pressed.icon.color`. A disabled checkbox keeps both.
+- **Why it is a problem:** a consumer sees colours that no Material token gives for the state. `RF-95` keeps the disabled appearance _"that Material's tokens give"_, and today that appearance isn't Material's in its outline or its icon. `RF-95`'s property still holds, because it compares with disabled alone.
+- **Required property:** in each state and selection that the table names, the checkbox draws the colour that its Material token gives, in each engine at `RD-20`'s floor. The states that the table doesn't name draw what they draw at `93f5e44d6`, and `RF-95`'s rows still pass.
+- **Rows,** in `checkbox.spec.browser.test.ts`, each against its token's contract: the hover state layer of a checked and of an indeterminate checkbox; the press wave of an unselected one; the outline of an unselected disabled one; and the icon of a checked and of an indeterminate disabled one, in a theme in which `surface` and `on-primary` differ. **Witness:** each row fails at `93f5e44d6`'s styles, in each engine. These are `RF-88`'s checkbox rows for these states, so this unit adds them, and `RF-88` keeps the rest.
+- **Baselines:** the disabled appearance changes, so the checkbox's disabled image is expected to change, and so is any image that draws a checked hover or an unselected press. By `RD-13`, the recording workflow proposes them and the owner reviews them. The unit names each image that changes and why, and a change to any other image is a regression.
+- **Not decided:** the mechanism. For example, the deduplication could count every state whose selector also matches, the unselected states' selectors could exclude a selected host, or these tokens could be kept without deduplication. Any of them meets the property.
+- **Not read:** the radio. Its extension graph has the same shape, and its `allowedTokensSelector` lists `icon.color` but no outline. Whether it draws the same way isn't read. States other than those that the proof probed: hover and press in each selection, and disabled.
+- **Plan needed:** no. The property and the rows are stated, and the mechanism is local to the checkbox's two style modules. **Size:** _medium_: the change alters the compiled sheet, the rows cover four states in three engines, and a baseline changes through `RD-13`'s workflow.
 
 ## Questions
 
