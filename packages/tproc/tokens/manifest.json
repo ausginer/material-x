@@ -11,7 +11,7 @@
       }
     ]
   },
-  "fetchDate": "2026-11-23",
+  "fetchDate": "2026-11-27",
   "tables": [
     {
       "kind": "COLOR",
@@ -102,6 +102,101 @@
       "kind": "TOKEN_TABLE",
       "componentId": "77f7657eb270e53d",
       "componentName": "Divider"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "385a28e5d3bb3dd0",
+      "componentName": "Menus"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "33b1b2925d9ff561",
+      "componentName": "Switch"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "484a63be03b01a17",
+      "componentName": "Chips"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "68895be451a51c31",
+      "componentName": "Loading indicator"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "0b1e39a67d5bafdc",
+      "componentName": "Dialogs"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "346ae12a744b45dd",
+      "componentName": "Snackbar"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "37697297db0555a6",
+      "componentName": "Tooltips"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "59a1b3a9a90ca8b3",
+      "componentName": "Badges"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "52865380210a9b69",
+      "componentName": "Navigation bar"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "5b55bd7cc1ea6e29",
+      "componentName": "Navigation rail"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "6039f0080a95df1e",
+      "componentName": "Tabs"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "2956a7939bf0879c",
+      "componentName": "Toolbars"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "07341534518f78d0",
+      "componentName": "Search"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "01c5310367774eb8",
+      "componentName": "Date pickers"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "39f4b152dd9bd292",
+      "componentName": "Time pickers"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "75e530a1014802b3",
+      "componentName": "Bottom sheets"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "06c2c925cf96adca",
+      "componentName": "Side sheets"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "43a124d2adc8a2ef",
+      "componentName": "Carousel"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "1a076cec8bc202c2",
+      "componentName": "FAB menu"
     }
   ],
   "files": [
@@ -590,12 +685,224 @@
       "sha256": "bacf9c9e00fd250954c92b5b34d99093c23ff352604ece558ed100e89affbd8a"
     },
     {
+      "path": "sets/md.comp.menu.json",
+      "sha256": "4375202ad6841c1b0934d9f632b081583887bcbb9906f14c6cf6abe58e343c2d"
+    },
+    {
+      "path": "sets/md.comp.menus.json",
+      "sha256": "478d357bc1554ad8858eb700371cd0a68e79665357044752c779d973e284af34"
+    },
+    {
+      "path": "sets/md.comp.menus.vibrant.json",
+      "sha256": "1652a0b5e77a9231feacc49627e5cc0b7728c245cb6aaccba444b140342cb786"
+    },
+    {
+      "path": "sets/md.comp.menus.standard.json",
+      "sha256": "88967a0ee9f6aaf27b5ba94bd14682ca456e2141caf624d4d8be1b7a49af1097"
+    },
+    {
+      "path": "sets/md.comp.switch.json",
+      "sha256": "8f369672d701c4ddd1e10de2e3011458bb97fe723f9967bbcf9dbfef3c6ba5fc"
+    },
+    {
+      "path": "sets/md.comp.assist-chip.json",
+      "sha256": "bb88f2369052619548f91913bfb0865b340a6e97bf558d7c6f9057b193b7c787"
+    },
+    {
+      "path": "sets/md.comp.filter-chip.json",
+      "sha256": "61ad91c84bb34c80873b258e9c0c3f200db4de779386bcad1289da82dbdd39b1"
+    },
+    {
+      "path": "sets/md.comp.input-chip.json",
+      "sha256": "c222b92d620cefb30e966177189270f236e6c4cac4752610883d2399dd47fa91"
+    },
+    {
+      "path": "sets/md.comp.suggestion-chip.json",
+      "sha256": "c69b9c65bd2a536cf7f73f2b1b08bf22351f78f19df083ff92630e576198fbab"
+    },
+    {
+      "path": "sets/md.comp.loading-indicator.json",
+      "sha256": "0661e69bd23acdb172a93890b70303c0925c194119a89b9d5c6f3bc09b033f93"
+    },
+    {
+      "path": "sets/md.comp.dialog.json",
+      "sha256": "10cc763e90c2ce7e3f05c05d811c010bb511befe62c2c9e661cad40a98d19f84"
+    },
+    {
+      "path": "sets/md.comp.full-screen-dialog.json",
+      "sha256": "10aacd1c5fd5a92ff94cea746ed4a5ba6a851a0c460ad89aac0984e3f2444dd2"
+    },
+    {
+      "path": "sets/md.comp.snackbar.json",
+      "sha256": "5e90c67b901acd4d59c26e21d6244034f4a92f6e111506f59960a5b02e56522c"
+    },
+    {
+      "path": "sets/md.comp.plain-tooltip.json",
+      "sha256": "1c07e0ae3166b351063871dc2f224ececbcdae5b7e6395c146a11933b7915ca5"
+    },
+    {
+      "path": "sets/md.comp.rich-tooltip.json",
+      "sha256": "27c822f426795d15daa22b6ebc04f2270da1675f360ef4ed08a7249eb6ade0ea"
+    },
+    {
+      "path": "sets/md.comp.badge.json",
+      "sha256": "fa6f418a730325b707cc8eeb55eb347ec0f41c99f1707ae9db4a56443bb57d2b"
+    },
+    {
+      "path": "sets/md.comp.nav-bar.item.horizontal.json",
+      "sha256": "4590f7a184fc4c31e6373b900f8ee9d04c6e0849ab210eca25d2a1407180e396"
+    },
+    {
+      "path": "sets/md.comp.nav-bar.item.vertical.json",
+      "sha256": "d50d03543a78c4f93314903aa14fbdec24bde209da6541a7775c71eb0dd058ea"
+    },
+    {
+      "path": "sets/md.comp.nav-bar.json",
+      "sha256": "304e9c9b38c7097d14e2007ebce063a0fa4020fddce31e88a5de5156b8844293"
+    },
+    {
+      "path": "sets/md.comp.navigation-bar.json",
+      "sha256": "c00abc4349e12e0998f16b553e84def1ecc1c9785e04610f10f619387f1805bc"
+    },
+    {
+      "path": "sets/md.comp.nav-rail.item.horizontal.json",
+      "sha256": "ceeec1e877dc92e461006c031d5cace4c9261e7318a5a6c137f35432ef76e953"
+    },
+    {
+      "path": "sets/md.comp.nav-rail.item.vertical.json",
+      "sha256": "d08f9a29b12718c651949e3a811fdb496adaff811be747afd1ea2ca3353a9a9a"
+    },
+    {
+      "path": "sets/md.comp.nav-rail.expanded.json",
+      "sha256": "f83f13c2d499ffd8438dd39efdb418df50080fc772bba628a585ab5e61e2c017"
+    },
+    {
+      "path": "sets/md.comp.nav-rail.collapsed.json",
+      "sha256": "60da55f8f1b2c280dc62e071b7423bc035690159190a525f50917d0f04872e50"
+    },
+    {
+      "path": "sets/md.comp.nav-rail.json",
+      "sha256": "f7a1cd9d88c6d58db3aa667930f8c3298a94296303e697a4da5bf9a4d0b90eb2"
+    },
+    {
+      "path": "sets/md.comp.nav-rail.item.json",
+      "sha256": "ea40ff4b074c19b3a0e241e6b705728792e14226a5bf991c8af3b145ed441032"
+    },
+    {
+      "path": "sets/md.comp.navigation-rail.json",
+      "sha256": "6f4b3f810117b738e88330be63d724c6542304fe7ecaa0d9d4282beb881ef4b1"
+    },
+    {
+      "path": "sets/md.comp.secondary-navigation-tab.json",
+      "sha256": "118a78a6b3946a0729518c08dc5eb8d0fb26f3dafff11053cad9818a0476e13a"
+    },
+    {
+      "path": "sets/md.comp.primary-navigation-tab.json",
+      "sha256": "8cbbab309fc02af133d272a31928b8ddae8062b2e104426b17a967a3ce07da96"
+    },
+    {
+      "path": "sets/md.comp.toolbar.floating.json",
+      "sha256": "0934719c01f08c959200269f09e6c7829ae2b09a1f54b8a767b64c9c5a4c3621"
+    },
+    {
+      "path": "sets/md.comp.toolbar.docked.json",
+      "sha256": "d185a6670c4acc204e2377dd465dc0eb1dde9038c5d87f9f28fb1a2e88f1e6a5"
+    },
+    {
+      "path": "sets/md.comp.toolbar.vibrant.json",
+      "sha256": "fc6d4e323177e71aac79cedc62edb295df4ab5f0c757336f0350bfbb1a4af416"
+    },
+    {
+      "path": "sets/md.comp.toolbar.standard.json",
+      "sha256": "8abe398f738cf29bdc8216d637cee157e52b0bf96b7374754f1514ce9cc4c064"
+    },
+    {
+      "path": "sets/md.comp.toolbar.floating.fab.json",
+      "sha256": "fd627c75bef01b1032362daab03355c7f69393ef18ba9b8272df0807861e8e0d"
+    },
+    {
+      "path": "sets/md.comp.bottom-app-bar.json",
+      "sha256": "faef5c625242255ecf5defa950251f347668b6a485ec83eeb9806a746df9c830"
+    },
+    {
+      "path": "sets/md.comp.search-view.json",
+      "sha256": "986bdfb33df6f70dab1887f06f4b4c762033272368ce242a917fddf3f3d3cdfd"
+    },
+    {
+      "path": "sets/md.comp.search-bar.json",
+      "sha256": "96e4d0e2869cf3a4db652cd328497a5bc7257ce112fac97a53f71c87f7e0bd1b"
+    },
+    {
+      "path": "sets/md.comp.date-picker.docked.json",
+      "sha256": "d3be43a20852dcb454099b04e08a471ea4319f622c526a15cc1d5b1bdefc696b"
+    },
+    {
+      "path": "sets/md.comp.date-picker.modal.json",
+      "sha256": "3a048d3535bda85d152c9d2bc808e3e07c2c616b1a19c45c0d517b75fd6efd4e"
+    },
+    {
+      "path": "sets/md.comp.date-input.modal.json",
+      "sha256": "d86feb5606dfec4ceb052ce72824935a7006d8983c5a16eef6a59d723cc19417"
+    },
+    {
+      "path": "sets/md.comp.time-pickers.json",
+      "sha256": "50a53d041e64ea97125a67f6b601cab888136e977036cb98dcabd9e89cdff1b6"
+    },
+    {
+      "path": "sets/md.comp.time-input.json",
+      "sha256": "d0d43f96cab027686bc732c42d36973d8a33e7f028a0e40519557545117a4c31"
+    },
+    {
+      "path": "sets/md.comp.time-picker.json",
+      "sha256": "97b11da8a2fcce1b6aa775d899402163df7d50ae6bb8aeadba0b261699f6d879"
+    },
+    {
+      "path": "sets/md.comp.sheet.bottom.json",
+      "sha256": "e4d5c997cd70eafd2e7717478f9b62f038ff9d5425abd6b39cb6821d5e63ea99"
+    },
+    {
+      "path": "sets/md.comp.sheet.side.json",
+      "sha256": "416273d18efe00cf28a7a797336613c75604f9b04e03ab04fcf87266bf6dbda9"
+    },
+    {
+      "path": "sets/md.comp.carousel-item.json",
+      "sha256": "ab7d27a067f260395a309af1c84a771ec8f9eead9be884e4775c17ffc24b0925"
+    },
+    {
+      "path": "sets/md.comp.fab-menu.tertiary-container.json",
+      "sha256": "076a6cfe3413e5d1e4cf253506aaeb2b76882c360f8d80e8066a1647d7613b72"
+    },
+    {
+      "path": "sets/md.comp.fab-menu.secondary-container.json",
+      "sha256": "2dd5ab21b0c55b0b3efe6972ea8cd2ec07ba66bba4210b060b49416153b0ed95"
+    },
+    {
+      "path": "sets/md.comp.fab-menu.primary-container.json",
+      "sha256": "1c088aeb970791f34ca5085686e64a581a99f68dd9bcd5e623903cdcf99c7cb5"
+    },
+    {
+      "path": "sets/md.comp.fab-menu.json",
+      "sha256": "8f986ed559cfad35ae5418e80be12306c483feb9362dafd24f4c1a8bc6485f21"
+    },
+    {
+      "path": "sets/md.comp.fab-menu.tertiary.close-button.json",
+      "sha256": "6501e1dc73b768620e970b23b349302e5e44cfee4bdeb1971263124dc786caa8"
+    },
+    {
+      "path": "sets/md.comp.fab-menu.secondary.close-button.json",
+      "sha256": "71eb3d0b70a60b5c5a7c0015f57c0d8c73a21d7dce74336a97d6cb5f5d23987f"
+    },
+    {
+      "path": "sets/md.comp.fab-menu.primary.close-button.json",
+      "sha256": "477f8059583b6f05784bca9375071998ccdccfcffca66232c4a6ab618ef673b6"
+    },
+    {
       "path": "sets/md.sys.state.focus-indicator.json",
       "sha256": "8dae1d3473adee6e87f0f5ba3ebb3292b215157b7a791158814cbbc02e94f751"
     },
     {
       "path": "sets/md.sys.measurement.json",
-      "sha256": "903d2105e2efc7bb8ab49cf57877ba8a28055c4f24eba1c90720173a9efbecb2"
+      "sha256": "51c0494c2272dbd005c67d9b08a0a50ec4d11acd912828e5b67b091d8ba67f97"
     }
   ]
 }
