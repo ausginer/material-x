@@ -1,0 +1,19 @@
+# The implementer's witnesses for the rows of fp-1 and fp-2, 2026-11-27
+# Tree: 8a8535a5f (tproc/component-tables-1) with the three rows added to convert.node.test.ts, in slot b.
+# Mutations are the review's R1 to R3 (probes/probe.mjs.txt), applied to scripts/convert.ts one at a time
+# and restored from git after the runs. Runner: probes/implementer-fp-rows.mjs.txt.
+
+== unmutated: exit 0; Tests  56 passed (56)
+== R1: exit 1; Tests  1 failed | 55 passed (56)
+   × should store unchecked a node with the table's own value id below another system's node 6ms
+   FAIL  |node| tests/scripts/convert.node.test.ts:969 > convert, references into another design system > should store unchecked a node with the table's own value id below another system's node
+     Error: TOKEN_TABLE.c0: md.comp.test.a: contextualReferenceTree.referenceTree.childNodes.value: names no value of md.comp.test.missing in the store
+== R2: exit 1; Tests  1 failed | 55 passed (56)
+   × should refuse a missing reference whose node has no value id 3ms
+   FAIL  |node| tests/scripts/convert.node.test.ts:947 > convert, references into another design system > should refuse a missing reference whose node has no value id
+     AssertionError: expected [Function] to throw an error
+== R3: exit 1; Tests  1 failed | 55 passed (56)
+   × should refuse a values reference that only another token's node of another system names 6ms
+   FAIL  |node| tests/scripts/convert.node.test.ts:956 > convert, references into another design system > should refuse a values reference that only another token's node of another system names
+     AssertionError: expected [Function] to throw an error
+restored: true

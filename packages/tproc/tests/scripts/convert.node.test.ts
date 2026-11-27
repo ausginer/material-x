@@ -943,4 +943,50 @@ describe('convert, references into another design system', () => {
       'TOKEN_TABLE.c1: md.comp.test.a: values.tokenName: names goog.ref.color, not in the store',
     );
   });
+
+  it('should refuse a missing reference whose node has no value id', () => {
+    const table = createTable();
+    edit(table, CHILD, { tokenName: 'goog.ref.color' });
+
+    expect(() => convert([source(table)], options)).toThrow(
+      'TOKEN_TABLE.c1: md.comp.test.a: contextualReferenceTree.referenceTree: names goog.ref.color, not in the store',
+    );
+  });
+
+  it("should refuse a values reference that only another token's node of another system names", () => {
+    const table = createTable();
+    referenceForeign(table, 'goog.ref.color');
+    edit(table, ['system', 'values', 1], {
+      name: OTHER_VALUE,
+      tokenName: 'goog.ref.color',
+    });
+
+    expect(() => convert([source(table)], options)).toThrow(
+      'TOKEN_TABLE.c1: md.comp.test.b: values.tokenName: names goog.ref.color, not in the store',
+    );
+  });
+
+  it("should store unchecked a node with the table's own value id below another system's node", () => {
+    const table = createTable();
+    edit(table, ['system', 'values', 0, 'tokenName'], 'goog.ref.color');
+    referenceForeign(table, 'goog.ref.color', [
+      {
+        value: { name: `${SET}/tokens/k9/values/v9`, version: 'x' },
+        tokenName: 'md.comp.test.missing',
+      },
+    ]);
+    const [token] = setFile([table]).tokens;
+
+    expect(
+      at(token as Table, [
+        'contextualReferenceTree',
+        0,
+        'referenceTree',
+        'childNodes',
+        0,
+        'childNodes',
+        0,
+      ]),
+    ).toEqual({ tokenName: 'md.comp.test.missing' });
+  });
 });
