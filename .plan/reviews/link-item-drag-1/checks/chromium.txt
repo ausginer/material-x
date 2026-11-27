@@ -1,0 +1,21 @@
+# Feature proof of #325 at 85a96ba5a, unmutated, in Chromium only (MX_TEST_ENGINES=chromium), run 2026-11-27 in slot g after rebuilding packages/core and packages/drag from the head's source (aube exec just build in each).
+## packages/material-x: aube exec vitest run -c vitest.config.ts (every project)
+ FAIL  |browser (chromium)| tests/axe.browser.test.ts:478 > axe-core > mx-checkbox > should have exactly its listed violations: unchecked
+ FAIL  |browser (chromium)| tests/axe.browser.test.ts:478 > axe-core > mx-checkbox > should have exactly its listed violations: checked
+ FAIL  |browser (chromium)| tests/axe.browser.test.ts:478 > axe-core > mx-checkbox > should have exactly its listed violations: indeterminate
+ FAIL  |browser (chromium)| tests/axe.browser.test.ts:478 > axe-core > mx-checkbox > should have exactly its listed violations: disabled
+ FAIL  |browser (chromium)| tests/axe.browser.test.ts:478 > axe-core > mx-checkbox > should have exactly its listed violations: required with an error
+ FAIL  |browser (chromium)| tests/axe.browser.test.ts:478 > axe-core > mx-radio > should have exactly its listed violations: unchecked
+ FAIL  |browser (chromium)| tests/axe.browser.test.ts:478 > axe-core > mx-radio > should have exactly its listed violations: checked
+ FAIL  |browser (chromium)| tests/axe.browser.test.ts:478 > axe-core > mx-radio > should have exactly its listed violations: disabled
+ FAIL  |browser (chromium)| tests/axe.browser.test.ts:478 > axe-core > mx-radio > should have exactly its listed violations: required with an error
+ Test Files  1 failed | 51 passed (52)
+      Tests  9 failed | 2854 passed | 2 expected fail (2865)
+## the failure, first of each element
+AssertionError: Listed: label at mx-checkbox > #input (repo:RF-94): expected [ …(2) ] to deeply equal [ 'label at mx-checkbox > #input' ]
+AssertionError: Listed: label at mx-radio > #input (repo:RF-94): expected [ …(2) ] to deeply equal [ 'label at mx-radio > #input' ]
++   "aria-prohibited-attr at mx-checkbox",
++   "aria-prohibited-attr at mx-radio",
+## tests/axe.browser.test.ts alone, at the head: 9 failed | 62 passed (71)
+## tests/axe.browser.test.ts alone, with git diff origin/main HEAD -- packages/material-x/src applied in reverse, then restored: 9 failed | 62 passed (71)
+## CI's chromium job on 85a96ba5a passes the same file: see ci.txt

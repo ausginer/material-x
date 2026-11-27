@@ -32,15 +32,24 @@ const STATE_MAP: Readonly<Record<string, Param>> = {
   disabled: pseudoClass('disabled'),
 };
 
-export function groupTokens(tokenName: string): GroupResult | null {
+/** The prefix of the error states' paths, such as `error.selected.hover`. */
+const ERROR_PREFIX = 'error.';
+
+/**
+ * Groups a token by its path: `[error.][selection.]state`, such as
+ * `error.unselected.focus` for `unselected.error.focus.outline.color`.
+ */
+export function groupTokens(tokenName: string): GroupResult {
   const parts = tokenName.split('.');
+  let error = false;
   let selection: string | undefined;
   let state = 'default';
   const nameParts: string[] = [];
 
   for (const part of parts) {
     if (part === 'error') {
-      return null;
+      error = true;
+      continue;
     }
 
     if (SELECTION_STATES.includes(part)) {
@@ -56,43 +65,61 @@ export function groupTokens(tokenName: string): GroupResult | null {
     nameParts.push(part);
   }
 
+  const path = selection ? `${selection}.${state}` : state;
+
   return {
-    path: selection ? `${selection}.${state}` : state,
+    path: error ? `${ERROR_PREFIX}${path}` : path,
     tokenName: nameParts.join('.'),
   };
 }
 
 export { disabledTokenSelector, notDisabledTokenSelector };
 
-export function createExtensions(): ExtensionCallback {
+export function errorTokenSelector(path: string): boolean {
+  return path.startsWith(ERROR_PREFIX);
+}
+
+export function notErrorTokenSelector(path: string): boolean {
+  return !errorTokenSelector(path);
+}
+
+/**
+ * The states' inheritance, under `prefix`: none for the states without error,
+ * `error.` for the error states. Material has no disabled error state.
+ */
+export function createExtensions(prefix = ''): ExtensionCallback {
   return (m) => {
-    const defaultState = m.state('default').extends();
-    m.state('hover').extends(defaultState);
-    m.state('focus').extends(defaultState);
-    m.state('pressed').extends(defaultState);
-    m.state('disabled').extends(defaultState);
+    const state = (path: string) => m.state(`${prefix}${path}`);
 
-    const unselectedDefault = m
-      .state('unselected.default')
-      .extends(defaultState);
-    m.state('unselected.hover').extends(defaultState, unselectedDefault);
-    m.state('unselected.focus').extends(defaultState, unselectedDefault);
-    m.state('unselected.pressed').extends(defaultState, unselectedDefault);
+    const defaultState = state('default').extends();
+    state('hover').extends(defaultState);
+    state('focus').extends(defaultState);
+    state('pressed').extends(defaultState);
 
-    const selectedDefault = m
-      .state('selected.default')
-      .extends(defaultState, unselectedDefault);
-    m.state('selected.hover').extends(
+    if (!prefix) {
+      state('disabled').extends(defaultState);
+    }
+
+    const unselectedDefault = state('unselected.default').extends(defaultState);
+    state('unselected.hover').extends(defaultState, unselectedDefault);
+    state('unselected.focus').extends(defaultState, unselectedDefault);
+    state('unselected.pressed').extends(defaultState, unselectedDefault);
+
+    const selectedDefault = state('selected.default').extends(
+      defaultState,
+      unselectedDefault,
+    );
+    state('selected.hover').extends(
       defaultState,
       unselectedDefault,
       selectedDefault,
     );
-    m.state('selected.focus').extends(
+    state('selected.focus').extends(
       defaultState,
       unselectedDefault,
       selectedDefault,
     );
-    m.state('selected.pressed').extends(
+    state('selected.pressed').extends(
       defaultState,
       unselectedDefault,
       selectedDefault,
@@ -113,29 +140,57 @@ export const allowedTokensSelector: GroupSelector = createAllowedTokensSelector(
   ],
 );
 
+/**
+ * The error states' tokens. Only the error states draw the outline and icon
+ * colors of their own state, because the other states keep the default
+ * state's.
+ */
+export const errorAllowedTokensSelector: GroupSelector =
+  createAllowedTokensSelector([
+    'container.color',
+    'outline.color',
+    'icon.color',
+    'state-layer.color',
+    'state-layer.opacity',
+  ]);
+
 const checked = pseudoClass('state', 'checked');
 const indeterminate = pseudoClass('state', 'indeterminate');
 
+/**
+ * A disabled checkbox draws its disabled appearance whatever `error` says. The
+ * disabled states set no outline color, so the error states exclude
+ * `:disabled` rather than rely on the order.
+ */
+const enabledError = [
+  pseudoClass('state', 'error'),
+  pseudoClass('not', pseudoClass('disabled')),
+] as const;
+
 export function createScopedDeclarationRenderer(): DeclarationBlockRenderer {
   return (path, declarations) => {
-    let state: string;
-    let selection: string | undefined;
-
-    const index = path.indexOf('.');
-    if (index < 0) {
-      state = path;
-    } else {
-      selection = path.slice(0, index);
-      state = path.slice(index + 1);
-    }
+    const error = errorTokenSelector(path);
+    const [first, second] = path
+      .slice(error ? ERROR_PREFIX.length : 0)
+      .split('.');
+    const [selection, state] = second ? [first, second] : [undefined, first!];
 
     const stateParam = state === 'default' ? null : (STATE_MAP[state] ?? null);
-    const selectionParam = selection === 'selected' ? checked : null;
+    const errorParams = error ? enabledError : [];
 
-    const selectors = [selector(':host', selectionParam, stateParam)];
+    const selectors = [
+      selector(
+        ':host',
+        selection === 'selected' ? checked : null,
+        ...errorParams,
+        stateParam,
+      ),
+    ];
 
     if (selection === 'selected') {
-      selectors.push(selector(':host', indeterminate, stateParam));
+      selectors.push(
+        selector(':host', indeterminate, ...errorParams, stateParam),
+      );
     }
 
     return {
@@ -146,16 +201,22 @@ export function createScopedDeclarationRenderer(): DeclarationBlockRenderer {
   };
 }
 
+const ENABLED_STATES = CHECKBOX_STATES.filter((state) => state !== 'disabled');
+
+const ENABLED_PATHS = [
+  ...ENABLED_STATES,
+  ...SELECTION_STATES.flatMap((selection) =>
+    ENABLED_STATES.map((state) => `${selection}.${state}`),
+  ),
+];
+
+/** The states in their order: enabled, error, then disabled. */
 export function renderStylesInOrder(
   tokens: ReadonlyArray<ReadonlySignal<TokenPackage>>,
 ): string {
   return [
-    ...CHECKBOX_STATES.filter((state) => state !== 'disabled'),
-    ...SELECTION_STATES.flatMap((selection) =>
-      CHECKBOX_STATES.filter((state) => state !== 'disabled').map(
-        (state) => `${selection}.${state}`,
-      ),
-    ),
+    ...ENABLED_PATHS,
+    ...ENABLED_PATHS.map((path) => `${ERROR_PREFIX}${path}`),
     'disabled',
     'unselected.disabled',
     'selected.disabled',

@@ -1,0 +1,78 @@
+# The checkbox's token sheet (renderStylesInOrder, without main.styles.css), rendered by node from copies of packages/material-x/src out of git: main at 2b193971e (its checkbox sources are the merge base's, 9342359bf), and the head 00040d137. 2026-11-27.
+## diff -B main head-with-default-package-only
+(none)
+## diff -B main head (both packages), blank lines dropped
+56a79,147
+> :host(:state(error):not(:disabled)) {
+>   --_focus-layer-color: var(--md-sys-color-error, #BA1A1A);
+>   --_focus-layer-opacity: 0.1;
+> }
+> :host(:state(error):not(:disabled):hover) {
+>   --_state-layer-opacity: 0.08;
+>   --_state-layer-color: var(--md-sys-color-error, #BA1A1A);
+> }
+> :host(:state(error):not(:disabled):focus-within) {
+>   --_state-layer-opacity: 0.1;
+>   --_state-layer-color: var(--md-sys-color-error, #BA1A1A);
+> }
+> :host(:state(error):not(:disabled):active) {
+>   --_state-layer-opacity: 0.1;
+>   --_state-layer-color: var(--md-sys-color-error, #BA1A1A);
+> }
+> :host(:state(error):not(:disabled)) {
+>   --_outline-color: var(--md-sys-color-error, #BA1A1A);
+> }
+> :host(:state(checked):state(error):not(:disabled)), :host(:state(indeterminate):state(error):not(:disabled)) {
+>   --_container-color: var(--md-sys-color-error, #BA1A1A);
+>   --_icon-color: var(--md-sys-color-on-error, #FFFFFF);
+> }
+64c157,158
+< }
+\ No newline at end of file
+---
+> }
+## main's sheet, blank lines dropped
+:host {
+  --_container-shape: 2px;
+  --_container-size: 18px;
+  --_state-layer-shape: var(--_shape-full);
+  --_state-layer-size: 40px;
+  --_icon-size: 24px;
+  --_outline-width: 2px;
+  --_outline-color: var(--md-sys-color-on-surface-variant, #424937);
+  --_state-layer-color: var(--md-sys-color-primary, #3E6700);
+  --_state-layer-opacity: 0.1;
+  --_ripple-color: var(--_state-layer-color);
+  --_ripple-opacity: var(--_state-layer-opacity);
+  --_icon-color: var(--md-sys-color-on-primary, #FFFFFF);
+  --_check-easing: cubic-bezier(0.34, 0.8, 0.34, 1);
+  --_check-duration: 200ms;
+}
+:host {
+  --_focus-layer-color: var(--md-sys-color-on-surface, #191D13);
+  --_focus-layer-opacity: 0.1;
+}
+:host(:hover) {
+  --_state-layer-opacity: 0.08;
+  --_state-layer-color: var(--md-sys-color-on-surface, #191D13);
+}
+:host(:focus-within) {
+  --_state-layer-color: var(--md-sys-color-on-surface, #191D13);
+}
+:host(:state(checked)), :host(:state(indeterminate)) {
+  --_container-color: var(--md-sys-color-primary, #3E6700);
+  --_focus-layer-color: var(--md-sys-color-primary, #3E6700);
+}
+:host(:state(checked):hover), :host(:state(indeterminate):hover) {
+  --_state-layer-opacity: 0.08;
+}
+:host(:state(checked):active), :host(:state(indeterminate):active) {
+  --_state-layer-color: var(--md-sys-color-on-surface, #191D13);
+}
+:host(:disabled) {
+  --_container-opacity: 0.38;
+}
+:host(:state(checked):disabled), :host(:state(indeterminate):disabled) {
+  --_container-opacity: 0.38;
+  --_container-color: var(--md-sys-color-on-surface, #191D13);
+}

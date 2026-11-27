@@ -1,0 +1,61 @@
+# fp-2: the disabled-with-error rows under a distinct --md-sys-color-on-error, in Chromium, at 2424da17a with the remediation's tree.
+# Each mode is applied by probes/mutate.py from packages/material-x, and the files are restored after it. W2 is no-exclusion, W3 is both.
+# Rows: tests/checkbox/checkbox.spec.browser.test.ts and tests/core/focus-layer.spec.browser.test.ts (spec project).
+
+== unmutated
+      Tests  91 passed (91)
+== no-exclusion
+     × should draw what a disabled unselected checkbox draws without error 156ms
+     × should draw what a disabled checked checkbox draws without error 133ms
+     × should draw what a disabled indeterminate checkbox draws without error 111ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  3 failed | 88 passed (91)
+== both
+     × should draw what a disabled unselected checkbox draws without error 258ms
+     × should draw what a disabled checked checkbox draws without error 90ms
+     × should draw what a disabled indeterminate checkbox draws without error 112ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  3 failed | 88 passed (91)
+
+# W2, the disabled-with-error rows alone, the assertion diffs:
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:225 > mx-checkbox disabled with error > should draw what a disabled unselected checkbox draws without error
+AssertionError: expected { container: 'rgba(0, 0, 0, 0)', …(3) } to strictly equal { container: 'rgba(0, 0, 0, 0)', …(3) }
+
+- Expected
++ Received
+
+  {
+    "container": "rgba(0, 0, 0, 0)",
+    "icon": "rgb(255, 255, 255)",
+    "opacity": "0.38",
+-   "outline": "rgb(66, 73, 55)",
++   "outline": "rgb(186, 26, 26)",
+  }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:225 > mx-checkbox disabled with error > should draw what a disabled checked checkbox draws without error
+ FAIL  |spec (chromium)| tests/checkbox/checkbox.spec.browser.test.ts:225 > mx-checkbox disabled with error > should draw what a disabled indeterminate checkbox draws without error
+AssertionError: expected { container: 'rgb(25, 29, 19)', …(3) } to strictly equal { container: 'rgb(25, 29, 19)', …(3) }
+
+- Expected
++ Received
+
+  {
+    "container": "rgb(25, 29, 19)",
+-   "icon": "rgb(255, 255, 255)",
++   "icon": "rgb(1, 2, 3)",
+    "opacity": "0.38",
+    "outline": "rgb(25, 29, 19)",
+  }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 14 skipped (17)
+   Start at  18:25:59
+   Duration  1.93s (import 36%, worker 34%, tests 26%, setup 4%)
+
+error: recipe `test-spec` failed on line 76 with exit code 1
