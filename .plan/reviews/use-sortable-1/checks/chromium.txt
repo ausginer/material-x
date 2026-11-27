@@ -1,0 +1,7 @@
+# Feature proof of #321 at 94167bb33, unmutated, in Chromium only (MX_TEST_ENGINES=chromium), run 2026-11-27.
+## packages/material-x: aube exec vitest run -c vitest.config.ts (every project)
+ Test Files  52 passed (52)
+      Tests  2850 passed | 2 expected fail (2852)
+## packages/core: aube exec vitest run
+ Test Files  28 passed (28)
+      Tests  390 passed (390)
