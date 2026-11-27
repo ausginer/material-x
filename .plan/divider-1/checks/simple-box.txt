@@ -1,0 +1,144 @@
+Read by the architect on 2026-11-27 at 0a74e6e38, for RD-70's second amendment and RD-53's.
+x-card is mx-card's host rule with the padding split, and its A1 rule; x-divider is
+the simple box; x-list is a flex column with an internals role of list.
+
+== chromium 158.0.8127.18: line's start / end / top / bottom from the container's border box, px; then its thickness
+card, full-width | 0 / 0 / 66 / 66; 1
+card, start | 16 / 0 / 66 / 66; 1
+card, middle | 16 / 16 / 66 / 66; 1
+card, inline 24px | 0 / 0 / 66 / 66; 1
+card, inline 0 | 16 / 0 / 66 / 66; 1
+card, block 8px inline 24px, start | 16 / 0 / 58 / 58; 1
+card rtl, start | 16 / 0 / 66 / 66; 1
+card, page margin-inline-start 56px on divider | 0 / 0 / 66 / 66; 1
+card, page margin-block 8px on divider | 0 / 0 / 66 / 66; 1
+card, divider in a child div | 16 / 16 / 16 / 16; 1
+card, vertical direct child in a page flex row | 27.6 / 291.4 / 16 / 16; 1
+div, full-width | 0 / 0 / 0 / 0; 1
+div, start | 16 / 0 / 0 / 0; 1
+div, middle | 16 / 16 / 0 / 0; 1
+div rtl, start | 16 / 0 / 0 / 0; 1
+div, page margin-inline-start 56px | 56 / 0 / 0 / 0; 1
+flex row 48px, vertical | 11.6 / 307.4 / 0 / 0; 1
+flex row 48px, vertical start | 11.6 / 307.4 / 16 / 0; 1
+flex row 48px, vertical middle | 11.6 / 307.4 / 16 / 16; 1
+list, start | 16 / 0 / 18 / 18; 1
+reset card, full-width | 0 / 0 / 34 / 34; 1
+reset card, start | 16 / 0 / 34 / 34; 1
+reset card, middle | 16 / 16 / 34 / 34; 1
+reset card, inline 24px | 0 / 0 / 34 / 34; 1
+reset card, inline 0 | 16 / 0 / 34 / 34; 1
+reset card, block 8px inline 24px, start | 16 / 0 / 26 / 26; 1
+reset card rtl, start | 16 / 0 / 34 / 34; 1
+reset card, page margin-inline-start 56px on divider | 0 / 0 / 34 / 34; 1
+reset card, page margin-block 8px on divider | 0 / 0 / 42 / 42; 1
+reset card, divider in a child div | 16 / 16 / 16 / 16; 1
+reset card, vertical direct child in a page flex row | 27.6 / 291.4 / 16 / 16; 1
+reset div, full-width | 0 / 0 / 0 / 0; 1
+reset div, start | 16 / 0 / 0 / 0; 1
+reset div, middle | 16 / 16 / 0 / 0; 1
+reset div rtl, start | 16 / 0 / 0 / 0; 1
+reset div, page margin-inline-start 56px | 56 / 0 / 0 / 0; 1
+reset flex row 48px, vertical | 11.6 / 307.4 / 0 / 0; 1
+reset flex row 48px, vertical start | 11.6 / 307.4 / 16 / 0; 1
+reset flex row 48px, vertical middle | 11.6 / 307.4 / 16 / 16; 1
+reset list, start | 16 / 0 / 18 / 18; 1
+forced colors: line rgb(0, 0, 0), CanvasText rgb(0, 0, 0)
+accessibility tree, bare | (nothing)
+accessibility tree, div | paragraph,paragraph
+accessibility tree, list | list,listitem,listitem
+accessibility tree, card | generic,paragraph,paragraph
+accessibility tree, card without a divider | generic,paragraph,paragraph
+accessibility tree, div, vertical in a flex row | (nothing)
+accessibility tree, div, role=separator | paragraph,separator,paragraph
+== firefox 159.0: line's start / end / top / bottom from the container's border box, px; then its thickness
+card, full-width | 0 / 0 / 69 / 69; 1
+card, start | 16 / 0 / 69 / 69; 1
+card, middle | 16 / 16 / 69 / 69; 1
+card, inline 24px | 0 / 0 / 69 / 69; 1
+card, inline 0 | 16 / 0 / 69 / 69; 1
+card, block 8px inline 24px, start | 16 / 0 / 61 / 61; 1
+card rtl, start | 16 / 0 / 69 / 69; 1
+card, page margin-inline-start 56px on divider | 0 / 0 / 69 / 69; 1
+card, page margin-block 8px on divider | 0 / 0 / 69 / 69; 1
+card, divider in a child div | 16 / 16 / 16 / 16; 1
+card, vertical direct child in a page flex row | 24.9 / 294.1 / 16 / 16; 1
+div, full-width | 0 / 0 / 0 / 0; 1
+div, start | 16 / 0 / 0 / 0; 1
+div, middle | 16 / 16 / 0 / 0; 1
+div rtl, start | 16 / 0 / 0 / 0; 1
+div, page margin-inline-start 56px | 56 / 0 / 0 / 0; 1
+flex row 48px, vertical | 8.9 / 310.1 / 0 / 0; 1
+flex row 48px, vertical start | 8.9 / 310.1 / 16 / 0; 1
+flex row 48px, vertical middle | 8.9 / 310.1 / 16 / 16; 1
+list, start | 16 / 0 / 21 / 21; 1
+reset card, full-width | 0 / 0 / 37 / 37; 1
+reset card, start | 16 / 0 / 37 / 37; 1
+reset card, middle | 16 / 16 / 37 / 37; 1
+reset card, inline 24px | 0 / 0 / 37 / 37; 1
+reset card, inline 0 | 16 / 0 / 37 / 37; 1
+reset card, block 8px inline 24px, start | 16 / 0 / 29 / 29; 1
+reset card rtl, start | 16 / 0 / 37 / 37; 1
+reset card, page margin-inline-start 56px on divider | 0 / 0 / 37 / 37; 1
+reset card, page margin-block 8px on divider | 0 / 0 / 45 / 45; 1
+reset card, divider in a child div | 16 / 16 / 16 / 16; 1
+reset card, vertical direct child in a page flex row | 24.9 / 294.1 / 16 / 16; 1
+reset div, full-width | 0 / 0 / 0 / 0; 1
+reset div, start | 16 / 0 / 0 / 0; 1
+reset div, middle | 16 / 16 / 0 / 0; 1
+reset div rtl, start | 16 / 0 / 0 / 0; 1
+reset div, page margin-inline-start 56px | 56 / 0 / 0 / 0; 1
+reset flex row 48px, vertical | 8.9 / 310.1 / 0 / 0; 1
+reset flex row 48px, vertical start | 8.9 / 310.1 / 16 / 0; 1
+reset flex row 48px, vertical middle | 8.9 / 310.1 / 16 / 16; 1
+reset list, start | 16 / 0 / 21 / 21; 1
+== webkit 27.2: line's start / end / top / bottom from the container's border box, px; then its thickness
+card, full-width | 0 / 0 / 69 / 69; 1
+card, start | 16 / 0 / 69 / 69; 1
+card, middle | 16 / 16 / 69 / 69; 1
+card, inline 24px | 0 / 0 / 69 / 69; 1
+card, inline 0 | 16 / 0 / 69 / 69; 1
+card, block 8px inline 24px, start | 16 / 0 / 61 / 61; 1
+card rtl, start | 16 / 0 / 69 / 69; 1
+card, page margin-inline-start 56px on divider | 0 / 0 / 69 / 69; 1
+card, page margin-block 8px on divider | 0 / 0 / 69 / 69; 1
+card, divider in a child div | 16 / 16 / 16 / 16; 1
+card, vertical direct child in a page flex row | 25 / 294 / 16 / 16; 1
+div, full-width | 0 / 0 / 0 / 0; 1
+div, start | 16 / 0 / 0 / 0; 1
+div, middle | 16 / 16 / 0 / 0; 1
+div rtl, start | 16 / 0 / 0 / 0; 1
+div, page margin-inline-start 56px | 56 / 0 / 0 / 0; 1
+flex row 48px, vertical | 9 / 310 / 0 / 0; 1
+flex row 48px, vertical start | 9 / 310 / 16 / 0; 1
+flex row 48px, vertical middle | 9 / 310 / 16 / 16; 1
+list, start | 16 / 0 / 21 / 21; 1
+reset card, full-width | 0 / 0 / 37 / 37; 1
+reset card, start | 16 / 0 / 37 / 37; 1
+reset card, middle | 16 / 16 / 37 / 37; 1
+reset card, inline 24px | 0 / 0 / 37 / 37; 1
+reset card, inline 0 | 16 / 0 / 37 / 37; 1
+reset card, block 8px inline 24px, start | 16 / 0 / 29 / 29; 1
+reset card rtl, start | 16 / 0 / 37 / 37; 1
+reset card, page margin-inline-start 56px on divider | 0 / 0 / 37 / 37; 1
+reset card, page margin-block 8px on divider | 0 / 0 / 45 / 45; 1
+reset card, divider in a child div | 16 / 16 / 16 / 16; 1
+reset card, vertical direct child in a page flex row | 25 / 294 / 16 / 16; 1
+reset div, full-width | 0 / 0 / 0 / 0; 1
+reset div, start | 16 / 0 / 0 / 0; 1
+reset div, middle | 16 / 16 / 0 / 0; 1
+reset div rtl, start | 16 / 0 / 0 / 0; 1
+reset div, page margin-inline-start 56px | 56 / 0 / 0 / 0; 1
+reset flex row 48px, vertical | 9 / 310 / 0 / 0; 1
+reset flex row 48px, vertical start | 9 / 310 / 16 / 0; 1
+reset flex row 48px, vertical middle | 9 / 310 / 16 / 16; 1
+reset list, start | 16 / 0 / 21 / 21; 1
+
+== Chromium, forced colors (probes/simple-box-forced-colors.mjs)
+{
+ "token color, no rule": "rgb(255, 255, 255)",
+ "CanvasText, no forced-color-adjust": "rgb(0, 0, 0)",
+ "CanvasText, forced-color-adjust none": "rgb(0, 0, 0)",
+ "CanvasText": "rgb(0, 0, 0)",
+ "Canvas": "rgb(255, 255, 255)"
+}
