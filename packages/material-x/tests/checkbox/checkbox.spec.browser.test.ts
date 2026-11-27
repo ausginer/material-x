@@ -85,6 +85,18 @@ async function color(state: string, token: string): Promise<string> {
   return await contractColor(CONTRACT, state, token);
 }
 
+/**
+ * A Material color token named by the requirement, as the engine computes it.
+ * A row whose value the package names by hand for its state compares with
+ * this: the package's effective value at that path is the naming's output, or
+ * an inherited value without it.
+ */
+async function namedColor(token: string): Promise<string> {
+  const { values } = await commands.resolveMaterialTokens({ tokens: [token] });
+
+  return resolveComputed('color', String(values[token]!));
+}
+
 /** A color token of a state of the error contract, as the engine computes it. */
 async function errorColor(state: string, token: string): Promise<string> {
   return await contractColor(ERROR_CONTRACT, state, token);
@@ -327,32 +339,30 @@ describe('mx-checkbox unselected outline visual contract', () => {
   const INTERACTIONS = [
     [
       'hovered',
-      'unselected.hover',
+      'md.comp.checkbox.unselected.hover.outline.color',
       async (element: HTMLElement) => {
         await userEvent.hover(element);
       },
     ],
     [
       'focused',
-      'unselected.focus',
+      'md.comp.checkbox.unselected.focus.outline.color',
       async (element: HTMLElement) => {
         await nextFrame();
         element.focus();
       },
     ],
-    ['pressed', 'unselected.pressed', press],
+    ['pressed', 'md.comp.checkbox.unselected.pressed.outline.color', press],
   ] as const;
 
   it.each(INTERACTIONS)(
     'should draw the unselected outline color when %s',
-    async (_, state, interact) => {
+    async (_, token, interact) => {
       const element = createCheckbox();
       await interact(element);
       await settleBox(element);
 
-      expect(getBox(element).borderTopColor).toBe(
-        await color(state, 'outline.color'),
-      );
+      expect(getBox(element).borderTopColor).toBe(await namedColor(token));
     },
   );
 });
@@ -362,7 +372,7 @@ describe('mx-checkbox disabled visual contract', () => {
     const box = getBox(createCheckbox('disabled'));
 
     expect(box.borderTopColor).toBe(
-      await color('unselected.disabled', 'outline.color'),
+      await namedColor('md.comp.checkbox.unselected.disabled.outline.color'),
     );
   });
 
@@ -375,7 +385,7 @@ describe('mx-checkbox disabled visual contract', () => {
         const icon = iconOf(createCheckbox('disabled', ...attributes));
 
         expect(getComputedStyle(icon).color).toBe(
-          await color('selected.disabled', 'icon.color'),
+          await namedColor('md.comp.checkbox.selected.disabled.icon.color'),
         );
       });
     },

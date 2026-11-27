@@ -87,13 +87,10 @@ export function notErrorTokenSelector(path: string): boolean {
  * The states' inheritance, under `prefix`: none for the states without error,
  * `error.` for the error states. Material has no disabled error state.
  *
- * A state's tokens are deduplicated against its parents', so a state extends
- * each state whose rule also applies to the host and comes before its own. An
- * unselected state's selector also matches a selected host, so each selected
- * state extends the unselected state of its interaction, after
- * `selected.default`. A pressed host can also be hovered and focused, so
- * `unselected.pressed` extends `unselected.hover` and `unselected.focus`, and
- * keeps the state layer color that differs from theirs.
+ * A state's tokens are deduplicated against its parents'. `unselected.hover`'s
+ * selector also matches a selected host and sets the hover layer's
+ * `on-surface`, so `selected.hover` extends it, after `selected.default`, and
+ * keeps the `primary` that differs from it.
  */
 export function createExtensions(prefix = ''): ExtensionCallback {
   return (m) => {
@@ -113,16 +110,8 @@ export function createExtensions(prefix = ''): ExtensionCallback {
       defaultState,
       unselectedDefault,
     );
-    const unselectedFocus = state('unselected.focus').extends(
-      defaultState,
-      unselectedDefault,
-    );
-    const unselectedPressed = state('unselected.pressed').extends(
-      defaultState,
-      unselectedDefault,
-      unselectedHover,
-      unselectedFocus,
-    );
+    state('unselected.focus').extends(defaultState, unselectedDefault);
+    state('unselected.pressed').extends(defaultState, unselectedDefault);
 
     const selectedDefault = state('selected.default').extends(
       defaultState,
@@ -138,13 +127,11 @@ export function createExtensions(prefix = ''): ExtensionCallback {
       defaultState,
       unselectedDefault,
       selectedDefault,
-      unselectedFocus,
     );
     state('selected.pressed').extends(
       defaultState,
       unselectedDefault,
       selectedDefault,
-      unselectedPressed,
     );
   };
 }

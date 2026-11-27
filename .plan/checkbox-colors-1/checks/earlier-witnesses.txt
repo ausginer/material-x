@@ -1,0 +1,24 @@
+== origin/main
+  × should draw the selected hovered state layer color when checked 376ms
+  × should draw the selected hovered state layer color when indeterminate 147ms
+  × should color the press ripple with the unselected pressed state layer 133ms
+  × should draw the keyboard press wave as the pressed state layer when unselected 136ms
+  × should draw the pointer press wave at the pressed state layer opacity when unselected 120ms
+  × should draw the pointer press wave at the pressed state layer opacity when checked 120ms
+  × should draw the unselected outline color when hovered 132ms
+  × should draw the unselected outline color when focused 98ms
+  × should draw the unselected outline color when pressed 130ms
+  × should draw the disabled outline color when unselected 86ms
+  × should draw the disabled icon color when checked 66ms
+  × should draw the disabled icon color when indeterminate 67ms
+  Tests  12 failed | 19 passed (31)
+== 29f5597d6
+  × should draw the keyboard press wave as the pressed state layer when unselected 293ms
+  × should draw the keyboard press wave as the pressed state layer when checked 125ms
+  × should draw the keyboard press wave as the pressed state layer when indeterminate 133ms
+  × should draw the pointer press wave at the pressed state layer opacity when unselected 132ms
+  × should draw the pointer press wave at the pressed state layer opacity when checked 135ms
+  × should draw the unselected outline color when hovered 219ms
+  × should draw the unselected outline color when focused 98ms
+  × should draw the unselected outline color when pressed 130ms
+  Tests  8 failed | 23 passed (31)

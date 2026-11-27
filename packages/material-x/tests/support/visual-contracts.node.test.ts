@@ -1,5 +1,8 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { resolveTokenContract } from './visual-contracts.node.ts';
+import {
+  resolveMaterialTokens,
+  resolveTokenContract,
+} from './visual-contracts.node.ts';
 
 describe('resolveTokenContract', () => {
   // The registry is loaded lazily; its first resolution pays the one-time tproc
@@ -66,5 +69,29 @@ describe('resolveTokenContract', () => {
         tokens: ['unknown'],
       }),
     ).rejects.toThrow('Missing token "unknown"');
+  });
+});
+
+describe('resolveMaterialTokens', () => {
+  beforeAll(async () => {
+    await resolveMaterialTokens({ tokens: [] });
+  }, 120_000);
+
+  it('should resolve a system color as its custom property with a fallback', async () => {
+    const { values } = await resolveMaterialTokens({
+      tokens: ['md.comp.checkbox.unselected.hover.outline.color'],
+    });
+
+    expect(values['md.comp.checkbox.unselected.hover.outline.color']).toMatch(
+      /^var\(--md-sys-color-on-surface, #[\da-f]+\)$/iu,
+    );
+  });
+
+  it('should reject an unknown token', async () => {
+    await expect(
+      resolveMaterialTokens({ tokens: ['md.comp.checkbox.unknown.color'] }),
+    ).rejects.toThrow(
+      'Unknown Material token "md.comp.checkbox.unknown.color"',
+    );
   });
 });

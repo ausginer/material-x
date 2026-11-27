@@ -1,0 +1,56 @@
+# RF-157, the architect's third ruling, slot e, 2026-11-27, Chromium. The recheck's matrix probe (reviews/checkbox-colors-1/probes/recheck/zz-proof-matrix.browser.test.ts.txt), formatted by its fmt-matrix.py.txt.
+# head = the working tree of this note's commit. origin/main = the head with aca446b94's utils.ts, default/tokens.ts and default/main.styles.css.
+# press-wave is the ::after's computed style. The wave has no width except while an activation runs, and a disabled host shows no ripple.
+
+## Every drawn value that differs, origin/main -> head
+unselected hover                     drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected hover                     drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(62, 103, 0) @0.1
+unselected focus                     drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected focus                     drawn.press-wave         rgb(25, 29, 19) @0.1  ->  rgb(62, 103, 0) @0.1
+unselected hover+focus               drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected hover+focus               drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(62, 103, 0) @0.1
+unselected press                     drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected press                     drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(62, 103, 0) @0.1
+unselected space                     drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected space                     drawn.press-wave         rgb(25, 29, 19) @0.1  ->  rgb(62, 103, 0) @0.1
+unselected disabled rest             drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected disabled hover            drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected error rest                drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(186, 26, 26) @0.1
+unselected error hover               drawn.press-wave         rgb(186, 26, 26) @0.08  ->  rgb(186, 26, 26) @0.1
+unselected error disabled rest       drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+unselected error disabled hover      drawn.outline            rgb(66, 73, 55)  ->  rgb(25, 29, 19)
+checked rest                         drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+checked hover                        drawn.hover-layer        rgb(25, 29, 19) @0.08  ->  rgb(62, 103, 0) @0.08
+checked hover                        drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(25, 29, 19) @0.1
+checked hover+focus                  drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(25, 29, 19) @0.1
+checked press                        drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(25, 29, 19) @0.1
+checked disabled rest                drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+checked disabled rest                drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+checked disabled hover               drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+checked disabled hover               drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+checked error rest                   drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(186, 26, 26) @0.1
+checked error hover                  drawn.press-wave         rgb(186, 26, 26) @0.08  ->  rgb(186, 26, 26) @0.1
+checked error disabled rest          drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+checked error disabled rest          drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+checked error disabled hover         drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+checked error disabled hover         drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate rest                   drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate hover                  drawn.hover-layer        rgb(25, 29, 19) @0.08  ->  rgb(62, 103, 0) @0.08
+indeterminate hover                  drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(25, 29, 19) @0.1
+indeterminate hover+focus            drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(25, 29, 19) @0.1
+indeterminate press                  drawn.press-wave         rgb(25, 29, 19) @0.08  ->  rgb(25, 29, 19) @0.1
+indeterminate disabled rest          drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+indeterminate disabled rest          drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate disabled hover         drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+indeterminate disabled hover         drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate error rest             drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(186, 26, 26) @0.1
+indeterminate error hover            drawn.press-wave         rgb(186, 26, 26) @0.08  ->  rgb(186, 26, 26) @0.1
+indeterminate error disabled rest    drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+indeterminate error disabled rest    drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+indeterminate error disabled hover   drawn.icon               rgb(255, 255, 255)  ->  rgb(247, 251, 234)
+indeterminate error disabled hover   drawn.press-wave         rgb(62, 103, 0) @0.1  ->  rgb(25, 29, 19) @0.1
+# 46 differences in 48 states
+
+## Against the recheck's origin/main -> 2642a3baf (reviews/checkbox-colors-1/checks/recheck/matrix.txt), < recheck, > head
+7d6
+< unselected press                     drawn.hover-layer        rgb(25, 29, 19) @0.08  ->  rgb(62, 103, 0) @0.08

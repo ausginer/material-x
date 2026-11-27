@@ -5419,6 +5419,23 @@ Tier A, **open**, **ready**, pre-existing. #338 implements the implementer's two
 - **Not in this unit: the skill's text.** `test-visual-contract` says that _"Contract expectations come from the bridge (`resolveTokenContract` → `effective`)"_. The skill is agent documentation, so the case above goes into it in a unit of its own, with its own pull request ([rule](../.agents/docs/agent-workflow.md#one-branch-and-one-pull-request-per-unit)). That unit records the decision and finds the rows already written, for any component, that read a by-name value through `effective`. This note governs `RF-157`'s rows whatever that unit decides for others.
 - **Size:** still _medium_.
 
+**Dated 2026-11-27 by the implementer: the by-name rows compare with the Material token that they name, and of this unit's extension parents only `selected.hover` ← `unselected.hover` stays,** on `material-x/checkbox-colors-1`, from `18f127bdc`, in Chromium (`RD-62`), requested by the coordinator. It implements the architect's ruling above.
+
+- **The bridge resolves a named Material token.** `resolveMaterialTokens({ tokens })` in `tests/support/visual-contracts.node.ts`, a browser command beside `resolveTokenContract`, resolves each name with tproc's `resolveSet`, as a package's `append` resolves it. A system colour becomes its public custom property with the theme's value as fallback, so the rows' `resolveComputed` applies unchanged. A name that the store doesn't have throws, so the row fails. Two node rows in `visual-contracts.node.test.ts` cover the form and the throw.
+- **Six rows compare with their named token,** in `tests/checkbox/checkbox.spec.browser.test.ts`: the unselected outline hovered, focused and pressed with `md.comp.checkbox.unselected.{hover,focus,pressed}.outline.color`, the unselected disabled outline with `md.comp.checkbox.unselected.disabled.outline.color`, and the checked and indeterminate disabled icon with `md.comp.checkbox.selected.disabled.icon.color`. The other rows keep `effective`.
+- **Witness** ([reading](checkbox-colors-1/checks/named-witness.txt), [probe](checkbox-colors-1/probes/mutate.sh)), each with one append or parent removed from the working tree:
+  - without `unselected.hover`'s outline append, the hovered row fails; without `unselected.focus`'s, the focused row. Each draws `on-surface-variant` for `on-surface`;
+  - without `unselected.pressed`'s alone, no row fails, as the recheck found. Without the three, the hovered, focused and pressed rows fail;
+  - without `unselected.disabled`'s, the disabled outline row fails on `on-surface-variant` for `on-surface`. Without `selected.disabled`'s, the two icon rows fail on `on-primary` for `surface`. Neither fails by the bridge's throw;
+  - the two notes' witnesses still hold ([reading](checkbox-colors-1/checks/earlier-witnesses.txt), [probe](checkbox-colors-1/probes/witness.sh)). With `29f5597d6`'s styles, the same eight rows fail. With `origin/main`'s (`aca446b94`), the first note's six rows fail, and so do the six of the second note's rows that `main` also draws otherwise. The other rows pass.
+- **Extension parents.** `createExtensions` is `main`'s graph and one parent: `selected.hover` ← `unselected.hover`. Without it, the checked and indeterminate hover rows fail on `on-surface` for `primary`.
+  - `unselected.pressed` ← `unselected.hover` and `unselected.focus`, and `selected.focus` ← `unselected.focus`, are removed, as the ruling says.
+  - `selected.pressed` ← `unselected.pressed` is removed too: without it no row fails.
+  - The comment on `createExtensions` names the remaining parent and why it is there.
+- **Matrix** ([reading](checkbox-colors-1/checks/matrix.txt), the recheck's probe), `origin/main` to the head: 46 drawn values differ in the 48 states, all in the amended table's states: the unselected outline, the press wave, the selected hover layer and the disabled outline and icon. Against the recheck's `origin/main` → `2642a3baf` reading, the only difference is that the hover layer of a pressed unselected host no longer changes. It draws `main`'s `on-surface` again.
+- **Checks:** material-x's projects pass in Chromium, with 2,902 passed and 2 expected failures. Format, lint and typecheck are clean. Firefox and WebKit are read from CI.
+- **Baselines:** unchanged from the earlier notes. The three images named there change, and no image draws a pressed host.
+
 #### RF-158 — `mx-radio`'s press wave doesn't draw its pressed tokens: the keyboard's takes the resting or focus colour, and a pointer's the hover opacity
 
 Tier A, **open**, pre-existing. **Ready** once #338 merges, so that the radio takes the checkbox's mechanism.
