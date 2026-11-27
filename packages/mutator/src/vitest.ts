@@ -59,8 +59,8 @@ function vitestOf(dir: string): readonly string[] {
  * that no row reports, as when a browser doesn't start, the errors that it
  * prints are kept as the run's failure. When the rows ran, an error that Vitest
  * prints outside them, such as an unhandled rejection, is kept as the run's
- * error, and the run is judged. A run that selects no test file has neither: it
- * has no row, so the file's selectors refuse it.
+ * error, and the run is judged. A run that selects no test file has neither,
+ * and its report lists no test file.
  */
 export async function runVitest(
   root: string,
@@ -129,15 +129,16 @@ export async function runVitest(
       );
     const banner = UNHANDLED.exec(result.stderr);
     const unhandled = banner ? lines(result.stderr.slice(banner.index)) : [];
+    const files = report.testResults.length;
     const explained =
-      report.testResults.length === 0 ||
+      files === 0 ||
       Object.keys(errors).length > 0 ||
       rows.some(({ status }) => status === 'failed');
 
     if (result.code === 0 || explained) {
       return unhandled.length > 0
-        ? { rows, errors, runError: unhandled }
-        : { rows, errors };
+        ? { files, rows, errors, runError: unhandled }
+        : { files, rows, errors };
     }
 
     const printed = lines(result.stderr);
@@ -150,6 +151,7 @@ export async function runVitest(
         assertionResults.length === 0 && !message,
     )
       ? {
+          files,
           rows,
           errors,
           failure: [
@@ -158,6 +160,7 @@ export async function runVitest(
           ],
         }
       : {
+          files,
           rows,
           errors,
           runError: unhandled.length > 0 ? unhandled : reason,

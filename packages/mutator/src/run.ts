@@ -2,7 +2,13 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join, matchesGlob } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createCopy, removeStale } from './copy.ts';
-import type { Config, Expectation, Mutation, MutationFile } from './format.ts';
+import type {
+  Config,
+  Expectation,
+  Mutation,
+  MutationFile,
+  Run,
+} from './format.ts';
 import { check } from './process.ts';
 import {
   covered,
@@ -201,7 +207,11 @@ export async function run(options: RunOptions): Promise<Report> {
       await check(command, copy.dir, { quiet: false, signal });
     }
 
-    const runAll = async (engine: string): Promise<VitestRun> => {
+    const runAll = async (
+      engine: string,
+    ): Promise<VitestRun & Readonly<{ unselected: readonly Run[] }>> => {
+      let files = 0;
+      const unselected: Run[] = [];
       const rows: Row[] = [];
       const errors: Record<string, readonly string[]> = {};
       const failure: string[] = [];
@@ -215,6 +225,12 @@ export async function run(options: RunOptions): Promise<Report> {
           config.engines[engine]!.env,
           signal,
         );
+        files += result.files;
+
+        if (result.files === 0) {
+          unselected.push(target);
+        }
+
         rows.push(...result.rows);
         Object.assign(errors, result.errors);
         failure.push(...(result.failure ?? []));
@@ -222,6 +238,8 @@ export async function run(options: RunOptions): Promise<Report> {
       }
 
       return {
+        files,
+        unselected,
         rows,
         errors,
         ...(failure.length > 0 ? { failure } : {}),
@@ -230,11 +248,13 @@ export async function run(options: RunOptions): Promise<Report> {
     };
     const baselines = new Map<string, readonly Row[]>();
     const runErrors = new Map<string, readonly string[]>();
+    const unselected: string[] = [];
 
     for (const engine of engines) {
       log(`unmutated, ${engine}`);
       // oxlint-disable-next-line no-await-in-loop -- one engine at a time
-      const { rows, failure, runError } = await runAll(engine);
+      const unmutated = await runAll(engine);
+      const { rows, failure, runError } = unmutated;
 
       // The engine, not the file, failed: the run is a failure outside the
       // tests, which a later run may not repeat, and not a refusal.
@@ -243,10 +263,20 @@ export async function run(options: RunOptions): Promise<Report> {
       }
 
       baselines.set(engine, rows);
+      unselected.push(
+        ...unmutated.unselected.map(
+          ({ dir, tests }) =>
+            `${engine}: the run of ${tests.join(' ')} in ${dir} selects no test file`,
+        ),
+      );
 
       if (runError) {
         runErrors.set(engine, runError);
       }
+    }
+
+    if (unselected.length > 0) {
+      throw new Refusal('runs that select no test file', unselected);
     }
 
     checkSelectors(mutations, engines, baselines);

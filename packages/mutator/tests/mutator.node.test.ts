@@ -384,7 +384,7 @@ describe('mutator run, refusals', () => {
   );
 
   it(
-    'should refuse a file whose run selects no test file, by its selector',
+    'should refuse a file whose run selects no test file',
     async () => {
       const result = await mutate({
         ...fileOf([CLAMP]),
@@ -393,8 +393,63 @@ describe('mutator run, refusals', () => {
 
       expect([result.code, result.report]).toEqual([2, undefined]);
       expect(result.stderr).toContain(
-        'clamp ignores its low bound, a: tests/math.node.test.ts > should clamp low covers no row that ran',
+        'runs that select no test file\n  - a: the run of tests/nothing in . selects no test file\n',
       );
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'should refuse a file with only survivors whose run selects no test file, before any mutation',
+    async () => {
+      const result = await mutate({
+        ...fileOf([
+          {
+            ...CLAMP,
+            edits: [
+              {
+                file: 'built/value.ts',
+                text: '2',
+                replacement: '3',
+              },
+            ],
+            expect: { survives: 'no row reads it' },
+          },
+        ]),
+        runs: [{ dir: '.', tests: ['tests/nothing'] }],
+      });
+
+      expect([result.code, result.report, result.builds]).toEqual([
+        2,
+        undefined,
+        1,
+      ]);
+      expect(result.stderr).toContain(
+        '  - a: the run of tests/nothing in . selects no test file\n',
+      );
+      expect(result.stderr).not.toContain('clamp ignores its low bound, a');
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'should name only the run that selects no test file, of two runs',
+    async () => {
+      const result = await mutate({
+        ...fileOf([CLAMP]),
+        runs: [
+          { dir: '.', tests: ['tests/math'] },
+          { dir: '.', tests: ['tests/nothing'] },
+        ],
+      });
+      const reasons = result.stderr
+        .split('\n')
+        .filter((line) => line.endsWith('selects no test file'));
+
+      expect([result.code, result.report]).toEqual([2, undefined]);
+      expect(reasons).toEqual([
+        '  - a: the run of tests/nothing in . selects no test file',
+      ]);
     },
     TIMEOUT,
   );

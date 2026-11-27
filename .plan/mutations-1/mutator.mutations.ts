@@ -8,7 +8,8 @@
  * witnesses of its findings, three of them the recheck's own mutations, and the
  * ones after the second recheck's comment are the witnesses of its findings, two
  * of them its own mutations, which it predicted to survive. The last two are the
- * witnesses of RD-66's ruling on a run with an unhandled error.
+ * witnesses of RD-66's ruling on a run with an unhandled error, and the last one
+ * the witness of the owner's (a) on a run that selects no test file.
  */
 import type { MutationFile } from '@ydinjs/mutator';
 
@@ -622,7 +623,7 @@ const config: MutationFile = {
       edits: [
         {
           file: VITEST,
-          text: '      report.testResults.length === 0 ||\n',
+          text: '      files === 0 ||\n',
           replacement: '',
         },
         {
@@ -633,8 +634,12 @@ const config: MutationFile = {
       ],
       expect: {
         fails: [
+          row('should refuse a file whose run selects no test file'),
           row(
-            'should refuse a file whose run selects no test file, by its selector',
+            'should refuse a file with only survivors whose run selects no test file, before any mutation',
+          ),
+          row(
+            'should name only the run that selects no test file, of two runs',
           ),
         ],
       },
@@ -756,6 +761,30 @@ const config: MutationFile = {
         fails: [
           row(
             'should judge a run whose rows pass beside an unhandled error, and report the error',
+          ),
+        ],
+      },
+    },
+    // RD-66's note of 2026-11-27 on the owner's (a): a run that selects no
+    // test file refuses the file.
+    {
+      name: 'a run that selects no test file is not refused',
+      group: 'mechanism',
+      edits: [
+        {
+          file: RUN,
+          text: '    if (unselected.length > 0) {',
+          replacement: '    if (false) {',
+        },
+      ],
+      expect: {
+        fails: [
+          row('should refuse a file whose run selects no test file'),
+          row(
+            'should refuse a file with only survivors whose run selects no test file, before any mutation',
+          ),
+          row(
+            'should name only the run that selects no test file, of two runs',
           ),
         ],
       },

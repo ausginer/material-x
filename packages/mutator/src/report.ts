@@ -13,6 +13,8 @@ export type Row = Readonly<{
 
 /** One Vitest run's rows, and why each test file that has a message failed. */
 export type VitestRun = Readonly<{
+  /** How many test files Vitest's report lists. */
+  files: number;
   rows: readonly Row[];
   /** The first lines of the message of each test file that failed as a whole. */
   errors: Readonly<Record<string, readonly string[]>>;
