@@ -32,17 +32,18 @@
 ### Geometry, as required properties
 
 1. **The host is the box** (the `.host` exception _The host is the box_, as `mx-list-item` and `mx-card`). The shadow root holds no element. `architecture.md`'s exception names `mx-divider`.
-2. **Horizontal:** the line is `thickness` high and as wide as its container, less the insets. The host takes exactly that block size.
-3. **Vertical:** the line is `thickness` wide and as high as the layout makes the host. In a flex row or a grid the default stretch gives it the row's height. Elsewhere it has no height, and the page gives it one. The docs say so.
+2. **Horizontal:** the line is `thickness` high and as wide as its container, less the insets. The host takes exactly that block size. In a flex column or a grid it spans the column or its grid area, whatever the container's `align-items` or `justify-items`.
+3. **Vertical:** the line is `thickness` wide. In a flex row or a grid it takes the row's height, whatever the row's `align-items`. Elsewhere it has no height, and the page gives it one. The docs say so. Until `RD-70`'s third amendment, this said: _"as high as the layout makes the host. In a flex row or a grid the default stretch gives it the row's height."_
 4. **Insets** are logical: they mirror in a right-to-left container. On a vertical divider they apply along the line, from its block start, which is this plan's choice, because M3 has no measurement for it.
 5. **A page's universal reset** (`* { margin: 0; padding: 0; border: 0 }`) changes neither the line, its thickness, nor its insets. **A page's `margin` on the divider applies,** except a horizontal direct child's inline margin in a card, which the card's rule overrides (Q2 A1). **A page's `padding` on the divider moves neither the line nor its insets.** Until `RD-70`'s second amendment, this said that a direct child's inline margin _"doesn't move the line (Q2 A2)"_.
 6. **In forced colors** the line is `CanvasText`.
 7. **The line's color and thickness come from the token package,** and the two CSS properties override them.
-8. **The host is the line:** its own background, clipped to its content box, with the insets as its own padding. Nothing is a pseudo-element, positioned or a containing block. The host's padding, `background-clip` and `box-sizing: content-box` are `!important`. `mx-card` pulls the host's box out to its edges (Q2 A1), and the line and the insets follow the box, so a comment in each stylesheet names the other ([reading](checks/simple-box.txt)). Until `RD-70`'s second amendment, this said: _"The line is an absolutely positioned box whose containing block is the divider's host, which is `position: relative`. It takes its thickness from its own size and its block position from its static position, never from `inset-block`. `mx-card` relies on this, so a comment in each stylesheet names the other."_
+8. **The host is the line:** its own background, clipped to its content box, with the insets as its own padding. Nothing is a pseudo-element, positioned or a containing block. The host's padding, `background-clip` and `box-sizing: content-box` are `!important`. `mx-card` pulls the host's box out to its edges (Q2 A1), and the line and the insets follow the box, so a comment in each stylesheet names the other ([reading](checks/simple-box.txt)).
+9. **In a flex container that has less room than its items need,** the divider keeps its thickness. A page's own `flex-shrink`, `align-self`, `justify-self` or size on the divider applies. Added by `RD-70`'s third amendment ([reading](checks/flex-alignment.txt)). Until `RD-70`'s second amendment, this said: _"The line is an absolutely positioned box whose containing block is the divider's host, which is `position: relative`. It takes its thickness from its own size and its block position from its static position, never from `inset-block`. `mx-card` relies on this, so a comment in each stylesheet names the other."_
 
 ### Accessibility
 
-**Decorative by default, as M3 says:** no role, no tab stop, and no node in the accessibility tree. The simple box has no node in Chromium with no role ([reading](checks/simple-box.txt)). A host that holds an absolutely positioned line, or is a containing block for one, would be a `generic` ([reading](checks/host-role.txt)), which is why geometry 8 has none. Until `RD-70`'s second amendment, this said that the internals' role is `none`, which removed that node. That is also what makes it valid directly inside `mx-list`. A page that wants a separator announced sets `role="separator"` on a divider outside a list. `orientation` sets the internals' `ariaOrientation`, so a vertical separator is exposed as vertical without the page writing `aria-orientation`, and a page's `aria-orientation` stands. The docs say not to give a divider `role="separator"` in `mx-list`.
+**Decorative by default, as M3 says:** no role, no tab stop, and no node in the accessibility tree. The simple box has no node in Chromium with no role ([reading](checks/simple-box.txt)). A host that holds an absolutely positioned line, or is a containing block for one, would be a `generic` ([reading](checks/host-role.txt)), which is why geometry 8 has none. Until `RD-70`'s second amendment, this said that the internals' role is `none`, which removed that node. That is also what makes it valid directly inside `mx-list`. A page that wants a separator announced sets `role="separator"` on a divider outside a list. `orientation` sets the internals' `ariaOrientation`, so a vertical separator is exposed as vertical without the page writing `aria-orientation`, and a page's `aria-orientation` stands. The docs say not to give a divider `role="separator"` in `mx-list`. **A divider with an `id` is a node in Chromium:** [Q3](#q3--a-divider-with-an-id), open.
 
 ## Composition
 
@@ -117,6 +118,27 @@ A1 and A2 hold under the universal reset as on a plain page, and so does P, with
 
 Until the owner's second answer, this was A2's one rule, `position: static` on the divider, with _"Nothing else in the card moves: no attribute, property, padding, size, existing row or story."_
 
+### Q3 — a divider with an `id`
+
+**Open.** Asked on 2026-11-27, on `reviewer-5` of #343's [feature proof](../reviews/divider-1/feature-proof-claude.md).
+
+**What was read,** in Chromium 158 ([proof's reading](../reviews/divider-1/checks/probe-layout-ax.txt), [with the internals' role `none`](../reviews/divider-1/checks/probe-internals-none.txt)):
+
+- Every element with an `id` has an unignored, unnamed `generic` node, a plain `div` too. So `<mx-divider id="…">` is a `generic` in a `group`, and between `mx-list`'s two `listitem`s. That is the structure that `RD-70`'s first amendment called the defect. Without an `id`, the divider has no node.
+- An element whose internals' role is `none` has no node with an `id`, in a `group` and in `mx-list`.
+- Firefox's and WebKit's trees can't be read with this repository's instruments.
+
+A page sets an `id` for an anchor, a test hook or a script. A separator that a page labels has `role="separator"`, which is a node under either option, because a page's `role` overrides the internals' role.
+
+**The options:**
+
+- **(a) The internals' role is `none`. Recommended.** Property 3's _"no node"_ then holds with an `id`, and that is what makes the divider valid directly in `mx-list`. The host is still the line, and still has no `role` attribute. The role is the component's default, under the page's: `role="separator"` still gives a `separator`, and a page's `aria-label` still makes a `generic`, by ARIA's rule for a presentational role, as the docs already warn.
+  - **Costs:** one line in the constructor; one row, a divider with an `id` between `mx-list`'s items has no node, whose witness is the line removed; the docs say _"presentational"_ in place of _"no role"_.
+  - **The owner's question** of the second amendment, _"Why does it have role none?"_: then, the role was for a positioned line, which is gone. Now it is for a page's `id`.
+- **(b) No role, and property 3 is narrowed.** Property 3 and the docs say that in Chromium an `id` makes the divider an unnamed `generic` node, and the docs advise against an `id` on a divider in `mx-list`. No code changes. The list's structure then depends on what the page sets on the divider.
+
+**What the answer decides:** whether the constructor sets a role, property 3's words and the docs' _Accessibility_, and one row.
+
 ## Work
 
 1. **Source:** `src/divider/`: the element with its trait (`DividerLike`), the styles and one token package from `md.comp.divider` with both tokens; `files.json`; `react.ts`. In `card/`: the split padding, the card's rule with its comment, and a story with a divider (Q2's _What changes in `mx-card`_).
@@ -142,6 +164,8 @@ The rows run in each engine at `RD-20`'s floor. A literal 16px carries its prove
 - **`axe.browser.test.ts`:** rows for `mx-divider` bare (`hasNoRule`), with `role="separator"`, vertical with `role="separator"`, and in `mx-list`.
 - **`traits-baseline`:** `DividerLike`'s runtime-shape snapshot.
 - **`divider.visual.browser.test.ts`:** one screenshot: the three insets, a vertical divider in a row, a list with dividers, and a card with one. The recording workflow records its baseline, and the owner reviews it (`RD-13`).
+
+**Rows owed by #343's feature proof** are in the [ruling](proof-ruling.md).
 
 ### Size
 
