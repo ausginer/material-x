@@ -26,6 +26,9 @@ type JsonReport = Readonly<{
 /** How many lines of a failure message the report keeps. */
 const MESSAGE_LINES = 8;
 
+/** The dot reporter's banner over the errors outside every row. */
+const UNHANDLED = /^⎯+ Unhandled Errors? ⎯+$/mu;
+
 const statusOf = (status: string): RowStatus =>
   status === 'passed' || status === 'failed' ? status : 'skipped';
 
@@ -51,11 +54,13 @@ function vitestOf(dir: string): readonly string[] {
 /**
  * Runs Vitest once for `run` in the copy at `root`, with `env`, and reads every
  * row of its JSON report. A test file that fails before its rows run adds no
- * row, and its message is kept as the reason that its rows didn't run. When
- * Vitest runs a test file and exits with a failure that neither a row nor a
- * test file reports, as when a browser doesn't start, the errors that it prints
- * are kept as the run's failure. A run that selects no test file has no
- * failure: it has no row, so the file's selectors refuse it.
+ * row, and its message is kept as the reason that its rows didn't run. When a
+ * listed test file has no row and no message and Vitest exits with a failure
+ * that no row reports, as when a browser doesn't start, the errors that it
+ * prints are kept as the run's failure. When the rows ran, an error that Vitest
+ * prints outside them, such as an unhandled rejection, is kept as the run's
+ * error, and the run is judged. A run that selects no test file has neither: it
+ * has no row, so the file's selectors refuse it.
  */
 export async function runVitest(
   root: string,
@@ -113,32 +118,50 @@ export async function runVitest(
       },
     );
 
-    const reported =
+    const lines = (text: string): readonly string[] =>
+      // Without the stack frames, the code frames and the reporter's banner,
+      // which would fill the lines kept before the error.
+      firstLines(
+        text.replaceAll(
+          /^(?:\s+(?:at |❯ |\d*\|)|⎯|Vitest caught |This might cause ).*$/gmu,
+          '',
+        ),
+      );
+    const banner = UNHANDLED.exec(result.stderr);
+    const unhandled = banner ? lines(result.stderr.slice(banner.index)) : [];
+    const explained =
       report.testResults.length === 0 ||
       Object.keys(errors).length > 0 ||
       rows.some(({ status }) => status === 'failed');
 
-    if (result.code === 0 || reported) {
-      return { rows, errors };
+    if (result.code === 0 || explained) {
+      return unhandled.length > 0
+        ? { rows, errors, runError: unhandled }
+        : { rows, errors };
     }
 
-    // Without the stack frames, the code frames and the reporter's banner,
-    // which would fill the lines kept before the error.
-    const printed = firstLines(
-      result.stderr.replaceAll(
-        /^(?:\s+(?:at |❯ |\d*\|)|⎯|Vitest caught |This might cause ).*$/gmu,
-        '',
-      ),
-    );
+    const printed = lines(result.stderr);
+    const reason = printed.length > 0 ? printed : ['Vitest printed no error'];
 
-    return {
-      rows,
-      errors,
-      failure: [
-        `Vitest exited with ${result.code} and reported no failed row:`,
-        ...(printed.length > 0 ? printed : ['Vitest printed no error']),
-      ],
-    };
+    // A listed test file with no row and no message didn't run: the engine,
+    // not the code, failed.
+    return report.testResults.some(
+      ({ assertionResults, message }) =>
+        assertionResults.length === 0 && !message,
+    )
+      ? {
+          rows,
+          errors,
+          failure: [
+            `Vitest exited with ${result.code} and reported no failed row:`,
+            ...reason,
+          ],
+        }
+      : {
+          rows,
+          errors,
+          runError: unhandled.length > 0 ? unhandled : reason,
+        };
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }

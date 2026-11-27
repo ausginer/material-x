@@ -7,7 +7,8 @@
  * against the rows as they are now. The ones after the recheck's comment are the
  * witnesses of its findings, three of them the recheck's own mutations, and the
  * ones after the second recheck's comment are the witnesses of its findings, two
- * of them its own mutations, which it predicted to survive.
+ * of them its own mutations, which it predicted to survive. The last two are the
+ * witnesses of RD-66's ruling on a run with an unhandled error.
  */
 import type { MutationFile } from '@ydinjs/mutator';
 
@@ -479,7 +480,7 @@ const config: MutationFile = {
       edits: [
         {
           file: VITEST,
-          text: 'if (result.code === 0 || reported) {',
+          text: 'if (result.code === 0 || explained) {',
           replacement: 'if (true) {',
         },
       ],
@@ -624,6 +625,11 @@ const config: MutationFile = {
           text: '      report.testResults.length === 0 ||\n',
           replacement: '',
         },
+        {
+          file: VITEST,
+          text: '    return report.testResults.some(',
+          replacement: '    return report.testResults.every(',
+        },
       ],
       expect: {
         fails: [
@@ -642,7 +648,7 @@ const config: MutationFile = {
       expect: {
         fails: [
           row(
-            "should give Vitest's unhandled error as the reason when every row of the unmutated run passes",
+            'should judge a run whose rows pass beside an unhandled error, and report the error',
           ),
         ],
       },
@@ -653,8 +659,8 @@ const config: MutationFile = {
       edits: [
         {
           file: VITEST,
-          text: '      result.stderr.replaceAll(',
-          replacement: '      result.stdout.replaceAll(',
+          text: 'const printed = lines(result.stderr);',
+          replacement: 'const printed = lines(result.stdout);',
         },
       ],
       expect: {
@@ -663,9 +669,6 @@ const config: MutationFile = {
             "should exit with 3, not refuse the file, when the unmutated run's browser doesn't start",
           ),
           row("should read a selected row whose browser doesn't start as void"),
-          row(
-            "should give Vitest's unhandled error as the reason when every row of the unmutated run passes",
-          ),
         ],
       },
     },
@@ -716,6 +719,44 @@ const config: MutationFile = {
       expect: {
         fails: [
           row('should name no commit for a file that its checkout ignores'),
+        ],
+      },
+    },
+    // RD-66's note of 2026-11-27: a run whose rows ran beside an unhandled
+    // error is judged, and the error is reported.
+    {
+      name: 'an unhandled error beside rows that ran is a failure outside the tests',
+      group: 'mechanism',
+      edits: [
+        {
+          file: VITEST,
+          text: '        assertionResults.length === 0 && !message,',
+          replacement: '        true,',
+        },
+      ],
+      expect: {
+        fails: [
+          row(
+            'should judge a run whose rows pass beside an unhandled error, and report the error',
+          ),
+        ],
+      },
+    },
+    {
+      name: "the summary doesn't name the unmutated run's error",
+      group: 'mechanism',
+      edits: [
+        {
+          file: REPORT,
+          text: '    ...[...runErrors].flatMap(',
+          replacement: '    ...[].flatMap(',
+        },
+      ],
+      expect: {
+        fails: [
+          row(
+            'should judge a run whose rows pass beside an unhandled error, and report the error',
+          ),
         ],
       },
     },

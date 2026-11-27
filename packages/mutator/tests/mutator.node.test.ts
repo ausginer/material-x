@@ -448,38 +448,6 @@ describe('mutator run, failures outside the tests', () => {
     },
     TIMEOUT,
   );
-
-  it(
-    "should give Vitest's unhandled error as the reason when every row of the unmutated run passes",
-    async () => {
-      const result = await mutate(fileOf([CLAMP]), {
-        prepare: async (repo) => {
-          const rows = join(repo, TEST_FILE);
-          await writeFile(
-            rows,
-            `${await readFile(rows, 'utf8')}\nit('should pass and leave a rejection unhandled', () => {\n  void Promise.reject(new Error('left unhandled'));\n});\n`,
-          );
-          await git(repo, [
-            '-c',
-            'user.name=fixture',
-            '-c',
-            'user.email=fixture@example.invalid',
-            'commit',
-            '-qam',
-            'an unhandled rejection',
-          ]);
-        },
-      });
-
-      expect([result.code, result.report]).toEqual([3, undefined]);
-      expect(result.stderr).toContain(
-        'unmutated, a: Vitest exited with 1 and reported no failed row:',
-      );
-      expect(result.stderr).toContain('Error: left unhandled');
-      expect(result.stderr).not.toContain('JSON report written');
-    },
-    TIMEOUT,
-  );
 });
 
 describe('mutator run, the invoking checkout', () => {
@@ -855,6 +823,42 @@ describe('mutator run, outcomes', () => {
       expect(outcomes(await mutate(browserFile([LABEL])))).toEqual([
         ['chromium', 'as expected'],
       ]);
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'should judge a run whose rows pass beside an unhandled error, and report the error',
+    async () => {
+      const result = await mutate(fileOf([CLAMP]), {
+        prepare: async (repo) => {
+          const rows = join(repo, TEST_FILE);
+          await writeFile(
+            rows,
+            `${await readFile(rows, 'utf8')}\nit('should pass and leave a rejection unhandled', () => {\n  void Promise.reject(new Error('left unhandled'));\n});\n`,
+          );
+          await git(repo, [
+            '-c',
+            'user.name=fixture',
+            '-c',
+            'user.email=fixture@example.invalid',
+            'commit',
+            '-qam',
+            'an unhandled rejection',
+          ]);
+        },
+      });
+      const [leg] = result.report!.legs;
+
+      expect([result.code, outcomes(result)]).toEqual([
+        0,
+        [['a', 'as expected']],
+      ]);
+      expect(leg!.runError).toContain('Error: left unhandled');
+      expect(leg!.mutations[0]!.runError).toContain('Error: left unhandled');
+      expect(result.summary).toContain(
+        '- a, unmutated: Vitest printed an error outside the rows:\n  - Error: left unhandled\n',
+      );
     },
     TIMEOUT,
   );

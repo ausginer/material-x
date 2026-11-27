@@ -205,6 +205,7 @@ export async function run(options: RunOptions): Promise<Report> {
       const rows: Row[] = [];
       const errors: Record<string, readonly string[]> = {};
       const failure: string[] = [];
+      const runError: string[] = [];
 
       for (const target of file.runs) {
         // oxlint-disable-next-line no-await-in-loop -- one Vitest at a time
@@ -217,16 +218,23 @@ export async function run(options: RunOptions): Promise<Report> {
         rows.push(...result.rows);
         Object.assign(errors, result.errors);
         failure.push(...(result.failure ?? []));
+        runError.push(...(result.runError ?? []));
       }
 
-      return failure.length > 0 ? { rows, errors, failure } : { rows, errors };
+      return {
+        rows,
+        errors,
+        ...(failure.length > 0 ? { failure } : {}),
+        ...(runError.length > 0 ? { runError } : {}),
+      };
     };
     const baselines = new Map<string, readonly Row[]>();
+    const runErrors = new Map<string, readonly string[]>();
 
     for (const engine of engines) {
       log(`unmutated, ${engine}`);
       // oxlint-disable-next-line no-await-in-loop -- one engine at a time
-      const { rows, failure } = await runAll(engine);
+      const { rows, failure, runError } = await runAll(engine);
 
       // The engine, not the file, failed: the run is a failure outside the
       // tests, which a later run may not repeat, and not a refusal.
@@ -235,6 +243,10 @@ export async function run(options: RunOptions): Promise<Report> {
       }
 
       baselines.set(engine, rows);
+
+      if (runError) {
+        runErrors.set(engine, runError);
+      }
     }
 
     checkSelectors(mutations, engines, baselines);
@@ -259,6 +271,7 @@ export async function run(options: RunOptions): Promise<Report> {
             expect,
             ...(engineReason ? { engineReason } : {}),
             ...judge(expect, baselines.get(engine)!, mutated),
+            ...(mutated.runError ? { runError: mutated.runError } : {}),
           });
         }
       });
@@ -268,6 +281,7 @@ export async function run(options: RunOptions): Promise<Report> {
       engine,
       shard: [index, count],
       rows: baselines.get(engine)!,
+      ...(runErrors.has(engine) ? { runError: runErrors.get(engine)! } : {}),
       mutations: results.get(engine)!,
     }));
 

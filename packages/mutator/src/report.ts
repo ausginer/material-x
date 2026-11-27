@@ -18,10 +18,16 @@ export type VitestRun = Readonly<{
   errors: Readonly<Record<string, readonly string[]>>;
   /**
    * Vitest's exit code and the first lines of the errors that it printed, when
-   * it ran a test file and exited with a failure that no row and no test
-   * file's message reports, as when a browser didn't start.
+   * a listed test file didn't run and no row and no test file's message
+   * reports why, as when a browser didn't start.
    */
   failure?: readonly string[];
+  /**
+   * The first lines of an error that Vitest printed outside every row and
+   * every test file's message, such as an unhandled rejection, when the rows
+   * ran. It changes no outcome.
+   */
+  runError?: readonly string[];
 }>;
 
 /**
@@ -57,6 +63,8 @@ export type MutationResult = Readonly<{
   unrun: Readonly<Record<string, readonly string[]>>;
   /** Failure messages of the rows in `failed`, by row. */
   messages: Readonly<Record<string, readonly string[]>>;
+  /** The mutated run's error outside every row, as in {@link VitestRun}. */
+  runError?: readonly string[];
 }>;
 
 /** One engine's unmutated rows and its share of the mutations. */
@@ -65,6 +73,8 @@ export type Leg = Readonly<{
   /** The leg's shard, from 1, and the count. */
   shard: readonly [number, number];
   rows: readonly Row[];
+  /** The unmutated run's error outside every row, as in {@link VitestRun}. */
+  runError?: readonly string[];
   mutations: readonly MutationResult[];
 }>;
 
@@ -193,6 +203,8 @@ export function judge(
 type Merged = Readonly<{
   /** The unmutated rows of each engine. */
   rows: ReadonlyMap<string, readonly Row[]>;
+  /** The unmutated run's error outside every row, by engine, and by shard when there are several. */
+  runErrors: ReadonlyMap<string, readonly string[]>;
   /** Each mutation's result in each engine, in the order they were first read. */
   results: ReadonlyMap<string, ReadonlyMap<string, MutationResult>>;
 }>;
@@ -200,11 +212,21 @@ type Merged = Readonly<{
 /** Merges the legs of every report, shards of one engine into one. */
 function merge(reports: readonly Report[]): Merged {
   const rows = new Map<string, readonly Row[]>();
+  const runErrors = new Map<string, readonly string[]>();
   const results = new Map<string, Map<string, MutationResult>>();
 
   for (const { legs } of reports) {
     for (const leg of legs) {
       rows.set(leg.engine, leg.rows);
+
+      if (leg.runError) {
+        runErrors.set(
+          leg.shard[1] > 1
+            ? `${leg.engine}, shard ${leg.shard.join('/')}`
+            : leg.engine,
+          leg.runError,
+        );
+      }
 
       for (const result of leg.mutations) {
         const byEngine = results.get(result.name) ?? new Map();
@@ -214,7 +236,7 @@ function merge(reports: readonly Report[]): Merged {
     }
   }
 
-  return { rows, results };
+  return { rows, runErrors, results };
 }
 
 /**
@@ -272,7 +294,7 @@ export type Summary = Readonly<{
 
 /** The summary of every leg of `reports`, in Markdown. */
 export function summarize(reports: readonly Report[]): Summary {
-  const { rows, results } = merge(reports);
+  const { rows, runErrors, results } = merge(reports);
   const engines = [...rows.keys()];
   const lines = [
     `# Mutations: ${[...new Set(reports.map(({ file }) => file))].join(', ')}`,
@@ -284,6 +306,10 @@ export function summarize(reports: readonly Report[]): Summary {
       const failing = engineRows.filter((row) => row.status === 'failed');
       return `- ${engine}, unmutated: ${engineRows.filter(ran).length} rows ran, ${failing.length} failed, ${engineRows.length - engineRows.filter(ran).length} skipped`;
     }),
+    ...[...runErrors].flatMap(([leg, error]) => [
+      `- ${leg}, unmutated: Vitest printed an error outside the rows:`,
+      ...error.map((line) => `  - ${line}`),
+    ]),
     '',
     `| Mutation | Group | ${engines.join(' | ')} | Engines |`,
     `| --- | --- | ${engines.map(() => '---').join(' | ')} | --- |`,
@@ -323,6 +349,12 @@ export function summarize(reports: readonly Report[]): Summary {
             ...reason(key),
           ]),
         ...result.failed.map((key) => `  - failed: ${key}`),
+        ...(result.runError
+          ? [
+              '  - Vitest printed an error outside the rows:',
+              ...result.runError.map((line) => `    - ${line}`),
+            ]
+          : []),
       ];
       const expectation =
         'survives' in result.expect
