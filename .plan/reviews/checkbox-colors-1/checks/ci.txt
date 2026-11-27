@@ -1,0 +1,19 @@
+# verify run 46060500126, pull_request, on 7b392714da4c1832899337c0008db1215202dd2a: failure, from the chromium job's visual project only. records and deploy skipped.
+== chromium
+      Tests  2 failed | 5577 passed | 2 expected fail | 12 skipped (5593)
+     × should match the disabled state matrix 271ms
+     × should match the hovered checkbox 265ms
+ Test Files  1 failed | 192 passed (193)
+ ✓  browser/material-x (chromium)  tests/checkbox/checkbox.browser.test.ts (15 tests) 810ms
+ ✓  spec/material-x (chromium)  tests/checkbox/checkbox.spec.browser.test.ts (23 tests) 1893ms
+ ❯  visual/material-x (chromium)  tests/checkbox/checkbox.visual.browser.test.ts (5 tests | 2 failed) 1068ms
+== firefox
+      Tests  4400 passed | 3 expected fail | 203 skipped (4606)
+ Test Files  137 passed | 1 skipped (138)
+ ✓  browser/material-x/firefox (firefox)  tests/checkbox/checkbox.browser.test.ts (15 tests) 829ms
+ ✓  spec/material-x/firefox (firefox)  tests/checkbox/checkbox.spec.browser.test.ts (23 tests) 1498ms
+== webkit
+      Tests  4401 passed | 2 expected fail | 203 skipped (4606)
+ Test Files  137 passed | 1 skipped (138)
+ ✓  browser/material-x/webkit (webkit)  tests/checkbox/checkbox.browser.test.ts (15 tests) 788ms
+ ✓  spec/material-x/webkit (webkit)  tests/checkbox/checkbox.spec.browser.test.ts (23 tests) 1428ms

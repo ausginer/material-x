@@ -1,0 +1,25 @@
+# md.comp.checkbox's outline.color and icon.color tokens in tproc's store: one-hop value, deprecation, and the path that groupTokens gives (probes/tokens.ts.txt).
+md.comp.checkbox.selected.error.icon.color           md.sys.color.on-error        current    -> error.selected.default  icon.color
+md.comp.checkbox.selected.error.focus.icon.color     md.sys.color.on-error        current    -> error.selected.focus  icon.color
+md.comp.checkbox.selected.error.hover.icon.color     md.sys.color.on-error        current    -> error.selected.hover  icon.color
+md.comp.checkbox.selected.error.pressed.icon.color   md.sys.color.on-error        current    -> error.selected.pressed  icon.color
+md.comp.checkbox.unselected.error.outline.color      md.sys.color.error           current    -> error.unselected.default  outline.color
+md.comp.checkbox.unselected.error.focus.outline.color md.sys.color.error           current    -> error.unselected.focus  outline.color
+md.comp.checkbox.unselected.error.hover.outline.color md.sys.color.error           current    -> error.unselected.hover  outline.color
+md.comp.checkbox.unselected.error.pressed.outline.color md.sys.color.error           current    -> error.unselected.pressed  outline.color
+md.comp.checkbox.selected.icon.color                 md.sys.color.on-primary      current    -> selected.default  icon.color
+md.comp.checkbox.selected.disabled.icon.color        md.sys.color.surface         current    -> selected.disabled  icon.color
+md.comp.checkbox.selected.focus.icon.color           md.sys.color.on-primary      current    -> selected.focus  icon.color
+md.comp.checkbox.selected.hover.icon.color           md.sys.color.on-primary      current    -> selected.hover  icon.color
+md.comp.checkbox.selected.pressed.icon.color         md.sys.color.on-primary      current    -> selected.pressed  icon.color
+md.comp.checkbox.unselected.outline.color            md.sys.color.on-surface-variant current    -> unselected.default  outline.color
+md.comp.checkbox.unselected.disabled.outline.color   md.sys.color.on-surface      current    -> unselected.disabled  outline.color
+md.comp.checkbox.unselected.focus.outline.color      md.sys.color.on-surface      current    -> unselected.focus  outline.color
+md.comp.checkbox.unselected.hover.outline.color      md.sys.color.on-surface      current    -> unselected.hover  outline.color
+md.comp.checkbox.unselected.pressed.outline.color    md.sys.color.on-surface      current    -> unselected.pressed  outline.color
+md.comp.checkbox.disabled.selected.icon.color        md.sys.color.primary         DEPRECATED -> selected.disabled  icon.color
+md.comp.checkbox.unselected.icon.color               md.sys.color.on-surface      DEPRECATED -> unselected.default  icon.color
+md.comp.checkbox.disabled.unselected.icon.color      md.sys.color.primary         DEPRECATED -> unselected.disabled  icon.color
+md.comp.checkbox.unselected.focus.icon.color         md.sys.color.on-surface      DEPRECATED -> unselected.focus  icon.color
+md.comp.checkbox.unselected.hover.icon.color         md.sys.color.on-surface      DEPRECATED -> unselected.hover  icon.color
+md.comp.checkbox.unselected.pressed.icon.color       md.sys.color.on-surface      DEPRECATED -> unselected.pressed  icon.color

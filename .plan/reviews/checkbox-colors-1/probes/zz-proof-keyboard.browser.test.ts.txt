@@ -1,0 +1,36 @@
+// Feature proof of #338 (RF-157), a probe and not a row: the press wave
+// (the ripple's ::after) during a keyboard activation, Space on a focused
+// checkbox, sampled each frame. Written to zz-keyboard-<engine>.json.
+import { it } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+import '../../src/checkbox/checkbox.ts';
+import { nextFrame } from '../browser.ts';
+
+it('samples the keyboard press wave', async () => {
+  const out: Record<string, string[]> = {};
+  for (const [name, attrs] of [
+    ['unselected', []],
+    ['checked', ['checked']],
+    ['indeterminate', ['indeterminate']],
+  ] as const) {
+    const element = document.createElement('mx-checkbox');
+    for (const a of attrs) element.toggleAttribute(a, true);
+    document.body.append(element);
+    await nextFrame();
+    element.focus();
+    await nextFrame();
+    const wave = getComputedStyle(element.shadowRoot!.querySelector('.ripple')!, '::after');
+    const samples: string[] = [];
+    await userEvent.keyboard('{Space}');
+    for (let i = 0; i < 30; i += 1) {
+      const sel = element.matches(':state(checked)') ? 'checked' : element.matches(':state(indeterminate)') ? 'indeterminate' : 'unselected';
+      const active = element.matches(':active') ? ' :active' : '';
+      samples.push(`${String(i).padStart(2)} ${sel}${active} ${wave.backgroundColor} @${wave.opacity}`);
+      await nextFrame();
+    }
+    samples.push(`after: checked=${String((element as HTMLInputElement).checked)} indeterminate=${String((element as HTMLInputElement).indeterminate)} focus=${document.activeElement?.localName}`);
+    out[name] = samples;
+    element.remove();
+  }
+  await commands.writeFile(`zz-keyboard-${server.browser}.json`, JSON.stringify(out, null, 1));
+});
