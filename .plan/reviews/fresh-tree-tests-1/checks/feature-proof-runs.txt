@@ -1,0 +1,225 @@
+# RF-156 feature proof runs, slot b, at 4b8f4ddd3, 2026-11-27. Made by feature-proof-probe.sh.txt (p0 to p4) and feature-proof-mutations.sh.txt (M1 to M5).
+# The list was copied before p0 and restored from that copy after each step. git status was clean after every step.
+# Another session's Vitest workload (a mutator under /tmp/mxe) ran on the machine during these runs.
+
+# p1: the base plugin source (2b193971e), list moved away
+plugin built (base)
+== core (base) aube exec just test : exit 1, 1 s
+      1 ⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+      1 failed to load config from /workspaces/worktrees/b/packages/core/vitest.config.ts
+      1 Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/index.js
+      1   code: 'ERR_MODULE_NOT_FOUND',
+== tproc (base) aube exec just test : exit 1, 1 s
+      1 ⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+      1 failed to load config from /workspaces/worktrees/b/packages/tproc/vitest.config.ts
+      1 Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/index.js
+      1   code: 'ERR_MODULE_NOT_FOUND',
+== vite-traits-plugin (base) aube exec just test : exit 1, 1 s
+      1 ⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+      1 failed to load config from /workspaces/worktrees/b/packages/vite-traits-plugin/vitest.config.ts
+      1 Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/index.js
+      1   code: 'ERR_MODULE_NOT_FOUND',
+== box-quad (base) aube exec just test : exit 1, 0 s
+      1 ⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+      1 failed to load config from /workspaces/worktrees/b/packages/box-quad/vitest.config.ts
+      1 Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/index.js
+      1   code: 'ERR_MODULE_NOT_FOUND',
+== drag (base) aube exec just test : exit 1, 1 s
+      1 ⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+      1 failed to load config from /workspaces/worktrees/b/packages/drag/vitest.config.ts
+      1 Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/index.js
+      1   code: 'ERR_MODULE_NOT_FOUND',
+== material-x (base) aube exec just test : exit 1, 1 s
+      1 ⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+      1 failed to load config from /workspaces/worktrees/b/packages/material-x/vitest.config.ts
+      1 Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/index.js
+      1   code: 'ERR_MODULE_NOT_FOUND',
+== material-x (base) build-lib: exit 1
+ ERROR  Error: Failed to load the config file. Try setting the --config-loader CLI flag to `tsx` or `unrun`.
+Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/index.js
+error: recipe `build-lib` failed on line 22 with exit code 1
+plugin built (head)
+list: present, sha256 fe5ea3153703be1b
+
+# p2: head, list moved away before each package
+== core (head-nolist) aube exec just test : exit 0, 13 s
+ Test Files  28 passed (28)
+      Tests  394 passed (394)
+list: absent
+== tproc (head-nolist) aube exec just test : exit 0, 4 s
+ Test Files  14 passed (14)
+      Tests  351 passed (351)
+list: absent
+== vite-traits-plugin (head-nolist) aube exec just test : exit 0, 6 s
+ Test Files  11 passed (11)
+      Tests  254 passed (254)
+list: absent
+== box-quad (head-nolist) aube exec just test : exit 0, 4 s
+ Test Files  7 passed (7)
+      Tests  242 passed (242)
+list: absent
+== drag (head-nolist) aube exec just test : exit 0, 259 s
+ Test Files  68 passed (68)
+      Tests  1256 passed (1256)
+list: absent
+== material-x (head-nolist) aube exec just test : exit 0, 180 s
+ Test Files  52 passed (52)
+      Tests  2850 passed | 2 expected fail (2852)
+list: present, sha256 fe5ea3153703be1b
+list: present, sha256 fe5ea3153703be1b
+
+# p3: head, material-x build-lib without the list, then build-prepare, then build-lib
+build-lib no list: exit 1
+      1  ERROR  Error: Build failed with 47 errors:
+      5 Error: Can't read the private-property list /workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json. `just build-prepare` in packages/material-x writes it.
+  Error: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/utils-Bxqo4fT1.js
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/utils-Bxqo4fT1.js
+build-prepare: exit 0
+list: present, sha256 fe5ea3153703be1b
+list equals the kept copy
+build-lib after build-prepare: exit 0
+
+# M4: the read's failure rethrown as it is; build-lib, list absent
+ packages/vite-custom-element-assets/src/utils.ts | 1 +
++      throw error;
+mutant plugin built
+build-lib: exit 1
+lines naming build-prepare: 0
+ ERROR  Error: Build failed with 47 errors:
+Error: Cannot find module '/workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json' imported from /workspaces/worktrees/b/packages/vite-custom-element-assets/utils-CRFUSA7y.js
+restored, plugin rebuilt
+# M5: the error without its cause; build-lib, list absent
+ packages/vite-custom-element-assets/src/utils.ts | 1 -
+-        { cause: error },
+mutant plugin built
+build-lib: exit 1
+lines naming the missing module: 0
+Error: Can't read the private-property list /workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json. `just build-prepare` in packages/material-x writes it.
+restored, plugin rebuilt
+# M2: the token plugin's transform outside isProd; list absent; chromium
+ packages/vite-custom-element-assets/src/index.ts | 2 +-
+-    ...(options?.isProd
++    ...(true
+mutant plugin built
+== M2: MX_TEST_ENGINES=chromium just test tests/icon/icon.browser.test.ts tests/button/button.browser.test.ts: exit 1
+ Test Files  2 failed (2)
+      Tests  no tests
+      2 6:34:25 PM [vite] Internal server error: Can't read the private-property list /workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json. `just build-prepare` in packages/material-x writes it.
+      1 Error: Failed to import test file /workspaces/worktrees/b/packages/material-x/tests/support/browser-setup.ts
+      1 Caused by: TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:23315/workspaces/worktrees/b/packages/material-x/tests/support/browser-setup.ts?import&browserv=1795804465286
+      1  FAIL  |browser (chromium)| tests/icon/icon.browser.test.ts [ tests/icon/icon.browser.test.ts ]
+      1  FAIL  |browser (chromium)| tests/button/button.browser.test.ts [ tests/button/button.browser.test.ts ]
+restored, plugin rebuilt
+# M1: compileCSS reads the list whatever isProd says; list absent; chromium
+ packages/vite-custom-element-assets/src/css/css.ts | 2 +-
+-  const propList = options?.isProd ? await loadPropList() : undefined;
++  const propList = await loadPropList();
+mutant plugin built
+== M1: MX_TEST_ENGINES=chromium just test tests/icon/icon.browser.test.ts tests/button/button.browser.test.ts: exit 1
+ Test Files  2 failed (2)
+      Tests  no tests
+     54 6:34:30 PM [vite] (client) Pre-transform error: Can't read the private-property list /workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json. `just build-prepare` in packages/material-x writes it.
+     40 6:34:30 PM [vite] Internal server error: Can't read the private-property list /workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json. `just build-prepare` in packages/material-x writes it.
+      5 6:34:29 PM [vite] (client) Pre-transform error: Can't read the private-property list /workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json. `just build-prepare` in packages/material-x writes it.
+      1 Error: Failed to import test file /workspaces/worktrees/b/packages/material-x/tests/icon/icon.browser.test.ts
+      1 Error: Failed to import test file /workspaces/worktrees/b/packages/material-x/tests/button/button.browser.test.ts
+      1 Caused by: TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:23315/workspaces/worktrees/b/packages/material-x/tests/icon/icon.browser.test.ts?import&browserv=1795804469747
+-- the same files unmutated, list absent:
+restored, plugin rebuilt
+== M1-control: MX_TEST_ENGINES=chromium just test tests/icon/icon.browser.test.ts tests/button/button.browser.test.ts: exit 0
+ Test Files  2 passed (2)
+      Tests  54 passed (54)
+
+# M1ff: compileCSS reads the list whatever isProd says; list absent; firefox
+ packages/vite-custom-element-assets/src/css/css.ts | 2 +-
+-  const propList = options?.isProd ? await loadPropList() : undefined;
++  const propList = await loadPropList();
+mutant plugin built
+== M1ff: MX_TEST_ENGINES=firefox just test tests/icon/icon.browser.test.ts: exit 1
+ Test Files  1 failed (1)
+      Tests  no tests
+     53 6:34:52 PM [vite] (client) Pre-transform error: Can't read the private-property list /workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json. `just build-prepare` in packages/material-x writes it.
+     28 6:34:52 PM [vite] Internal server error: Can't read the private-property list /workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json. `just build-prepare` in packages/material-x writes it.
+      5 6:34:51 PM [vite] (client) Pre-transform error: Can't read the private-property list /workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json. `just build-prepare` in packages/material-x writes it.
+      1 Error: Failed to import test file /workspaces/worktrees/b/packages/material-x/tests/icon/icon.browser.test.ts
+      1 Caused by: TypeError: error loading dynamically imported module: http://127.0.0.1:23315/src/button/styles/split/main.css.ts
+      1  FAIL  |browser/firefox (firefox)| tests/icon/icon.browser.test.ts [ tests/icon/icon.browser.test.ts ]
+-- the same files unmutated, list absent:
+restored, plugin rebuilt
+== M1ff-control: MX_TEST_ENGINES=firefox just test tests/icon/icon.browser.test.ts: exit 0
+ Test Files  1 passed (1)
+      Tests  10 passed | 17 skipped (27)
+# M1wk: compileCSS reads the list whatever isProd says; list absent; webkit
+ packages/vite-custom-element-assets/src/css/css.ts | 2 +-
+-  const propList = options?.isProd ? await loadPropList() : undefined;
++  const propList = await loadPropList();
+mutant plugin built
+== M1wk: MX_TEST_ENGINES=webkit just test tests/icon/icon.browser.test.ts: exit 1
+ Test Files  1 failed (1)
+      Tests  no tests
+     54 6:35:10 PM [vite] (client) Pre-transform error: Can't read the private-property list /workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json. `just build-prepare` in packages/material-x writes it.
+     35 6:35:10 PM [vite] Internal server error: Can't read the private-property list /workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json. `just build-prepare` in packages/material-x writes it.
+      4 6:35:09 PM [vite] (client) Pre-transform error: Can't read the private-property list /workspaces/worktrees/b/node_modules/.cache/css/css-private-props.json. `just build-prepare` in packages/material-x writes it.
+      1 Error: Failed to import test file /workspaces/worktrees/b/packages/material-x/tests/icon/icon.browser.test.ts
+      1 Caused by: TypeError: Importing a module script failed.
+      1  FAIL  |browser/webkit (webkit)| tests/icon/icon.browser.test.ts [ tests/icon/icon.browser.test.ts ]
+-- the same files unmutated, list absent:
+restored, plugin rebuilt
+== M1wk-control: MX_TEST_ENGINES=webkit just test tests/icon/icon.browser.test.ts: exit 0
+ Test Files  1 passed (1)
+      Tests  10 passed | 17 skipped (27)
+
+# M3: loadPropList always rejects; list absent at start; whole material-x run, chromium; when the list appears
+ packages/vite-custom-element-assets/src/utils.ts | 1 +
++  return Promise.reject(new Error("M3: the list was read"));
+mutant plugin built
+list appeared at +2 s, rows reported by then: 0, of which outside node: 0
+== M3 whole run: exit 1
+ Test Files  3 failed | 49 passed (52)
+      Tests  2812 passed | 2 expected fail (2814)
+      5 Error: M3: the list was read
+      1 Error: aube exec -- tsdown --config tsdown.config.ts exited with 1
+      1  FAIL  |node| tests/support/visual-contracts.node.test.ts [ tests/support/visual-contracts.node.test.ts ]
+      1  FAIL  |node| tests/package-entries.node.test.ts [ tests/package-entries.node.test.ts ]
+      1  FAIL  |node| tests/list/list-item-opacity-tokens.node.test.ts [ tests/list/list-item-opacity-tokens.node.test.ts ]
+      1  ERROR  Error: Build failed with 47 errors:
+failed files by project:
+rows passed by project:
+restored, plugin rebuilt
+
+# p4: hashes of material-x's built files, list present
+list: present, sha256 fe5ea3153703be1b
+material-x build-lib (head1): exit 0
+head1: 115 .js files, digest b7db7070d50daa9c
+head1: 148 .d.ts and .js.map files, digest 90f7a40189df8157
+plugin built (base)
+material-x build-lib (base): exit 0
+base: 115 .js files, digest b7db7070d50daa9c
+base: 148 .d.ts and .js.map files, digest 90f7a40189df8157
+plugin built (head)
+material-x build-lib (head2): exit 0
+head2: 115 .js files, digest b7db7070d50daa9c
+head2: 148 .d.ts and .js.map files, digest 90f7a40189df8157
+js head1 = base
+d.ts/map head1 = base
+js head1 = head2
+d.ts/map head1 = head2
+
+# p5: Node's own cache for a JSON import (import-probe.mjs.txt), node v26.13.1
+missing a, first import: rejects: ERR_MODULE_NOT_FOUND
+a written, second import: {"x":1}
+b, first import: {"y":1}
+b rewritten, second import: {"y":1}
+
+# p6: the compared build is mangled: material-x's 115 built .js files hold 280 distinct --mx-* names, in 49 files, and no --_ name.
+
+# CI: verify run 46048926550 on 4b8f4ddd334fba6c295fe2a685505f8d48e12b24, success.
+== chromium job 140675310494, aube exec -- just test --coverage --tags-filter '!measurement'
+ Test Files  193 passed (193)
+      Tests  5540 passed | 2 expected fail | 12 skipped (5554)
+== firefox job 140675310536, aube exec -- just test --project '*/firefox' --tags-filter '!measurement'
+ Test Files  137 passed | 1 skipped (138)
+      Tests  4354 passed | 3 expected fail | 201 skipped (4558)
+== webkit job 140675310508, aube exec -- just test --project '*/webkit' --tags-filter '!measurement'
+ Test Files  137 passed | 1 skipped (138)
+      Tests  4365 passed | 2 expected fail | 201 skipped (4568)

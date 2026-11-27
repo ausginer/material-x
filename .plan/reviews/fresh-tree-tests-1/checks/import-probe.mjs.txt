@@ -1,0 +1,16 @@
+// Node's own import cache for a JSON module: a failed import, then the file is
+// written, then imported again; and a read file, rewritten, imported again.
+import { writeFile, rm } from 'node:fs/promises';
+const dir = new URL('./', import.meta.url);
+const a = new URL('a.json', dir);
+const b = new URL('b.json', dir);
+await rm(a, { force: true });
+const imp = (u) => import(u.pathname, { with: { type: 'json' } }).then((m) => JSON.stringify(m.default), (e) => `rejects: ${e.code}`);
+console.log('missing a, first import:', await imp(a));
+await writeFile(a, '{"x":1}');
+console.log('a written, second import:', await imp(a));
+await writeFile(b, '{"y":1}');
+console.log('b, first import:', await imp(b));
+await writeFile(b, '{"y":2}');
+console.log('b rewritten, second import:', await imp(b));
+await rm(a); await rm(b);

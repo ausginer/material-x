@@ -72,19 +72,36 @@ await new Promise<void>((resolve) => {
 });
 const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
 
-function storyUrl(id: string, theme = 'light'): string {
-  return `${origin}${BASE}iframe.html?id=box-quad--${id}&viewMode=story&theme=${theme}`;
+function storyUrl(id: string, theme: string): string {
+  return `${origin}${BASE}iframe.html?id=box-quad--${id}&viewMode=story&globals=theme:${theme}`;
 }
 
-async function openStory(page: Page, url: string): Promise<void> {
-  await page.goto(url);
+/**
+ * Opens a story in a theme, and refuses it when the preview applied another
+ * one, so that a change to how the preview reads the theme stops the run
+ * rather than writing a screenshot under the wrong theme's name.
+ */
+async function openStory(
+  page: Page,
+  id: string,
+  theme = 'light',
+): Promise<void> {
+  await page.goto(storyUrl(id, theme));
   await page.waitForSelector('#storybook-root > *');
-  await page.evaluate(
+  const applied = await page.evaluate(
     () =>
-      new Promise((resolve) => {
-        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      new Promise<string | undefined>((resolve) => {
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            resolve(document.documentElement.dataset['theme']);
+          }),
+        );
       }),
   );
+
+  if (applied !== theme) {
+    throw new Error(`${id}: the preview's theme is ${applied}, not ${theme}`);
+  }
 }
 
 /**
@@ -187,7 +204,7 @@ async function firefoxParity(browser: Browser): Promise<boolean> {
     'Live Demo overlay corners against native getBoxQuads(), max |difference| (px), limit 0.02',
   );
 
-  await openStory(page, storyUrl('live-demo'));
+  await openStory(page, 'live-demo');
 
   for (const [rotation, skew] of cases) {
     await setSliders(page, { rotation, skew });
@@ -223,7 +240,7 @@ async function boundingRectParity(
   name: string,
 ): Promise<boolean> {
   const page = await browser.newPage();
-  await openStory(page, storyUrl('live-demo'));
+  await openStory(page, 'live-demo');
   await setSliders(page, { rotation: 0, skew: 0 });
   const overlay = await readOverlayCorners(page);
   const rect = await page.evaluate((selector) => {
@@ -256,7 +273,7 @@ async function boundingRectParity(
 async function pointerDrag(browser: Browser, name: string): Promise<boolean> {
   const page = await browser.newPage();
   const sliders = { ancestorRotation: -40, ancestorZoom: 1.75 };
-  await openStory(page, storyUrl('pointer-delta'));
+  await openStory(page, 'pointer-delta');
   await setSliders(page, sliders);
   const box = page.locator('#storybook-root [class*="pointer-box"]');
   const start = await box.boundingBox();
@@ -299,7 +316,7 @@ async function takeScreenshots(browser: Browser): Promise<void> {
 
   for (const id of STORIES) {
     for (const theme of ['light', 'dark']) {
-      await openStory(page, storyUrl(id, theme));
+      await openStory(page, id, theme);
       // The preview's `html` and `body` transition their colours over 180 ms
       // after the theme is set, so the screenshot waits for the end state.
       await page.waitForTimeout(500);
@@ -317,7 +334,7 @@ async function takeScreenshots(browser: Browser): Promise<void> {
 /** The read and the overlay of each Failed Reads panel, in Chromium. */
 async function failedReads(browser: Browser): Promise<boolean> {
   const page = await browser.newPage();
-  await openStory(page, storyUrl('failed-reads'));
+  await openStory(page, 'failed-reads');
   const panels = await page.evaluate(() =>
     Array.from(
       document.querySelectorAll('#storybook-root figure'),

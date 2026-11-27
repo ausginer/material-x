@@ -13,7 +13,7 @@ import {
   releaseGeneration,
 } from './css/generation.ts';
 import { compileHTML } from './html.ts';
-import { cssCache, type JSONModule } from './utils.ts';
+import { loadPropList } from './utils.ts';
 
 export type ConstructCSSTokensOptions = Readonly<{
   isProd?: boolean;
@@ -22,11 +22,6 @@ export type ConstructCSSTokensOptions = Readonly<{
 export type ConstructCSSStylesOptions = Readonly<{
   isProd?: boolean;
 }>;
-
-const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
-  await import(fileURLToPath(new URL('css-private-props.json', cssCache)), {
-    with: { type: 'json' },
-  });
 
 function normalizePath(target: string, base?: string): string {
   if (!base && !target.includes('?') && !target.includes('#')) {
@@ -159,9 +154,11 @@ export function constructCSSTokens(
   const tracked = new Set<string>();
   let acquired = false;
 
-  const replaceList = Object.entries(propList).map(
-    ([name, value]) => [new RegExp(`['"]${name}['"]`, 'gu'), value] as const,
-  );
+  // Built on the first production transform, so that a tree without the
+  // private-property list reads it only when it builds.
+  let replaceList:
+    | Promise<ReadonlyArray<readonly [RegExp, string]>>
+    | undefined;
 
   return {
     name: 'vite-construct-css-tokens',
@@ -242,7 +239,15 @@ export function constructCSSTokens(
                 exclude: /\.css\.ts/u,
               },
             },
-            handler(code, id, meta) {
+            async handler(code, id, meta) {
+              replaceList ??= loadPropList().then((list) =>
+                Object.entries(list).map(
+                  ([name, value]) =>
+                    [new RegExp(`['"]${name}['"]`, 'gu'), value] as const,
+                ),
+              );
+              const replacements = await replaceList;
+
               // A host that offers `meta.magicString` accepts back its own
               // instance, which is edited when it is of this module's class.
               // A host that offers none, as Vite 8.1 to 8.3, is taken to
@@ -258,7 +263,7 @@ export function constructCSSTokens(
                   ? host
                   : new RolldownMagicString(code);
 
-              for (const [pattern, short] of replaceList) {
+              for (const [pattern, short] of replacements) {
                 s.replaceRegex(pattern, `'${short}'`);
               }
 

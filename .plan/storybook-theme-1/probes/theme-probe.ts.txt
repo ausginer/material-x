@@ -1,0 +1,96 @@
+// RF-154's probe (register-observations-10/probes/theme-probe.ts.txt), at the
+// repair. The theme is now the `theme` global, which Storybook writes into the
+// manager's URL as `globals=theme:…`, so each line reads that parameter, and B
+// loads with it. A and B are the entry's steps. C adds docs pages: a page's
+// `ThemeToggleLink`, a sidebar navigation to another docs page, a reload, a story
+// after it, and the toggle back on a docs page. A collapsed component's
+// sidebar item is the component, `button-icon`, which opens its docs page;
+// an expanded one lists the page, `button-icon--docs`.
+// Run against a running `storybook dev`: copy to theme-probe.ts in a tree with
+// Playwright installed, then `node theme-probe.ts [base]`.
+import { chromium, type Page } from 'playwright';
+
+const base = process.argv[2] ?? 'http://localhost:6006';
+
+async function read(page: Page, label: string): Promise<void> {
+  await page.waitForTimeout(4000);
+  const frame = page.frameLocator('#storybook-preview-iframe');
+  const theme = await frame
+    .locator('html')
+    .getAttribute('data-theme')
+    .catch(() => 'unread');
+  const params = new URL(page.url()).searchParams;
+  const globals = String(params.get('globals'));
+  const legacy = String(params.get('theme'));
+  const path = String(params.get('path'));
+  console.log(
+    `${label.padEnd(40)} ${path.padEnd(32)} url globals=${globals.padEnd(11)} theme=${legacy.padEnd(5)} preview data-theme=${theme}`,
+  );
+}
+
+async function toggle(page: Page): Promise<void> {
+  await page.getByRole('button', { name: 'Toggle theme' }).click();
+}
+
+async function toggleInDocs(page: Page): Promise<void> {
+  await page
+    .frameLocator('#storybook-preview-iframe')
+    .locator('mx-button', { hasText: 'Toggle Theme' })
+    .first()
+    .click();
+}
+
+async function open(page: Page, id: string): Promise<void> {
+  await page.locator(`[data-item-id="${id}"]`).first().click();
+}
+
+const browser = await chromium.launch();
+try {
+  console.log('A: loaded light, toggled after the load');
+  let page = await browser.newPage();
+  await page.goto(`${base}/?path=/story/box-quad--live-demo`);
+  await read(page, 'A1 loaded');
+  await toggle(page);
+  await read(page, 'A2 toggled to dark');
+  await open(page, 'box-quad--nested-spaces');
+  await read(page, 'A3 sidebar to box-quad--nested-spaces');
+  await page.reload();
+  await read(page, 'A4 reloaded');
+  await page.close();
+
+  console.log('B: loaded with globals=theme:dark in the URL');
+  page = await browser.newPage();
+  await page.goto(`${base}/?path=/story/box-quad--live-demo&globals=theme:dark`);
+  await read(page, 'B1 loaded');
+  await open(page, 'box-quad--nested-spaces');
+  await read(page, 'B2 sidebar to box-quad--nested-spaces');
+  await page.reload();
+  await read(page, 'B3 reloaded');
+  await toggle(page);
+  await read(page, 'B4 toggled to light');
+  await open(page, 'box-quad--pointer-delta');
+  await read(page, 'B5 sidebar to box-quad--pointer-delta');
+  await page.close();
+
+  console.log("C: a docs page's toggle");
+  page = await browser.newPage();
+  await page.goto(`${base}/?path=/docs/button-regular--docs`);
+  await read(page, 'C1 loaded button-regular--docs');
+  await toggleInDocs(page);
+  await read(page, 'C2 docs toggle to dark');
+  await open(page, 'button-icon');
+  await read(page, 'C3 sidebar to button-icon');
+  await page.reload();
+  await read(page, 'C4 reloaded');
+  await open(page, 'button-icon--playground');
+  await read(page, 'C5 sidebar to button-icon--playground');
+  await open(page, 'button-regular');
+  await read(page, 'C6 sidebar to button-regular');
+  await toggleInDocs(page);
+  await read(page, 'C7 docs toggle to light');
+  await open(page, 'button-icon--docs');
+  await read(page, 'C8 sidebar to button-icon--docs');
+  await page.close();
+} finally {
+  await browser.close();
+}
