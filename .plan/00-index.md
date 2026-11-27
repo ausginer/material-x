@@ -5255,7 +5255,7 @@ Tier C, **open**, **ready**, pre-existing. Registered on 2026-11-26 by the archi
 
 #### RF-157 — `mx-checkbox` draws values other than Material's in its hover layer, press wave, outline and disabled icon
 
-Tier A, **open**, **ready**, pre-existing. #338 implements the implementer's note. The architect's note of the same day adds rows to the table, and the implementation of those rows is owed on the same branch before #338 merges. Registered on 2026-11-27 by the architect, on `material-x/checkbox-error-1`, from fp-3 of #328's [feature proof](reviews/checkbox-error-1/feature-proof-claude.md#fp-3--the-checkbox-draws-non-material-values-in-four-states-pre-existing), requested by the coordinator. `RF-156` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `93f5e44d6`. It is registered on this branch because its evidence is this branch's review record. The same cascade is on `main`: the proof renders the head's default blocks equal to `main`'s ([reading](reviews/checkbox-error-1/checks/sheet.txt)).
+Tier A, **open**, **ready**, pre-existing. #338 implements the implementer's two notes, the second for the architect's ruling of the same day. Registered on 2026-11-27 by the architect, on `material-x/checkbox-error-1`, from fp-3 of #328's [feature proof](reviews/checkbox-error-1/feature-proof-claude.md#fp-3--the-checkbox-draws-non-material-values-in-four-states-pre-existing), requested by the coordinator. `RF-156` is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `93f5e44d6`. It is registered on this branch because its evidence is this branch's review record. The same cascade is on `main`: the proof renders the head's default blocks equal to `main`'s ([reading](reviews/checkbox-error-1/checks/sheet.txt)).
 
 - **What happens,** in Chromium, Firefox and WebKit, in the proof's readings ([layers](reviews/checkbox-error-1/checks/layers.txt), [disabled](reviews/checkbox-error-1/checks/disabled.txt), [tokens](reviews/checkbox-error-1/checks/tokens.txt)):
 
@@ -5337,6 +5337,32 @@ Tier A, **open**, **ready**, pre-existing. #338 implements the implementer's not
   - The unit names each image that changes and why.
 - **#339's description no longer holds:** its checkbox part is this entry's, and the radio's is `RF-158`'s.
 - **Size:** still _medium_.
+
+**Dated 2026-11-27 by the implementer: the press wave draws its selection's pressed tokens for every activation, and the unselected outline draws its hovered, focused and pressed colour,** on `material-x/checkbox-colors-1`, from `92d96f9e2` with `origin/main` merged, in Chromium (`RD-62`), requested by the coordinator. It implements the architect's ruling above.
+
+- **The press wave reads the pressed tokens directly,** as the ruling recommends.
+  - `defaultTokens` (`styles/default/tokens.ts`) appends `press-layer.color` and `press-layer.opacity` to `unselected.default` from `unselected.pressed.state-layer.*`, and to `selected.default` from `selected.pressed.state-layer.*`. `errorTokens` appends them to `error.default` from `error.pressed.state-layer.*`. This is the pattern that the focus layer already uses.
+  - `main.styles.css` draws the ripple's `::after` with `--_press-layer-color` and `--_press-layer-opacity`, in a rule more specific than the ripple's own. The ripple's fade has no first keyframe, so it starts from this opacity.
+  - So the wave depends only on the host's selection and error state, and not on `:hover`, `:focus-within` or `:active`. The shared ripple and its `::before`, the hover layer, don't change. The extension graph doesn't change.
+- **The unselected outline is named per state.** `defaultTokens` appends `outline.color` to `unselected.hover`, `unselected.focus` and `unselected.pressed`, by name, for the same reason as the disabled colours: the deprecated `unselected.*.icon.color` tokens group to the same paths, so widening `allowedTokensSelector` would also take them.
+  - The sheet sets `on-surface` under `:host(:hover)` and `:host(:focus-within)`. `unselected.pressed`'s value is deduplicated against those parents. A pressed host is hovered under a mouse.
+  - A checked or indeterminate outline stays its container's colour, because the rule in `main.styles.css` has the same specificity and comes later. An error outline stays `error`, because its rule is more specific. A disabled host takes no hover or focus.
+- **The compiled sheet** gains seven declarations in five blocks, and one rule ([diff](checkbox-colors-1/checks/press-wave-sheet.diff), against `29f5597d6`). It loses nothing.
+- **Rows,** in `tests/checkbox/checkbox.spec.browser.test.ts`, each against `checkbox.default`'s effective state:
+  - the press wave after Space on a focused checkbox, as a pair of colour and opacity, when unselected against `unselected.pressed`, and when checked and indeterminate against `selected.pressed`;
+  - the press wave's opacity under a pointer press, unselected and checked;
+  - the outline of an unselected checkbox hovered, focused and pressed, against `unselected.{hover,focus,pressed}`'s `outline.color`. The box's border transition is the host's, which the shadow root doesn't report, so the rows finish the host's own animations before they read.
+- **Witness** ([reading](checkbox-colors-1/checks/press-wave-witness.txt), [probe](checkbox-colors-1/probes/witness.sh)): with the sheet that `29f5597d6`'s style modules and stylesheet compile, and this unit's token packages as the oracle, the eight rows fail in Chromium, as the ruling says:
+  - the Space rows on the colour: unselected draws `on-surface` for `primary`, and checked and indeterminate draw `primary` for `on-surface`, all at `0.1`;
+  - the pointer rows on `0.08` for `0.1`;
+  - the outline rows on `on-surface-variant` for `on-surface`.
+  - The file's other 23 rows pass. The probe now also takes the commit's `main.styles.css`, because this unit changes it.
+- **Checks:** material-x's `spec` (1,413 passed, 2 expected failures), `browser` (1,449) and `node` (38) projects pass in Chromium. Format, lint and typecheck are clean. Firefox and WebKit are read from CI.
+- **Baselines,** by `RD-13`. No image is committed.
+  - `checkbox-disabled.png` and `checkbox-hovered.png` change, as the first note says.
+  - `checkbox-focused.png` changes: its checkbox is unselected and focused, so its outline is now `on-surface`.
+  - `checkbox-states.png` and `checkbox-error.png` don't change: they are at rest. `checkbox-hovered.png`'s checkbox is checked, so this note doesn't change its outline. No image draws the press wave. No other component's visual test renders a checkbox.
+- **Not changed:** the hover layer of a pressed host, which the ruling's property 4 leaves as the head draws it. The radio, which is `RF-158`.
 
 #### RF-158 — `mx-radio`'s press wave doesn't draw its pressed tokens: the keyboard's takes the resting or focus colour, and a pointer's the hover opacity
 

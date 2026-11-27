@@ -69,6 +69,17 @@ async function contractColor(
   return resolveComputed('color', String(values[token]!));
 }
 
+/** An opacity token of a state of the default contract, as a number. */
+async function opacity(state: string, token: string): Promise<number> {
+  const { values } = await commands.resolveTokenContract({
+    contract: CONTRACT,
+    state,
+    tokens: [token],
+  });
+
+  return Number(values[token]!);
+}
+
 /** A color token of a state of the default contract, as the engine computes it. */
 async function color(state: string, token: string): Promise<string> {
   return await contractColor(CONTRACT, state, token);
@@ -121,6 +132,34 @@ async function press(element: HTMLElement): Promise<void> {
   await nextFrame();
   const { left, top, width, height } = element.getBoundingClientRect();
   await commands.pointerPress(left + width / 2, top + height / 2);
+}
+
+/**
+ * Activates a focused checkbox with Space, which runs the press wave from the
+ * keyboard's click. The host doesn't match `:active` for it in any engine, and
+ * the wave is read before its fade starts.
+ */
+async function activateByKeyboard(element: HTMLElement): Promise<void> {
+  await nextFrame();
+  element.focus();
+  await nextFrame();
+  await userEvent.keyboard('{Space}');
+}
+
+/**
+ * Finishes the box's color transitions. The box is the host's `::after`, so its
+ * transitions are the host's, which the shadow root doesn't report. Reading
+ * the style first starts a transition that the interaction caused.
+ */
+async function settleBox(element: HTMLElement): Promise<void> {
+  getBox(element).getPropertyValue('border-top-color');
+
+  await Promise.all(
+    element.getAnimations({ subtree: true }).map(async (animation) => {
+      animation.finish();
+      await animation.finished;
+    }),
+  );
 }
 
 /** What a checkbox draws: its box's colors, the host's opacity and the icon's color. */
@@ -235,6 +274,87 @@ describe('mx-checkbox state layer visual contract', () => {
       await color('unselected.pressed', 'state-layer.color'),
     );
   });
+});
+
+describe('mx-checkbox press wave visual contract', () => {
+  /*
+   * The press wave is the ripple's `::after`. It draws the pressed state layer
+   * of the host's selection for every activation: a pointer press, which also
+   * hovers the host, and a keyboard one, which neither hovers it nor makes it
+   * `:active`.
+   */
+  const PRESSED_STATES = [
+    ['unselected', [], 'unselected.pressed'],
+    ['checked', ['checked'], 'selected.pressed'],
+    ['indeterminate', ['indeterminate'], 'selected.pressed'],
+  ] as const;
+
+  it.each(PRESSED_STATES)(
+    'should draw the keyboard press wave as the pressed state layer when %s',
+    async (_, attributes, state) => {
+      const element = createCheckbox(...attributes);
+      await activateByKeyboard(element);
+      const wave = rippleOf(element, '::after');
+
+      expect({
+        color: wave.backgroundColor,
+        opacity: Number(wave.opacity),
+      }).toStrictEqual({
+        color: await color(state, 'state-layer.color'),
+        opacity: await opacity(state, 'state-layer.opacity'),
+      });
+    },
+  );
+
+  it.each(PRESSED_STATES.slice(0, 2))(
+    'should draw the pointer press wave at the pressed state layer opacity when %s',
+    async (_, attributes, state) => {
+      const element = createCheckbox(...attributes);
+      await press(element);
+
+      expect(Number(rippleOf(element, '::after').opacity)).toBe(
+        await opacity(state, 'state-layer.opacity'),
+      );
+    },
+  );
+});
+
+describe('mx-checkbox unselected outline visual contract', () => {
+  /*
+   * A selected checkbox's outline is its container's color, so only the
+   * unselected states draw an outline color of their own.
+   */
+  const INTERACTIONS = [
+    [
+      'hovered',
+      'unselected.hover',
+      async (element: HTMLElement) => {
+        await userEvent.hover(element);
+      },
+    ],
+    [
+      'focused',
+      'unselected.focus',
+      async (element: HTMLElement) => {
+        await nextFrame();
+        element.focus();
+      },
+    ],
+    ['pressed', 'unselected.pressed', press],
+  ] as const;
+
+  it.each(INTERACTIONS)(
+    'should draw the unselected outline color when %s',
+    async (_, state, interact) => {
+      const element = createCheckbox();
+      await interact(element);
+      await settleBox(element);
+
+      expect(getBox(element).borderTopColor).toBe(
+        await color(state, 'outline.color'),
+      );
+    },
+  );
 });
 
 describe('mx-checkbox disabled visual contract', () => {

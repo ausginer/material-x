@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Runs the checkbox spec file against the sheet that the checkbox's style
-# modules compile at <commit>, with the working tree's token packages and rows,
+# modules and stylesheet compile at <commit>, with the working tree's token packages and rows,
 # so each row reads the drawn color against the current oracle. Restores every
 # module it replaces. Usage, from the repository root: witness.sh <commit>
 set -euo pipefail
 commit="${1:?commit}"
 styles=packages/material-x/src/checkbox/styles
-modules=("$styles/utils.ts" "$styles/default/tokens.ts" "$styles/default/main.css.ts")
+modules=("$styles/utils.ts" "$styles/default/tokens.ts" "$styles/default/main.css.ts" "$styles/default/main.styles.css")
 saved="$(mktemp -d)"
 restore() {
   for module in "${modules[@]}"; do
@@ -21,9 +21,11 @@ done
 
 git show "$commit:$styles/utils.ts" > "$styles/utils.ts"
 git show "$commit:$styles/default/tokens.ts" > "$styles/default/tokens.ts"
+git show "$commit:$styles/default/main.styles.css" > "$styles/default/main.styles.css"
 sheet="$(cd packages/material-x && node ../../.scripts/css/debug.ts src/checkbox/styles/default/main.css.ts)"
 cp "${saved:?}/utils.ts" "$styles/utils.ts"
 cp "${saved:?}/tokens.ts" "$styles/default/tokens.ts"
+cp "${saved:?}/main.styles.css" "$styles/default/main.styles.css"
 
 printf 'const styles: string = `%s`;\nexport default styles;\n' "$sheet" \
   > "$styles/default/main.css.ts"
