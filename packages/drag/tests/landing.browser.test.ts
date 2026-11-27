@@ -765,6 +765,47 @@ describe("drag:DRI-13 sortable landing of a drop on the item's own gap", () => {
     }
   }
 
+  it('should land a command on its own gap at the rebased home', async () => {
+    const list = makeList(3);
+    let asked = 0;
+
+    for (const element of rowsOf(list)) {
+      element.tabIndex = 0;
+    }
+
+    const controller = basicSortable(list, {
+      landing: landing({ duration: LONG, easing: 'linear' }),
+      onStart(_, kind) {
+        log.push(`start:${kind}`);
+        // r1 goes before r0, so r0's ArrowDown gap is its own gap.
+        list.insertBefore(row('r1'), row('r0'));
+        controller.invalidate();
+      },
+      onReorder() {
+        asked += 1;
+        return ReorderResolution.accept();
+      },
+    });
+    const item = row('r0');
+    const before = item.getBoundingClientRect().top;
+
+    item.focus();
+    await commands.keyPress('ArrowDown');
+
+    expect([asked, log]).toEqual([0, ['start:command', 'end:noop']]);
+    expect(flights(item)).toBe(1);
+    expect(Math.abs(item.getBoundingClientRect().top - before)).toBeLessThan(1);
+
+    for (const animation of item.getAnimations()) {
+      animation.finish();
+    }
+
+    expect(item.getBoundingClientRect().top).toBeCloseTo(
+      row('r1').getBoundingClientRect().bottom,
+      0,
+    );
+  });
+
   it('should still skip the landing for a fault', async () => {
     const list = makeList(4);
 
