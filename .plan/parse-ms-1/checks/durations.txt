@@ -1,0 +1,7 @@
+# Each value of parseMs's four properties in material-x's compiled sheets, read at d6f6cf60b with
+#   for f in $(find src -name '*.css.ts'); do aube exec just debug "$f" | grep -oE -- '--_(ripple-duration|ripple-drift-duration|drag-duration|layout-animation-duration):[^;]*'; done
+# from packages/material-x. These are all the values found. Each is in seconds, so parseMs gives the same milliseconds before and after RF-152's repair.
+src/core/animations/ripple/styles/main.css.ts --_ripple-duration: 0.15s
+src/core/animations/ripple/styles/main.css.ts --_ripple-drift-duration: 0.5s
+src/list/styles/sortable/main.css.ts --_drag-duration: 0.65s
+src/list/styles/sortable/main.css.ts --_layout-animation-duration: 0.5s

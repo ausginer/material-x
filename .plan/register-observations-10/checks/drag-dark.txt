@@ -1,0 +1,11 @@
+# node probes/drag-dark-probe.ts.txt, against storybook dev on main at d6f6cf60b, Chromium (Playwright), 2026-11-26
+box-quad--live-demo                    light html data-theme=light | body rgb(255, 255, 255) | [class*="stage"] rgb(242, 245, 229)
+box-quad--live-demo                    dark  html data-theme=dark | body rgb(11, 15, 7) | [class*="stage"] rgb(25, 29, 19)
+drag-sortable--list                    light html data-theme=light | body rgb(255, 255, 255) | [class*="list"] rgb(247, 242, 250) | [class*="row"] rgb(255, 255, 255)
+drag-sortable--list                    dark  html data-theme=dark | body rgb(11, 15, 7) | [class*="list"] rgb(247, 242, 250) | [class*="row"] rgb(255, 255, 255)
+drag-sortable--grid                    light html data-theme=light | body rgb(255, 255, 255) | [class*="grid"] rgb(247, 242, 250) | [class*="tile"] rgb(255, 255, 255)
+drag-sortable--grid                    dark  html data-theme=dark | body rgb(11, 15, 7) | [class*="grid"] rgb(247, 242, 250) | [class*="tile"] rgb(255, 255, 255)
+drag-free-drag--interactive            light html data-theme=light | body rgb(255, 255, 255) | [class*="area"] rgb(247, 242, 250) | [class*="box"] rgb(103, 80, 164)
+drag-free-drag--interactive            dark  html data-theme=dark | body rgb(11, 15, 7) | [class*="area"] rgb(247, 242, 250) | [class*="box"] rgb(103, 80, 164)
+drag-custom-behavior--resize-handle    light html data-theme=light | body rgb(255, 255, 255) | [class*="resizable"] rgb(232, 222, 248)
+drag-custom-behavior--resize-handle    dark  html data-theme=dark | body rgb(11, 15, 7) | [class*="resizable"] rgb(232, 222, 248)

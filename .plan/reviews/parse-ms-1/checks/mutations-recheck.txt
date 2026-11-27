@@ -1,0 +1,218 @@
+# probes/mutations-recheck.sh.txt, run as mutations-recheck.sh chromium, then firefox, then webkit, one engine at a time, at 0e2817bf4.
+# Each mutation edits src/core/utils/fns.ts, runs tests/core/utils/fns.browser.test.ts and tests/list/sortable-list.browser.test.ts, and restores the file.
+# Lines: the diff, the rows that fail (Vitest cuts a long FAIL line, so the 250ms row's FAIL line ends at "a duration of"), and the totals.
+# 12 rows of sortable-list.browser.test.ts run in Chromium only.
+
+######## chromium
+== chromium none
+      Tests  216 passed (216)
+ Test Files  2 passed (2)
+== chromium witness-case-sensitive
+-    parseFloat(v) * (v.slice(-2).toLowerCase() === 'ms' ? 1 : 1000);
++    parseFloat(v) * (v.endsWith('ms') ? 1 : 1000);
+      Tests  2 failed | 214 passed (216)
+     × should read 250MS as 250 ms
+     × should read 250Ms as 250 ms
+ FAIL  |browser (chromium)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250MS as 250 ms
+ FAIL  |browser (chromium)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250Ms as 250 ms
+ Test Files  1 failed | 1 passed (2)
+== chromium own-partial-fold
+-    parseFloat(v) * (v.slice(-2).toLowerCase() === 'ms' ? 1 : 1000);
++    parseFloat(v) * (v.slice(-2).replace('M', 'm') === 'ms' ? 1 : 1000);
+      Tests  1 failed | 215 passed (216)
+     × should read 250MS as 250 ms
+ FAIL  |browser (chromium)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250MS as 250 ms
+ Test Files  1 failed | 1 passed (2)
+== chromium own-always-seconds
+-    parseFloat(v) * (v.slice(-2).toLowerCase() === 'ms' ? 1 : 1000);
++    parseFloat(v) * 1000;
+       × should time the neighbor's animation by the list's private properties, with a duration of 250ms
+      Tests  5 failed | 211 passed (216)
+     × should read 250MS as 250 ms
+     × should read 250Ms as 250 ms
+     × should read 250ms as 250 ms
+     × should read 99ms as 99 ms
+ FAIL  |browser (chromium)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250MS as 250 ms
+ FAIL  |browser (chromium)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250Ms as 250 ms
+ FAIL  |browser (chromium)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250ms as 250 ms
+ FAIL  |browser (chromium)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 99ms as 99 ms
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:2895 > mx-sortable-list neighbors > timing > should time the neighbor's animation by the list's private properties, with a duration of
+ Test Files  2 failed (2)
+== chromium own-never-scaled
+-    parseFloat(v) * (v.slice(-2).toLowerCase() === 'ms' ? 1 : 1000);
++    parseFloat(v) * 1;
+       × should animate the rows that a slow pointer move and a flick displace
+       × should keep animating the neighbor of a key move that the page commits 100 ms later
+       × should time the landing and the lifted item's elevation by the landing's pair, with the neighbors' private properties set
+       × should time the landing and the lifted item's elevation by the landing's pair, without a page rule
+       × should time the neighbor's animation by the list's private properties, with a duration of 0.25s
+       × should time the neighbor's animation by the tokens' pair
+      Tests  9 failed | 207 passed (216)
+     × should read 0.25S as 250 ms
+     × should read 0.25s as 250 ms
+     × should read 1.5s as 1500 ms
+ FAIL  |browser (chromium)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 0.25S as 250 ms
+ FAIL  |browser (chromium)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 0.25s as 250 ms
+ FAIL  |browser (chromium)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 1.5s as 1500 ms
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:2634 > mx-sortable-list neighbors > motion > should animate the rows that a slow pointer move and a flick displace
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:2660 > mx-sortable-list neighbors > motion > should keep animating the neighbor of a key move that the page commits 100 ms later
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:2881 > mx-sortable-list neighbors > timing > should time the neighbor's animation by the tokens' pair
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:2895 > mx-sortable-list neighbors > timing > should time the neighbor's animation by the list's private properties, with a duration of 0.25s
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:2922 > mx-sortable-list neighbors > timing > should time the landing and the lifted item's elevation by the landing's pair, with the neighbors' private properties set
+ FAIL  |browser (chromium)| tests/list/sortable-list.browser.test.ts:2922 > mx-sortable-list neighbors > timing > should time the landing and the lifted item's elevation by the landing's pair, without a page rule
+ Test Files  2 failed (2)
+== chromium own-no-throw
+-  if (isNaN(result)) {
++  if (false) {
+      Tests  4 failed | 212 passed (216)
+     × should throw a CSSVariableError on "", which has no number
+     × should throw a CSSVariableError on "MS", which has no number
+     × should throw a CSSVariableError on "auto", which has no number
+     × should throw a CSSVariableError on "ms", which has no number
+ FAIL  |browser (chromium)| tests/core/utils/fns.browser.test.ts:23 > parseMs > should throw a CSSVariableError on "", which has no number
+ FAIL  |browser (chromium)| tests/core/utils/fns.browser.test.ts:23 > parseMs > should throw a CSSVariableError on "MS", which has no number
+ FAIL  |browser (chromium)| tests/core/utils/fns.browser.test.ts:23 > parseMs > should throw a CSSVariableError on "auto", which has no number
+ FAIL  |browser (chromium)| tests/core/utils/fns.browser.test.ts:23 > parseMs > should throw a CSSVariableError on "ms", which has no number
+ Test Files  1 failed | 1 passed (2)
+
+######## firefox
+== firefox none
+      Tests  204 passed | 12 skipped (216)
+ Test Files  2 passed (2)
+== firefox witness-case-sensitive
+-    parseFloat(v) * (v.slice(-2).toLowerCase() === 'ms' ? 1 : 1000);
++    parseFloat(v) * (v.endsWith('ms') ? 1 : 1000);
+      Tests  2 failed | 202 passed | 12 skipped (216)
+     × should read 250MS as 250 ms
+     × should read 250Ms as 250 ms
+ FAIL  |browser/firefox (firefox)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250MS as 250 ms
+ FAIL  |browser/firefox (firefox)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250Ms as 250 ms
+ Test Files  1 failed | 1 passed (2)
+== firefox own-partial-fold
+-    parseFloat(v) * (v.slice(-2).toLowerCase() === 'ms' ? 1 : 1000);
++    parseFloat(v) * (v.slice(-2).replace('M', 'm') === 'ms' ? 1 : 1000);
+      Tests  1 failed | 203 passed | 12 skipped (216)
+     × should read 250MS as 250 ms
+ FAIL  |browser/firefox (firefox)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250MS as 250 ms
+ Test Files  1 failed | 1 passed (2)
+== firefox own-always-seconds
+-    parseFloat(v) * (v.slice(-2).toLowerCase() === 'ms' ? 1 : 1000);
++    parseFloat(v) * 1000;
+       × should time the neighbor's animation by the list's private properties, with a duration of 250ms
+      Tests  5 failed | 199 passed | 12 skipped (216)
+     × should read 250MS as 250 ms
+     × should read 250Ms as 250 ms
+     × should read 250ms as 250 ms
+     × should read 99ms as 99 ms
+ FAIL  |browser/firefox (firefox)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250MS as 250 ms
+ FAIL  |browser/firefox (firefox)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250Ms as 250 ms
+ FAIL  |browser/firefox (firefox)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250ms as 250 ms
+ FAIL  |browser/firefox (firefox)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 99ms as 99 ms
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2895 > mx-sortable-list neighbors > timing > should time the neighbor's animation by the list's private properties, with a duration of
+ Test Files  2 failed (2)
+== firefox own-never-scaled
+-    parseFloat(v) * (v.slice(-2).toLowerCase() === 'ms' ? 1 : 1000);
++    parseFloat(v) * 1;
+       × should animate the rows that a slow pointer move and a flick displace
+       × should keep animating the neighbor of a key move that the page commits 100 ms later
+       × should time the landing and the lifted item's elevation by the landing's pair, with the neighbors' private properties set
+       × should time the landing and the lifted item's elevation by the landing's pair, without a page rule
+       × should time the neighbor's animation by the list's private properties, with a duration of 0.25s
+       × should time the neighbor's animation by the tokens' pair
+      Tests  9 failed | 195 passed | 12 skipped (216)
+     × should read 0.25S as 250 ms
+     × should read 0.25s as 250 ms
+     × should read 1.5s as 1500 ms
+ FAIL  |browser/firefox (firefox)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 0.25S as 250 ms
+ FAIL  |browser/firefox (firefox)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 0.25s as 250 ms
+ FAIL  |browser/firefox (firefox)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 1.5s as 1500 ms
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2634 > mx-sortable-list neighbors > motion > should animate the rows that a slow pointer move and a flick displace
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2660 > mx-sortable-list neighbors > motion > should keep animating the neighbor of a key move that the page commits 100 ms later
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2881 > mx-sortable-list neighbors > timing > should time the neighbor's animation by the tokens' pair
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2895 > mx-sortable-list neighbors > timing > should time the neighbor's animation by the list's private properties, with a duration of 0.25s
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2922 > mx-sortable-list neighbors > timing > should time the landing and the lifted item's elevation by the landing's pair, with the neighbors' private properties set
+ FAIL  |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:2922 > mx-sortable-list neighbors > timing > should time the landing and the lifted item's elevation by the landing's pair, without a page rule
+ Test Files  2 failed (2)
+== firefox own-no-throw
+-  if (isNaN(result)) {
++  if (false) {
+      Tests  4 failed | 200 passed | 12 skipped (216)
+     × should throw a CSSVariableError on "", which has no number
+     × should throw a CSSVariableError on "MS", which has no number
+     × should throw a CSSVariableError on "auto", which has no number
+     × should throw a CSSVariableError on "ms", which has no number
+ FAIL  |browser/firefox (firefox)| tests/core/utils/fns.browser.test.ts:23 > parseMs > should throw a CSSVariableError on "", which has no number
+ FAIL  |browser/firefox (firefox)| tests/core/utils/fns.browser.test.ts:23 > parseMs > should throw a CSSVariableError on "MS", which has no number
+ FAIL  |browser/firefox (firefox)| tests/core/utils/fns.browser.test.ts:23 > parseMs > should throw a CSSVariableError on "auto", which has no number
+ FAIL  |browser/firefox (firefox)| tests/core/utils/fns.browser.test.ts:23 > parseMs > should throw a CSSVariableError on "ms", which has no number
+ Test Files  1 failed | 1 passed (2)
+
+######## webkit
+== webkit none
+      Tests  204 passed | 12 skipped (216)
+ Test Files  2 passed (2)
+== webkit witness-case-sensitive
+-    parseFloat(v) * (v.slice(-2).toLowerCase() === 'ms' ? 1 : 1000);
++    parseFloat(v) * (v.endsWith('ms') ? 1 : 1000);
+      Tests  2 failed | 202 passed | 12 skipped (216)
+     × should read 250MS as 250 ms
+     × should read 250Ms as 250 ms
+ FAIL  |browser/webkit (webkit)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250MS as 250 ms
+ FAIL  |browser/webkit (webkit)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250Ms as 250 ms
+ Test Files  1 failed | 1 passed (2)
+== webkit own-partial-fold
+-    parseFloat(v) * (v.slice(-2).toLowerCase() === 'ms' ? 1 : 1000);
++    parseFloat(v) * (v.slice(-2).replace('M', 'm') === 'ms' ? 1 : 1000);
+      Tests  1 failed | 203 passed | 12 skipped (216)
+     × should read 250MS as 250 ms
+ FAIL  |browser/webkit (webkit)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250MS as 250 ms
+ Test Files  1 failed | 1 passed (2)
+== webkit own-always-seconds
+-    parseFloat(v) * (v.slice(-2).toLowerCase() === 'ms' ? 1 : 1000);
++    parseFloat(v) * 1000;
+       × should time the neighbor's animation by the list's private properties, with a duration of 250ms
+      Tests  5 failed | 199 passed | 12 skipped (216)
+     × should read 250MS as 250 ms
+     × should read 250Ms as 250 ms
+     × should read 250ms as 250 ms
+     × should read 99ms as 99 ms
+ FAIL  |browser/webkit (webkit)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250MS as 250 ms
+ FAIL  |browser/webkit (webkit)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250Ms as 250 ms
+ FAIL  |browser/webkit (webkit)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 250ms as 250 ms
+ FAIL  |browser/webkit (webkit)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 99ms as 99 ms
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2895 > mx-sortable-list neighbors > timing > should time the neighbor's animation by the list's private properties, with a duration of
+ Test Files  2 failed (2)
+== webkit own-never-scaled
+-    parseFloat(v) * (v.slice(-2).toLowerCase() === 'ms' ? 1 : 1000);
++    parseFloat(v) * 1;
+       × should keep animating the neighbor of a key move that the page commits 100 ms later
+       × should time the landing and the lifted item's elevation by the landing's pair, with the neighbors' private properties set
+       × should time the landing and the lifted item's elevation by the landing's pair, without a page rule
+       × should time the neighbor's animation by the list's private properties, with a duration of 0.25s
+       × should time the neighbor's animation by the tokens' pair
+      Tests  8 failed | 196 passed | 12 skipped (216)
+     × should read 0.25S as 250 ms
+     × should read 0.25s as 250 ms
+     × should read 1.5s as 1500 ms
+ FAIL  |browser/webkit (webkit)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 0.25S as 250 ms
+ FAIL  |browser/webkit (webkit)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 0.25s as 250 ms
+ FAIL  |browser/webkit (webkit)| tests/core/utils/fns.browser.test.ts:18 > parseMs > should read 1.5s as 1500 ms
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2660 > mx-sortable-list neighbors > motion > should keep animating the neighbor of a key move that the page commits 100 ms later
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2881 > mx-sortable-list neighbors > timing > should time the neighbor's animation by the tokens' pair
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2895 > mx-sortable-list neighbors > timing > should time the neighbor's animation by the list's private properties, with a duration of 0.25s
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2922 > mx-sortable-list neighbors > timing > should time the landing and the lifted item's elevation by the landing's pair, with the neighbors' private properties set
+ FAIL  |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:2922 > mx-sortable-list neighbors > timing > should time the landing and the lifted item's elevation by the landing's pair, without a page rule
+ Test Files  2 failed (2)
+== webkit own-no-throw
+-  if (isNaN(result)) {
++  if (false) {
+      Tests  4 failed | 200 passed | 12 skipped (216)
+     × should throw a CSSVariableError on "", which has no number
+     × should throw a CSSVariableError on "MS", which has no number
+     × should throw a CSSVariableError on "auto", which has no number
+     × should throw a CSSVariableError on "ms", which has no number
+ FAIL  |browser/webkit (webkit)| tests/core/utils/fns.browser.test.ts:23 > parseMs > should throw a CSSVariableError on "", which has no number
+ FAIL  |browser/webkit (webkit)| tests/core/utils/fns.browser.test.ts:23 > parseMs > should throw a CSSVariableError on "MS", which has no number
+ FAIL  |browser/webkit (webkit)| tests/core/utils/fns.browser.test.ts:23 > parseMs > should throw a CSSVariableError on "auto", which has no number
+ FAIL  |browser/webkit (webkit)| tests/core/utils/fns.browser.test.ts:23 > parseMs > should throw a CSSVariableError on "ms", which has no number
+ Test Files  1 failed | 1 passed (2)

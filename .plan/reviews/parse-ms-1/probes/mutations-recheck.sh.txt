@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Mutations of parseMs at 0e2817bf4, against fns.browser.test.ts and sortable-list.browser.test.ts,
+# in one engine per invocation: mutations-2.sh <engine>. Restores fns.ts after each run.
+set -uo pipefail
+ENGINE="${1:?engine}"
+PKG=/workspaces/worktrees/h/packages/material-x
+SRC=src/core/utils/fns.ts
+TESTS=(tests/core/utils/fns.browser.test.ts tests/list/sortable-list.browser.test.ts)
+cd "${PKG:?}"
+restore() { git show HEAD:packages/material-x/"${SRC:?}" > "${SRC:?}"; }
+trap restore EXIT
+UNIT="v\.slice\(-2\)\.toLowerCase\(\) === 'ms' \? 1 : 1000"
+declare -A EXPR=(
+  [none]=''
+  [witness-case-sensitive]="s/${UNIT}/v.endsWith('ms') ? 1 : 1000/"
+  [own-partial-fold]="s/\.toLowerCase\(\) === 'ms'/.replace('M', 'm') === 'ms'/"
+  [own-always-seconds]="s/\(${UNIT}\)/1000/"
+  [own-never-scaled]="s/\(${UNIT}\)/1/"
+  [own-no-throw]="s/if \(isNaN\(result\)\) \{/if (false) {/"
+)
+for m in none witness-case-sensitive own-partial-fold own-always-seconds own-never-scaled own-no-throw; do
+  restore
+  if [ -n "${EXPR[$m]}" ]; then
+    sed -E -i "${EXPR[$m]}" "${SRC:?}"
+    if git diff --quiet -- "${SRC:?}"; then echo "== $m: MUTATION DID NOT APPLY"; continue; fi
+  fi
+  echo "== $ENGINE $m"
+  git diff -U0 -- "${SRC:?}" | grep -E '^[-+] ' || true
+  MX_TEST_ENGINES="$ENGINE" aube exec just test "${TESTS[@]}" 2>&1 \
+    | sed -E 's/\x1b\[[0-9;]*m//g' \
+    | grep -E '^\s*(×|✗|FAIL)|Test Files|^\s+Tests ' | sed -E 's/ [0-9]+ms$//' | sort -u
+done
+restore
+git -C /workspaces/worktrees/h status --short

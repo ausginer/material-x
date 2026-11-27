@@ -20,3 +20,14 @@
   ) !important;
   color: var(--_label-text-color) !important;
 }
+
+/*
+ * WebKit extends the press's text selection as a held mouse moves, after drag
+ * cleared it when the drag started. Only a dragged item is unselectable, so a
+ * press that never drags still selects text. Older Safari reads only the
+ * prefixed property.
+ */
+::slotted(:state(drag)) {
+  -webkit-user-select: none;
+  user-select: none;
+}
