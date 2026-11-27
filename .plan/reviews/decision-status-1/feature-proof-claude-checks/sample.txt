@@ -1,0 +1,80 @@
+# Sample for stale statuses in other wording, at 856db95cb, 2026-11-27.
+# 1. status-scan.mjs.txt: each decision file's first paragraph after the heading, broader phrases, the RD-68 additions removed. 50 files match:
+RD-10: 8` property 2 and `RF-32`'s required property for these names only. **Unimplemented:** the [handoff](../ci-verification-1/ci-verifica ¦ e [handoff](../ci-verification-1/ci-verification-handoff.md)'s item 5 implements it.
+RD-11: y. **No public type changes, so the owner has nothing to approve.** **Unimplemented:** the [handoff](../ci-verification-1/ci-verifica ¦ e [handoff](../ci-verification-1/ci-verification-handoff.md)'s item 5 implements it.
+RD-12: and **`RD-9` property 1**, in place, each with what it said before. **Unimplemented:** the [handoff](../ci-verification-1/ci-verifica ¦ tion-handoff.md)'s section _Resuming with Safari as the third engine_ implements it.
+RD-13: roposes changed images in a pull request, which the owner reviews and merges; the gate never writes a baseline. Local visual r ¦ ` properties 1, 4, 5 and 6, `RD-12` property 8 and `drag:DRO-18`.** **Unimplemented:** the [handoff](../ci-verification-1/ci-verifica ¦ cation-handoff.md)'s section _Recording baselines on GitHub's runner_ implements it.
+RD-15: skip ci]` doesn't start the workflow and leaves the required `verify` pending. **The skip holds only if every change since the  ¦ авильнее действительно будет перепроверять `.plan` и `.md`-файлы"_. **Unimplemented:** the [CI-speed handoff](../ci-speed-1/ci-speed- ¦ lemented:** the [CI-speed handoff](../ci-speed-1/ci-speed-handoff.md) implements it. **Implemented** by #31, merged 2026-11-17 as `8c
+RD-17: ./reviews/harness-1/feature-proof-claude.md) at `fbae00994` holds. It reaches `main` when #33 merges. #33 merged 2026-11-17 as `e92366 ¦ ure-proof-claude.md) at `fbae00994` holds. It reaches `main` when #33 merges. #33 merged 2026-11-17 as `e9236603e` . (_Was:_ _ ¦ ` when #33 merges. #33 merged 2026-11-17 as `e9236603e` . (_Was:_ _"**Unimplemented:** the harness handoff implements it."_) ¦ -17 as `e9236603e` . (_Was:_ _"**Unimplemented:** the harness handoff implements it."_)
+RD-18: ./reviews/harness-1/feature-proof-claude.md) at `fbae00994` holds. It reaches `main` when #33 merges. #33 merged 2026-11-17 as `e92366 ¦ ure-proof-claude.md) at `fbae00994` holds. It reaches `main` when #33 merges. #33 merged 2026-11-17 as `e9236603e` . Property  ¦ 026-11-17 as `e9236603e` . Property 4's steps are the owner's and are pending. (_Was:_ _"**Unimplemented:** the harness handoff ¦ 3e` . Property 4's steps are the owner's and are pending. (_Was:_ _"**Unimplemented:** the harness handoff implements it."_) ¦ r's and are pending. (_Was:_ _"**Unimplemented:** the harness handoff implements it."_)
+RD-20:  That bullet gets a dated pointer to this entry when this branch next merges `main`.
+RD-21: ntry is `RD-21`. **Implemented 2026-11-18** on `repo/ci-deps-1` (#38, not yet merged): the code at `10100984f`, and the report  ¦ t merged): the code at `10100984f`, and the report at `a4a90f683`. It applies to `main` when #38 merges. #38 merged 2026-11-18 as `83c3de ¦ 00984f`, and the report at `a4a90f683`. It applies to `main` when #38 merges. #38 merged 2026-11-18 as `83c3de7c5` . `RF-58`'s ¦ 6-11-18 as `83c3de7c5` . `RF-58`'s closure holds the reading. Before: unimplemented, and the handoff implemented it.
+RD-22: ` and `RD-21` on `repo/ci-deps-1`, so this is the next free number. **Unimplemented:** the plan's steps 2 and 3 implement it.
+RD-23: ered. **Implemented 2026-11-18** on `repo/state-layer-visual-1` (#66, not yet merged), as the architect read it on the [feature ¦ cording under property 4 is still owed."_ Before that, the entry said unimplemented.
+RD-24: lugin-1`, `main` and `repo/work-queue-1`, so this entry is `RD-24`. **Unimplemented:** the plan's [Implementation](../mx-size-1/mx-si ¦  plan's [Implementation](../mx-size-1/mx-size-plan.md#implementation) implements it. **Implemented** by #68, merged 2026-11-19 as `91
+RD-26:  number on any branch on `origin`, so this is the next free number. **Unimplemented:** the plan's [seven commits](../trait-decorators
+RD-27: rigin`. **Implemented 2026-11-20** on `repo/release-workflow-1` (#81, not yet merged): the plan's tasks 1 to 3 at `e73411cf4`,  ¦ ./release-workflow-1/release-workflow-report.md) holds the proofs. It applies to `main` when #81 merges. **Still pending:** the dispatche ¦ e-workflow-report.md) holds the proofs. It applies to `main` when #81 merges. **Still pending:** the dispatched check runs aft ¦ t.md) holds the proofs. It applies to `main` when #81 merges. **Still pending:** the dispatched check runs after the merge, whi ¦ e first release must show; and the owner's settings O1 to O3. Before: unimplemented. **Corrected 2026-11-20:** this line also listed  ¦ t's decisions on the feature proof's `reviewer-2` and `reviewer-3` as pending, and the amendment below records them.
+RD-28: r. **Step 1 implemented 2026-11-20** on `tproc/tokens-source-1` (#84, not yet merged); steps 2 and 3 are not. #84 merged 2026-1 ¦ ted by #87, merged 2026-11-20 as `498d955fc` . Until then this said _"Not implemented."_ It answers `RF-67`.
+RD-33: hecked against `origin/main` at `bd1dee7df`. Until the implementation merges, `RD-26` property 2 and the [plugin document](../
+RD-48: ny branch on `origin`, so this is the next free number. The site unit implements it.
+RD-5:  decision to delete `@ydinjs/drag2` (`drag:DRO-17`, `drag:DRD-64`). **Unimplemented:** [`drag2-retirement-handoff.md`](../../packages ¦ ff.md`](../../packages/drag/.plan/drag2-retirement-handoff.md) item 3 implements it. **Implemented** by #24, merged 2026-11-15 as `32
+RD-50: t `RD-` on any branch on `origin`, so this is the next free number. **Unimplemented, and ready for an implementer** on `repo/tokens-n ¦ ch on `origin`, so this is the next free number. **Unimplemented, and ready for an implementer** on `repo/tokens-notice-1`. **Implemented** by #
+RD-51: 't one of the landing plan's units, and nothing in `RD-47` to `RD-49` waits for it.
+RD-52: t `RD-` on any branch on `origin`, so this is the next free number. **Unimplemented:** `RF-117` is its unit.
+RD-6: ign](../ci-verification-1/ci-verification-design.md) §1, O1 to O8). **Unimplemented:** [`ci-verification-handoff.md`](../ci-verificat ¦ ication-handoff.md`](../ci-verification-1/ci-verification-handoff.md) implements it. It is `RD-2`'s deliverable 2, and it prepares de
+RD-60: , relayed by the coordinator. For #266, which isn't a tier finding. **Unimplemented. It follows `drag:DRD-72` (#265), and waits for i ¦ a tier finding. **Unimplemented. It follows `drag:DRD-72` (#265), and waits for it on `main`.** Before it, the list would have th
+RD-64: ts/docs/agent-workflow.md#one-branch-and-one-pull-request-per-unit)). Nothing has moved yet. **Implemented** by #302, merged 2026-11-26 a
+RD-68: n `material-x/use-sortable-1`, where `RD-52` and `RD-60` still said _"Unimplemented"_ after their units. `RD-67` is the highest `RD-`
+RD-7: d O6 ([design](../ci-verification-1/ci-verification-design.md) §1). **Unimplemented:** [`ci-verification-handoff.md`](../ci-verificat ¦ ication-handoff.md`](../ci-verification-1/ci-verification-handoff.md) implements it.
+RD-8: d O8 ([design](../ci-verification-1/ci-verification-design.md) §1). **Unimplemented:** [`ci-verification-handoff.md`](../ci-verificat ¦ ication-handoff.md`](../ci-verification-1/ci-verification-handoff.md) implements it.
+RD-9: 2026-11-16 by the architect.** This is `RD-2` deliverables 1 and 4. **Unimplemented:** [`ci-verification-handoff.md`](../ci-verificat ¦ ication-handoff.md`](../ci-verification-1/ci-verification-handoff.md) implements it. **Amended 2026-11-16, before implementation,** o
+DRD-23: n under it. The bullet's dry injection check for `compare.ts --prove` isn't implemented: `DRF-7` is open under it, and is deferred with `
+DRD-32: ned review read it at `b01a0283d` (corrected on 2026-11-10). `DRD-34` merges the input gate and the request entry into one sha
+DRD-40: te is confirmed by a "faster" verdict with no floor, and P3 no longer waits for `DRD-43` property 7. `DRD-44` adds the CPU model
+DRD-52: ` item 2. [`size-pass-unit-handoff.md`](../size-pass-unit-handoff.md) implements it. Its 7 B per committed move is provisional. **Imp
+DRD-54:  project. [`consumer-tests-handoff.md`](../consumer-tests-handoff.md) implements it. Step 2, the gate on the published build, is deci
+DRD-55: 3. [`published-gate-handoff.md`](../published-gate-handoff.md) part B implements it. Every ceiling and the control figure stay, and a
+DRD-56:  engines. [`publish-mangle-handoff.md`](../publish-mangle-handoff.md) implements it. Budgets are unchanged. **Implemented** at `f7b7b
+DRD-57: ty 1. [`mangle-selection-handoff.md`](../mangle-selection-handoff.md) implements it. Budgets are unchanged. **Implemented** at `b5020
+DRD-58: 50` W7's helpers. [`slot-array-handoff.md`](../slot-array-handoff.md) implements it after `DRD-57`'s unit. Costs are reported, not ga
+DRD-59: 7`. [`publication-build-handoff.md`](../publication-build-handoff.md) implements it. Budgets are unchanged. Not implemented. **Amende ¦ ./publication-build-handoff.md) implements it. Budgets are unchanged. Not implemented. **Amended on 2026-11-13 after the dependency upd
+DRD-60: RO-16`. [`mangle-rollback-handoff.md`](../mangle-rollback-handoff.md) implements it from `drag/size` at `f552e0ec9`, as merged into `
+DRD-61: es. [`rect-index-access-handoff.md`](../rect-index-access-handoff.md) implements it from `drag/size` at `8904947f6`, with a focused t
+DRD-62: ty 1. [`xy-held-geometry-handoff.md`](../xy-held-geometry-handoff.md) implements it. A fresh independent reviewer reads its report be
+DRD-63: owner-class-refactor-handoff.md`](../owner-class-refactor-handoff.md) implements it. **When decided, not implemented, and the refacto ¦ `](../owner-class-refactor-handoff.md) implements it. **When decided, not implemented, and the refactor not accepted.** **Property 5 wa
+DRD-64: nd amends `DRD-23`'s second, third and fifth bullets. **When decided, unimplemented:** [`drag2-retirement-handoff.md`](../drag2-retir
+DRD-65: ./drag2-guarantees-handoff.md) (`DRD-64` property 7). **When decided, unimplemented:** [`y-geometry-terms-handoff.md`](../y-geometry-
+DRD-67: ds the contract's `DRI-6` in the implementing commit. **When decided, unimplemented:** [`y-geometry-terms-handoff.md`](../y-geometry- ¦ `y-geometry-terms-handoff.md`](../y-geometry-terms-handoff.md) item 3 implements it. **Implemented** at `953a0fcc6`, reported at `1c1
+DRD-68: ](../combined-review-remediation-assessment.md) §5.2. **When decided, unimplemented:** [`size-acceptance-cleanup-handoff.md`](../size ¦ ce-cleanup-handoff.md`](../size-acceptance-cleanup-handoff.md) item 1 implements it. **Implemented at `e9ca3732f`,** and the unit's f
+DRD-69: irement, `DRD-37` property 4 and `DRD-63` property 2. **When decided, unimplemented:** [`size-acceptance-cleanup-handoff.md`](../size ¦ ollow-up-handoff.md`](../size-acceptance-follow-up-handoff.md) item 1 implements it. **Implemented in full at `7763a67a1`,** and acce
+DRD-70: tus:** proposed on 2026-11-20 and deferred by the owner the same day. Not in force
+DRO-11: ion or parent in `onEnd` (DRI-9, DRI-20). A rejected drop or a cancel lands home, as now. The handoff builds the default.
+DRO-5: **The repository allows only squash merges, so `main` won't contain `599684791`.** Once `dra
+
+# 2. amend-scan.mjs.txt: each paragraph that opens with **Amended, with a phrase and none of the answers. 8 paragraphs:
+RD-13 ¶4: **Amended 2026-11-16 by the architect** on `ci/verification` at `b750bd8ef`, on the feature-proof review's `re … beside the reason. The handoff's section _Remediating the feature-proof review_ implements it.
+RD-25 ¶5: **Amended 2026-11-21 by `RD-32`: a plan alone doesn't finalize a unit that implements it.** The rule above sti … **Amended 2026-11-21 by `RD-32`: a plan alone doesn't finalize a unit that implements it.** The rule above still holds once a unit is f
+RD-26 ¶40: **Amended 2026-11-20 a third time, by the architect: a `load` stage keeps a trait's class doc in the published … n-the-declarations-a-load-stage) holds the design, proofs 11 and 12, and P48. **Unimplemented:** the implementer adds the stage on `repo/tra
+RD-27 ¶14: **Amended 2026-11-20 by the architect,** on `reviewer-2` and `reviewer-3` of Mx Reviewer B's feature proof of  … nd task 4. **Task 4 implemented 2026-11-20** on `repo/release-workflow-1` (#81, not yet merged), in the commit after `644bbf1ed`. The [repor
+RD-28 ¶9: **Amended 2026-11-20 by the architect,** on `reviewer-1` and `reviewer-2` of the step's [feature proof](../rev … eld-rulings-from-the-feature-proof). They change the store in PR #84, before it merges. The implementer reruns P1–P5, P10 and P11, and the n
+RD-9 ¶14: **Amended 2026-11-16 by `RD-13`,** on the owner's decisions (O14, O15). Property 1 said: _"The devcontainer in … e baselines. **The owner reviews every changed baseline before the pull request merges.** CI then has to reproduce them."_ Property 6 said:
+DRD-51 ¶15: **Amended 2026-11-12, §First unit item 2:** the step that `FreeDragController.invalidate` requests is a functi … ssment §3). [`size-pass-followup-handoff.md`](../size-pass-followup-handoff.md) implements it.
+DRD-51 ¶16: **Amended 2026-11-12, property 3:** "the deferred campaigns" are the measurement work it names, and no other.  … quences the runs a unit's handoff asks for, and a unit uses it for that. A unit waits for a process through the process itself, never by sea
+
+# 3. Follow-ups
+## RD-26's three amendments of 2026-11-20 (¶34, ¶36, ¶40): answered by a dated note
+**Dated 2026-11-20 by the architect: the three amendments of 2026-11-20 are implemented,** by PR #85, merged at `3457e3463`. The [feature proof](../reviews/trait-decorator-1/feature-proof-claude.md)'s verdict at `f8acb005b` is that nothing blocks. Their _Unimplemented_ lines are answered.
+## #85:
+2026-11-20 3457e3463 repo: traits declare themselves with @trait and @attributes(TABLE), which the plugin compiles into the same output, and a load stage keeps their docs in the declarations (RD-26)
+## RD-48: 'The site unit implements it.' packages/ at the base, and issue #54:
+packages/box-quad packages/core packages/drag packages/material-x packages/size-limit-preset-rolldown packages/tproc packages/vite-custom-element-assets packages/vite-traits-plugin
+OPEN Build a landing page
+## Other first-paragraph matches carrying a later answer in the file (grep for Implemented/merged):
+RD-6: **Implemented 2026-11-16**
+RD-22: implemented on this branch
+DRD-54: **Implemented at `5ea7bb7e6`**
+DRD-55: **Implemented**
+DRD-58: **Implemented at `5ec3b4b2d`**
+DRD-60: Implemented at `cc752cc1b` and `b8e37b37c`, reported at `8904947f
+DRD-61: **Implemented at `010a9ef39`, reported at `f788b2b80` and accepted**
+DRD-62: Implemented at `b4117dae2`, reported at `7184d069c`, reviewed at

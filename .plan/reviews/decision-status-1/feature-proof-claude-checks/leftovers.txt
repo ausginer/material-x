@@ -1,0 +1,19 @@
+# The decisions RD-68 lists as still true, read at 856db95cb, 2026-11-27.
+## drag:DRD-23 status paragraph (line 3), the clauses on DRF-7:
+The bullet's dry injection check for `compare.ts --prove` isn't implemented: `DRF-7` is open under it, and is deferred with `DRF-1`.
+`DRF-7` closed at `f50f4a35a`.
+The last bullet is applied in full.
+## drag:DRF-7 in packages/drag/.plan/00-index.md:
+Tier B, **closed at `f50f4a35a`**
+## RD-29:
+**Status.** **Proposed, and deferred by the owner on 2026-11-20. Not executed.**
+## RD-56:
+Stage 3, the trial, is approved (the last note), and stage 4 isn't.**
+## RD-63:
+In force at `RD-56`'s cut-over, with stage 4's documents, and not before.**
+## #297, a merged pull request that records RD-63, says:
+Records only: no document, tool or source changes, and nothing here is in force before `RD-56`'s cut-over.
+## drag:DRD-59:
+withdrawn on 2026-11-13 by `DRD-60`, before implementation, apart from property 8
+## drag:DRD-70:
+**Status:** proposed on 2026-11-20 and deferred by the owner the same day. Not in force

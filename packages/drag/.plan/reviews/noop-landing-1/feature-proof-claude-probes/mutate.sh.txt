@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Applies one mutation to packages/drag in slot h, runs one test file in one
+# engine, records the summary, restores the file. Usage: mutate.sh <id> <engine>
+set -uo pipefail
+S=/tmp/claude-1000/-workspaces-worktrees-b/553fa70a-55b2-426a-8ef1-e58dc84f5d7b/scratchpad
+P=/workspaces/worktrees/h/packages/drag
+id="${1:?}"
+engine="${2:?}"
+file=tests/landing.browser.test.ts
+
+case "$id" in
+  M0) target=""; from=""; to="" ;;
+  M1) target=src/sortable/operation.ts
+      from="      this.#result = { type: 'noop', request: this.#request! };
+      return RECOVERY_HOME;"
+      to="      this.#result = { type: 'noop', request: this.#request! };
+      return RECOVERY_IMMEDIATE;" ;;
+  M2) target=src/sortable/operation.ts
+      from="return outcome.origin === 'fault' ? RECOVERY_IMMEDIATE : RECOVERY_HOME;"
+      to="return RECOVERY_HOME;" ;;
+  M3) target=src/sortable/operation.ts
+      from="return request.to === request.from"
+      to="return false" ;;
+  M4) target=src/shared/landing.ts
+      from="(local[0] === 0 && local[1] === 0)"
+      to="false" ;;
+  M5) target=src/lift.ts
+      from="            displacement.x - (named.x - rect.x),
+            displacement.y - (named.y - rect.y),"
+      to="            -(named.x - rect.x),
+            -(named.y - rect.y)," ;;
+  M6) target=src/sortable/operation.ts
+      from="      this.#result = { type: 'noop', request: this.#request! };
+      return RECOVERY_HOME;"
+      to="      this.#result = { type: 'noop', request: this.#request! };
+      return RECOVERY_DESTINATION;" ;;
+  M7) target=src/sortable/operation.ts
+      from="      request: this.#request!,
+    };
+
+    return RECOVERY_HOME;"
+      to="      request: this.#request!,
+    };
+
+    return RECOVERY_IMMEDIATE;" ;;
+  *) echo "unknown $id"; exit 2 ;;
+esac
+
+cd "$P" || exit 1
+if [ -n "$target" ]; then
+  FROM="$from" TO="$to" node -e '
+    const fs = require("fs"); const f = process.argv[1];
+    const s = fs.readFileSync(f, "utf8"); const a = process.env.FROM;
+    const n = s.split(a).length - 1;
+    if (n !== 1) { console.error("matches: " + n); process.exit(3); }
+    fs.writeFileSync(f, s.replace(a, process.env.TO));' "$target" || exit 3
+fi
+
+out="$S/runs/$id-$engine.txt"
+mkdir -p "$S/runs"
+MX_TEST_ENGINES="$engine" aube exec just test-engines --project 'browser*' "$file" >"$out" 2>&1
+code=$?
+
+if [ -n "$target" ]; then
+  git checkout -- "$target"
+fi
+
+summary=$(grep -E '^ +Tests ' "$out" | tail -1)
+fails=$(grep -E '^ +(×|✗|FAIL) ' "$out" | sed -E 's/ [0-9]+ms$//' | sort -u | wc -l)
+echo "$id $engine exit=$code $summary failing-lines=$fails"

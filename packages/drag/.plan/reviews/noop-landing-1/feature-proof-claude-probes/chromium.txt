@@ -1,0 +1,36 @@
+# packages/drag, Chromium, ba5cc19b0, 2026-11-27: aube exec just test --project 'browser*' tests/landing.browser.test.ts
+vitest run -c vitest.config.ts --project browser* tests/landing.browser.test.ts
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/worktrees/h/packages/drag
+
+
+ Test Files  1 passed (1)
+      Tests  35 passed (35)
+   Start at  10:31:24
+   Duration  9.50s (tests 89%, worker 9%, import 1%, setup 1%)
+
+
+# packages/drag, Chromium, ba5cc19b0: aube exec just test --project 'browser*'
+vitest run -c vitest.config.ts --project browser*
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/worktrees/h/packages/drag
+
+
+ Test Files  31 passed (31)
+      Tests  602 passed (602)
+   Start at  10:31:42
+   Duration  122.29s (tests 98%, worker 1%)
+
+
+# packages/material-x, Chromium, against drag rebuilt at ba5cc19b0: aube exec just test tests/list/sortable-list.browser.test.ts tests/list/sortable-list.spec.browser.test.ts
+ RUN  v5.1.0 /workspaces/worktrees/h/packages/material-x
+
+
+ Test Files  2 passed (2)
+      Tests  247 passed (247)
+   Start at  10:40:44
+   Duration  65.16s (tests 96%, worker 2%, import 1%)

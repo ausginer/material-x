@@ -1,0 +1,12 @@
+# The same file at 134809c64, Chromium, 2026-11-27: tests/landing.browser.test.ts, all rows.
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/worktrees/h/packages/drag
+
+
+ Test Files  1 passed (1)
+      Tests  35 passed (35)
+   Start at  10:27:34
+   Duration  9.06s (tests 92%, worker 7%, import 1%)
+
