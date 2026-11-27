@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Feature proof of #328: the unmutated Chromium run, the mutations, and the two probes (at the head and
+# under W2), in order, from slot d. Writes its readings next to this script.
+set -u
+S="$(cd "$(dirname "$0")" && pwd)"
+R=/workspaces/worktrees/d
+MX="${R:?}/packages/material-x"
+cd "${MX:?}" || exit 1
+MX_TEST_ENGINES=chromium timeout 2400 aube exec vitest run -c vitest.config.ts > "${S:?}/chromium.txt" 2>&1
+echo "rc=$?" >> "${S:?}/chromium.txt"
+
+cd "${R:?}" || exit 1
+node "${S:?}/mutations.mjs" > "${S:?}/mutations.txt" 2>&1
+echo "rc=$?" >> "${S:?}/mutations.txt"
+
+probe() {
+  local name="$1" out="$2" file="${MX:?}/tests/checkbox/zz-fp328-$1.spec.browser.test.ts"
+  cp "${S:?}/zz-fp328-${name}.spec.browser.test.ts" "${file:?}"
+  (cd "${MX:?}" && MX_TEST_ENGINES=chromium,firefox,webkit aube exec vitest run --project spec --project spec/firefox --project spec/webkit --silent=false "tests/checkbox/zz-fp328-${name}.spec.browser.test.ts" 2>&1) \
+    | sed 's/\x1b\[[0-9;]*m//g' | grep -E '^\{"engine|Tests  ' | sort > "${out:?}"
+  rm -f "${file:?}"
+}
+
+probe layers "${S:?}/layers.txt"
+probe disabled "${S:?}/disabled-head.txt"
+U="${MX:?}/src/checkbox/styles/utils.ts"
+cp "${U:?}" "${S:?}/utils.ts.orig"
+python3 - "${U:?}" <<'EOF'
+import sys
+p = sys.argv[1]
+s = open(p).read()
+old = "  pseudoClass('not', pseudoClass('disabled')),\n"
+assert s.count(old) == 1
+open(p, 'w').write(s.replace(old, ''))
+EOF
+probe disabled "${S:?}/disabled-w2.txt"
+cp "${S:?}/utils.ts.orig" "${U:?}"
+git -C "${R:?}" status --short > "${S:?}/status-after.txt"
+echo done >> "${S:?}/status-after.txt"

@@ -1,0 +1,39 @@
+# md.comp.checkbox's tokens from tproc's committed store at 00040d137 (node probes/tokens.mjs.txt), 2026-11-27. The selected value is the one-hop reference or literal in the rendered context.
+## the tokens with an error part
+md.comp.checkbox.unselected.error.focus.outline.color	live	{"tokenName":"md.sys.color.error"}
+md.comp.checkbox.unselected.error.outline.color	live	{"tokenName":"md.sys.color.error"}
+md.comp.checkbox.selected.error.container.color	live	{"tokenName":"md.sys.color.error"}
+md.comp.checkbox.unselected.error.pressed.outline.width	deprecated	{"length":{"value":2,"unit":"DIPS"}}
+md.comp.checkbox.selected.error.pressed.outline.width	deprecated	{"length":{"unit":"DIPS"}}
+md.comp.checkbox.selected.error.focus.outline.width	deprecated	{"length":{"unit":"DIPS"}}
+md.comp.checkbox.unselected.error.focus.outline.width	deprecated	{"length":{"value":2,"unit":"DIPS"}}
+md.comp.checkbox.selected.error.hover.outline.width	deprecated	{"length":{"unit":"DIPS"}}
+md.comp.checkbox.unselected.error.hover.outline.width	deprecated	{"length":{"value":2,"unit":"DIPS"}}
+md.comp.checkbox.error.focus.state-layer.opacity	live	{"tokenName":"md.sys.state.focus.state-layer-opacity"}
+md.comp.checkbox.selected.error.pressed.icon.color	live	{"tokenName":"md.sys.color.on-error"}
+md.comp.checkbox.selected.error.pressed.container.color	live	{"tokenName":"md.sys.color.error"}
+md.comp.checkbox.unselected.error.pressed.outline.color	live	{"tokenName":"md.sys.color.error"}
+md.comp.checkbox.error.pressed.state-layer.opacity	live	{"tokenName":"md.sys.state.pressed.state-layer-opacity"}
+md.comp.checkbox.error.pressed.state-layer.color	live	{"tokenName":"md.sys.color.error"}
+md.comp.checkbox.selected.error.focus.icon.color	live	{"tokenName":"md.sys.color.on-error"}
+md.comp.checkbox.selected.error.focus.container.color	live	{"tokenName":"md.sys.color.error"}
+md.comp.checkbox.error.focus.state-layer.color	live	{"tokenName":"md.sys.color.error"}
+md.comp.checkbox.selected.error.hover.icon.color	live	{"tokenName":"md.sys.color.on-error"}
+md.comp.checkbox.selected.error.hover.container.color	live	{"tokenName":"md.sys.color.error"}
+md.comp.checkbox.unselected.error.hover.outline.color	live	{"tokenName":"md.sys.color.error"}
+md.comp.checkbox.error.hover.state-layer.opacity	live	{"tokenName":"md.sys.state.hover.state-layer-opacity"}
+md.comp.checkbox.error.hover.state-layer.color	live	{"tokenName":"md.sys.color.error"}
+md.comp.checkbox.selected.error.icon.color	live	{"tokenName":"md.sys.color.on-error"}
+## other tokens the record cites
+selected.icon.color	{"tokenName":"md.sys.color.on-primary"}
+selected.disabled.icon.color	{"tokenName":"md.sys.color.surface"}
+selected.disabled.container.color	{"tokenName":"md.sys.color.on-surface"}
+selected.disabled.container.opacity	{"opacity":0.38}
+unselected.outline.color	{"tokenName":"md.sys.color.on-surface-variant"}
+unselected.disabled.outline.color	{"tokenName":"md.sys.color.on-surface"}
+unselected.disabled.container.opacity	{"opacity":0.38}
+selected.hover.state-layer.color	{"tokenName":"md.sys.color.primary"}
+unselected.hover.state-layer.color	{"tokenName":"md.sys.color.on-surface"}
+unselected.focus.state-layer.color	{"tokenName":"md.sys.color.on-surface"}
+unselected.pressed.state-layer.color	{"tokenName":"md.sys.color.primary"}
+selected.pressed.state-layer.color	{"tokenName":"md.sys.color.on-surface"}

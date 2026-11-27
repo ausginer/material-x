@@ -1,0 +1,43 @@
+# Reviewer probe at ba5cc19b0 (fixed) and with M1 applied (unfixed), each engine alone, 2026-11-27. The afterAll throw prints the lines.
+## fixed chromium
+PROBE chromium pointer-sideways-landing home=0,40 dropped=60,40 released=60,40 animations=add+replace timings=1 reads=2 log=start|end:noop
+PROBE chromium pointer-sideways-none home=0,40 dropped=60,40 released=0,40 animations=- timings=0 reads=1 log=start|end:noop
+PROBE chromium pointer-origin-landing home=0,40 dropped=0,40 released=0,40 animations=- timings=1 reads=2 log=start|end:noop
+PROBE chromium command-rebased-noop-landing=true before=0,0 released=0,0 animations=add+replace finished=0,40 timings=1 reads=3 rebased=true order=r1,r0,r2 log=start:command|end:noop
+PROBE chromium command-rebased-noop-landing=false before=0,0 released=0,40 animations=- finished=0,40 timings=0 reads=2 rebased=true order=r1,r0,r2 log=start:command|end:noop
+      Tests  5 passed (5)
+## fixed firefox
+PROBE firefox pointer-sideways-landing home=0,40 dropped=60,40 released=60,40 animations=add+replace timings=1 reads=2 log=start|end:noop
+PROBE firefox pointer-sideways-none home=0,40 dropped=60,40 released=0,40 animations=- timings=0 reads=1 log=start|end:noop
+PROBE firefox pointer-origin-landing home=0,40 dropped=0,40 released=0,40 animations=- timings=1 reads=2 log=start|end:noop
+PROBE firefox command-rebased-noop-landing=true before=0,0 released=0,0 animations=add+replace finished=0,40 timings=1 reads=3 rebased=true order=r1,r0,r2 log=start:command|end:noop
+PROBE firefox command-rebased-noop-landing=false before=0,0 released=0,40 animations=- finished=0,40 timings=0 reads=2 rebased=true order=r1,r0,r2 log=start:command|end:noop
+      Tests  5 passed (5)
+## fixed webkit
+PROBE webkit pointer-sideways-landing home=0,40 dropped=60,40 released=60,40 animations=add+replace timings=1 reads=2 log=start|end:noop
+PROBE webkit pointer-sideways-none home=0,40 dropped=60,40 released=0,40 animations=- timings=0 reads=1 log=start|end:noop
+PROBE webkit pointer-origin-landing home=0,40 dropped=0,40 released=0,40 animations=- timings=1 reads=6 log=start|end:noop
+PROBE webkit command-rebased-noop-landing=true before=0,0 released=0,0 animations=add+replace finished=0,40 timings=1 reads=3 rebased=true order=r1,r0,r2 log=start:command|end:noop
+PROBE webkit command-rebased-noop-landing=false before=0,0 released=0,40 animations=- finished=0,40 timings=0 reads=2 rebased=true order=r1,r0,r2 log=start:command|end:noop
+      Tests  5 passed (5)
+## unfixed chromium
+PROBE chromium pointer-sideways-landing home=0,40 dropped=60,40 released=0,40 animations=- timings=0 reads=1 log=start|end:noop
+PROBE chromium pointer-sideways-none home=0,40 dropped=60,40 released=0,40 animations=- timings=0 reads=1 log=start|end:noop
+PROBE chromium pointer-origin-landing home=0,40 dropped=0,40 released=0,40 animations=- timings=0 reads=1 log=start|end:noop
+PROBE chromium command-rebased-noop-landing=true before=0,0 released=0,40 animations=- finished=0,40 timings=0 reads=2 rebased=true order=r1,r0,r2 log=start:command|end:noop
+PROBE chromium command-rebased-noop-landing=false before=0,0 released=0,40 animations=- finished=0,40 timings=0 reads=2 rebased=true order=r1,r0,r2 log=start:command|end:noop
+      Tests  5 passed (5)
+## unfixed firefox
+PROBE firefox pointer-sideways-landing home=0,40 dropped=60,40 released=0,40 animations=- timings=0 reads=1 log=start|end:noop
+PROBE firefox pointer-sideways-none home=0,40 dropped=60,40 released=0,40 animations=- timings=0 reads=1 log=start|end:noop
+PROBE firefox pointer-origin-landing home=0,40 dropped=0,40 released=0,40 animations=- timings=0 reads=1 log=start|end:noop
+PROBE firefox command-rebased-noop-landing=true before=0,0 released=0,40 animations=- finished=0,40 timings=0 reads=2 rebased=true order=r1,r0,r2 log=start:command|end:noop
+PROBE firefox command-rebased-noop-landing=false before=0,0 released=0,40 animations=- finished=0,40 timings=0 reads=2 rebased=true order=r1,r0,r2 log=start:command|end:noop
+      Tests  5 passed (5)
+## unfixed webkit
+PROBE webkit pointer-sideways-landing home=0,40 dropped=60,40 released=0,40 animations=- timings=0 reads=1 log=start|end:noop
+PROBE webkit pointer-sideways-none home=0,40 dropped=60,40 released=0,40 animations=- timings=0 reads=1 log=start|end:noop
+PROBE webkit pointer-origin-landing home=0,40 dropped=0,40 released=0,40 animations=- timings=0 reads=5 log=start|end:noop
+PROBE webkit command-rebased-noop-landing=true before=0,0 released=0,40 animations=- finished=0,40 timings=0 reads=2 rebased=true order=r1,r0,r2 log=start:command|end:noop
+PROBE webkit command-rebased-noop-landing=false before=0,0 released=0,40 animations=- finished=0,40 timings=0 reads=2 rebased=true order=r1,r0,r2 log=start:command|end:noop
+      Tests  5 passed (5)

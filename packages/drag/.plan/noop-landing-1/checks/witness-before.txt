@@ -1,0 +1,106 @@
+# The rows of drag:DRF-58 at ba7c06803's code (operation.ts unfixed), Chromium, 2026-11-27, from packages/drag:
+#   aube exec vitest run -c vitest.config.ts --project 'browser*' tests/landing.browser.test.ts -t "own gap"
+# The nine own-gap rows fail; the fault row passes.
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/worktrees/h/packages/drag
+
+ ❯ |browser (chromium)| tests/landing.browser.test.ts (35 tests | 9 failed | 25 skipped) 2352ms
+   ❯ drag:DRI-13 sortable landing of a drop on the item's own gap (10)
+     × should land home from the drop position after a drag sideways, with y() 325ms
+     × should land home from the drop position after a drag into another slot and back, with y() 298ms
+     × should land home from the drop position after a drag within its slot, with y() 215ms
+     × should land home from the drop position after a drag sideways, with y() with a displacement 194ms
+     × should land home from the drop position after a drag into another slot and back, with y() with a displacement 299ms
+     × should land home from the drop position after a drag within its slot, with y() with a displacement 203ms
+     × should land home from the drop position after a drag sideways, with xy() 198ms
+     × should land home from the drop position after a drag into another slot and back, with xy() 290ms
+     × should land home from the drop position after a drag within its slot, with xy() 198ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:719 > drag:DRI-13 sortable landing of a drop on the item's own gap > should land home from the drop position after a drag sideways, with y()
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:719 > drag:DRI-13 sortable landing of a drop on the item's own gap > should land home from the drop position after a drag sideways, with y() with a displacement
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:719 > drag:DRI-13 sortable landing of a drop on the item's own gap > should land home from the drop position after a drag sideways, with xy()
+AssertionError: expected { dropped: false, …(2) } to deeply equal { dropped: false, …(2) }
+
+- Expected
++ Received
+
+  {
+    "dropped": false,
+-   "flights": 1,
+-   "released": "60,40",
++   "flights": 0,
++   "released": "0,40",
+  }
+
+ ❯ tests/landing.browser.test.ts:756:12
+    754|           released: topLeft(item),
+    755|           flights: flights(item),
+    756|         }).toEqual({ dropped: false, released: dropped, flights: 1 });
+       |            ^
+    757|         expect([asked, log]).toEqual([0, ['start', 'end:noop']]);
+    758|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:719 > drag:DRI-13 sortable landing of a drop on the item's own gap > should land home from the drop position after a drag into another slot and back, with y()
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:719 > drag:DRI-13 sortable landing of a drop on the item's own gap > should land home from the drop position after a drag into another slot and back, with y() with a displacement
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:719 > drag:DRI-13 sortable landing of a drop on the item's own gap > should land home from the drop position after a drag into another slot and back, with xy()
+AssertionError: expected { dropped: false, …(2) } to deeply equal { dropped: false, …(2) }
+
+- Expected
++ Received
+
+  {
+    "dropped": false,
+-   "flights": 1,
+-   "released": "0,44",
++   "flights": 0,
++   "released": "0,40",
+  }
+
+ ❯ tests/landing.browser.test.ts:756:12
+    754|           released: topLeft(item),
+    755|           flights: flights(item),
+    756|         }).toEqual({ dropped: false, released: dropped, flights: 1 });
+       |            ^
+    757|         expect([asked, log]).toEqual([0, ['start', 'end:noop']]);
+    758|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:719 > drag:DRI-13 sortable landing of a drop on the item's own gap > should land home from the drop position after a drag within its slot, with y()
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:719 > drag:DRI-13 sortable landing of a drop on the item's own gap > should land home from the drop position after a drag within its slot, with y() with a displacement
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:719 > drag:DRI-13 sortable landing of a drop on the item's own gap > should land home from the drop position after a drag within its slot, with xy()
+AssertionError: expected { dropped: false, …(2) } to deeply equal { dropped: false, …(2) }
+
+- Expected
++ Received
+
+  {
+    "dropped": false,
+-   "flights": 1,
+-   "released": "6,54",
++   "flights": 0,
++   "released": "0,40",
+  }
+
+ ❯ tests/landing.browser.test.ts:756:12
+    754|           released: topLeft(item),
+    755|           flights: flights(item),
+    756|         }).toEqual({ dropped: false, released: dropped, flights: 1 });
+       |            ^
+    757|         expect([asked, log]).toEqual([0, ['start', 'end:noop']]);
+    758|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed | 1 passed | 25 skipped (35)
+   Start at  10:19:29
+   Duration  3.35s (tests 78%, worker 19%, import 2%, setup 1%)
+

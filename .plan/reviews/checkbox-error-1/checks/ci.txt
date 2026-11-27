@@ -1,0 +1,37 @@
+# CI on 00040d137: run 45988263765 (https://github.com/ausginer/material-x/actions/runs/45988263765), read 2026-11-27.
+headSha 00040d137adcec33e0d57e0758ae33e6f1f5afd5, conclusion success
+scope: success (job 140469470843)
+system-deps (webkit): success (job 140469592955)
+static: success (job 140469592963)
+system-deps (firefox): success (job 140469593024)
+system-deps (chromium): success (job 140469593039)
+records: skipped (job 140469595261)
+chromium: success (job 140469771772)
+firefox: success (job 140469771827)
+measurements: success (job 140469771891)
+docs: success (job 140469771893)
+webkit: success (job 140469772142)
+deploy: skipped (job 140470662483)
+verify: success (job 140475654871)
+## job 140469771772
+      Tests  5560 passed | 2 expected fail | 12 skipped (5574)
+  MX_TEST_VISUAL: 1
+ Test Files  193 passed (193)
+ ✓  browser/material-x (chromium)  tests/axe.browser.test.ts (71 tests) 6662ms
+ ✓  spec/material-x (chromium)  tests/checkbox/checkbox.spec.browser.test.ts (17 tests) 1295ms
+ ✓  spec/material-x (chromium)  tests/core/focus-layer.spec.browser.test.ts (74 tests) 7539ms
+ ✓  visual/material-x (chromium)  tests/checkbox/checkbox.visual.browser.test.ts (5 tests) 821ms
+## job 140469771827
+      Tests  4373 passed | 3 expected fail | 201 skipped (4577)
+  MX_TEST_ENGINES: firefox
+ Test Files  137 passed | 1 skipped (138)
+ ↓  browser/material-x/firefox (firefox)  tests/axe.browser.test.ts (71 tests | 71 skipped)
+ ✓  spec/material-x/firefox (firefox)  tests/checkbox/checkbox.spec.browser.test.ts (17 tests) 994ms
+ ✓  spec/material-x/firefox (firefox)  tests/core/focus-layer.spec.browser.test.ts (74 tests) 6735ms
+## job 140469772142
+      Tests  4384 passed | 2 expected fail | 201 skipped (4587)
+  MX_TEST_ENGINES: webkit
+ Test Files  137 passed | 1 skipped (138)
+ ↓  browser/material-x/webkit (webkit)  tests/axe.browser.test.ts (71 tests | 71 skipped)
+ ✓  spec/material-x/webkit (webkit)  tests/checkbox/checkbox.spec.browser.test.ts (17 tests) 1116ms
+ ✓  spec/material-x/webkit (webkit)  tests/core/focus-layer.spec.browser.test.ts (74 tests) 6509ms

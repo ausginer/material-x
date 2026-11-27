@@ -568,6 +568,129 @@ describe('mx-sortable-list pointer', () => {
   );
 });
 
+describe('mx-sortable-list interactive item pointer', () => {
+  const ITEMS = [
+    ['mx-list-button-item', false],
+    ['mx-list-button-item', true],
+    ['mx-list-link-item', false],
+    ['mx-list-link-item', true],
+  ] as const;
+
+  /** Lifts the item by its handle, or by its surface without one. */
+  const liftItem = async (
+    item: HTMLElement,
+    handle: boolean,
+  ): Promise<void> => {
+    await lift(handle ? handleOf(item) : visualOf(item));
+  };
+
+  it.each(ITEMS)(
+    'should lift %s (handle: %s) in a pointer drag',
+    async (tag, handles) => {
+      const [, [a]] = await createList(['A', 'B'], { item: tag, handles });
+      await liftItem(a!, handles);
+
+      expect(isDragged(a!)).toBe(true);
+    },
+  );
+
+  it.each([false, true])(
+    'should keep the location of the page when a link item is released (handle: %s)',
+    async (handles) => {
+      const [list, [a]] = await createList(['A', 'B'], {
+        item: 'mx-list-link-item',
+        handles,
+      });
+      const before = location.href;
+      await liftItem(a!, handles);
+      await commands.pointerRelease();
+      await whenSettled(list, a!);
+
+      expect(location.href).toBe(before);
+    },
+  );
+
+  it("should make a link item's anchor not draggable", async () => {
+    const [, [a]] = await createList(['A'], { item: 'mx-list-link-item' });
+
+    expect(visualOf(a!).draggable).toBe(false);
+  });
+
+  it("should remove a link item's draggable once the item moves into mx-list", async () => {
+    const [, [a]] = await createList(['A'], { item: 'mx-list-link-item' });
+    const plain = document.createElement('mx-list');
+    document.body.append(plain);
+    plain.append(a!);
+    await nextFrame();
+
+    expect([
+      visualOf(a!).hasAttribute('draggable'),
+      visualOf(a!).draggable,
+    ]).toEqual([false, true]);
+  });
+});
+
+describe('mx-list-link-item native drag outside mx-sortable-list', () => {
+  /** Places a link item outside a sortable list, and returns its anchor. */
+  const PLACES = [
+    [
+      'in mx-list',
+      async (): Promise<HTMLElement> => {
+        const [, [a]] = await createList(['A'], {
+          tag: 'mx-list',
+          item: 'mx-list-link-item',
+        });
+        return visualOf(a!);
+      },
+    ],
+    [
+      'moved from mx-sortable-list into mx-list',
+      async (): Promise<HTMLElement> => {
+        const [, [a]] = await createList(['A'], { item: 'mx-list-link-item' });
+        const plain = document.createElement('mx-list');
+        document.body.append(plain);
+        plain.append(a!);
+        await nextFrame();
+        return visualOf(a!);
+      },
+    ],
+  ] as const;
+
+  // WebKit's driver starts no native drag of a link, inside the list or out.
+  it.skipIf(server.browser === 'webkit').each(PLACES)(
+    "should start the browser's own drag of a link item %s",
+    async (_, place) => {
+      const anchor = await place();
+      const sources: EventTarget[] = [];
+      document.addEventListener(
+        'dragstart',
+        (event) => {
+          sources.push(event.composedPath()[0]!);
+          event.preventDefault();
+        },
+        { capture: true, once: true },
+      );
+      await lift(anchor);
+      await commands.pointerRelease();
+
+      expect(sources).toEqual([anchor]);
+    },
+  );
+
+  // Firefox has no `-webkit-user-drag`. Chromium and WebKit read it to decide
+  // whether a link drags.
+  it.skipIf(server.browser === 'firefox').each(PLACES)(
+    "should leave the -webkit-user-drag of a link item's anchor auto %s",
+    async (_, place) => {
+      const anchor = await place();
+
+      expect(
+        getComputedStyle(anchor).getPropertyValue('-webkit-user-drag'),
+      ).toBe('auto');
+    },
+  );
+});
+
 describe('mx-sortable-list keyboard', () => {
   it('should move the item one slot on ArrowDown from its focused handle', async () => {
     const [list, [a, b, c]] = await createList(['A', 'B', 'C'], {

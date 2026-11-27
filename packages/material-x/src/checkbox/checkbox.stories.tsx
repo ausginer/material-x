@@ -39,6 +39,7 @@ type PlaygroundArgs = Readonly<{
   checked: boolean;
   indeterminate: boolean;
   disabled: boolean;
+  error: boolean;
 }>;
 
 export const Playground: StoryObj<PlaygroundArgs> = {
@@ -47,6 +48,7 @@ export const Playground: StoryObj<PlaygroundArgs> = {
     checked: false,
     indeterminate: false,
     disabled: false,
+    error: false,
   },
   argTypes: {
     label: {
@@ -61,8 +63,11 @@ export const Playground: StoryObj<PlaygroundArgs> = {
     disabled: {
       control: 'boolean',
     },
+    error: {
+      control: 'boolean',
+    },
   },
-  render({ label, checked, indeterminate, disabled }) {
+  render({ label, checked, indeterminate, disabled, error }) {
     const [, updateArgs] = useArgs<PlaygroundArgs>();
 
     return (
@@ -72,6 +77,7 @@ export const Playground: StoryObj<PlaygroundArgs> = {
           checked={checked}
           indeterminate={indeterminate}
           disabled={disabled}
+          error={error}
           onChange={() => {
             updateArgs({ checked: !checked });
           }}

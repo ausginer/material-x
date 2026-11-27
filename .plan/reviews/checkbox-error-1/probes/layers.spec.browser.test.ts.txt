@@ -1,0 +1,63 @@
+// Feature proof of #328: the state layer of a hovered or pressed checkbox in each selection, with
+// and without error, against the contracts. Copied into packages/material-x/tests/checkbox/ for a
+// run, and removed after it. Each case prints one JSON line.
+import { afterEach, describe, it } from 'vitest';
+import { commands, server, userEvent } from 'vitest/browser';
+import '../../src/checkbox/checkbox.ts';
+import { nextFrame, resolveComputed, settleAnimations } from '../browser.ts';
+
+afterEach(async () => {
+  await commands.pointerRelease().catch(() => {});
+  document.body.replaceChildren();
+});
+
+async function token(contract: string, state: string, name: string): Promise<string> {
+  const { values } = await commands.resolveTokenContract({ contract, state, tokens: [name] });
+  return String(values[name]!);
+}
+
+const SELECTIONS = [
+  ['unselected', [], 'unselected'],
+  ['checked', ['checked'], 'selected'],
+  ['indeterminate', ['indeterminate'], 'selected'],
+] as const;
+
+describe('fp328 layers', () => {
+  for (const [name, attributes, selection] of SELECTIONS) {
+    for (const error of [true, false]) {
+      for (const action of ['hover', 'pressed'] as const) {
+        it(`${name} error ${error} ${action}`, async () => {
+          const element = document.createElement('mx-checkbox');
+          for (const a of [...attributes, ...(error ? ['error'] : [])]) {
+            element.toggleAttribute(a, true);
+          }
+          document.body.append(element);
+          await nextFrame();
+
+          if (action === 'hover') {
+            await userEvent.hover(element);
+          } else {
+            const { left, top, width, height } = element.getBoundingClientRect();
+            await commands.pointerPress(left + width / 2, top + height / 2);
+          }
+
+          await nextFrame();
+          await settleAnimations(element);
+          // The hover layer is the ripple's ::before, and the press wave its ::after.
+          const ripple = element.shadowRoot!.querySelector<HTMLElement>('.ripple')!;
+          const layer = getComputedStyle(ripple, action === 'hover' ? '::before' : '::after');
+          const contract = error ? 'checkbox.error' : 'checkbox.default';
+          const state = error ? `error.${action}` : `${selection}.${action}`;
+          console.log(
+            JSON.stringify({
+              engine: server.browser,
+              case: `${name}, error ${error}, ${action}`,
+              observed: layer.backgroundColor,
+              expected: resolveComputed('color', await token(contract, state, 'state-layer.color')),
+            }),
+          );
+        });
+      }
+    }
+  }
+});

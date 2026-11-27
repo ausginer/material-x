@@ -1,0 +1,44 @@
+# Feature proof of #325 at 85a96ba5a: mutations, each run in Chromium, Firefox and WebKit at once, against tests/list/sortable-list.browser.test.ts, tests/list/sortable-list.spec.browser.test.ts and tests/core/elevation.spec.browser.test.ts (M5: the first only). Run 2026-11-27 from the slot's root with node probes/mutations.mjs.txt (saved as .txt). M5 edits drag's build, packages/drag/kernel/session.js, which material-x's tests import. Each file was restored after its run, and git status was clean after the last.
+## M1 sortItem sets no draggable on the anchor: 28 failed (chromium 8, firefox 19, webkit 1) — Tests  28 failed | 806 passed | 24 skipped (858)
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:588 > mx-sortable-list interactive item pointer > should lift mx-list-link-item (handle: false) in a pointer drag
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:613 > mx-sortable-list interactive item pointer > should make a link item's anchor not draggable
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:588 > mx-sortable-list interactive item pointer > should lift mx-list-link-item (handle: false) in a pointer drag
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:588 > mx-sortable-list interactive item pointer > should lift mx-list-link-item (handle: true) in a pointer drag
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:613 > mx-sortable-list interactive item pointer > should make a link item's anchor not draggable
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:613 > mx-sortable-list interactive item pointer > should make a link item's anchor not draggable
+  × |spec (chromium)| tests/core/elevation.spec.browser.test.ts:317 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-link-item)
+  × |spec (chromium)| tests/list/sortable-list.spec.browser.test.ts:139 > mx-sortable-list reorder contract > of a link item in a pointer drag > should render the container and content colors at once
+  × |spec (chromium)| tests/list/sortable-list.spec.browser.test.ts:158 > mx-sortable-list reorder contract > of a link item in a pointer drag > should render the shape
+  × |spec (chromium)| tests/list/sortable-list.spec.browser.test.ts:171 > mx-sortable-list reorder contract > of a link item in a pointer drag > should render the resting colors again after the drop
+  × |spec (chromium)| tests/list/sortable-list.spec.browser.test.ts:184 > mx-sortable-list reorder contract > should render the state layer on a link item in a pointer drag
+  × |spec (chromium)| tests/list/sortable-list.spec.browser.test.ts:241 > mx-sortable-list reorder contract > should keep the consumer's container color and shape on a link item
+  × |spec/firefox (firefox)| tests/core/elevation.spec.browser.test.ts:317 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-link-item)
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:139 > mx-sortable-list reorder contract > of a link item in a pointer drag > should render the container and content colors at once
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:158 > mx-sortable-list reorder contract > of a link item in a pointer drag > should render the shape
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:171 > mx-sortable-list reorder contract > of a link item in a pointer drag > should render the resting colors again after the drop
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:139 > mx-sortable-list reorder contract > of a link item by its handle in a pointer drag > should render the container and content colors at once
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:158 > mx-sortable-list reorder contract > of a link item by its handle in a pointer drag > should render the shape
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:171 > mx-sortable-list reorder contract > of a link item by its handle in a pointer drag > should render the resting colors again after the drop
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:139 > mx-sortable-list reorder contract > of a selected link item by its handle in a pointer drag > should render the container and content colors at once
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:158 > mx-sortable-list reorder contract > of a selected link item by its handle in a pointer drag > should render the shape
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:171 > mx-sortable-list reorder contract > of a selected link item by its handle in a pointer drag > should render the resting colors again after the drop
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:184 > mx-sortable-list reorder contract > should render the state layer on a link item in a pointer drag
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:184 > mx-sortable-list reorder contract > should render the state layer on a link item by its handle in a pointer drag
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:184 > mx-sortable-list reorder contract > should render the state layer on a selected link item by its handle in a pointer drag
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:241 > mx-sortable-list reorder contract > should keep the consumer's container color and shape on a link item
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:241 > mx-sortable-list reorder contract > should keep the consumer's container color and shape on a link item by its handle
+  × |spec/firefox (firefox)| tests/list/sortable-list.spec.browser.test.ts:241 > mx-sortable-list reorder contract > should keep the consumer's container color and shape on a selected link item by its handle
+## M2 the stylesheet has no -webkit-user-drag rule: 7 failed (chromium 7, firefox 0, webkit 0) — Tests  7 failed | 827 passed | 24 skipped (858)
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:588 > mx-sortable-list interactive item pointer > should lift mx-list-link-item (handle: false) in a pointer drag
+  × |spec (chromium)| tests/core/elevation.spec.browser.test.ts:317 > mx-list items elevation layers > should draw the three elevation layers of the dragged level (mx-list-link-item)
+  × |spec (chromium)| tests/list/sortable-list.spec.browser.test.ts:139 > mx-sortable-list reorder contract > of a link item in a pointer drag > should render the container and content colors at once
+  × |spec (chromium)| tests/list/sortable-list.spec.browser.test.ts:158 > mx-sortable-list reorder contract > of a link item in a pointer drag > should render the shape
+  × |spec (chromium)| tests/list/sortable-list.spec.browser.test.ts:171 > mx-sortable-list reorder contract > of a link item in a pointer drag > should render the resting colors again after the drop
+  × |spec (chromium)| tests/list/sortable-list.spec.browser.test.ts:184 > mx-sortable-list reorder contract > should render the state layer on a link item in a pointer drag
+  × |spec (chromium)| tests/list/sortable-list.spec.browser.test.ts:241 > mx-sortable-list reorder contract > should keep the consumer's container color and shape on a link item
+## M3 release leaves draggable on the anchor: 3 failed (chromium 1, firefox 1, webkit 1) — Tests  3 failed | 831 passed | 24 skipped (858)
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:619 > mx-sortable-list interactive item pointer > should restore a link item's native drag once the item moves into mx-list
+  × |browser/firefox (firefox)| tests/list/sortable-list.browser.test.ts:619 > mx-sortable-list interactive item pointer > should restore a link item's native drag once the item moves into mx-list
+  × |browser/webkit (webkit)| tests/list/sortable-list.browser.test.ts:619 > mx-sortable-list interactive item pointer > should restore a link item's native drag once the item moves into mx-list
+## M4 the -webkit-user-drag rule applies without the attribute: 0 failed (chromium 0, firefox 0, webkit 0) — passed
+## M5 drag arms no click guard (drag's build): 0 failed (chromium 0, firefox 0, webkit 0) — passed
