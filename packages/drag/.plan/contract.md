@@ -265,7 +265,7 @@ The consumer still owns `tabindex`, roles and any announcement of the new order.
 
 #### DRI-13 — Landing
 
-A landing runs only when `settle` named one with a `Landing`. It starts from the position last translated to. A landing that can't run, including a throw from `start`, is reported and skipped, and the outcome stands. It is cancelled by the same `Lifter`'s next `acquire` or by its `cancelLanding` at destruction, and not by a press that never activates. **A grab during a landing keeps the visual under the pointer:** the activation measures the visual with the flight's current offset, then cancels the flight before the first lifted frame.
+A landing runs only when `settle` named one with a `Landing`. `sortable` names a landing for every outcome but a fault: an accepted drop lands at its new place, and a rejection, a cancel and a drop on the item's own gap land home. It starts from the position last translated to. A landing that can't run, including a throw from `start`, is reported and skipped, and the outcome stands. It is cancelled by the same `Lifter`'s next `acquire` or by its `cancelLanding` at destruction, and not by a press that never activates. **A grab during a landing keeps the visual under the pointer:** the activation measures the visual with the flight's current offset, then cancels the flight before the first lifted frame.
 
 The library's `landing()` is additive and has these properties. A third-party `Landing` owns its own animation. Its cancel is held and called as above.
 
