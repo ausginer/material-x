@@ -1,0 +1,66 @@
+## useRovingTabindex input, bubbles flipped: 1 failed
+  × |browser (chromium)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+## useRovingTabindex input, cancelable flipped: 1 failed
+  × |browser (chromium)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+## useRovingTabindex input, composed flipped: 1 failed
+  × |browser (chromium)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+## useRovingTabindex change, bubbles flipped: 1 failed
+  × |browser (chromium)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+## useRovingTabindex change, cancelable flipped: 1 failed
+  × |browser (chromium)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+## useRovingTabindex change, composed flipped: 1 failed
+  × |browser (chromium)| tests/controllers/useRovingTabindex.browser.test.ts:1266 > useRovingTabindex > keyboard navigation > should emit native radio-like selection events in order
+## SwitchCore input, bubbles flipped: 4 failed
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-button activation events > should dispatch input and change after every click listener
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-icon-button activation events > should dispatch input and change after every click listener
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+## SwitchCore input, cancelable flipped: 2 failed
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+## SwitchCore input, composed flipped: 2 failed
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+## SwitchCore change, bubbles flipped: 4 failed
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-button activation events > should dispatch input and change after every click listener
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:127 > mx-switch-icon-button activation events > should dispatch input and change after every click listener
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+## SwitchCore change, cancelable flipped: 2 failed
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+## SwitchCore change, composed flipped: 2 failed
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-button activation events > should preserve native event interfaces and flags
+  × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:157 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+## CheckableCore change, bubbles flipped: 2 failed
+  × |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-checkbox activation > should preserve the native event flags
+  × |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-radio activation > should preserve the native event flags
+## CheckableCore change, cancelable flipped: 2 failed
+  × |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-checkbox activation > should preserve the native event flags
+  × |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-radio activation > should preserve the native event flags
+## CheckableCore change, composed flipped: 2 failed
+  × |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-checkbox activation > should preserve the native event flags
+  × |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:207 > mx-radio activation > should preserve the native event flags
+## TextFieldCore change, bubbles flipped: 2 failed
+  × |browser (chromium)| tests/text-field/text-field.browser.test.ts:428 > mx-text-field > should bridge change from the internal field to the host
+  × |browser (chromium)| tests/text-field/text-field.browser.test.ts:428 > mx-multiline-text-field > should bridge change from the internal field to the host
+## TextFieldCore change, cancelable flipped: 2 failed
+  × |browser (chromium)| tests/text-field/text-field.browser.test.ts:428 > mx-text-field > should bridge change from the internal field to the host
+  × |browser (chromium)| tests/text-field/text-field.browser.test.ts:428 > mx-multiline-text-field > should bridge change from the internal field to the host
+## TextFieldCore change, composed flipped: 2 failed
+  × |browser (chromium)| tests/text-field/text-field.browser.test.ts:428 > mx-text-field > should bridge change from the internal field to the host
+  × |browser (chromium)| tests/text-field/text-field.browser.test.ts:428 > mx-multiline-text-field > should bridge change from the internal field to the host
+## split-button secondaryaction, bubbles flipped: 1 failed
+  × |browser (chromium)| tests/button/split-button.browser.test.ts:64 > mx-split-button events > should emit a bubbling composed non-cancelable secondary action
+## split-button secondaryaction, cancelable flipped: 1 failed
+  × |browser (chromium)| tests/button/split-button.browser.test.ts:64 > mx-split-button events > should emit a bubbling composed non-cancelable secondary action
+## split-button secondaryaction, composed flipped: 1 failed
+  × |browser (chromium)| tests/button/split-button.browser.test.ts:64 > mx-split-button events > should emit a bubbling composed non-cancelable secondary action
+## ReorderEvent, bubbles flipped: 1 failed
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:203 > ReorderEvent > should bubble
+## ReorderEvent, cancelable flipped: 2 failed
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:211 > ReorderEvent > should be cancelable
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:2793 > mx-sortable-list neighbors > return > should animate the neighbor back when the page refuses a pointer drop
+## ReorderEvent, composed flipped: 2 failed
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:207 > ReorderEvent > should be composed
+  × |browser (chromium)| tests/list/sortable-list.browser.test.ts:234 > ReorderEvent > should cross a shadow boundary to the host

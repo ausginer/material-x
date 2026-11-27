@@ -1,0 +1,23 @@
+# CI on 94167bb33: run 45975245450 (https://github.com/ausginer/material-x/actions/runs/45975245450), read 2026-11-27.
+headSha 94167bb33e33f5b0a64b69d742e218f50ba22f02, conclusion success
+scope: success (job 140425236772)
+system-deps (webkit): success (job 140425410724)
+system-deps (firefox): success (job 140425410791)
+system-deps (chromium): success (job 140425410898)
+static: success (job 140425410921)
+records: skipped (job 140425413014)
+measurements: success (job 140425559268)
+webkit: success (job 140425559272)
+firefox: success (job 140425559288)
+chromium: success (job 140425559341)
+docs: success (job 140425560160)
+deploy: skipped (job 140426422908)
+verify: success (job 140431565465)
+## job 140425559288, totals
+      Tests  4328 passed | 3 expected fail | 201 skipped (4532)
+  MX_TEST_ENGINES: firefox
+ Test Files  137 passed | 1 skipped (138)
+## job 140425559272, totals
+      Tests  4339 passed | 2 expected fail | 201 skipped (4542)
+  MX_TEST_ENGINES: webkit
+ Test Files  137 passed | 1 skipped (138)
