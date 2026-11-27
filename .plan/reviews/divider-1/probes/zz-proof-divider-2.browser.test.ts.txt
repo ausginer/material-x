@@ -1,0 +1,76 @@
+// Feature proof of PR #343, second probe: readings, not rows. Placed in
+// tests/divider/ while it runs, then removed. Each `it` writes one JSON line.
+import { afterAll, describe, it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+import '../../src/card/card.ts';
+import '../../src/divider/divider.ts';
+import { nextFrame } from '../browser.ts';
+
+const lines: string[] = [];
+const label = (globalThis as { PROBE_LABEL?: string }).PROBE_LABEL ?? 'head';
+
+function log(name: string, value: unknown): void {
+  lines.push(`${server.browser} ${name} ${JSON.stringify(value)}`);
+}
+
+afterAll(async () => {
+  await commands.writeFile(
+    `./zz-proof-2-out-${server.browser}-${label}.txt`,
+    `${lines.join('\n')}\n`,
+  );
+});
+
+function mount(html: string): HTMLElement {
+  const host = document.createElement('div');
+  host.style.inlineSize = '320px';
+  host.innerHTML = html;
+  document.body.append(host);
+  return host;
+}
+
+describe('readings', () => {
+  it("a page's inline-size under a border-box reset", async () => {
+    const style = document.createElement('style');
+    style.textContent = '* { box-sizing: border-box; }';
+    document.head.append(style);
+    const host = mount(
+      '<mx-divider inset="start" style="inline-size: 200px"></mx-divider>',
+    );
+    await nextFrame();
+    const divider = host.querySelector('mx-divider')!;
+    const s = getComputedStyle(divider);
+    log('inline-size-under-border-box-reset', {
+      boxSizing: s.boxSizing,
+      boxWidth: divider.getBoundingClientRect().width,
+      lineWidth:
+        divider.getBoundingClientRect().width -
+        parseFloat(s.paddingLeft) -
+        parseFloat(s.paddingRight),
+    });
+    style.remove();
+  });
+
+  it('a vertical divider in the visual fixture\'s row, align-items: center', async () => {
+    const host = mount(
+      '<div style="display: flex; gap: 8px; block-size: 32px; align-items: center"><span>Before</span><mx-divider orientation="vertical"></mx-divider><span>After</span></div>',
+    );
+    await nextFrame();
+    const d = host.querySelector('mx-divider')!.getBoundingClientRect();
+    log('vertical-align-items-center', { width: d.width, height: d.height });
+  });
+
+  it('a horizontal direct child in a two-column grid card', async () => {
+    const host = mount(
+      '<mx-card style="display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px"><p id="a">A</p><mx-divider></mx-divider></mx-card>',
+    );
+    await nextFrame();
+    const card = host.querySelector('mx-card')!.getBoundingClientRect();
+    const a = host.querySelector('#a')!.getBoundingClientRect();
+    const d = host.querySelector('mx-divider')!.getBoundingClientRect();
+    log('grid-card', {
+      card: [card.left, card.right],
+      firstColumn: [a.left, a.right],
+      divider: [d.left, d.right],
+    });
+  });
+});

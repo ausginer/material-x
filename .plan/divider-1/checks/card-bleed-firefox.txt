@@ -1,0 +1,265 @@
+== full-width divider — plain page
+  current          start 16, end 16, top 69, w 288, h 1
+  slotted-padding  start 0, end 0, top 69, w 320, h 1
+  divider-margin   start 0, end 0, top 69, w 320, h 1
+  divider-static   start 0, end 0, top 69, w 320, h 1
+  divider-static-normal start 0, end 0, top 69, w 320, h 1
+  all-bleed        start 0, end 0, top 69, w 320, h 1
+== inset divider — plain page
+  current          start 32, end 16, top 69, w 272, h 1
+  slotted-padding  start 16, end 0, top 69, w 304, h 1
+  divider-margin   start 16, end 0, top 69, w 304, h 1
+  divider-static   start 16, end 0, top 69, w 304, h 1
+  divider-static-normal start 16, end 0, top 69, w 304, h 1
+  all-bleed        start 16, end 0, top 69, w 304, h 1
+== middle divider — plain page
+  current          start 32, end 32, top 69, w 256, h 1
+  slotted-padding  start 16, end 16, top 69, w 288, h 1
+  divider-margin   start 16, end 16, top 69, w 288, h 1
+  divider-static   start 16, end 16, top 69, w 288, h 1
+  divider-static-normal start 16, end 16, top 69, w 288, h 1
+  all-bleed        start 16, end 16, top 69, w 288, h 1
+== divider, page position: relative on it — plain page
+  current          start 16, end 16, top 69, w 288, h 1
+  slotted-padding  start 0, end 0, top 69, w 320, h 1
+  divider-margin   start 0, end 0, top 69, w 320, h 1
+  divider-static   start 0, end 0, top 69, w 320, h 1
+  divider-static-normal start 16, end 16, top 69, w 288, h 1
+  all-bleed        start 0, end 0, top 69, w 320, h 1
+== divider in a child div — plain page
+  current          start 16, end 16, top 69, w 288, h 1
+  slotted-padding  start 16, end 16, top 69, w 288, h 1
+  divider-margin   start 16, end 16, top 69, w 288, h 1
+  divider-static   start 16, end 16, top 69, w 288, h 1
+  divider-static-normal start 16, end 16, top 69, w 288, h 1
+  all-bleed        start 16, end 16, top 69, w 288, h 1
+== divider with a page margin-inline-start: 56px — plain page
+  current          start 72, end 16, top 69, w 232, h 1
+  slotted-padding  start 56, end 0, top 69, w 264, h 1
+  divider-margin   start 0, end 0, top 69, w 320, h 1
+  divider-static   start 0, end 0, top 69, w 320, h 1
+  divider-static-normal start 0, end 0, top 69, w 320, h 1
+  all-bleed        start 0, end 0, top 69, w 320, h 1
+== text in a p — plain page
+  current          start 16, end 275.2, top 32, w 28.8, h 21
+  slotted-padding  start 16, end 275.2, top 32, w 28.8, h 21
+  divider-margin   start 16, end 275.2, top 32, w 28.8, h 21
+  divider-static   start 16, end 275.2, top 32, w 28.8, h 21
+  divider-static-normal start 16, end 275.2, top 32, w 28.8, h 21
+  all-bleed        start 16, end 275.2, top 32, w 28.8, h 21
+== a text node — plain page
+  current          start 16, end 275.2, top 16, w 28.8, h 21
+  slotted-padding  start 0, end 291.2, top 0, w 28.8, h 21
+  divider-margin   start 16, end 275.2, top 16, w 28.8, h 21
+  divider-static   start 16, end 275.2, top 16, w 28.8, h 21
+  divider-static-normal start 16, end 275.2, top 16, w 28.8, h 21
+  all-bleed        start 16, end 275.2, top 16, w 28.8, h 21
+== a heading, first — plain page
+  current          start 16, end 257.4, top 16, w 46.6, h 32
+  slotted-padding  start 16, end 257.4, top 16, w 46.6, h 32
+  divider-margin   start 16, end 257.4, top 16, w 46.6, h 32
+  divider-static   start 16, end 257.4, top 16, w 46.6, h 32
+  divider-static-normal start 16, end 257.4, top 16, w 46.6, h 32
+  all-bleed        start 16, end 257.4, top 16, w 46.6, h 32
+== media, first, width 100% — plain page
+  current          start 16, end 16, top 16, w 288, h 40
+  slotted-padding  start 0, end -32, top 0, w 352, h 56
+  divider-margin   start 16, end 16, top 16, w 288, h 40
+  divider-static   start 16, end 16, top 16, w 288, h 40
+  divider-static-normal start 16, end 16, top 16, w 288, h 40
+  all-bleed        start 0, end 0, top 16, w 320, h 40
+== media in a div, first — plain page
+  current          start 16, end 16, top 16, w 288, h 40
+  slotted-padding  start 0, end 0, top 0, w 320, h 56
+  divider-margin   start 16, end 16, top 16, w 288, h 40
+  divider-static   start 16, end 16, top 16, w 288, h 40
+  divider-static-normal start 16, end 16, top 16, w 288, h 40
+  all-bleed        start 0, end 0, top 16, w 320, h 40
+== a button, direct — plain page
+  current          start 16, end 284.8, top 69, w 19.2, h 21
+  slotted-padding  start 0, end 300.8, top 69, w 19.2, h 21
+  divider-margin   start 16, end 284.8, top 69, w 19.2, h 21
+  divider-static   start 16, end 284.8, top 69, w 19.2, h 21
+  divider-static-normal start 16, end 284.8, top 69, w 19.2, h 21
+  all-bleed        start 16, end 284.8, top 69, w 19.2, h 21
+== a p with a page padding: 8px — plain page
+  current          start 24, end 267.2, top 40, w 28.8, h 21
+  slotted-padding  start 16, end 275.2, top 32, w 28.8, h 21
+  divider-margin   start 24, end 267.2, top 40, w 28.8, h 21
+  divider-static   start 24, end 267.2, top 40, w 28.8, h 21
+  divider-static-normal start 24, end 267.2, top 40, w 28.8, h 21
+  all-bleed        start 16, end 275.2, top 40, w 28.8, h 21
+== a p with a page margin-inline: 8px — plain page
+  current          start 24, end 267.2, top 32, w 28.8, h 21
+  slotted-padding  start 24, end 267.2, top 32, w 28.8, h 21
+  divider-margin   start 24, end 267.2, top 32, w 28.8, h 21
+  divider-static   start 24, end 267.2, top 32, w 28.8, h 21
+  divider-static-normal start 24, end 267.2, top 32, w 28.8, h 21
+  all-bleed        start 16, end 275.2, top 32, w 28.8, h 21
+== a div, border-box, width 100% — plain page
+  current          start 16, end 16, top 16, w 288, h 21
+  slotted-padding  start 0, end 0, top 0, w 320, h 53
+  divider-margin   start 16, end 16, top 16, w 288, h 21
+  divider-static   start 16, end 16, top 16, w 288, h 21
+  divider-static-normal start 16, end 16, top 16, w 288, h 21
+  all-bleed        start 0, end 32, top 16, w 288, h 21
+== nested element — plain page
+  current          start 16, end 275.2, top 32, w 28.8, h 21
+  slotted-padding  start 16, end 275.2, top 32, w 28.8, h 21
+  divider-margin   start 16, end 275.2, top 32, w 28.8, h 21
+  divider-static   start 16, end 275.2, top 32, w 28.8, h 21
+  divider-static-normal start 16, end 275.2, top 32, w 28.8, h 21
+  all-bleed        start 16, end 275.2, top 32, w 28.8, h 21
+== full-width divider — universal reset page
+  current          start 16, end 16, top 37, w 288, h 1
+  slotted-padding  start 0, end 0, top 37, w 320, h 1
+  divider-margin   start 0, end 0, top 37, w 320, h 1
+  divider-static   start 0, end 0, top 37, w 320, h 1
+  divider-static-normal start 0, end 0, top 37, w 320, h 1
+  all-bleed        start 0, end 0, top 37, w 320, h 1
+== inset divider — universal reset page
+  current          start 32, end 16, top 37, w 272, h 1
+  slotted-padding  start 16, end 0, top 37, w 304, h 1
+  divider-margin   start 16, end 0, top 37, w 304, h 1
+  divider-static   start 16, end 0, top 37, w 304, h 1
+  divider-static-normal start 16, end 0, top 37, w 304, h 1
+  all-bleed        start 16, end 0, top 37, w 304, h 1
+== middle divider — universal reset page
+  current          start 32, end 32, top 37, w 256, h 1
+  slotted-padding  start 16, end 16, top 37, w 288, h 1
+  divider-margin   start 16, end 16, top 37, w 288, h 1
+  divider-static   start 16, end 16, top 37, w 288, h 1
+  divider-static-normal start 16, end 16, top 37, w 288, h 1
+  all-bleed        start 16, end 16, top 37, w 288, h 1
+== divider, page position: relative on it — universal reset page
+  current          start 16, end 16, top 37, w 288, h 1
+  slotted-padding  start 0, end 0, top 37, w 320, h 1
+  divider-margin   start 0, end 0, top 37, w 320, h 1
+  divider-static   start 0, end 0, top 37, w 320, h 1
+  divider-static-normal start 16, end 16, top 37, w 288, h 1
+  all-bleed        start 0, end 0, top 37, w 320, h 1
+== divider in a child div — universal reset page
+  current          start 16, end 16, top 37, w 288, h 1
+  slotted-padding  start 16, end 16, top 37, w 288, h 1
+  divider-margin   start 16, end 16, top 37, w 288, h 1
+  divider-static   start 16, end 16, top 37, w 288, h 1
+  divider-static-normal start 16, end 16, top 37, w 288, h 1
+  all-bleed        start 16, end 16, top 37, w 288, h 1
+== divider with a page margin-inline-start: 56px — universal reset page
+  current          start 72, end 16, top 37, w 232, h 1
+  slotted-padding  start 56, end 0, top 37, w 264, h 1
+  divider-margin   start 0, end 0, top 37, w 320, h 1
+  divider-static   start 0, end 0, top 37, w 320, h 1
+  divider-static-normal start 0, end 0, top 37, w 320, h 1
+  all-bleed        start 0, end 0, top 37, w 320, h 1
+== text in a p — universal reset page
+  current          start 16, end 275.2, top 16, w 28.8, h 21
+  slotted-padding  start 16, end 275.2, top 16, w 28.8, h 21
+  divider-margin   start 16, end 275.2, top 16, w 28.8, h 21
+  divider-static   start 16, end 275.2, top 16, w 28.8, h 21
+  divider-static-normal start 16, end 275.2, top 16, w 28.8, h 21
+  all-bleed        start 16, end 275.2, top 16, w 28.8, h 21
+== a text node — universal reset page
+  current          start 16, end 275.2, top 16, w 28.8, h 21
+  slotted-padding  start 0, end 291.2, top 0, w 28.8, h 21
+  divider-margin   start 16, end 275.2, top 16, w 28.8, h 21
+  divider-static   start 16, end 275.2, top 16, w 28.8, h 21
+  divider-static-normal start 16, end 275.2, top 16, w 28.8, h 21
+  all-bleed        start 16, end 275.2, top 16, w 28.8, h 21
+== a heading, first — universal reset page
+  current          start 16, end 257.4, top 16, w 46.6, h 32
+  slotted-padding  start 16, end 257.4, top 16, w 46.6, h 32
+  divider-margin   start 16, end 257.4, top 16, w 46.6, h 32
+  divider-static   start 16, end 257.4, top 16, w 46.6, h 32
+  divider-static-normal start 16, end 257.4, top 16, w 46.6, h 32
+  all-bleed        start 16, end 257.4, top 16, w 46.6, h 32
+== media, first, width 100% — universal reset page
+  current          start 16, end 16, top 16, w 288, h 40
+  slotted-padding  start 0, end -32, top 0, w 352, h 56
+  divider-margin   start 16, end 16, top 16, w 288, h 40
+  divider-static   start 16, end 16, top 16, w 288, h 40
+  divider-static-normal start 16, end 16, top 16, w 288, h 40
+  all-bleed        start 0, end 0, top 16, w 320, h 40
+== media in a div, first — universal reset page
+  current          start 16, end 16, top 16, w 288, h 40
+  slotted-padding  start 0, end 0, top 0, w 320, h 56
+  divider-margin   start 16, end 16, top 16, w 288, h 40
+  divider-static   start 16, end 16, top 16, w 288, h 40
+  divider-static-normal start 16, end 16, top 16, w 288, h 40
+  all-bleed        start 0, end 0, top 16, w 320, h 40
+== a button, direct — universal reset page
+  current          start 16, end 284.8, top 37, w 19.2, h 21
+  slotted-padding  start 0, end 300.8, top 37, w 19.2, h 21
+  divider-margin   start 16, end 284.8, top 37, w 19.2, h 21
+  divider-static   start 16, end 284.8, top 37, w 19.2, h 21
+  divider-static-normal start 16, end 284.8, top 37, w 19.2, h 21
+  all-bleed        start 16, end 284.8, top 37, w 19.2, h 21
+== a p with a page padding: 8px — universal reset page
+  current          start 24, end 267.2, top 24, w 28.8, h 21
+  slotted-padding  start 16, end 275.2, top 16, w 28.8, h 21
+  divider-margin   start 24, end 267.2, top 24, w 28.8, h 21
+  divider-static   start 24, end 267.2, top 24, w 28.8, h 21
+  divider-static-normal start 24, end 267.2, top 24, w 28.8, h 21
+  all-bleed        start 16, end 275.2, top 24, w 28.8, h 21
+== a p with a page margin-inline: 8px — universal reset page
+  current          start 24, end 267.2, top 16, w 28.8, h 21
+  slotted-padding  start 24, end 267.2, top 16, w 28.8, h 21
+  divider-margin   start 24, end 267.2, top 16, w 28.8, h 21
+  divider-static   start 24, end 267.2, top 16, w 28.8, h 21
+  divider-static-normal start 24, end 267.2, top 16, w 28.8, h 21
+  all-bleed        start 16, end 275.2, top 16, w 28.8, h 21
+== a div, border-box, width 100% — universal reset page
+  current          start 16, end 16, top 16, w 288, h 21
+  slotted-padding  start 0, end 0, top 0, w 320, h 53
+  divider-margin   start 16, end 16, top 16, w 288, h 21
+  divider-static   start 16, end 16, top 16, w 288, h 21
+  divider-static-normal start 16, end 16, top 16, w 288, h 21
+  all-bleed        start 0, end 32, top 16, w 288, h 21
+== nested element — universal reset page
+  current          start 16, end 275.2, top 16, w 28.8, h 21
+  slotted-padding  start 16, end 275.2, top 16, w 28.8, h 21
+  divider-margin   start 16, end 275.2, top 16, w 28.8, h 21
+  divider-static   start 16, end 275.2, top 16, w 28.8, h 21
+  divider-static-normal start 16, end 275.2, top 16, w 28.8, h 21
+  all-bleed        start 16, end 275.2, top 16, w 28.8, h 21
+
+== --md-card-padding: 8px 24px (block, inline), plain page
+  full-width divider
+    current          start 24, end 24, top 61, w 272, h 1
+    slotted-padding  start 0, end 0, top 53, w 320, h 1
+    divider-margin   start 24, end 24, top 61, w 272, h 1
+    divider-static   start 0, end 0, top 61, w 320, h 1
+    divider-static-normal start 0, end 0, top 61, w 320, h 1
+    all-bleed        start 24, end 24, top 61, w 272, h 1
+  inset divider
+    current          start 40, end 24, top 61, w 256, h 1
+    slotted-padding  start 16, end 0, top 53, w 304, h 1
+    divider-margin   start 40, end 24, top 61, w 256, h 1
+    divider-static   start 16, end 0, top 61, w 304, h 1
+    divider-static-normal start 16, end 0, top 61, w 304, h 1
+    all-bleed        start 40, end 24, top 61, w 256, h 1
+  text in a p
+    current          start 24, end 267.2, top 24, w 28.8, h 21
+    slotted-padding  start 8, end 283.2, top 16, w 28.8, h 21
+    divider-margin   start 24, end 267.2, top 24, w 28.8, h 21
+    divider-static   start 24, end 267.2, top 24, w 28.8, h 21
+    divider-static-normal start 24, end 267.2, top 24, w 28.8, h 21
+    all-bleed        start 32, end 259.2, top 24, w 28.8, h 21
+
+== a page display: flex on the card, with a vertical divider between two p, plain page
+  current          start 32.9, end 286.1, top 16, w 1, h 21
+  slotted-padding  start 48.9, end 238.1, top 0, w 33, h 37
+  divider-margin   start 32.9, end 286.1, top 16, w 1, h 21
+  divider-static   start 32.9, end 286.1, top 16, w 1, h 21
+  divider-static-normal start 32.9, end 286.1, top 16, w 1, h 21
+  all-bleed        start 16.9, end 270.1, top 16, w 33, h 21
+
+== a page display: grid, two columns, on the card: the second column's text, plain page
+  current          start 160, end 150.1, top 16, w 9.9, h 21
+  slotted-padding  start 176, end 134.1, top 0, w 9.9, h 21
+  divider-margin   start 160, end 150.1, top 16, w 9.9, h 21
+  divider-static   start 160, end 150.1, top 16, w 9.9, h 21
+  divider-static-normal start 160, end 150.1, top 16, w 9.9, h 21
+  all-bleed        start 160, end 150.1, top 16, w 9.9, h 21
+
+firefox 159.0

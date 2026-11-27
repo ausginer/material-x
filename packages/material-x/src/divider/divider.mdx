@@ -1,0 +1,113 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { ApiTables } from '../../../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../../../.storybook/docs/DocCopy.ts';
+import { Source } from '../../../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../../../.storybook/docs/SummaryOrWarning.tsx';
+import { ThemeToggleLink } from '../../../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../../../.storybook/docs/cem.ts';
+import * as Stories from './divider.stories';
+
+export const TAG = 'mx-divider';
+
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
+
+export const importSnippet = "import '@ydinjs/material-x/divider/divider.js';";
+export const usageSnippet = `<mx-list>
+  <mx-list-item>Inbox</mx-list-item>
+  <mx-divider inset="start"></mx-divider>
+  <mx-list-item>Trash</mx-list-item>
+</mx-list>`;
+
+<Meta of={Stories} />
+
+# Divider
+
+## Summary
+
+<SummaryOrWarning summary={summary} tag={TAG} />
+
+## When to use
+
+- Use to group content in a list or a container, such as the sections of a list.
+- Use a full-width divider to separate the interactive and non-interactive areas of a container, such as a card.
+- Use a vertical divider to arrange content side by side on a larger screen.
+
+## When not to use
+
+- To separate every item of a list: use dividers to group things, not to separate individual items.
+- Where spacing alone already separates the content.
+- In `mx-sortable-list`, which would sort the divider with its items.
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Insets
+
+Omit `inset` for a full-width divider. `inset="start"` indents the line by 16px at the start, and `inset="middle"` by 16px at both ends. The insets are logical, so they mirror in a right-to-left container. The divider has no margin of its own: the space around it is the layout's.
+
+<Canvas of={Stories.Insets} />
+
+## Vertical
+
+`orientation="vertical"` draws a vertical line. A vertical divider is as high as the layout makes it: a flex row or a grid stretches it, and elsewhere give it a height. Its insets apply along the line, from its block start.
+
+<Canvas of={Stories.Vertical} />
+
+## In a list
+
+Put the divider directly in `mx-list`, between items. `inset="start"` lines the divider up with the items' content. Don't give a divider in a list `role="separator"`: a list may contain only list items.
+
+<Canvas of={Stories.InAList} />
+
+## In a card
+
+A horizontal divider that is a direct child of `mx-card` reaches the card's edges, and its inset is measured from the card's edge. Its inline margin doesn't apply there, and its block margin does. A divider inside another element of the card spans that element.
+
+<Canvas of={Stories.InACard} />
+
+## Accessibility
+
+- **Role:** The divider is decorative: it has no role and isn't in the accessibility tree. Don't give a decorative divider an `aria-label`, which makes it a node.
+- **Announced separator:** Set `role="separator"` on a divider that assistive technology should announce, outside a list. A vertical separator is announced as vertical, and an `aria-orientation` that you set stands.
+- **Keyboard:** The divider adds no tab stop.
+- **Contrast:** Dividers are decorative elements, which have no contrast minimums.
+- **Forced colors:** The line is drawn in `CanvasText`.
+
+## Anatomy
+
+- The host is the line. It has no slot and no part.
+
+## Theming
+
+- `--md-divider-color` and `--md-divider-thickness` override the line's color and thickness.
+- Works with the global Storybook light/dark theme toggle. <ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
+
+## API reference
+
+<ApiTables tag={TAG} />
+
+## Material 3 reference and deltas
+
+- Material 3 overview: [https://m3.material.io/components/divider/overview](https://m3.material.io/components/divider/overview)
+- Material 3 specs: [https://m3.material.io/components/divider/specs](https://m3.material.io/components/divider/specs)
+- Deltas:
+  - The inset is 16px at the start, as the specification's measurements give it. Its guidelines say that an inset divider is indented from both sides, which is the middle inset here.
+  - The vertical divider's insets are this component's choice, because Material 3 has no measurement for them.
+  - API metadata in this page is generated from the local CEM output.
+
+## Changelog / stability
+
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}

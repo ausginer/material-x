@@ -18,6 +18,7 @@
     "card",
     "checkbox",
     "custom-elements.json",
+    "divider",
     "fab",
     "icon",
     "list",
@@ -68,6 +69,10 @@
     "./checkbox/checkbox.js": {
       "types": "./checkbox/checkbox.d.ts",
       "default": "./checkbox/checkbox.js"
+    },
+    "./divider/divider.js": {
+      "types": "./divider/divider.d.ts",
+      "default": "./divider/divider.js"
     },
     "./fab/fab.js": {
       "types": "./fab/fab.d.ts",

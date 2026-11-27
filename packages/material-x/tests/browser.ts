@@ -11,6 +11,8 @@
  * conversion.
  */
 
+import { page } from 'vitest/browser';
+
 /** Resolves after the next animation frame, so slot/layout updates settle. */
 export async function nextFrame(): Promise<void> {
   await new Promise<void>((resolve) => {
@@ -115,4 +117,22 @@ export async function settleAnimations(element: HTMLElement): Promise<void> {
  */
 export async function contextResolved(): Promise<void> {
   await Promise.resolve();
+}
+
+/**
+ * The pixels that `frame` paints, from a screenshot of it after two frames, so
+ * a row can read what the engine painted rather than a box it laid out.
+ */
+export async function capture(frame: HTMLElement): Promise<ImageData> {
+  await nextFrame();
+  await nextFrame();
+  const image = new Image();
+  image.src = `data:image/png;base64,${await page.screenshot({ element: frame, save: false })}`;
+  await image.decode();
+  const canvas = document.createElement('canvas');
+  canvas.width = image.width;
+  canvas.height = image.height;
+  const context = canvas.getContext('2d')!;
+  context.drawImage(image, 0, 0);
+  return context.getImageData(0, 0, image.width, image.height);
 }

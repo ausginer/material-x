@@ -78,7 +78,7 @@ Each component combines the core runtime and token processor:
 - **The focus target can't be a container.** A component whose semantics need a native element that can't hold the component's other parts — an `<input>` or a `<textarea>` — makes that element its focus target and has no `.host`. Today these are `mx-checkbox`, `mx-radio`, `mx-text-field` and `mx-multiline-text-field`. They draw their focus indicator and focus layer from the element's `:focus-visible` through later siblings. A container that can give the same semantics, such as a `<button>` with a role, takes precedence: the exception doesn't apply when a component chooses such an element.
 - **Only a slot.** `mx-icon`, `mx-list`, `mx-button-group` and `mx-connected-button-group` render their children through one `<slot>`, take no focus of their own, and have no `.host`.
 - **A composite.** `mx-split-button`'s `.host` is the root and doesn't take focus. Its focus stops are nested material-x components that meet the invariant.
-- **The host is the box.** A component whose box would be a plain container, with no native element whose behavior it needs, has no `.host` and no part `impl`. Its host is its box, carries its layout and its styles on `:host`, and is the element that takes focus when the component does. Today this is `mx-list-item`.
+- **The host is the box.** A component whose box would be a plain container, with no native element whose behavior it needs, has no `.host` and no part `impl`. Its host is its box, carries its layout and its styles on `:host`, and is the element that takes focus when the component does. Today this is `mx-list-item` and `mx-divider`.
 
 A new component meets the invariant, or the record states which exception it falls under.
 

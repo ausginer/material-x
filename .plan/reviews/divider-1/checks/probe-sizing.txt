@@ -1,0 +1,17 @@
+# probes/zz-proof-divider-2.browser.test.ts.txt at 540c238a9, in the three engines; and once in Chromium with the host's 'box-sizing: content-box !important' removed (no-box-sizing). Card and column figures are px from the viewport's left edge.
+## chromium-head
+chromium inline-size-under-border-box-reset {"boxSizing":"content-box","boxWidth":216,"lineWidth":200}
+chromium vertical-align-items-center {"width":1,"height":0}
+chromium grid-card {"card":[24,344],"firstColumn":[40,176],"divider":[176,344]}
+## firefox-head
+firefox inline-size-under-border-box-reset {"boxSizing":"content-box","boxWidth":216,"lineWidth":200}
+firefox vertical-align-items-center {"width":1,"height":0}
+firefox grid-card {"card":[24,344],"firstColumn":[40,176],"divider":[176,344]}
+## webkit-head
+webkit inline-size-under-border-box-reset {"boxSizing":"content-box","boxWidth":216,"lineWidth":200}
+webkit vertical-align-items-center {"width":1,"height":0}
+webkit grid-card {"card":[24,344],"firstColumn":[40,176],"divider":[176,344]}
+## chromium-no-box-sizing
+chromium inline-size-under-border-box-reset {"boxSizing":"border-box","boxWidth":200,"lineWidth":184}
+chromium vertical-align-items-center {"width":1,"height":0}
+chromium grid-card {"card":[24,344],"firstColumn":[40,176],"divider":[176,344]}

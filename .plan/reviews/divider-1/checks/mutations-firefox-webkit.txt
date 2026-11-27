@@ -1,0 +1,101 @@
+# python3 -I mutations.py firefox|webkit <names>, at 540c238a9, slot c, one engine at a time. Each mutation edits one source file, runs the named test file, and restores the file.
+== padding-not-important [firefox]: packages/material-x/src/divider/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  × should keep a start line under a universal reset
+  × should keep a middle line under a universal reset
+  × should keep a full-width line under a page's padding on the divider
+  × should keep a start line under a page's padding on the divider
+  × should keep a middle line under a page's padding on the divider
+  × should measure a start inset from the card's edges under a universal reset
+  × should measure a middle inset from the card's edges under a universal reset
+  Tests  7 failed | 38 passed (45)
+== no-forced-colors [firefox]: packages/material-x/src/divider/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  × should draw the line in CanvasText
+  Tests  1 failed | 44 passed (45)
+== no-card-rule [firefox]: packages/material-x/src/card/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  × should span the card's border box with the default padding
+  × should span the card's border box with --md-card-padding-inline: 24px
+  × should span the card's border box with a block padding that differs
+  × should measure a full-width inset from the card's edges
+  × should measure a start inset from the card's edges
+  × should measure a middle inset from the card's edges
+  × should mirror a full-width inset from the card's edges in a right-to-left card
+  × should mirror a start inset from the card's edges in a right-to-left card
+  × should mirror a middle inset from the card's edges in a right-to-left card
+  × should measure a full-width inset from the card's edges under a universal reset
+  × should measure a start inset from the card's edges under a universal reset
+  × should measure a middle inset from the card's edges under a universal reset
+  × should ignore the page's margin-inline-start on the divider
+  Tests  13 failed | 32 passed (45)
+== line-outside-box [firefox]: packages/material-x/src/divider/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  × should draw the line in the tokenized color
+  × should draw the vertical line in the tokenized color
+  × should take its color from --md-divider-color
+  × should draw the line in CanvasText
+  × should paint a start line from 16px of the border box
+  Tests  5 failed | 40 passed (45)
+== no-background-clip [firefox]: packages/material-x/src/divider/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  × should paint only its content box
+  × should paint a start line from 16px of the border box
+  Tests  2 failed | 43 passed (45)
+== vertical-insets-inline [firefox]: packages/material-x/src/divider/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  × should measure a start inset from the block start of a 48px flex row
+  × should measure a middle inset from the block start of a 48px flex row
+  Tests  2 failed | 43 passed (45)
+== card-rule-all [firefox]: packages/material-x/src/card/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  Tests  45 passed (45)
+== card-rule-fixed [firefox]: packages/material-x/src/card/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  × should span the card's border box with --md-card-padding-inline: 24px
+  × should span the card's border box with --md-card-padding-inline: 0
+  × should span the card's border box with a block padding that differs
+  Tests  3 failed | 42 passed (45)
+== no-box-sizing [firefox]: packages/material-x/src/divider/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  Tests  45 passed (45)
+== padding-not-important [webkit]: packages/material-x/src/divider/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  × should keep a start line under a universal reset
+  × should keep a middle line under a universal reset
+  × should keep a full-width line under a page's padding on the divider
+  × should keep a start line under a page's padding on the divider
+  × should keep a middle line under a page's padding on the divider
+  × should measure a start inset from the card's edges under a universal reset
+  × should measure a middle inset from the card's edges under a universal reset
+  Tests  7 failed | 37 passed | 1 skipped (45)
+== no-forced-colors [webkit]: packages/material-x/src/divider/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  Tests  44 passed | 1 skipped (45)
+== no-card-rule [webkit]: packages/material-x/src/card/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  × should span the card's border box with the default padding
+  × should span the card's border box with --md-card-padding-inline: 24px
+  × should span the card's border box with a block padding that differs
+  × should measure a full-width inset from the card's edges
+  × should measure a start inset from the card's edges
+  × should measure a middle inset from the card's edges
+  × should mirror a full-width inset from the card's edges in a right-to-left card
+  × should mirror a start inset from the card's edges in a right-to-left card
+  × should mirror a middle inset from the card's edges in a right-to-left card
+  × should measure a full-width inset from the card's edges under a universal reset
+  × should measure a start inset from the card's edges under a universal reset
+  × should measure a middle inset from the card's edges under a universal reset
+  × should ignore the page's margin-inline-start on the divider
+  Tests  13 failed | 31 passed | 1 skipped (45)
+== line-outside-box [webkit]: packages/material-x/src/divider/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  × should draw the line in the tokenized color
+  × should draw the vertical line in the tokenized color
+  × should take its color from --md-divider-color
+  × should paint a start line from 16px of the border box
+  Tests  4 failed | 40 passed | 1 skipped (45)
+== no-background-clip [webkit]: packages/material-x/src/divider/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  × should paint only its content box
+  × should paint a start line from 16px of the border box
+  Tests  2 failed | 42 passed | 1 skipped (45)
+== vertical-insets-inline [webkit]: packages/material-x/src/divider/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  × should measure a start inset from the block start of a 48px flex row
+  × should measure a middle inset from the block start of a 48px flex row
+  Tests  2 failed | 42 passed | 1 skipped (45)
+== card-rule-all [webkit]: packages/material-x/src/card/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  Tests  44 passed | 1 skipped (45)
+== card-rule-fixed [webkit]: packages/material-x/src/card/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  × should span the card's border box with --md-card-padding-inline: 24px
+  × should span the card's border box with --md-card-padding-inline: 0
+  × should span the card's border box with a block padding that differs
+  Tests  3 failed | 41 passed | 1 skipped (45)
+== no-box-sizing [webkit]: packages/material-x/src/divider/styles/default/main.styles.css (tests/divider/divider.spec.browser.test.ts)
+  Tests  44 passed | 1 skipped (45)

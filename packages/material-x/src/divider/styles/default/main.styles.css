@@ -1,0 +1,55 @@
+/*
+ * The host is the line: its own background, clipped to its content box, with
+ * the insets as its own padding. `mx-card` pulls a horizontal divider's box out
+ * to its edges (`card/styles/default/main.styles.css`), and the line and its
+ * insets follow the box.
+ *
+ * A page rule beats `:host`, but not its `!important` declarations, so a
+ * page's universal reset or `padding` on the divider moves neither the line nor
+ * its insets. A page's `margin` on the divider applies.
+ *
+ * The 16px inset is M3's _Measurements_, which no token gives.
+ */
+:host {
+  display: block;
+  box-sizing: content-box !important;
+  padding: 0 !important;
+  block-size: var(--md-divider-thickness, var(--_thickness));
+  background-color: var(--md-divider-color, var(--_color));
+  background-clip: content-box !important;
+}
+
+:host(:state(start)) {
+  padding-inline-start: 16px !important;
+}
+
+:host(:state(middle)) {
+  padding-inline: 16px !important;
+}
+
+/*
+ * A vertical divider is as high as the layout makes it: a flex row or a grid
+ * stretches it, and elsewhere the page gives it a height. Its insets apply
+ * along the line, from its block start.
+ */
+:host(:state(vertical)) {
+  inline-size: var(--md-divider-thickness, var(--_thickness));
+  block-size: auto;
+}
+
+:host(:state(vertical):state(start)) {
+  padding-inline: 0 !important;
+  padding-block: 16px 0 !important;
+}
+
+:host(:state(vertical):state(middle)) {
+  padding-inline: 0 !important;
+  padding-block: 16px !important;
+}
+
+/* Forced colors paint the background `Canvas`, which hides the line. */
+@media (forced-colors: active) {
+  :host {
+    background-color: CanvasText;
+  }
+}

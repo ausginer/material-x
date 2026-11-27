@@ -1,0 +1,82 @@
+// Architect's probe for #343's ruling: readings, not rows. Removed after it ran.
+import { afterAll, describe, it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+import '../../src/card/card.ts';
+import '../../src/divider/divider.ts';
+import '../../src/list/list.ts';
+import '../../src/list/list-item.ts';
+import { nextFrame } from '../browser.ts';
+
+const lines: string[] = [];
+const label = import.meta.env['VITE_PROBE_LABEL'] ?? 'head';
+
+function log(name: string, value: unknown): void {
+  lines.push(`${server.browser} ${label} ${name} ${JSON.stringify(value)}`);
+}
+
+afterAll(async () => {
+  await commands.writeFile(
+    `./zz-arch-out-${server.browser}-${label}.txt`,
+    `${lines.join('\n')}\n`,
+  );
+});
+
+function mount(html: string): HTMLElement {
+  const host = document.createElement('div');
+  host.style.inlineSize = '320px';
+  host.innerHTML = html;
+  document.body.append(host);
+  return host;
+}
+
+function size(el: Element): [number, number] {
+  const r = el.getBoundingClientRect();
+  return [r.width, r.height];
+}
+
+const cases: Record<string, string> = {
+  'list-scrolls': `<mx-list style="block-size: 120px; overflow: auto">${Array.from(
+    { length: 3 },
+    (_, i) => `<mx-list-item>Item ${i}</mx-list-item>`,
+  ).join('')}<mx-divider></mx-divider>${Array.from(
+    { length: 3 },
+    (_, i) => `<mx-list-item>Item ${i}</mx-list-item>`,
+  ).join('')}</mx-list>`,
+  'row-overflows': `<div style="display: flex; block-size: 48px; inline-size: 200px"><span style="flex: none; inline-size: 150px">A</span><mx-divider orientation="vertical"></mx-divider><span style="flex: none; inline-size: 150px">B</span></div>`,
+  'row-centered': `<div style="display: flex; gap: 8px; block-size: 32px; align-items: center"><span>A</span><mx-divider orientation="vertical"></mx-divider><span>B</span></div>`,
+  'row-centered-auto-height': `<div style="display: flex; gap: 8px; align-items: center"><span style="block-size: 40px; inline-size: 40px; display: block"></span><mx-divider orientation="vertical"></mx-divider><span>B</span></div>`,
+  'row-centered-start-inset': `<div style="display: flex; block-size: 48px; align-items: center"><span>A</span><mx-divider orientation="vertical" inset="start"></mx-divider><span>B</span></div>`,
+  'row-page-align-self-center': `<div style="display: flex; block-size: 32px"><span>A</span><mx-divider orientation="vertical" style="align-self: center"></mx-divider><span>B</span></div>`,
+  'row-page-block-size': `<div style="display: flex; block-size: 32px; align-items: center"><span>A</span><mx-divider orientation="vertical" style="block-size: 20px"></mx-divider><span>B</span></div>`,
+  'column-centered': `<div style="display: flex; flex-direction: column; align-items: center"><span>A</span><mx-divider></mx-divider><span>B</span></div>`,
+  'grid-align-center': `<div style="display: grid; grid-template-columns: auto auto auto; block-size: 32px; align-items: center"><span>A</span><mx-divider orientation="vertical"></mx-divider><span>B</span></div>`,
+  'grid-justify-center': `<div style="display: grid; justify-items: center"><span>A</span><mx-divider></mx-divider><span>B</span></div>`,
+  'block-horizontal': `<div><mx-divider></mx-divider></div>`,
+  'card-horizontal': `<mx-card><p>A</p><mx-divider></mx-divider><p>B</p></mx-card>`,
+  'card-flex-column-centered': `<mx-card style="display: flex; flex-direction: column; align-items: center"><p>A</p><mx-divider></mx-divider><p>B</p></mx-card>`,
+  'card-flex-row-vertical': `<mx-card style="display: flex; align-items: center; block-size: 80px"><p>A</p><mx-divider orientation="vertical"></mx-divider><p>B</p></mx-card>`,
+};
+
+describe('readings', () => {
+  for (const [name, html] of Object.entries(cases)) {
+    it(name, async () => {
+      const host = mount(html);
+      await nextFrame();
+      const d = host.querySelector('mx-divider')!;
+      const s = getComputedStyle(d);
+      log(name, {
+        box: size(d),
+        line: [
+          d.getBoundingClientRect().width -
+            parseFloat(s.paddingLeft) -
+            parseFloat(s.paddingRight),
+          d.getBoundingClientRect().height -
+            parseFloat(s.paddingTop) -
+            parseFloat(s.paddingBottom),
+        ],
+        container: size(d.parentElement!),
+      });
+      host.remove();
+    });
+  }
+});

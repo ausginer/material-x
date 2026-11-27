@@ -54,6 +54,7 @@ async function loadRegistry(): Promise<ContractRegistry> {
     elevatedCard,
     outlinedCard,
     topAppBar,
+    divider,
   ] = await Promise.all([
     import('../../src/button/styles/size/tokens.ts'),
     import('../../src/button/styles/default/tokens.ts'),
@@ -80,6 +81,7 @@ async function loadRegistry(): Promise<ContractRegistry> {
     import('../../src/card/styles/elevated/tokens.ts'),
     import('../../src/card/styles/outlined/tokens.ts'),
     import('../../src/top-app-bar/styles/default/tokens.ts'),
+    import('../../src/divider/styles/default/tokens.ts'),
   ]);
 
   // Both group token arrays are indexed by `BUTTON_GROUP_SIZES`:
@@ -133,6 +135,7 @@ async function loadRegistry(): Promise<ContractRegistry> {
     'card.elevated': elevatedCard.elevatedTokens,
     'card.outlined': outlinedCard.outlinedTokens,
     'top-app-bar.default': topAppBar.topAppBarTokens,
+    divider: divider.defaultTokens,
     'icon-button.color.filled':
       icon.variantTokens[icon.VARIANTS.indexOf('filled')]!,
     'icon-button.color.tonal':

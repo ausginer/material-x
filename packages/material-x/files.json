@@ -10,6 +10,7 @@
     "button-group/connected-button-group",
     "card/card",
     "checkbox/checkbox",
+    "divider/divider",
     "fab/fab",
     "icon/icon",
     "list/list",

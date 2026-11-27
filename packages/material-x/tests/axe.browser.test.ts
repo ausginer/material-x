@@ -209,6 +209,22 @@ const ROWS: Readonly<Record<string, readonly Row[]>> = {
       ],
     },
   ],
+  'mx-divider': [
+    { state: 'decorative', html: '<mx-divider></mx-divider>', hasNoRule: true },
+    {
+      state: 'a separator',
+      html: '<p>A</p><mx-divider role="separator"></mx-divider><p>B</p>',
+    },
+    {
+      state: 'a vertical separator',
+      html: '<div style="display: flex"><span>A</span><mx-divider role="separator" orientation="vertical"></mx-divider><span>B</span></div>',
+    },
+    {
+      state: 'in a list',
+      html: '<mx-list><mx-list-item>A</mx-list-item><mx-divider></mx-divider><mx-list-item>B</mx-list-item></mx-list>',
+      hasNoRule: true,
+    },
+  ],
   'mx-radio': [
     {
       state: 'unchecked',

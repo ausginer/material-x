@@ -299,10 +299,16 @@ describe('mx-card public CSS overrides', () => {
     expect(outlineOf(card)['color']).toBe('rgb(1, 2, 3)');
   });
 
-  it('should apply --md-card-padding to the inset', () => {
+  it('should apply --md-card-padding-inline to the inline inset alone', () => {
     expect(
-      contentInset(createCard(FILLED, { '--md-card-padding': '0' })),
-    ).toEqual(insetOf(0));
+      contentInset(createCard(FILLED, { '--md-card-padding-inline': '0' })),
+    ).toEqual({ top: PADDING, right: 0, bottom: PADDING, left: 0 });
+  });
+
+  it('should apply --md-card-padding-block to the block inset alone', () => {
+    expect(
+      contentInset(createCard(FILLED, { '--md-card-padding-block': '0' })),
+    ).toEqual({ top: 0, right: PADDING, bottom: 0, left: PADDING });
   });
 });
 
@@ -434,7 +440,10 @@ describe('mx-card content', () => {
   );
 
   it("should keep its content's margins inside", () => {
-    const card = createCard(FILLED, { '--md-card-padding': '0' });
+    const card = createCard(FILLED, {
+      '--md-card-padding-inline': '0',
+      '--md-card-padding-block': '0',
+    });
     const { height } = card.getBoundingClientRect();
     const content = card.firstElementChild as HTMLElement;
 

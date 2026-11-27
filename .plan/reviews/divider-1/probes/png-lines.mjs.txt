@@ -1,0 +1,29 @@
+// Reads dividers-chromium-linux.png: each row of pixels that holds a long run of
+// non-background colour, and that run's first and last column, at a DPR found
+// from the image's width. Usage: node png-lines.mjs <png>
+import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
+const require = createRequire(process.cwd() + '/package.json');
+const { PNG } = require('pngjs');
+const png = PNG.sync.read(readFileSync(process.argv[2]));
+const { width, height, data } = png;
+const px = (x, y) => Array.from(data.slice((y * width + x) * 4, (y * width + x) * 4 + 3));
+console.log('size', width, height, 'corner', px(0, 0));
+const bg = px(0, 0).join();
+for (let y = 0; y < height; y++) {
+  // runs of identical non-background colour longer than 100px
+  let x = 0;
+  while (x < width) {
+    const c = px(x, y).join();
+    let e = x;
+    while (e + 1 < width && px(e + 1, y).join() === c) e++;
+    if (c !== bg && e - x + 1 >= 100) console.log('y', y, 'run', x, e, 'len', e - x + 1, 'rgb', c, 'left-of-run', px(Math.max(0, x - 1), y).join(), 'right-of-run', px(Math.min(width - 1, e + 1), y).join());
+    x = e + 1;
+  }
+}
+// the vertical divider's row: columns between "Before" and "After"
+// Every pixel of the line colour in the band of the vertical row.
+const [y0, y1] = [process.argv[3] ?? 60, process.argv[4] ?? 105].map(Number);
+let found = 0;
+for (let y = y0; y <= y1; y++) for (let x = 0; x < width; x++) if (px(x, y).join() === '194,202,178') found++;
+console.log(`line-coloured pixels in rows ${y0}..${y1}:`, found);

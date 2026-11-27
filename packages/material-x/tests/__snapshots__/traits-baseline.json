@@ -124,6 +124,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": true
     },
@@ -328,6 +329,7 @@
       "ButtonGroupLike": true,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": false
     },
@@ -445,6 +447,7 @@
       "ButtonGroupLike": false,
       "CardLike": true,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": false
     },
@@ -629,6 +632,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": true,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": false
     },
@@ -878,6 +882,7 @@
       "ButtonGroupLike": true,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": false
     },
@@ -949,6 +954,111 @@
           {
             "key": "value",
             "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-divider",
+    "className": "Divider",
+    "observedAttributes": [
+      "inset",
+      "orientation"
+    ],
+    "reflection": [
+      {
+        "name": "inset",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "orientation",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": false,
+      "Linkable": false,
+      "Nameable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": false,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SliderLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "CardLike": false,
+      "Indeterminable": false,
+      "DividerLike": true,
+      "TextFieldLike": false,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "Divider"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "Divider",
+        "keys": [
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "inset",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "orientation",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:DividerLike",
+            "kind": "value",
             "enumerable": false
           }
         ]
@@ -1063,6 +1173,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": true
     },
@@ -1161,6 +1272,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": false
     },
@@ -1315,6 +1427,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": true
     },
@@ -1536,6 +1649,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": true
     },
@@ -1644,6 +1758,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": false
     },
@@ -1730,6 +1845,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": false
     },
@@ -1803,6 +1919,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": false
     },
@@ -1923,6 +2040,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": false
     },
@@ -2166,6 +2284,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": true,
       "FocusForwarding": false
     },
@@ -2449,6 +2568,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": false
     },
@@ -2790,6 +2910,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": false
     },
@@ -2962,6 +3083,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": false
     },
@@ -3116,6 +3238,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": false
     },
@@ -3356,6 +3479,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": true
     },
@@ -3683,6 +3807,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": true
     },
@@ -4020,6 +4145,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": true,
       "FocusForwarding": false
     },
@@ -4199,6 +4325,7 @@
       "ButtonGroupLike": false,
       "CardLike": false,
       "Indeterminable": false,
+      "DividerLike": false,
       "TextFieldLike": false,
       "FocusForwarding": false
     },
