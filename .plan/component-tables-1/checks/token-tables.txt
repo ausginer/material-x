@@ -28,9 +28,9 @@ fab-menu 1a076cec8bc202c2. The database carries all twenty.
 2. TOKEN_TABLE.6f51f7ab7775a392: md.comp.linear-progress-indicator.four-color.active-indicator.four.color: values.tokenName: names goog.ref.brand-color.green, not in the store
    Eight tokens, {linear,circular}-progress-indicator.four-color.active-indicator.{one,two,three,four}.color,
    reference goog.ref.brand-color.{blue,red,yellow,green}, which no table
-   carries. All eight are in the two [Deprecated] sets. Sent for an
-   architect's ruling; the Progress indicators row waits for it, and is not in
-   this update.
+   carries. All eight are in the two [Deprecated] sets. Ruled by RD-69: a
+   reference into another design system is stored as upstream gives it and
+   isn't checked. The 20th row is added after it, below.
 With Progress indicators left out, no other refusal.
 
 == The update, 19 rows
@@ -113,3 +113,75 @@ tproc: 14 files, 352 passed. material-x, its package recipe after
 _package-builds and build:prepare: 52 files, 2850 passed, 2 expected fail.
 Typecheck in tproc and material-x: exit 0. Chromium only; Firefox, WebKit and
 visual are the pull request's checks.
+
+== The 20th row, Progress indicators, after RD-69
+On tproc/component-tables-1 after the converter's RD-69 change (156e4dce8) and
+a merge of origin/main at 2ed4b96ab (69cd38e03), 2026-11-27. The row is appended, so the 19
+rows stay a prefix. Witnesses: foreign-references-witness.txt beside this file.
+packages/tproc: aube exec just update-tokens --release 2026-11-19_06-20-01 --report <file>
+Wrote 182 files, with 0 conflicts. 56 tokens added, 0 removed, 0 selected
+values changed, 33 deprecations added, all of added tokens. 180 sets.
+Report: progress-indicators-report.md. A second run: identical store.
+Every file of the 19-row store, 175 sets and context.json, is byte-identical
+after it. The sets added:
+md.comp.progress-indicator | Progress Indicator - Common | 10 tokens, 4 deprecated
+md.comp.progress-indicator.circular | Progress indicator - Circular | 11 tokens, 4 deprecated
+md.comp.progress-indicator.linear | Progress indicator - Linear | 17 tokens, 7 deprecated
+md.comp.linear-progress-indicator | [Deprecated] Progress indicator - Linear | 10 tokens, 10 deprecated
+md.comp.circular-progress-indicator | [Deprecated] Progress indicator - Circular | 8 tokens, 8 deprecated
+
+The 8 tokens through the reader (src/store), in the rendered context. Each
+selects its audience: 3p entry, which references md.sys.color.*. "Names not in
+the store" walks every tree of the token; each such node below the root has no
+value index.
+tokens: 8
+md.comp.circular-progress-indicator.four-color.active-indicator.four.color
+  deprecated: true
+  values: md.sys.color.tertiary-container {"audience":"3p"} | goog.ref.brand-color.green
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.tertiary-container"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.green, goog.ref.brand-palette.green-500; such nodes without a value index: 14
+md.comp.circular-progress-indicator.four-color.active-indicator.one.color
+  deprecated: true
+  values: md.sys.color.primary {"audience":"3p"} | goog.ref.brand-color.blue
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.primary"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.blue, goog.ref.brand-palette.blue-500; such nodes without a value index: 14
+md.comp.circular-progress-indicator.four-color.active-indicator.three.color
+  deprecated: true
+  values: md.sys.color.tertiary {"audience":"3p"} | goog.ref.brand-color.yellow
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.tertiary"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.yellow, goog.ref.brand-palette.yellow-500; such nodes without a value index: 14
+md.comp.circular-progress-indicator.four-color.active-indicator.two.color
+  deprecated: true
+  values: md.sys.color.primary-container {"audience":"3p"} | goog.ref.brand-color.red
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.primary-container"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.red, goog.ref.brand-palette.red-500; such nodes without a value index: 14
+md.comp.linear-progress-indicator.four-color.active-indicator.four.color
+  deprecated: true
+  values: md.sys.color.tertiary-container {"audience":"3p"} | goog.ref.brand-color.green
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.tertiary-container"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.green, goog.ref.brand-palette.green-500; such nodes without a value index: 14
+md.comp.linear-progress-indicator.four-color.active-indicator.one.color
+  deprecated: true
+  values: md.sys.color.primary {"audience":"3p"} | goog.ref.brand-color.blue
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.primary"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.blue, goog.ref.brand-palette.blue-500; such nodes without a value index: 14
+md.comp.linear-progress-indicator.four-color.active-indicator.three.color
+  deprecated: true
+  values: md.sys.color.tertiary {"audience":"3p"} | goog.ref.brand-color.yellow
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.tertiary"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.yellow, goog.ref.brand-palette.yellow-500; such nodes without a value index: 14
+md.comp.linear-progress-indicator.four-color.active-indicator.two.color
+  deprecated: true
+  values: md.sys.color.primary-container {"audience":"3p"} | goog.ref.brand-color.red
+  selected: {"contextTags":{"audience":"3p"},"specificityScore":"4","tokenName":"md.sys.color.primary-container"}, entry {"audience":"3p","contrast":"default","platform":"web","theme":"light"}
+  names not in the store: goog.ref.brand-color.red, goog.ref.brand-palette.red-500; such nodes without a value index: 14
+values references to names not in the store, whole store: 8
+
+material-x CSS: the 44 tracked css.ts through `aube exec just debug`, with the
+19-row store after the merge and with the 20-row store: 44 of 44 identical,
+none empty.
+Personal data: git grep -e emailAddress -e gaiaId -- packages/tproc/tokens:
+nothing. Files with an email address pattern: 0.
+Suites: tproc 14 files, 356 passed; material-x 52 files, 2886 passed, 2
+expected fail, after _package-builds and build:prepare. Typecheck in tproc and
+material-x: exit 0. Chromium only.

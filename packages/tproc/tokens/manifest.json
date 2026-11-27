@@ -197,6 +197,11 @@
       "kind": "TOKEN_TABLE",
       "componentId": "1a076cec8bc202c2",
       "componentName": "FAB menu"
+    },
+    {
+      "kind": "TOKEN_TABLE",
+      "componentId": "6f51f7ab7775a392",
+      "componentName": "Progress indicators"
     }
   ],
   "files": [
@@ -895,6 +900,26 @@
     {
       "path": "sets/md.comp.fab-menu.primary.close-button.json",
       "sha256": "477f8059583b6f05784bca9375071998ccdccfcffca66232c4a6ab618ef673b6"
+    },
+    {
+      "path": "sets/md.comp.progress-indicator.json",
+      "sha256": "6a461facb95ad64571341f2dc4309ca0d7fa676d0254788e8b44e7ddd204c32e"
+    },
+    {
+      "path": "sets/md.comp.progress-indicator.circular.json",
+      "sha256": "e10ccce5ba89d2abdbcc30f03b0414f3356010e1b015657839ef3bb2ea06cf3f"
+    },
+    {
+      "path": "sets/md.comp.progress-indicator.linear.json",
+      "sha256": "2529699452221c1c7b8eb878daa89c8ba3f2a5e4ddc2fc436b4307d941345704"
+    },
+    {
+      "path": "sets/md.comp.linear-progress-indicator.json",
+      "sha256": "c72c80b0e18976b58c7ef671d48e1bdc4d9a1cc904a63ca30f6d5c67927aa42d"
+    },
+    {
+      "path": "sets/md.comp.circular-progress-indicator.json",
+      "sha256": "b7cae719646533b5b26b9b48d2fa4032db1fa928a0cfa8613faa449fdb07e2cd"
     },
     {
       "path": "sets/md.sys.state.focus-indicator.json",

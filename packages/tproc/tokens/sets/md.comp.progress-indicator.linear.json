@@ -1,0 +1,573 @@
+{
+  "tokenSetName": "md.comp.progress-indicator.linear",
+  "displayName": "Progress indicator - Linear",
+  "description": "For linear progress indicators.",
+  "tokenType": "COMPONENT",
+  "custom": {
+    "token_class": "COMPONENT"
+  },
+  "order": 1,
+  "displayGroups": [
+    {
+      "displayName": "[Deprecated] Linear - thick",
+      "orderInParentTokenSet": 2
+    },
+    {
+      "displayName": "Linear - baseline",
+      "orderInParentTokenSet": 1
+    }
+  ],
+  "tokens": [
+    {
+      "tokenName": "md.comp.progress-indicator.linear.indeterminate.active-indicator.wave.wavelength",
+      "displayName": "Progress indicator linear indeterminate wave wavelength ",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Linear - baseline"
+      ],
+      "orderInDisplayGroup": 10,
+      "values": [
+        {
+          "length": {
+            "value": 20,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.indeterminate.active-indicator.wave.wavelength"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 20,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.height",
+      "displayName": "Progress indicator linear height",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Linear - baseline"
+      ],
+      "values": [
+        {
+          "length": {
+            "value": 4,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.height"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.with-wave.height",
+      "displayName": "Progress indicator linear with wave height",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Linear - baseline"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "length": {
+            "value": 10,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.with-wave.height"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 10,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.active-indicator.thickness",
+      "displayName": "Progress indicator linear active indicator thickness",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Linear - baseline"
+      ],
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "length": {
+            "value": 4,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.active-indicator.thickness"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.track.thickness",
+      "displayName": "Progress indicator linear track thickness",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Linear - baseline"
+      ],
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "length": {
+            "value": 4,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.track.thickness"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.stop-indicator.size",
+      "displayName": "Progress indicator linear stop indicator size",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Linear - baseline"
+      ],
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "length": {
+            "value": 4,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.stop-indicator.size"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.stop-indicator.trailing-space",
+      "displayName": "Progress indicator linear stop indicator trailing space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Linear - baseline"
+      ],
+      "orderInDisplayGroup": 7,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space0"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.stop-indicator.trailing-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space0",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.active-indicator.wave.amplitude",
+      "displayName": "Progress indicator linear wave amplitude",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Linear - baseline"
+      ],
+      "orderInDisplayGroup": 8,
+      "values": [
+        {
+          "length": {
+            "value": 3,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.active-indicator.wave.amplitude"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 3,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.active-indicator.wave.wavelength",
+      "displayName": "Progress indicator linear wave wavelenght",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Linear - baseline"
+      ],
+      "orderInDisplayGroup": 9,
+      "values": [
+        {
+          "length": {
+            "value": 40,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.active-indicator.wave.wavelength"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 40,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.track-active-indicator-space",
+      "displayName": "Progress indicator linear track active indicator space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Linear - baseline"
+      ],
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space50"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.track-active-indicator-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space50",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.thick.height",
+      "displayName": "Progress indicator linear thick height",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "[Deprecated] Linear - thick"
+      ],
+      "deprecationMessage": {
+        "message": "No longer tokenized as a variant, but rather a sample configuration in code"
+      },
+      "values": [
+        {
+          "length": {
+            "value": 8,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.thick.height"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 8,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.thick.with-wave.height",
+      "displayName": "Progress indicator linear thick active indicator thickness",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "[Deprecated] Linear - thick"
+      ],
+      "orderInDisplayGroup": 2,
+      "deprecationMessage": {
+        "message": "No longer tokenized as a variant, but rather a sample configuration in code"
+      },
+      "values": [
+        {
+          "length": {
+            "value": 14,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.thick.with-wave.height"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 14,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.thick.active-indicator.thickness",
+      "displayName": "Progress indicator linear thick with wave height",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "[Deprecated] Linear - thick"
+      ],
+      "orderInDisplayGroup": 2,
+      "deprecationMessage": {
+        "message": "No longer tokenized as a variant, but rather a sample configuration in code"
+      },
+      "values": [
+        {
+          "length": {
+            "value": 8,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.thick.active-indicator.thickness"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 8,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.thick.track.thickness",
+      "displayName": "Progress indicator linear thick track thickness",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "[Deprecated] Linear - thick"
+      ],
+      "orderInDisplayGroup": 3,
+      "deprecationMessage": {
+        "message": "No longer tokenized as a variant, but rather a sample configuration in code"
+      },
+      "values": [
+        {
+          "length": {
+            "value": 8,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.thick.track.thickness"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 8,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.thick.stop-indicator.size",
+      "displayName": "Progress indicator linear thick stop indicator size",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "[Deprecated] Linear - thick"
+      ],
+      "orderInDisplayGroup": 4,
+      "deprecationMessage": {
+        "message": "No longer tokenized as a variant, but rather a sample configuration in code"
+      },
+      "values": [
+        {
+          "length": {
+            "value": 4,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.thick.stop-indicator.size"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.thick.track-active-indicator-space",
+      "displayName": "Progress indicator linear thick track active indicator space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "[Deprecated] Linear - thick"
+      ],
+      "orderInDisplayGroup": 5,
+      "deprecationMessage": {
+        "message": "No longer tokenized as a variant, but rather a sample configuration in code"
+      },
+      "values": [
+        {
+          "length": {
+            "value": 4,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.thick.track-active-indicator-space"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.linear.thick.stop-indicator.trailing-space",
+      "displayName": "Progress indicator linear thick stop indicator trailing space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "[Deprecated] Linear - thick"
+      ],
+      "orderInDisplayGroup": 6,
+      "deprecationMessage": {
+        "message": "No longer tokenized as a variant, but rather a sample configuration in code"
+      },
+      "values": [
+        {
+          "length": {
+            "value": 2,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.linear.thick.stop-indicator.trailing-space"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 2,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

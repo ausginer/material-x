@@ -1,0 +1,5694 @@
+{
+  "tokenSetName": "md.comp.linear-progress-indicator",
+  "displayName": "[Deprecated] Progress indicator - Linear",
+  "description": "This token set is deprecated. Use `md.comp.progress-indicator.linear` instead. Original tokens for the linear progress indicator.",
+  "tokenType": "COMPONENT",
+  "custom": {
+    "token_class": "COMPONENT"
+  },
+  "order": 60,
+  "displayGroups": [
+    {
+      "displayName": "[Deprecated] Enabled",
+      "orderInParentTokenSet": 1
+    },
+    {
+      "displayName": "[Deprecated] Active indicator",
+      "parentGroup": [
+        "[Deprecated] Enabled"
+      ],
+      "orderInParentDisplayGroup": 2
+    },
+    {
+      "displayName": "[Deprecated] Track",
+      "parentGroup": [
+        "[Deprecated] Enabled"
+      ],
+      "orderInParentDisplayGroup": 1
+    }
+  ],
+  "tokens": [
+    {
+      "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+      "displayName": "Linear progress indicator four color active indicator four color",
+      "tokenValueType": "COLOR",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Active indicator"
+      ],
+      "orderInDisplayGroup": 7,
+      "deprecationMessage": {
+        "message": "Token set deprecated in favour of a merged token set which combines the circular and linear progress indicator. Please use \"md.com.progress-indicator\" tokens instead."
+      },
+      "values": [
+        {
+          "contextTags": {
+            "audience": "3p"
+          },
+          "specificityScore": "4",
+          "tokenName": "md.sys.color.tertiary-container"
+        },
+        {
+          "tokenName": "goog.ref.brand-color.green"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9372549,
+              "green": 0.72156864,
+              "blue": 0.78431374,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9372549,
+              "green": 0.72156864,
+              "blue": 0.78431374,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9372549,
+              "green": 0.72156864,
+              "blue": 0.78431374,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary60",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.70980394,
+              "green": 0.5137255,
+              "blue": 0.57254905,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary60",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.70980394,
+              "green": 0.5137255,
+              "blue": 0.57254905,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary60",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.70980394,
+              "green": 0.5137255,
+              "blue": 0.57254905,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.3882353,
+              "green": 0.23137255,
+              "blue": 0.28235295,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.3882353,
+              "green": 0.23137255,
+              "blue": 0.28235295,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.3882353,
+              "green": 0.23137255,
+              "blue": 0.28235295,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.49019608,
+              "green": 0.32156864,
+              "blue": 0.3764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.49019608,
+              "green": 0.32156864,
+              "blue": 0.3764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.49019608,
+              "green": 0.32156864,
+              "blue": 0.3764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 7
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.3882353,
+              "green": 0.23137255,
+              "blue": 0.28235295,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.3882353,
+              "green": 0.23137255,
+              "blue": 0.28235295,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.3882353,
+              "green": 0.23137255,
+              "blue": 0.28235295,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 0.84705883,
+              "blue": 0.89411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 0.84705883,
+              "blue": 0.89411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary-container",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 0.84705883,
+              "blue": 0.89411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.green",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.green-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.6862745,
+              "blue": 0.34117648,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.green",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.green-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.6862745,
+              "blue": 0.34117648,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.green",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.green-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.6862745,
+              "blue": 0.34117648,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.green",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.green-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.6862745,
+              "blue": 0.34117648,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.green",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.green-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.6862745,
+              "blue": 0.34117648,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.green",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.green-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.6862745,
+              "blue": 0.34117648,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.four.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.green",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.green-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "green": 0.6862745,
+              "blue": 0.34117648,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+      "displayName": "Linear progress indicator four color active indicator three color",
+      "tokenValueType": "COLOR",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Active indicator"
+      ],
+      "orderInDisplayGroup": 6,
+      "deprecationMessage": {
+        "message": "Token set deprecated in favour of a merged token set which combines the circular and linear progress indicator. Please use \"md.com.progress-indicator\" tokens instead."
+      },
+      "values": [
+        {
+          "contextTags": {
+            "audience": "3p"
+          },
+          "specificityScore": "4",
+          "tokenName": "md.sys.color.tertiary"
+        },
+        {
+          "tokenName": "goog.ref.brand-color.yellow"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary95",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 0.9254902,
+              "blue": 0.94509804,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary95",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 0.9254902,
+              "blue": 0.94509804,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary95",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 0.9254902,
+              "blue": 0.94509804,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 0.84705883,
+              "blue": 0.89411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 0.84705883,
+              "blue": 0.89411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 1,
+              "green": 0.84705883,
+              "blue": 0.89411765,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary20",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.28627452,
+              "green": 0.14509805,
+              "blue": 0.19607843,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary20",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.28627452,
+              "green": 0.14509805,
+              "blue": 0.19607843,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary20",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.28627452,
+              "green": 0.14509805,
+              "blue": 0.19607843,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.3882353,
+              "green": 0.23137255,
+              "blue": 0.28235295,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.3882353,
+              "green": 0.23137255,
+              "blue": 0.28235295,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.3882353,
+              "green": 0.23137255,
+              "blue": 0.28235295,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 7
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9372549,
+              "green": 0.72156864,
+              "blue": 0.78431374,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9372549,
+              "green": 0.72156864,
+              "blue": 0.78431374,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9372549,
+              "green": 0.72156864,
+              "blue": 0.78431374,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.49019608,
+              "green": 0.32156864,
+              "blue": 0.3764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.49019608,
+              "green": 0.32156864,
+              "blue": 0.3764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.tertiary",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.tertiary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.49019608,
+              "green": 0.32156864,
+              "blue": 0.3764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.yellow",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.yellow-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.78039217,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.yellow",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.yellow-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.78039217,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.yellow",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.yellow-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.78039217,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.yellow",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.yellow-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.78039217,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.yellow",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.yellow-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.78039217,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.yellow",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.yellow-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.78039217,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.three.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.yellow",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.yellow-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.99607843,
+              "green": 0.78039217,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+      "displayName": "Linear progress indicator four color active indicator two color",
+      "tokenValueType": "COLOR",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Active indicator"
+      ],
+      "orderInDisplayGroup": 5,
+      "deprecationMessage": {
+        "message": "Token set deprecated in favour of a merged token set which combines the circular and linear progress indicator. Please use \"md.com.progress-indicator\" tokens instead."
+      },
+      "values": [
+        {
+          "contextTags": {
+            "audience": "3p"
+          },
+          "specificityScore": "4",
+          "tokenName": "md.sys.color.primary-container"
+        },
+        {
+          "tokenName": "goog.ref.brand-color.red"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8156863,
+              "green": 0.7372549,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8156863,
+              "green": 0.7372549,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8156863,
+              "green": 0.7372549,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary60",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.6039216,
+              "green": 0.50980395,
+              "blue": 0.85882354,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary60",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.6039216,
+              "green": 0.50980395,
+              "blue": 0.85882354,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary60",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.6039216,
+              "green": 0.50980395,
+              "blue": 0.85882354,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.40392157,
+              "green": 0.3137255,
+              "blue": 0.6431373,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.40392157,
+              "green": 0.3137255,
+              "blue": 0.6431373,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 6,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.40392157,
+              "green": 0.3137255,
+              "blue": 0.6431373,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 7
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.91764706,
+              "green": 0.8666667,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.91764706,
+              "green": 0.8666667,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary-container",
+                "value": 9,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.91764706,
+              "green": 0.8666667,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.red",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.red-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9882353,
+              "green": 0.25490198,
+              "blue": 0.23921569,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.red",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.red-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9882353,
+              "green": 0.25490198,
+              "blue": 0.23921569,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.red",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.red-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9882353,
+              "green": 0.25490198,
+              "blue": 0.23921569,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.red",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.red-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9882353,
+              "green": 0.25490198,
+              "blue": 0.23921569,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.red",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.red-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9882353,
+              "green": 0.25490198,
+              "blue": 0.23921569,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.red",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.red-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9882353,
+              "green": 0.25490198,
+              "blue": 0.23921569,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.two.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.red",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.red-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9882353,
+              "green": 0.25490198,
+              "blue": 0.23921569,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+      "displayName": "Linear progress indicator four color active indicator one color",
+      "tokenValueType": "COLOR",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Active indicator"
+      ],
+      "orderInDisplayGroup": 4,
+      "deprecationMessage": {
+        "message": "Token set deprecated in favour of a merged token set which combines the circular and linear progress indicator. Please use \"md.com.progress-indicator\" tokens instead."
+      },
+      "values": [
+        {
+          "contextTags": {
+            "audience": "3p"
+          },
+          "specificityScore": "4",
+          "tokenName": "md.sys.color.primary"
+        },
+        {
+          "tokenName": "goog.ref.brand-color.blue"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 7
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 8
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9647059,
+              "green": 0.92941177,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9647059,
+              "green": 0.92941177,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9647059,
+              "green": 0.92941177,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.21960784,
+              "green": 0.11764706,
+              "blue": 0.44705883,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.21960784,
+              "green": 0.11764706,
+              "blue": 0.44705883,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.21960784,
+              "green": 0.11764706,
+              "blue": 0.44705883,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.91764706,
+              "green": 0.8666667,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.91764706,
+              "green": 0.8666667,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.91764706,
+              "green": 0.8666667,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 9
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 2,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8156863,
+              "green": 0.7372549,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 2,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8156863,
+              "green": 0.7372549,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 2,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8156863,
+              "green": 0.7372549,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.40392157,
+              "green": 0.3137255,
+              "blue": 0.6431373,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.40392157,
+              "green": 0.3137255,
+              "blue": 0.6431373,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.40392157,
+              "green": 0.3137255,
+              "blue": 0.6431373,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.blue",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.blue-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.19215687,
+              "green": 0.5254902,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.blue",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.blue-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.19215687,
+              "green": 0.5254902,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.blue",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.blue-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.19215687,
+              "green": 0.5254902,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.blue",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.blue-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.19215687,
+              "green": 0.5254902,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.blue",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.blue-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.19215687,
+              "green": 0.5254902,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.blue",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.blue-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.19215687,
+              "green": 0.5254902,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "ios"
+          },
+          "value": 1,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.four-color.active-indicator.one.color",
+            "childNodes": [
+              {
+                "tokenName": "goog.ref.brand-color.blue",
+                "childNodes": [
+                  {
+                    "tokenName": "goog.ref.brand-palette.blue-500"
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.19215687,
+              "green": 0.5254902,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+      "displayName": "Linear progress indicator active indicator color",
+      "tokenValueType": "COLOR",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Active indicator"
+      ],
+      "orderInDisplayGroup": 3,
+      "deprecationMessage": {
+        "message": "Token set deprecated in favour of a merged token set which combines the circular and linear progress indicator. Please use \"md.com.progress-indicator\" tokens instead."
+      },
+      "values": [
+        {
+          "tokenName": "md.sys.color.primary"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 7
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 8
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 8
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 8
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9647059,
+              "green": 0.92941177,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9647059,
+              "green": 0.92941177,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9647059,
+              "green": 0.92941177,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9254902,
+              "green": 0.9529412,
+              "blue": 0.99607843,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9254902,
+              "green": 0.9529412,
+              "blue": 0.99607843,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 0,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary95",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9254902,
+              "green": 0.9529412,
+              "blue": 0.99607843,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.21960784,
+              "green": 0.11764706,
+              "blue": 0.44705883,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.21960784,
+              "green": 0.11764706,
+              "blue": 0.44705883,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.21960784,
+              "green": 0.11764706,
+              "blue": 0.44705883,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.023529412,
+              "green": 0.18039216,
+              "blue": 0.43529412,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.023529412,
+              "green": 0.18039216,
+              "blue": 0.43529412,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 3,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary20",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.023529412,
+              "green": 0.18039216,
+              "blue": 0.43529412,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.91764706,
+              "green": 0.8666667,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.91764706,
+              "green": 0.8666667,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.91764706,
+              "green": 0.8666667,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.827451,
+              "green": 0.8901961,
+              "blue": 0.99215686,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.827451,
+              "green": 0.8901961,
+              "blue": 0.99215686,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.827451,
+              "green": 0.8901961,
+              "blue": 0.99215686,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 1,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary90",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.827451,
+              "green": 0.8901961,
+              "blue": 0.99215686,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.30980393,
+              "green": 0.21568628,
+              "blue": 0.54509807,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.03137255,
+              "green": 0.25882354,
+              "blue": 0.627451,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.03137255,
+              "green": 0.25882354,
+              "blue": 0.627451,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.03137255,
+              "green": 0.25882354,
+              "blue": 0.627451,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 4,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary30",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.03137255,
+              "green": 0.25882354,
+              "blue": 0.627451,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 9
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 2,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8156863,
+              "green": 0.7372549,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 2,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8156863,
+              "green": 0.7372549,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 2,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8156863,
+              "green": 0.7372549,
+              "blue": 1,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 2,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.65882355,
+              "green": 0.78039217,
+              "blue": 0.98039216,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 2,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.65882355,
+              "green": 0.78039217,
+              "blue": 0.98039216,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 2,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.65882355,
+              "green": 0.78039217,
+              "blue": 0.98039216,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 2,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary80",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.65882355,
+              "green": 0.78039217,
+              "blue": 0.98039216,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.40392157,
+              "green": 0.3137255,
+              "blue": 0.6431373,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.40392157,
+              "green": 0.3137255,
+              "blue": 0.6431373,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.40392157,
+              "green": 0.3137255,
+              "blue": 0.6431373,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.043137256,
+              "green": 0.34117648,
+              "blue": 0.8156863,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.043137256,
+              "green": 0.34117648,
+              "blue": 0.8156863,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.043137256,
+              "green": 0.34117648,
+              "blue": 0.8156863,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.primary",
+                "value": 5,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.primary40",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.043137256,
+              "green": 0.34117648,
+              "blue": 0.8156863,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.linear-progress-indicator.active-indicator.shape",
+      "displayName": "Linear progress indicator active indicator shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Active indicator"
+      ],
+      "orderInDisplayGroup": 2,
+      "deprecationMessage": {
+        "message": "Token set deprecated in favour of a merged token set which combines the circular and linear progress indicator. Please use \"md.com.progress-indicator\" tokens instead."
+      },
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.none"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.none",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.linear-progress-indicator.active-indicator.height",
+      "displayName": "Linear progress indicator active indicator height",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Active indicator"
+      ],
+      "orderInDisplayGroup": 1,
+      "deprecationMessage": {
+        "message": "Token set deprecated in favour of a merged token set which combines the circular and linear progress indicator. Please use \"md.com.progress-indicator\" tokens instead."
+      },
+      "values": [
+        {
+          "length": {
+            "value": 4,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.active-indicator.height"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.linear-progress-indicator.track.color",
+      "displayName": "Linear progress indicator track color",
+      "tokenValueType": "COLOR",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Track"
+      ],
+      "orderInDisplayGroup": 3,
+      "deprecationMessage": {
+        "message": "Token set deprecated in favour of a merged token set which combines the circular and linear progress indicator. Please use \"md.com.progress-indicator\" tokens instead."
+      },
+      "values": [
+        {
+          "tokenName": "md.sys.color.surface-container-highest"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.21568628,
+              "green": 0.22352941,
+              "blue": 0.23137255,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "ios.dark.theme.elevation": "elevated",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 1
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.21568628,
+              "green": 0.22352941,
+              "blue": 0.23137255,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "medium.contrast",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 2
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "high.contrast",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "high.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 3
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "contrast": "default",
+            "platform": "ios"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 4
+              }
+            ]
+          },
+          "resolvedValue": {
+            "undefined": true
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.2,
+              "green": 0.20784314,
+              "blue": 0.21568628,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.2,
+              "green": 0.20784314,
+              "blue": 0.21568628,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.2,
+              "green": 0.20784314,
+              "blue": 0.21568628,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.2,
+              "green": 0.20784314,
+              "blue": 0.21568628,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "ios.dark.theme.elevation": "none",
+            "platform": "ios",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 5
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.2,
+              "green": 0.20784314,
+              "blue": 0.21568628,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8666667,
+              "green": 0.8901961,
+              "blue": 0.91764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8666667,
+              "green": 0.8901961,
+              "blue": 0.91764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8666667,
+              "green": 0.8901961,
+              "blue": 0.91764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "medium.contrast",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8666667,
+              "green": 0.8901961,
+              "blue": 0.91764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "1p.baseline",
+            "contrast": "default",
+            "platform": "ios",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 6
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.8666667,
+              "green": 0.8901961,
+              "blue": 0.91764706,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "compose",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 7,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral22",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.21176471,
+              "green": 0.20392157,
+              "blue": 0.23137255,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "android",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 7,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral22",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.21176471,
+              "green": 0.20392157,
+              "blue": 0.23137255,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "web",
+            "theme": "dark"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 7,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral22",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.21176471,
+              "green": 0.20392157,
+              "blue": 0.23137255,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "compose",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9019608,
+              "green": 0.8784314,
+              "blue": 0.9137255,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "android",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9019608,
+              "green": 0.8784314,
+              "blue": 0.9137255,
+              "alpha": 1
+            }
+          }
+        },
+        {
+          "contextTags": {
+            "audience": "3p",
+            "platform": "web",
+            "theme": "light"
+          },
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.color",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.color.surface-container-highest",
+                "value": 8,
+                "childNodes": [
+                  {
+                    "tokenName": "md.ref.palette.neutral90",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "resolvedValue": {
+            "color": {
+              "red": 0.9019608,
+              "green": 0.8784314,
+              "blue": 0.9137255,
+              "alpha": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.linear-progress-indicator.track.shape",
+      "displayName": "Linear progress indicator track shape",
+      "tokenValueType": "SHAPE",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Track"
+      ],
+      "orderInDisplayGroup": 2,
+      "deprecationMessage": {
+        "message": "Token set deprecated in favour of a merged token set which combines the circular and linear progress indicator. Please use \"md.com.progress-indicator\" tokens instead."
+      },
+      "values": [
+        {
+          "tokenName": "md.sys.shape.corner.none"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.shape",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.shape.corner.none",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "shape": {
+              "family": "SHAPE_FAMILY_ROUNDED_CORNERS",
+              "defaultSize": {
+                "unit": "DIPS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.linear-progress-indicator.track.height",
+      "displayName": "Linear progress indicator track height",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "[Deprecated] Enabled",
+        "[Deprecated] Track"
+      ],
+      "orderInDisplayGroup": 1,
+      "deprecationMessage": {
+        "message": "Token set deprecated in favour of a merged token set which combines the circular and linear progress indicator. Please use \"md.com.progress-indicator\" tokens instead."
+      },
+      "values": [
+        {
+          "length": {
+            "value": 4,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.linear-progress-indicator.track.height"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

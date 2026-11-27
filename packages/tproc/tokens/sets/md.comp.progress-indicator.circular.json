@@ -1,0 +1,376 @@
+{
+  "tokenSetName": "md.comp.progress-indicator.circular",
+  "displayName": "Progress indicator - Circular",
+  "description": "For circular progress indicators.",
+  "tokenType": "COMPONENT",
+  "custom": {
+    "token_class": "COMPONENT"
+  },
+  "order": 1,
+  "displayGroups": [
+    {
+      "displayName": "[Deprecated] Circular - thick",
+      "orderInParentTokenSet": 2
+    },
+    {
+      "displayName": "Circular - baseline",
+      "orderInParentTokenSet": 1
+    }
+  ],
+  "tokens": [
+    {
+      "tokenName": "md.comp.progress-indicator.circular.size",
+      "displayName": "Progress indicator circular size",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Circular - baseline"
+      ],
+      "values": [
+        {
+          "length": {
+            "value": 40,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.circular.size"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 40,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.circular.active-indicator.thickness",
+      "displayName": "Progress indicator circular active indicator thickness",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Circular - baseline"
+      ],
+      "orderInDisplayGroup": 2,
+      "values": [
+        {
+          "length": {
+            "value": 4,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.circular.active-indicator.thickness"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.circular.active-indicator.wave.amplitude",
+      "displayName": "Progress indicator circular active indicator wave amplitude",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Circular - baseline"
+      ],
+      "orderInDisplayGroup": 5,
+      "values": [
+        {
+          "length": {
+            "value": 1.6,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.circular.active-indicator.wave.amplitude"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 1.6,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.circular.active-indicator.wave.wavelength",
+      "displayName": "Progress indicator circular active indicator wave wavelength",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Circular - baseline"
+      ],
+      "orderInDisplayGroup": 6,
+      "values": [
+        {
+          "length": {
+            "value": 15,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.circular.active-indicator.wave.wavelength"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 15,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.circular.track-active-indicator-space",
+      "displayName": "Progress indicator circular track active indicator space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Circular - baseline"
+      ],
+      "orderInDisplayGroup": 4,
+      "values": [
+        {
+          "tokenName": "md.sys.measurement.space50"
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.circular.track-active-indicator-space",
+            "childNodes": [
+              {
+                "tokenName": "md.sys.measurement.space50",
+                "value": 0
+              }
+            ]
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.circular.track.thickness",
+      "displayName": "Progress indicator circular track thickness",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Circular - baseline"
+      ],
+      "orderInDisplayGroup": 3,
+      "values": [
+        {
+          "length": {
+            "value": 4,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.circular.track.thickness"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.circular.with-wave.size",
+      "displayName": "Progress indicator circular size with wave",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "Circular - baseline"
+      ],
+      "orderInDisplayGroup": 1,
+      "values": [
+        {
+          "length": {
+            "value": 48,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.circular.with-wave.size"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 48,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.circular.thick.size",
+      "displayName": "Progress indicator circular thick size",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "[Deprecated] Circular - thick"
+      ],
+      "deprecationMessage": {
+        "message": "No longer tokenized as a variant, but rather a sample configuration in code"
+      },
+      "values": [
+        {
+          "length": {
+            "value": 52,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.circular.thick.size"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 52,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.circular.thick.active-indicator.thickness",
+      "displayName": "Progress indicator circular thick active indicator thickness",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "[Deprecated] Circular - thick"
+      ],
+      "orderInDisplayGroup": 1,
+      "deprecationMessage": {
+        "message": "No longer tokenized as a variant, but rather a sample configuration in code"
+      },
+      "values": [
+        {
+          "length": {
+            "value": 8,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.circular.thick.active-indicator.thickness"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 8,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.circular.thick.track.thickness",
+      "displayName": "Progress indicator circular thick track thickness",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "[Deprecated] Circular - thick"
+      ],
+      "orderInDisplayGroup": 2,
+      "deprecationMessage": {
+        "message": "No longer tokenized as a variant, but rather a sample configuration in code"
+      },
+      "values": [
+        {
+          "length": {
+            "value": 8,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.circular.thick.track.thickness"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 8,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokenName": "md.comp.progress-indicator.circular.thick.track-active-indicator-space",
+      "displayName": "Progress indicator circular thick track active indicator space",
+      "tokenValueType": "LENGTH",
+      "displayGroup": [
+        "[Deprecated] Circular - thick"
+      ],
+      "orderInDisplayGroup": 3,
+      "deprecationMessage": {
+        "message": "No longer tokenized as a variant, but rather a sample configuration in code"
+      },
+      "values": [
+        {
+          "length": {
+            "value": 4,
+            "unit": "DIPS"
+          }
+        }
+      ],
+      "contextualReferenceTree": [
+        {
+          "value": 0,
+          "referenceTree": {
+            "tokenName": "md.comp.progress-indicator.circular.thick.track-active-indicator-space"
+          },
+          "resolvedValue": {
+            "length": {
+              "value": 4,
+              "unit": "DIPS"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
