@@ -1,0 +1,55 @@
+// Feature proof of #328: the unit's "disabled with error" comparison, in the fixture theme and with
+// on-error and on-primary given distinct colors, so that the icon's color can tell them apart.
+// Copied into packages/material-x/tests/checkbox/ for a run, and removed after it. Each case prints
+// one JSON line.
+import { afterEach, describe, it } from 'vitest';
+import { server } from 'vitest/browser';
+import '../../src/checkbox/checkbox.ts';
+
+afterEach(() => {
+  document.body.replaceChildren();
+  document.documentElement.style.removeProperty('--md-sys-color-on-error');
+  document.documentElement.style.removeProperty('--md-sys-color-on-primary');
+});
+
+function drawn(element: HTMLElement): Readonly<Record<string, string>> {
+  const box = getComputedStyle(element, '::after');
+  return {
+    container: box.backgroundColor,
+    outline: box.borderTopColor,
+    opacity: getComputedStyle(element).opacity,
+    icon: getComputedStyle(element.shadowRoot!.querySelector<HTMLElement>('.icon')!).color,
+  };
+}
+
+const SELECTIONS = [
+  ['unselected', []],
+  ['checked', ['checked']],
+  ['indeterminate', ['indeterminate']],
+] as const;
+
+describe('fp328 disabled', () => {
+  for (const [name, attributes] of SELECTIONS) {
+    for (const theme of ['fixture', 'distinct'] as const) {
+      it(`${name}, ${theme} theme`, () => {
+        if (theme === 'distinct') {
+          document.documentElement.style.setProperty('--md-sys-color-on-error', 'rgb(1, 2, 3)');
+          document.documentElement.style.setProperty('--md-sys-color-on-primary', 'rgb(4, 5, 6)');
+        }
+
+        const create = (...names: readonly string[]): HTMLElement => {
+          const element = document.createElement('mx-checkbox');
+          for (const a of [...names, ...attributes]) {
+            element.toggleAttribute(a, true);
+          }
+          document.body.append(element);
+          return element;
+        };
+        const disabled = drawn(create('disabled'));
+        const error = drawn(create('disabled', 'error'));
+        const differs = Object.keys(disabled).filter((key) => disabled[key] !== error[key]);
+        console.log(JSON.stringify({ engine: server.browser, case: `${name}, ${theme}`, differs, disabled, error }));
+      });
+    }
+  }
+});

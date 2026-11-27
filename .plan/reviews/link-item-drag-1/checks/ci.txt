@@ -1,0 +1,27 @@
+# CI on 85a96ba5a: run 45981565822 (https://github.com/ausginer/material-x/actions/runs/45981565822), read 2026-11-27.
+headSha 85a96ba5a590f4e4860b09c7c9521257bf37226c
+conclusion success
+scope: success (job 140446479981)
+static: success (job 140446681197)
+system-deps (firefox): success (job 140446681307)
+system-deps (webkit): success (job 140446681309)
+system-deps (chromium): success (job 140446681342)
+records: skipped (job 140446684016)
+docs: success (job 140446846453)
+chromium: success (job 140446846486)
+firefox: success (job 140446846505)
+webkit: success (job 140446846560)
+measurements: success (job 140446846621)
+deploy: skipped (job 140447794350)
+verify: success (job 140452889185)
+## job 140446846486, totals
+      Tests  5531 passed | 2 expected fail | 12 skipped (5545)
+ Test Files  193 passed (193)
+## job 140446846505, totals
+      Tests  4355 passed | 3 expected fail | 201 skipped (4559)
+  MX_TEST_ENGINES: firefox
+ Test Files  137 passed | 1 skipped (138)
+## job 140446846560, totals
+      Tests  4356 passed | 2 expected fail | 201 skipped (4559)
+  MX_TEST_ENGINES: webkit
+ Test Files  137 passed | 1 skipped (138)

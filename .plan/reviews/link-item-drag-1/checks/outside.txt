@@ -1,0 +1,29 @@
+# A link item's native drag outside and inside mx-sortable-list, at 85a96ba5a and with M4 (the -webkit-user-drag rule applies without the attribute). probes/outside.browser.test.ts.txt, copied into packages/material-x/tests/list/ for each run and removed after it. Run 2026-11-27 in Chromium, Firefox and WebKit at once. WebKit's driver starts no native drag in any case (as in the unit's reading).
+## at the head
+      Tests  12 passed (12)
+{"engine":"chromium","case":"in mx-list","attribute":null,"draggable":true,"userDrag":"auto","dragstart":["a"]}
+{"engine":"chromium","case":"in mx-sortable-list","attribute":"false","draggable":false,"userDrag":"none","dragstart":[]}
+{"engine":"chromium","case":"moved from mx-sortable-list into mx-list","attribute":null,"draggable":true,"userDrag":"auto","dragstart":["a"]}
+{"engine":"chromium","case":"removed from mx-sortable-list into body","attribute":null,"draggable":true,"userDrag":"auto","dragstart":["a"]}
+{"engine":"firefox","case":"in mx-list","attribute":null,"draggable":true,"userDrag":null,"dragstart":["a"]}
+{"engine":"firefox","case":"in mx-sortable-list","attribute":"false","draggable":false,"userDrag":null,"dragstart":[]}
+{"engine":"firefox","case":"moved from mx-sortable-list into mx-list","attribute":null,"draggable":true,"userDrag":null,"dragstart":["a"]}
+{"engine":"firefox","case":"removed from mx-sortable-list into body","attribute":null,"draggable":true,"userDrag":null,"dragstart":["a"]}
+{"engine":"webkit","case":"in mx-list","attribute":null,"draggable":true,"userDrag":"auto","dragstart":[]}
+{"engine":"webkit","case":"in mx-sortable-list","attribute":"false","draggable":false,"userDrag":"none","dragstart":[]}
+{"engine":"webkit","case":"moved from mx-sortable-list into mx-list","attribute":null,"draggable":true,"userDrag":"auto","dragstart":[]}
+{"engine":"webkit","case":"removed from mx-sortable-list into body","attribute":null,"draggable":true,"userDrag":"auto","dragstart":[]}
+## M4
+      Tests  12 passed (12)
+{"engine":"chromium","case":"in mx-list","attribute":null,"draggable":true,"userDrag":"none","dragstart":[]}
+{"engine":"chromium","case":"in mx-sortable-list","attribute":"false","draggable":false,"userDrag":"none","dragstart":[]}
+{"engine":"chromium","case":"moved from mx-sortable-list into mx-list","attribute":null,"draggable":true,"userDrag":"none","dragstart":[]}
+{"engine":"chromium","case":"removed from mx-sortable-list into body","attribute":null,"draggable":true,"userDrag":"none","dragstart":[]}
+{"engine":"firefox","case":"in mx-list","attribute":null,"draggable":true,"userDrag":null,"dragstart":["a"]}
+{"engine":"firefox","case":"in mx-sortable-list","attribute":"false","draggable":false,"userDrag":null,"dragstart":[]}
+{"engine":"firefox","case":"moved from mx-sortable-list into mx-list","attribute":null,"draggable":true,"userDrag":null,"dragstart":["a"]}
+{"engine":"firefox","case":"removed from mx-sortable-list into body","attribute":null,"draggable":true,"userDrag":null,"dragstart":["a"]}
+{"engine":"webkit","case":"in mx-list","attribute":null,"draggable":true,"userDrag":"none","dragstart":[]}
+{"engine":"webkit","case":"in mx-sortable-list","attribute":"false","draggable":false,"userDrag":"none","dragstart":[]}
+{"engine":"webkit","case":"moved from mx-sortable-list into mx-list","attribute":null,"draggable":true,"userDrag":"none","dragstart":[]}
+{"engine":"webkit","case":"removed from mx-sortable-list into body","attribute":null,"draggable":true,"userDrag":"none","dragstart":[]}

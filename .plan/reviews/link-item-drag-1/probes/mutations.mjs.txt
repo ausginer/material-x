@@ -1,0 +1,53 @@
+// Feature proof of #325 at 85a96ba5a: mutations, each run in Chromium, Firefox and WebKit at once.
+// Run from the slot's root: node <this file>. Each file is restored after its run.
+// M5 edits drag's build (packages/drag/kernel/session.js), which material-x's tests import.
+import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const mx = 'packages/material-x';
+const ENGINES = ['chromium', 'firefox', 'webkit'];
+const ITEM = `${mx}/src/list/sortable-item.ts`;
+const CSS = `${mx}/src/list/styles/item/interactive-box.styles.css`;
+const ALL = [
+  'tests/list/sortable-list.browser.test.ts',
+  'tests/list/sortable-list.spec.browser.test.ts',
+  'tests/core/elevation.spec.browser.test.ts',
+];
+
+const MUTATIONS = [
+  { name: 'M1 sortItem sets no draggable on the anchor', file: ITEM, from: '    control.draggable = false;\n', to: '', tests: ALL },
+  { name: 'M2 the stylesheet has no -webkit-user-drag rule', file: CSS, from: "  -webkit-user-drag: none;\n", to: '', tests: ALL },
+  { name: 'M3 release leaves draggable on the anchor', file: ITEM, from: "    control.removeAttribute('draggable');\n", to: '', tests: ALL },
+  { name: 'M4 the -webkit-user-drag rule applies without the attribute', file: CSS, from: ".host[draggable='false'] {", to: '.host {', tests: ALL },
+  { name: "M5 drag arms no click guard (drag's build)", file: 'packages/drag/kernel/session.js', from: '\t\t\tarmClickGuard(this.#window, this.#drag.pointerId);\n', to: '', tests: ['tests/list/sortable-list.browser.test.ts'] },
+];
+
+function run(tests) {
+  const projects = ENGINES.flatMap((e) => ['--project', e === 'chromium' ? 'browser' : `browser/${e}`, '--project', e === 'chromium' ? 'spec' : `spec/${e}`]);
+  try {
+    execFileSync('aube', ['exec', 'vitest', 'run', ...projects, ...tests, '--reporter=verbose'], {
+      cwd: mx, encoding: 'utf8', stdio: 'pipe', env: { ...process.env, MX_TEST_ENGINES: ENGINES.join(',') }, maxBuffer: 1 << 28,
+    });
+    return { failed: [], summary: 'passed' };
+  } catch (error) {
+    const out = String(error.stdout);
+    const failed = [...out.matchAll(/^\s+× (.+?)(?: \d+ms)?$/gmu)].map((x) => x[1]);
+    const summary = (out.match(/^\s+Tests\s+.+$/mu) ?? [String(error.stderr).slice(-600)])[0].trim();
+    return { failed, summary };
+  }
+}
+
+const only = process.argv[2];
+for (const m of MUTATIONS.filter((x) => !only || x.name.startsWith(only))) {
+  const source = readFileSync(m.file, 'utf8');
+  if (source.split(m.from).length !== 2) throw new Error(`${m.name}: text not found once`);
+  writeFileSync(m.file, source.replace(m.from, m.to));
+  try {
+    const { failed, summary } = run(m.tests);
+    const per = ENGINES.map((e) => `${e} ${failed.filter((f) => f.includes(`(${e})`)).length}`).join(', ');
+    console.log(`## ${m.name}: ${failed.length} failed (${per}) — ${summary}`);
+    for (const f of failed) console.log(`  × ${f}`);
+  } finally {
+    writeFileSync(m.file, source);
+  }
+}

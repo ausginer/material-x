@@ -1,0 +1,30 @@
+# Where the trailing click of a released link item goes in mx-sortable-list, at 85a96ba5a and with M5 (drag arms no click guard). probes/click.browser.test.ts.txt, copied into packages/material-x/tests/list/ for the runs and removed after them. Run 2026-11-27 in Chromium, Firefox and WebKit at once. 'clicks' is the click's target, as composedPath()[0], seen first by a capture listener on window; its 'prevented' entry is read in a microtask before drag's own listener runs, so it says nothing about the guard. 'followed' is whether location.href changed.
+## at the head
+      Tests  12 passed (12)
+{"engine":"chromium","handle":false,"lifted":false,"clicks":[{"target":"slot"},{"prevented":false}],"followed":true}
+{"engine":"chromium","handle":false,"lifted":true,"clicks":[{"target":"mx-sortable-list"},{"prevented":false}],"followed":false}
+{"engine":"chromium","handle":true,"lifted":false,"clicks":[{"target":"span"},{"prevented":false}],"followed":true}
+{"engine":"chromium","handle":true,"lifted":true,"clicks":[{"target":"mx-sortable-list"},{"prevented":false}],"followed":false}
+{"engine":"firefox","handle":false,"lifted":false,"clicks":[{"target":"slot"},{"prevented":false}],"followed":true}
+{"engine":"firefox","handle":false,"lifted":true,"clicks":[{"target":"mx-sortable-list"},{"prevented":false}],"followed":false}
+{"engine":"firefox","handle":true,"lifted":false,"clicks":[{"target":"span"},{"prevented":false}],"followed":true}
+{"engine":"firefox","handle":true,"lifted":true,"clicks":[{"target":"mx-sortable-list"},{"prevented":false}],"followed":false}
+{"engine":"webkit","handle":false,"lifted":false,"clicks":[{"target":"slot"},{"prevented":false}],"followed":true}
+{"engine":"webkit","handle":false,"lifted":true,"clicks":[{"target":"mx-sortable-list"},{"prevented":false}],"followed":false}
+{"engine":"webkit","handle":true,"lifted":false,"clicks":[{"target":"span"},{"prevented":false}],"followed":true}
+{"engine":"webkit","handle":true,"lifted":true,"clicks":[{"target":"mx-sortable-list"},{"prevented":false}],"followed":false}
+0
+## M5, drag arms no click guard
+      Tests  12 passed (12)
+{"engine":"chromium","handle":false,"lifted":false,"clicks":[{"target":"slot"},{"prevented":false}],"followed":true}
+{"engine":"chromium","handle":false,"lifted":true,"clicks":[{"target":"mx-sortable-list"},{"prevented":false}],"followed":false}
+{"engine":"chromium","handle":true,"lifted":false,"clicks":[{"target":"span"},{"prevented":false}],"followed":true}
+{"engine":"chromium","handle":true,"lifted":true,"clicks":[{"target":"mx-sortable-list"},{"prevented":false}],"followed":false}
+{"engine":"firefox","handle":false,"lifted":false,"clicks":[{"target":"slot"},{"prevented":false}],"followed":true}
+{"engine":"firefox","handle":false,"lifted":true,"clicks":[{"target":"mx-sortable-list"},{"prevented":false}],"followed":false}
+{"engine":"firefox","handle":true,"lifted":false,"clicks":[{"target":"span"},{"prevented":false}],"followed":true}
+{"engine":"firefox","handle":true,"lifted":true,"clicks":[{"target":"mx-sortable-list"},{"prevented":false}],"followed":false}
+{"engine":"webkit","handle":false,"lifted":false,"clicks":[{"target":"slot"},{"prevented":false}],"followed":true}
+{"engine":"webkit","handle":false,"lifted":true,"clicks":[{"target":"mx-sortable-list"},{"prevented":false}],"followed":false}
+{"engine":"webkit","handle":true,"lifted":false,"clicks":[{"target":"span"},{"prevented":false}],"followed":true}
+{"engine":"webkit","handle":true,"lifted":true,"clicks":[{"target":"mx-sortable-list"},{"prevented":false}],"followed":false}

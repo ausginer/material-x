@@ -66,6 +66,18 @@ describe('checkbox visual regression', () => {
       .toMatchScreenshot('checkbox-disabled.png');
   });
 
+  it('should match the error state matrix', async () => {
+    const fixture = createFixture('checkbox-error');
+    appendCheckbox(fixture, { error: '' });
+    appendCheckbox(fixture, { checked: '', error: '' });
+    appendCheckbox(fixture, { indeterminate: '', error: '' });
+
+    await settleFixture(fixture);
+    await expect
+      .element(page.getByTestId('checkbox-error'))
+      .toMatchScreenshot('checkbox-error.png');
+  });
+
   it('should match the hovered checkbox', async () => {
     const fixture = createFixture('checkbox-hovered');
     const element = appendCheckbox(fixture, { checked: '' });

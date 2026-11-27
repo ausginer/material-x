@@ -8,7 +8,10 @@ import {
   allowedTokensSelector,
   createExtensions,
   createScopedDeclarationRenderer,
+  errorAllowedTokensSelector,
+  errorTokenSelector,
   groupTokens,
+  notErrorTokenSelector,
 } from '../utils.ts';
 
 const SET_NAME = 'md.comp.checkbox';
@@ -42,7 +45,7 @@ export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
   t
     .set(SET_NAME)
     .group(groupTokens)
-    .select(allowedTokensSelector)
+    .select(notErrorTokenSelector, allowedTokensSelector)
     .append('default', specialTokens)
     .append('unselected.default', {
       'focus-layer.color': `${SET_NAME}.unselected.focus.state-layer.color`,
@@ -54,6 +57,24 @@ export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
     })
     .adjustTokens(fixFullShape)
     .extend(createExtensions())
+    .renderDeclarations(renderer)
+    .build(),
+);
+
+/**
+ * The error states: Material's error colors for the outline, container, icon
+ * and state layer, and the focus layer's from the focused error state.
+ */
+export const errorTokens: ReadonlySignal<TokenPackage> = computed(() =>
+  t
+    .set(SET_NAME)
+    .group(groupTokens)
+    .select(errorTokenSelector, errorAllowedTokensSelector)
+    .append('error.default', {
+      'focus-layer.color': `${SET_NAME}.error.focus.state-layer.color`,
+      'focus-layer.opacity': `${SET_NAME}.error.focus.state-layer.opacity`,
+    })
+    .extend(createExtensions('error.'))
     .renderDeclarations(renderer)
     .build(),
 );
