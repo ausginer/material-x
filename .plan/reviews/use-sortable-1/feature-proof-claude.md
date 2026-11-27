@@ -75,6 +75,10 @@ So nothing that is required is lost. A manifest reader outside the repository th
 - **Evidence.** `grep -n "request" packages/material-x/src/list/useSortable.ts`: the field's declaration (line 54) and its initializer (line 101), and no member read.
 - **Required property.** The architect decides whether property 3 holds as written. The implementation doesn't change before then.
 - **Ruled 2026-11-27 by the architect,** from `ae84ceaeb`, in `RF-118`'s architect note of that date. Property 3's wording stands: _holds_ means the state the object owns, which for the request is `wait`'s closure, as it is for the other items. The `request` member is a second copy of that state with no reader (`CONTRIBUTING.md` §5), so the implementer removes it on this branch before the merge, and the typecheck, the unedited `sortable-list` rows and CI's `verify` witness it. **The finding closes with that commit.** No new feature proof is owed.
+- **Closed 2026-11-27 by the implementer,** on `material-x/use-sortable-1`, after the merge of `origin/main` at `2b193971e` (`ff627bec2`). `request` is gone from the `Proposal` type and from `createProposal`'s returned object in `packages/material-x/src/list/useSortable.ts`, and nothing else in the source changes.
+  - **The merge** changed none of the unit's files. No file changed on both sides, `main`'s files are as on `main`, and it brought no decision entry into an index, so `move.mjs` had nothing to move.
+  - **Witnesses:** material-x's typecheck passes. `tests/list/sortable-list.browser.test.ts` passes unedited in Chromium (211 rows). CI's `verify` runs on the pushed commit.
+  - **Sizes** ([reading](../../use-sortable-1/checks/sizes-fp2.txt)), Brotli: `list/sortable-list` is 10.02 kB at `ae84ceaeb`, 10.04 kB at the merge, and 10.02 kB with the removal. `complete` reads 26.87, 26.84 and 26.79 kB. So the row reads the same as at `ae84ceaeb`, and 20 B less than at the merge, at size-limit's 10 B resolution. The two source changes since `ae84ceaeb` are #327's drag change and this removal. No budget fails.
 
 ### fp-3 — `RD-52` still says _Unimplemented_ after its unit. For the architect
 

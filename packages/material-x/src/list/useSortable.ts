@@ -51,7 +51,6 @@ const LAYOUT_CSS_PROPS = {
 
 /** One proposed move, from its `reorder` event until the drag ends. */
 type Proposal = Readonly<{
-  request: ReorderRequest;
   /**
    * Whether the item at `index` of `current` has the order of `slot` among the
    * other items of the proposal that are still in the list. Items that came or
@@ -98,7 +97,6 @@ function createProposal(
   };
 
   return {
-    request,
     isAtSlot,
     wait: (signal) =>
       new Promise((resolve) => {
