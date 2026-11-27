@@ -5290,7 +5290,7 @@ Tier A, **open**, **ready**, pre-existing. Registered on 2026-11-27 by the archi
 
 #### RF-159 — A visual row that focuses, hovers or presses its fixture renders differently when the page paints before the input lands
 
-Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-27 by the architect, on `material-x/visual-paint-first-1`, from #336, requested by the coordinator. #336 is an `unregistered` issue and not a `tier:` finding, so the finding is registered here. `RF-158`, on `material-x/checkbox-colors-1`, is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `bec75d638`, from the four failing runs' artifacts, the gate's job logs, and a local probe.
+Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-27 by the architect, on `material-x/visual-paint-first-1`, from #336, requested by the coordinator. #336 is an `unregistered` issue and not a `tier:` finding, so the finding is registered here. `RF-158`, on `material-x/checkbox-colors-1`, is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `bec75d638`, from the four failing runs' artifacts, the gate's job logs, and a local probe. **Implemented** by #346, whose baselines are re-recorded on it through `RD-13`'s workflow.
 
 - **What happens:**
   - The gate's `chromium` job fails `tests/button/button.visual.browser.test.ts`'s _"should match the keyboard-focused button"_ (`button-focused.png`) by one pixel. That happened in four runs on 2026-11-27, on branches that don't touch the button: 46050447313, 46053371988, 46059678175 and 46063933872. Other runs at the same hours pass.
