@@ -1,0 +1,29 @@
+verify run 46065249445, pull_request, on 540c238a91a541d2dc430d702e9f61aa6c4d9cfc
+(checked out as 93cca88, "Merge 540c238a9... into ceb2c12a3..."). Conclusion: failure, from the chromium job's visual project only.
+
+chromium  Test Files 1 failed | 195 passed (196); Tests 1 failed | 5651 passed | 2 expected fail | 12 skipped (5666)
+          FAIL visual/material-x (chromium) tests/divider/divider.visual.browser.test.ts > mx-divider visual regression >
+               should match the insets, a vertical divider, a list and a card
+               "No existing reference screenshot found." (dividers.png, new; RD-13)
+firefox   Test Files 139 passed | 1 skipped (140); Tests 4460 passed | 3 expected fail | 214 skipped (4677)
+webkit    Test Files 139 passed | 1 skipped (140); Tests 4460 passed | 2 expected fail | 215 skipped (4677)
+static, docs, measurements: success.
+
+Affected files, from the job logs:
+                                              chromium      firefox              webkit
+divider/divider.browser                       21            21 (7 skipped)       21 (7 skipped)
+divider/divider.spec                          45            45                   45 (1 skipped)
+card/card.spec                                50            50                   50
+card/card.browser                             12            12 (3 skipped)       12 (3 skipped)
+axe.browser                                   75            75 skipped           75 skipped
+traits-baseline.browser                       1             1                    1
+list/list-item.spec (capture's move)          134           134                  134
+list/sortable-list.browser                    223           223 (14 skipped)     223 (14 skipped)
+button-group/button-group-focus.spec          50            50                   50
+button/split-button.browser                   59            59 (4 skipped)       59 (4 skipped)
+button-group/button-group.browser             30            30                   30
+card/card.visual                              1             -                    -
+divider/divider.visual                        FAIL (no baseline)
+
+The size report comment (mx-size-report) on #343 gives the same base and head figures as checks/size/.
+The recording workflow committed dividers-chromium-linux.png as f58200ea1 on origin/baselines/material-x/divider-1.

@@ -1,0 +1,263 @@
+{
+  "rows": [
+    {
+      "package": "box-quad",
+      "row": "index",
+      "brotli": 1182,
+      "gzip": null,
+      "limit": 1182
+    },
+    {
+      "package": "core",
+      "row": "element",
+      "brotli": 277,
+      "gzip": null,
+      "limit": 340
+    },
+    {
+      "package": "core",
+      "row": "emitter",
+      "brotli": 198,
+      "gzip": null,
+      "limit": 210
+    },
+    {
+      "package": "material-x",
+      "row": "button/button",
+      "brotli": 4955,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/icon-button",
+      "brotli": 5230,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/link-button",
+      "brotli": 4922,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/switch-button",
+      "brotli": 5493,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/switch-icon-button",
+      "brotli": 5889,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button/split-button",
+      "brotli": 7830,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button-group/button-group",
+      "brotli": 3101,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "button-group/connected-button-group",
+      "brotli": 4139,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "card/card",
+      "brotli": 1392,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "checkbox/checkbox",
+      "brotli": 4353,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "divider/divider",
+      "brotli": 1040,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "fab/fab",
+      "brotli": 4224,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "icon/icon",
+      "brotli": 712,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list",
+      "brotli": 584,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-item",
+      "brotli": 2855,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-button-item",
+      "brotli": 5027,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/list-link-item",
+      "brotli": 5223,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "list/sortable-list",
+      "brotli": 10045,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "radio/radio",
+      "brotli": 3820,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "slider/slider",
+      "brotli": 4037,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "text-field/multiline-text-field",
+      "brotli": 4512,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "text-field/text-field",
+      "brotli": 8588,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "top-app-bar/top-app-bar",
+      "brotli": 1391,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "material-x",
+      "row": "complete",
+      "brotli": 27196,
+      "gzip": null,
+      "limit": null
+    },
+    {
+      "package": "drag",
+      "row": "draggable alone",
+      "brotli": 2189,
+      "gzip": 2422,
+      "limit": 2189
+    },
+    {
+      "package": "drag",
+      "row": "draggable + lift",
+      "brotli": 3932,
+      "gzip": 4362,
+      "limit": 3932
+    },
+    {
+      "package": "drag",
+      "row": "example: resize handle",
+      "brotli": 3265,
+      "gzip": 3607,
+      "limit": 3265
+    },
+    {
+      "package": "drag",
+      "row": "example: drop zone",
+      "brotli": 4570,
+      "gzip": 5058,
+      "limit": 4570
+    },
+    {
+      "package": "drag",
+      "row": "example: canvas group",
+      "brotli": 3261,
+      "gzip": 3573,
+      "limit": 3261
+    },
+    {
+      "package": "drag",
+      "row": "freeDrag",
+      "brotli": 4984,
+      "gzip": 5526,
+      "limit": 4984
+    },
+    {
+      "package": "drag",
+      "row": "freeDrag + bounds + landing",
+      "brotli": 5465,
+      "gzip": 6041,
+      "limit": 5465
+    },
+    {
+      "package": "drag",
+      "row": "sortable + y",
+      "brotli": 6695,
+      "gzip": 7404,
+      "limit": 6698
+    },
+    {
+      "package": "drag",
+      "row": "sortable + xy",
+      "brotli": 6649,
+      "gzip": 7363,
+      "limit": 6651
+    },
+    {
+      "package": "drag",
+      "row": "complete",
+      "brotli": 7552,
+      "gzip": 8366,
+      "limit": 7554
+    }
+  ]
+}

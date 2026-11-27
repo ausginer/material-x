@@ -1,0 +1,42 @@
+// Feature proof of PR #343, third probe, Chromium: does an element whose
+// internals role is `none` keep out of the tree when it has an `id`? Placed in
+// tests/divider/ while it runs, then removed. Writes one JSON line per reading.
+import { afterAll, it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+import '../../src/list/list-item.ts';
+import '../../src/list/list.ts';
+import { nextFrame } from '../browser.ts';
+
+const lines: string[] = [];
+
+afterAll(async () => {
+  await commands.writeFile(`./zz-proof-3-out-${server.browser}.txt`, `${lines.join('\n')}\n`);
+});
+
+customElements.define(
+  'x-none',
+  class extends HTMLElement {
+    constructor() {
+      super();
+      this.attachInternals().role = 'none';
+      this.attachShadow({ mode: 'open' });
+    }
+  },
+);
+
+const brief = (node: { role: string; children: readonly any[] }): unknown => ({
+  role: node.role,
+  children: node.children.map(brief),
+});
+
+it.runIf(server.browser === 'chromium')('internals role none with an id', async () => {
+  const host = document.createElement('div');
+  host.innerHTML =
+    '<div id="g" role="group"><p>A</p><x-none id="n1" style="display:block;block-size:1px;background:gray"></x-none><p>B</p></div>' +
+    '<mx-list id="l"><mx-list-item>One</mx-list-item><x-none id="n2" style="display:block;block-size:1px;background:gray"></x-none><mx-list-item>Two</mx-list-item></mx-list>';
+  document.body.append(host);
+  await nextFrame();
+  await nextFrame();
+  lines.push(`group ${JSON.stringify(brief(await commands.readAccessibilityTree('#g')))}`);
+  lines.push(`list ${JSON.stringify(brief(await commands.readAccessibilityTree('#l')))}`);
+});

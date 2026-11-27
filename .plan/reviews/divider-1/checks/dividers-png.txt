@@ -1,0 +1,11 @@
+# node probes/png-lines.mjs.txt <png> 58 108, on dividers-chromium-linux.png from f58200ea1 (origin/baselines/material-x/divider-1, 'baselines: record on GitHub's runner at 540c238a9'). The rows of pixels holding a run of 100px or more of the line colour, filtered with grep; 194,202,178 is the line's colour (outline-variant). The last line counts the line-coloured pixels in rows 58..108, the band of the 'Before | After' row.
+size 352 428 corner [ 255, 255, 255 ]
+y 16 run 16 335 len 320 rgb 194,202,178 left-of-run 255,255,255 right-of-run 255,255,255
+y 33 run 32 335 len 304 rgb 194,202,178 left-of-run 255,255,255 right-of-run 255,255,255
+y 50 run 32 319 len 288 rgb 194,202,178 left-of-run 255,255,255 right-of-run 255,255,255
+y 173 run 32 335 len 304 rgb 194,202,178 left-of-run 255,255,255 right-of-run 255,255,255
+y 234 run 16 335 len 320 rgb 194,202,178 left-of-run 255,255,255 right-of-run 255,255,255
+y 309 run 28 323 len 296 rgb 194,202,178 left-of-run 199,206,184 right-of-run 199,207,183
+y 360 run 16 335 len 320 rgb 194,202,178 left-of-run 255,255,255 right-of-run 255,255,255
+y 411 run 28 323 len 296 rgb 194,202,178 left-of-run 199,207,183 right-of-run 199,207,183
+line-coloured pixels in rows 58..108: 0

@@ -1,0 +1,110 @@
+"""Feature proof of PR #343: each mutation edits one source file, runs one
+test file in one engine, and restores the file from its text before the edit.
+Run from the repository root:
+python3 mutations.py <engine> <name> [<name> ...]"""
+import os
+import pathlib
+import re
+import subprocess
+import sys
+
+PKG = pathlib.Path('packages/material-x')
+DIVIDER = PKG / 'src/divider/divider.ts'
+STYLES = PKG / 'src/divider/styles/default/main.styles.css'
+CARD = PKG / 'src/card/styles/default/main.styles.css'
+BEHAVIOR = ('browser', 'tests/divider/divider.browser.test.ts')
+SPEC = ('spec', 'tests/divider/divider.spec.browser.test.ts')
+CARD_SPEC = ('spec', 'tests/card/card.spec.browser.test.ts')
+
+HOST = ':host {\n  display: block;\n  box-sizing: content-box !important;\n  padding: 0 !important;\n'
+CARD_RULE = ('::slotted(mx-divider:not(:state(vertical))) {\n'
+             '  margin-inline: calc(-1 * var(--md-card-padding-inline, 16px)) !important;\n}\n')
+
+# name: (file, old, new, [test files])
+MUTATIONS = {
+    # The implementer's six, as in .plan/divider-1/probes/mutate.py.
+    'host-positioned': (STYLES, HOST, HOST + '  position: relative;\n', [BEHAVIOR]),
+    'no-aria-orientation': (DIVIDER, '        innards.ariaOrientation = newValue;\n', '', [BEHAVIOR]),
+    'padding-not-important': (STYLES, 'RE:padding', None, [SPEC]),
+    'no-forced-colors': (STYLES,
+        '@media (forced-colors: active) {\n  :host {\n    background-color: CanvasText;\n  }\n}\n',
+        '', [SPEC]),
+    'no-card-rule': (CARD, CARD_RULE, '', [SPEC]),
+    'line-outside-box': (STYLES, HOST,
+        HOST + '  background-color: transparent !important;\n}\n\n'
+        ':host::before {\n  content: \'\';\n  position: absolute;\n  inset-inline: 0;\n'
+        '  block-size: var(--md-divider-thickness, var(--_thickness));\n'
+        '  background-color: var(--md-divider-color, var(--_color));\n}\n\n:host {\n',
+        [SPEC]),
+    # Mine.
+    # The card's rule takes every slotted divider: `:state(vertical)` no longer
+    # excludes a vertical one, as in an engine where it doesn't match there.
+    'card-rule-all': (CARD, '::slotted(mx-divider:not(:state(vertical)))', '::slotted(mx-divider)', [SPEC]),
+    # The card's rule selects nothing.
+    'card-rule-none': (CARD, '::slotted(mx-divider:not(:state(vertical)))', '::slotted(mx-divider:state(vertical):not(:state(vertical)))', [SPEC]),
+    # The card's rule without `!important`.
+    'card-rule-not-important': (CARD, '16px)) !important;', '16px));', [SPEC]),
+    # The card's rule reads a fixed 16px, not the card's inline padding.
+    'card-rule-fixed': (CARD, 'calc(-1 * var(--md-card-padding-inline, 16px))', '-16px', [SPEC]),
+    # The card's inline padding reads the block property.
+    'card-inline-from-block': (CARD, 'padding-inline: var(--md-card-padding-inline, 16px)',
+        'padding-inline: var(--md-card-padding-block, 16px)', [CARD_SPEC, SPEC]),
+    # The line paints its padding too.
+    'no-background-clip': (STYLES, '  background-clip: content-box !important;\n', '', [SPEC]),
+    # The host's box-sizing isn't `!important`.
+    'box-sizing-not-important': (STYLES, 'box-sizing: content-box !important;', 'box-sizing: content-box;', [SPEC]),
+    # The host has no box-sizing of its own.
+    'no-box-sizing': (STYLES, '  box-sizing: content-box !important;\n', '', [SPEC]),
+    # A vertical inset is along the inline axis, as a horizontal one.
+    'vertical-insets-inline': (STYLES, 'RE:vertical', None, [SPEC]),
+    # The start inset is at the end.
+    'start-at-end': (STYLES, 'padding-inline-start: 16px !important;', 'padding-inline-end: 16px !important;', [SPEC]),
+    # The insets are physical.
+    'insets-physical': (STYLES, 'padding-inline-start: 16px !important;', 'padding-left: 16px !important;', [SPEC]),
+    # The host is a containing block without being positioned.
+    'host-contain-layout': (STYLES, HOST, HOST + '  contain: layout;\n', [BEHAVIOR]),
+}
+
+ANSI = re.compile(r'\x1b\[[0-9;]*m')
+
+
+def mutate(name, original):
+    path, old, new, _ = MUTATIONS[name]
+    if old == 'RE:padding':
+        return re.sub(r'(padding[-a-z]*: [^;]*) !important;', r'\1;', original)
+    if old == 'RE:vertical':
+        return re.sub(r'(:host\(:state\(vertical\):state\((?:start|middle)\)\) \{\n)[^}]*\}',
+                      r'\1}', original)
+    if original.count(old) != 1:
+        raise SystemExit(f'{name}: the text to replace is not in {path} once')
+    return original.replace(old, new)
+
+
+def run(engine, name):
+    path, _, _, files = MUTATIONS[name]
+    original = path.read_text()
+    mutated = mutate(name, original)
+    if mutated == original:
+        raise SystemExit(f'{name}: no change')
+    path.write_text(mutated)
+    try:
+        for project, file in files:
+            result = subprocess.run(
+                ['aube', 'exec', 'just', 'test', '--project',
+                 project if engine == 'chromium' else f'{project}/{engine}', file],
+                cwd=PKG, capture_output=True, text=True,
+                env={**os.environ, 'MX_TEST_ENGINES': engine})
+            out = ANSI.sub('', result.stdout + result.stderr)
+            print(f'== {name} [{engine}]: {path} ({file})', flush=True)
+            for line in out.splitlines():
+                if line.lstrip().startswith('×'):
+                    print('  ' + re.sub(r' \d+ms$', '', line.strip()))
+                elif re.match(r'\s+Tests\s', line):
+                    print('  ' + line.strip(), flush=True)
+    finally:
+        path.write_text(original)
+
+
+engine = sys.argv[1]
+for name in sys.argv[2:]:
+    run(engine, name)

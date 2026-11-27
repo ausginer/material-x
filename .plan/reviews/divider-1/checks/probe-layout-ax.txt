@@ -1,0 +1,29 @@
+# probes/zz-proof-divider.browser.test.ts.txt at 540c238a9, placed in tests/divider/ while it ran, in Chromium, Firefox and WebKit, one at a time. One JSON line per reading. The accessibility-tree readings are Chromium's only.
+chromium vertical-in-card {"matchesVertical":true,"marginInline":["0px","0px"],"dividerLeftMinusBeforeRight":0,"afterLeftMinusDividerRight":0}
+chromium horizontal-in-card {"marginInline":["-16px","-16px"]}
+chromium divider-in-scrolling-list {"height":0,"listScrollHeight":348}
+chromium vertical-in-overflowing-row {"width":0}
+chromium inline-size-under-border-box-reset {"boxSizing":"content-box","boxWidth":216}
+chromium forced-colors-paint {"size":[320,20],"canvas":[255,255,255],"line":[0,0,0],"computed":"rgb(0, 0, 0)"}
+chromium ax-plain-div-with-id-parent {"role":"group","name":"","ignored":false,"children":[{"role":"paragraph","name":"","ignored":false,"children":[]},{"role":"generic","name":"","ignored":false,"children":[]},{"role":"paragraph","name":"","ignored":false,"children":[]}]}
+chromium ax-plain-div-with-id-self {"role":"generic","name":"","ignored":false,"children":[]}
+chromium ax-plain-div-no-id-self {"role":"none","name":"","ignored":true,"children":[]}
+chromium ax-divider-with-id-parent {"role":"group","name":"","ignored":false,"children":[{"role":"paragraph","name":"","ignored":false,"children":[]},{"role":"generic","name":"","ignored":false,"children":[]},{"role":"paragraph","name":"","ignored":false,"children":[]}]}
+chromium ax-divider-with-id-self {"role":"generic","name":"","ignored":false,"children":[]}
+chromium ax-divider-with-id-in-list {"role":"list","name":"","ignored":false,"children":[{"role":"listitem","name":"","ignored":false,"children":[{"role":"generic","name":"","ignored":false,"children":[]}]},{"role":"generic","name":"","ignored":false,"children":[]},{"role":"listitem","name":"","ignored":false,"children":[{"role":"generic","name":"","ignored":false,"children":[]}]}]}
+chromium ax-divider-no-id-self {"role":"none","name":"","ignored":true,"children":[]}
+chromium ax-vertical-in-row {"role":"group","name":"","ignored":false,"children":[{"role":"StaticText","name":"A","ignored":false,"children":[{"role":"InlineTextBox","name":"A","ignored":false,"children":[]}]},{"role":"StaticText","name":"B","ignored":false,"children":[{"role":"InlineTextBox","name":"B","ignored":false,"children":[]}]}]}
+chromium ax-inset-in-list {"role":"list","name":"","ignored":false,"children":[{"role":"listitem","name":"","ignored":false,"children":[{"role":"generic","name":"","ignored":false,"children":[]}]},{"role":"listitem","name":"","ignored":false,"children":[{"role":"generic","name":"","ignored":false,"children":[]}]}]}
+chromium ax-divider-aria-label {"role":"group","name":"","ignored":false,"children":[{"role":"paragraph","name":"","ignored":false,"children":[]},{"role":"generic","name":"Section","ignored":false,"children":[]},{"role":"paragraph","name":"","ignored":false,"children":[]}]}
+chromium ax-card-under-reset {"role":"generic","name":"","ignored":false,"children":[{"role":"paragraph","name":"","ignored":false,"children":[]},{"role":"paragraph","name":"","ignored":false,"children":[]}]}
+firefox vertical-in-card {"matchesVertical":true,"marginInline":["0px","0px"],"dividerLeftMinusBeforeRight":0,"afterLeftMinusDividerRight":0}
+firefox horizontal-in-card {"marginInline":["-16px","-16px"]}
+firefox divider-in-scrolling-list {"height":0,"listScrollHeight":348}
+firefox vertical-in-overflowing-row {"width":0}
+firefox inline-size-under-border-box-reset {"boxSizing":"content-box","boxWidth":216}
+firefox forced-colors-paint {"size":[320,20],"canvas":[255,255,255],"line":[0,0,0],"computed":"rgb(0, 0, 0)"}
+webkit vertical-in-card {"matchesVertical":true,"marginInline":["0px","0px"],"dividerLeftMinusBeforeRight":0,"afterLeftMinusDividerRight":0}
+webkit horizontal-in-card {"marginInline":["-16px","-16px"]}
+webkit divider-in-scrolling-list {"height":0,"listScrollHeight":348}
+webkit vertical-in-overflowing-row {"width":0}
+webkit inline-size-under-border-box-reset {"boxSizing":"content-box","boxWidth":216}

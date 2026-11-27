@@ -1,0 +1,3 @@
+# probes/zz-proof-divider-3.browser.test.ts.txt at 540c238a9, Chromium: an element whose ElementInternals role is 'none', with an id, in a role=group container and in mx-list (children as readAccessibilityTree reports them).
+group {"role":"group","children":[{"role":"paragraph","children":[]},{"role":"paragraph","children":[]}]}
+list {"role":"list","children":[{"role":"listitem","children":[{"role":"generic","children":[]}]},{"role":"listitem","children":[{"role":"generic","children":[]}]}]}

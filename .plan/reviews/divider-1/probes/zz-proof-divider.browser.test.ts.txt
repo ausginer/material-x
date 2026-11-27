@@ -1,0 +1,190 @@
+// Feature proof of PR #343: readings, not rows. Placed in tests/divider/ while
+// it runs, then removed. Each `it` writes one JSON line and asserts nothing.
+import { afterAll, describe, it } from 'vitest';
+import { commands, server } from 'vitest/browser';
+import '../../src/card/card.ts';
+import '../../src/divider/divider.ts';
+import '../../src/list/list-item.ts';
+import '../../src/list/list.ts';
+import { capture, nextFrame } from '../browser.ts';
+
+const lines: string[] = [];
+
+function log(name: string, value: unknown): void {
+  lines.push(`${server.browser} ${name} ${JSON.stringify(value)}`);
+}
+
+afterAll(async () => {
+  await commands.writeFile(
+    `./zz-proof-out-${server.browser}.txt`,
+    `${lines.join('\n')}\n`,
+  );
+});
+
+function mount(html: string): HTMLElement {
+  const host = document.createElement('div');
+  host.style.inlineSize = '320px';
+  host.innerHTML = html;
+  document.body.append(host);
+  return host;
+}
+
+describe('layout', () => {
+  it('vertical direct child of a flex card', async () => {
+    const host = mount(
+      '<mx-card style="display: flex; block-size: 80px"><span id="a">Before</span><mx-divider orientation="vertical"></mx-divider><span id="b">After</span></mx-card>',
+    );
+    await nextFrame();
+    const divider = host.querySelector('mx-divider')!;
+    const a = host.querySelector('#a')!.getBoundingClientRect();
+    const b = host.querySelector('#b')!.getBoundingClientRect();
+    const d = divider.getBoundingClientRect();
+    const s = getComputedStyle(divider);
+    log('vertical-in-card', {
+      matchesVertical: divider.matches(':state(vertical)'),
+      marginInline: [s.marginInlineStart, s.marginInlineEnd],
+      dividerLeftMinusBeforeRight: d.left - a.right,
+      afterLeftMinusDividerRight: b.left - d.right,
+    });
+  });
+
+  it('horizontal direct child of a card', async () => {
+    const host = mount(
+      '<mx-card><p>Above</p><mx-divider></mx-divider></mx-card>',
+    );
+    await nextFrame();
+    const s = getComputedStyle(host.querySelector('mx-divider')!);
+    log('horizontal-in-card', {
+      marginInline: [s.marginInlineStart, s.marginInlineEnd],
+    });
+  });
+
+  it('a divider in a list that scrolls', async () => {
+    const items = Array.from(
+      { length: 6 },
+      (_, i) => `<mx-list-item>Item ${i}</mx-list-item>`,
+    );
+    items.splice(3, 0, '<mx-divider></mx-divider>');
+    const host = mount(
+      `<mx-list style="block-size: 120px; overflow: auto">${items.join('')}</mx-list>`,
+    );
+    await nextFrame();
+    const divider = host.querySelector('mx-divider')!;
+    log('divider-in-scrolling-list', {
+      height: divider.getBoundingClientRect().height,
+      listScrollHeight: host.querySelector('mx-list')!.scrollHeight,
+    });
+  });
+
+  it('a vertical divider in a flex row that overflows', async () => {
+    const host = mount(
+      '<div style="display: flex; block-size: 48px; inline-size: 200px"><span style="flex: none; inline-size: 150px">A</span><mx-divider orientation="vertical"></mx-divider><span style="flex: none; inline-size: 150px">B</span></div>',
+    );
+    await nextFrame();
+    log('vertical-in-overflowing-row', {
+      width: host.querySelector('mx-divider')!.getBoundingClientRect().width,
+    });
+  });
+
+  it("a page's inline-size under a border-box reset", async () => {
+    const style = document.createElement('style');
+    style.textContent = '* { box-sizing: border-box; }';
+    document.head.append(style);
+    const host = mount(
+      '<mx-divider inset="start" style="inline-size: 200px"></mx-divider>',
+    );
+    await nextFrame();
+    const divider = host.querySelector('mx-divider')!;
+    const s = getComputedStyle(divider);
+    log('inline-size-under-border-box-reset', {
+      boxSizing: s.boxSizing,
+      boxWidth: divider.getBoundingClientRect().width,
+    });
+    style.remove();
+  });
+});
+
+describe.skipIf(server.browser === 'webkit')('forced colors', () => {
+  it('paints the line', async () => {
+    await commands.emulateForcedColors(true);
+    const host = mount(
+      '<div style="padding: 8px; background: Canvas"><mx-divider style="--md-divider-thickness: 4px"></mx-divider></div>',
+    );
+    const frame = host.firstElementChild as HTMLElement;
+    const image = await capture(frame);
+    const at = (x: number, y: number) =>
+      Array.from(image.data.slice((y * image.width + x) * 4, (y * image.width + x) * 4 + 3));
+    log('forced-colors-paint', {
+      size: [image.width, image.height],
+      canvas: at(2, 2),
+      line: at(Math.floor(image.width / 2), 9),
+      computed: getComputedStyle(host.querySelector('mx-divider')!).backgroundColor,
+    });
+    await commands.emulateForcedColors(false);
+  });
+});
+
+describe.runIf(server.browser === 'chromium')('accessibility tree', () => {
+  async function read(selector: string, withText = false) {
+    await nextFrame();
+    await nextFrame();
+    return await commands.readAccessibilityTree(selector, withText);
+  }
+  const brief = (node: { role: string; name: string; ignored: boolean; children: readonly any[] }): unknown => ({
+    role: node.role,
+    name: node.name,
+    ignored: node.ignored,
+    children: node.children.map(brief),
+  });
+
+  it('a plain div with an id, in a group', async () => {
+    mount('<div id="g1" role="group"><p>A</p><div id="plain"></div><p>B</p></div>');
+    log('ax-plain-div-with-id-parent', brief(await read('#g1')));
+    log('ax-plain-div-with-id-self', brief(await read('#plain')));
+  });
+
+  it('a plain div without an id, asked for directly', async () => {
+    mount('<div id="g1b" role="group"><p>A</p><div class="plain"></div><p>B</p></div>');
+    log('ax-plain-div-no-id-self', brief(await read('#g1b .plain')));
+  });
+
+  it('a divider with an id, in a group', async () => {
+    mount('<div id="g2" role="group"><p>A</p><mx-divider id="d2"></mx-divider><p>B</p></div>');
+    log('ax-divider-with-id-parent', brief(await read('#g2')));
+    log('ax-divider-with-id-self', brief(await read('#d2')));
+  });
+
+  it('a divider with an id, in mx-list', async () => {
+    mount('<mx-list id="l3"><mx-list-item>One</mx-list-item><mx-divider id="d3"></mx-divider><mx-list-item>Two</mx-list-item></mx-list>');
+    log('ax-divider-with-id-in-list', brief(await read('#l3')));
+  });
+
+  it('a divider without an id, asked for directly', async () => {
+    mount('<div id="g4" role="group"><p>A</p><mx-divider class="d4"></mx-divider><p>B</p></div>');
+    log('ax-divider-no-id-self', brief(await read('#g4 .d4')));
+  });
+
+  it('a vertical divider in a flex row', async () => {
+    mount('<div id="g5" role="group" style="display: flex; block-size: 48px"><span>A</span><mx-divider orientation="vertical"></mx-divider><span>B</span></div>');
+    log('ax-vertical-in-row', brief(await read('#g5', true)));
+  });
+
+  it('an inset divider in mx-list', async () => {
+    mount('<mx-list id="l6"><mx-list-item>One</mx-list-item><mx-divider inset="middle"></mx-divider><mx-list-item>Two</mx-list-item></mx-list>');
+    log('ax-inset-in-list', brief(await read('#l6')));
+  });
+
+  it('a divider with aria-label, in a group', async () => {
+    mount('<div id="g7" role="group"><p>A</p><mx-divider aria-label="Section"></mx-divider><p>B</p></div>');
+    log('ax-divider-aria-label', brief(await read('#g7')));
+  });
+
+  it('a horizontal divider in a card under a universal reset', async () => {
+    const style = document.createElement('style');
+    style.textContent = '*, *::before, *::after { margin: 0; padding: 0; border: 0 solid; box-sizing: border-box; }';
+    document.head.append(style);
+    mount('<mx-card id="c8"><p>A</p><mx-divider inset="start"></mx-divider><p>B</p></mx-card>');
+    log('ax-card-under-reset', brief(await read('#c8')));
+    style.remove();
+  });
+});
