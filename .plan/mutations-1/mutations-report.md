@@ -136,7 +136,22 @@ The 18 rows of `9a65f1a89` are described in [after the feature proof](#after-the
 
 - **Run 6, at `970338cb9`** ([summary](checks/mutator-chromium-6.md), [report](checks/mutator-chromium-6.json)): 34 rows unmutated, and **every outcome of the 38 _as expected_**. The six new witnesses each fail their rows: a run with no test file as a failure fails the refusal row, no `dot` reporter fails the unhandled-error row, the standard output as the reason fails three rows, the banner kept fails the browser's void row, and the reviewer's two survivors now fail the config row and the ignored-file row. The summary names `970338cb9` for the code, the file and the runner. Nothing named `mutator-*` was left in the temporary directory, and no worktree.
 
+## After RD-66's rulings of 2026-11-27
+
+**`RD-66`'s ruling on case H, and the owner's (a) on a run that selects no test file, by the implementer, on 2026-11-27,** on `repo/mutations-1`. Requested by the coordinator. The code is at `97923379f` (case H), `e373f8eb8` ((a)) and `acc9083ac` (colors), with the merges of `main` `6a9ff612d` and `9cd303406`. The package has 37 rows.
+
+- **Case H.** A run whose rows ran, beside an error that Vitest prints outside every row and every test file's message, is judged by property 3, and its exit follows the outcomes. `runVitest` keeps that error as the run's `runError`: the section under the `dot` reporter's _Unhandled Errors_ banner, or Vitest's standard error when there is no banner. The report keeps it for the unmutated run in each leg and for each mutated run that has one, and the summary names the unmutated run's error in each engine. A run still fails with 3 only when a listed test file has no row and no message, as when a browser doesn't start. Row: _"should judge a run whose rows pass beside an unhandled error, and report the error"_, which replaces the row that read exit 3.
+- **(a).** In each engine, after the unmutated runs and before any mutation, the file is refused with 2 and no report when Vitest's report for one of its runs lists no test file, for any expectations. The refusal names each such run, by its tests and directory, and the engine: _"a: the run of tests/nothing in . selects no test file"_. It comes before the selector refusal, so a selector into that run isn't listed. Rows: a file with only _survives_ whose run selects no test file (2, no mutation applied, no rebuild), a file with two runs that names only the run without a test file, and the existing row, renamed _"should refuse a file whose run selects no test file"_, which reads this refusal's line.
+- **Colors on CI.** CI sets `FORCE_COLOR`, so Vitest's standard error carried ANSI codes: the banner wasn't stripped, and the error lines didn't match. `verify` failed the browser void row and the case H row at `e373f8eb8` (run 46046386597), and at `bd14b5e04` before it (run 45981371449). The cause arrived with `970338cb9`'s `dot` reporter. `runVitest` now strips control characters from the standard error. `NO_COLOR` was tried and rejected: with `FORCE_COLOR` set, Node prints a warning on the standard error, which became the reason's first line. Row: the case H run with `FORCE_COLOR=1`. The 37 rows pass with and without `FORCE_COLOR`. The `RolldownError` lines in the same job are coverage's parse of material-x's `.mdx` and `.md` files, and they are in the green run at `c921af6c7` too.
+- **Witnesses:** _an unhandled error beside rows that ran is a failure outside the tests_ and _the summary doesn't name the unmutated run's error_ for case H, _a run that selects no test file is not refused_ for (a), _Vitest's colors are kept_ for the colors, and _a run that selects no test file is a failure outside the tests_ predicted again against (a)'s three rows. Three earlier witnesses take the code's new text.
+
+**The witnesses, in Chromium:**
+
+- **Run 7, at `acc9083ac`** ([summary](checks/mutator-chromium-7.md), [report](checks/mutator-chromium-7.json)): 37 rows unmutated, and **every outcome of the 42 _as expected_**. The new witnesses fail 2, 1, 3, 1 and 3 rows. The summary names `acc9083ac` for the code, the file and the runner. Nothing named `mutator-*` was left in the temporary directory, and no worktree. A first run 7 at `e373f8eb8` was stopped after 26 mutations, when the color fix changed a witness's edit text, and its copy was removed by hand.
+
 ## Checks
+
+**After RD-66's rulings of 2026-11-27:** `packages/mutator`: format, lint and typecheck, and its 37 rows, with and without `FORCE_COLOR=1`. The witnesses above, run 7. **Not run:** the workflow on GitHub.
 
 **After the second recheck:** `packages/mutator`: format, lint and typecheck, and its 34 rows. The witnesses above, run 6. **Not run:** the workflow on GitHub.
 
@@ -148,7 +163,5 @@ The 18 rows of `9a65f1a89` are described in [after the feature proof](#after-the
 
 ## Open
 
-- **Case H's class, for the architect:** an unmutated run in which every row passes and Vitest exits with 1 for an unhandled error. It now fails with 3 and gives the error. The other reading is to judge the run, as `0cc0d9516` did. `RD-65` and `RD-66` don't settle which, as the second recheck says.
-- **A run that selects no test file, in a file with only _survives_ expectations,** has no selector to refuse it, so its mutations are judged on no row and read _as expected_. This is as it was at `0cc0d9516`. Whether such a run makes the file invalid is not in `RD-65` property 5, which names selectors.
 - The two dispatches above, after the merge, on `main`'s workflow.
 - Unit 2, the documentation of `RD-62`'s amendment and the worktree's exception in `agent-workflow.md` and `coordinator-setup.md`.

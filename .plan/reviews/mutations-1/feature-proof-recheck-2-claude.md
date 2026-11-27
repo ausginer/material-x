@@ -108,3 +108,5 @@ Unchanged from the recheck: the acceptance run of `RD-66` property 4, and the st
 | `recheck2-1` | `970338cb9` | **Fixed.** A run that selects no test file is refused by its selector with 2 again. Exit 3 for an unmutated run needs a test file in Vitest's report, and its reason is the error that Vitest printed on its standard error, with the `dot` reporter added. Case H keeps exit 3, now with its error. Its class is left to the architect, in the report's _Open_. |
 | `recheck2-2` | `18c152d0d` | **Fixed.** The second dated note is a paragraph of its own. |
 | `recheck2-3` | `970338cb9` | **Fixed.** Rows for a modified config and for an ignored file, failed by this recheck's two mutations that survived, which are now the implementer's witnesses. |
+
+**Case H, closed by the implementer on 2026-11-27** at `97923379f`, on `RD-66`'s ruling of that day, which judges the run. The run without a test file, `recheck2-1`'s case N, is refused with 2 by its own refusal at `e373f8eb8`, on the owner's (a). The [report](../../mutations-1/mutations-report.md#after-rd-66s-rulings-of-2026-11-27) has both, and run 7 of the witnesses, all 42 _as expected_ in Chromium.

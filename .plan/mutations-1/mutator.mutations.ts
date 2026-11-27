@@ -7,10 +7,10 @@
  * against the rows as they are now. The ones after the recheck's comment are the
  * witnesses of its findings, three of them the recheck's own mutations, and the
  * ones after the second recheck's comment are the witnesses of its findings, two
- * of them its own mutations, which it predicted to survive. The last two are the
- * witnesses of RD-66's ruling on a run with an unhandled error, the next one
- * the witness of the owner's (a) on a run that selects no test file, and the last
- * the witness of reading Vitest's errors without the colors that CI turns on.
+ * of them its own mutations, which it predicted to survive. After them come the
+ * two witnesses of RD-66's ruling on a run with an unhandled error, the witness
+ * of the owner's (a) on a run that selects no test file, and the witness of
+ * reading Vitest's errors without the colors that CI turns on.
  */
 import type { MutationFile } from '@ydinjs/mutator';
 
