@@ -1,0 +1,317 @@
+#335, by the architect, 2026-11-27, for RD-69. Each probe fetches one table
+of release 2026-11-19_06-20-01 and reads it in memory; no raw table is kept,
+and revision, author and time fields aren't printed. Run with node <probe>.
+
+== Probe read8.mjs
+const base = 'https://m3.material.io/_dsm/data/dsdb-m3/2026-11-19_06-20-01/';
+const sys = (await (await fetch(base + 'TOKEN_TABLE.6f51f7ab7775a392.json')).json()).system;
+const setName = new Map(sys.tokenSets.map((s) => [s.name, `${s.tokenSetName} (${s.displayName})`]));
+const tagName = new Map(sys.tags.map((t) => [t.name, t.tagName]));
+const goog = (o) => JSON.stringify(o).includes('goog.ref');
+const tokens = sys.tokens.filter((t) => goog(sys.values.filter((v) => v.name.startsWith(t.name + '/values/'))) || goog(sys.contextualReferenceTrees[t.name] ?? {}));
+console.log('tokens reaching goog.ref:', tokens.length);
+for (const t of tokens) console.log(' ', t.tokenName, '|', setName.get(t.name.split('/tokens/')[0]), '| deprecationMessage', Boolean(t.deprecationMessage));
+let entries = 0; const ctx = new Set();
+for (const t of tokens) for (const e of sys.contextualReferenceTrees[t.name].contextualReferenceTree) if (goog(e.referenceTree)) { entries++; e.contextTags.forEach((id) => /1p|3p/.test(tagName.get(id)) && ctx.add(tagName.get(id))); }
+console.log('tree entries reaching goog.ref:', entries, 'audience tags among them:', [...ctx]);
+console.log('database', sys.version?.versionName ?? JSON.stringify(sys.dsdbVersion));
+
+== Probe read5.mjs
+const base = 'https://m3.material.io/_dsm/data/dsdb-m3/2026-11-19_06-20-01/';
+const sys = (await (await fetch(base + 'TOKEN_TABLE.6f51f7ab7775a392.json')).json()).system;
+const crt = sys.contextualReferenceTrees;
+const seen = new Map();
+const walk = (n, d) => { if (/^goog\./.test(n.tokenName)) seen.set(n.tokenName, `${n.value?.name?.split('/tokens/')[0]} depth ${d}`); n.childNodes?.forEach((c) => walk(c, d + 1)); };
+for (const k of Object.keys(crt)) for (const e of crt[k].contextualReferenceTree) walk(e.referenceTree, 0);
+console.log([...seen].map(([a, b]) => `${a}  ${b}`).join('\n'));
+const setIds = new Set([...seen.values()].map((v) => v.split(' ')[0]));
+console.log('goog.ref set ids', [...setIds]);
+// Do the release's system tables carry those sets?
+for (const kind of ['COLOR', 'ELEVATION', 'TYPOGRAPHY', 'TOKEN_TYPE_UNSPECIFIED', 'SHAPE', 'MOTION', 'STATE']) {
+  const r = await fetch(`${base}${kind}.20543ce18892f7d9.json`);
+  if (!r.ok) { console.log(kind, r.status); continue; }
+  const s = (await r.json()).system;
+  const sets = (s.tokenSets ?? []).map((x) => x.name);
+  console.log(kind, 'sets', sets.length, 'has goog set', [...setIds].some((id) => sets.includes(id)), 'goog tokens', (s.tokens ?? []).filter((t) => /^goog\./.test(t.tokenName)).length);
+}
+
+== Probe read4.mjs
+const base = 'https://m3.material.io/_dsm/data/dsdb-m3/2026-11-19_06-20-01/';
+const sys = (await (await fetch(base + 'TOKEN_TABLE.6f51f7ab7775a392.json')).json()).system;
+const tagName = new Map(sys.tags.map((t) => [t.name, t.tagName]));
+const groupOf = new Map(sys.tags.map((t) => [t.name, t.name.split('/tags/')[0]]));
+const groupName = new Map(sys.contextTagGroups.map((g) => [g.name, g.contextTagGroupName]));
+const tag = (id) => `${groupName.get(groupOf.get(id))}=${tagName.get(id)}`;
+const values = new Map(sys.values.map((v) => [v.name, v]));
+for (const t of sys.tokens.filter((t) => /four-color\.active-indicator\.(one|four)\.color$/.test(t.tokenName))) {
+  const own = sys.values.filter((v) => v.name.startsWith(t.name + '/values/'));
+  console.log('\n##', t.tokenName);
+  for (const v of own) {
+    const ref = v.tokenName ?? Object.keys(v).filter((k) => !/^(name|revision|createTime|state|specificityScore|contextTags)/.test(k)).join(',');
+    console.log('  value', ref, '| tags', (v.contextTags ?? []).map(tag).join(' '));
+  }
+  for (const e of sys.contextualReferenceTrees[t.name]?.contextualReferenceTree ?? []) {
+    const root = values.get(e.referenceTree.value.name);
+    console.log('  tree', (e.contextTags ?? []).map(tag).join(' '), '->', root?.tokenName ?? '(literal)', '| child', e.referenceTree.childNodes?.map((c) => c.tokenName).join(','), '| resolved', JSON.stringify(e.resolvedValue));
+  }
+}
+
+== Probe read6.mjs
+const base = 'https://m3.material.io/_dsm/data/dsdb-m3/2026-11-19_06-20-01/';
+for (const path of ['COLOR.1b063509fc205e38.json', 'TOKEN_TYPE_UNSPECIFIED.1b063509fc205e38.json', 'COLOR.0000000000000000.json']) {
+  const r = await fetch(base + path);
+  const type = r.headers.get('content-type');
+  const body = await r.text();
+  let info = body.slice(0, 60).replace(/\s+/g, ' ');
+  try {
+    const s = JSON.parse(body).system;
+    const goog = (s.tokens ?? []).filter((t) => /^goog\.ref\.brand-(color|palette)\.(green|yellow|red|blue)/.test(t.tokenName)).map((t) => t.tokenName);
+    info = `system ${s.name} "${s.displayName}" version ${s.version?.versionName ?? JSON.stringify(s.dsdbVersion)} sets ${(s.tokenSets ?? []).map((x) => x.tokenSetName).join(', ')} tokens ${(s.tokens ?? []).length}; carries ${goog.length} of the referenced: ${goog.filter((n) => /brand-color\.|-500$/.test(n)).join(' ')}`;
+  } catch {}
+  console.log(path, r.status, type, '\n  ', info.slice(0, 900));
+}
+
+== Probe read7.mjs
+const base = 'https://m3.material.io/_dsm/data/dsdb-m3/2026-11-19_06-20-01/';
+const s = (await (await fetch(base + 'COLOR.1b063509fc205e38.json')).json()).system;
+console.log('values refs', s.values.map((v) => v.tokenName ?? Object.keys(v).filter((k) => ['color'].includes(k)).join()).join(' '));
+const names = new Set();
+const walk = (n) => { names.add(n.tokenName); n.childNodes?.forEach(walk); };
+for (const k of Object.keys(s.contextualReferenceTrees ?? {})) for (const e of s.contextualReferenceTrees[k].contextualReferenceTree) walk(e.referenceTree);
+console.log('tree names', [...names].join(' '));
+console.log('parentVersions', JSON.stringify(s.parentVersions)?.slice(0, 300));
+for (const kind of ['ELEVATION', 'TYPOGRAPHY', 'SHAPE', 'MOTION', 'PALETTE', 'REFERENCE']) {
+  const r = await fetch(`${base}${kind}.1b063509fc205e38.json`);
+  if (!r.ok) { console.log(kind, r.status); continue; }
+  const t = (await r.json()).system;
+  console.log(kind, (t.tokenSets ?? []).map((x) => x.tokenSetName).join(','), (t.tokens ?? []).length);
+}
+
+== Probe read9.mjs
+// Reads the Progress indicators table in memory and prints, for the values and
+// tree nodes that reach goog.ref.*, their keys and ids only.
+const base = 'https://m3.material.io/_dsm/data/dsdb-m3/2026-11-19_06-20-01/';
+const sys = (await (await fetch(base + 'TOKEN_TABLE.6f51f7ab7775a392.json')).json()).system;
+const hide = /author|revision|Time$|gaia|email/i;
+const vals = sys.values.filter((v) => /^goog\./.test(v.tokenName ?? ''));
+console.log('values with a goog.ref tokenName:', vals.length);
+console.log(' keys:', Object.keys(vals[0]).filter((k) => !hide.test(k)).join(', '));
+console.log(' own id system:', [...new Set(vals.map((v) => v.name.split('/tokenSets/')[0]))].join(', '));
+console.log(' contextTags:', JSON.stringify(vals.map((v) => v.contextTags ?? null)));
+const nodes = [];
+const walk = (n, d) => { if (/^goog\./.test(n.tokenName)) nodes.push([d, n]); n.childNodes?.forEach((c) => walk(c, d + 1)); };
+for (const k of Object.keys(sys.contextualReferenceTrees)) for (const e of sys.contextualReferenceTrees[k].contextualReferenceTree) walk(e.referenceTree, 0);
+console.log('tree nodes naming goog.ref:', nodes.length, 'depths', [...new Set(nodes.map(([d]) => d))].join(','));
+const [, n] = nodes[0];
+console.log(' node keys:', Object.keys(n).join(', '), '| value keys:', Object.keys(n.value ?? {}).join(', '));
+console.log(' value id systems:', [...new Set(nodes.map(([, n]) => n.value?.name?.split('/tokenSets/')[0]))].join(', '));
+console.log(' fieldNames:', JSON.stringify([...new Set(nodes.map(([, n]) => JSON.stringify(n.fieldNames ?? null)))]));
+const other = sys.values.filter((v) => v.tokenName && !/^goog\./.test(v.tokenName)).map((v) => v.name.split('/tokenSets/')[0]);
+console.log('other referencing values, own id systems:', [...new Set(other)].join(', '));
+const mnodes = new Set();
+const walk2 = (n) => { if (!/^goog\./.test(n.tokenName) && n.value?.name) mnodes.add(n.value.name.split('/tokenSets/')[0]); n.childNodes?.forEach(walk2); };
+for (const k of Object.keys(sys.contextualReferenceTrees)) for (const e of sys.contextualReferenceTrees[k].contextualReferenceTree) walk2(e.referenceTree);
+console.log('other tree node value id systems:', [...mnodes].join(', '));
+
+== Probe read10.mjs
+// Prints the Progress indicators table's sets, with their token counts.
+const base = 'https://m3.material.io/_dsm/data/dsdb-m3/2026-11-19_06-20-01/';
+const sys = (await (await fetch(base + 'TOKEN_TABLE.6f51f7ab7775a392.json')).json()).system;
+for (const s of sys.tokenSets) console.log(`${s.tokenSetName} | ${s.displayName} | ${sys.tokens.filter((t) => t.name.startsWith(s.name + '/')).length} tokens`);
+console.log('tokens', sys.tokens.length);
+
+== Output
+=== read8
+tokens reaching goog.ref: 8
+  md.comp.linear-progress-indicator.four-color.active-indicator.four.color | md.comp.linear-progress-indicator ([Deprecated] Progress indicator - Linear) | deprecationMessage true
+  md.comp.linear-progress-indicator.four-color.active-indicator.three.color | md.comp.linear-progress-indicator ([Deprecated] Progress indicator - Linear) | deprecationMessage true
+  md.comp.linear-progress-indicator.four-color.active-indicator.two.color | md.comp.linear-progress-indicator ([Deprecated] Progress indicator - Linear) | deprecationMessage true
+  md.comp.linear-progress-indicator.four-color.active-indicator.one.color | md.comp.linear-progress-indicator ([Deprecated] Progress indicator - Linear) | deprecationMessage true
+  md.comp.circular-progress-indicator.four-color.active-indicator.four.color | md.comp.circular-progress-indicator ([Deprecated] Progress indicator - Circular) | deprecationMessage true
+  md.comp.circular-progress-indicator.four-color.active-indicator.three.color | md.comp.circular-progress-indicator ([Deprecated] Progress indicator - Circular) | deprecationMessage true
+  md.comp.circular-progress-indicator.four-color.active-indicator.two.color | md.comp.circular-progress-indicator ([Deprecated] Progress indicator - Circular) | deprecationMessage true
+  md.comp.circular-progress-indicator.four-color.active-indicator.one.color | md.comp.circular-progress-indicator ([Deprecated] Progress indicator - Circular) | deprecationMessage true
+tree entries reaching goog.ref: 56 audience tags among them: [ '1p.baseline' ]
+database 41.1.12
+=== read5
+goog.ref.brand-color.green  designSystems/1b063509fc205e38/tokenSets/3777906b11386431 depth 1
+goog.ref.brand-palette.green-500  designSystems/1b063509fc205e38/tokenSets/6a407b0d014a9769 depth 2
+goog.ref.brand-color.yellow  designSystems/1b063509fc205e38/tokenSets/3777906b11386431 depth 1
+goog.ref.brand-palette.yellow-500  designSystems/1b063509fc205e38/tokenSets/6a407b0d014a9769 depth 2
+goog.ref.brand-color.red  designSystems/1b063509fc205e38/tokenSets/3777906b11386431 depth 1
+goog.ref.brand-palette.red-500  designSystems/1b063509fc205e38/tokenSets/6a407b0d014a9769 depth 2
+goog.ref.brand-color.blue  designSystems/1b063509fc205e38/tokenSets/3777906b11386431 depth 1
+goog.ref.brand-palette.blue-500  designSystems/1b063509fc205e38/tokenSets/6a407b0d014a9769 depth 2
+goog.ref set ids [
+  'designSystems/1b063509fc205e38/tokenSets/3777906b11386431',
+  'designSystems/1b063509fc205e38/tokenSets/6a407b0d014a9769'
+]
+COLOR sets 2 has goog set false goog tokens 0
+ELEVATION sets 1 has goog set false goog tokens 0
+TYPOGRAPHY sets 5 has goog set false goog tokens 0
+TOKEN_TYPE_UNSPECIFIED sets 3 has goog set false goog tokens 0
+SHAPE sets 0 has goog set false goog tokens 0
+MOTION sets 0 has goog set false goog tokens 0
+STATE 404
+=== read4
+
+## md.comp.linear-progress-indicator.four-color.active-indicator.four.color
+  value md.sys.color.tertiary-container | tags audience=3p
+  value goog.ref.brand-color.green | tags 
+  tree platform=ios audience=3p contrast=medium.contrast -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"undefined":true}
+  tree platform=ios contrast=high.contrast audience=3p -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"undefined":true}
+  tree audience=3p theme=dark contrast=high.contrast platform=compose -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.9372549,"green":0.72156864,"blue":0.78431374,"alpha":1}}
+  tree audience=3p theme=dark contrast=high.contrast platform=android -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.9372549,"green":0.72156864,"blue":0.78431374,"alpha":1}}
+  tree audience=3p theme=dark contrast=high.contrast platform=web -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.9372549,"green":0.72156864,"blue":0.78431374,"alpha":1}}
+  tree audience=3p theme=dark contrast=medium.contrast platform=compose -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.70980394,"green":0.5137255,"blue":0.57254905,"alpha":1}}
+  tree audience=3p theme=dark contrast=medium.contrast platform=android -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.70980394,"green":0.5137255,"blue":0.57254905,"alpha":1}}
+  tree audience=3p theme=dark contrast=medium.contrast platform=web -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.70980394,"green":0.5137255,"blue":0.57254905,"alpha":1}}
+  tree audience=3p theme=light contrast=high.contrast platform=compose -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.3882353,"green":0.23137255,"blue":0.28235295,"alpha":1}}
+  tree audience=3p theme=light contrast=high.contrast platform=android -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.3882353,"green":0.23137255,"blue":0.28235295,"alpha":1}}
+  tree audience=3p theme=light contrast=high.contrast platform=web -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.3882353,"green":0.23137255,"blue":0.28235295,"alpha":1}}
+  tree audience=3p theme=light contrast=medium.contrast platform=compose -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.49019608,"green":0.32156864,"blue":0.3764706,"alpha":1}}
+  tree audience=3p theme=light contrast=medium.contrast platform=android -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.49019608,"green":0.32156864,"blue":0.3764706,"alpha":1}}
+  tree audience=3p theme=light contrast=medium.contrast platform=web -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.49019608,"green":0.32156864,"blue":0.3764706,"alpha":1}}
+  tree platform=ios audience=3p contrast=default -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"undefined":true}
+  tree audience=3p theme=dark platform=compose contrast=default -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.3882353,"green":0.23137255,"blue":0.28235295,"alpha":1}}
+  tree audience=3p theme=dark platform=android contrast=default -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.3882353,"green":0.23137255,"blue":0.28235295,"alpha":1}}
+  tree audience=3p theme=dark platform=web contrast=default -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.3882353,"green":0.23137255,"blue":0.28235295,"alpha":1}}
+  tree audience=3p platform=compose theme=light contrast=default -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":1,"green":0.84705883,"blue":0.89411765,"alpha":1}}
+  tree audience=3p platform=android theme=light contrast=default -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":1,"green":0.84705883,"blue":0.89411765,"alpha":1}}
+  tree audience=3p platform=web theme=light contrast=default -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":1,"green":0.84705883,"blue":0.89411765,"alpha":1}}
+  tree platform=compose theme=light audience=1p.baseline -> goog.ref.brand-color.green | child goog.ref.brand-color.green | resolved {"color":{"green":0.6862745,"blue":0.34117648,"alpha":1}}
+  tree platform=compose theme=dark audience=1p.baseline -> goog.ref.brand-color.green | child goog.ref.brand-color.green | resolved {"color":{"green":0.6862745,"blue":0.34117648,"alpha":1}}
+  tree platform=android theme=light audience=1p.baseline -> goog.ref.brand-color.green | child goog.ref.brand-color.green | resolved {"color":{"green":0.6862745,"blue":0.34117648,"alpha":1}}
+  tree platform=android theme=dark audience=1p.baseline -> goog.ref.brand-color.green | child goog.ref.brand-color.green | resolved {"color":{"green":0.6862745,"blue":0.34117648,"alpha":1}}
+  tree platform=web theme=light audience=1p.baseline -> goog.ref.brand-color.green | child goog.ref.brand-color.green | resolved {"color":{"green":0.6862745,"blue":0.34117648,"alpha":1}}
+  tree platform=web theme=dark audience=1p.baseline -> goog.ref.brand-color.green | child goog.ref.brand-color.green | resolved {"color":{"green":0.6862745,"blue":0.34117648,"alpha":1}}
+  tree platform=ios audience=1p.baseline -> goog.ref.brand-color.green | child goog.ref.brand-color.green | resolved {"color":{"green":0.6862745,"blue":0.34117648,"alpha":1}}
+
+## md.comp.linear-progress-indicator.four-color.active-indicator.one.color
+  value md.sys.color.primary | tags audience=3p
+  value goog.ref.brand-color.blue | tags 
+  tree platform=ios audience=3p contrast=medium.contrast -> md.sys.color.primary | child md.sys.color.primary | resolved {"undefined":true}
+  tree platform=ios contrast=high.contrast audience=3p -> md.sys.color.primary | child md.sys.color.primary | resolved {"undefined":true}
+  tree audience=3p theme=dark contrast=high.contrast platform=compose -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.9647059,"green":0.92941177,"blue":1,"alpha":1}}
+  tree audience=3p theme=dark contrast=high.contrast platform=android -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.9647059,"green":0.92941177,"blue":1,"alpha":1}}
+  tree audience=3p theme=dark contrast=high.contrast platform=web -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.9647059,"green":0.92941177,"blue":1,"alpha":1}}
+  tree audience=3p theme=light contrast=high.contrast platform=compose -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.21960784,"green":0.11764706,"blue":0.44705883,"alpha":1}}
+  tree audience=3p theme=light contrast=high.contrast platform=android -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.21960784,"green":0.11764706,"blue":0.44705883,"alpha":1}}
+  tree audience=3p theme=light contrast=high.contrast platform=web -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.21960784,"green":0.11764706,"blue":0.44705883,"alpha":1}}
+  tree audience=3p theme=dark contrast=medium.contrast platform=compose -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.91764706,"green":0.8666667,"blue":1,"alpha":1}}
+  tree audience=3p theme=dark contrast=medium.contrast platform=android -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.91764706,"green":0.8666667,"blue":1,"alpha":1}}
+  tree audience=3p theme=dark contrast=medium.contrast platform=web -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.91764706,"green":0.8666667,"blue":1,"alpha":1}}
+  tree audience=3p theme=light contrast=medium.contrast platform=compose -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.30980393,"green":0.21568628,"blue":0.54509807,"alpha":1}}
+  tree audience=3p theme=light contrast=medium.contrast platform=android -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.30980393,"green":0.21568628,"blue":0.54509807,"alpha":1}}
+  tree audience=3p theme=light contrast=medium.contrast platform=web -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.30980393,"green":0.21568628,"blue":0.54509807,"alpha":1}}
+  tree platform=ios audience=3p contrast=default -> md.sys.color.primary | child md.sys.color.primary | resolved {"undefined":true}
+  tree audience=3p theme=dark platform=compose contrast=default -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.8156863,"green":0.7372549,"blue":1,"alpha":1}}
+  tree audience=3p theme=dark platform=android contrast=default -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.8156863,"green":0.7372549,"blue":1,"alpha":1}}
+  tree audience=3p theme=dark platform=web contrast=default -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.8156863,"green":0.7372549,"blue":1,"alpha":1}}
+  tree audience=3p platform=compose theme=light contrast=default -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.40392157,"green":0.3137255,"blue":0.6431373,"alpha":1}}
+  tree audience=3p platform=android theme=light contrast=default -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.40392157,"green":0.3137255,"blue":0.6431373,"alpha":1}}
+  tree audience=3p platform=web theme=light contrast=default -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.40392157,"green":0.3137255,"blue":0.6431373,"alpha":1}}
+  tree platform=compose theme=light audience=1p.baseline -> goog.ref.brand-color.blue | child goog.ref.brand-color.blue | resolved {"color":{"red":0.19215687,"green":0.5254902,"blue":1,"alpha":1}}
+  tree platform=compose theme=dark audience=1p.baseline -> goog.ref.brand-color.blue | child goog.ref.brand-color.blue | resolved {"color":{"red":0.19215687,"green":0.5254902,"blue":1,"alpha":1}}
+  tree platform=android theme=light audience=1p.baseline -> goog.ref.brand-color.blue | child goog.ref.brand-color.blue | resolved {"color":{"red":0.19215687,"green":0.5254902,"blue":1,"alpha":1}}
+  tree platform=android theme=dark audience=1p.baseline -> goog.ref.brand-color.blue | child goog.ref.brand-color.blue | resolved {"color":{"red":0.19215687,"green":0.5254902,"blue":1,"alpha":1}}
+  tree platform=web theme=light audience=1p.baseline -> goog.ref.brand-color.blue | child goog.ref.brand-color.blue | resolved {"color":{"red":0.19215687,"green":0.5254902,"blue":1,"alpha":1}}
+  tree platform=web theme=dark audience=1p.baseline -> goog.ref.brand-color.blue | child goog.ref.brand-color.blue | resolved {"color":{"red":0.19215687,"green":0.5254902,"blue":1,"alpha":1}}
+  tree platform=ios audience=1p.baseline -> goog.ref.brand-color.blue | child goog.ref.brand-color.blue | resolved {"color":{"red":0.19215687,"green":0.5254902,"blue":1,"alpha":1}}
+
+## md.comp.circular-progress-indicator.four-color.active-indicator.four.color
+  value md.sys.color.tertiary-container | tags audience=3p
+  value goog.ref.brand-color.green | tags 
+  tree platform=ios audience=3p contrast=medium.contrast -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"undefined":true}
+  tree platform=ios contrast=high.contrast audience=3p -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"undefined":true}
+  tree audience=3p theme=dark contrast=high.contrast platform=compose -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.9372549,"green":0.72156864,"blue":0.78431374,"alpha":1}}
+  tree audience=3p theme=dark contrast=high.contrast platform=android -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.9372549,"green":0.72156864,"blue":0.78431374,"alpha":1}}
+  tree audience=3p theme=dark contrast=high.contrast platform=web -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.9372549,"green":0.72156864,"blue":0.78431374,"alpha":1}}
+  tree audience=3p theme=dark contrast=medium.contrast platform=compose -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.70980394,"green":0.5137255,"blue":0.57254905,"alpha":1}}
+  tree audience=3p theme=dark contrast=medium.contrast platform=android -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.70980394,"green":0.5137255,"blue":0.57254905,"alpha":1}}
+  tree audience=3p theme=dark contrast=medium.contrast platform=web -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.70980394,"green":0.5137255,"blue":0.57254905,"alpha":1}}
+  tree audience=3p theme=light contrast=high.contrast platform=compose -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.3882353,"green":0.23137255,"blue":0.28235295,"alpha":1}}
+  tree audience=3p theme=light contrast=high.contrast platform=android -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.3882353,"green":0.23137255,"blue":0.28235295,"alpha":1}}
+  tree audience=3p theme=light contrast=high.contrast platform=web -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.3882353,"green":0.23137255,"blue":0.28235295,"alpha":1}}
+  tree audience=3p theme=light contrast=medium.contrast platform=compose -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.49019608,"green":0.32156864,"blue":0.3764706,"alpha":1}}
+  tree audience=3p theme=light contrast=medium.contrast platform=android -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.49019608,"green":0.32156864,"blue":0.3764706,"alpha":1}}
+  tree audience=3p theme=light contrast=medium.contrast platform=web -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.49019608,"green":0.32156864,"blue":0.3764706,"alpha":1}}
+  tree platform=ios audience=3p contrast=default -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"undefined":true}
+  tree audience=3p theme=dark platform=compose contrast=default -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.3882353,"green":0.23137255,"blue":0.28235295,"alpha":1}}
+  tree audience=3p theme=dark platform=android contrast=default -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.3882353,"green":0.23137255,"blue":0.28235295,"alpha":1}}
+  tree audience=3p theme=dark platform=web contrast=default -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":0.3882353,"green":0.23137255,"blue":0.28235295,"alpha":1}}
+  tree audience=3p platform=compose theme=light contrast=default -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":1,"green":0.84705883,"blue":0.89411765,"alpha":1}}
+  tree audience=3p platform=android theme=light contrast=default -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":1,"green":0.84705883,"blue":0.89411765,"alpha":1}}
+  tree audience=3p platform=web theme=light contrast=default -> md.sys.color.tertiary-container | child md.sys.color.tertiary-container | resolved {"color":{"red":1,"green":0.84705883,"blue":0.89411765,"alpha":1}}
+  tree platform=compose theme=light audience=1p.baseline -> goog.ref.brand-color.green | child goog.ref.brand-color.green | resolved {"color":{"green":0.6862745,"blue":0.34117648,"alpha":1}}
+  tree platform=compose theme=dark audience=1p.baseline -> goog.ref.brand-color.green | child goog.ref.brand-color.green | resolved {"color":{"green":0.6862745,"blue":0.34117648,"alpha":1}}
+  tree platform=android theme=light audience=1p.baseline -> goog.ref.brand-color.green | child goog.ref.brand-color.green | resolved {"color":{"green":0.6862745,"blue":0.34117648,"alpha":1}}
+  tree platform=android theme=dark audience=1p.baseline -> goog.ref.brand-color.green | child goog.ref.brand-color.green | resolved {"color":{"green":0.6862745,"blue":0.34117648,"alpha":1}}
+  tree platform=web theme=light audience=1p.baseline -> goog.ref.brand-color.green | child goog.ref.brand-color.green | resolved {"color":{"green":0.6862745,"blue":0.34117648,"alpha":1}}
+  tree platform=web theme=dark audience=1p.baseline -> goog.ref.brand-color.green | child goog.ref.brand-color.green | resolved {"color":{"green":0.6862745,"blue":0.34117648,"alpha":1}}
+  tree platform=ios audience=1p.baseline -> goog.ref.brand-color.green | child goog.ref.brand-color.green | resolved {"color":{"green":0.6862745,"blue":0.34117648,"alpha":1}}
+
+## md.comp.circular-progress-indicator.four-color.active-indicator.one.color
+  value md.sys.color.primary | tags audience=3p
+  value goog.ref.brand-color.blue | tags 
+  tree platform=ios audience=3p contrast=medium.contrast -> md.sys.color.primary | child md.sys.color.primary | resolved {"undefined":true}
+  tree platform=ios contrast=high.contrast audience=3p -> md.sys.color.primary | child md.sys.color.primary | resolved {"undefined":true}
+  tree audience=3p theme=dark contrast=high.contrast platform=compose -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.9647059,"green":0.92941177,"blue":1,"alpha":1}}
+  tree audience=3p theme=dark contrast=high.contrast platform=android -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.9647059,"green":0.92941177,"blue":1,"alpha":1}}
+  tree audience=3p theme=dark contrast=high.contrast platform=web -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.9647059,"green":0.92941177,"blue":1,"alpha":1}}
+  tree audience=3p theme=light contrast=high.contrast platform=compose -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.21960784,"green":0.11764706,"blue":0.44705883,"alpha":1}}
+  tree audience=3p theme=light contrast=high.contrast platform=android -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.21960784,"green":0.11764706,"blue":0.44705883,"alpha":1}}
+  tree audience=3p theme=light contrast=high.contrast platform=web -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.21960784,"green":0.11764706,"blue":0.44705883,"alpha":1}}
+  tree audience=3p theme=dark contrast=medium.contrast platform=compose -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.91764706,"green":0.8666667,"blue":1,"alpha":1}}
+  tree audience=3p theme=dark contrast=medium.contrast platform=android -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.91764706,"green":0.8666667,"blue":1,"alpha":1}}
+  tree audience=3p theme=dark contrast=medium.contrast platform=web -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.91764706,"green":0.8666667,"blue":1,"alpha":1}}
+  tree audience=3p theme=light contrast=medium.contrast platform=compose -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.30980393,"green":0.21568628,"blue":0.54509807,"alpha":1}}
+  tree audience=3p theme=light contrast=medium.contrast platform=android -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.30980393,"green":0.21568628,"blue":0.54509807,"alpha":1}}
+  tree audience=3p theme=light contrast=medium.contrast platform=web -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.30980393,"green":0.21568628,"blue":0.54509807,"alpha":1}}
+  tree platform=ios audience=3p contrast=default -> md.sys.color.primary | child md.sys.color.primary | resolved {"undefined":true}
+  tree audience=3p theme=dark platform=compose contrast=default -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.8156863,"green":0.7372549,"blue":1,"alpha":1}}
+  tree audience=3p theme=dark platform=android contrast=default -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.8156863,"green":0.7372549,"blue":1,"alpha":1}}
+  tree audience=3p theme=dark platform=web contrast=default -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.8156863,"green":0.7372549,"blue":1,"alpha":1}}
+  tree audience=3p platform=compose theme=light contrast=default -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.40392157,"green":0.3137255,"blue":0.6431373,"alpha":1}}
+  tree audience=3p platform=android theme=light contrast=default -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.40392157,"green":0.3137255,"blue":0.6431373,"alpha":1}}
+  tree audience=3p platform=web theme=light contrast=default -> md.sys.color.primary | child md.sys.color.primary | resolved {"color":{"red":0.40392157,"green":0.3137255,"blue":0.6431373,"alpha":1}}
+  tree platform=compose theme=light audience=1p.baseline -> goog.ref.brand-color.blue | child goog.ref.brand-color.blue | resolved {"color":{"red":0.19215687,"green":0.5254902,"blue":1,"alpha":1}}
+  tree platform=compose theme=dark audience=1p.baseline -> goog.ref.brand-color.blue | child goog.ref.brand-color.blue | resolved {"color":{"red":0.19215687,"green":0.5254902,"blue":1,"alpha":1}}
+  tree platform=android theme=light audience=1p.baseline -> goog.ref.brand-color.blue | child goog.ref.brand-color.blue | resolved {"color":{"red":0.19215687,"green":0.5254902,"blue":1,"alpha":1}}
+  tree platform=android theme=dark audience=1p.baseline -> goog.ref.brand-color.blue | child goog.ref.brand-color.blue | resolved {"color":{"red":0.19215687,"green":0.5254902,"blue":1,"alpha":1}}
+  tree platform=web theme=light audience=1p.baseline -> goog.ref.brand-color.blue | child goog.ref.brand-color.blue | resolved {"color":{"red":0.19215687,"green":0.5254902,"blue":1,"alpha":1}}
+  tree platform=web theme=dark audience=1p.baseline -> goog.ref.brand-color.blue | child goog.ref.brand-color.blue | resolved {"color":{"red":0.19215687,"green":0.5254902,"blue":1,"alpha":1}}
+  tree platform=ios audience=1p.baseline -> goog.ref.brand-color.blue | child goog.ref.brand-color.blue | resolved {"color":{"red":0.19215687,"green":0.5254902,"blue":1,"alpha":1}}
+=== read6
+COLOR.1b063509fc205e38.json 200 application/JSON 
+   system designSystems/1b063509fc205e38 "Google Brand Colors" version v0.01 sets goog.ref.brand-color tokens 4; carries 4 of the referenced: goog.ref.brand-color.green goog.ref.brand-color.yellow goog.ref.brand-color.red goog.ref.brand-color.blue
+TOKEN_TYPE_UNSPECIFIED.1b063509fc205e38.json 200 application/JSON 
+   system designSystems/1b063509fc205e38 "Google Brand Colors" version v0.01 sets  tokens 0; carries 0 of the referenced: 
+COLOR.0000000000000000.json 404 text/html 
+   
+=== read7
+values refs color color color color
+tree names goog.ref.brand-color.green goog.ref.brand-color.yellow goog.ref.brand-color.red goog.ref.brand-color.blue
+parentVersions undefined
+ELEVATION  0
+TYPOGRAPHY  0
+SHAPE  0
+MOTION  0
+PALETTE 404
+REFERENCE 404
+values with a goog.ref tokenName: 8
+ keys: name, tokenName, state
+ own id system: designSystems/20543ce18892f7d9
+ contextTags: [null,null,null,null,null,null,null,null]
+tree nodes naming goog.ref: 112 depths 1,2
+ node keys: value, childNodes, tokenName | value keys: name, version, revisionId
+ value id systems: designSystems/1b063509fc205e38
+ fieldNames: ["null"]
+other referencing values, own id systems: designSystems/20543ce18892f7d9
+other tree node value id systems: designSystems/20543ce18892f7d9
+md.comp.progress-indicator | Progress Indicator - Common | 10 tokens
+md.comp.progress-indicator.circular | Progress indicator - Circular | 11 tokens
+md.comp.progress-indicator.linear | Progress indicator - Linear | 17 tokens
+md.comp.linear-progress-indicator | [Deprecated] Progress indicator - Linear | 10 tokens
+md.comp.circular-progress-indicator | [Deprecated] Progress indicator - Circular | 8 tokens
+tokens 87
