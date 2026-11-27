@@ -1,0 +1,22 @@
+# fp-1's rows: a link item's native drag outside mx-sortable-list, in Chromium, Firefox and WebKit, from c3df08075 with the rows. M4 makes the stylesheet rule .host { -webkit-user-drag: none }, without [draggable='false'], and the file is restored after the run.
+## at the head (c3df08075 with the rows)
+ Test Files  3 passed (3)
+      Tests  11 passed | 658 skipped (669)
+## M4: the rule is .host { -webkit-user-drag: none }, without the attribute selector
+47:.host {
+48-  -webkit-user-drag: none;
+     × should start the browser's own drag of a link item in mx-list
+     × should start the browser's own drag of a link item moved from mx-sortable-list into mx-list
+     × should leave the -webkit-user-drag of a link item's anchor auto in mx-list
+     × should leave the -webkit-user-drag of a link item's anchor auto moved from mx-sortable-list into mx-list
+     × should leave the -webkit-user-drag of a link item's anchor auto in mx-list
+     × should leave the -webkit-user-drag of a link item's anchor auto moved from mx-sortable-list into mx-list
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser/material-x (chromium)| tests/list/sortable-list.browser.test.ts:661 > mx-list-link-item native drag outside mx-sortable-list > should start the browser's own drag of a link item in mx-list
+ FAIL  |browser/material-x (chromium)| tests/list/sortable-list.browser.test.ts:661 > mx-list-link-item native drag outside mx-sortable-list > should start the browser's own drag of a link item moved from mx-sortable-list into mx-list
+ FAIL  |browser/material-x (chromium)| tests/list/sortable-list.browser.test.ts:683 > mx-list-link-item native drag outside mx-sortable-list > should leave the -webkit-user-drag of a link item's anchor auto in mx-list
+ FAIL  |browser/material-x (chromium)| tests/list/sortable-list.browser.test.ts:683 > mx-list-link-item native drag outside mx-sortable-list > should leave the -webkit-user-drag of a link item's anchor auto moved from mx-sortable-list into mx-list
+ FAIL  |browser/material-x/webkit (webkit)| tests/list/sortable-list.browser.test.ts:683 > mx-list-link-item native drag outside mx-sortable-list > should leave the -webkit-user-drag of a link item's anchor auto in mx-list
+ FAIL  |browser/material-x/webkit (webkit)| tests/list/sortable-list.browser.test.ts:683 > mx-list-link-item native drag outside mx-sortable-list > should leave the -webkit-user-drag of a link item's anchor auto moved from mx-sortable-list into mx-list
+ Test Files  2 failed | 1 passed (3)
+      Tests  6 failed | 5 passed | 658 skipped (669)
