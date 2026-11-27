@@ -5288,6 +5288,50 @@ Tier A, **open**, **ready**, pre-existing. Registered on 2026-11-27 by the archi
 - **Not read:** the radio. Its extension graph has the same shape, and its `allowedTokensSelector` lists `icon.color` but no outline. Whether it draws the same way isn't read. States other than those that the proof probed: hover and press in each selection, and disabled.
 - **Plan needed:** no. The property and the rows are stated, and the mechanism is local to the checkbox's two style modules. **Size:** _medium_: the change alters the compiled sheet, the rows cover four states in three engines, and a baseline changes through `RD-13`'s workflow.
 
+#### RF-159 — A visual row that focuses, hovers or presses its fixture renders differently when the page paints before the input lands
+
+Tier B, **open**, **ready**, pre-existing. Registered on 2026-11-27 by the architect, on `material-x/visual-paint-first-1`, from #336, requested by the coordinator. #336 is an `unregistered` issue and not a `tier:` finding, so the finding is registered here. `RF-158`, on `material-x/checkbox-colors-1`, is the highest `RF-` on any branch on `origin`, so this is the next free number. Read at `bec75d638`, from the four failing runs' artifacts, the gate's job logs, and a local probe.
+
+- **What happens:**
+  - The gate's `chromium` job fails `tests/button/button.visual.browser.test.ts`'s _"should match the keyboard-focused button"_ (`button-focused.png`) by one pixel. That happened in four runs on 2026-11-27, on branches that don't touch the button: 46050447313, 46053371988, 46059678175 and 46063933872. Other runs at the same hours pass.
+  - **The four failures are one image** ([pixels](visual-paint-first-1/checks/pixels.txt), [actual and diff](visual-paint-first-1/checks/ci-images/)). Their actual and diff images are byte-identical, and their reference is `main`'s baseline.
+  - Two pixels on the focus ring's left apex differ: (11, 35) from 78 to 82 in red, which pixelmatch excludes as antialiased, and (14, 35) from 249 to 254, which `RD-23`'s threshold of 0.01 counts.
+- **It isn't the processor** ([processors](visual-paint-first-1/checks/ci-processors.txt)). `RD-13` property 9's step logs each job's processor.
+  - Failures ran on an AMD EPYC 7763, an AMD EPYC 9V45 and an Intel Xeon Platinum 8370C.
+  - Passes ran on all of those families too, and on Intel Xeon 6975P-C, 8573C and AMD EPYC 9V74.
+- **It isn't a transition caught midway.** The image is the same in four runs, and it held through the matcher's retries until _"Matcher did not succeed in time"_. The ring is an `outline` with no transition, and the fixture's own rule turns off transitions and animations.
+- **The cause, reproduced off the runner** ([probe](visual-paint-first-1/probes/paint-order.browser.test.ts.txt), [reading](visual-paint-first-1/checks/paint-order.txt)). Chromium draws the ring's curved edge in one of two ways, decided by the order of painting:
+  - When the ring is in the button's first paint, it draws the reference's 78 and 249. That holds for the row's own steps, for a focus before the first paint, and after the hovered row.
+  - When Tab adds the ring to a button that the page has already painted, it draws CI's failing 82 and 254, exactly.
+  - Each condition gave one image in 10 of 10 repeats, in two runs.
+  - **The row's steps leave the order to timing.** They append the fixture, await `document.fonts.ready`, and call `userEvent.tab()`, which is a round trip to the browser provider. Whether a frame is painted before Tab lands depends on how long that trip takes. Locally the row lands on the reference every time. In CI it sometimes lands on the other.
+  - Why the order changes the edge isn't read. A raster of only the invalidated area is a plausible reason, and it is inferred.
+- **Why it is a problem:** the gate fails on changes that don't touch the button, and it blocks auto-merges. A rerun may pass, which teaches readers to rerun a red visual job instead of reading it. Tier B: no consumer sees a difference, but an instrument that the repository relies on is unsound.
+- **The ruling on the fix: a deterministic order.** The fixture is painted before the input that gives it its state.
+  - **Not adopted: a tolerance.** `RD-23` is the owner's. It sets one threshold, allows no mismatched pixel and no per-row override, and lists both of those as not adopted. A tolerance would amend it to hide a cause that is known and removable.
+  - **Not adopted: turning off a transition.** None is involved.
+  - **Not adopted: focusing before the first paint** with `focus({ focusVisible: true })`, although it would keep today's baseline. It isn't the keyboard input that the row names. A hover can't be applied before the first paint, so the rows wouldn't share one rule.
+  - **A wait for paint, not for time.** The order holds once a frame has been painted after the append. A timeout would only make one order more likely.
+- **Required property:**
+  1. Each visual row whose state comes from input applies that input to a fixture that the page has already painted. So its screenshot is the same however long the input's round trip takes. On `main` these are eight rows:
+     - the button's hovered and keyboard-focused rows;
+     - the checkbox's hovered and keyboard-focused rows;
+     - the radio's hovered and keyboard-focused rows;
+     - the slider's held and keyboard-focused rows.
+  2. Each baseline that changes is re-recorded by `RD-13`'s workflow, and the owner reviews it. `button-focused.png` is expected to change to CI's failing actual. For each other image that changes, the unit names it and says why.
+  3. No threshold, allowance or other comparator setting changes.
+- **Witness:**
+  - In the probe's reading, painting first draws the other edge than not painting first does. So the wait decides the order, and a wait that does nothing would be seen.
+  - With the new steps, the button's focused fixture, read as the probe reads it, is one image in 10 local repeats, and that image is the probe's _frame-then-tab_ image.
+  - In CI, the re-recorded baselines pass in the pull request's `chromium` job and in one rerun of it.
+- **`RD-9` property 4 doesn't stop this unit for the owner.** That clause stops a unit when the visual suite turns intermittent. It is about runner variables that the environment doesn't pin. Here the cause is the row's own order: it is reproduced off the runner, and every processor family both passes and fails. The owner still reviews the re-recorded images under `RD-13`.
+- **The rule's sentence in `test-architecture.md`** (§What screenshots prove — and don't) is a change to project documentation, so it is its own unit after this one merges.
+- **Not read:**
+  - Whether the other seven rows draw differently by paint order. None of them has failed.
+  - Firefox and WebKit, which have no visual project.
+  - Why Chromium's raster depends on the order.
+- **Plan needed:** no. **Size:** _medium_: eight rows in four files, and baselines that change through `RD-13`'s workflow.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

@@ -1,0 +1,10 @@
+# Output of probes/paint-order.browser.test.ts.txt, twice, slot c at 92d96f9e2 (button code and test setup as main's), Chromium 158, local, 2026-11-27.
+# aube exec vitest run --project browser tests/button/zz-probe-336.browser.test.ts
+# Each condition ran 10 times. Per distinct result: its count, the SHA-1 prefix of the fixture's RGBA, and the red channel of x 10-15, y 33-38 row by row (the ring's left apex).
+# CI's reference has 78 at (11,35) and 249 at (14,35); CI's failing actual has 82 and 254 (checks/pixels.txt).
+
+row                  x10 a077a846 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,78,75,75,249,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+frame-then-tab       x10 2e63a491 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,82,75,75,254,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+focus-before-paint   x10 a077a846 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,78,75,75,249,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+after-hover          x10 a077a846 apex=255,113,75,75,221,247,255,97,75,75,235,246,255,78,75,75,249,244,255,82,75,75,246,242,255,99,75,75,230,243,255,116,75,75,213,245
+(second run: identical lines)

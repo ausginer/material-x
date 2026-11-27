@@ -1,0 +1,32 @@
+# The four failing runs' screenshots artifacts, read by the architect on 2026-11-27 (gh run download <run> -n screenshots).
+# Each holds the reference, the actual and the diff of button-focused. MD5:
+46053371988 button-focused-actual-chromium-linux.png 154b4c8b634da7834d84c547193fcaca
+46053371988 button-focused-diff-chromium-linux.png 3cb223f1702af3486b7a5c363bb453bd
+46053371988 reference 2696d118e11ee8b29d816fa30958f35b
+46050447313 button-focused-actual-chromium-linux.png 154b4c8b634da7834d84c547193fcaca
+46050447313 button-focused-diff-chromium-linux.png 3cb223f1702af3486b7a5c363bb453bd
+46050447313 reference 2696d118e11ee8b29d816fa30958f35b
+46059678175 button-focused-actual-chromium-linux.png 154b4c8b634da7834d84c547193fcaca
+46059678175 button-focused-diff-chromium-linux.png 3cb223f1702af3486b7a5c363bb453bd
+46059678175 reference 2696d118e11ee8b29d816fa30958f35b
+46063933872 button-focused-actual-chromium-linux.png 154b4c8b634da7834d84c547193fcaca
+46063933872 button-focused-diff-chromium-linux.png 3cb223f1702af3486b7a5c363bb453bd
+46063933872 reference 2696d118e11ee8b29d816fa30958f35b
+main's tests/button/__screenshots__/button.visual.browser.test.ts/button-focused-chromium-linux.png at bec75d638: 2696d118e11ee8b29d816fa30958f35b
+
+# Every pixel that differs, reference against actual (107 x 72), with the reference's neighbourhood, x-3..x+3 and y-2..y+2, as r,g,b:
+size 107 72 107 72
+diff at 11 35 ref [ 78, 104, 46, 255 ] actual [ 82, 108, 51, 255 ]
+  ref 255,255,255 255,255,255 255,255,255 113,135,87  75,102,42   75,102,42   221,226,214
+  ref 255,255,255 255,255,255 255,255,255 97,121,68   75,102,42   75,102,42   235,238,231
+  ref 255,255,255 255,255,255 255,255,255 78,104,46   75,102,42   75,102,42   249,250,249
+  ref 255,255,255 255,255,255 255,255,255 82,108,51   75,102,42   75,102,42   246,247,244
+  ref 255,255,255 255,255,255 255,255,255 99,122,70   75,102,42   75,102,42   230,233,225
+diff at 14 35 ref [ 249, 250, 249, 255 ] actual [ 254, 254, 254, 255 ]
+  ref 113,135,87  75,102,42   75,102,42   221,226,214 247,247,247 214,220,200 223,231,205
+  ref 97,121,68   75,102,42   75,102,42   235,238,231 246,246,246 217,224,202 223,231,205
+  ref 78,104,46   75,102,42   75,102,42   249,250,249 244,244,244 222,230,205 223,231,205
+  ref 82,108,51   75,102,42   75,102,42   246,247,244 242,242,242 219,227,203 223,231,205
+  ref 99,122,70   75,102,42   75,102,42   230,233,225 243,243,243 215,221,200 223,231,205
+
+# The ring (75,102,42) is 2 px wide at x 12-13 on its left apex. The diff marks (11,35) yellow, an antialiased pixel that pixelmatch excludes, and (14,35) red, the one counted pixel.
